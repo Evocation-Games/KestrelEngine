@@ -38,10 +38,10 @@ target_include_directories(Lua PUBLIC "${PROJECT_SUBMODULES}/lua")
 
 # GRAPHITE #####################################################################
 file(GLOB_RECURSE graphite_sources
-	"${PROJECT_SUBMODULES}/kdl/submodules/Graphite/libGraphite/*.cpp"
+	"${PROJECT_SUBMODULES}/kdl/Submodules/Graphite/libGraphite/*.cpp"
 )
 add_library(Graphite ${graphite_sources})
-target_include_directories(Graphite PUBLIC "${PROJECT_SUBMODULES}/kdl/submodules/graphite")
+target_include_directories(Graphite PUBLIC "${PROJECT_SUBMODULES}/kdl/Submodules/Graphite")
 
 # KDL ##########################################################################
 file(GLOB_RECURSE kdl_sources
@@ -49,7 +49,7 @@ file(GLOB_RECURSE kdl_sources
 )
 add_executable(kdl ${kdl_sources})
 target_include_directories(kdl PUBLIC
-	"${PROJECT_SUBMODULES}/kdl/submodules/Graphite"
+	"${PROJECT_SUBMODULES}/kdl/Submodules/Graphite"
 	"${PROJECT_SUBMODULES}/kdl/src"
 	"support/submodules/kdl"
 )
@@ -114,7 +114,7 @@ add_executable(Kestrel ${kestrel_sources})
 target_include_directories(Kestrel PUBLIC
 	"${PROJECT_SUBMODULES}/lua_bridge/Source"
 	"${PROJECT_SUBMODULES}/diamane"
-	"${PROJECT_SUBMODULES}/kdl/submodules/Graphite"
+	"${PROJECT_SUBMODULES}/kdl/Submodules/Graphite"
 	"${PROJECT_SUBMODULES}"
 	"engine"
 )
