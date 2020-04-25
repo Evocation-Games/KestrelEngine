@@ -18,43 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "app/environment.hpp"
 #include "foundation/scene/stack.hpp"
-#include "libDiamane/platform/application.hpp"
 
 // MARK: - Construction
 
-kestrel::app::environment::environment()
+kestrel::scene_stack::scene_stack()
 {
 }
 
-// MARK: - Life Cycle
-
-auto kestrel::app::environment::start(int argc, const char **argv) -> int
+kestrel::scene_stack::~scene_stack()
 {
-    diamane::platform::application::shared()->run(argc, argv, [&] {
-        // We need to get a basic menubar in place (primarily for macOS)
-        diamane::platform::application::shared()->set_menubar(diamane::ui::menubar::create());
+}
 
-        // Setup a new game window
-        m_game_window = diamane::ui::window::create("Kestrel", diamane::size(1280, 800));
-        m_game_window->set_background_color(diamane::gl::color::blackColor());
+// MARK: - Stack Operations
 
-        // Configure the window.
-        m_game_window->center();
-        m_game_window->show();
-        m_game_window->on_draw([&] {
-            // Update the clock
-            clock::global().tick();
+auto kestrel::scene_stack::push(kestrel::scene::lua_scene scene) -> void
+{
+    m_scenes.emplace_back(scene);
+}
 
-            // Check for the current scene and render it if it exists.
-            auto current_scene = scene_stack::global().current();
-            if (current_scene.get() == nullptr) {
-                return;
-            }
-            current_scene->render();
+// MARK: - Access
 
-        });
-    });
-    return 0;
+auto kestrel::scene_stack::current() const -> kestrel::scene::lua_scene
+{
+    return m_scenes.back();
 }
