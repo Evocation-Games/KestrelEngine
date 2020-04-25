@@ -18,56 +18,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_LUA_STATE_HPP)
-#define KESTREL_LUA_STATE_HPP
+#if !defined(KESTREL_LUA_CALLBACK_HPP)
+#define KESTREL_LUA_CALLBACK_HPP
 
-extern "C" {
-#include "lua/lua.h"
-#include "lua/lualib.h"
-#include "lauxlib.h"
-}
-
-#include <string>
+#include "scripting/lua/lua.hpp"
 
 namespace kestrel { namespace lua {
 
-    /**
-     * Singleton to encapsulate the persistant state of the Lua VM.
-     * This class is responsible for managing access to the Lua VM state and performing various base
-     * actions such as loading and injecting scripts.
-     */
-    class state
+    class callback: public lua::object
     {
-    private:
-        lua_State *m_state { nullptr };
+    public:
+        typedef luabridge::RefCountedPtr<lua::callback> lua_callback;
+        enum type { none, function, script };
 
-        state();
+    private:
+        std::string m_name { "" };
+        int64_t m_id { INT64_MIN };
+        enum callback::type m_type { none };
 
     public:
-        state(const state&) = delete;
-        state& operator=(const state&) = delete;
-        state(state&&) = delete;
-        state& operator=(state&&) = delete;
+        static auto register_object() -> void;
 
-        static auto& global()
-        {
-            static lua::state instance;
-            return instance;
-        }
+        static auto named_function(std::string name) -> lua_callback;
+        static auto script_resource(int64_t id) -> lua_callback;
 
-        auto prepare() -> void;
+        callback();
+        callback(std::string name);
+        callback(int64_t id);
 
-        auto internal_state() const -> lua_State*;
-        auto error_string() const -> std::string_view;
-
-        auto load_script(std::string_view s) const -> void;
+        auto call() -> void;
     };
-
-    static auto active_state() -> lua_State*
-    {
-        return lua::state::global().internal_state();
-    }
 
 }};
 
-#endif //KESTREL_LUA_STATE_HPP
+#endif //KESTREL_LUA_CALLBACK_HPP

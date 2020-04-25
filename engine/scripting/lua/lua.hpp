@@ -24,6 +24,8 @@
 #include "scripting/lua/lua_stack.hpp"
 #include "scripting/lua/lua_state.hpp"
 #include "scripting/lua/lua_script.hpp"
+#include "LuaBridge/LuaBridge.h"
+#include "LuaBridge/RefCountedPtr.h"
 
 namespace kestrel { namespace lua {
 
