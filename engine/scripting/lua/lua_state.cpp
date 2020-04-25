@@ -22,6 +22,7 @@
 #include "scripting/lua/lua_state.hpp"
 #include "scripting/lua/lua_stack.hpp"
 #include "scripting/lua/lua_callback.hpp"
+#include "foundation/scene/scene.hpp"
 
 // MARK: - Construction
 
@@ -37,6 +38,7 @@ kestrel::lua::state::state()
 auto kestrel::lua::state::prepare() -> void
 {
     lua::callback::register_object();
+    scene::register_object();
 }
 
 

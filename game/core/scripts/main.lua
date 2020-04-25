@@ -19,3 +19,7 @@
 -- SOFTWARE.
 
 print("Starting KestrelGameCore")
+
+logoScene = Scene("Kestrel:GameCore:Logos")
+logoScene:attachScript(1)
+logoScene:present()
