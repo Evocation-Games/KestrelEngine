@@ -25,4 +25,13 @@
 #include "scripting/lua/lua_state.hpp"
 #include "scripting/lua/lua_script.hpp"
 
+namespace kestrel { namespace lua {
+
+    class object
+    {
+        static auto register_object() -> void {};
+    };
+
+}};
+
 #endif //KESTREL_LUA_HPP
