@@ -1,15 +1,15 @@
 // Copyright (c) 2020 Tom Hancocks
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,21 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "scripting/lua/lua.hpp"
-#include "game/scenario_loader.hpp"
-#include "app/environment.hpp"
+#if !defined(KESTREL_ENVIRONMENT_HPP)
+#define KESTREL_ENVIRONMENT_HPP
 
-using namespace kestrel;
+#include <memory>
+#include "libDiamane/ui/window.hpp"
 
-auto main(int argc, const char **argv) -> int
-{
-    // Do initial setup and configuration for Kestrel.
-    lua::state::global().prepare();
-    game::load_scenario();
+namespace kestrel { namespace app {
 
-    // Run the initial script from the scenario. This is Lua Script #0.
-    lua::script(0).execute();
+    class environment
+    {
+    private:
+        std::shared_ptr<diamane::ui::window> m_game_window { nullptr };
 
-    // Build an environment and launch it.
-    return app::environment().start(argc, argv);
-}
+    public:
+        environment();
+
+        auto start(int argc, const char **argv) -> int;
+    };
+
+}};
+
+#endif //KESTREL_ENVIRONMENT_HPP
