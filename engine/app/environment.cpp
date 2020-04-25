@@ -24,9 +24,7 @@
 // MARK: - Construction
 
 kestrel::app::environment::environment()
-    : m_game_window(diamane::ui::window::create("Kestrel", diamane::size(1280, 800)))
 {
-    m_game_window->set_background_color(diamane::gl::color::blackColor());
 }
 
 // MARK: - Life Cycle
@@ -36,6 +34,10 @@ auto kestrel::app::environment::start(int argc, const char **argv) -> int
     diamane::platform::application::shared()->run(argc, argv, [&] {
         // We need to get a basic menubar in place (primarily for macOS)
         diamane::platform::application::shared()->set_menubar(diamane::ui::menubar::create());
+
+        // Setup a new game window
+        m_game_window = diamane::ui::window::create("Kestrel", diamane::size(1280, 800));
+        m_game_window->set_background_color(diamane::gl::color::blackColor());
 
         // Configure the window.
         m_game_window->center();
