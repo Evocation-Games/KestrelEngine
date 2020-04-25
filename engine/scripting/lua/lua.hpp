@@ -23,5 +23,6 @@
 
 #include "scripting/lua/lua_stack.hpp"
 #include "scripting/lua/lua_state.hpp"
+#include "scripting/lua/lua_script.hpp"
 
 #endif //KESTREL_LUA_HPP

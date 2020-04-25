@@ -1,15 +1,15 @@
 // Copyright (c) 2020 Tom Hancocks
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,19 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "scripting/lua/lua.hpp"
-#include "game/scenario_loader.hpp"
+#if !defined(KESTREL_LUA_SCRIPT_HPP)
+#define KESTREL_LUA_SCRIPT_HPP
 
-using namespace kestrel;
+#include <string>
 
-auto main(int argc, const char **argv) -> int
-{
-    // Do initial setup and configuration for Kestrel.
-    lua::state::global().prepare();
-    game::load_scenario();
+namespace kestrel { namespace lua {
 
-    // Run the initial script from the scenario. This is Lua Script #0.
-    lua::script(0).execute();
+    struct script
+    {
+    private:
+        constexpr static const char *type { "LuaC" };
+        int64_t m_id { INT64_MIN };
+        std::string m_name { "" };
+        std::string m_script { "" };
 
-    return 0;
-}
+    public:
+        script();
+        script(int64_t id);
+
+        auto execute() const -> void;
+    };
+
+}};
+
+#endif //KESTREL_LUA_SCRIPT_HPP
