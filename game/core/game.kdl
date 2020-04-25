@@ -18,4 +18,12 @@
 ` OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ` SOFTWARE.
 
+@import "@rpath/types/lua.kdl";
+
 @out "Building Kestrel Game Core";
+
+declare LuaScript {
+    new (#0, "KestrelCore:Main") {
+        Script = import "@rpath/scripts/main.lua";
+    };
+};

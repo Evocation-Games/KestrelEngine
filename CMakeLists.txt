@@ -92,7 +92,7 @@ else()
 endif()
 
 # GAME (Test Scenario) #########################################################
-file(GLOB_RECURSE kestel_game_files
+file(GLOB_RECURSE kestrel_game_files
 	"game/core/*.kdl"
 	"game/core/*.lua"
 )
@@ -100,7 +100,6 @@ add_custom_target(KestrelGameCore ALL
 	DEPENDS kdl ${kestrel_game_files}
 )
 add_custom_command(TARGET KestrelGameCore
-	PRE_BUILD
 	COMMAND ${CMAKE_BINARY_DIR}/kdl -o ${CMAKE_BINARY_DIR}/GameCore ${CMAKE_SOURCE_DIR}/game/core/game.kdl
 	DEPENDS ${kestrel_game_files}
 )
