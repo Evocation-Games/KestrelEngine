@@ -33,6 +33,7 @@ set(PROJECT_SUBMODULES ${PROJECT_SOURCE_DIR}/submodules)
 
 # LUA ##########################################################################
 add_library(Lua STATIC "${PROJECT_SUBMODULES}/lua/onelua.c")
+target_compile_options(Lua PUBLIC "-DMAKE_LIB=1")
 target_include_directories(Lua PUBLIC "${PROJECT_SUBMODULES}/lua")
 
 # GRAPHITE #####################################################################
