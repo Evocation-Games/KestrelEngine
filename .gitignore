@@ -10,6 +10,6 @@
 
 # Build
 bin/
-cmake-debug-build/
+cmake-build-debug/
 *.o
 *.bin
