@@ -1,0 +1,15 @@
+# macOS Specific
+.DS_Store
+
+# Linux Specific
+
+# Windows Specific
+
+# IDE
+.idea/
+
+# Build
+bin/
+cmake-debug-build/
+*.o
+*.bin
