@@ -108,10 +108,6 @@ auto kestrel::scene::begin() -> void
 
 auto kestrel::scene::render() -> void
 {
-    // If no renderer exists, then bail.
-    if (m_renderer.get() == nullptr) {
-        return;
-    }
 
     // Iterate over all of the timed callbacks and attempt to fire any that are due,
     // and then clean it up if it is no longer needed.
@@ -124,6 +120,11 @@ auto kestrel::scene::render() -> void
         else {
             ++callback;
         }
+    }
+
+    // If no renderer exists, then bail.
+    if (m_renderer.get() == nullptr) {
+        return;
     }
 
     // Call the renderer to draw the contents of the scene.
