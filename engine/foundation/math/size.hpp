@@ -35,9 +35,9 @@ namespace kestrel { namespace math {
     public:
         size();
         size(double width, double height);
-        size(size& size);
-        size(diamane::size& size);
-        size(graphite::qd::size& size);
+        size(const math::size& size);
+        size(const diamane::size& size);
+        size(const graphite::qd::size& size);
 
         static auto zero() -> size;
 
@@ -52,7 +52,7 @@ namespace kestrel { namespace math {
 
         auto area() const -> double;
 
-        auto operator* (math::size& size) -> math::size;
+        auto operator* (const math::size& size) -> math::size;
 
     };
 

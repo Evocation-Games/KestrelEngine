@@ -35,7 +35,7 @@ kestrel::math::vector::vector(double x, double y, double z)
 
 }
 
-kestrel::math::vector::vector(math::vector& v)
+kestrel::math::vector::vector(const math::vector& v)
         : m_x(v.m_x), m_y(v.m_y), m_z(v.m_z)
 {
 
@@ -80,12 +80,12 @@ auto kestrel::math::vector::set_z(double z) -> void
 
 // MARK: - Operators
 
-auto kestrel::math::vector::operator+ (math::vector& v) const -> math::vector
+auto kestrel::math::vector::operator+ (const math::vector& v) const -> math::vector
 {
     return math::vector(m_x + v.m_x, m_y + v.m_y, m_z + v.m_z);
 }
 
-auto kestrel::math::vector::operator- (math::vector& v) const -> math::vector
+auto kestrel::math::vector::operator- (const math::vector& v) const -> math::vector
 {
     return math::vector(m_x - v.m_x, m_y - v.m_y, m_z - v.m_z);
 }
@@ -107,7 +107,7 @@ auto kestrel::math::vector::angle() const -> math::angle
     return (std::atan2(m_y, m_x) * 180.0) / M_PI;
 }
 
-auto kestrel::math::vector::angle(math::vector& v) const -> math::angle
+auto kestrel::math::vector::angle(const math::vector& v) const -> math::angle
 {
     auto x = v.m_x - m_x;
     auto y = v.m_y - m_y;

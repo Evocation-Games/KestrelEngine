@@ -36,13 +36,13 @@ namespace kestrel { namespace math {
     public:
         point();
         point(double x, double y);
-        point(math::point& p);
-        point(math::vector& v);
-        point(diamane::point& p);
-        point(graphite::qd::point& p);
-        point(graphite::qd::fixed_point& p);
+        point(const math::point& p);
+        point(const math::vector& v);
+        point(const diamane::point& p);
+        point(const graphite::qd::point& p);
+        point(const graphite::qd::fixed_point& p);
 
-        static auto zero() -> point;
+        static auto zero() -> math::point;
 
         auto diamane() const -> diamane::point;
         auto quickdraw() const -> graphite::qd::point;

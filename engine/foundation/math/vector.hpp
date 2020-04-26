@@ -35,7 +35,7 @@ namespace kestrel { namespace math {
     public:
         vector();
         vector(double x, double y, double z = 1.0);
-        vector(math::vector& v);
+        vector(const math::vector& v);
 
         static auto zero() -> math::vector;
 
@@ -47,13 +47,13 @@ namespace kestrel { namespace math {
         auto set_y(double y) -> void;
         auto set_z(double z) -> void;
 
-        auto operator+ (math::vector& v) const -> math::vector;
-        auto operator- (math::vector& v) const -> math::vector;
+        auto operator+ (const math::vector& v) const -> math::vector;
+        auto operator- (const math::vector& v) const -> math::vector;
         auto operator* (double s) const -> math::vector;
         auto operator/ (double s) const -> math::vector;
 
         auto angle() const -> math::angle;
-        auto angle(math::vector& v) const -> math::angle;
+        auto angle(const math::vector& v) const -> math::angle;
 
         auto magnitude() const -> double;
     };

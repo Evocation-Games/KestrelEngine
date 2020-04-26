@@ -33,31 +33,31 @@ kestrel::math::point::point(double x, double y)
 
 }
 
-kestrel::math::point::point(math::point& p)
+kestrel::math::point::point(const math::point& p)
         : m_x(p.m_x), m_y(p.m_y)
 {
 
 }
 
-kestrel::math::point::point(math::vector& v)
+kestrel::math::point::point(const math::vector& v)
         : m_x(v.x()), m_y(v.y())
 {
 
 }
 
-kestrel::math::point::point(diamane::point& p)
+kestrel::math::point::point(const diamane::point& p)
         : m_x(static_cast<double>(p.x())), m_y(static_cast<double>(p.y()))
 {
 
 }
 
-kestrel::math::point::point(graphite::qd::point& p)
+kestrel::math::point::point(const graphite::qd::point& p)
         : m_x(static_cast<double>(p.x())), m_y(static_cast<double>(p.y()))
 {
 
 }
 
-kestrel::math::point::point(graphite::qd::fixed_point& p)
+kestrel::math::point::point(const graphite::qd::fixed_point& p)
         : m_x(p.x()), m_y(p.y())
 {
 

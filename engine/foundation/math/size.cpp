@@ -33,19 +33,19 @@ kestrel::math::size::size(double width, double height)
 
 }
 
-kestrel::math::size::size(math::size& size)
+kestrel::math::size::size(const math::size& size)
         : m_width(size.m_width), m_height(size.m_height)
 {
 
 }
 
-kestrel::math::size::size(diamane::size& size)
+kestrel::math::size::size(const diamane::size& size)
         : m_width(size.width()), m_height(size.height())
 {
 
 }
 
-kestrel::math::size::size(graphite::qd::size& size)
+kestrel::math::size::size(const graphite::qd::size& size)
         : m_width(size.width()), m_height(size.height())
 {
 
@@ -99,7 +99,7 @@ auto kestrel::math::size::area() const -> double
 
 // MARK: - Operators
 
-auto kestrel::math::size::operator* (math::size& size) -> kestrel::math::size
+auto kestrel::math::size::operator* (const math::size& size) -> kestrel::math::size
 {
     return kestrel::math::size(m_width * size.m_width, m_height * size.m_height);
 }
