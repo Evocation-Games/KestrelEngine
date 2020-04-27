@@ -39,13 +39,13 @@ kestrel::lua::callback::callback()
 }
 
 kestrel::lua::callback::callback(std::string name)
-        : m_name(name), m_type(function)
+    : m_name(name), m_type(function)
 {
 
 }
 
 kestrel::lua::callback::callback(int64_t id)
-        : m_id(id), m_type(script)
+    : m_id(id), m_type(script)
 {
 
 }

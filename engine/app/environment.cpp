@@ -49,12 +49,11 @@ auto kestrel::app::environment::start(int argc, const char **argv) -> int
 
             // Check for the current scene and render it if it exists.
             auto current_scene = scene_stack::global().current();
-            if (current_scene.get() == nullptr) {
-                return;
-            }
             current_scene->render();
-
         });
+
+        // Run the initial script from the game. This is Lua Script #0.
+        lua::script(0).execute();
     });
     return 0;
 }

@@ -30,7 +30,7 @@ namespace kestrel
     class scene_stack
     {
     private:
-        std::vector<scene::lua_scene> m_scenes { 0 };
+        std::vector<scene::lua_scene> m_scenes { };
 
         scene_stack();
         ~scene_stack();

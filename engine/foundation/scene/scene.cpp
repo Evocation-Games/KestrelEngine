@@ -29,7 +29,7 @@ auto kestrel::scene::register_object() -> void
 {
     luabridge::getGlobalNamespace(lua::active_state())
         .beginClass<kestrel::scene>("Scene")
-            .addConstructor<auto(*)(std::string)->void>()
+            .addConstructor<auto(*)(std::string)->void, luabridge::RefCountedPtr<kestrel::scene>>()
             .addProperty("name", &scene::get_name, &scene::set_name)
             .addStaticFunction("current", &scene::current)
             .addFunction("attachScript", &scene::attach_script)
@@ -49,7 +49,7 @@ auto kestrel::scene::create(std::string name) -> kestrel::scene::lua_scene
 }
 
 kestrel::scene::scene(std::string name)
-        : m_name(name)
+    : m_name(name)
 {
     std::cout << "constructing a new scene" << std::endl;
 }
@@ -108,7 +108,6 @@ auto kestrel::scene::begin() -> void
 
 auto kestrel::scene::render() -> void
 {
-
     // Iterate over all of the timed callbacks and attempt to fire any that are due,
     // and then clean it up if it is no longer needed.
     auto callback = m_timed_callbacks.begin();

@@ -30,9 +30,6 @@ auto main(int argc, const char **argv) -> int
     lua::state::global().prepare();
     game::load_scenario();
 
-    // Run the initial script from the scenario. This is Lua Script #0.
-    lua::script(0).execute();
-
     // Build an environment and launch it.
     return app::environment().start(argc, argv);
 }
