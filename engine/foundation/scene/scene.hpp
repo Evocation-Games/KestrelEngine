@@ -23,7 +23,6 @@
 
 
 #include "scripting/lua/lua.hpp"
-#include "scripting/lua/lua_callback.hpp"
 #include "foundation/clock/timed_event.hpp"
 
 namespace kestrel

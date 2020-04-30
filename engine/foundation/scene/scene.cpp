@@ -86,7 +86,7 @@ auto kestrel::scene::get_name() const -> std::string
 
 // MARK: - Events
 
-auto kestrel::scene::add_timed_callback(double delay, kestrel::lua::callback::lua_callback callback) -> void
+auto kestrel::scene::add_timed_callback(double delay, luabridge::LuaRef callback) -> void
 {
     timed_event event(delay);
     event.set_callback(callback);
