@@ -59,6 +59,7 @@ namespace kestrel { namespace assets {
         auto size() const -> math::size;
 
         auto lua_draw(std::vector<double> position) const -> void;
+        auto lua_draw_frame(std::vector<double> position, int frame) const -> void;
         auto draw(const math::vector& v = math::vector::zero(), int frame = 0) const -> void;
     };
 

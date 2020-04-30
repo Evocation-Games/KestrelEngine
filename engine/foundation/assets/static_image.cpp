@@ -33,6 +33,7 @@ auto kestrel::assets::static_image::register_object() -> void
         .beginClass<assets::static_image>("StaticImage")
             .addStaticFunction("load", &static_image::load)
             .addFunction("draw", &static_image::lua_draw)
+            .addFunction("drawFrame", & static_image::lua_draw_frame)
             .addFunction("initializeSpriteSheet", &static_image::lua_reconfigure_spritesheet)
         .endClass();
 }
@@ -128,6 +129,11 @@ auto kestrel::assets::static_image::size() const -> math::size
 auto kestrel::assets::static_image::lua_draw(std::vector<double> position) const -> void
 {
     draw(math::vector(position[0], position[1]));
+}
+
+auto kestrel::assets::static_image::lua_draw_frame(std::vector<double> position, int frame) const -> void
+{
+    draw(math::vector(position[0], position[1]), frame);
 }
 
 auto kestrel::assets::static_image::draw(const math::vector& v, int frame) const -> void

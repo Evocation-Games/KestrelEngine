@@ -38,3 +38,9 @@ declare MacintoshPicture {
     	PNG = import "@rpath/media/voinian-freighter.png";
     };
 };
+
+declare RLESprite {
+	new(#128, "LittleWorld") {
+		TGA = import "@rpath/media/world-*.tga";
+	};
+};
