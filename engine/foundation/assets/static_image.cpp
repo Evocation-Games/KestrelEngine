@@ -33,6 +33,7 @@ auto kestrel::assets::static_image::register_object() -> void
         .beginClass<assets::static_image>("StaticImage")
             .addStaticFunction("load", &static_image::load)
             .addFunction("draw", &static_image::lua_draw)
+            .addFunction("initializeSpriteSheet", &static_image::lua_reconfigure_spritesheet)
         .endClass();
 }
 
@@ -88,6 +89,16 @@ auto kestrel::assets::static_image::construct_spritesheet(std::weak_ptr<graphite
     if (auto s = surface.lock()) {
         m_spritesheet = gl::spritesheet::create(s, s->size(), 1);
     }
+}
+
+auto kestrel::assets::static_image::reconfigure_spritesheet(const math::size& sprite_size, int total_sprites) -> void
+{
+    m_spritesheet->configure_sprites(sprite_size, total_sprites);
+}
+
+auto kestrel::assets::static_image::lua_reconfigure_spritesheet(std::vector<double> size, int total_sprites) -> void
+{
+    reconfigure_spritesheet({ size[0], size[1] }, total_sprites);
 }
 
 // MARK: - Accessors

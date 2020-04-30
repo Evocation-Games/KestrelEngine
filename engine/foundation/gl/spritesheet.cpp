@@ -34,17 +34,8 @@ kestrel::gl::spritesheet::spritesheet(std::shared_ptr<graphite::qd::surface> sur
         m_texture->register_texture();
     }
 
-    // Build the vector of sprites available in the surface. To do this we need to calculate the
-    // geometry of the sprite sheet (what is the grid of sprites) and then traverse it and construct
-    // each sprite as we get to it.
-    auto grid = math::size(size.width() / sprite_size.width(), size.height() / sprite_size.height());
-    for (auto y = 0; y < static_cast<int>(grid.height()); ++y) {
-        for (auto x = 0; x < static_cast<int>(grid.width()); ++x) {
-            auto sprite = gl::sprite::create(*this, math::point(x, y), sprite_size);
-            m_sprites.emplace_back(sprite);
-            sprite->set_uv_index(m_texture->add_uv(sprite->uv().diamane()));
-        }
-    }
+    // Setup an initial pool of sprites.
+    configure_sprites(sprite_size, total_sprites);
 }
 
 auto kestrel::gl::spritesheet::create(std::shared_ptr<graphite::qd::surface> surface, const math::size& sprite_size, int total_sprites) -> std::shared_ptr<kestrel::gl::spritesheet>
@@ -67,4 +58,25 @@ auto kestrel::gl::spritesheet::texture() const -> std::shared_ptr<diamane::gl::t
 auto kestrel::gl::spritesheet::sprite(int frame) const -> std::weak_ptr<gl::sprite>
 {
     return m_sprites[frame];
+}
+
+auto kestrel::gl::spritesheet::configure_sprites(const math::size& sprite_size, int total_sprites) -> void
+{
+    m_sprites.clear();
+    m_total_sprites = total_sprites;
+    m_texture->clear_uvs();
+
+    auto size = m_texture->size();
+
+    // Build the vector of sprites available in the surface. To do this we need to calculate the
+    // geometry of the sprite sheet (what is the grid of sprites) and then traverse it and construct
+    // each sprite as we get to it.
+    auto grid = math::size(size.width() / sprite_size.width(), size.height() / sprite_size.height());
+    for (auto y = 0; y < static_cast<int>(grid.height()); ++y) {
+        for (auto x = 0; x < static_cast<int>(grid.width()); ++x) {
+            auto sprite = gl::sprite::create(*this, math::point(x, y), sprite_size);
+            m_sprites.emplace_back(sprite);
+            sprite->set_uv_index(m_texture->add_uv(sprite->uv().diamane()));
+        }
+    }
 }

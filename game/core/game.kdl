@@ -19,7 +19,6 @@
 ` SOFTWARE.
 
 @import "@rpath/types/LuaScript.kdl";
-@import "@rpath/types/MacintoshPicture.kdl";
 
 declare LuaScript {
     new (#0, "KestrelCore:Main") {
@@ -33,6 +32,9 @@ declare LuaScript {
 
 declare MacintoshPicture {
     new(#128, "KestrelLogo") {
-        Image = import "@rpath/media/KestrelLogo.tga";
+        TGA = import "@rpath/media/KestrelLogo.tga";
+    };
+    new(#1000, "Vonian Freighter") {
+    	PNG = import "@rpath/media/voinian-freighter.png";
     };
 };

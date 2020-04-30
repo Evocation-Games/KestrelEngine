@@ -52,6 +52,8 @@ namespace kestrel { namespace assets {
 
         auto valid() const -> bool;
 
+        auto lua_reconfigure_spritesheet(std::vector<double> size, int total_sprites) -> void;
+        auto reconfigure_spritesheet(const math::size& sprite_size, int total_sprites) -> void;
         auto spritesheet() -> std::weak_ptr<gl::spritesheet>;
         auto count() const -> int;
         auto size() const -> math::size;

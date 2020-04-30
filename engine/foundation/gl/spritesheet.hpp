@@ -46,6 +46,8 @@ namespace kestrel { namespace gl {
 
         static auto create(std::shared_ptr<graphite::qd::surface> surface, const math::size& sprite_size, int total_sprites) -> std::shared_ptr<gl::spritesheet>;
 
+        auto configure_sprites(const math::size& sprite_size, int total_sprites) -> void;
+
         auto sprite_count() const -> int;
         auto texture() const -> std::shared_ptr<diamane::gl::texture>;
 
