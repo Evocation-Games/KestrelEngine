@@ -28,6 +28,7 @@ extern "C" {
 }
 
 #include <string>
+#include "LuaBridge/LuaBridge.h"
 
 namespace kestrel { namespace lua {
 
@@ -66,6 +67,11 @@ namespace kestrel { namespace lua {
     static auto active_state() -> lua_State*
     {
         return lua::state::global().internal_state();
+    }
+
+    static auto stub_function() -> luabridge::LuaRef
+    {
+        return luabridge::getGlobal(active_state(), "stub");
     }
 
 }};

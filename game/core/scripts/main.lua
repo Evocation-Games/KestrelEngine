@@ -23,3 +23,10 @@ print("Starting KestrelGameCore")
 logoScene = Scene("Kestrel:GameCore:Logos")
 logoScene:attachScript(1)
 logoScene:present()
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Supporting Functions
+
+function stub()
+    -- Do nothing here. This is a stub for callbacks.
+end

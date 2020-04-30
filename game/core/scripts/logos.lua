@@ -29,11 +29,7 @@ logo = StaticImage.load(128)
 -- Configure the scene. We need to instruct it on what callbacks it should make.
 -- In this case we want to set it's renderering function to our own renderLogos
 -- function.
-logoScene:setRenderer(Callback.namedFunction("renderLogos"))
-
--- Perform the rendering operation, in which we draw the logo centered in the
--- scene.
-function renderLogos()
+logoScene:setRenderer(function()
     logo:draw({0, 0})
-end
+end)
 

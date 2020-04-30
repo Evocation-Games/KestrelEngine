@@ -67,7 +67,7 @@ auto kestrel::scene::attach_script(int64_t id) -> void
     m_script = lua::script(id);
 }
 
-auto kestrel::scene::set_renderer(kestrel::lua::callback::lua_callback callback) -> void
+auto kestrel::scene::set_renderer(luabridge::LuaRef callback) -> void
 {
     m_renderer = callback;
 }
@@ -121,12 +121,7 @@ auto kestrel::scene::render() -> void
         }
     }
 
-    // If no renderer exists, then bail.
-    if (m_renderer.get() == nullptr) {
-        return;
-    }
-
     // Call the renderer to draw the contents of the scene.
-    m_renderer->call();
+    m_renderer();
 }
 

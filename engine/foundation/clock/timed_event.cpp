@@ -44,7 +44,7 @@ auto kestrel::timed_event::dead() const -> bool
 
 // MARK: - Callbacks
 
-auto kestrel::timed_event::set_callback(kestrel::lua::callback::lua_callback callback) -> void
+auto kestrel::timed_event::set_callback(luabridge::LuaRef callback) -> void
 {
     m_lua_callback = callback;
 }
@@ -78,9 +78,7 @@ auto kestrel::timed_event::fire() -> void
         if (m_callback.has_value()) {
             m_callback.value()();
         }
-        if (m_lua_callback.has_value()) {
-            m_lua_callback.value()->call();
-        }
+        m_lua_callback();
         m_trigger = never;
     }
 }

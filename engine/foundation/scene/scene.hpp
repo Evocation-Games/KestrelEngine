@@ -34,7 +34,7 @@ namespace kestrel
     private:
         std::string m_name{""};
         lua::script m_script{};
-        lua::callback::lua_callback m_renderer{};
+        luabridge::LuaRef m_renderer { lua::stub_function() };
         std::vector<timed_event> m_timed_callbacks;
 
     public:
@@ -50,9 +50,9 @@ namespace kestrel
         auto get_name() const -> std::string;
 
         auto attach_script(int64_t id) -> void;
-        auto set_renderer(lua::callback::lua_callback callback) -> void;
+        auto set_renderer(luabridge::LuaRef callback) -> void;
 
-        auto add_timed_callback(double delay, lua::callback::lua_callback callback) -> void;
+        auto add_timed_callback(double delay, luabridge::LuaRef callback) -> void;
 
         auto present() -> void;
         auto begin() -> void;

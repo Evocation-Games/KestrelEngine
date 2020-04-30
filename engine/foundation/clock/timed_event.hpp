@@ -38,14 +38,14 @@ namespace kestrel
         clock::time m_date { clock::global().current() };
         double m_period { 0 };
         enum trigger m_trigger { never };
-        std::optional<lua::callback::lua_callback> m_lua_callback;
+        luabridge::LuaRef m_lua_callback { lua::stub_function() };
         std::optional<function> m_callback;
 
     public:
         timed_event(clock::time after);
         timed_event(double period, bool repeats = false);
 
-        auto set_callback(lua::callback::lua_callback callback) -> void;
+        auto set_callback(luabridge::LuaRef callback) -> void;
         auto set_callback(function callback) -> void;
 
         auto dead() const -> bool;
