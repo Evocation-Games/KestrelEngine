@@ -18,55 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <stdexcept>
-#include "scripting/lua/lua_state.hpp"
-#include "scripting/lua/lua_stack.hpp"
-#include "foundation/scene/scene.hpp"
-#include "foundation/assets/static_image.hpp"
 #include "scripting/lua/lua_foundation.hpp"
-#include "foundation/assets/resource_reference.hpp"
 
-// MARK: - Construction
-
-kestrel::lua::state::state()
+auto kestrel::lua::foundation::register_object() -> void
 {
-    m_state = luaL_newstate();
-    luaL_openlibs(m_state);
+    luabridge::getGlobalNamespace(lua::active_state())
+        .beginClass<lua::foundation>("Kestrel")
+            .addStaticFunction("importScript", &foundation::import_script)
+            .addStaticFunction("start", &foundation::start)
+        .endClass();
 }
 
+// MARK: - Functions
 
-// MARK: - Lua Configuration
-
-auto kestrel::lua::state::prepare() -> void
+auto kestrel::lua::foundation::import_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void
 {
-    scene::register_object();
-    foundation::register_object();
-    assets::static_image::register_object();
-    assets::resource_reference::register_object();
-}
-
-
-// MARK: - Accessor
-
-auto kestrel::lua::state::internal_state() const -> lua_State *
-{
-    return m_state;
-}
-
-auto kestrel::lua::state::error_string() const -> std::string_view
-{
-    return lua::stack::pop_string();
-}
-
-
-// MARK: - Scripts
-
-auto kestrel::lua::state::load_script(std::string_view s) const -> void
-{
-    if (luaL_loadstring(m_state, std::string(s).c_str()) != LUA_OK) {
-        throw std::runtime_error(std::string(error_string()));
+    if (ref->id().has_value()) {
+        lua::script scpt(ref->id().value());
+        scpt.execute();
     }
-    if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
-        throw std::runtime_error(std::string(error_string()));
+    else if (ref->name().has_value()) {
+//        lua::script scpt(ref->name().value());
+//        scpt.execute();
     }
+    else {
+        // Error
+    }
+}
+
+auto kestrel::lua::foundation::start(luabridge::LuaRef callback) -> void
+{
+    // TODO: Delay this until we are certain all setup is completed, or until instructed to start.
+    callback();
 }

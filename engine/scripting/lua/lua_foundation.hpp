@@ -18,47 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SCENE_HPP)
-#define KESTREL_SCENE_HPP
+#if !defined(KESTREL_LUA_FOUNDATION_HPP)
+#define KESTREL_LUA_FOUNDATION_HPP
 
-
+#include <string>
 #include "scripting/lua/lua.hpp"
-#include "foundation/clock/timed_event.hpp"
 #include "foundation/assets/resource_reference.hpp"
 
-namespace kestrel
-{
+namespace kestrel { namespace lua {
 
-    class scene : public lua::object
+    struct foundation : public lua::object
     {
     private:
-        std::string m_name{""};
-        lua::script m_script{};
-        luabridge::LuaRef m_renderer { lua::stub_function() };
-        std::vector<timed_event> m_timed_callbacks;
 
     public:
-        typedef luabridge::RefCountedPtr<kestrel::scene> lua_scene;
-
         static auto register_object() -> void;
-        static auto create(std::string name) -> lua_scene;
-        static auto current() -> lua_scene;
 
-        scene(std::string name);
-
-        auto set_name(std::string name) -> void;
-        auto get_name() const -> std::string;
-
-        auto attach_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void;
-        auto set_renderer(luabridge::LuaRef callback) -> void;
-
-        auto add_timed_callback(double delay, luabridge::LuaRef callback) -> void;
-
-        auto present() -> void;
-        auto begin() -> void;
-        auto render() -> void;
+        static auto import_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void;
+        static auto start(luabridge::LuaRef callback) -> void;
     };
 
-};
+}};
 
-#endif //KESTREL_SCENE_HPP
+
+#endif //KESTREL_LUA_FOUNDATION_HPP

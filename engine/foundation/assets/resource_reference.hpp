@@ -18,47 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SCENE_HPP)
-#define KESTREL_SCENE_HPP
+#if !defined(KESTREL_RESOURCE_REFERENCE_HPP)
+#define KESTREL_RESOURCE_REFERENCE_HPP
 
-
+#include <string>
+#include <optional>
 #include "scripting/lua/lua.hpp"
-#include "foundation/clock/timed_event.hpp"
-#include "foundation/assets/resource_reference.hpp"
 
-namespace kestrel
-{
+namespace kestrel { namespace assets {
 
-    class scene : public lua::object
+    struct resource_reference : public lua::object
     {
     private:
-        std::string m_name{""};
-        lua::script m_script{};
-        luabridge::LuaRef m_renderer { lua::stub_function() };
-        std::vector<timed_event> m_timed_callbacks;
+        std::optional<std::string> m_type;
+        std::optional<int64_t> m_id;
+        std::optional<std::string> m_name;
 
     public:
-        typedef luabridge::RefCountedPtr<kestrel::scene> lua_scene;
-
         static auto register_object() -> void;
-        static auto create(std::string name) -> lua_scene;
-        static auto current() -> lua_scene;
 
-        scene(std::string name);
+        resource_reference(int64_t id);
+        resource_reference(const std::string& name);
+        resource_reference(const std::string& type, int64_t id);
+        resource_reference(const std::string& type, const std::string& name);
 
-        auto set_name(std::string name) -> void;
-        auto get_name() const -> std::string;
+        static auto using_id(int64_t id) -> luabridge::RefCountedPtr<resource_reference>;
+        static auto using_named(const std::string& name) -> luabridge::RefCountedPtr<resource_reference>;
 
-        auto attach_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void;
-        auto set_renderer(luabridge::LuaRef callback) -> void;
-
-        auto add_timed_callback(double delay, luabridge::LuaRef callback) -> void;
-
-        auto present() -> void;
-        auto begin() -> void;
-        auto render() -> void;
+        auto type() const -> std::optional<std::string>;
+        auto id() const -> std::optional<int64_t>;
+        auto name() const -> std::optional<std::string>;
     };
 
-};
+}};
 
-#endif //KESTREL_SCENE_HPP
+#endif //KESTREL_RESOURCE_REFERENCE_HPP

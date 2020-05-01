@@ -18,26 +18,10 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-print("Starting KestrelGameCore")
+print("Loading Internal Kestrel Functions")
 
--- ---------------------------------------------------------------------------------------------------------------------
--- Load API's from the GameCore.
-
-Kestrel.importScript(Resource.id(1)) -- "Kestrel:Internal"
-Kestrel.importScript(Resource.id(2)) -- "Kestrel:API:SpriteSheet"
-
--- ---------------------------------------------------------------------------------------------------------------------
--- Setup the Game
-
-Kestrel.start(function()
-    logoScene = Scene("Kestrel:GameCore:Logos")
-    logoScene:attachScript(Resource.id(128))
-    logoScene:present()
-end)
-
--- ---------------------------------------------------------------------------------------------------------------------
--- Supporting Functions
-
+-- The stub function is used by Kestrel as a default callback reference. If a callback
+-- does not exist, or is not specified then this stub will be used.
 function stub()
-    -- Do nothing here. This is a stub for callbacks.
+
 end

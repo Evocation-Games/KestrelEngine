@@ -18,26 +18,14 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-print("Starting KestrelGameCore")
+SpriteSheet = {}
+SpriteSheet.__index = SpriteSheet
 
--- ---------------------------------------------------------------------------------------------------------------------
--- Load API's from the GameCore.
+function SpriteSheet:load()
+    local sheet = {}
+    setmetatable(sheet, SpriteSheet)
 
-Kestrel.importScript(Resource.id(1)) -- "Kestrel:Internal"
-Kestrel.importScript(Resource.id(2)) -- "Kestrel:API:SpriteSheet"
+    print("Creating SpriteSheet")
 
--- ---------------------------------------------------------------------------------------------------------------------
--- Setup the Game
-
-Kestrel.start(function()
-    logoScene = Scene("Kestrel:GameCore:Logos")
-    logoScene:attachScript(Resource.id(128))
-    logoScene:present()
-end)
-
--- ---------------------------------------------------------------------------------------------------------------------
--- Supporting Functions
-
-function stub()
-    -- Do nothing here. This is a stub for callbacks.
+    return sheet
 end

@@ -62,9 +62,12 @@ auto kestrel::scene::current() -> kestrel::scene::lua_scene
 
 // MARK: - Scripts & Callback
 
-auto kestrel::scene::attach_script(int64_t id) -> void
+auto kestrel::scene::attach_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void
 {
-    m_script = lua::script(id);
+    if (ref->id().has_value()) {
+        m_script = lua::script(ref->id().value());
+    }
+    // TODO: Use Resource Name as a reference if required...
 }
 
 auto kestrel::scene::set_renderer(luabridge::LuaRef callback) -> void
