@@ -23,9 +23,17 @@
 
 // MARK: - Helpers
 
-static inline auto make_hash(std::string type, int64_t id) -> std::size_t
+static inline auto make_hash(std::string type, kestrel::assets::resource_reference::lua_reference ref) -> std::size_t
 {
-    return std::hash<std::string>{}("type=" + type + ":id=" + std::to_string(id));
+    if (ref->id().has_value()) {
+        return std::hash<std::string>{}("type=" + type + ":id=" + std::to_string(ref->id().value()));
+    }
+    else if (ref->name().has_value()) {
+        return std::hash<std::string>{}("type=" + type + ":name=" + ref->name().value());
+    }
+    else {
+        return std::hash<std::string>{}("type=" + type);
+    }
 }
 
 // MARK: - Constructor
@@ -37,15 +45,15 @@ kestrel::assets::cache::cache()
 
 // MARK: - Caching
 
-auto kestrel::assets::cache::add(std::string type, int64_t id, std::any asset) -> void
+auto kestrel::assets::cache::add(std::string type, resource_reference::lua_reference ref, std::any asset) -> void
 {
-    m_assets.emplace(make_hash(type, id), asset);
+    m_assets.emplace(make_hash(type, ref), asset);
 }
 
 
-auto kestrel::assets::cache::fetch(std::string type, int64_t id) const -> std::optional<std::any>
+auto kestrel::assets::cache::fetch(std::string type, resource_reference::lua_reference ref) const -> std::optional<std::any>
 {
-    auto k = make_hash(type, id);
+    auto k = make_hash(type, ref);
     if (m_assets.find(k) == m_assets.end()) {
         return {};
     }

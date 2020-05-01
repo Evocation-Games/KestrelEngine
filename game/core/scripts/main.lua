@@ -34,10 +34,3 @@ Kestrel.start(function()
     logoScene:attachScript(Resource.id(128))
     logoScene:present()
 end)
-
--- ---------------------------------------------------------------------------------------------------------------------
--- Supporting Functions
-
-function stub()
-    -- Do nothing here. This is a stub for callbacks.
-end

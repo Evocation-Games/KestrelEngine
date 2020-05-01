@@ -22,7 +22,7 @@
 #include "scripting/lua/lua_state.hpp"
 #include "scripting/lua/lua_stack.hpp"
 #include "foundation/scene/scene.hpp"
-#include "foundation/assets/static_image.hpp"
+#include "foundation/assets/macintosh_picture.hpp"
 #include "scripting/lua/lua_foundation.hpp"
 #include "foundation/assets/resource_reference.hpp"
 
@@ -41,7 +41,7 @@ auto kestrel::lua::state::prepare() -> void
 {
     scene::register_object();
     foundation::register_object();
-    assets::static_image::register_object();
+    assets::macintosh_picture::register_object();
     assets::resource_reference::register_object();
 }
 

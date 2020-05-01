@@ -30,7 +30,7 @@ namespace kestrel
     class scene_stack
     {
     private:
-        std::vector<scene::lua_scene> m_scenes { };
+        std::vector<scene::lua_reference> m_scenes { };
 
         scene_stack();
         ~scene_stack();
@@ -47,8 +47,8 @@ namespace kestrel
             return instance;
         }
 
-        auto push(scene::lua_scene scene) -> void;
-        auto current() const -> scene::lua_scene;
+        auto push(scene::lua_reference scene) -> void;
+        auto current() const -> scene::lua_reference;
     };
 
 }

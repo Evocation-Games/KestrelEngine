@@ -24,7 +24,7 @@ logoScene = Scene.current()
 
 -- Load in the required resources for the scene. In this case it is the logos,
 -- representing the scenario creator(s).
-logo = StaticImage.load(128)
+logo = MacintoshPicture(Resource.id(128))
 
 -- Configure the scene. We need to instruct it on what callbacks it should make.
 -- In this case we want to set it's renderering function to our own renderLogos

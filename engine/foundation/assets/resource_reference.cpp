@@ -76,12 +76,12 @@ auto kestrel::assets::resource_reference::type() const -> std::optional<std::str
 
 // MARK: - Helpers
 
-auto kestrel::assets::resource_reference::using_id(int64_t id) -> luabridge::RefCountedPtr<resource_reference>
+auto kestrel::assets::resource_reference::using_id(int64_t id) -> resource_reference::lua_reference
 {
-    return luabridge::RefCountedPtr<resource_reference>(new resource_reference(id));
+    return resource_reference::lua_reference(new resource_reference(id));
 }
 
-auto kestrel::assets::resource_reference::using_named(const std::string& name) -> luabridge::RefCountedPtr<resource_reference>
+auto kestrel::assets::resource_reference::using_named(const std::string& name) -> resource_reference::lua_reference
 {
-    return luabridge::RefCountedPtr<resource_reference>(new resource_reference(name));
+    return resource_reference::lua_reference(new resource_reference(name));
 }

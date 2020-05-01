@@ -29,6 +29,9 @@ namespace kestrel { namespace assets {
 
     struct resource_reference : public lua::object
     {
+    public:
+        typedef luabridge::RefCountedPtr<assets::resource_reference> lua_reference;
+
     private:
         std::optional<std::string> m_type;
         std::optional<int64_t> m_id;
@@ -42,8 +45,8 @@ namespace kestrel { namespace assets {
         resource_reference(const std::string& type, int64_t id);
         resource_reference(const std::string& type, const std::string& name);
 
-        static auto using_id(int64_t id) -> luabridge::RefCountedPtr<resource_reference>;
-        static auto using_named(const std::string& name) -> luabridge::RefCountedPtr<resource_reference>;
+        static auto using_id(int64_t id) -> resource_reference::lua_reference;
+        static auto using_named(const std::string& name) -> resource_reference::lua_reference;
 
         auto type() const -> std::optional<std::string>;
         auto id() const -> std::optional<int64_t>;

@@ -38,18 +38,18 @@ namespace kestrel
         std::vector<timed_event> m_timed_callbacks;
 
     public:
-        typedef luabridge::RefCountedPtr<kestrel::scene> lua_scene;
+        typedef luabridge::RefCountedPtr<kestrel::scene> lua_reference;
 
         static auto register_object() -> void;
-        static auto create(std::string name) -> lua_scene;
-        static auto current() -> lua_scene;
+        static auto create(std::string name) -> scene::lua_reference;
+        static auto current() -> scene::lua_reference;
 
         scene(std::string name);
 
         auto set_name(std::string name) -> void;
         auto get_name() const -> std::string;
 
-        auto attach_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void;
+        auto attach_script(assets::resource_reference::lua_reference ref) -> void;
         auto set_renderer(luabridge::LuaRef callback) -> void;
 
         auto add_timed_callback(double delay, luabridge::LuaRef callback) -> void;

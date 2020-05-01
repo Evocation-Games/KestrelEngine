@@ -29,7 +29,7 @@ auto kestrel::scene::register_object() -> void
 {
     luabridge::getGlobalNamespace(lua::active_state())
         .beginClass<kestrel::scene>("Scene")
-            .addConstructor<auto(*)(std::string)->void, luabridge::RefCountedPtr<kestrel::scene>>()
+            .addConstructor<auto(*)(std::string)->void, scene::lua_reference>()
             .addProperty("name", &scene::get_name, &scene::set_name)
             .addStaticFunction("current", &scene::current)
             .addFunction("attachScript", &scene::attach_script)
@@ -41,9 +41,9 @@ auto kestrel::scene::register_object() -> void
 
 // MARK: - Construction
 
-auto kestrel::scene::create(std::string name) -> kestrel::scene::lua_scene
+auto kestrel::scene::create(std::string name) -> scene::lua_reference
 {
-    auto ptr = lua_scene(new kestrel::scene(name));
+    auto ptr = scene::lua_reference(new kestrel::scene(name));
     ptr->set_name(name);
     return ptr;
 }
@@ -54,7 +54,7 @@ kestrel::scene::scene(std::string name)
     std::cout << "constructing a new scene" << std::endl;
 }
 
-auto kestrel::scene::current() -> kestrel::scene::lua_scene
+auto kestrel::scene::current() -> scene::lua_reference
 {
     return scene_stack::global().current();
 }
@@ -62,7 +62,7 @@ auto kestrel::scene::current() -> kestrel::scene::lua_scene
 
 // MARK: - Scripts & Callback
 
-auto kestrel::scene::attach_script(luabridge::RefCountedPtr<assets::resource_reference> ref) -> void
+auto kestrel::scene::attach_script(assets::resource_reference::lua_reference ref) -> void
 {
     if (ref->id().has_value()) {
         m_script = lua::script(ref->id().value());

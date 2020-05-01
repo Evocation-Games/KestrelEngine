@@ -32,14 +32,14 @@ kestrel::scene_stack::~scene_stack()
 
 // MARK: - Stack Operations
 
-auto kestrel::scene_stack::push(kestrel::scene::lua_scene scene) -> void
+auto kestrel::scene_stack::push(scene::lua_reference scene) -> void
 {
     m_scenes.emplace_back(scene);
 }
 
 // MARK: - Access
 
-auto kestrel::scene_stack::current() const -> kestrel::scene::lua_scene
+auto kestrel::scene_stack::current() const -> scene::lua_reference
 {
     return m_scenes.back();
 }

@@ -18,26 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_STATIC_IMAGE_HPP)
-#define KESTREL_STATIC_IMAGE_HPP
+#if !defined(KESTREL_MACINTOSH_PICTURE_HPP)
+#define KESTREL_MACINTOSH_PICTURE_HPP
+
 
 #include <vector>
 #include <memory>
 #include <string>
-#include "foundation/gl/spritesheet.hpp"
 #include "scripting/lua/lua.hpp"
+#include "foundation/gl/spritesheet.hpp"
 #include "libGraphite/rsrc/manager.hpp"
+#include "foundation/assets/resource_reference.hpp"
 
 namespace kestrel { namespace assets {
 
-    struct static_image: public lua::object
+    struct macintosh_picture: public lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<assets::static_image> lua_static_image;
-        enum type { unknown, pict, cicn };
+        typedef luabridge::RefCountedPtr<assets::macintosh_picture> lua_reference;
 
     private:
-        enum type m_type { unknown };
         int64_t m_id { INT64_MIN };
         std::string m_name { "" };
         std::shared_ptr<gl::spritesheet> m_spritesheet { nullptr };
@@ -47,8 +47,8 @@ namespace kestrel { namespace assets {
     public:
         static auto register_object() -> void;
 
-        static_image(int64_t id, std::vector<assets::static_image::type> preference = { pict });
-        static auto load(int64_t id) -> lua_static_image;
+        macintosh_picture(resource_reference::lua_reference ref);
+        static auto load(resource_reference::lua_reference ref) -> macintosh_picture::lua_reference;
 
         auto valid() const -> bool;
 
@@ -65,4 +65,4 @@ namespace kestrel { namespace assets {
 
 }};
 
-#endif //KESTREL_STATIC_IMAGE_HPP
+#endif //KESTREL_MACINTOSH_PICTURE_HPP

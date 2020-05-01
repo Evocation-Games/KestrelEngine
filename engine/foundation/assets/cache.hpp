@@ -25,6 +25,7 @@
 #include <string>
 #include <optional>
 #include <unordered_map>
+#include "foundation/assets/resource_reference.hpp"
 
 namespace kestrel { namespace assets {
 
@@ -47,8 +48,8 @@ namespace kestrel { namespace assets {
             return instance;
         }
 
-        auto add(std::string type, int64_t id, std::any asset) -> void;
-        auto fetch(std::string type, int64_t id) const -> std::optional<std::any>;
+        auto add(std::string type, resource_reference::lua_reference ref, std::any asset) -> void;
+        auto fetch(std::string type, resource_reference::lua_reference ref) const -> std::optional<std::any>;
     };
 
 }};
