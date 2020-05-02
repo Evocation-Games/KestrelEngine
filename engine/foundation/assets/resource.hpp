@@ -18,43 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RESOURCE_REFERENCE_HPP)
-#define KESTREL_RESOURCE_REFERENCE_HPP
+#if !defined(KESTREL_RESOURCE_HPP)
+#define KESTREL_RESOURCE_HPP
 
 #include <string>
 #include <optional>
 #include "scripting/lua/lua.hpp"
+#include "foundation/assets/resource_reference.hpp"
+#include "libGraphite/data/reader.hpp"
 
 namespace kestrel { namespace assets {
 
-    struct resource_reference : public lua::object
+    struct resource : public lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<assets::resource_reference> lua_reference;
+        typedef luabridge::RefCountedPtr<assets::resource> lua_reference;
 
     private:
-        std::optional<std::string> m_type;
-        std::optional<int64_t> m_id;
-        std::optional<std::string> m_name;
+        int64_t m_id;
+        std::string m_name;
+        std::string m_type;
+        std::optional<graphite::data::reader> m_resource_reader;
 
     public:
         static auto register_object() -> void;
 
-        resource_reference(int64_t id);
-        resource_reference(const std::string& name);
-        resource_reference(const std::string& type, int64_t id);
-        resource_reference(const std::string& type, const std::string& name);
+        resource(resource_reference::lua_reference ref);
 
-        static auto using_id(int64_t id) -> resource_reference::lua_reference;
-        static auto using_named(const std::string& name) -> resource_reference::lua_reference;
-        static auto using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference;
-        static auto using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference;
-
-        auto type() const -> std::optional<std::string>;
-        auto id() const -> std::optional<int64_t>;
-        auto name() const -> std::optional<std::string>;
+        auto valid() const -> bool;
+        auto id() const -> int64_t;
+        auto name() const -> std::string;
     };
 
 }};
 
-#endif //KESTREL_RESOURCE_REFERENCE_HPP
+#endif //KESTREL_RESOURCE_HPP

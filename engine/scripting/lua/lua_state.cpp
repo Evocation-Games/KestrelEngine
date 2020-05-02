@@ -25,6 +25,7 @@
 #include "foundation/assets/macintosh_picture.hpp"
 #include "scripting/lua/lua_foundation.hpp"
 #include "foundation/assets/resource_reference.hpp"
+#include "foundation/assets/resource.hpp"
 
 // MARK: - Construction
 
@@ -43,6 +44,7 @@ auto kestrel::lua::state::prepare() -> void
     foundation::register_object();
     assets::macintosh_picture::register_object();
     assets::resource_reference::register_object();
+    assets::resource::register_object();
 }
 
 

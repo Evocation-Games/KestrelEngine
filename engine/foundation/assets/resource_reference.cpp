@@ -28,6 +28,8 @@ auto kestrel::assets::resource_reference::register_object() -> void
         .beginClass<assets::resource_reference>("Resource")
             .addStaticFunction("named", &resource_reference::using_named)
             .addStaticFunction("id", &resource_reference::using_id)
+            .addStaticFunction("idWithType", &resource_reference::using_typed_id)
+            .addStaticFunction("namedWithType", &resource_reference::using_typed_named)
         .endClass();
 }
 
@@ -84,4 +86,14 @@ auto kestrel::assets::resource_reference::using_id(int64_t id) -> resource_refer
 auto kestrel::assets::resource_reference::using_named(const std::string& name) -> resource_reference::lua_reference
 {
     return resource_reference::lua_reference(new resource_reference(name));
+}
+
+auto kestrel::assets::resource_reference::using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference
+{
+    return resource_reference::lua_reference(new resource_reference(type, id));
+}
+
+auto kestrel::assets::resource_reference::using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference
+{
+    return resource_reference::lua_reference(new resource_reference(type, name));
 }
