@@ -26,10 +26,13 @@ logoScene = Scene.current()
 -- representing the scenario creator(s).
 logo = MacintoshPicture(Resource.id(128))
 
+ship = SpriteSheet.fromMacintoshPicture(Resource.id(1000), {64, 64}, 36)
+
 -- Configure the scene. We need to instruct it on what callbacks it should make.
 -- In this case we want to set it's renderering function to our own renderLogos
 -- function.
 logoScene:setRenderer(function()
     logo:draw({0, 0})
+    ship:draw(0)
 end)
 

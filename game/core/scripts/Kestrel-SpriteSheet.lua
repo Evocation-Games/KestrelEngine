@@ -21,11 +21,26 @@
 SpriteSheet = {}
 SpriteSheet.__index = SpriteSheet
 
-function SpriteSheet:load()
-    local sheet = {}
-    setmetatable(sheet, SpriteSheet)
+setmetatable(SpriteSheet, {
+    __call = function (cls, ...)
+        return cls.new(...)
+    end
+})
 
-    print("Creating SpriteSheet")
+function SpriteSheet.new(texture, spriteSize, frameCount)
+    local self = setmetatable({}, SpriteSheet)
+    self.texture = texture
+    self.frameCount = frameCount
+    self.spriteSize = spriteSize
+    texture:initializeSpriteSheet(spriteSize, frameCount)
+    return self
+end
 
-    return sheet
+function SpriteSheet.fromMacintoshPicture(resource, spriteSize, frameCount)
+    local pict = MacintoshPicture(resource)
+    return SpriteSheet(pict, spriteSize, frameCount)
+end
+
+function SpriteSheet:draw(frame)
+    self.texture:drawFrame({0, 0}, frame)
 end
