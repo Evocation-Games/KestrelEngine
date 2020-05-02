@@ -37,6 +37,7 @@ auto kestrel::assets::macintosh_picture::register_object() -> void
             .addFunction("draw", &macintosh_picture::lua_draw)
             .addFunction("drawFrame", & macintosh_picture::lua_draw_frame)
             .addFunction("initializeSpriteSheet", &macintosh_picture::lua_reconfigure_spritesheet)
+            .addProperty("size", &macintosh_picture::size)
         .endClass();
 }
 
@@ -80,9 +81,9 @@ auto kestrel::assets::macintosh_picture::reconfigure_spritesheet(const math::siz
     m_spritesheet->configure_sprites(sprite_size, total_sprites);
 }
 
-auto kestrel::assets::macintosh_picture::lua_reconfigure_spritesheet(std::vector<double> size, int total_sprites) -> void
+auto kestrel::assets::macintosh_picture::lua_reconfigure_spritesheet(math::size::lua_reference size, int total_sprites) -> void
 {
-    reconfigure_spritesheet({ size[0], size[1] }, total_sprites);
+    reconfigure_spritesheet(*size.get(), total_sprites);
 }
 
 // MARK: - Accessors
@@ -109,14 +110,14 @@ auto kestrel::assets::macintosh_picture::size() const -> math::size
 
 // MARK: - Drawing
 
-auto kestrel::assets::macintosh_picture::lua_draw(std::vector<double> position) const -> void
+auto kestrel::assets::macintosh_picture::lua_draw(math::point::lua_reference position) const -> void
 {
-    draw(math::vector(position[0], position[1]));
+    draw(position->vector());
 }
 
-auto kestrel::assets::macintosh_picture::lua_draw_frame(std::vector<double> position, int frame) const -> void
+auto kestrel::assets::macintosh_picture::lua_draw_frame(math::point::lua_reference position, int frame) const -> void
 {
-    draw(math::vector(position[0], position[1]), frame);
+    draw(position->vector(), frame);
 }
 
 auto kestrel::assets::macintosh_picture::draw(const math::vector& v, int frame) const -> void

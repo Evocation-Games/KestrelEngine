@@ -20,6 +20,18 @@
 
 #include "foundation/math/point.hpp"
 
+// MARK: - Lua Integration
+
+auto kestrel::math::point::register_object() -> void
+{
+    luabridge::getGlobalNamespace(lua::active_state())
+        .beginClass<math::point>("Point")
+            .addConstructor<auto(*)(double, double)->void, math::point::lua_reference>()
+            .addProperty("x", &point::x, &point::set_x)
+            .addProperty("y", &point::y, &point::set_y)
+        .endClass();
+}
+
 // MARK: - Constructors
 
 kestrel::math::point::point()

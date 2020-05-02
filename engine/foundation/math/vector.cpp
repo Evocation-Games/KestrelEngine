@@ -22,6 +22,18 @@
 #include "foundation/math/vector.hpp"
 #include "foundation/math/angle.hpp"
 
+// MARK: - Lua Integration
+
+auto kestrel::math::vector::register_object() -> void
+{
+    luabridge::getGlobalNamespace(lua::active_state())
+        .beginClass<math::vector>("Vector")
+            .addConstructor<auto(*)(double, double)->void, vector::lua_reference>()
+            .addProperty("x", &vector::x, &vector::set_x)
+            .addProperty("y", &vector::y, &vector::set_y)
+        .endClass();
+}
+
 // MARK: - Constructors
 
 kestrel::math::vector::vector()

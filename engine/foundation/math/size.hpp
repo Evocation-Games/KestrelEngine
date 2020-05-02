@@ -23,16 +23,22 @@
 
 #include "libDiamane/util/geometry.hpp"
 #include "libGraphite/quickdraw/geometry.hpp"
+#include "scripting/lua/lua.hpp"
 
 namespace kestrel { namespace math {
 
-    struct size
+    struct size : public lua::object
     {
+    public:
+        typedef luabridge::RefCountedPtr<math::size> lua_reference;
+
     private:
         double m_width { 0.0 };
         double m_height { 0.0 };
 
     public:
+        static auto register_object() -> void;
+
         size();
         size(double width, double height);
         size(const math::size& size);

@@ -20,6 +20,18 @@
 
 #include "foundation/math/size.hpp"
 
+// MARK: - Lua Integration
+
+auto kestrel::math::size::register_object() -> void
+{
+    luabridge::getGlobalNamespace(lua::active_state())
+        .beginClass<math::size>("Size")
+            .addConstructor<auto(*)(double, double)->void, size::lua_reference>()
+            .addProperty("width", &size::width, &size::set_width)
+            .addProperty("height", &size::height, &size::set_height)
+        .endClass();
+}
+
 // MARK: - Constructors
 
 kestrel::math::size::size()

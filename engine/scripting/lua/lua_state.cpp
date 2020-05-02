@@ -26,6 +26,9 @@
 #include "scripting/lua/lua_foundation.hpp"
 #include "foundation/assets/resource_reference.hpp"
 #include "foundation/assets/resource.hpp"
+#include "foundation/math/size.hpp"
+#include "foundation/math/point.hpp"
+#include "foundation/math/vector.hpp"
 
 // MARK: - Construction
 
@@ -45,6 +48,9 @@ auto kestrel::lua::state::prepare() -> void
     assets::macintosh_picture::register_object();
     assets::resource_reference::register_object();
     assets::resource::register_object();
+    math::size::register_object();
+    math::point::register_object();
+    math::vector::register_object();
 }
 
 

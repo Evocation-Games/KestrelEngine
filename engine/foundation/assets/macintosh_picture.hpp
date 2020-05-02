@@ -52,14 +52,14 @@ namespace kestrel { namespace assets {
 
         auto valid() const -> bool;
 
-        auto lua_reconfigure_spritesheet(std::vector<double> size, int total_sprites) -> void;
+        auto lua_reconfigure_spritesheet(math::size::lua_reference size, int total_sprites) -> void;
         auto reconfigure_spritesheet(const math::size& sprite_size, int total_sprites) -> void;
         auto spritesheet() -> std::weak_ptr<gl::spritesheet>;
         auto count() const -> int;
         auto size() const -> math::size;
 
-        auto lua_draw(std::vector<double> position) const -> void;
-        auto lua_draw_frame(std::vector<double> position, int frame) const -> void;
+        auto lua_draw(math::point::lua_reference position) const -> void;
+        auto lua_draw_frame(math::point::lua_reference position, int frame) const -> void;
         auto draw(const math::vector& v = math::vector::zero(), int frame = 0) const -> void;
     };
 

@@ -21,18 +21,25 @@
 #if !defined(KESTREL_VECTOR_HPP)
 #define KESTREL_VECTOR_HPP
 
+#include "scripting/lua/lua.hpp"
+
 namespace kestrel { namespace math {
 
     struct angle;
 
     struct vector
     {
+    public:
+        typedef luabridge::RefCountedPtr<math::vector> lua_reference;
+
     private:
         double m_x { 0.0 };
         double m_y { 0.0 };
         double m_z { 0.0 };
 
     public:
+        static auto register_object() -> void;
+
         vector();
         vector(double x, double y, double z = 1.0);
         vector(const math::vector& v);

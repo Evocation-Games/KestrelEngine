@@ -24,16 +24,22 @@
 #include "libDiamane/util/geometry.hpp"
 #include "libGraphite/quickdraw/geometry.hpp"
 #include "foundation/math/vector.hpp"
+#include "scripting/lua/lua.hpp"
 
 namespace kestrel { namespace math {
 
     struct point
     {
+    public:
+        typedef luabridge::RefCountedPtr<math::point> lua_reference;
+
     private:
         double m_x { 0.0 };
         double m_y { 0.0 };
 
     public:
+        static auto register_object() -> void;
+        
         point();
         point(double x, double y);
         point(const math::point& p);
