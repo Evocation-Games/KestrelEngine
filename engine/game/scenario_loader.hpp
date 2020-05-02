@@ -25,7 +25,9 @@
 
 namespace kestrel { namespace game {
 
+    auto default_game_core_path() -> std::string;
     auto default_scenario_path() -> std::string;
+    auto load_game_core(std::string path = default_game_core_path()) -> void;
     auto load_scenario(std::string path = default_scenario_path()) -> void;
 
 }};

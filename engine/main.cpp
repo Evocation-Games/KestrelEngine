@@ -28,7 +28,18 @@ auto main(int argc, const char **argv) -> int
 {
     // Do initial setup and configuration for Kestrel.
     lua::state::global().prepare();
-    game::load_scenario();
+
+    if (argc > 1) {
+        // We're potentially injecting a scenario to play.
+        // First argument is the GameCore and the second is the Scenario Data Files.
+        game::load_scenario(argv[2]);
+        game::load_game_core(argv[1]);
+    }
+    else {
+        // Built-in scenario
+        game::load_scenario();
+        game::load_game_core();
+    }
 
     // Build an environment and launch it.
     return app::environment().start(argc, argv);
