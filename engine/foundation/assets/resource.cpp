@@ -31,6 +31,18 @@ auto kestrel::assets::resource::register_object() -> void
             .addFunction("isValid", &resource::valid)
             .addProperty("id", &resource::id)
             .addProperty("name", &resource::name)
+            .addFunction("readByte", &resource::read_byte)
+            .addFunction("readShort", &resource::read_short)
+            .addFunction("readLong", &resource::read_long)
+            .addFunction("readQuad", &resource::read_quad)
+            .addFunction("readSignedByte", &resource::read_signed_byte)
+            .addFunction("readSignedShort", &resource::read_signed_short)
+            .addFunction("readSignedLong", &resource::read_signed_long)
+            .addFunction("readSignedQuad", &resource::read_signed_quad)
+            .addFunction("readPStr", &resource::read_pstr)
+            .addFunction("readCStr", &resource::read_cstr)
+            .addFunction("readCStrOfLength", &resource::read_cstr_width)
+            .addFunction("readByte", &resource::read_byte)
         .endClass();
 }
 
@@ -63,4 +75,60 @@ auto kestrel::assets::resource::name() const -> std::string
     return m_name;
 }
 
+// MARK: - Data Reading
+
+auto kestrel::assets::resource::read_signed_byte() -> int8_t
+{
+    return m_resource_reader->read_signed_byte();
+}
+
+auto kestrel::assets::resource::read_signed_short() -> int16_t
+{
+    return m_resource_reader->read_signed_short();
+}
+
+auto kestrel::assets::resource::read_signed_long() -> int32_t
+{
+    return m_resource_reader->read_signed_long();
+}
+
+auto kestrel::assets::resource::read_signed_quad() -> int64_t
+{
+    return m_resource_reader->read_signed_quad();
+}
+
+auto kestrel::assets::resource::read_byte() -> uint8_t
+{
+    return m_resource_reader->read_byte();
+}
+
+auto kestrel::assets::resource::read_short() -> uint16_t
+{
+    return m_resource_reader->read_short();
+}
+
+auto kestrel::assets::resource::read_long() -> uint32_t
+{
+    return m_resource_reader->read_long();
+}
+
+auto kestrel::assets::resource::read_quad() -> uint64_t
+{
+    return m_resource_reader->read_quad();
+}
+
+auto kestrel::assets::resource::read_pstr() -> std::string
+{
+    return m_resource_reader->read_pstr();
+}
+
+auto kestrel::assets::resource::read_cstr() -> std::string
+{
+    return m_resource_reader->read_cstr();
+}
+
+auto kestrel::assets::resource::read_cstr_width(int width) -> std::string
+{
+    return m_resource_reader->read_cstr(width);
+}
 

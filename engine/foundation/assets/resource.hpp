@@ -48,6 +48,18 @@ namespace kestrel { namespace assets {
         auto valid() const -> bool;
         auto id() const -> int64_t;
         auto name() const -> std::string;
+
+        auto read_signed_byte() -> int8_t;
+        auto read_signed_short() -> int16_t;
+        auto read_signed_long() -> int32_t;
+        auto read_signed_quad() -> int64_t;
+        auto read_byte() -> uint8_t;
+        auto read_short() -> uint16_t;
+        auto read_long() -> uint32_t;
+        auto read_quad() -> uint64_t;
+        auto read_pstr() -> std::string;
+        auto read_cstr() -> std::string;
+        auto read_cstr_width(int width) -> std::string;
     };
 
 }};
