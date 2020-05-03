@@ -29,6 +29,7 @@
 #include "foundation/math/size.hpp"
 #include "foundation/math/point.hpp"
 #include "foundation/math/vector.hpp"
+#include "foundation/gl/text.hpp"
 
 // MARK: - Construction
 
@@ -51,6 +52,7 @@ auto kestrel::lua::state::prepare() -> void
     math::size::register_object();
     math::point::register_object();
     math::vector::register_object();
+    gl::text::register_object();
 }
 
 
