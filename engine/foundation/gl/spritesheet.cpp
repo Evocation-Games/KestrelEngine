@@ -22,6 +22,18 @@
 
 // MARK: - Constructors
 
+kestrel::gl::spritesheet::spritesheet(std::shared_ptr<diamane::gl::texture> texture,
+                                      const kestrel::math::size &sprite_size, int total_sprites)
+    : m_sprite_size(sprite_size), m_total_sprites(total_sprites), m_texture(texture)
+{
+    if (!m_texture->is_registered()) {
+        m_texture->register_texture();
+    }
+
+    // Setup an initial pool of sprites.
+    configure_sprites(sprite_size, total_sprites);
+}
+
 kestrel::gl::spritesheet::spritesheet(std::shared_ptr<graphite::qd::surface> surface, const math::size& sprite_size, int total_sprites)
     : m_sprite_size(sprite_size), m_total_sprites(total_sprites)
 {
@@ -37,6 +49,12 @@ kestrel::gl::spritesheet::spritesheet(std::shared_ptr<graphite::qd::surface> sur
     // Setup an initial pool of sprites.
     configure_sprites(sprite_size, total_sprites);
 }
+
+auto kestrel::gl::spritesheet::create(std::shared_ptr<diamane::gl::texture> texture, const math::size& sprite_size, int total_sprites) -> std::shared_ptr<kestrel::gl::spritesheet>
+{
+    return std::make_shared<kestrel::gl::spritesheet>(texture, sprite_size, total_sprites);
+}
+
 
 auto kestrel::gl::spritesheet::create(std::shared_ptr<graphite::qd::surface> surface, const math::size& sprite_size, int total_sprites) -> std::shared_ptr<kestrel::gl::spritesheet>
 {
