@@ -10,3 +10,6 @@
 [submodule "submodules/lua_bridge"]
 	path = submodules/lua_bridge
 	url = https://github.com/vinniefalco/LuaBridge.git
+[submodule "submodules/graphite"]
+	path = submodules/graphite
+	url = https://github.com/TheDiamondProject/Graphite
