@@ -42,5 +42,5 @@ auto main(int argc, const char **argv) -> int
     }
 
     // Build an environment and launch it.
-    return app::environment().start(argc, argv);
+    return app::environment::global().start(argc, argv);
 }

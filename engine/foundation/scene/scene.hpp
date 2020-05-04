@@ -21,7 +21,7 @@
 #if !defined(KESTREL_SCENE_HPP)
 #define KESTREL_SCENE_HPP
 
-
+#include "foundation/math/size.hpp"
 #include "scripting/lua/lua.hpp"
 #include "foundation/clock/timed_event.hpp"
 #include "foundation/assets/resource_reference.hpp"
@@ -49,6 +49,8 @@ namespace kestrel
         auto set_name(std::string name) -> void;
         auto get_name() const -> std::string;
 
+        auto size() const -> math::size;
+
         auto attach_script(assets::resource_reference::lua_reference ref) -> void;
         auto set_renderer(luabridge::LuaRef callback) -> void;
 
@@ -57,6 +59,10 @@ namespace kestrel
         auto present() -> void;
         auto begin() -> void;
         auto render() -> void;
+
+        auto set_game_coordinates() const -> void;
+        auto set_interface_coordinates() const -> void;
+
     };
 
 };

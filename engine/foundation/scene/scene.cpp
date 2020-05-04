@@ -22,6 +22,7 @@
 #include <iostream>
 #include "foundation/scene/scene.hpp"
 #include "foundation/scene/stack.hpp"
+#include "app/environment.hpp"
 
 // MARK: - Lua Integration
 
@@ -31,11 +32,14 @@ auto kestrel::scene::register_object() -> void
         .beginClass<kestrel::scene>("Scene")
             .addConstructor<auto(*)(std::string)->void, scene::lua_reference>()
             .addProperty("name", &scene::get_name, &scene::set_name)
+            .addProperty("size", &scene::size)
             .addStaticFunction("current", &scene::current)
             .addFunction("attachScript", &scene::attach_script)
             .addFunction("setRenderer", &scene::set_renderer)
             .addFunction("addTimedCallback", &scene::add_timed_callback)
             .addFunction("present", &scene::present)
+            .addFunction("useInterfaceCoordinates", &scene::set_interface_coordinates)
+            .addFunction("useGameCoordinates", &scene::set_game_coordinates)
         .endClass();
 }
 
@@ -59,6 +63,17 @@ auto kestrel::scene::current() -> scene::lua_reference
     return scene_stack::global().current();
 }
 
+// MARK: - Configuration
+
+auto kestrel::scene::set_game_coordinates() const -> void
+{
+    app::environment::global().set_game_coordinates();
+}
+
+auto kestrel::scene::set_interface_coordinates() const -> void
+{
+    app::environment::global().set_interface_coordinates();
+}
 
 // MARK: - Scripts & Callback
 
@@ -85,6 +100,11 @@ auto kestrel::scene::set_name(std::string name) -> void
 auto kestrel::scene::get_name() const -> std::string
 {
     return m_name;
+}
+
+auto kestrel::scene::size() const -> kestrel::math::size
+{
+    return app::environment::global().size();
 }
 
 // MARK: - Events

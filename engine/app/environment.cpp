@@ -28,6 +28,25 @@ kestrel::app::environment::environment()
 {
 }
 
+// MARK: -
+
+auto kestrel::app::environment::set_game_coordinates() const -> void
+{
+    m_game_window->set_coordinate_space(diamane::ui::window::coordinate_space::game);
+}
+
+auto kestrel::app::environment::set_interface_coordinates() const -> void
+{
+    m_game_window->set_coordinate_space(diamane::ui::window::coordinate_space::ui);
+}
+
+// MARK: - Properties
+
+auto kestrel::app::environment::size() const -> kestrel::math::size
+{
+    return m_game_window->size();
+}
+
 // MARK: - Life Cycle
 
 auto kestrel::app::environment::start(int argc, const char **argv) -> int
@@ -44,6 +63,9 @@ auto kestrel::app::environment::start(int argc, const char **argv) -> int
         m_game_window->center();
         m_game_window->show();
         m_game_window->on_draw([&] {
+            // Reset to game coordinates
+            set_game_coordinates();
+
             // Update the clock
             clock::global().tick();
 

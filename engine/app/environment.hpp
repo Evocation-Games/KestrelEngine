@@ -23,6 +23,7 @@
 
 #include <memory>
 #include "libDiamane/ui/window.hpp"
+#include "foundation/math/size.hpp"
 
 namespace kestrel { namespace app {
 
@@ -31,10 +32,26 @@ namespace kestrel { namespace app {
     private:
         std::shared_ptr<diamane::ui::window> m_game_window { nullptr };
 
-    public:
         environment();
 
+    public:
+        environment(const environment&) = delete;
+        environment& operator=(const environment&) = delete;
+        environment(environment&&) = delete;
+        environment& operator=(environment&&) = delete;
+
+        static auto& global()
+        {
+            static environment instance;
+            return instance;
+        }
+
         auto start(int argc, const char **argv) -> int;
+
+        auto size() const -> math::size;
+
+        auto set_game_coordinates() const -> void;
+        auto set_interface_coordinates() const -> void;
     };
 
 }};
