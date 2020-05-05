@@ -45,6 +45,7 @@ namespace kestrel { namespace assets {
         resource_reference(const std::string& type, int64_t id);
         resource_reference(const std::string& type, const std::string& name);
 
+        static auto find(const std::string& type, int64_t id) -> bool;
         static auto using_id(int64_t id) -> resource_reference::lua_reference;
         static auto using_named(const std::string& name) -> resource_reference::lua_reference;
         static auto using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference;
@@ -53,6 +54,8 @@ namespace kestrel { namespace assets {
         auto type() const -> std::optional<std::string>;
         auto id() const -> std::optional<int64_t>;
         auto name() const -> std::optional<std::string>;
+
+        auto exists() const -> bool;
     };
 
 }};

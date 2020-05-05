@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "foundation/assets/resource_reference.hpp"
+#include "libGraphite/rsrc/manager.hpp"
 
 // MARK: - Lua Integration
 
@@ -30,6 +31,8 @@ auto kestrel::assets::resource_reference::register_object() -> void
             .addStaticFunction("id", &resource_reference::using_id)
             .addStaticFunction("idWithType", &resource_reference::using_typed_id)
             .addStaticFunction("namedWithType", &resource_reference::using_typed_named)
+            .addStaticFunction("find", &resource_reference::find)
+            .addProperty("exists", &resource_reference::exists)
         .endClass();
 }
 
@@ -78,6 +81,11 @@ auto kestrel::assets::resource_reference::type() const -> std::optional<std::str
 
 // MARK: - Helpers
 
+auto kestrel::assets::resource_reference::find(const std::string& type, int64_t id) -> bool
+{
+    return !graphite::rsrc::manager::shared_manager().find(type, id).expired();
+}
+
 auto kestrel::assets::resource_reference::using_id(int64_t id) -> resource_reference::lua_reference
 {
     return resource_reference::lua_reference(new resource_reference(id));
@@ -96,4 +104,9 @@ auto kestrel::assets::resource_reference::using_typed_id(const std::string& type
 auto kestrel::assets::resource_reference::using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference
 {
     return resource_reference::lua_reference(new resource_reference(type, name));
+}
+
+auto kestrel::assets::resource_reference::exists() const -> bool
+{
+    return !graphite::rsrc::manager::shared_manager().find(m_type.value(), m_id.value()).expired();
 }
