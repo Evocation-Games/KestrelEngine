@@ -63,7 +63,7 @@ kestrel::assets::macintosh_picture::macintosh_picture(resource_reference::lua_re
         if (auto res = graphite::rsrc::manager::shared_manager().find("PICT", ref->id().value()).lock()) {
             m_id = res->id();
             m_name = res->name();
-            construct_spritesheet(graphite::qd::pict(res->data()).image_surface());
+            construct_spritesheet(graphite::qd::pict(res->data(), m_id, m_name).image_surface());
         }
     }
     // TODO: Handle Resource Name Reference

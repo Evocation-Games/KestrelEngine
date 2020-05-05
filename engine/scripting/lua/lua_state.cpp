@@ -23,6 +23,7 @@
 #include "scripting/lua/lua_stack.hpp"
 #include "foundation/scene/scene.hpp"
 #include "foundation/assets/macintosh_picture.hpp"
+#include "foundation/assets/rle_sprite.hpp"
 #include "scripting/lua/lua_foundation.hpp"
 #include "foundation/assets/resource_reference.hpp"
 #include "foundation/assets/resource.hpp"
@@ -47,6 +48,7 @@ auto kestrel::lua::state::prepare() -> void
     scene::register_object();
     foundation::register_object();
     assets::macintosh_picture::register_object();
+    assets::rle_sprite::register_object();
     assets::resource_reference::register_object();
     assets::resource::register_object();
     math::size::register_object();
