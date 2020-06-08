@@ -1,9 +1,6 @@
 [submodule "submodules/kdl"]
 	path = submodules/kdl
 	url = https://github.com/tjhancocks/kdl.git
-[submodule "submodules/diamane"]
-	path = submodules/diamane
-	url = https://github.com/TheDiamondProject/Diamane.git
 [submodule "submodules/lua"]
 	path = submodules/lua
 	url = https://github.com/lua/lua.git
