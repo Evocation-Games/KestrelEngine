@@ -55,20 +55,6 @@ target_include_directories(kdl PUBLIC
 )
 target_link_libraries(kdl Graphite)
 
-# DIAMANE ######################################################################
-file(GLOB_RECURSE diamane_sources
-	"${PROJECT_SUBMODULES}/diamane/libDiamane/*.cpp"
-)
-
-add_library(Diamane ${diamane_sources})
-
-find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-target_include_directories(Diamane PUBLIC ${OPENGL_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
-target_include_directories(Diamane PUBLIC ${PROJECT_SUBMODULES}/diamane/submodules/glm)
-target_include_directories(Diamane PUBLIC ${PROJECT_SUBMODULES}/diamane)
-target_link_libraries(Diamane ${OPENGL_LIBRARIES} glfw)
-
 # GAME (Test Scenario) #########################################################
 file(GLOB_RECURSE kestrel_game_files
 	"game/core/*.kdl"
@@ -83,19 +69,24 @@ add_custom_command(TARGET KestrelGameCore
 )
 
 # KESTREL ENGINE ###############################################################
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+
 file(GLOB_RECURSE kestrel_sources
 	"engine/*.cpp"
 )
 
 add_executable(Kestrel ${kestrel_sources})
 target_include_directories(Kestrel PUBLIC
+	"${OPENGL_INCLUDE_DIRS}"
+	"${GLFW3_INCLUDE_DIRS}"
+	"${PROJECT_SUBMODULES}/glm"
 	"${PROJECT_SUBMODULES}/lua_bridge/Source"
-	"${PROJECT_SUBMODULES}/diamane"
 	"${PROJECT_SUBMODULES}/graphite"
 	"${PROJECT_SUBMODULES}"
 	"engine"
 )
-target_link_libraries(Kestrel Diamane Graphite Lua)
+target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw)
 add_dependencies(Kestrel kdl KestrelGameCore)
 
 # MAC OS X APPLICATION BUNDLE ##################################################
