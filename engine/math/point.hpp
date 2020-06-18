@@ -38,6 +38,7 @@ namespace math
         point() : x(0), y(0) {};
         point(const double& v) : x(v), y(v) {};
         point(const double& x, const double& y) : x(x), y(y) {};
+        point(const math::point& p) : x(p.x), y(p.y) {};
 
         auto operator+(const math::point& p) const -> math::point
         {

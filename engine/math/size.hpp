@@ -39,6 +39,7 @@ namespace math
         size() : width(0), height(0) {};
         size(const double& v) : width(v), height(v) {};
         size(const double& w, const double& h) : width(w), height(h) {};
+        size(const math::size& s) : width(s.width), height(s.height) {};
 
         auto operator+(const math::size& s) const -> math::size
         {
