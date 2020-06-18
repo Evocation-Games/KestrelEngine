@@ -1,15 +1,15 @@
 # Copyright (c) 2020 Tom Hancocks
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,40 +56,18 @@ target_include_directories(kdl PUBLIC
 target_link_libraries(kdl Graphite)
 
 # DIAMANE ######################################################################
-if(APPLE)
-	file(GLOB_RECURSE diamane_sources
-		"${PROJECT_SUBMODULES}/diamane/libDiamane/*.cpp"
-		"${PROJECT_SUBMODULES}/diamane/libDiamane/*.mm"
-		"${PROJECT_SUBMODULES}/diamane/libDiamane/*.m"
-	)
+file(GLOB_RECURSE diamane_sources
+	"${PROJECT_SUBMODULES}/diamane/libDiamane/*.cpp"
+)
 
-	add_library(Diamane ${diamane_sources})
-    target_compile_options(Diamane PRIVATE 
-    	"-fmodules" 
-    	"-fcxx-modules"
-    )
-	target_include_directories(Diamane PUBLIC
-		"${PROJECT_SUBMODULES}/diamane"
-	)
+add_library(Diamane ${diamane_sources})
 
-elseif(UNIX AND NOT APPLE)
-	find_package(OpenGL REQUIRED)
-	find_package(GLUT REQUIRED)
-
-	file(GLOB_RECURSE diamane_sources
-		"${PROJECT_SUBMODULES}/diamane/libDiamane/*.cpp"
-	)
-
-	add_library(Diamane ${diamane_sources})
-	target_include_directories(Diamane PUBLIC
-		"${PROJECT_SUBMODULES}/diamane"
-		${OPENGL_INCLUDE_DIRS}
-		${GLUT_INCLUDE_DIRS}
-	)
-	target_link_libraries(Diamane ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
-else()
-
-endif()
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+target_include_directories(Diamane PUBLIC ${OPENGL_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
+target_include_directories(Diamane PUBLIC ${PROJECT_SUBMODULES}/diamane/submodules/glm)
+target_include_directories(Diamane PUBLIC ${PROJECT_SUBMODULES}/diamane)
+target_link_libraries(Diamane ${OPENGL_LIBRARIES} glfw)
 
 # GAME (Test Scenario) #########################################################
 file(GLOB_RECURSE kestrel_game_files
@@ -135,8 +113,8 @@ if(APPLE)
         COMMAND rm -rf "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app"
         COMMAND mkdir -p "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS"
         COMMAND mkdir -p "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources"
-        COMMAND xcrun -sdk macosx metal -I "${PROJECT_SUBMODULES}/diamane" -c "${PROJECT_SUBMODULES}/diamane/libDiamane/platform/macos/metal/shaders.metal" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.air"
-        COMMAND xcrun -sdk macosx metallib "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.air" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.metallib"
+#        COMMAND xcrun -sdk macosx metal -I "${PROJECT_SUBMODULES}/diamane" -c "${PROJECT_SUBMODULES}/diamane/libDiamane/platform/macos/metal/shaders.metal" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.air"
+#        COMMAND xcrun -sdk macosx metallib "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.air" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.metallib"
         COMMAND cp "${CMAKE_BINARY_DIR}/Kestrel" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS/Kestrel"
         COMMAND cp "${CMAKE_BINARY_DIR}/GameCore.ndat" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/GameCore.ndat"
         COMMAND cp "${CMAKE_BINARY_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Info.plist"
