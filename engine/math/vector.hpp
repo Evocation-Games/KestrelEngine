@@ -21,11 +21,10 @@
 #if !defined(KESTREL_VECTOR_HPP)
 #define KESTREL_VECTOR_HPP
 
-
-#include <cmath>
-
 namespace math
 {
+
+    struct angle;
 
     /**
      * Represents a 3D point.
@@ -40,53 +39,23 @@ namespace math
         double y;
         double z;
 
-        vector() : x(0), y(0), z(0) {};
-        vector(const double& v) : x(v), y(v), z(v) {};
-        vector(const double& x, const double& y, const double& z = 1.0) : x(x), y(y), z(z) {};
-        vector(const math::vector& v) : x(v.x), y(v.y), z(v.z) {};
+        vector();
+        vector(const double& v);
+        vector(const double& x, const double& y, const double& z = 1.0);
+        vector(const math::vector& v);
 
-        auto operator+(const math::vector& v) const -> math::vector
-        {
-            return math::vector(x + v.x, y + v.y, z + v.z);
-        }
+        auto operator+(const math::vector& v) const -> math::vector;
+        auto operator-(const math::vector& v) const -> math::vector;
+        auto operator*(const double& f) const -> math::vector;
+        auto operator/(const double& f) const -> math::vector;
+        auto operator==(const math::vector& v) const -> bool;
+        auto operator!=(const math::vector& v) const -> bool;
 
-        auto operator-(const math::vector& v) const -> math::vector
-        {
-            return math::vector(x - v.x, y - v.y, z - v.z);
-        }
+        auto angle() const -> math::angle;
+        auto angle(const math::vector& v) const -> math::angle;
 
-        auto operator*(const double& f) const -> math::vector
-        {
-            return math::vector(x * f, y * f, z * f);
-        }
-
-        auto operator/(const double& f) const -> math::vector
-        {
-            return math::vector(x / f, y / f, z / f);
-        }
-
-        auto operator==(const math::vector& v) const -> bool
-        {
-            return (x == v.x) && (y == v.y);
-        }
-
-        auto operator!=(const math::vector& v) const -> bool
-        {
-            return !(*this == v);
-        }
-
-        auto distance_to(const math::vector& v) const -> double
-        {
-            auto dx = v.x - x;
-            auto dy = v.y - y;
-            return std::sqrt((dx * dx) + (dy * dy));
-        }
-
-        auto magnitude() const -> double
-        {
-            return std::sqrt(std::fabs(std::pow(x, 2)) + std::fabs(std::pow(y, 2)));
-        }
-
+        auto distance_to(const math::vector& v) const -> double;
+        auto magnitude() const -> double;
     };
 
 };

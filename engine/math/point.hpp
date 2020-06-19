@@ -21,8 +21,6 @@
 #if !defined(KESTREL_POINT_HPP)
 #define KESTREL_POINT_HPP
 
-#include <cmath>
-
 namespace math
 {
 
@@ -35,48 +33,19 @@ namespace math
         double x;
         double y;
 
-        point() : x(0), y(0) {};
-        point(const double& v) : x(v), y(v) {};
-        point(const double& x, const double& y) : x(x), y(y) {};
-        point(const math::point& p) : x(p.x), y(p.y) {};
+        point();
+        point(const double& v);
+        point(const double& x, const double& y);
+        point(const math::point& p);
 
-        auto operator+(const math::point& p) const -> math::point
-        {
-            return math::point(x + p.x, y + p.y);
-        }
+        auto operator+(const math::point& p) const -> math::point;
+        auto operator-(const math::point& p) const -> math::point;
+        auto operator*(const double& f) const -> math::point;
+        auto operator/(const double& f) const -> math::point;
+        auto operator==(const math::point& p) const -> bool;
+        auto operator!=(const math::point& p) const -> bool;
 
-        auto operator-(const math::point& p) const -> math::point
-        {
-            return math::point(x - p.x, y - p.y);
-        }
-
-        auto operator*(const double& f) const -> math::point
-        {
-            return math::point(x * f, y * f);
-        }
-
-        auto operator/(const double& f) const -> math::point
-        {
-            return math::point(x / f, y / f);
-        }
-
-        auto operator==(const math::point& p) const -> bool
-        {
-            return (x == p.x) && (y == p.y);
-        }
-
-        auto operator!=(const math::point& p) const -> bool
-        {
-            return !(*this == p);
-        }
-
-        auto distance_to(const math::point& p) const -> double
-        {
-            auto dx = p.x - x;
-            auto dy = p.y - y;
-            return std::sqrt((dx * dx) + (dy * dy));
-        }
-
+        auto distance_to(const math::point& p) const -> double;
     };
 
 };

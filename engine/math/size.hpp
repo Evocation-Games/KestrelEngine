@@ -21,9 +21,6 @@
 #if !defined(KESTREL_SIZE_HPP)
 #define KESTREL_SIZE_HPP
 
-
-#include <cmath>
-
 namespace math
 {
 
@@ -36,46 +33,19 @@ namespace math
         double width;
         double height;
 
-        size() : width(0), height(0) {};
-        size(const double& v) : width(v), height(v) {};
-        size(const double& w, const double& h) : width(w), height(h) {};
-        size(const math::size& s) : width(s.width), height(s.height) {};
+        size();
+        size(const double& v);
+        size(const double& w, const double& h);
+        size(const math::size& s);
 
-        auto operator+(const math::size& s) const -> math::size
-        {
-            return math::size(width + s.width, height + s.height);
-        }
+        auto operator+(const math::size& s) const -> math::size;
+        auto operator-(const math::size& s) const -> math::size;
+        auto operator*(const double& f) const -> math::size;
+        auto operator/(const double& f) const -> math::size;
+        auto operator==(const math::size& s) const -> bool;
+        auto operator!=(const math::size& s) const -> bool;
 
-        auto operator-(const math::size& s) const -> math::size
-        {
-            return math::size(width - s.width, height - s.height);
-        }
-
-        auto operator*(const double& f) const -> math::size
-        {
-            return math::size(width * f, height * f);
-        }
-
-        auto operator/(const double& f) const -> math::size
-        {
-            return math::size(width / f, height / f);
-        }
-
-        auto operator==(const math::size& s) const -> bool
-        {
-            return (width == s.width) && (height == s.height);
-        }
-
-        auto operator!=(const math::size& s) const -> bool
-        {
-            return !(*this == s);
-        }
-
-        auto area() const -> double
-        {
-            return width * height;
-        }
-
+        auto area() const -> double;
     };
 
 };

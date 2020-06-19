@@ -21,7 +21,6 @@
 #if !defined(KESTREL_RECT_HPP)
 #define KESTREL_RECT_HPP
 
-#include <cmath>
 #include "math/point.hpp"
 #include "math/size.hpp"
 
@@ -36,73 +35,24 @@ namespace math
         math::point origin;
         math::size size;
 
-        rect() : origin(), size() {};
-        rect(const math::point& o, const math::size& s) : origin(o), size(s) {};
-        rect(const double& x, const double& y, const double& w, const double& h) : origin(x, y), size(w, h) {};
-        rect(const math::rect& r) : origin(r.origin), size(r.size) {};
+        rect();
+        rect(const math::point& o, const math::size& s);
+        rect(const double& x, const double& y, const double& w, const double& h);
+        rect(const math::rect& r);
 
-        auto operator+(const math::point& p) const -> math::rect
-        {
-            return math::rect(origin + p, size);
-        }
+        auto operator+(const math::point& p) const -> math::rect;
+        auto operator+(const math::size& s) const -> math::rect;
+        auto operator-(const math::point& p) const -> math::rect;
+        auto operator-(const math::size& s) const -> math::rect;
+        auto operator*(const double& f) const -> math::rect;
+        auto operator/(const double& f) const -> math::rect;
+        auto operator==(const math::rect& r) const -> bool;
+        auto operator!=(const math::rect& r) const -> bool;
 
-        auto operator+(const math::size& s) const -> math::rect
-        {
-            return math::rect(origin, size + s);
-        }
-
-        auto operator-(const math::point& p) const -> math::rect
-        {
-            return math::rect(origin - p, size);
-        }
-
-        auto operator-(const math::size& s) const -> math::rect
-        {
-            return math::rect(origin, size - s);
-        }
-
-        auto operator*(const double& f) const -> math::rect
-        {
-            return math::rect(origin * f, size * f);
-        }
-
-        auto operator/(const double& f) const -> math::rect
-        {
-            return math::rect(origin / f, size / f);
-        }
-
-        auto operator==(const math::rect& r) const -> bool
-        {
-            return (origin == r.origin) && (size == r.size);
-        }
-
-        auto operator!=(const math::rect& r) const -> bool
-        {
-            return !(*this == r);
-        }
-
-        auto area() const -> double
-        {
-            return size.area();
-        }
-
-        auto contains(const math::point& p) const -> bool
-        {
-            return (p.x >= origin.x && p.x <= origin.x + size.width)
-                && (p.y >= origin.y && p.y <= origin.y + size.height);
-        }
-
-        auto contains(const math::rect& r) const -> bool
-        {
-           return (r.origin.x >= origin.x && r.origin.x + r.size.width <= origin.x + size.width)
-               && (r.origin.y >= origin.y && r.origin.y + r.size.height <= origin.y + size.height);
-        }
-
-        auto intersects(const math::rect& r) const -> bool
-        {
-            // TODO: Implement this in an efficient way...
-            return false;
-        }
+        auto area() const -> double;
+        auto contains(const math::point& p) const -> bool;
+        auto contains(const math::rect& r) const -> bool;
+        auto intersects(const math::rect& r) const -> bool;
     };
 
 }
