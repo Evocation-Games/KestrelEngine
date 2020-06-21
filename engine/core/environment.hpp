@@ -18,10 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/environment.hpp"
+#if !defined(KESTREL_ENVIRONMENT_HPP)
+#define KESTREL_ENVIRONMENT_HPP
 
-auto main(int argc, const char* argv[]) -> int
+#include <memory>
+#include <string>
+#include <vector>
+
+namespace graphics
 {
-    auto env = std::make_shared<environment>(argc, argv);
-    return env->launch();
+    class session_window;
 }
+
+class environment: public std::enable_shared_from_this<environment>
+{
+private:
+    int m_status;
+    std::vector<std::string> m_options;
+    std::shared_ptr<graphics::session_window> m_game_window;
+
+public:
+    environment(int argc, const char **argv);
+
+    auto launch() -> int;
+
+};
+
+#endif //KESTREL_ENVIRONMENT_HPP

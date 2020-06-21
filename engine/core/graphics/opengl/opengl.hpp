@@ -18,10 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/environment.hpp"
+#if !defined(KESTREL_OPENGL_HPP)
+#define KESTREL_OPENGL_HPP
 
-auto main(int argc, const char* argv[]) -> int
-{
-    auto env = std::make_shared<environment>(argc, argv);
-    return env->launch();
-}
+#if __APPLE__
+#   define GL_SILENCE_DEPRECATION
+#   include "OpenGL/gl3.h"
+#else
+#   include "OpenGL/gl.h"
+#endif
+
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#endif //KESTREL_HEADERS_HPP

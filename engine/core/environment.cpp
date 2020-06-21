@@ -19,9 +19,31 @@
 // SOFTWARE.
 
 #include "core/environment.hpp"
+#include "core/graphics/opengl/opengl_session_window.hpp"
 
-auto main(int argc, const char* argv[]) -> int
+// MARK: - Construction
+
+environment::environment(int argc, const char **argv)
 {
-    auto env = std::make_shared<environment>(argc, argv);
-    return env->launch();
+    for (auto i = 1; i < argc; ++i) {
+        m_options.emplace_back(std::string(argv[i]));
+    }
+}
+
+// MARK: - Run Loop
+
+auto environment::launch() -> int
+{
+    // Determine which graphics mode we are running in, and instantiate the correct session_window
+    // subclass.
+    // TODO: Add in alternate modes as they are implemented, and bind to appropriate platforms.
+    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+
+    // Enter the main run loop, keep calling tick on the session window until such time as it is no
+    // longer in existence or alive.
+    while (m_game_window && m_game_window->is_running()) {
+        m_game_window->tick();
+    }
+
+    return m_status;
 }

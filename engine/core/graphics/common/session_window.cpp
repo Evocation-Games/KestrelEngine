@@ -18,10 +18,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/environment.hpp"
+#include "core/graphics/common/session_window.hpp"
 
-auto main(int argc, const char* argv[]) -> int
+// MARK: - Construction
+
+graphics::session_window::session_window(std::shared_ptr<environment> env)
+    : m_environment(env)
 {
-    auto env = std::make_shared<environment>(argc, argv);
-    return env->launch();
+
 }
+
+// MARK: - Accessors
+
+auto graphics::session_window::is_running() const -> bool
+{
+    return m_alive;
+}
+
+// MARK: - Main Loop
+
+auto graphics::session_window::tick() -> void
+{
+    time_point new_time { session_clock::now() };
+    double frame_time = (new_time - m_current_time).count();
+    if (frame_time > 0.25) {
+        frame_time = 0.25;
+    }
+    m_current_time = new_time;
+    m_accumulator += frame_time;
+
+    while (m_accumulator >= m_delta) {
+        update();
+        render();
+        m_time += m_delta;
+        m_accumulator -= m_delta;
+    }
+}
+
+// MARK: - Render/Physics Base
+
+auto graphics::session_window::update() -> void
+{
+    // Implement in subclass
+}
+
+auto graphics::session_window::render() -> void
+{
+    // Implement in subclass
+}
+

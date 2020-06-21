@@ -18,10 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/environment.hpp"
+#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP)
+#define KESTREL_OPENGL_SESSION_WINDOW_HPP
 
-auto main(int argc, const char* argv[]) -> int
-{
-    auto env = std::make_shared<environment>(argc, argv);
-    return env->launch();
-}
+#include "core/graphics/common/session_window.hpp"
+#include "core/graphics/opengl/opengl.hpp"
+
+namespace graphics { namespace opengl {
+
+    class session_window: public graphics::session_window
+    {
+    protected:
+        GLFWwindow *m_window { nullptr };
+
+        auto configure_viewport(GLdouble width, GLdouble height) -> void;
+
+    public:
+        explicit session_window(std::shared_ptr<environment> env);
+
+        auto render() -> void override;
+    };
+
+}};
+
+#endif //KESTREL_OPENGL_SESSION_WINDOW_HPP

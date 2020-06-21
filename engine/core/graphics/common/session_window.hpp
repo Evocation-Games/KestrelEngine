@@ -18,10 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if !defined(KESTREL_SESSION_WINDOW_HPP)
+#define KESTREL_SESSION_WINDOW_HPP
+
+#include <memory>
+#include <chrono>
+#include <string>
 #include "core/environment.hpp"
 
-auto main(int argc, const char* argv[]) -> int
+namespace graphics
 {
-    auto env = std::make_shared<environment>(argc, argv);
-    return env->launch();
+    using session_clock = std::chrono::steady_clock;
+    using ms = std::chrono::milliseconds;
+    using seconds = std::chrono::duration<float>;
+    using time_point = std::chrono::time_point<session_clock, seconds>;
+
+    /**
+     * The session window represents the main game/content window of the application
+     * session. This class is intended to be subclassed for an appropriate graphics
+     * driver such as OpenGL, Metal, etc...
+     */
+    class session_window
+    {
+    protected:
+        bool m_alive { false };
+        double m_time { 0.0 };
+        double m_delta { 0.01 };
+        time_point m_current_time;
+        double m_accumulator { 0.0 };
+        std::weak_ptr<environment> m_environment;
+
+    public:
+        session_window(std::shared_ptr<environment> env);
+
+        auto is_running() const -> bool;
+
+        auto tick() -> void;
+        virtual auto update() -> void;
+        virtual auto render() -> void;
+
+    };
 }
+
+#endif //KESTREL_SESSION_WINDOW_HPP
