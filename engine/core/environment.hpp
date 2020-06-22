@@ -36,6 +36,15 @@ private:
     int m_status;
     std::vector<std::string> m_options;
     std::shared_ptr<graphics::session_window> m_game_window;
+    std::string m_kestrel_core_path;
+    std::string m_game_data_path;
+
+    auto kestrel_core_path() const -> std::string;
+    auto game_data_path() const -> std::string;
+
+    auto load_kestrel_core() -> void;
+    auto load_game_data() -> void;
+    auto load_data_files(const std::string& path) -> void;
 
 public:
     environment(int argc, const char **argv);
