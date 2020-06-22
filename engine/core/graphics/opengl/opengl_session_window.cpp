@@ -20,8 +20,12 @@
 
 #include <stdexcept>
 #include <utility>
+#include <iostream>
 #include "core/graphics/opengl/opengl_session_window.hpp"
+#include "core/graphics/opengl/opengl_scene.hpp"
 #include "core/graphics/opengl/opengl.hpp"
+#include <libGraphite/rsrc/manager.hpp>
+#include <libGraphite/data/reader.hpp>
 
 // MARK: - Construction
 
@@ -78,11 +82,20 @@ auto graphics::opengl::session_window::configure_viewport(GLdouble width, GLdoub
 
 auto graphics::opengl::session_window::render() -> void
 {
-    graphics::session_window::render();
-
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    graphics::session_window::render();
+
     glfwSwapBuffers(m_window);
     glfwPollEvents();
+}
+
+// MARK: - Scene Management
+
+auto graphics::opengl::session_window::new_scene() -> std::shared_ptr<graphics::scene>
+{
+    auto scene = std::make_shared<graphics::opengl::scene>(shared_from_this());
+    m_scenes.emplace_back(scene);
+    return scene;
 }

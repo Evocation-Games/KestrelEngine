@@ -18,53 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SESSION_WINDOW_HPP)
-#define KESTREL_SESSION_WINDOW_HPP
+#if !defined(KESTREL_SCENE_HPP)
+#define KESTREL_SCENE_HPP
 
 #include <memory>
-#include <chrono>
-#include <string>
-#include <vector>
-#include "core/environment.hpp"
+#include "core/graphics/common/session_window.hpp"
 
 namespace graphics
 {
-    class scene;
 
-    using session_clock = std::chrono::steady_clock;
-    using ms = std::chrono::milliseconds;
-    using seconds = std::chrono::duration<float>;
-    using time_point = std::chrono::time_point<session_clock, seconds>;
-
-    /**
-     * The session window represents the main game/content window of the application
-     * session. This class is intended to be subclassed for an appropriate graphics
-     * driver such as OpenGL, Metal, etc...
-     */
-    class session_window
+    class scene: public std::enable_shared_from_this<scene>
     {
     protected:
-        bool m_alive { false };
-        double m_time { 0.0 };
-        double m_delta { 0.01 };
-        time_point m_current_time;
-        double m_accumulator { 0.0 };
-        std::weak_ptr<environment> m_environment;
-        std::vector<std::shared_ptr<graphics::scene>> m_scenes;
+        std::weak_ptr<graphics::session_window> m_owner;
 
     public:
-        explicit session_window(std::shared_ptr<environment> env);
+        explicit scene(std::shared_ptr<graphics::session_window> window);
 
-        [[nodiscard]] auto is_running() const -> bool;
-
-        auto current_scene() const -> std::shared_ptr<graphics::scene>;
-        virtual auto new_scene() -> std::shared_ptr<graphics::scene>;
-
-        auto tick() -> void;
         virtual auto update() -> void;
         virtual auto render() -> void;
-
     };
+
 }
 
-#endif //KESTREL_SESSION_WINDOW_HPP
+
+#endif //KESTREL_SCENE_HPP

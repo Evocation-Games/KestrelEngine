@@ -18,29 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP)
-#define KESTREL_OPENGL_SESSION_WINDOW_HPP
+#include <utility>
+#include "core/graphics/opengl/opengl_scene.hpp"
 
-#include "core/graphics/common/session_window.hpp"
-#include "core/graphics/opengl/opengl.hpp"
+// MARK: - Construction
 
-namespace graphics { namespace opengl {
+graphics::opengl::scene::scene(std::shared_ptr<graphics::session_window> window)
+    : graphics::scene(std::move(window))
+{
 
-class session_window: public graphics::session_window, public std::enable_shared_from_this<opengl::session_window>
-    {
-    protected:
-        GLFWwindow *m_window { nullptr };
+}
 
-        auto configure_viewport(GLdouble width, GLdouble height) -> void;
+// MARK: - Render/Physics
 
-    public:
-        explicit session_window(std::shared_ptr<environment> env);
+auto graphics::opengl::scene::update() -> void
+{
 
-        auto new_scene() -> std::shared_ptr<graphics::scene> override;
+}
 
-        auto render() -> void override;
-    };
+auto graphics::opengl::scene::render() -> void
+{
 
-}};
-
-#endif //KESTREL_OPENGL_SESSION_WINDOW_HPP
+}

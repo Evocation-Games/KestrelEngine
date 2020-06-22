@@ -18,29 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP)
-#define KESTREL_OPENGL_SESSION_WINDOW_HPP
+#if !defined(KESTREL_OPENGL_SCENE_HPP)
+#define KESTREL_OPENGL_SCENE_HPP
 
-#include "core/graphics/common/session_window.hpp"
-#include "core/graphics/opengl/opengl.hpp"
+#include "core/graphics/common/scene.hpp"
 
 namespace graphics { namespace opengl {
 
-class session_window: public graphics::session_window, public std::enable_shared_from_this<opengl::session_window>
+    class scene: public graphics::scene
     {
     protected:
-        GLFWwindow *m_window { nullptr };
-
-        auto configure_viewport(GLdouble width, GLdouble height) -> void;
 
     public:
-        explicit session_window(std::shared_ptr<environment> env);
+        explicit scene(std::shared_ptr<graphics::session_window> window);
 
-        auto new_scene() -> std::shared_ptr<graphics::scene> override;
-
+        auto update() -> void override;
         auto render() -> void override;
+
     };
 
 }};
 
-#endif //KESTREL_OPENGL_SESSION_WINDOW_HPP
+#endif //KESTREL_OPENGL_SCENE_HPP

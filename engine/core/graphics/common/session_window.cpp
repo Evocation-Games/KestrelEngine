@@ -19,13 +19,13 @@
 // SOFTWARE.
 
 #include "core/graphics/common/session_window.hpp"
+#include "core/graphics/common/scene.hpp"
 
 // MARK: - Construction
 
 graphics::session_window::session_window(std::shared_ptr<environment> env)
     : m_environment(env)
 {
-
 }
 
 // MARK: - Accessors
@@ -59,11 +59,29 @@ auto graphics::session_window::tick() -> void
 
 auto graphics::session_window::update() -> void
 {
-    // Implement in subclass
+    if (m_scenes.empty()) {
+        return;
+    }
+    current_scene()->update();
 }
 
 auto graphics::session_window::render() -> void
 {
-    // Implement in subclass
+    if (m_scenes.empty()) {
+        return;
+    }
+    current_scene()->render();
+}
+
+// MARK: - Scene Management
+
+auto graphics::session_window::current_scene() const -> std::shared_ptr<graphics::scene>
+{
+    return m_scenes.back();
+}
+
+auto graphics::session_window::new_scene() -> std::shared_ptr<graphics::scene>
+{
+    throw std::logic_error("session_window::new_scene must be overridden in a subclass.");
 }
 
