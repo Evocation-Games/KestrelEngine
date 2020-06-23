@@ -38,7 +38,7 @@ graphics::opengl::shader::shader(const int64_t &vertex_id, const int64_t &fragme
     glCompileShader(vertex);
     check(vertex, "VERTEX");
 
-    fragment = glCreateShader(GL_VERTEX_SHADER);
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
     auto fragment_source = m_fragment_code.c_str();
     glShaderSource(fragment, 1, &fragment_source, nullptr);
     glCompileShader(fragment);
