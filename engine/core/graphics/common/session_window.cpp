@@ -35,6 +35,11 @@ auto graphics::session_window::is_running() const -> bool
     return m_alive;
 }
 
+auto graphics::session_window::sprite_shader() -> std::shared_ptr<graphics::shader>
+{
+    return m_sprite_shader;
+}
+
 // MARK: - Main Loop
 
 auto graphics::session_window::tick() -> void

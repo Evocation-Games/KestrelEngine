@@ -66,7 +66,11 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Load the default/basic sprite shader from 'GLSL #0 and #1'
+    m_sprite_shader = std::make_shared<opengl::shader>(0, 1);
+
     m_alive = true;
+
 }
 
 // MARK: - Configuration

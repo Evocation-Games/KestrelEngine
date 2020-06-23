@@ -18,16 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#version 330 core
+#if !defined(KESTREL_SHADER_HPP)
+#define KESTREL_SHADER_HPP
 
-in vec2 TexCoords;
+#include <string>
+#include <memory>
 
-out vec4 color;
-
-uniform sampler2D image;
-uniform vec3 spriteColor;
-
-void main()
+namespace graphics
 {
-    color = vec4(spriteColor, 1.0) * texture(image, TexCoords);
+
+    class shader: public std::enable_shared_from_this<graphics::shader>
+    {
+    protected:
+        std::string m_vertex_code;
+        std::string m_fragment_code;
+        std::string m_vertex_name;
+        std::string m_fragment_name;
+
+    public:
+        shader(const std::string& type, const int64_t& vertex_id, const int64_t& fragment_id);
+
+        auto vertex_name() const -> std::string;
+        auto fragment_name() const -> std::string;
+        auto vertex_code() const -> std::string;
+        auto fragment_code() const -> std::string;
+
+        virtual auto use() -> std::shared_ptr<graphics::shader>;
+    };
+
 }
+
+#endif //KESTREL_SHADER_HPP

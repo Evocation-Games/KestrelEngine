@@ -30,6 +30,7 @@
 namespace graphics
 {
     class scene;
+    class shader;
 
     using session_clock = std::chrono::steady_clock;
     using ms = std::chrono::milliseconds;
@@ -51,6 +52,7 @@ namespace graphics
         double m_accumulator { 0.0 };
         std::weak_ptr<environment> m_environment;
         std::vector<std::shared_ptr<graphics::scene>> m_scenes;
+        std::shared_ptr<graphics::shader> m_sprite_shader;
 
     public:
         explicit session_window(std::shared_ptr<environment> env);
@@ -59,6 +61,8 @@ namespace graphics
 
         auto current_scene() const -> std::shared_ptr<graphics::scene>;
         virtual auto new_scene() -> std::shared_ptr<graphics::scene>;
+
+        auto sprite_shader() -> std::shared_ptr<graphics::shader>;
 
         auto tick() -> void;
         virtual auto update() -> void;

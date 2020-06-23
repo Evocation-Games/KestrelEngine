@@ -23,6 +23,7 @@
 
 #include "core/graphics/common/session_window.hpp"
 #include "core/graphics/opengl/opengl.hpp"
+#include "core/graphics/opengl/opengl_shader.hpp"
 
 namespace graphics { namespace opengl {
 
