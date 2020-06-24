@@ -22,6 +22,24 @@
 #include "math/angular_difference.hpp"
 #include "math/angle.hpp"
 
+// MARK: - Lua
+
+auto math::angular_difference::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::angular_difference>("AngularDifference")
+            .addConstructor<auto(*)(const double&)->void, math::angular_difference::lua_reference>()
+            .addConstructor<auto(*)(const math::angular_difference&)->void, math::angular_difference::lua_reference>()
+            .addProperty("value", &math::angular_difference::phi)
+            .addProperty("isClockwise", &math::angular_difference::is_clockwise)
+            .addProperty("isAntiClockwise", &math::angular_difference::is_anti_clockwise)
+            .addStaticFunction("of", &math::angular_difference::between)
+            .addFunction("calculateAngleFrom", &math::angular_difference::calculate_for)
+            .addFunction("isOpposing", &math::angular_difference::is_opposing)
+            .addFunction("isEqual", &math::angular_difference::is_equal)
+        .endClass();
+}
+
 // MARK: - Constructors
 
 math::angular_difference::angular_difference(const double& phi)
@@ -40,7 +58,7 @@ auto math::angular_difference::between(const math::angle& a, const math::angle& 
 {
     auto phi = b - a + math::angle(180);
     auto phi_value = std::fmod(phi.degrees(), 360.0) + 180.0;
-    return phi_value > 180.0 ? 360 - phi_value : phi_value;
+    return math::angular_difference(phi_value > 180.0 ? 360 - phi_value : phi_value);
 }
 
 // MARK: - Operators

@@ -24,6 +24,7 @@
 #include <string>
 #include <optional>
 #include "scripting/state.hpp"
+#include "util/hint.hpp"
 
 namespace asset
 {
@@ -41,22 +42,22 @@ namespace asset
     public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        resource_reference(int64_t id);
-        resource_reference(const std::string& name);
+        explicit resource_reference(int64_t id);
+        explicit resource_reference(const std::string& name);
         resource_reference(const std::string& type, int64_t id);
         resource_reference(const std::string& type, const std::string& name);
 
-        static auto find(const std::string& type, int64_t id) -> bool;
-        static auto using_id(int64_t id) -> resource_reference::lua_reference;
-        static auto using_named(const std::string& name) -> resource_reference::lua_reference;
-        static auto using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference;
-        static auto using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference;
+        lua_api static auto find(const std::string& type, int64_t id) -> bool;
+        lua_api static auto using_id(int64_t id) -> resource_reference::lua_reference;
+        lua_api static auto using_named(const std::string& name) -> resource_reference::lua_reference;
+        lua_api static auto using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference;
+        lua_api static auto using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference;
 
         auto type() const -> std::optional<std::string>;
         auto id() const -> std::optional<int64_t>;
         auto name() const -> std::optional<std::string>;
 
-        auto exists() const -> bool;
+        lua_api auto exists() const -> bool;
     };
 
 }

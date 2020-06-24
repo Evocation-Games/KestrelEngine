@@ -21,6 +21,9 @@
 #if !defined(KESTREL_ANGLE_HPP)
 #define KESTREL_ANGLE_HPP
 
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
+
 namespace math
 {
 
@@ -33,35 +36,39 @@ namespace math
      * This is used by the physics engine to determine represent the angle between two vectors,
      * as required by certain calculations (trajectories, movements, etc)
      */
-    struct angle
+    struct angle: public scripting::lua::object
     {
+    public:
+        typedef luabridge::RefCountedPtr<math::angle> lua_reference;
     private:
         double m_theta { 0.0 };
 
     public:
-        angle(const double& theta = 0.0);
-        angle(const math::angle& a);
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        auto degrees() const -> double;
-        auto radians() const -> double;
+        lua_api explicit angle(const double& theta = 0.0);
+        lua_api angle(const math::angle& a);
 
-        auto sin(const double& magnitude = 1.0) const -> double;
-        auto cos(const double& magnitude = 1.0) const -> double;
+        lua_api auto degrees() const -> double;
+        lua_api auto radians() const -> double;
+
+        lua_api auto sin(const double& magnitude = 1.0) const -> double;
+        lua_api auto cos(const double& magnitude = 1.0) const -> double;
 
         auto operator+ (const math::angle& a) const -> math::angle;
         auto operator- (const math::angle& a) const -> math::angle;
         auto operator+ (const math::angular_difference& a) const -> math::angle;
         auto operator- (const math::angular_difference& a) const -> math::angle;
 
-        auto vector(const double magnitude = 1.0) const -> math::vector;
+        lua_api auto vector(const double& magnitude = 1.0) const -> math::vector;
 
-        auto opposite() const -> math::angle;
-        auto rotated(const math::angular_difference& phi) const -> math::angle;
+        lua_api auto opposite() const -> math::angle;
+        lua_api auto rotated(const math::angular_difference& phi) const -> math::angle;
 
-        auto normalise() -> void;
+        lua_api auto normalize() -> void;
 
-        auto is_opposing(const math::angle& a, const math::angular_difference& tolerance) const -> bool;
-        auto is_equal(const math::angle& a, const math::angular_difference& tolerance) const -> bool;
+        lua_api auto is_opposing(const math::angle& a, const math::angular_difference& tolerance) const -> bool;
+        lua_api auto is_equal(const math::angle& a, const math::angular_difference& tolerance) const -> bool;
     };
 
 }

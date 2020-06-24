@@ -23,18 +23,38 @@
 #include "math/angular_difference.hpp"
 #include "math/vector.hpp"
 
+// MARK: - Lua
+
+auto math::angle::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::angle>("Angle")
+            .addConstructor<auto(*)(const double&)->void, math::angle::lua_reference>()
+            .addProperty("degrees", &math::angle::degrees)
+            .addProperty("radians", &math::angle::radians)
+            .addFunction("sin", &math::angle::sin)
+            .addFunction("cos", &math::angle::cos)
+            .addFunction("vector", &math::angle::vector)
+            .addFunction("opposite", &math::angle::opposite)
+            .addFunction("rotated", &math::angle::rotated)
+            .addFunction("normalize", &math::angle::normalize)
+            .addFunction("isOpposing", &math::angle::is_opposing)
+            .addFunction("isEqual", &math::angle::is_equal)
+        .endClass();
+}
+
 // MARK: - Constructors
 
 math::angle::angle(const double& theta)
     : m_theta(theta)
 {
-    normalise();
+    normalize();
 }
 
 math::angle::angle(const math::angle& a)
     : m_theta(a.m_theta)
 {
-    normalise();
+    normalize();
 }
 
 // MARK: - Conversions
@@ -65,34 +85,34 @@ auto math::angle::cos(const double& magnitude) const -> double
 
 auto math::angle::operator+ (const math::angle& a) const -> math::angle
 {
-    return m_theta + a.m_theta;
+    return math::angle(m_theta + a.m_theta);
 }
 
 auto math::angle::operator- (const math::angle& a) const -> math::angle
 {
-    return m_theta - a.m_theta;
+    return math::angle(m_theta - a.m_theta);
 }
 
 auto math::angle::operator+ (const math::angular_difference& a) const -> math::angle
 {
-    return m_theta + a.phi();
+    return math::angle(m_theta + a.phi());
 }
 
 auto math::angle::operator- (const math::angular_difference& a) const -> math::angle
 {
-    return m_theta - a.phi();
+    return math::angle(m_theta - a.phi());
 }
 
 // MARK: - Operations
 
-auto math::angle::vector(const double magnitude) const -> math::vector
+auto math::angle::vector(const double& magnitude) const -> math::vector
 {
     return math::vector(cos(magnitude), sin(magnitude));
 }
 
 auto math::angle::opposite() const -> math::angle
 {
-    return rotated(180);
+    return rotated(math::angular_difference(180));
 }
 
 auto math::angle::rotated(const math::angular_difference& phi) const -> math::angle
@@ -100,7 +120,7 @@ auto math::angle::rotated(const math::angular_difference& phi) const -> math::an
     return phi.calculate_for(*this);
 }
 
-auto math::angle::normalise() -> void
+auto math::angle::normalize() -> void
 {
     m_theta = std::fmod(m_theta, 360.0);
     if (m_theta < 0) {
@@ -121,3 +141,4 @@ auto math::angle::is_equal(const math::angle& a, const math::angular_difference&
     auto phi = math::angular_difference::between(*this, a);
     return phi.is_equal(tolerance);
 }
+

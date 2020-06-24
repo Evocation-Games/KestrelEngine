@@ -21,6 +21,9 @@
 #if !defined(KESTREL_ANGULAR_DIFFERENCE_HPP)
 #define KESTREL_ANGULAR_DIFFERENCE_HPP
 
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
+
 namespace math
 {
 
@@ -28,14 +31,19 @@ namespace math
 
     struct angular_difference
     {
+    public:
+        typedef luabridge::RefCountedPtr<math::angular_difference> lua_reference;
+
     private:
         double m_phi { 0.0 };
 
     public:
-        angular_difference(const double& phi = 0.0);
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
+        explicit angular_difference(const double& phi = 0.0);
         angular_difference(const math::angular_difference& d);
 
-        static auto between(const math::angle& a, const math::angle& b) -> math::angular_difference;
+        lua_api static auto between(const math::angle& a, const math::angle& b) -> math::angular_difference;
 
         auto operator== (math::angular_difference& a) const -> bool;
         auto operator!= (math::angular_difference& a) const -> bool;
@@ -44,15 +52,15 @@ namespace math
         auto operator> (math::angular_difference& a) const -> bool;
         auto operator>= (math::angular_difference& a) const -> bool;
 
-        auto calculate_for(const math::angle& a) const -> math::angle;
+        lua_api auto calculate_for(const math::angle& a) const -> math::angle;
 
-        auto is_clockwise() const -> bool;
-        auto is_anti_clockwise() const -> bool;
+        lua_api auto is_clockwise() const -> bool;
+        lua_api auto is_anti_clockwise() const -> bool;
 
-        auto is_opposing(const math::angular_difference& tolerance = 0.0) const -> bool;
-        auto is_equal(const math::angular_difference& tolerance = 0.0) const -> bool;
+        lua_api auto is_opposing(const math::angular_difference& tolerance = math::angular_difference(0.0)) const -> bool;
+        lua_api auto is_equal(const math::angular_difference& tolerance = math::angular_difference(0.0)) const -> bool;
 
-        auto phi() const -> double;
+        lua_api auto phi() const -> double;
     };
 
 }

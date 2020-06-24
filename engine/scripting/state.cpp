@@ -23,6 +23,8 @@
 #include "core/environment.hpp"
 
 #include "core/asset/resource_reference.hpp"
+#include "math/angle.hpp"
+#include "math/angular_difference.hpp"
 
 // MARK: - Construction
 
@@ -51,6 +53,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     // Register and establish the API for the Lua Environment
     env->prepare_lua_interface();
     asset::resource_reference::enroll_object_api_in_state(shared_from_this());
+    math::angle::enroll_object_api_in_state(shared_from_this());
+    math::angular_difference::enroll_object_api_in_state(shared_from_this());
 }
 
 

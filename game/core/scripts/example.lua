@@ -5,3 +5,14 @@
 ---
 
 print("This is a separate script that is being loaded by Lua itself.")
+
+-- Angles Tests
+
+local foo = Angle(90)
+local bar = Angle(260)
+
+local delta = AngularDifference.of(bar, foo)
+
+local baz = delta:calculateAngleFrom(Angle(300))
+
+print("The angular difference is " .. baz.degrees)
