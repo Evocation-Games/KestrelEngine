@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include "core/environment.hpp"
+#include "math/size.hpp"
 
 namespace graphics
 {
@@ -63,6 +64,9 @@ namespace graphics
         virtual auto new_scene() -> std::shared_ptr<graphics::scene>;
 
         auto sprite_shader() -> std::shared_ptr<graphics::shader>;
+
+        virtual auto set_title(const std::string& title) -> void;
+        virtual auto set_size(const math::size& size) -> void;
 
         auto tick() -> void;
         virtual auto update() -> void;

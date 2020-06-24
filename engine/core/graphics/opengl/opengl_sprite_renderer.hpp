@@ -18,36 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP)
-#define KESTREL_OPENGL_SESSION_WINDOW_HPP
+#if !defined(KESTREL_OPENGL_SPRITE_RENDERER_HPP)
+#define KESTREL_OPENGL_SPRITE_RENDERER_HPP
 
-#include <optional>
-#include "core/graphics/common/session_window.hpp"
+#include <memory>
 #include "core/graphics/opengl/opengl.hpp"
 #include "core/graphics/opengl/opengl_shader.hpp"
-#include "core/graphics/opengl/opengl_sprite_renderer.hpp"
+#include "core/graphics/common/entity.hpp"
 
 namespace graphics { namespace opengl {
 
-class session_window: public graphics::session_window, public std::enable_shared_from_this<opengl::session_window>
+    class sprite_renderer
     {
-    protected:
-        GLFWwindow *m_window { nullptr };
-        std::optional<opengl::sprite_renderer> m_sprite_renderer;
-
-        auto configure_viewport(GLdouble width, GLdouble height) -> void;
+    private:
+        std::shared_ptr<opengl::shader> m_shader;
+        GLuint m_vao;
+        GLuint m_vbo;
 
     public:
-        explicit session_window(std::shared_ptr<environment> env);
+        sprite_renderer(std::shared_ptr<opengl::shader> shader);
 
-        auto new_scene() -> std::shared_ptr<graphics::scene> override;
-
-        auto set_title(const std::string& title) -> void override;
-        auto set_size(const math::size& size) -> void override;
-
-        auto render() -> void override;
+        auto draw(std::shared_ptr<graphics::entity> entity) const -> void;
     };
 
-}};
+};};
 
-#endif //KESTREL_OPENGL_SESSION_WINDOW_HPP
+#endif //KESTREL_OPENGL_SPRITE_RENDERER_HPP

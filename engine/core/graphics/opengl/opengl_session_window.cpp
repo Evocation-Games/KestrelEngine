@@ -68,6 +68,7 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
 
     // Load the default/basic sprite shader from 'GLSL #0 and #1'
     m_sprite_shader = std::make_shared<opengl::shader>(0, 1);
+    m_sprite_renderer = sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader));
 
     m_alive = true;
 
@@ -80,6 +81,16 @@ auto graphics::opengl::session_window::configure_viewport(GLdouble width, GLdoub
     glViewport(0, 0, width, height);
     glm::mat4 projection = glm::ortho(0.0, width, height, 0.0, -1.0, 0.0);
 
+}
+
+auto graphics::opengl::session_window::set_title(const std::string& title) -> void
+{
+    glfwSetWindowTitle(m_window, title.c_str());
+}
+
+auto graphics::opengl::session_window::set_size(const math::size& size) -> void
+{
+    glfwSetWindowSize(m_window, static_cast<int>(size.width), static_cast<int>(size.height));
 }
 
 // MARK: - Rendering

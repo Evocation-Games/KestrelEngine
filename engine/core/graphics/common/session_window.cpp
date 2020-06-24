@@ -40,6 +40,16 @@ auto graphics::session_window::sprite_shader() -> std::shared_ptr<graphics::shad
     return m_sprite_shader;
 }
 
+auto graphics::session_window::set_title(const std::string &title) -> void
+{
+
+}
+
+auto graphics::session_window::set_size(const math::size &size) -> void
+{
+
+}
+
 // MARK: - Main Loop
 
 auto graphics::session_window::tick() -> void
@@ -89,4 +99,3 @@ auto graphics::session_window::new_scene() -> std::shared_ptr<graphics::scene>
 {
     throw std::logic_error("session_window::new_scene must be overridden in a subclass.");
 }
-

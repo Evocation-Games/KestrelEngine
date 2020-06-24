@@ -23,6 +23,9 @@
 #include "core/environment.hpp"
 #include "core/graphics/opengl/opengl_session_window.hpp"
 #include <libGraphite/rsrc/manager.hpp>
+#include "scripting/state.hpp"
+
+static std::weak_ptr<environment> $_active_environment;
 
 // MARK: - Helpers
 
@@ -46,7 +49,6 @@ environment::environment(int argc, const char **argv)
 
     // Configure the lua runtime
     m_lua_runtime = std::make_shared<scripting::lua::state>();
-    m_lua_runtime->prepare_lua_environment();
 
     // Cache the data path locations... first assign the defaults, and then search for an alternate path in the
     // options.
@@ -66,6 +68,10 @@ auto environment::launch() -> int
     // subclass.
     // TODO: Add in alternate modes as they are implemented, and bind to appropriate platforms.
     m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+
+    // Ensure Lua is fully configured and ready to go.
+    $_active_environment = shared_from_this();
+    m_lua_runtime->prepare_lua_environment(shared_from_this());
 
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
     auto main_script = m_lua_runtime->load_script(0);
@@ -159,3 +165,41 @@ auto environment::game_data_path() const -> std::string
 #else
 #   error "Unknown Target Platform"
 #endif
+
+// MARK: - Lua Interface
+
+auto environment::prepare_lua_interface() -> void
+{
+    luabridge::getGlobalNamespace(m_lua_runtime->internal_state())
+        .beginClass<environment>("Kestrel")
+            .addStaticFunction("setGameWindowTitle", &environment::set_game_window_title)
+            .addStaticFunction("setGameWindowSize", &environment::set_game_window_size)
+            .addStaticFunction("importScript", &environment::import_script)
+        .endClass();
+}
+
+auto environment::set_game_window_title(const std::string &title) -> void
+{
+    $_active_environment.lock()->m_game_window->set_title(title);
+}
+
+auto environment::set_game_window_size(const double& width, const double& height) -> void
+{
+    $_active_environment.lock()->m_game_window->set_size({ width, height });
+}
+
+auto environment::import_script(const asset::resource_reference::lua_reference& ref) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        if (ref->id().has_value()) {
+            auto scpt = env->m_lua_runtime->load_script(ref->id().value());
+            env->m_lua_runtime->run(scpt);
+        }
+        else if (ref->name().has_value()) {
+
+        }
+        else {
+
+        }
+    }
+}

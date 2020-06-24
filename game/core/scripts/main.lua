@@ -23,8 +23,11 @@ print("Starting KestrelGameCore")
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Load API's from the GameCore.
 
+Kestrel.importScript(Resource.id(128))
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Setup the Game
 
+Kestrel.setGameWindowTitle("Kestrel Demo")
+Kestrel.setGameWindowSize(1280, 800)

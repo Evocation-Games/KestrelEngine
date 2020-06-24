@@ -18,36 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP)
-#define KESTREL_OPENGL_SESSION_WINDOW_HPP
-
-#include <optional>
-#include "core/graphics/common/session_window.hpp"
-#include "core/graphics/opengl/opengl.hpp"
-#include "core/graphics/opengl/opengl_shader.hpp"
 #include "core/graphics/opengl/opengl_sprite_renderer.hpp"
 
-namespace graphics { namespace opengl {
+#include <utility>
 
-class session_window: public graphics::session_window, public std::enable_shared_from_this<opengl::session_window>
-    {
-    protected:
-        GLFWwindow *m_window { nullptr };
-        std::optional<opengl::sprite_renderer> m_sprite_renderer;
+// MARK: - Construction
 
-        auto configure_viewport(GLdouble width, GLdouble height) -> void;
+graphics::opengl::sprite_renderer::sprite_renderer(std::shared_ptr<opengl::shader> shader)
+    : m_shader(std::move(shader)), m_vao(0), m_vbo(0)
+{
+    m_shader->use();
 
-    public:
-        explicit session_window(std::shared_ptr<environment> env);
+    // Setup vertex information and arrays
+    float vertices[] = {
+        // pos      // tex
+        0.0, 1.0,   0.0, 1.0,
+        1.0, 0.0,   1.0, 0.0,
+        0.0, 0.0,   0.0, 0.0,
 
-        auto new_scene() -> std::shared_ptr<graphics::scene> override;
-
-        auto set_title(const std::string& title) -> void override;
-        auto set_size(const math::size& size) -> void override;
-
-        auto render() -> void override;
+        0.0, 1.0,   0.0, 1.0,
+        1.0, 1.0,   1.0, 1.0,
+        1.0, 0.0,   1.0, 0.0
     };
 
-}};
+    glGenVertexArrays(1, &m_vao);
 
-#endif //KESTREL_OPENGL_SESSION_WINDOW_HPP
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindVertexArray(m_vao);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, false, 4 * sizeof(float), nullptr);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+// MARK: - Drawing
+
+auto graphics::opengl::sprite_renderer::draw(std::shared_ptr<graphics::entity> entity) const -> void
+{
+
+}

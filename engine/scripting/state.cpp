@@ -20,6 +20,9 @@
 
 #include "scripting/state.hpp"
 #include "scripting/script.hpp"
+#include "core/environment.hpp"
+
+#include "core/asset/resource_reference.hpp"
 
 // MARK: - Construction
 
@@ -37,7 +40,7 @@ scripting::lua::state::~state()
 
 // MARK: - Lua
 
-auto scripting::lua::state::prepare_lua_environment() -> void
+auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<environment>& env) -> void
 {
     m_state = luaL_newstate();
     luaL_openlibs(m_state);
@@ -46,6 +49,8 @@ auto scripting::lua::state::prepare_lua_environment() -> void
     m_stack = std::make_shared<lua::stack>(shared_from_this());
 
     // Register and establish the API for the Lua Environment
+    env->prepare_lua_interface();
+    asset::resource_reference::enroll_object_api_in_state(shared_from_this());
 }
 
 

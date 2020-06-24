@@ -30,7 +30,10 @@ extern "C" {
 #include <string>
 #include <memory>
 #include "LuaBridge/LuaBridge.h"
+#include "LuaBridge/RefCountedPtr.h"
 #include "scripting/stack.hpp"
+
+class environment;
 
 namespace scripting { namespace lua {
 
@@ -49,7 +52,7 @@ namespace scripting { namespace lua {
         state();
         ~state();
 
-        auto prepare_lua_environment() -> void;
+        auto prepare_lua_environment(const std::shared_ptr<environment>& env) -> void;
 
         auto stack() -> std::shared_ptr<lua::stack>;
 
@@ -62,6 +65,11 @@ namespace scripting { namespace lua {
         auto load_script(const int64_t& id) -> lua::script;
         auto run(const lua::script& script) -> void;
         auto run(const std::string& script) -> void;
+    };
+
+    class object
+    {
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void {};
     };
 
 }};

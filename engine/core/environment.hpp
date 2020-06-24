@@ -26,6 +26,7 @@
 #include <vector>
 #include "scripting/state.hpp"
 #include "scripting/script.hpp"
+#include "core/asset/resource_reference.hpp"
 
 namespace graphics
 {
@@ -49,10 +50,16 @@ private:
     auto load_game_data() -> void;
     auto load_data_files(const std::string& path) -> void;
 
+    static auto set_game_window_title(const std::string& title) -> void;
+    static auto set_game_window_size(const double& width, const double& height) -> void;
+    static auto import_script(const asset::resource_reference::lua_reference& ref) -> void;
+
 public:
     environment(int argc, const char **argv);
 
     auto launch() -> int;
+
+    auto prepare_lua_interface() -> void;
 
 };
 
