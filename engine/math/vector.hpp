@@ -21,6 +21,9 @@
 #if !defined(KESTREL_VECTOR_HPP)
 #define KESTREL_VECTOR_HPP
 
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
+
 namespace math
 {
 
@@ -32,30 +35,42 @@ namespace math
      * Unlike the `math::point` structure, this structure is intended for use in the physics engine
      * and for specifying locations of game entities.
      */
-    struct vector
+    struct vector: public scripting::lua::object
     {
     public:
+        typedef luabridge::RefCountedPtr<math::vector> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
         double x;
         double y;
         double z;
 
         vector();
         vector(const double& v);
-        vector(const double& x, const double& y, const double& z = 1.0);
+        lua_api vector(const double& x, const double& y, const double& z = 1.0);
         vector(const math::vector& v);
 
-        auto operator+(const math::vector& v) const -> math::vector;
-        auto operator-(const math::vector& v) const -> math::vector;
-        auto operator*(const double& f) const -> math::vector;
-        auto operator/(const double& f) const -> math::vector;
+        lua_api auto operator+(const math::vector& v) const -> math::vector;
+        lua_api auto operator-(const math::vector& v) const -> math::vector;
+        lua_api auto operator*(const double& f) const -> math::vector;
+        lua_api auto operator/(const double& f) const -> math::vector;
         auto operator==(const math::vector& v) const -> bool;
         auto operator!=(const math::vector& v) const -> bool;
 
-        auto angle() const -> math::angle;
-        auto angle(const math::vector& v) const -> math::angle;
+        lua_api auto angle() const -> math::angle;
+        lua_api auto angle_to(const math::vector& v) const -> math::angle;
 
-        auto distance_to(const math::vector& v) const -> double;
-        auto magnitude() const -> double;
+        lua_api auto distance_to(const math::vector& v) const -> double;
+        lua_api auto magnitude() const -> double;
+
+        lua_api auto set_x(const double& x) -> void;
+        lua_api auto get_x() const -> double;
+
+        lua_api auto set_y(const double& y) -> void;
+        lua_api auto get_y() const -> double;
+
+        lua_api auto set_z(const double& z) -> void;
+        lua_api auto get_z() const -> double;
     };
 
 };

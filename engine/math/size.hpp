@@ -21,31 +21,43 @@
 #if !defined(KESTREL_SIZE_HPP)
 #define KESTREL_SIZE_HPP
 
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
+
 namespace math
 {
 
     /**
      * Represents a 2D size.
      */
-    struct size
+    struct size: public scripting::lua::object
     {
     public:
+        typedef luabridge::RefCountedPtr<math::size> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
         double width;
         double height;
 
         size();
         size(const double& v);
-        size(const double& w, const double& h);
+        lua_api size(const double& w, const double& h);
         size(const math::size& s);
 
-        auto operator+(const math::size& s) const -> math::size;
-        auto operator-(const math::size& s) const -> math::size;
-        auto operator*(const double& f) const -> math::size;
-        auto operator/(const double& f) const -> math::size;
+        lua_api auto operator+(const math::size& s) const -> math::size;
+        lua_api auto operator-(const math::size& s) const -> math::size;
+        lua_api auto operator*(const double& f) const -> math::size;
+        lua_api auto operator/(const double& f) const -> math::size;
         auto operator==(const math::size& s) const -> bool;
         auto operator!=(const math::size& s) const -> bool;
 
-        auto area() const -> double;
+        lua_api auto area() const -> double;
+
+        lua_api auto set_width(const double& width) -> void;
+        lua_api auto get_width() const -> double;
+
+        lua_api auto set_height(const double& height) -> void;
+        lua_api auto get_height() const -> double;
     };
 
 };

@@ -22,6 +22,27 @@
 #include "math/vector.hpp"
 #include "math/angle.hpp"
 
+// MARK: - Lua
+
+auto math::vector::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::vector>("Vec3")
+            .addConstructor<auto(*)(const double&, const double&, const double&)->void, math::vector::lua_reference>()
+            .addProperty("x", &math::vector::get_x, &math::vector::set_x)
+            .addProperty("y", &math::vector::get_y, &math::vector::set_y)
+            .addProperty("z", &math::vector::get_z, &math::vector::set_z)
+            .addProperty("magnitude", &math::vector::magnitude)
+            .addProperty("angle", &math::vector::angle)
+            .addFunction("angleTo", &math::vector::angle_to)
+            .addFunction("distanceTo", &math::vector::distance_to)
+            .addFunction("add", &math::vector::operator+)
+            .addFunction("subtract", &math::vector::operator-)
+            .addFunction("multiply", &math::vector::operator*)
+            .addFunction("divide", &math::vector::operator/)
+        .endClass();
+}
+
 // MARK: - Construction
 
 math::vector::vector()
@@ -87,7 +108,7 @@ auto math::vector::angle() const -> math::angle
     return math::angle((std::atan2(x, y) * 180.0) / M_PI);
 }
 
-auto math::vector::angle(const math::vector& v) const -> math::angle
+auto math::vector::angle_to(const math::vector& v) const -> math::angle
 {
     return math::angle((std::atan2(v.y - y, v.x - x) * 180.0) / M_PI);
 }
@@ -102,4 +123,36 @@ auto math::vector::distance_to(const math::vector& v) const -> double
 auto math::vector::magnitude() const -> double
 {
     return std::sqrt(std::fabs(std::pow(x, 2)) + std::fabs(std::pow(y, 2)));
+}
+
+// MARK: - Lua Accessors
+
+auto math::vector::set_x(const double& x) -> void
+{
+    this->x = x;
+}
+
+auto math::vector::get_x() const -> double
+{
+    return x;
+}
+
+auto math::vector::set_y(const double& y) -> void
+{
+    this->y = y;
+}
+
+auto math::vector::get_y() const -> double
+{
+    return y;
+}
+
+auto math::vector::set_z(const double& z) -> void
+{
+    this->z = z;
+}
+
+auto math::vector::get_z() const -> double
+{
+    return z;
 }

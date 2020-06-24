@@ -47,7 +47,7 @@ namespace math
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         lua_api explicit angle(const double& theta = 0.0);
-        lua_api angle(const math::angle& a);
+        angle(const math::angle& a);
 
         lua_api auto degrees() const -> double;
         lua_api auto radians() const -> double;

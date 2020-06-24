@@ -23,6 +23,8 @@
 
 #include "math/point.hpp"
 #include "math/size.hpp"
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
 
 namespace math
 {
@@ -30,29 +32,50 @@ namespace math
     /**
      * Represents a frame/area in 2D space.
      */
-    struct rect
+    struct rect: public scripting::lua::object
     {
+        typedef luabridge::RefCountedPtr<math::rect> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
         math::point origin;
         math::size size;
 
         rect();
         rect(const math::point& o, const math::size& s);
-        rect(const double& x, const double& y, const double& w, const double& h);
+        lua_api rect(const double& x, const double& y, const double& w, const double& h);
         rect(const math::rect& r);
 
-        auto operator+(const math::point& p) const -> math::rect;
-        auto operator+(const math::size& s) const -> math::rect;
-        auto operator-(const math::point& p) const -> math::rect;
-        auto operator-(const math::size& s) const -> math::rect;
-        auto operator*(const double& f) const -> math::rect;
-        auto operator/(const double& f) const -> math::rect;
+        lua_api auto operator+(const math::point& p) const -> math::rect;
+        lua_api auto operator+(const math::size& s) const -> math::rect;
+        lua_api auto operator-(const math::point& p) const -> math::rect;
+        lua_api auto operator-(const math::size& s) const -> math::rect;
+        lua_api auto operator*(const double& f) const -> math::rect;
+        lua_api auto operator/(const double& f) const -> math::rect;
         auto operator==(const math::rect& r) const -> bool;
         auto operator!=(const math::rect& r) const -> bool;
 
-        auto area() const -> double;
-        auto contains(const math::point& p) const -> bool;
-        auto contains(const math::rect& r) const -> bool;
-        auto intersects(const math::rect& r) const -> bool;
+        lua_api auto area() const -> double;
+        lua_api auto contains(const math::point& p) const -> bool;
+        lua_api auto contains(const math::rect& r) const -> bool;
+        lua_api auto intersects(const math::rect& r) const -> bool;
+
+        lua_api auto set_origin(const math::point& origin) -> void;
+        lua_api auto get_origin() const -> math::point;
+
+        lua_api auto set_size(const math::size& size) -> void;
+        lua_api auto get_size() const -> math::size;
+
+        lua_api auto set_x(const double& x) -> void;
+        lua_api auto get_x() const -> double;
+
+        lua_api auto set_y(const double& y) -> void;
+        lua_api auto get_y() const -> double;
+
+        lua_api auto set_width(const double& width) -> void;
+        lua_api auto get_width() const -> double;
+
+        lua_api auto set_height(const double& height) -> void;
+        lua_api auto get_height() const -> double;
     };
 
 }

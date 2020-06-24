@@ -21,6 +21,23 @@
 #include <cmath>
 #include "math/rect.hpp"
 
+// MARK: - Lua
+
+auto math::rect::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::rect>("Rect")
+            .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, math::rect::lua_reference>()
+            .addProperty("area", &math::rect::area)
+            .addProperty("origin", &math::rect::get_origin, &math::rect::set_origin)
+            .addProperty("size", &math::rect::get_size, &math::rect::set_size)
+            .addProperty("x", &math::rect::get_x, &math::rect::set_x)
+            .addProperty("y", &math::rect::get_y, &math::rect::set_y)
+            .addProperty("width", &math::rect::get_width, &math::rect::set_width)
+            .addProperty("height", &math::rect::get_height, &math::rect::set_height)
+        .endClass();
+}
+
 // MARK: - Construction
 
 math::rect::rect()
@@ -112,4 +129,66 @@ auto math::rect::intersects(const math::rect& r) const -> bool
 {
     // TODO: Implement this in an efficient way...
     return false;
+}
+
+// MARK: - Lua Accessors
+
+auto math::rect::set_origin(const math::point& origin) -> void
+{
+    this->origin = origin;
+}
+
+auto math::rect::get_origin() const -> math::point
+{
+    return origin;
+}
+
+auto math::rect::set_size(const math::size& size) -> void
+{
+    this->size = size;
+}
+
+auto math::rect::get_size() const -> math::size
+{
+    return size;
+}
+
+auto math::rect::set_x(const double& x) -> void
+{
+    origin.x = x;
+}
+
+auto math::rect::get_x() const -> double
+{
+    return origin.x;
+}
+
+auto math::rect::set_y(const double& y) -> void
+{
+    origin.y = y;
+}
+
+auto math::rect::get_y() const -> double
+{
+    return origin.y;
+}
+
+auto math::rect::set_width(const double& width) -> void
+{
+    size.width = width;
+}
+
+auto math::rect::get_width() const -> double
+{
+    return size.width;
+}
+
+auto math::rect::set_height(const double& height) -> void
+{
+    size.height = height;
+}
+
+auto math::rect::get_height() const -> double
+{
+    return size.height;
 }

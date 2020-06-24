@@ -21,31 +21,43 @@
 #if !defined(KESTREL_POINT_HPP)
 #define KESTREL_POINT_HPP
 
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
+
 namespace math
 {
 
     /**
      * Represents a 2D point.
      */
-    struct point
+    struct point: public scripting::lua::object
     {
     public:
+        typedef luabridge::RefCountedPtr<math::point> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
         double x;
         double y;
 
         point();
         point(const double& v);
-        point(const double& x, const double& y);
+        lua_api point(const double& x, const double& y);
         point(const math::point& p);
 
-        auto operator+(const math::point& p) const -> math::point;
-        auto operator-(const math::point& p) const -> math::point;
-        auto operator*(const double& f) const -> math::point;
-        auto operator/(const double& f) const -> math::point;
+        lua_api auto operator+(const math::point& p) const -> math::point;
+        lua_api auto operator-(const math::point& p) const -> math::point;
+        lua_api auto operator*(const double& f) const -> math::point;
+        lua_api auto operator/(const double& f) const -> math::point;
         auto operator==(const math::point& p) const -> bool;
         auto operator!=(const math::point& p) const -> bool;
 
-        auto distance_to(const math::point& p) const -> double;
+        lua_api auto distance_to(const math::point& p) const -> double;
+
+        lua_api auto set_x(const double& x) -> void;
+        lua_api auto get_x() const -> double;
+
+        lua_api auto set_y(const double& y) -> void;
+        lua_api auto get_y() const -> double;
     };
 
 };

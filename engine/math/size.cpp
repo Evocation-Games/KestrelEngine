@@ -21,6 +21,23 @@
 #include <cmath>
 #include "math/size.hpp"
 
+// MARK: - Lua
+
+auto math::size::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::size>("Size")
+            .addConstructor<auto(*)(const double&, const double&)->void, math::size::lua_reference>()
+            .addProperty("width", &math::size::get_width, &math::size::set_width)
+            .addProperty("height", &math::size::get_height, &math::size::set_height)
+            .addProperty("area", &math::size::area)
+            .addFunction("add", &math::size::operator+)
+            .addFunction("subtract", &math::size::operator-)
+            .addFunction("multiply", &math::size::operator*)
+            .addFunction("divide", &math::size::operator/)
+        .endClass();
+}
+
 // MARK: - Construction
 
 math::size::size()
@@ -84,4 +101,26 @@ auto math::size::operator!=(const math::size& s) const -> bool
 auto math::size::area() const -> double
 {
     return width * height;
+}
+
+// MARK: - Lua Accessors
+
+auto math::size::set_width(const double& width) -> void
+{
+    this->width = width;
+}
+
+auto math::size::get_width() const -> double
+{
+    return width;
+}
+
+auto math::size::set_height(const double& height) -> void
+{
+    this->height = height;
+}
+
+auto math::size::get_height() const -> double
+{
+    return height;
 }

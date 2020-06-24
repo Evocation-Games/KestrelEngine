@@ -25,6 +25,10 @@
 #include "core/asset/resource_reference.hpp"
 #include "math/angle.hpp"
 #include "math/angular_difference.hpp"
+#include "math/point.hpp"
+#include "math/size.hpp"
+#include "math/rect.hpp"
+#include "math/vector.hpp"
 
 // MARK: - Construction
 
@@ -55,6 +59,10 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::resource_reference::enroll_object_api_in_state(shared_from_this());
     math::angle::enroll_object_api_in_state(shared_from_this());
     math::angular_difference::enroll_object_api_in_state(shared_from_this());
+    math::point::enroll_object_api_in_state(shared_from_this());
+    math::size::enroll_object_api_in_state(shared_from_this());
+    math::rect::enroll_object_api_in_state(shared_from_this());
+    math::vector::enroll_object_api_in_state(shared_from_this());
 }
 
 

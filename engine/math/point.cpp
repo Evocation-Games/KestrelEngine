@@ -21,6 +21,23 @@
 #include <cmath>
 #include "math/point.hpp"
 
+// MARK: - Lua
+
+auto math::point::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::point>("Point")
+            .addConstructor<auto(*)(const double&, const double&)->void, math::point::lua_reference>()
+            .addProperty("x", &math::point::get_x, &math::point::set_x)
+            .addProperty("y", &math::point::get_y, &math::point::set_y)
+            .addFunction("distanceTo", &math::point::distance_to)
+            .addFunction("subtract", &math::point::operator-)
+            .addFunction("add", &math::point::operator+)
+            .addFunction("multiply", &math::point::operator*)
+            .addFunction("divide", &math::point::operator/)
+        .endClass();
+}
+
 // MARK: - Construction
 
 math::point::point()
@@ -86,4 +103,26 @@ auto math::point::distance_to(const math::point& p) const -> double
     auto dx = p.x - x;
     auto dy = p.y - y;
     return std::sqrt((dx * dx) + (dy * dy));
+}
+
+// MARK: - Lua Accessors
+
+auto math::point::set_x(const double& x) -> void
+{
+    this->x = x;
+}
+
+auto math::point::get_x() const -> double
+{
+    return x;
+}
+
+auto math::point::set_y(const double& y) -> void
+{
+    this->y = y;
+}
+
+auto math::point::get_y() const -> double
+{
+    return y;
 }

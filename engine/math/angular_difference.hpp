@@ -40,7 +40,7 @@ namespace math
     public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        explicit angular_difference(const double& phi = 0.0);
+        lua_api explicit angular_difference(const double& phi = 0.0);
         angular_difference(const math::angular_difference& d);
 
         lua_api static auto between(const math::angle& a, const math::angle& b) -> math::angular_difference;
