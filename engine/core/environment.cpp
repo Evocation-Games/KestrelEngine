@@ -44,6 +44,10 @@ environment::environment(int argc, const char **argv)
         m_options.emplace_back(std::string(argv[i]));
     }
 
+    // Configure the lua runtime
+    m_lua_runtime = std::make_shared<scripting::lua::state>();
+    m_lua_runtime->prepare_lua_environment();
+
     // Cache the data path locations... first assign the defaults, and then search for an alternate path in the
     // options.
     m_kestrel_core_path = kestrel_core_path();
@@ -51,7 +55,7 @@ environment::environment(int argc, const char **argv)
 
     // Load all resource files.
     load_kestrel_core();
-    load_game_data();
+//    load_game_data();
 }
 
 // MARK: - Run Loop
@@ -62,6 +66,10 @@ auto environment::launch() -> int
     // subclass.
     // TODO: Add in alternate modes as they are implemented, and bind to appropriate platforms.
     m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+
+    // Locate and execute script #0 to enter the game itself, and then enter a run loop.
+    auto main_script = m_lua_runtime->load_script(0);
+    m_lua_runtime->run(main_script);
 
     // Enter the main run loop, keep calling tick on the session window until such time as it is no
     // longer in existence or alive.

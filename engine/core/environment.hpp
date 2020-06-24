@@ -24,6 +24,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "scripting/state.hpp"
+#include "scripting/script.hpp"
 
 namespace graphics
 {
@@ -38,6 +40,7 @@ private:
     std::shared_ptr<graphics::session_window> m_game_window;
     std::string m_kestrel_core_path;
     std::string m_game_data_path;
+    std::shared_ptr<scripting::lua::state> m_lua_runtime;
 
     auto kestrel_core_path() const -> std::string;
     auto game_data_path() const -> std::string;

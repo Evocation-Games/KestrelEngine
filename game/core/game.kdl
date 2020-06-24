@@ -36,19 +36,6 @@ declare LuaScript {
     new (#0, "Kestrel:Main") {
         Script = import "@rpath/scripts/main.lua";
     };
-
-    new (#1, "Kestrel:Internal") {
-        Script = import "@rpath/scripts/Kestrel-Internal.lua";
-    };
-
-    new (#2, "Kestrel:API:SpriteSheet") {
-        Script = import "@rpath/scripts/Kestrel-SpriteSheet.lua";
-    };
-
-    new (#128, "Logos") {
-        Script = import "@rpath/scripts/logos.lua";
-    };
-
 };
 
 declare MacintoshPicture {

@@ -23,14 +23,8 @@ print("Starting KestrelGameCore")
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Load API's from the GameCore.
 
-Kestrel.importScript(Resource.id(1)) -- "Kestrel:Internal"
-Kestrel.importScript(Resource.id(2)) -- "Kestrel:API:SpriteSheet"
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Setup the Game
 
-Kestrel.start(function()
-    logoScene = Scene("Kestrel:GameCore:Logos")
-    logoScene:attachScript(Resource.id(128))
-    logoScene:present()
-end)
