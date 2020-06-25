@@ -28,6 +28,8 @@
 #include "scripting/script.hpp"
 #include "core/asset/resource_reference.hpp"
 #include "util/hint.hpp"
+#include "math/size.hpp"
+#include "core/graphics/common/texture.hpp"
 
 namespace graphics
 {
@@ -60,8 +62,12 @@ public:
 
     auto launch() -> int;
 
+    static auto active_environment() -> std::weak_ptr<environment>;
+    auto become_active_environment() -> void;
+
     auto prepare_lua_interface() -> void;
 
+    auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
 };
 
 #endif //KESTREL_ENVIRONMENT_HPP

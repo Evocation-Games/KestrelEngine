@@ -69,6 +69,8 @@ namespace graphics
 
         lua_api auto set_alpha(const uint8_t& alpha) -> void;
         lua_api auto get_alpha() const -> uint8_t;
+
+        lua_api auto value() const -> uint32_t;
     };
 
 }

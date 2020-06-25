@@ -69,12 +69,12 @@ graphics::color::color(const double &r, const double &g, const double &b, const 
 
 auto graphics::color::white(const uint8_t& w, const uint8_t& a) -> graphics::color
 {
-    return graphics::color(COMPONENT_SCALE(w), COMPONENT_SCALE(a))
+    return graphics::color(COMPONENT_SCALE(w), COMPONENT_SCALE(a));
 }
 
 auto graphics::color::rgb(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a) -> graphics::color
 {
-    return graphics::color(COMPONENT_SCALE(r), COMPONENT_SCALE(g), COMPONENT_SCALE(b), COMPONENT_SCALE(a))
+    return graphics::color(COMPONENT_SCALE(r), COMPONENT_SCALE(g), COMPONENT_SCALE(b), COMPONENT_SCALE(a));
 }
 
 auto graphics::color::color_value(const uint32_t& value) -> graphics::color
@@ -194,5 +194,13 @@ auto graphics::color::set_alpha(const uint8_t& alpha) -> void
 auto graphics::color::get_alpha() const -> uint8_t
 {
     return COMPONENT_EXPAND(alpha);
+}
+
+auto graphics::color::value() const -> uint32_t
+{
+    return static_cast<uint32_t>(COMPONENT_EXPAND(alpha) << 24U)
+         | static_cast<uint32_t>(COMPONENT_EXPAND(red) << 16U)
+         | static_cast<uint32_t>(COMPONENT_EXPAND(green) << 8U)
+         | static_cast<uint32_t>(COMPONENT_EXPAND(blue));
 }
 

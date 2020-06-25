@@ -63,6 +63,7 @@ namespace graphics
 
         auto sprite_count() const -> int;
         auto at(const int& n) const -> spritesheet::sprite;
+        auto sprite_size() const -> math::size;
     };
 
 }

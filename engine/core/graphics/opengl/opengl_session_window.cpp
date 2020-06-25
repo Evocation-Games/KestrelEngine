@@ -114,3 +114,11 @@ auto graphics::opengl::session_window::new_scene() -> std::shared_ptr<graphics::
     m_scenes.emplace_back(scene);
     return scene;
 }
+
+// MARK: - Helpers
+
+auto graphics::opengl::session_window::create_texture(const math::size &size,
+                                                      std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
+{
+    return std::make_shared<graphics::texture>(size, std::move(data));
+}

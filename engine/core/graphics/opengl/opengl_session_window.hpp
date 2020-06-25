@@ -46,6 +46,8 @@ class session_window: public graphics::session_window, public std::enable_shared
         auto set_size(const math::size& size) -> void override;
 
         auto render() -> void override;
+
+        auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture> override;
     };
 
 }};

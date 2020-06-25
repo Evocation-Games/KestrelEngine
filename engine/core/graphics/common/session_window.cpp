@@ -99,3 +99,11 @@ auto graphics::session_window::new_scene() -> std::shared_ptr<graphics::scene>
 {
     throw std::logic_error("session_window::new_scene must be overridden in a subclass.");
 }
+
+// MARK: - Helpers
+
+auto graphics::session_window::create_texture(const math::size &size,
+                                              std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
+{
+    throw std::runtime_error("This method needs to be implemented in a subclass.");
+}

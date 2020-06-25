@@ -62,13 +62,13 @@ auto graphics::spritesheet::sprite::size() const -> math::size
 graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height)
     : m_backing_texture(std::move(tex)), m_sprite_base_size(sprite_width, sprite_height)
 {
-
+    layout_sprites();
 }
 
 graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size)
     : m_backing_texture(std::move(tex)), m_sprite_base_size(sprite_size)
 {
-
+    layout_sprites();
 }
 
 // MARK: - Spritesheet Accessors
@@ -86,6 +86,11 @@ auto graphics::spritesheet::sprite_count() const -> int
 auto graphics::spritesheet::at(const int& n) const -> spritesheet::sprite
 {
     return m_sprites.at(n);
+}
+
+auto graphics::spritesheet::sprite_size() const -> math::size
+{
+    return m_sprite_base_size;
 }
 
 // MARK: - Spritesheet Layout

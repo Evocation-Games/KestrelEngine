@@ -60,6 +60,11 @@ environment::environment(int argc, const char **argv)
 //    load_game_data();
 }
 
+auto environment::active_environment() -> std::weak_ptr<environment>
+{
+    return $_active_environment;
+}
+
 // MARK: - Run Loop
 
 auto environment::launch() -> int
@@ -70,7 +75,7 @@ auto environment::launch() -> int
     m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
 
     // Ensure Lua is fully configured and ready to go.
-    $_active_environment = shared_from_this();
+    become_active_environment();
     m_lua_runtime->prepare_lua_environment(shared_from_this());
 
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
@@ -84,6 +89,11 @@ auto environment::launch() -> int
     }
 
     return m_status;
+}
+
+auto environment::become_active_environment() -> void
+{
+    $_active_environment = shared_from_this();
 }
 
 // MARK: - Loading
@@ -202,4 +212,12 @@ auto environment::import_script(const asset::resource_reference::lua_reference& 
 
         }
     }
+}
+
+// Graphics Layer Specific
+
+auto environment::create_texture(const math::size &size,
+                                 std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
+{
+    return m_game_window->create_texture(size, std::move(data));
 }
