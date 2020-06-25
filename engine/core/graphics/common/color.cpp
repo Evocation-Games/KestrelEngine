@@ -30,6 +30,19 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addStaticFunction("white", &graphics::color::white)
             .addStaticFunction("rgb", &graphics::color::rgb)
             .addStaticFunction("color_value", &graphics::color::color_value)
+            .addStaticFunction("white_color", &graphics::color::white_color)
+            .addStaticFunction("light_grey_color", &graphics::color::light_grey_color)
+            .addStaticFunction("grey_color", &graphics::color::grey_color)
+            .addStaticFunction("dark_grey_color", &graphics::color::dark_grey_color)
+            .addStaticFunction("black_color", &graphics::color::black_color)
+            .addStaticFunction("red_color", &graphics::color::red_color)
+            .addStaticFunction("orange_color", &graphics::color::orange_color)
+            .addStaticFunction("yellow_color", &graphics::color::yellow_color)
+            .addStaticFunction("lime_color", &graphics::color::lime_color)
+            .addStaticFunction("green_color", &graphics::color::green_color)
+            .addStaticFunction("teal_color", &graphics::color::teal_color)
+            .addStaticFunction("blue_color", &graphics::color::blue_color)
+            .addStaticFunction("magenta_color", &graphics::color::magenta_color)
             .addProperty("red", &graphics::color::get_red, &graphics::color::set_red)
             .addProperty("green", &graphics::color::get_green, &graphics::color::set_green)
             .addProperty("blue", &graphics::color::get_blue, &graphics::color::set_blue)
@@ -72,6 +85,74 @@ auto graphics::color::color_value(const uint32_t& value) -> graphics::color
         COMPONENT_SCALE(static_cast<uint8_t>(value))
     );
 }
+
+// MARK: - Predefined Colors
+
+auto graphics::color::white_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::light_grey_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::grey_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::dark_grey_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::black_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::red_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::orange_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::yellow_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::lime_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::green_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::teal_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::blue_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
+auto graphics::color::magenta_color() -> graphics::color
+{
+    return graphics::color(1.0, 1.0, 1.0);
+}
+
 
 // MARK: - Lua Accessors
 

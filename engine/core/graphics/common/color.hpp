@@ -44,6 +44,20 @@ namespace graphics
         lua_api static auto rgb(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a = 255) -> graphics::color;
         lua_api static auto color_value(const uint32_t& value) -> graphics::color;
 
+        lua_api static auto white_color() -> graphics::color;
+        lua_api static auto light_grey_color() -> graphics::color;
+        lua_api static auto grey_color() -> graphics::color;
+        lua_api static auto dark_grey_color() -> graphics::color;
+        lua_api static auto black_color() -> graphics::color;
+        lua_api static auto red_color() -> graphics::color;
+        lua_api static auto orange_color() -> graphics::color;
+        lua_api static auto yellow_color() -> graphics::color;
+        lua_api static auto lime_color() -> graphics::color;
+        lua_api static auto green_color() -> graphics::color;
+        lua_api static auto teal_color() -> graphics::color;
+        lua_api static auto blue_color() -> graphics::color;
+        lua_api static auto magenta_color() -> graphics::color;
+
         lua_api auto set_red(const uint8_t& red) -> void;
         lua_api auto get_red() const -> uint8_t;
 
