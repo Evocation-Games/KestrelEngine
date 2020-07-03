@@ -19,10 +19,11 @@
 // SOFTWARE.
 
 #include "core/graphics/common/scene.hpp"
+#include "core/graphics/common/entity.hpp"
 
 // MARK: - Construction
 
-graphics::scene::scene(std::shared_ptr<graphics::session_window> window)
+graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window)
     : m_owner(window)
 {
 
@@ -36,6 +37,11 @@ auto graphics::scene::update() -> void
 }
 
 auto graphics::scene::render() -> void
+{
+    // To be implemented in a subclass
+}
+
+auto graphics::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
 {
     // To be implemented in a subclass
 }

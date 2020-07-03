@@ -26,6 +26,7 @@
 
 namespace graphics
 {
+    class entity;
 
     class scene: public std::enable_shared_from_this<scene>
     {
@@ -33,7 +34,7 @@ namespace graphics
         std::weak_ptr<graphics::session_window> m_owner;
 
     public:
-        explicit scene(std::shared_ptr<graphics::session_window> window);
+        explicit scene(const std::shared_ptr<graphics::session_window>& window);
 
         virtual auto update() -> void;
         virtual auto render() -> void;

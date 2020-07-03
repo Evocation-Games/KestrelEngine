@@ -45,6 +45,8 @@ class session_window: public graphics::session_window, public std::enable_shared
         auto set_title(const std::string& title) -> void override;
         auto set_size(const math::size& size) -> void override;
 
+        auto sprite_renderer() const -> std::optional<opengl::sprite_renderer>;
+
         auto render() -> void override;
 
         auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture> override;

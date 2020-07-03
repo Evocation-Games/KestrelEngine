@@ -62,6 +62,7 @@ namespace graphics
 
         auto current_scene() const -> std::shared_ptr<graphics::scene>;
         virtual auto new_scene() -> std::shared_ptr<graphics::scene>;
+        auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
 
         auto sprite_shader() -> std::shared_ptr<graphics::shader>;
 

@@ -18,29 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SPRITE_RENDERER_HPP)
-#define KESTREL_OPENGL_SPRITE_RENDERER_HPP
+#if !defined(KESTREL_LUA_SCENE_WRAPPER_HPP)
+#define KESTREL_LUA_SCENE_WRAPPER_HPP
 
 #include <memory>
-#include "core/graphics/opengl/opengl.hpp"
-#include "core/graphics/opengl/opengl_shader.hpp"
-#include "core/graphics/common/entity.hpp"
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
+#include "core/graphics/common/scene.hpp"
 
-namespace graphics { namespace opengl {
+namespace graphics
+{
 
-    class sprite_renderer
+    struct lua_scene_wrapper: public scripting::lua::object
     {
-    private:
-        std::shared_ptr<opengl::shader> m_shader;
-        GLuint m_vao;
-        GLuint m_vbo;
+        typedef luabridge::RefCountedPtr<graphics::lua_scene_wrapper> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    public:
-        explicit sprite_renderer(std::shared_ptr<opengl::shader> shader);
+        std::shared_ptr<graphics::scene> scene;
 
-        auto draw(const std::shared_ptr<graphics::entity>& entity) const -> void;
+        explicit lua_scene_wrapper(std::shared_ptr<graphics::scene> scene);
+
+        lua_api static auto current() -> graphics::lua_scene_wrapper::lua_reference;
+
+        lua_api auto present() const -> void;
     };
 
-};};
+}
 
-#endif //KESTREL_OPENGL_SPRITE_RENDERER_HPP
+
+#endif //KESTREL_LUA_SCENE_WRAPPER_HPP

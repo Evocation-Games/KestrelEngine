@@ -110,9 +110,7 @@ auto graphics::opengl::session_window::render() -> void
 
 auto graphics::opengl::session_window::new_scene() -> std::shared_ptr<graphics::scene>
 {
-    auto scene = std::make_shared<graphics::opengl::scene>(shared_from_this());
-    m_scenes.emplace_back(scene);
-    return scene;
+    return std::make_shared<graphics::opengl::scene>(shared_from_this());
 }
 
 // MARK: - Helpers

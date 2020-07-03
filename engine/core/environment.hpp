@@ -34,6 +34,7 @@
 namespace graphics
 {
     class session_window;
+    class scene;
 }
 
 class environment: public std::enable_shared_from_this<environment>
@@ -56,6 +57,7 @@ private:
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
     lua_api static auto import_script(const asset::resource_reference::lua_reference& ref) -> void;
+    lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> void;
 
 public:
     environment(int argc, const char **argv);
@@ -68,6 +70,8 @@ public:
     auto prepare_lua_interface() -> void;
 
     auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
+    auto current_scene() -> std::shared_ptr<graphics::scene>;
+    auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
 };
 
 #endif //KESTREL_ENVIRONMENT_HPP

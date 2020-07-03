@@ -221,3 +221,13 @@ auto environment::create_texture(const math::size &size,
 {
     return m_game_window->create_texture(size, std::move(data));
 }
+
+auto environment::current_scene() -> std::shared_ptr<graphics::scene>
+{
+    return m_game_window->current_scene();
+}
+
+auto environment::present_scene(std::shared_ptr<graphics::scene> scene) -> void
+{
+    m_game_window->present_scene(scene);
+}

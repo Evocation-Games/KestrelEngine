@@ -18,45 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/graphics/opengl/opengl_sprite_renderer.hpp"
-
+#include "core/graphics/common/lua_scene_wrapper.hpp"
 #include <utility>
+
+// MARK: - Lua
+
+auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<graphics::lua_scene_wrapper>("Scene")
+            .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
+            .addFunction("present", &graphics::lua_scene_wrapper::present)
+        .endClass();
+}
 
 // MARK: - Construction
 
-graphics::opengl::sprite_renderer::sprite_renderer(std::shared_ptr<opengl::shader> shader)
-    : m_shader(std::move(shader)), m_vao(0), m_vbo(0)
+graphics::lua_scene_wrapper::lua_scene_wrapper(std::shared_ptr<graphics::scene> scene)
+    : scene(std::move(scene))
 {
-    m_shader->use();
 
-    // Setup vertex information and arrays
-    float vertices[] = {
-        // pos      // tex
-        0.0, 1.0,   0.0, 1.0,
-        1.0, 0.0,   1.0, 0.0,
-        0.0, 0.0,   0.0, 0.0,
-
-        0.0, 1.0,   0.0, 1.0,
-        1.0, 1.0,   1.0, 1.0,
-        1.0, 0.0,   1.0, 0.0
-    };
-
-    glGenVertexArrays(1, &m_vao);
-
-    glGenBuffers(1, &m_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(m_vao);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, false, 4 * sizeof(float), nullptr);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
 }
 
-// MARK: - Drawing
-
-auto graphics::opengl::sprite_renderer::draw(const std::shared_ptr<graphics::entity>& entity) const -> void
+auto graphics::lua_scene_wrapper::current() -> graphics::lua_scene_wrapper::lua_reference
 {
+    auto scene = environment::active_environment().lock()->current_scene();
+    return graphics::lua_scene_wrapper::lua_reference(new graphics::lua_scene_wrapper(scene));
+}
 
+// MARK: - Interface
+
+auto graphics::lua_scene_wrapper::present() const -> void
+{
+    // TODO: Perform a check to ensure the scene isn't already presented!
+    environment::active_environment().lock()->present_scene(scene);
 }

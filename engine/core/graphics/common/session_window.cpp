@@ -100,6 +100,12 @@ auto graphics::session_window::new_scene() -> std::shared_ptr<graphics::scene>
     throw std::logic_error("session_window::new_scene must be overridden in a subclass.");
 }
 
+auto graphics::session_window::present_scene(std::shared_ptr<graphics::scene> scene) -> void
+{
+    m_scenes.emplace_back(scene);
+}
+
+
 // MARK: - Helpers
 
 auto graphics::session_window::create_texture(const math::size &size,

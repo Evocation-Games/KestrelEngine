@@ -19,12 +19,14 @@
 // SOFTWARE.
 
 #include <utility>
+#include <memory>
 #include "core/graphics/opengl/opengl_scene.hpp"
+#include "core/graphics/opengl/opengl_session_window.hpp"
 
 // MARK: - Construction
 
-graphics::opengl::scene::scene(std::shared_ptr<graphics::session_window> window)
-    : graphics::scene(std::move(window))
+graphics::opengl::scene::scene(const std::shared_ptr<graphics::session_window>& window)
+    : graphics::scene(window)
 {
 
 }
