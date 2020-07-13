@@ -23,11 +23,17 @@
 
 // MARK: - Construction
 
-graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window)
-    : m_owner(window)
+graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script)
+    : m_owner(window), m_script(script)
 {
 
 }
+
+auto graphics::scene::start() -> void
+{
+    m_script.execute();
+}
+
 
 // MARK: - Render/Physics
 
@@ -44,4 +50,16 @@ auto graphics::scene::render() -> void
 auto graphics::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
 {
     // To be implemented in a subclass
+}
+
+auto graphics::scene::add_render_block(const luabridge::LuaRef &block) -> void
+{
+    m_render_blocks.emplace_back(block);
+}
+
+auto graphics::scene::invoke_render_blocks() -> void
+{
+    for (const auto& block : m_render_blocks) {
+        block();
+    }
 }

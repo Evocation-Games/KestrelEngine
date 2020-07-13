@@ -31,6 +31,7 @@
 #include "math/rect.hpp"
 #include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
+#include "core/graphics/common/lua_scene_wrapper.hpp"
 
 // MARK: - Construction
 
@@ -67,6 +68,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     math::rect::enroll_object_api_in_state(shared_from_this());
     math::vector::enroll_object_api_in_state(shared_from_this());
     graphics::color::enroll_object_api_in_state(shared_from_this());
+    graphics::lua_scene_wrapper::enroll_object_api_in_state(shared_from_this());
 }
 
 

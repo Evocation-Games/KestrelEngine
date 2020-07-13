@@ -30,10 +30,12 @@ namespace graphics { namespace opengl {
     protected:
 
     public:
-        explicit scene(std::shared_ptr<graphics::session_window> window);
+        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script);
 
         auto update() -> void override;
         auto render() -> void override;
+
+        auto draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void override;
 
     };
 

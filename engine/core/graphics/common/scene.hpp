@@ -23,6 +23,7 @@
 
 #include <memory>
 #include "core/graphics/common/session_window.hpp"
+#include "scripting/state.hpp"
 
 namespace graphics
 {
@@ -32,12 +33,20 @@ namespace graphics
     {
     protected:
         std::weak_ptr<graphics::session_window> m_owner;
+        std::vector<luabridge::LuaRef> m_render_blocks;
+        scripting::lua::script m_script;
 
     public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window);
+        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script);
 
+        auto add_render_block(const luabridge::LuaRef& block) -> void;
+        auto invoke_render_blocks() -> void;
+
+        virtual auto start() -> void;
         virtual auto update() -> void;
         virtual auto render() -> void;
+
+        virtual auto draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void;
     };
 
 }

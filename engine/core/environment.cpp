@@ -185,6 +185,7 @@ auto environment::prepare_lua_interface() -> void
             .addStaticFunction("setGameWindowTitle", &environment::set_game_window_title)
             .addStaticFunction("setGameWindowSize", &environment::set_game_window_size)
             .addStaticFunction("importScript", &environment::import_script)
+            .addStaticFunction("scene", &environment::create_scene)
         .endClass();
 }
 
@@ -196,6 +197,21 @@ auto environment::set_game_window_title(const std::string &title) -> void
 auto environment::set_game_window_size(const double& width, const double& height) -> void
 {
     $_active_environment.lock()->m_game_window->set_size({ width, height });
+}
+
+auto environment::load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script
+{
+    if (auto env = $_active_environment.lock()) {
+        if (ref->id().has_value()) {
+            return env->m_lua_runtime->load_script(ref->id().value());
+        }
+        else if (ref->name().has_value()) {
+            throw std::logic_error("Unable to load script.");
+        }
+        else {
+            throw std::logic_error("Unable to load script.");
+        }
+    }
 }
 
 auto environment::import_script(const asset::resource_reference::lua_reference& ref) -> void
@@ -229,5 +245,17 @@ auto environment::current_scene() -> std::shared_ptr<graphics::scene>
 
 auto environment::present_scene(std::shared_ptr<graphics::scene> scene) -> void
 {
-    m_game_window->present_scene(scene);
+    m_game_window->present_scene(std::move(scene));
+}
+
+auto environment::create_scene(const std::string &name,
+                               const asset::resource_reference::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
+{
+    if (auto env = $_active_environment.lock()) {
+        auto scene = env->m_game_window->new_scene(env->load_script(script));
+        return graphics::lua_scene_wrapper::lua_reference(new graphics::lua_scene_wrapper(scene));
+    }
+    else {
+        return nullptr;
+    }
 }

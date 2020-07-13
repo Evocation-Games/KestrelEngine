@@ -4,26 +4,10 @@
 --- DateTime: 24/06/2020 07:13
 ---
 
-print("This is a separate script that is being loaded by Lua itself.")
+local scene = Scene.current()
 
--- Angles Tests
+print("Loading scene...")
 
-local foo = Angle(90)
-local bar = Angle(260)
-
-local delta = AngularDifference.of(bar, foo)
-
-local baz = delta:calculateAngleFrom(Angle(300))
-
-print("The angular difference is " .. baz.degrees)
-
--- Vector Tests
-
-local v1 = Vec3(1, 1, 1)
-local v2 = Vec3(5, 4, 1)
-
-print("v1 = (".. v1.x .." ".. v1.y .." ".. v1.z.. ") angle=" .. v1.angle.degrees)
-print("v2 = (".. v2.x .." ".. v2.y .." ".. v2.z.. ") angle=" .. v2.angle.degrees)
-
-local v3 = v1:add(v2)
-print("v3 = (".. v3.x .." ".. v3.y .." ".. v3.z.. ") angle=" .. v3.angle.degrees)
+scene:render(function()
+    print("Frame Rendered in scene!")
+end)

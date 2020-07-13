@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include "core/graphics/common/lua_scene_wrapper.hpp"
+#include "core/graphics/common/scene.hpp"
+#include "core/environment.hpp"
 #include <utility>
 
 // MARK: - Lua
@@ -29,6 +31,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
         .beginClass<graphics::lua_scene_wrapper>("Scene")
             .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
             .addFunction("present", &graphics::lua_scene_wrapper::present)
+            .addFunction("render", &graphics::lua_scene_wrapper::render)
         .endClass();
 }
 
@@ -52,4 +55,9 @@ auto graphics::lua_scene_wrapper::present() const -> void
 {
     // TODO: Perform a check to ensure the scene isn't already presented!
     environment::active_environment().lock()->present_scene(scene);
+}
+
+auto graphics::lua_scene_wrapper::render(const luabridge::LuaRef &block) const -> void
+{
+    scene->add_render_block(block);
 }

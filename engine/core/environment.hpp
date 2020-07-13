@@ -30,6 +30,7 @@
 #include "util/hint.hpp"
 #include "math/size.hpp"
 #include "core/graphics/common/texture.hpp"
+#include "core/graphics/common/lua_scene_wrapper.hpp"
 
 namespace graphics
 {
@@ -54,10 +55,12 @@ private:
     auto load_game_data() -> void;
     auto load_data_files(const std::string& path) -> void;
 
+    auto load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script;
+
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
     lua_api static auto import_script(const asset::resource_reference::lua_reference& ref) -> void;
-    lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> void;
+    lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
 
 public:
     environment(int argc, const char **argv);

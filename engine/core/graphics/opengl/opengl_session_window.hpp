@@ -40,7 +40,7 @@ class session_window: public graphics::session_window, public std::enable_shared
     public:
         explicit session_window(std::shared_ptr<environment> env);
 
-        auto new_scene() -> std::shared_ptr<graphics::scene> override;
+        auto new_scene(const scripting::lua::script &script) -> std::shared_ptr<graphics::scene> override;
 
         auto set_title(const std::string& title) -> void override;
         auto set_size(const math::size& size) -> void override;

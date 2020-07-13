@@ -24,10 +24,11 @@
 #include <memory>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
-#include "core/graphics/common/scene.hpp"
 
 namespace graphics
 {
+
+    class scene;
 
     struct lua_scene_wrapper: public scripting::lua::object
     {
@@ -41,6 +42,7 @@ namespace graphics
         lua_api static auto current() -> graphics::lua_scene_wrapper::lua_reference;
 
         lua_api auto present() const -> void;
+        lua_api auto render(const luabridge::LuaRef& block) const -> void;
     };
 
 }

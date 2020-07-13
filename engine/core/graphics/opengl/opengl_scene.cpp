@@ -25,8 +25,8 @@
 
 // MARK: - Construction
 
-graphics::opengl::scene::scene(const std::shared_ptr<graphics::session_window>& window)
-    : graphics::scene(window)
+graphics::opengl::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script)
+    : graphics::scene(window, script)
 {
 
 }
@@ -40,5 +40,7 @@ auto graphics::opengl::scene::update() -> void
 
 auto graphics::opengl::scene::render() -> void
 {
+    invoke_render_blocks();
+}
 
 }

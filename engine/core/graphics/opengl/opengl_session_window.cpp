@@ -68,7 +68,7 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
 
     // Load the default/basic sprite shader from 'GLSL #0 and #1'
     m_sprite_shader = std::make_shared<opengl::shader>(0, 1);
-    m_sprite_renderer = sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader));
+    m_sprite_renderer = opengl::sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader));
 
     m_alive = true;
 
@@ -108,9 +108,9 @@ auto graphics::opengl::session_window::render() -> void
 
 // MARK: - Scene Management
 
-auto graphics::opengl::session_window::new_scene() -> std::shared_ptr<graphics::scene>
+auto graphics::opengl::session_window::new_scene(const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
 {
-    return std::make_shared<graphics::opengl::scene>(shared_from_this());
+    return std::make_shared<graphics::opengl::scene>(shared_from_this(), script);
 }
 
 // MARK: - Helpers
