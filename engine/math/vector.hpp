@@ -47,7 +47,8 @@ namespace math
 
         vector();
         vector(const double& v);
-        lua_api vector(const double& x, const double& y, const double& z = 1.0);
+        lua_api vector(const double& x, const double& y); // z = 1.0
+        lua_api vector(const double& x, const double& y, const double& z);
         vector(const math::vector& v);
 
         lua_api auto operator+(const math::vector& v) const -> math::vector;

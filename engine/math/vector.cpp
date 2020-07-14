@@ -26,12 +26,29 @@
 
 auto math::vector::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void
 {
+    // 3D Version
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::vector>("Vec3")
             .addConstructor<auto(*)(const double&, const double&, const double&)->void, math::vector::lua_reference>()
             .addProperty("x", &math::vector::get_x, &math::vector::set_x)
             .addProperty("y", &math::vector::get_y, &math::vector::set_y)
             .addProperty("z", &math::vector::get_z, &math::vector::set_z)
+            .addProperty("magnitude", &math::vector::magnitude)
+            .addProperty("angle", &math::vector::angle)
+            .addFunction("angleTo", &math::vector::angle_to)
+            .addFunction("distanceTo", &math::vector::distance_to)
+            .addFunction("add", &math::vector::operator+)
+            .addFunction("subtract", &math::vector::operator-)
+            .addFunction("multiply", &math::vector::operator*)
+            .addFunction("divide", &math::vector::operator/)
+        .endClass();
+
+    // 2D Version
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<math::vector>("Vec2")
+            .addConstructor<auto(*)(const double&, const double&)->void, math::vector::lua_reference>()
+            .addProperty("x", &math::vector::get_x, &math::vector::set_x)
+            .addProperty("y", &math::vector::get_y, &math::vector::set_y)
             .addProperty("magnitude", &math::vector::magnitude)
             .addProperty("angle", &math::vector::angle)
             .addFunction("angleTo", &math::vector::angle_to)
@@ -56,6 +73,13 @@ math::vector::vector(const double& v)
 {
 
 };
+
+math::vector::vector(const double &x, const double &y)
+    : x(x), y(y), z(1.0)
+{
+
+}
+
 
 math::vector::vector(const double& x, const double& y, const double& z)
     : x(x), y(y), z(z)
