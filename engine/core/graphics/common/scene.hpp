@@ -24,10 +24,10 @@
 #include <memory>
 #include "core/graphics/common/session_window.hpp"
 #include "scripting/state.hpp"
+#include "core/graphics/common/entity.hpp"
 
 namespace graphics
 {
-    class entity;
 
     class scene: public std::enable_shared_from_this<scene>
     {
@@ -46,7 +46,7 @@ namespace graphics
         virtual auto update() -> void;
         virtual auto render() -> void;
 
-        virtual auto draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void;
+        virtual auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
     };
 
 }

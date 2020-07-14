@@ -26,12 +26,12 @@
 #include "math/vector.hpp"
 #include "math/size.hpp"
 #include "core/graphics/common/spritesheet.hpp"
-#include "core/graphics/common/scene.hpp"
 #include "util/hint.hpp"
 #include "scripting/state.hpp"
 
 namespace graphics
 {
+    class scene;
 
     class entity: public std::enable_shared_from_this<graphics::entity>, public scripting::lua::object
     {

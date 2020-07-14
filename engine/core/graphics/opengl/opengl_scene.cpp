@@ -43,7 +43,7 @@ auto graphics::opengl::scene::render() -> void
     invoke_render_blocks();
 }
 
-auto graphics::opengl::scene::draw_entity(const std::shared_ptr<graphics::entity> &entity) const -> void
+auto graphics::opengl::scene::draw_entity(const graphics::entity::lua_reference& entity) const -> void
 {
     // Acquire a reference of the sprite renderer
     if (auto owner = m_owner.lock()) {

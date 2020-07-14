@@ -47,7 +47,7 @@ auto graphics::scene::render() -> void
     // To be implemented in a subclass
 }
 
-auto graphics::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
+auto graphics::scene::draw_entity(const graphics::entity::lua_reference& entity) const -> void
 {
     // To be implemented in a subclass
 }

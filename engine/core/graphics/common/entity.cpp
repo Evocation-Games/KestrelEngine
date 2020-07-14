@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/scene.hpp"
 
 #include <utility>
 
@@ -80,6 +81,12 @@ auto graphics::entity::draw() -> void
 {
     // Only attempt drawing the entity if it is in a scene.
     if (auto scene = m_scene.lock()) {
-        scene->draw_entity(shared_from_this());
+        scene->draw_entity(this);
+    }
+    else if (auto env = environment::active_environment().lock()) {
+        auto scene = env->current_scene();
+        if (scene) {
+            scene->draw_entity(this);
+        }
     }
 }

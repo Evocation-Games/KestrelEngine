@@ -35,7 +35,7 @@ namespace graphics { namespace opengl {
         auto update() -> void override;
         auto render() -> void override;
 
-        auto draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void override;
+        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
 
     };
 

@@ -38,7 +38,7 @@ namespace graphics { namespace opengl {
     public:
         explicit sprite_renderer(std::shared_ptr<opengl::shader> shader);
 
-        auto draw(const std::shared_ptr<graphics::entity>& entity) const -> void;
+        auto draw(const graphics::entity::lua_reference& entity) const -> void;
     };
 
 };};

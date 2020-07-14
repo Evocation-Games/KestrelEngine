@@ -56,7 +56,7 @@ graphics::opengl::sprite_renderer::sprite_renderer(std::shared_ptr<opengl::shade
 
 // MARK: - Drawing
 
-auto graphics::opengl::sprite_renderer::draw(const std::shared_ptr<graphics::entity>& entity) const -> void
+auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_reference& entity) const -> void
 {
     auto texture = entity->texture();
     if (!texture) {
