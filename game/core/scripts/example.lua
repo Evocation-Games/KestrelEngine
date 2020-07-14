@@ -8,10 +8,9 @@ local scene = Scene.current()
 
 print("Loading scene...")
 
-local img = Image(Size(100, 100), Color.orange())
+local img = MacintoshPicture.load(Resource.id(128))
 local entity = img:spawnEntity(Vec2(100, 100))
 
 scene:render(function()
-    print("Drawing")
     entity:draw()
 end)

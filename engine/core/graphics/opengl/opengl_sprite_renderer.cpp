@@ -82,5 +82,4 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     glBindVertexArray(m_vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }

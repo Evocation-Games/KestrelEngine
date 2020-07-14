@@ -56,7 +56,7 @@ namespace asset
 
         auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
 
-        lua_api auto spawn_entity(const math::vector::lua_reference& position) const -> graphics::entity::lua_reference;
+        lua_api virtual auto spawn_entity(const math::vector::lua_reference& position) const -> graphics::entity::lua_reference;
     };
 
 }

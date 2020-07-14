@@ -101,62 +101,62 @@ auto graphics::color::white_color() -> graphics::color
 
 auto graphics::color::light_grey_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.9, 0.9, 0.9);
 }
 
 auto graphics::color::grey_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.7, 0.7, 0.7);
 }
 
 auto graphics::color::dark_grey_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.5, 0.5, 0.5);
 }
 
 auto graphics::color::black_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.0, 0.0, 0.0);
 }
 
 auto graphics::color::red_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(1.0, 0.0, 0.0);
 }
 
 auto graphics::color::orange_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(1.0, 0.5, 0.0);
 }
 
 auto graphics::color::yellow_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(1.0, 1.0, 0.0);
 }
 
 auto graphics::color::lime_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.5, 1.0, 0.0);
 }
 
 auto graphics::color::green_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.0, 1.0, 0.0);
 }
 
 auto graphics::color::teal_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.0, 1.0, 0.5);
 }
 
 auto graphics::color::blue_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(0.0, 0.0, 1.0);
 }
 
 auto graphics::color::magenta_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(1.0, 0.0, 1.0);
 }
 
 // MARK: - Predefined Color References

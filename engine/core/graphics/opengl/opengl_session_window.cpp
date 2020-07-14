@@ -24,6 +24,7 @@
 #include "core/graphics/opengl/opengl_session_window.hpp"
 #include "core/graphics/opengl/opengl_scene.hpp"
 #include "core/graphics/opengl/opengl.hpp"
+#include "core/graphics/opengl/opengl_texture.hpp"
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
 
@@ -71,7 +72,6 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     m_sprite_renderer = opengl::sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader));
 
     m_alive = true;
-
 }
 
 // MARK: - Configuration
@@ -94,6 +94,7 @@ auto graphics::opengl::session_window::set_title(const std::string& title) -> vo
 auto graphics::opengl::session_window::set_size(const math::size& size) -> void
 {
     glfwSetWindowSize(m_window, static_cast<int>(size.width), static_cast<int>(size.height));
+    configure_viewport(size.width, size.height);
 }
 
 // MARK: - Accessors
@@ -128,5 +129,5 @@ auto graphics::opengl::session_window::new_scene(const scripting::lua::script &s
 auto graphics::opengl::session_window::create_texture(const math::size &size,
                                                       std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
 {
-    return std::make_shared<graphics::texture>(size, std::move(data));
+    return std::make_shared<graphics::opengl::texture>(size, std::move(data));
 }
