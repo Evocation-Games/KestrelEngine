@@ -29,20 +29,20 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, graphics::color::lua_reference>()
             .addStaticFunction("white", &graphics::color::white)
             .addStaticFunction("rgb", &graphics::color::rgb)
-            .addStaticFunction("color_value", &graphics::color::color_value)
-            .addStaticFunction("white_color", &graphics::color::white_color)
-            .addStaticFunction("light_grey_color", &graphics::color::light_grey_color)
-            .addStaticFunction("grey_color", &graphics::color::grey_color)
-            .addStaticFunction("dark_grey_color", &graphics::color::dark_grey_color)
-            .addStaticFunction("black_color", &graphics::color::black_color)
-            .addStaticFunction("red_color", &graphics::color::red_color)
-            .addStaticFunction("orange_color", &graphics::color::orange_color)
-            .addStaticFunction("yellow_color", &graphics::color::yellow_color)
-            .addStaticFunction("lime_color", &graphics::color::lime_color)
-            .addStaticFunction("green_color", &graphics::color::green_color)
-            .addStaticFunction("teal_color", &graphics::color::teal_color)
-            .addStaticFunction("blue_color", &graphics::color::blue_color)
-            .addStaticFunction("magenta_color", &graphics::color::magenta_color)
+            .addStaticFunction("colorValue", &graphics::color::color_value)
+            .addStaticFunction("white", &graphics::color::white_color_ref)
+            .addStaticFunction("lightGrey", &graphics::color::light_grey_color_ref)
+            .addStaticFunction("grey", &graphics::color::grey_color_ref)
+            .addStaticFunction("darkGrey", &graphics::color::dark_grey_color_ref)
+            .addStaticFunction("black", &graphics::color::black_color_ref)
+            .addStaticFunction("red", &graphics::color::red_color_ref)
+            .addStaticFunction("orange", &graphics::color::orange_color_ref)
+            .addStaticFunction("yellow", &graphics::color::yellow_color_ref)
+            .addStaticFunction("lime", &graphics::color::lime_color_ref)
+            .addStaticFunction("green", &graphics::color::green_color_ref)
+            .addStaticFunction("teal", &graphics::color::teal_color_ref)
+            .addStaticFunction("blue", &graphics::color::blue_color_ref)
+            .addStaticFunction("magenta", &graphics::color::magenta_color_ref)
             .addProperty("red", &graphics::color::get_red, &graphics::color::set_red)
             .addProperty("green", &graphics::color::get_green, &graphics::color::set_green)
             .addProperty("blue", &graphics::color::get_blue, &graphics::color::set_blue)
@@ -63,6 +63,12 @@ graphics::color::color(const double &w, const double &a)
 
 graphics::color::color(const double &r, const double &g, const double &b, const double &a)
     : red(r), green(g), blue(b), alpha(a)
+{
+
+}
+
+graphics::color::color(const graphics::color &c)
+    : red(c.red), green(c.green), blue(c.blue), alpha(c.alpha)
 {
 
 }
@@ -151,6 +157,73 @@ auto graphics::color::blue_color() -> graphics::color
 auto graphics::color::magenta_color() -> graphics::color
 {
     return graphics::color(1.0, 1.0, 1.0);
+}
+
+// MARK: - Predefined Color References
+
+auto graphics::color::white_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(white_color()));
+}
+
+auto graphics::color::light_grey_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(light_grey_color()));
+}
+
+auto graphics::color::grey_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(grey_color()));
+}
+
+auto graphics::color::dark_grey_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(dark_grey_color()));
+}
+
+auto graphics::color::black_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(black_color()));
+}
+
+auto graphics::color::red_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(red_color()));
+}
+
+auto graphics::color::orange_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(orange_color()));
+}
+
+auto graphics::color::yellow_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(yellow_color()));
+}
+
+auto graphics::color::lime_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(lime_color()));
+}
+
+auto graphics::color::green_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(green_color()));
+}
+
+auto graphics::color::teal_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(teal_color()));
+}
+
+auto graphics::color::blue_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(blue_color()));
+}
+
+auto graphics::color::magenta_color_ref() -> graphics::color::lua_reference
+{
+    return graphics::color::lua_reference(new graphics::color(magenta_color()));
 }
 
 

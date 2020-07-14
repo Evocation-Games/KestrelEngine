@@ -38,25 +38,40 @@ namespace graphics
         double alpha;
 
         explicit color(const double& w, const double& a = 1.0);
+        color(const graphics::color& c);
         lua_api color(const double& r, const double& g, const double& b, const double& a = 1.0);
 
         lua_api static auto white(const uint8_t& w, const uint8_t& a = 255) -> graphics::color;
         lua_api static auto rgb(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a = 255) -> graphics::color;
         lua_api static auto color_value(const uint32_t& value) -> graphics::color;
 
-        lua_api static auto white_color() -> graphics::color;
-        lua_api static auto light_grey_color() -> graphics::color;
-        lua_api static auto grey_color() -> graphics::color;
-        lua_api static auto dark_grey_color() -> graphics::color;
-        lua_api static auto black_color() -> graphics::color;
-        lua_api static auto red_color() -> graphics::color;
-        lua_api static auto orange_color() -> graphics::color;
-        lua_api static auto yellow_color() -> graphics::color;
-        lua_api static auto lime_color() -> graphics::color;
-        lua_api static auto green_color() -> graphics::color;
-        lua_api static auto teal_color() -> graphics::color;
-        lua_api static auto blue_color() -> graphics::color;
-        lua_api static auto magenta_color() -> graphics::color;
+        static auto white_color() -> graphics::color;
+        static auto light_grey_color() -> graphics::color;
+        static auto grey_color() -> graphics::color;
+        static auto dark_grey_color() -> graphics::color;
+        static auto black_color() -> graphics::color;
+        static auto red_color() -> graphics::color;
+        static auto orange_color() -> graphics::color;
+        static auto yellow_color() -> graphics::color;
+        static auto lime_color() -> graphics::color;
+        static auto green_color() -> graphics::color;
+        static auto teal_color() -> graphics::color;
+        static auto blue_color() -> graphics::color;
+        static auto magenta_color() -> graphics::color;
+
+        lua_api static auto white_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto light_grey_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto grey_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto dark_grey_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto black_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto red_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto orange_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto yellow_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto lime_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto green_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto teal_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto blue_color_ref() -> graphics::color::lua_reference ;
+        lua_api static auto magenta_color_ref() -> graphics::color::lua_reference ;
 
         lua_api auto set_red(const uint8_t& red) -> void;
         lua_api auto get_red() const -> uint8_t;
