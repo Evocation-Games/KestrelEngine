@@ -21,6 +21,19 @@
 #include "core/asset/image.hpp"
 #include "core/environment.hpp"
 
+// MARK: - Lua
+
+auto asset::image::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<asset::image>("Image")
+            .addConstructor<auto(*)(const math::size::lua_reference&, const graphics::color::lua_reference&)->void, asset::image::lua_reference>()
+            .addProperty("size", &asset::image::size)
+            .addProperty("numberOfSprites", &asset::image::sprite_count)
+            .addFunction("spawnEntity", &asset::image::spawn_entity)
+        .endClass();
+}
+
 // MARK: - Construction
 
 asset::image::image(const math::size& size, const graphics::color& color)
@@ -31,6 +44,25 @@ asset::image::image(const math::size& size, const graphics::color& color)
     if (auto env = environment::active_environment().lock()) {
         auto tex = env->create_texture(size, data);
         m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
+    }
+}
+
+asset::image::image(const int64_t& id, const std::string& name, const math::size &size, std::vector<uint32_t> data)
+    : m_id(id), m_name(name)
+{
+    // Generate a texture and then a spritesheet.
+    if (auto env = environment::active_environment().lock()) {
+        auto tex = env->create_texture(size, std::move(data));
+        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
+    }
+}
+
+asset::image::image(const math::size::lua_reference &size, const graphics::color::lua_reference &color)
+{
+    auto data = std::vector<uint32_t>(static_cast<int>(size->area()), color->value());
+    if (auto env = environment::active_environment().lock()) {
+        auto tex = env->create_texture(*size.get(), std::move(data));
+        m_sheet = std::make_shared<graphics::spritesheet>(tex, *size.get());
     }
 }
 
@@ -49,4 +81,29 @@ auto asset::image::sprite_count() const -> int
 auto asset::image::spritesheet() const -> std::shared_ptr<graphics::spritesheet>
 {
     return m_sheet;
+}
+
+// MARK: - Configuration
+
+auto asset::image::configure(const int64_t &id, const std::string &name, const math::size &size,
+                             std::vector<uint32_t> data) -> void
+{
+    m_id = id;
+    m_name = name;
+
+    // Generate a texture and then a spritesheet.
+    if (auto env = environment::active_environment().lock()) {
+        auto tex = env->create_texture(size, std::move(data));
+        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
+    }
+}
+
+// MARK: - Entity
+
+auto asset::image::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
+{
+    auto entity = graphics::entity::lua_reference(new graphics::entity(size()));
+    entity->position = *position.get();
+    entity->set_spritesheet(spritesheet());
+    return entity;
 }

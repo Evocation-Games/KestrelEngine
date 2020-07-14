@@ -18,50 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/graphics/common/scene.hpp"
-#include "core/graphics/common/entity.hpp"
+#if !defined(KESTREL_MACINTOSH_PICTURE_HPP)
+#define KESTREL_MACINTOSH_PICTURE_HPP
 
-// MARK: - Construction
+#include "core/asset/image.hpp"
+#include "core/asset/resource_reference.hpp"
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
 
-graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script)
-    : m_owner(window), m_script(script)
+namespace asset
 {
 
-}
+    struct macintosh_picture: public asset::image, public scripting::lua::object
+    {
+    public:
+        constexpr static const char *type { "PICT" };
+        typedef luabridge::RefCountedPtr<asset::macintosh_picture> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-auto graphics::scene::start() -> void
-{
-    m_script.execute();
-}
+    private:
 
+    public:
+        lua_api explicit macintosh_picture(const asset::resource_reference::lua_reference& ref);
+        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> macintosh_picture::lua_reference;
 
-// MARK: - Render/Physics
+        auto size() -> math::size;
+        lua_api auto lua_size() const -> math::size::lua_reference;
+        lua_api auto sprite_count() const -> int;
+    };
 
-auto graphics::scene::update() -> void
-{
-    // To be implemented in a subclass
-}
+};
 
-auto graphics::scene::render() -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::add_render_block(const luabridge::LuaRef &block) -> void
-{
-    m_render_blocks.emplace_back(block);
-}
-
-auto graphics::scene::invoke_render_blocks() -> void
-{
-    for (const auto& block : m_render_blocks) {
-        if (block.isFunction()) {
-            block();
-        }
-    }
-}
+#endif //KESTREL_MACINTOSH_PICTURE_HPP

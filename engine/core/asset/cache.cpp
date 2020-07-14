@@ -18,50 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/graphics/common/scene.hpp"
-#include "core/graphics/common/entity.hpp"
+#include "core/asset/cache.hpp"
 
-// MARK: - Construction
+// MARK: - Helpers
 
-graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script)
-    : m_owner(window), m_script(script)
+static inline auto make_hash(const std::string& type, const asset::resource_reference::lua_reference& ref) -> std::size_t
 {
-
-}
-
-auto graphics::scene::start() -> void
-{
-    m_script.execute();
-}
-
-
-// MARK: - Render/Physics
-
-auto graphics::scene::update() -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::render() -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::add_render_block(const luabridge::LuaRef &block) -> void
-{
-    m_render_blocks.emplace_back(block);
-}
-
-auto graphics::scene::invoke_render_blocks() -> void
-{
-    for (const auto& block : m_render_blocks) {
-        if (block.isFunction()) {
-            block();
-        }
+    if (ref->id().has_value()) {
+        return std::hash<std::string>{}("type=" + type + ":id=" + std::to_string(ref->id().value()));
+    }
+    else if (ref->name().has_value()) {
+        return std::hash<std::string>{}("type=" + type + ":name=" + ref->name().value());
+    }
+    else {
+        return std::hash<std::string>{}("type=" + type);
     }
 }
+
+// MARK: - Caching Functions
+
+auto asset::cache::add(const std::string &type, const asset::resource_reference::lua_reference &ref,
+                       const std::any &asset) -> void
+{
+    m_assets[make_hash(type, ref)] = asset;
+}
+
+auto asset::cache::fetch(const std::string &type,
+                         const asset::resource_reference::lua_reference &ref) const -> std::optional<std::any>
+{
+    auto k = make_hash(type, ref);
+    if (m_assets.find(k) == m_assets.end()) {
+        return {};
+    }
+    return m_assets.at(k);
+}
+
+

@@ -30,6 +30,7 @@
 #include "util/hint.hpp"
 #include "math/size.hpp"
 #include "core/graphics/common/texture.hpp"
+#include "core/asset/cache.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 
 namespace graphics
@@ -47,6 +48,7 @@ private:
     std::string m_kestrel_core_path;
     std::string m_game_data_path;
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
+    std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
 
     auto kestrel_core_path() const -> std::string;
     auto game_data_path() const -> std::string;
@@ -71,6 +73,8 @@ public:
     auto become_active_environment() -> void;
 
     auto prepare_lua_interface() -> void;
+
+    auto cache() -> std::shared_ptr<asset::cache>;
 
     auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
     auto current_scene() -> std::shared_ptr<graphics::scene>;

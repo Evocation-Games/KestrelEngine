@@ -8,6 +8,10 @@ local scene = Scene.current()
 
 print("Loading scene...")
 
+local img = Image(Size(100, 100), Color.orange())
+local entity = img:spawnEntity(Vec2(100, 100))
+
 scene:render(function()
-    print("Frame Rendered in scene!")
+    print("Drawing")
+    entity:draw()
 end)

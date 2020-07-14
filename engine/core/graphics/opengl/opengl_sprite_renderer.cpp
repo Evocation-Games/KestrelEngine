@@ -58,5 +58,29 @@ graphics::opengl::sprite_renderer::sprite_renderer(std::shared_ptr<opengl::shade
 
 auto graphics::opengl::sprite_renderer::draw(const std::shared_ptr<graphics::entity>& entity) const -> void
 {
+    auto texture = entity->texture();
+    if (!texture) {
+        return;
+    }
 
+    m_shader->use();
+
+    auto model = glm::mat4(1.0);
+    model = glm::translate(model, glm::vec3(glm::vec2(entity->position.x, entity->position.y), 0.0));
+    model = glm::scale(model, glm::vec3(glm::vec2(entity->size.width, entity->size.height), 1.0));
+
+    auto sprite = entity->spritesheet()->at(entity->sprite_index);
+
+    m_shader->set_mat4("model", model);
+    m_shader->set_vec2("texOffset", static_cast<GLfloat>(sprite.point().x), static_cast<GLfloat>(sprite.point().y));
+    m_shader->set_vec2("texSize", static_cast<GLfloat>(sprite.size().width), static_cast<GLfloat>(sprite.size().height));
+    m_shader->set_vec3("spriteColor", 1.0, 1.0, 1.0);
+
+    glActiveTexture(GL_TEXTURE0);
+    texture->bind();
+
+    glBindVertexArray(m_vao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

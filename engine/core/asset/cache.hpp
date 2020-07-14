@@ -18,50 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/graphics/common/scene.hpp"
-#include "core/graphics/common/entity.hpp"
+#if !defined(KESTREL_CACHE_HPP)
+#define KESTREL_CACHE_HPP
 
-// MARK: - Construction
+#include <any>
+#include <string>
+#include <optional>
+#include <unordered_map>
+#include "core/asset/resource_reference.hpp"
 
-graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script)
-    : m_owner(window), m_script(script)
+namespace asset
 {
+
+    class cache
+    {
+    private:
+        std::unordered_map<std::size_t, std::any> m_assets;
+
+    public:
+        cache() = default;
+
+        auto add(const std::string& type, const asset::resource_reference::lua_reference& ref, const std::any& asset) -> void;
+        auto fetch(const std::string& type, const asset::resource_reference::lua_reference& ref) const -> std::optional<std::any>;
+    };
 
 }
 
-auto graphics::scene::start() -> void
-{
-    m_script.execute();
-}
 
-
-// MARK: - Render/Physics
-
-auto graphics::scene::update() -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::render() -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
-{
-    // To be implemented in a subclass
-}
-
-auto graphics::scene::add_render_block(const luabridge::LuaRef &block) -> void
-{
-    m_render_blocks.emplace_back(block);
-}
-
-auto graphics::scene::invoke_render_blocks() -> void
-{
-    for (const auto& block : m_render_blocks) {
-        if (block.isFunction()) {
-            block();
-        }
-    }
-}
+#endif //KESTREL_CACHE_HPP

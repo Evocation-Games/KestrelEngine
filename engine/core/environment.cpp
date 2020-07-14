@@ -23,6 +23,7 @@
 #include "core/environment.hpp"
 #include "core/graphics/opengl/opengl_session_window.hpp"
 #include <libGraphite/rsrc/manager.hpp>
+#include <utility>
 #include "scripting/state.hpp"
 
 static std::weak_ptr<environment> $_active_environment;
@@ -63,6 +64,13 @@ environment::environment(int argc, const char **argv)
 auto environment::active_environment() -> std::weak_ptr<environment>
 {
     return $_active_environment;
+}
+
+// MARK: - Accessors
+
+auto environment::cache() -> std::shared_ptr<asset::cache>
+{
+    return m_cache;
 }
 
 // MARK: - Run Loop

@@ -81,6 +81,9 @@ auto graphics::opengl::session_window::configure_viewport(GLdouble width, GLdoub
     glViewport(0, 0, width, height);
     glm::mat4 projection = glm::ortho(0.0, width, height, 0.0, -1.0, 0.0);
 
+    auto shader = std::static_pointer_cast<opengl::shader>(m_sprite_shader);
+    shader->set_mat4("projection", projection);
+    shader->set_integer("image", 0);
 }
 
 auto graphics::opengl::session_window::set_title(const std::string& title) -> void
@@ -91,6 +94,13 @@ auto graphics::opengl::session_window::set_title(const std::string& title) -> vo
 auto graphics::opengl::session_window::set_size(const math::size& size) -> void
 {
     glfwSetWindowSize(m_window, static_cast<int>(size.width), static_cast<int>(size.height));
+}
+
+// MARK: - Accessors
+
+auto graphics::opengl::session_window::sprite_renderer() const -> std::optional<opengl::sprite_renderer>
+{
+    return m_sprite_renderer;
 }
 
 // MARK: - Rendering

@@ -43,4 +43,14 @@ auto graphics::opengl::scene::render() -> void
     invoke_render_blocks();
 }
 
+auto graphics::opengl::scene::draw_entity(const std::shared_ptr<graphics::entity> &entity) const -> void
+{
+    // Acquire a reference of the sprite renderer
+    if (auto owner = m_owner.lock()) {
+        auto opengl_window = std::static_pointer_cast<opengl::session_window>(owner);
+        if (opengl_window->sprite_renderer().has_value()) {
+            auto renderer = opengl_window->sprite_renderer();
+            renderer->draw(entity);
+        }
+    }
 }

@@ -27,13 +27,18 @@
 #include "math/size.hpp"
 #include "core/graphics/common/spritesheet.hpp"
 #include "core/graphics/common/scene.hpp"
+#include "util/hint.hpp"
+#include "scripting/state.hpp"
 
 namespace graphics
 {
 
-    class entity: public std::enable_shared_from_this<graphics::entity>
+    class entity: public std::enable_shared_from_this<graphics::entity>, public scripting::lua::object
     {
     public:
+        typedef luabridge::RefCountedPtr<graphics::entity> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
         math::vector position;
         math::size size;
         int sprite_index { 0 };
@@ -50,10 +55,10 @@ namespace graphics
         auto scene() const -> std::weak_ptr<graphics::scene>;
 
         auto set_spritesheet(std::shared_ptr<graphics::spritesheet> sheet, const int& sprite_index = 0) -> void;
-        auto sritesheet() const -> std::shared_ptr<graphics::spritesheet>;
+        auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
         auto texture() const -> std::shared_ptr<graphics::texture>;
 
-        auto draw() const -> void;
+        auto draw() -> void;
     };
 
 };

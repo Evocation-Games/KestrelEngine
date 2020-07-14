@@ -22,6 +22,16 @@
 
 #include <utility>
 
+// MARK: - Lua
+
+auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginClass<graphics::entity>("Entity")
+            .addFunction("draw", &entity::draw)
+        .endClass();
+}
+
 // MARK: - Construction
 
 graphics::entity::entity(const math::size &size)
@@ -54,7 +64,7 @@ auto graphics::entity::set_spritesheet(std::shared_ptr<graphics::spritesheet> sh
     sprite_index = index;
 }
 
-auto graphics::entity::sritesheet() const -> std::shared_ptr<graphics::spritesheet>
+auto graphics::entity::spritesheet() const -> std::shared_ptr<graphics::spritesheet>
 {
     return m_spritesheet;
 }
@@ -66,10 +76,10 @@ auto graphics::entity::texture() const -> std::shared_ptr<graphics::texture>
 
 // MARK: - Rendering
 
-auto graphics::entity::draw() const -> void
+auto graphics::entity::draw() -> void
 {
     // Only attempt drawing the entity if it is in a scene.
     if (auto scene = m_scene.lock()) {
-
+        scene->draw_entity(shared_from_this());
     }
 }
