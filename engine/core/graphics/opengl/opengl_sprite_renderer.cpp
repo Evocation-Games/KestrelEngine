@@ -66,7 +66,7 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     m_shader->use();
 
     auto model = glm::mat4(1.0);
-    model = glm::translate(model, glm::vec3(glm::vec2(entity->position.x, entity->position.y), 0.0));
+    model = glm::translate(model, glm::vec3(glm::vec2(entity->position.x - (entity->size.width / 2.0), entity->position.y - (entity->size.height / 2.0)), 0.0));
     model = glm::scale(model, glm::vec3(glm::vec2(entity->size.width, entity->size.height), 1.0));
 
     auto sprite = entity->spritesheet()->at(entity->sprite_index);

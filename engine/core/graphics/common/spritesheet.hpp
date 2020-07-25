@@ -64,6 +64,9 @@ namespace graphics
         auto sprite_count() const -> int;
         auto at(const int& n) const -> spritesheet::sprite;
         auto sprite_size() const -> math::size;
+
+        auto layout_sprites(const math::size& sprite_size) -> void;
+        auto layout_sprites(const std::vector<math::rect>& sprite_frames) -> void;
     };
 
 }

@@ -58,6 +58,9 @@ namespace graphics
         auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
         auto texture() const -> std::shared_ptr<graphics::texture>;
 
+        lua_api auto get_sprite_index() const -> int;
+        lua_api auto set_sprite_index(const int& index) -> void;
+
         auto draw() -> void;
     };
 

@@ -113,3 +113,29 @@ auto graphics::spritesheet::layout_sprites() -> void
         }
     }
 }
+
+auto graphics::spritesheet::layout_sprites(const math::size &sprite_size) -> void
+{
+    m_sprite_base_size = sprite_size;
+    m_sprites.clear();
+    layout_sprites();
+}
+
+auto graphics::spritesheet::layout_sprites(const std::vector<math::rect> &sprite_frames) -> void
+{
+    m_sprites.clear();
+    m_sprite_base_size = sprite_frames.front().size;
+
+    auto width = m_backing_texture->size().width;
+    auto height = m_backing_texture->size().height;
+    for (const auto& frame : sprite_frames) {
+        auto x = frame.get_x();
+        auto y = frame.get_y();
+        auto w = frame.get_width();
+        auto h = frame.get_height();
+
+        y = height - y - h;
+
+        m_sprites.emplace_back(spritesheet::sprite(x / width, y / height, w / width, h / height));
+    }
+}

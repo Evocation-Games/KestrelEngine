@@ -44,7 +44,9 @@ namespace asset
 
         auto size() -> math::size;
         lua_api auto lua_size() const -> math::size::lua_reference;
-        lua_api auto sprite_count() const -> int;
+        lua_api auto sprite_count() const -> int override;
+
+        lua_api auto layout_sprites(const math::size::lua_reference& sprite_size) -> void override;
 
         lua_api auto spawn_entity(const math::vector::lua_reference& position) const -> graphics::entity::lua_reference override;
     };

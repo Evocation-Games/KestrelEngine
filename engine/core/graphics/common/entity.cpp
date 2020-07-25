@@ -29,6 +29,7 @@ auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::entity>("Entity")
+            .addProperty("frame", &entity::get_sprite_index, &entity::set_sprite_index)
             .addFunction("draw", &entity::draw)
         .endClass();
 }
@@ -73,6 +74,20 @@ auto graphics::entity::spritesheet() const -> std::shared_ptr<graphics::spritesh
 auto graphics::entity::texture() const -> std::shared_ptr<graphics::texture>
 {
     return m_spritesheet->texture();
+}
+
+auto graphics::entity::get_sprite_index() const -> int
+{
+    return sprite_index;
+}
+
+auto graphics::entity::set_sprite_index(const int &index) -> void
+{
+    sprite_index = index;
+
+    auto sprite_size = m_spritesheet->at(sprite_index).size();
+    auto tex_size = m_spritesheet->texture()->size();
+    size = math::size(sprite_size.width * tex_size.width, sprite_size.height * tex_size.height);
 }
 
 // MARK: - Rendering

@@ -31,6 +31,7 @@ auto asset::image::enroll_object_api_in_state(const std::shared_ptr<scripting::l
             .addProperty("size", &asset::image::size)
             .addProperty("numberOfSprites", &asset::image::sprite_count)
             .addFunction("spawnEntity", &asset::image::spawn_entity)
+            .addFunction("setSpriteSize", &asset::image::layout_sprites)
         .endClass();
 }
 
@@ -98,6 +99,11 @@ auto asset::image::configure(const int64_t &id, const std::string &name, const m
     }
 }
 
+auto asset::image::layout_sprites(const math::size::lua_reference& sprite_size) -> void
+{
+    m_sheet->layout_sprites(*sprite_size.get());
+}
+
 // MARK: - Entity
 
 auto asset::image::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
@@ -107,3 +113,4 @@ auto asset::image::spawn_entity(const math::vector::lua_reference &position) con
     entity->set_spritesheet(spritesheet());
     return entity;
 }
+

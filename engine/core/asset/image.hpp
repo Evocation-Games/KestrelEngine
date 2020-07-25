@@ -52,7 +52,9 @@ namespace asset
         lua_api image(const math::size::lua_reference& size, const graphics::color::lua_reference& color);
 
         lua_api auto size() const -> math::size;
-        lua_api auto sprite_count() const -> int;
+        lua_api virtual auto sprite_count() const -> int;
+
+        lua_api virtual auto layout_sprites(const math::size::lua_reference& sprite_size) -> void;
 
         auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
 
