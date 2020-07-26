@@ -36,6 +36,7 @@
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/asset/image.hpp"
 #include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/text.hpp"
 
 // MARK: - Construction
 
@@ -77,6 +78,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     graphics::entity::enroll_object_api_in_state(shared_from_this());
     asset::image::enroll_object_api_in_state(shared_from_this());
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
+    graphics::text::enroll_object_api_in_state(shared_from_this());
 }
 
 

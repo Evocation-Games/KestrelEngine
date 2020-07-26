@@ -11,6 +11,20 @@ print("Loading scene...")
 local img = MacintoshPicture.load(Resource.id(128))
 local entity = img:spawnEntity(Vec2(100, 100))
 
+local text = Text("Kestrel Engine Test")
+text.fontSize = 12
+text.font = "Geneva"
+text.position = Point(50, 50)
+text.color = Color.red()
+
+local name = Text("Voinian Frigate")
+name.fontSize = 18
+name.font = "Geneva"
+name.position = Point(50, 60)
+name.color = Color.lime()
+
 scene:render(function()
     entity:draw()
+    text:draw()
+    name:draw()
 end)

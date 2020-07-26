@@ -71,6 +71,7 @@ add_custom_command(TARGET KestrelGameCore
 # KESTREL ENGINE ###############################################################
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(Freetype REQUIRED)
 
 file(GLOB_RECURSE kestrel_sources
 	"engine/*.cpp"
@@ -80,13 +81,14 @@ add_executable(Kestrel ${kestrel_sources})
 target_include_directories(Kestrel PUBLIC
 	"${OPENGL_INCLUDE_DIRS}"
 	"${GLFW3_INCLUDE_DIRS}"
+	"${FREETYPE_INCLUDE_DIRS}"
 	"${PROJECT_SUBMODULES}/glm"
 	"${PROJECT_SUBMODULES}/lua_bridge/Source"
 	"${PROJECT_SUBMODULES}/graphite"
 	"${PROJECT_SUBMODULES}"
 	"engine"
 )
-target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw)
+target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 add_dependencies(Kestrel kdl KestrelGameCore)
 
 # MAC OS X APPLICATION BUNDLE ##################################################
