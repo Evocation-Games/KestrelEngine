@@ -20,7 +20,7 @@
 
 @import "@rpath/types/LuaScript.kdl";
 @import "@rpath/types/GLSLShader.kdl";
-@import "@rpath/types/SpriteAnimation.kdl";
+@import "@rpath/types/SpriteSheet.kdl";
 
 declare GLSLShader {
     new (#0, "Sprite:Vertex") {
@@ -42,11 +42,8 @@ declare LuaScript {
     };
 };
 
-declare MacintoshPicture {
-    new(#128, "KestrelLogo") {
-        TGA = import "@rpath/media/KestrelLogo.tga";
-    };
-    new(#1000, "Vonian Freighter") {
-    	PNG = import "@rpath/media/voinian-freighter.png";
+declare SpriteSheet {
+    new (#128, "Voinian Frigate") {
+        PNG = import "@rpath/media/Voinian_Frigate/Voinian_Frigate.*.png";
     };
 };

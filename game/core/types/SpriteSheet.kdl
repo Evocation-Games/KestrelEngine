@@ -1,0 +1,9 @@
+@type SpriteSheet: "SpSh" {
+    template {
+        HEXD Data;
+    };
+
+    field("PNG") {
+        Data as File<PNG> __assemble_sprite_sheet;
+    };
+};
