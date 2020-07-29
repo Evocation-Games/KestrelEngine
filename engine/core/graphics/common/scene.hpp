@@ -34,6 +34,7 @@ namespace graphics
     protected:
         std::weak_ptr<graphics::session_window> m_owner;
         std::vector<luabridge::LuaRef> m_render_blocks;
+        std::vector<luabridge::LuaRef> m_key_event_blocks;
         scripting::lua::script m_script;
 
     public:
@@ -41,6 +42,9 @@ namespace graphics
 
         auto add_render_block(const luabridge::LuaRef& block) -> void;
         auto invoke_render_blocks() -> void;
+
+        auto add_key_event_block(const luabridge::LuaRef& block) -> void;
+        auto key_event(const event::key& event) -> void;
 
         virtual auto start() -> void;
         virtual auto update() -> void;

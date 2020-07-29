@@ -32,6 +32,7 @@
 #include "core/graphics/common/texture.hpp"
 #include "core/asset/cache.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
+#include "core/event/key.hpp"
 
 namespace graphics
 {
@@ -79,6 +80,8 @@ public:
     auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
     auto current_scene() -> std::shared_ptr<graphics::scene>;
     auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
+
+    auto post_key_event(const event::key& event) -> void;
 };
 
 #endif //KESTREL_ENVIRONMENT_HPP

@@ -65,3 +65,18 @@ auto graphics::scene::invoke_render_blocks() -> void
         }
     }
 }
+
+// MARK: - Event Handler
+
+auto graphics::scene::add_key_event_block(const luabridge::LuaRef &block) -> void
+{
+    m_key_event_blocks.emplace_back(block);
+}
+
+auto graphics::scene::key_event(const event::key &event) -> void
+{
+    auto ref = event::key::lua_reference(new event::key(event));
+    for (const auto& block : m_key_event_blocks) {
+        block(ref);
+    }
+}

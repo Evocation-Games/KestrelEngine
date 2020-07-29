@@ -43,6 +43,7 @@ namespace graphics
 
         lua_api auto present() const -> void;
         lua_api auto render(const luabridge::LuaRef& block) const -> void;
+        lua_api auto key_event(const luabridge::LuaRef& block) const -> void;
     };
 
 }

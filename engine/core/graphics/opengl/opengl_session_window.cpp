@@ -71,6 +71,29 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     m_sprite_shader = std::make_shared<opengl::shader>(0, 1);
     m_sprite_renderer = opengl::sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader));
 
+    // Configure event handlers.
+    glfwSetKeyCallback(m_window, [] (GLFWwindow *wnd, int key, int scancode, int action, int mods) {
+        if (auto env = environment::active_environment().lock()) {
+            switch (action) {
+                case GLFW_PRESS: {
+                    event::key e(static_cast<enum event::key::code>(key), scancode, event::key::pressed);
+                    env->post_key_event(e);
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    event::key e(static_cast<enum event::key::code>(key), scancode, event::key::released);
+                    env->post_key_event(e);
+                    break;
+                }
+                case GLFW_REPEAT: {
+                    event::key e(static_cast<enum event::key::code>(key), scancode, event::key::held);
+                    env->post_key_event(e);
+                    break;
+                }
+            }
+        }
+    });
+
     m_alive = true;
 }
 

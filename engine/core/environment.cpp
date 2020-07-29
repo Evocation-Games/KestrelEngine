@@ -25,6 +25,7 @@
 #include <libGraphite/rsrc/manager.hpp>
 #include <utility>
 #include "scripting/state.hpp"
+#include "core/graphics/common/scene.hpp"
 
 static std::weak_ptr<environment> $_active_environment;
 
@@ -220,6 +221,7 @@ auto environment::load_script(const asset::resource_reference::lua_reference &re
             throw std::logic_error("Unable to load script.");
         }
     }
+    throw std::runtime_error("Missing environment");
 }
 
 auto environment::import_script(const asset::resource_reference::lua_reference& ref) -> void
@@ -265,5 +267,26 @@ auto environment::create_scene(const std::string &name,
     }
     else {
         return nullptr;
+    }
+}
+
+// MARK: - Event Posting
+
+auto environment::post_key_event(const event::key &event) -> void
+{
+#if __APPLE__
+    if ((event.code() == event::key::q) && (event.modifiers() & event::key::super)) {
+        exit(0);
+    }
+#elif __linux__
+
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#   if defined(_WIN64)
+
+#   endif
+#endif
+    auto scene = current_scene();
+    if (scene != nullptr) {
+        scene->key_event(event);
     }
 }

@@ -32,6 +32,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
+            .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
         .endClass();
 }
 
@@ -60,4 +61,9 @@ auto graphics::lua_scene_wrapper::present() const -> void
 auto graphics::lua_scene_wrapper::render(const luabridge::LuaRef &block) const -> void
 {
     scene->add_render_block(block);
+}
+
+auto graphics::lua_scene_wrapper::key_event(const luabridge::LuaRef &block) const -> void
+{
+    scene->add_key_event_block(block);
 }
