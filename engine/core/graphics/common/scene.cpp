@@ -80,3 +80,16 @@ auto graphics::scene::key_event(const event::key &event) -> void
         block(ref);
     }
 }
+
+auto graphics::scene::add_mouse_event_block(const luabridge::LuaRef &block) -> void
+{
+    m_mouse_event_blocks.emplace_back(block);
+}
+
+auto graphics::scene::mouse_event(const event::mouse &event) -> void
+{
+    auto ref = event::mouse::lua_reference(new event::mouse(event));
+    for (const auto& block : m_mouse_event_blocks) {
+        block(ref);
+    }
+}

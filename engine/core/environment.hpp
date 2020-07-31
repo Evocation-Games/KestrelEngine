@@ -33,6 +33,7 @@
 #include "core/asset/cache.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/event/key.hpp"
+#include "core/event/mouse.hpp"
 
 namespace graphics
 {
@@ -82,6 +83,7 @@ public:
     auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
 
     auto post_key_event(const event::key& event) -> void;
+    auto post_mouse_event(const event::mouse& event) -> void;
 };
 
 #endif //KESTREL_ENVIRONMENT_HPP

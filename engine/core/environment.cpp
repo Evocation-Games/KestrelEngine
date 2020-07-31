@@ -290,3 +290,11 @@ auto environment::post_key_event(const event::key &event) -> void
         scene->key_event(event);
     }
 }
+
+auto environment::post_mouse_event(const event::mouse &event) -> void
+{
+    auto scene = current_scene();
+    if (scene != nullptr) {
+        scene->mouse_event(event);
+    }
+}
