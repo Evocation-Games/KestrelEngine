@@ -94,6 +94,32 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
         }
     });
 
+    glfwSetCursorPosCallback(m_window, [] (GLFWwindow *wnd, double x, double y) {
+        if (auto env = environment::active_environment().lock()) {
+            env->post_mouse_event(event::mouse({x, y}, event::mouse::moved, event::mouse::none));
+        }
+    });
+
+    glfwSetMouseButtonCallback(m_window, [] (GLFWwindow *wnd, int button, int action, int mods) {
+        if (auto env = environment::active_environment().lock()) {
+            double x, y;
+            glfwGetCursorPos(wnd, &x, &y);
+
+            switch (action) {
+                case GLFW_PRESS: {
+                    event::mouse e({x, y}, event::mouse::pressed, static_cast<enum event::mouse::button>(button));
+                    env->post_mouse_event(e);
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    event::mouse e({x, y}, event::mouse::released, static_cast<enum event::mouse::button>(button));
+                    env->post_mouse_event(e);
+                    break;
+                }
+            }
+        }
+    });
+
     m_alive = true;
 }
 

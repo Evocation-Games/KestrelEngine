@@ -33,6 +33,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
+            .addFunction("onMouseEvent", &graphics::lua_scene_wrapper::mouse_event)
         .endClass();
 }
 
@@ -66,4 +67,10 @@ auto graphics::lua_scene_wrapper::render(const luabridge::LuaRef &block) const -
 auto graphics::lua_scene_wrapper::key_event(const luabridge::LuaRef &block) const -> void
 {
     scene->add_key_event_block(block);
+}
+
+
+auto graphics::lua_scene_wrapper::mouse_event(const luabridge::LuaRef &block) const -> void
+{
+    scene->add_mouse_event_block(block);
 }
