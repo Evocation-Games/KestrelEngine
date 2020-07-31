@@ -81,6 +81,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     graphics::text::enroll_object_api_in_state(shared_from_this());
     event::key::enroll_object_apu_in_state(shared_from_this());
+    event::mouse::enroll_object_apu_in_state(shared_from_this());
 }
 
 
