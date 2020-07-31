@@ -61,3 +61,9 @@ scene:onKeyEvent(function(event)
         end
     end
 end)
+
+scene:onMouseEvent(function(event)
+    if event.moved then
+        ship.position = Vec2(event.point.x, event.point.y)
+    end
+end)

@@ -61,6 +61,9 @@ namespace graphics
         lua_api auto get_sprite_index() const -> int;
         lua_api auto set_sprite_index(const int& index) -> void;
 
+        lua_api auto get_position() const -> math::vector;
+        lua_api auto set_position(const math::vector& position) -> void;
+
         auto draw() -> void;
     };
 
