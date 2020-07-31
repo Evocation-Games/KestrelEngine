@@ -28,7 +28,7 @@ auto asset::resource::enroll_object_api_in_state(const std::shared_ptr<scripting
     luabridge::getGlobalNamespace(lua->internal_state())
          .beginClass<asset::resource>("ResourceData")
             .addConstructor<auto(*)(const resource_reference::lua_reference&)->void, resource::lua_reference>()
-            .addFunction("isValid", &resource::valid)
+            .addProperty("isValid", &resource::valid)
             .addProperty("id", &resource::id)
             .addProperty("name", &resource::name)
             .addFunction("readByte", &resource::read_byte)
@@ -42,7 +42,6 @@ auto asset::resource::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addFunction("readPStr", &resource::read_pstr)
             .addFunction("readCStr", &resource::read_cstr)
             .addFunction("readCStrOfLength", &resource::read_cstr_width)
-            .addFunction("readByte", &resource::read_byte)
         .endClass();
 }
 
