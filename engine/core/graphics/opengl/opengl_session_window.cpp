@@ -60,8 +60,22 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
         glfwTerminate();
         throw std::runtime_error("Failed to create a window for OpenGL session.");
     }
-
     glfwMakeContextCurrent(m_window);
+
+#if __linux__
+    GLenum err = glewInit();
+    if (err != GLEW_OK) {
+        const char *str = (const char *)glewGetErrorString(err);
+        printf("%s\n", str);
+        exit(1);
+    }
+    if (!GLEW_VERSION_2_1)  {
+        const char *str = (const char *)glewGetErrorString(err);
+        printf("%s\n", str);
+        exit(1); // or handle the error in a nicer way
+    }
+#endif
+
     glfwSwapInterval(1);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
