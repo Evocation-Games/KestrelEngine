@@ -73,9 +73,16 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(Freetype REQUIRED)
 
-file(GLOB_RECURSE kestrel_sources
-	"engine/*.cpp"
-)
+if (APPLE)
+	file(GLOB_RECURSE kestrel_sources
+		"engine/*.cpp"
+		"engine/*.mm"
+	)
+else()
+	file(GLOB_RECURSE kestrel_sources
+		"engine/*.cpp"
+	)
+endif()
 
 add_executable(Kestrel ${kestrel_sources})
 target_include_directories(Kestrel PUBLIC

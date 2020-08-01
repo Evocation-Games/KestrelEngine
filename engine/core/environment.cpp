@@ -27,6 +27,10 @@
 #include "scripting/state.hpp"
 #include "core/graphics/common/scene.hpp"
 
+#if __APPLE__
+#include "core/graphics/metal/metal_session_window.h"
+#endif
+
 static std::weak_ptr<environment> $_active_environment;
 
 // MARK: - Helpers
@@ -80,8 +84,18 @@ auto environment::launch() -> int
 {
     // Determine which graphics mode we are running in, and instantiate the correct session_window
     // subclass.
-    // TODO: Add in alternate modes as they are implemented, and bind to appropriate platforms.
-    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+#if __APPLE__
+    // Check if the user requires/wants Metal or OpenGL?
+    auto use_metal = false;
+    if (use_metal) {
+        m_game_window = std::make_shared<graphics::metal::session_window>(shared_from_this());
+    }
+    else {
+#endif
+        m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+#if __APPLE__
+    }
+#endif
 
     // Ensure Lua is fully configured and ready to go.
     become_active_environment();
