@@ -31,6 +31,10 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(PROJECT_SUBMODULES ${PROJECT_SOURCE_DIR}/submodules)
 
+if(UNIX AND NOT APPLE)
+	set(LINUX TRUE)
+endif()
+
 # LUA ##########################################################################
 add_library(Lua STATIC "${PROJECT_SUBMODULES}/lua/onelua.c")
 target_compile_options(Lua PUBLIC "-DMAKE_LIB=1")
@@ -69,9 +73,14 @@ add_custom_command(TARGET KestrelGameCore
 )
 
 # KESTREL ENGINE ###############################################################
+set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(Freetype REQUIRED)
+
+if(LINUX)
+	find_package(GLEW REQUIRED)
+endif()
 
 file(GLOB_RECURSE kestrel_sources
 	"engine/*.cpp"
@@ -89,6 +98,10 @@ target_include_directories(Kestrel PUBLIC
 	"engine"
 )
 target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
+if(LINUX)
+	target_include_directories(Kestrel PUBLIC "${GLEW_INCLUDE_DIRS}")
+	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
+endif()
 add_dependencies(Kestrel kdl KestrelGameCore)
 
 # MAC OS X APPLICATION BUNDLE ##################################################
