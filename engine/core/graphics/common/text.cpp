@@ -41,7 +41,14 @@ auto graphics::text::enroll_object_api_in_state(const std::shared_ptr<scripting:
 graphics::text::text(const std::string &text)
     : m_text(text), m_font_face("Geneva"), m_font_size(12)
 {
+    // TODO: Correctly load fonts for platforms
+#if APPLE
     m_font = std::make_shared<graphics::font>("/System/Library/Fonts/SFCompactDisplay.ttf");
+#elif __linux__
+    m_font = std::make_shared<graphics::font>("/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf");
+#else
+#   error Fix for Windows
+#endif
 }
 
 // MARK: - Accessors
