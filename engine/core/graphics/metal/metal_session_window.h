@@ -40,6 +40,7 @@ namespace graphics { namespace metal {
         explicit session_window(std::shared_ptr<environment> env);
 
         auto set_title(const std::string& title) -> void override;
+        auto set_size(const math::size& size) -> void override;
     };
 
 }};

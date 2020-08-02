@@ -36,3 +36,8 @@ auto graphics::metal::session_window::set_title(const std::string &title) -> voi
 {
     m_window->set_title(title);
 }
+
+auto graphics::metal::session_window::set_size(const math::size &size) -> void
+{
+    m_window->set_size(static_cast<int>(size.width), static_cast<int>(size.height));
+}

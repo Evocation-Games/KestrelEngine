@@ -35,6 +35,8 @@ namespace cocoa
 
         auto set_title(const std::string& title) -> void;
         auto title() const -> std::string;
+
+        auto set_size(const int& width, const int& height) -> void;
     };
 }
 

@@ -88,6 +88,7 @@ auto environment::launch_metal() -> int
     return app.run(m_options, [this] () {
         this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this());
         this->m_game_window->set_title("Kestrel - Metal");
+        this->m_game_window->set_size({ 800, 600 });
 //        this->prepare_common();
     });
 }

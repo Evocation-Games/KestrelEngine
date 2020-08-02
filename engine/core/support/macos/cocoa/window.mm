@@ -47,3 +47,10 @@ auto cocoa::window::title() const -> std::string
     NSWindow *wnd = (__bridge NSWindow *)m_handle;
     return cocoa::string::from([wnd title]);
 }
+
+auto cocoa::window::set_size(const int& width, const int& height) -> void
+{
+    NSWindow *wnd = (__bridge NSWindow *)m_handle;
+    [wnd setFrame:NSMakeRect(0, 0, width, height) display:YES];
+    [wnd center];
+}
