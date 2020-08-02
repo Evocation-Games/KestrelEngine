@@ -24,14 +24,22 @@
 #include <memory>
 #include "core/graphics/common/session_window.hpp"
 
+namespace cocoa
+{
+    class window;
+}
+
 namespace graphics { namespace metal {
 
     class session_window: public graphics::session_window, public std::enable_shared_from_this<metal::session_window>
     {
     protected:
+        std::shared_ptr<cocoa::window> m_window;
 
     public:
         explicit session_window(std::shared_ptr<environment> env);
+
+        auto set_title(const std::string& title) -> void override;
     };
 
 }};

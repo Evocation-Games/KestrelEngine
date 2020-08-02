@@ -18,21 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <utility>
-#include "core/graphics/metal/metal_session_window.h"
 #include "core/support/macos/cocoa/window.h"
+#include "core/support/macos/cocoa/cocoa_utils.h"
 
 // MARK: - Construction
 
-graphics::metal::session_window::session_window(std::shared_ptr<environment> env)
-    : graphics::session_window(std::move(env)), m_window(std::make_shared<cocoa::window>())
+cocoa::window::window()
 {
-
+    NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200)
+                                                   styleMask:NSWindowStyleMaskTitled
+                                                     backing:NSBackingStoreBuffered
+                                                       defer:NO];
+    [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
+    [window makeKeyAndOrderFront:nil];
+    m_handle = window;
 }
 
 // MARK: - Accessors
 
-auto graphics::metal::session_window::set_title(const std::string &title) -> void
+auto cocoa::window::set_title(const std::string &title) -> void
 {
-    m_window->set_title(title);
+    NSWindow *wnd = (__bridge NSWindow *)m_handle;
+    [wnd setTitle:cocoa::string::to(title)];
+}
+
+auto cocoa::window::title() const -> std::string
+{
+    NSWindow *wnd = (__bridge NSWindow *)m_handle;
+    return cocoa::string::from([wnd title]);
 }

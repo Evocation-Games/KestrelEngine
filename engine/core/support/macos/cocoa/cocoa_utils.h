@@ -18,21 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <utility>
-#include "core/graphics/metal/metal_session_window.h"
-#include "core/support/macos/cocoa/window.h"
+#if __APPLE__ && !defined(KESTREL_COCOA_UTILS_H)
+#define KESTREL_COCOA_UTILS_H
 
-// MARK: - Construction
+#include <Cocoa/Cocoa.h>
+#include <string>
 
-graphics::metal::session_window::session_window(std::shared_ptr<environment> env)
-    : graphics::session_window(std::move(env)), m_window(std::make_shared<cocoa::window>())
-{
+namespace cocoa { namespace string {
+    auto to(const std::string& str) -> NSString *
+    {
+        return [NSString stringWithUTF8String:str.c_str()];
+    }
 
-}
+    auto from(NSString *str) -> std::string
+    {
+        return std::string([str UTF8String]);
+    }
+}}
 
-// MARK: - Accessors
-
-auto graphics::metal::session_window::set_title(const std::string &title) -> void
-{
-    m_window->set_title(title);
-}
+#endif //KESTREL_COCOA_UTILS_H

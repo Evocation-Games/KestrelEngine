@@ -86,6 +86,8 @@ auto environment::launch_metal() -> int
 {
     auto app = cocoa::application();
     return app.run(m_options, [this] () {
+        this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this());
+        this->m_game_window->set_title("Kestrel - Metal");
 //        this->prepare_common();
     });
 }

@@ -50,20 +50,12 @@ auto cocoa::application::run(const std::vector<std::string> args, std::function<
                                                   action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
     [appMenu addItem:quitMenuItem];
     [appMenuItem setSubmenu:appMenu];
-    id window = [[[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200)
-                                             styleMask:NSWindowStyleMaskTitled
-                                               backing:NSBackingStoreBuffered
-                                                 defer:NO]
-            autorelease];
-    [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
-    [window setTitle:appName];
-    [window makeKeyAndOrderFront:nil];
-    [app activateIgnoringOtherApps:YES];
 
     // Setup the Cocoa application before entering the run loop.
     main_fn();
 
     // Enter the run loop and do the application!
+    [app activateIgnoringOtherApps:YES];
     [app run];
     return 0;
 }
