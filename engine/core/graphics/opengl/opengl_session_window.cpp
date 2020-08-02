@@ -20,12 +20,10 @@
 
 #include <stdexcept>
 #include <utility>
-#include <iostream>
 #include "core/graphics/opengl/opengl_session_window.hpp"
 #include "core/graphics/opengl/opengl_scene.hpp"
 #include "core/graphics/opengl/opengl.hpp"
 #include "core/graphics/opengl/opengl_texture.hpp"
-#include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
 
 // MARK: - Construction

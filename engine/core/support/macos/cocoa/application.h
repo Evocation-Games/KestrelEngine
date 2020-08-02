@@ -18,13 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <utility>
-#include "core/graphics/metal/metal_session_window.h"
+#if __APPLE__ && !defined(KESTREL_APPLICATION_H)
+#define KESTREL_APPLICATION_H
 
-// MARK: - Construction
+#include <memory>
+#include <vector>
+#include <string>
+#include <functional>
 
-graphics::metal::session_window::session_window(std::shared_ptr<environment> env)
-    : graphics::session_window(std::move(env))
+namespace cocoa
 {
 
+    class application: public std::enable_shared_from_this<cocoa::application>
+    {
+    private:
+        void *m_handle { nullptr };
+
+    public:
+        explicit application();
+
+        auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
+
+    };
+
 }
+
+#endif //KESTREL_APPLICATION_H

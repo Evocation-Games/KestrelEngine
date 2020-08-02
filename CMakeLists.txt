@@ -109,7 +109,7 @@ if(LINUX)
 	target_include_directories(Kestrel PUBLIC "${GLEW_INCLUDE_DIRS}")
 	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
 elseif(APPLE)
-	target_link_libraries(Kestrel "-framework Cocoa")
+	target_link_libraries(Kestrel "-framework Cocoa" objc)
 endif()
 add_dependencies(Kestrel kdl KestrelGameCore)
 
