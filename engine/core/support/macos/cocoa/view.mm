@@ -18,24 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_METAL_SCENE_H)
-#define KESTREL_METAL_SCENE_H
+#include "core/support/macos/cocoa/view.h"
+#include "core/support/macos/cocoa/cocoa_utils.h"
 
-#include "core/graphics/common/scene.hpp"
+// MARK: - Construction
 
-namespace graphics { namespace metal {
+cocoa::view::view()
+{
+    NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+    cocoa::object::set(view);
+}
 
-    class scene: public graphics::scene
-    {
-    public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script);
-
-        auto update() -> void override;
-        auto render() -> void override;
-
-        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
-    };
-
-}};
-
-#endif //KESTREL_METAL_SCENE_H
+cocoa::view::view(void *handle)
+{
+    cocoa::object::set(handle);
+}

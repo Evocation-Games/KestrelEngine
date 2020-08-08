@@ -18,24 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_METAL_SCENE_H)
-#define KESTREL_METAL_SCENE_H
+#include "core/support/macos/cocoa/cocoa_utils.h"
 
-#include "core/graphics/common/scene.hpp"
+auto cocoa::string::to(const std::string& str) -> NSString *
+{
+    return [NSString stringWithUTF8String:str.c_str()];
+}
 
-namespace graphics { namespace metal {
-
-    class scene: public graphics::scene
-    {
-    public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script);
-
-        auto update() -> void override;
-        auto render() -> void override;
-
-        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
-    };
-
-}};
-
-#endif //KESTREL_METAL_SCENE_H
+auto cocoa::string::from(NSString *str) -> std::string
+{
+    return std::string([str UTF8String]);
+}

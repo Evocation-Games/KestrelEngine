@@ -20,6 +20,7 @@
 
 #include "core/support/macos/cocoa/window.h"
 #include "core/support/macos/cocoa/cocoa_utils.h"
+#include "core/support/macos/cocoa/view.h"
 
 // MARK: - Construction
 
@@ -31,26 +32,37 @@ cocoa::window::window()
                                                        defer:NO];
     [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [window makeKeyAndOrderFront:nil];
-    m_handle = window;
+    cocoa::object::set(window);
+}
+
+cocoa::window::window(void *handle)
+{
+    cocoa::object::set(handle);
 }
 
 // MARK: - Accessors
 
 auto cocoa::window::set_title(const std::string &title) -> void
 {
-    NSWindow *wnd = (__bridge NSWindow *)m_handle;
-    [wnd setTitle:cocoa::string::to(title)];
+    [cocoa::object::get<NSWindow *>() setTitle:cocoa::string::to(title)];
 }
 
 auto cocoa::window::title() const -> std::string
 {
-    NSWindow *wnd = (__bridge NSWindow *)m_handle;
-    return cocoa::string::from([wnd title]);
+    return cocoa::string::from([cocoa::object::get<NSWindow *>() title]);
 }
 
 auto cocoa::window::set_size(const int& width, const int& height) -> void
 {
-    NSWindow *wnd = (__bridge NSWindow *)m_handle;
-    [wnd setFrame:NSMakeRect(0, 0, width, height) display:YES];
-    [wnd center];
+    [cocoa::object::get<NSWindow *>() setFrame:NSMakeRect(0, 0, width, height) display:YES];
+    [cocoa::object::get<NSWindow *>() center];
+}
+
+// MARK: - Subviews
+
+auto cocoa::window::set_content_view(const std::shared_ptr<cocoa::view> &view) -> void
+{
+    auto cocoa_view = view->get<NSView *>();
+    [cocoa_view setFrame:[get<NSWindow *>() frame]];
+    [get<NSWindow *>() setContentView:cocoa_view];
 }

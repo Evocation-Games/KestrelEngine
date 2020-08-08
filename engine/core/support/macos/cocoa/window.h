@@ -22,21 +22,24 @@
 #define KESTREL_WINDOW_H
 
 #include <memory>
+#include "core/support/macos/cocoa/object.h"
 
 namespace cocoa
 {
-    class window: public std::enable_shared_from_this<cocoa::window>
-    {
-    private:
-        void *m_handle { nullptr };
+    class view;
 
+    class window: public std::enable_shared_from_this<cocoa::window>, public cocoa::object
+    {
     public:
         explicit window();
+        window(void *handle);
 
         auto set_title(const std::string& title) -> void;
         auto title() const -> std::string;
 
         auto set_size(const int& width, const int& height) -> void;
+
+        auto set_content_view(const std::shared_ptr<cocoa::view>& view) -> void;
     };
 }
 

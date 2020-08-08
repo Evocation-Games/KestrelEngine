@@ -18,24 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_METAL_SCENE_H)
-#define KESTREL_METAL_SCENE_H
+#if __APPLE__ && !defined(KESTREL_OBJECT_H)
+#define KESTREL_OBJECT_H
+#include <type_traits>
 
-#include "core/graphics/common/scene.hpp"
-
-namespace graphics { namespace metal {
-
-    class scene: public graphics::scene
+namespace cocoa
+{
+    class object
     {
+    protected:
+        void *m_handle;
+
+        template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
+        auto set(const T& value) -> void
+        {
+            m_handle = reinterpret_cast<void *>(value);
+        }
+
     public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script);
 
-        auto update() -> void override;
-        auto render() -> void override;
+        template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
+        auto get() const -> T
+        {
+            return reinterpret_cast<T>(m_handle);
+        }
 
-        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
     };
+}
 
-}};
-
-#endif //KESTREL_METAL_SCENE_H
+#endif //KESTREL_OBJECT_H

@@ -18,24 +18,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_METAL_SCENE_H)
-#define KESTREL_METAL_SCENE_H
+#if __APPLE__ && !defined(KESTREL_VIEW_H)
+#define KESTREL_VIEW_H
 
-#include "core/graphics/common/scene.hpp"
+#include <memory>
+#include "core/support/macos/cocoa/object.h"
 
-namespace graphics { namespace metal {
-
-    class scene: public graphics::scene
+namespace cocoa
+{
+    class view: public std::enable_shared_from_this<cocoa::view>, public cocoa::object
     {
     public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script);
-
-        auto update() -> void override;
-        auto render() -> void override;
-
-        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
+        explicit view();
+        view(void *handle);
     };
+};
 
-}};
-
-#endif //KESTREL_METAL_SCENE_H
+#endif //KESTREL_VIEW_H

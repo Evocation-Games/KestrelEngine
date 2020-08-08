@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_METAL_TEXTURE_H)
+#if __APPLE__ && !defined(KESTREL_METAL_TEXTURE_H)
 #define KESTREL_METAL_TEXTURE_H
 
 #include "core/graphics/common/texture.hpp"

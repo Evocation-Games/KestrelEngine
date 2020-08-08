@@ -23,13 +23,14 @@
 #include "core/support/macos/cocoa/window.h"
 #include "core/graphics/metal/metal_scene.h"
 #include "core/graphics/metal/metal_texture.h"
+#include "core/support/macos/cocoa/view.h"
 
 // MARK: - Construction
 
 graphics::metal::session_window::session_window(std::shared_ptr<environment> env)
     : graphics::session_window(std::move(env)), m_window(std::make_shared<cocoa::window>())
 {
-
+    m_window->set_content_view(std::make_shared<cocoa::view>());
 }
 
 // MARK: - Accessors

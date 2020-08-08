@@ -25,15 +25,8 @@
 #include <string>
 
 namespace cocoa { namespace string {
-    auto to(const std::string& str) -> NSString *
-    {
-        return [NSString stringWithUTF8String:str.c_str()];
-    }
-
-    auto from(NSString *str) -> std::string
-    {
-        return std::string([str UTF8String]);
-    }
+    auto to(const std::string& str) -> NSString *;
+    auto from(NSString *str) -> std::string;
 }}
 
 #endif //KESTREL_COCOA_UTILS_H
