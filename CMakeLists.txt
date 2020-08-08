@@ -109,7 +109,7 @@ if(LINUX)
 	target_include_directories(Kestrel PUBLIC "${GLEW_INCLUDE_DIRS}")
 	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
 elseif(APPLE)
-	target_link_libraries(Kestrel "-framework Cocoa" objc)
+	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal" objc)
 endif()
 add_dependencies(Kestrel kdl KestrelGameCore)
 
@@ -128,8 +128,8 @@ if(APPLE)
         COMMAND rm -rf "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app"
         COMMAND mkdir -p "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS"
         COMMAND mkdir -p "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources"
-#        COMMAND xcrun -sdk macosx metal -I "${PROJECT_SUBMODULES}/diamane" -c "${PROJECT_SUBMODULES}/diamane/libDiamane/platform/macos/metal/shaders.metal" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.air"
-#        COMMAND xcrun -sdk macosx metallib "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.air" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/diamane.metallib"
+        COMMAND xcrun -sdk macosx metal -I "${CMAKE_SOURCE_DIR}/engine" -c "${CMAKE_SOURCE_DIR}/engine/core/graphics/metal/shader.metal" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.air"
+        COMMAND xcrun -sdk macosx metallib "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.air" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.metallib"
         COMMAND cp "${CMAKE_BINARY_DIR}/Kestrel" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS/Kestrel"
         COMMAND cp "${CMAKE_BINARY_DIR}/GameCore.ndat" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/GameCore.ndat"
         COMMAND cp "${CMAKE_BINARY_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Info.plist"
