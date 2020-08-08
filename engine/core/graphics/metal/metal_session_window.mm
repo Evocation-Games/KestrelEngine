@@ -21,6 +21,8 @@
 #include <utility>
 #include "core/graphics/metal/metal_session_window.h"
 #include "core/support/macos/cocoa/window.h"
+#include "core/graphics/metal/metal_scene.h"
+#include "core/graphics/metal/metal_texture.h"
 
 // MARK: - Construction
 
@@ -40,4 +42,26 @@ auto graphics::metal::session_window::set_title(const std::string &title) -> voi
 auto graphics::metal::session_window::set_size(const math::size &size) -> void
 {
     m_window->set_size(static_cast<int>(size.width), static_cast<int>(size.height));
+}
+
+// MARK: - Rendering
+
+auto graphics::metal::session_window::render() -> void
+{
+    graphics::session_window::render();
+}
+
+// MARK: - Scene Management
+
+auto graphics::metal::session_window::new_scene(const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
+{
+    return std::make_shared<graphics::metal::scene>(shared_from_this(), script);
+}
+
+
+// MARK: - Helpers
+
+auto graphics::metal::session_window::create_texture(const math::size &size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
+{
+    return std::make_shared<graphics::metal::texture>(size, std::move(data));
 }

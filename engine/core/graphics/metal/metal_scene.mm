@@ -18,37 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_METAL_SESSION_WINDOW_H)
-#define KESTREL_METAL_SESSION_WINDOW_H
-
 #include <memory>
-#include "core/graphics/common/session_window.hpp"
+#include "core/graphics/metal/metal_scene.h"
+#include "core/graphics/metal/metal_session_window.h"
 
-namespace cocoa
+// MARK: - Construction
+
+graphics::metal::scene::scene(const std::shared_ptr<graphics::session_window> &window, const scripting::lua::script &script)
+    : graphics::scene(window, script)
 {
-    class window;
+
 }
 
-namespace graphics { namespace metal {
+// MARK: - Render/Physics
 
-    class session_window: public graphics::session_window, public std::enable_shared_from_this<metal::session_window>
-    {
-    protected:
-        std::shared_ptr<cocoa::window> m_window;
+auto graphics::metal::scene::update() -> void
+{
 
-    public:
-        explicit session_window(std::shared_ptr<environment> env);
+}
 
-        auto set_title(const std::string& title) -> void override;
-        auto set_size(const math::size& size) -> void override;
+auto graphics::metal::scene::render() -> void
+{
+    invoke_render_blocks();
+}
 
-        auto new_scene(const scripting::lua::script& script) -> std::shared_ptr<graphics::scene> override;
-
-        auto render() -> void override;
-
-        auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture> override;
-    };
-
-}};
-
-#endif //KESTREL_METAL_SESSION_WINDOW_H
+auto graphics::metal::scene::draw_entity(const graphics::entity::lua_reference& entity) const -> void
+{
+    if (auto owner = m_owner.lock()) {
+        auto metal_window = std::static_pointer_cast<metal::session_window>(owner);
+    }
+}
