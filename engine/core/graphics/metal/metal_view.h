@@ -23,6 +23,8 @@
 
 #include <memory>
 #include "core/support/macos/cocoa/view.h"
+#include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/texture.hpp"
 
 namespace graphics { namespace metal {
 
@@ -30,6 +32,9 @@ namespace graphics { namespace metal {
     {
     public:
         explicit view();
+
+        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
+        auto register_texture(const std::shared_ptr<graphics::texture>& texture) -> int;
     };
 
 }}

@@ -46,5 +46,6 @@ auto graphics::metal::scene::draw_entity(const graphics::entity::lua_reference& 
 {
     if (auto owner = m_owner.lock()) {
         auto metal_window = std::static_pointer_cast<metal::session_window>(owner);
+        metal_window->draw_entity(entity);
     }
 }

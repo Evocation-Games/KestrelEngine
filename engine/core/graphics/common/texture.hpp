@@ -42,6 +42,7 @@ namespace graphics
 
         auto size() const -> math::size;
         auto data() const -> std::vector<uint32_t>;
+        virtual auto handle() const -> int;
 
         virtual auto bind() const -> void;
     };

@@ -28,6 +28,7 @@ namespace graphics { namespace metal {
     class texture: public graphics::texture
     {
     private:
+        int m_handle { 0 };
 
     public:
         texture(const double& width, const double& height);
@@ -36,6 +37,9 @@ namespace graphics { namespace metal {
         texture(const math::size& size, std::vector<uint32_t> data);
 
         auto bind() const -> void override;
+
+        auto set_handle(const int& handle) -> void;
+        auto handle() const -> int override;
     };
 
 }}

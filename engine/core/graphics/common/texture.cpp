@@ -58,9 +58,15 @@ auto graphics::texture::data() const -> std::vector<uint32_t>
     return m_data;
 }
 
+auto graphics::texture::handle() const -> int
+{
+    return 0;
+}
+
 // MARK: - Base Implementations
 
 auto graphics::texture::bind() const -> void
 {
     // Empty Implementation
 }
+

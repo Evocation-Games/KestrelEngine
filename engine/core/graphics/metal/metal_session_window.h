@@ -22,7 +22,9 @@
 #define KESTREL_METAL_SESSION_WINDOW_H
 
 #include <memory>
+#include "core/graphics/metal/metal_view.h"
 #include "core/graphics/common/session_window.hpp"
+#include "core/graphics/common/entity.hpp"
 
 namespace cocoa
 {
@@ -35,6 +37,7 @@ namespace graphics { namespace metal {
     {
     protected:
         std::shared_ptr<cocoa::window> m_window;
+        std::shared_ptr<metal::view> m_view;
 
     public:
         explicit session_window(std::shared_ptr<environment> env);
@@ -47,6 +50,8 @@ namespace graphics { namespace metal {
         auto render() -> void override;
 
         auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture> override;
+
+        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
     };
 
 }};

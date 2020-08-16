@@ -47,8 +47,22 @@ graphics::metal::texture::texture(const math::size &size, std::vector<uint32_t> 
 
 }
 
+// MARK: - Accessors
+
+auto graphics::metal::texture::handle() const -> int
+{
+    return m_handle;
+}
+
+auto graphics::metal::texture::set_handle(const int &handle) -> void
+{
+    m_handle = handle;
+}
+
 // MARK: - Texture Management
 
 auto graphics::metal::texture::bind() const -> void
 {
+
 }
+

@@ -30,7 +30,8 @@
 graphics::metal::session_window::session_window(std::shared_ptr<environment> env)
     : graphics::session_window(std::move(env)), m_window(std::make_shared<cocoa::window>())
 {
-    m_window->set_content_view(std::make_shared<metal::view>());
+    m_view = std::make_shared<metal::view>();
+    m_window->set_content_view(m_view);
 }
 
 // MARK: - Accessors
@@ -49,7 +50,12 @@ auto graphics::metal::session_window::set_size(const math::size &size) -> void
 
 auto graphics::metal::session_window::render() -> void
 {
-    graphics::session_window::render();
+    // This route is not used by Metal
+}
+
+auto graphics::metal::session_window::draw_entity(const graphics::entity::lua_reference& entity) const -> void
+{
+    m_view->draw_entity(entity);
 }
 
 // MARK: - Scene Management
@@ -64,5 +70,8 @@ auto graphics::metal::session_window::new_scene(const scripting::lua::script &sc
 
 auto graphics::metal::session_window::create_texture(const math::size &size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
 {
-    return std::make_shared<graphics::metal::texture>(size, std::move(data));
+    auto texture = std::make_shared<graphics::metal::texture>(size, std::move(data));
+    texture->set_handle(m_view->register_texture(texture));
+    return texture;
 }
+
