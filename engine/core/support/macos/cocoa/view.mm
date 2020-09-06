@@ -18,36 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#include "core/support/macos/cocoa/view.h"
+#include "core/support/macos/cocoa/cocoa_utils.h"
 
-#include <memory>
-#include <vector>
-#include "math/size.hpp"
+// MARK: - Construction
 
-namespace graphics
+cocoa::view::view()
 {
-
-    class texture: public std::enable_shared_from_this<graphics::texture>
-    {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
-    public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
-
-        virtual auto bind() const -> void;
-    };
-
+    NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
+    cocoa::object::set(view);
 }
 
-
-#endif //KESTREL_TEXTURE_HPP
+cocoa::view::view(void *handle)
+{
+    cocoa::object::set(handle);
+}

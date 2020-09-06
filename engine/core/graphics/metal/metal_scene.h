@@ -18,36 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#if __APPLE__ && !defined(KESTREL_METAL_SCENE_H)
+#define KESTREL_METAL_SCENE_H
 
-#include <memory>
-#include <vector>
-#include "math/size.hpp"
+#include "core/graphics/common/scene.hpp"
 
-namespace graphics
-{
+namespace graphics { namespace metal {
 
-    class texture: public std::enable_shared_from_this<graphics::texture>
+    class scene: public graphics::scene
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
     public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
+        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script);
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
+        auto update() -> void override;
+        auto render() -> void override;
 
-        virtual auto bind() const -> void;
+        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
     };
 
-}
+}};
 
-
-#endif //KESTREL_TEXTURE_HPP
+#endif //KESTREL_METAL_SCENE_H

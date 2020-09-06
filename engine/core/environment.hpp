@@ -52,6 +52,13 @@ private:
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
 
+#if __APPLE__
+    auto launch_metal() -> int;
+#endif
+    auto launch_opengl() -> int;
+    auto prepare_common() -> void;
+    auto launch_common() -> int;
+
     auto kestrel_core_path() const -> std::string;
     auto game_data_path() const -> std::string;
 

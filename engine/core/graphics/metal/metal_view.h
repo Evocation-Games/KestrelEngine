@@ -18,36 +18,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#if __APPLE__ && !defined(KESTREL_METAL_VIEW_H)
+#define KESTREL_METAL_VIEW_H
 
 #include <memory>
-#include <vector>
-#include "math/size.hpp"
+#include "core/support/macos/cocoa/view.h"
+#include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/texture.hpp"
 
-namespace graphics
-{
+namespace graphics { namespace metal {
 
-    class texture: public std::enable_shared_from_this<graphics::texture>
+    class view: public std::enable_shared_from_this<graphics::metal::view>, public cocoa::view
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
     public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
+        explicit view();
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
-
-        virtual auto bind() const -> void;
+        auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
+        auto register_texture(const std::shared_ptr<graphics::texture>& texture) -> int;
     };
 
-}
+}}
 
-
-#endif //KESTREL_TEXTURE_HPP
+#endif //KESTREL_METAL_VIEW_H

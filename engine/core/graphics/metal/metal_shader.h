@@ -18,36 +18,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#if __APPLE__ && !defined(KESTREL_METAL_SHADER_H)
+#define KESTREL_METAL_SHADER_H
 
-#include <memory>
-#include <vector>
-#include "math/size.hpp"
+#include <simd/simd.h>
 
-namespace graphics
-{
+namespace graphics { namespace metal {
 
-    class texture: public std::enable_shared_from_this<graphics::texture>
+    enum vertex_input_index
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
-    public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
-
-        virtual auto bind() const -> void;
+        vertices = 0,
+        viewport_size = 1,
     };
 
-}
+    enum texture_index
+    {
+        base_color = 0,
+    };
 
+    struct vertex_descriptor
+    {
+        float scale;
+        vector_float2 position;
+        vector_float2 texture_coord;
+        vector_float4 color;
+    };
 
-#endif //KESTREL_TEXTURE_HPP
+}};
+
+#endif //KESTREL_METAL_SHADER_H

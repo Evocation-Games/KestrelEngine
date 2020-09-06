@@ -18,21 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#if __APPLE__ && !defined(KESTREL_METAL_TEXTURE_H)
+#define KESTREL_METAL_TEXTURE_H
 
-#include <memory>
-#include <vector>
-#include "math/size.hpp"
+#include "core/graphics/common/texture.hpp"
 
-namespace graphics
-{
+namespace graphics { namespace metal {
 
-    class texture: public std::enable_shared_from_this<graphics::texture>
+    class texture: public graphics::texture
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
+    private:
+        int m_handle { 0 };
 
     public:
         texture(const double& width, const double& height);
@@ -40,14 +36,12 @@ namespace graphics
         texture(const double& width, const double& height, std::vector<uint32_t> data);
         texture(const math::size& size, std::vector<uint32_t> data);
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
+        auto bind() const -> void override;
 
-        virtual auto bind() const -> void;
+        auto set_handle(const int& handle) -> void;
+        auto handle() const -> int override;
     };
 
-}
+}}
 
-
-#endif //KESTREL_TEXTURE_HPP
+#endif //KESTREL_METAL_TEXTURE_H

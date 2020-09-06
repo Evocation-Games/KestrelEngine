@@ -18,36 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#if __APPLE__ && !defined(KESTREL_WINDOW_H)
+#define KESTREL_WINDOW_H
 
 #include <memory>
-#include <vector>
-#include "math/size.hpp"
+#include "core/support/macos/cocoa/object.h"
 
-namespace graphics
+namespace cocoa
 {
+    class view;
 
-    class texture: public std::enable_shared_from_this<graphics::texture>
+    class window: public std::enable_shared_from_this<cocoa::window>, public cocoa::object
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
     public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
+        explicit window();
+        window(void *handle);
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
+        auto set_title(const std::string& title) -> void;
+        auto title() const -> std::string;
 
-        virtual auto bind() const -> void;
+        auto set_size(const int& width, const int& height) -> void;
+
+        auto set_content_view(const std::shared_ptr<cocoa::view>& view) -> void;
     };
-
 }
 
-
-#endif //KESTREL_TEXTURE_HPP
+#endif //KESTREL_WINDOW_H

@@ -18,36 +18,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#include "core/graphics/metal/metal_texture.h"
+#include <utility>
 
-#include <memory>
-#include <vector>
-#include "math/size.hpp"
+// MARK: - Construction
 
-namespace graphics
+graphics::metal::texture::texture(const double &width, const double &height)
+    : graphics::texture(width, height)
 {
-
-    class texture: public std::enable_shared_from_this<graphics::texture>
-    {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
-    public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
-
-        virtual auto bind() const -> void;
-    };
 
 }
 
+graphics::metal::texture::texture(const math::size &size)
+    : graphics::texture(size)
+{
 
-#endif //KESTREL_TEXTURE_HPP
+}
+
+graphics::metal::texture::texture(const double &width, const double &height, std::vector<uint32_t> data)
+    : graphics::texture(width, height, data)
+{
+
+}
+
+graphics::metal::texture::texture(const math::size &size, std::vector<uint32_t> data)
+    : graphics::texture(size, data)
+{
+
+}
+
+// MARK: - Accessors
+
+auto graphics::metal::texture::handle() const -> int
+{
+    return m_handle;
+}
+
+auto graphics::metal::texture::set_handle(const int &handle) -> void
+{
+    m_handle = handle;
+}
+
+// MARK: - Texture Management
+
+auto graphics::metal::texture::bind() const -> void
+{
+
+}
+

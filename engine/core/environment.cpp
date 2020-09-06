@@ -27,6 +27,11 @@
 #include "scripting/state.hpp"
 #include "core/graphics/common/scene.hpp"
 
+#if __APPLE__
+#include "core/graphics/metal/metal_session_window.h"
+#include "core/support/macos/cocoa/application.h"
+#endif
+
 static std::weak_ptr<environment> $_active_environment;
 
 // MARK: - Helpers
@@ -76,13 +81,27 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 
 // MARK: - Run Loop
 
-auto environment::launch() -> int
+#if __APPLE__
+auto environment::launch_metal() -> int
 {
-    // Determine which graphics mode we are running in, and instantiate the correct session_window
-    // subclass.
-    // TODO: Add in alternate modes as they are implemented, and bind to appropriate platforms.
-    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+    auto app = cocoa::application();
+    return app.run(m_options, [this] () {
+        this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this());
+        this->m_game_window->set_title("Kestrel - Metal");
+        this->m_game_window->set_size({ 800, 600 });
+        this->prepare_common();
+    });
+}
+#endif
 
+auto environment::launch_opengl() -> int
+{
+    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+    return launch_common();
+}
+
+auto environment::prepare_common() -> void
+{
     // Ensure Lua is fully configured and ready to go.
     become_active_environment();
     m_lua_runtime->prepare_lua_environment(shared_from_this());
@@ -90,6 +109,11 @@ auto environment::launch() -> int
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
     auto main_script = m_lua_runtime->load_script(0);
     m_lua_runtime->run(main_script);
+}
+
+auto environment::launch_common() -> int
+{
+    prepare_common();
 
     // Enter the main run loop, keep calling tick on the session window until such time as it is no
     // longer in existence or alive.
@@ -98,6 +122,18 @@ auto environment::launch() -> int
     }
 
     return m_status;
+}
+
+auto environment::launch() -> int
+{
+#if __APPLE__
+    auto metal = true;
+    if (metal) {
+        return launch_metal();
+    }
+#endif
+
+    return launch_opengl();
 }
 
 auto environment::become_active_environment() -> void

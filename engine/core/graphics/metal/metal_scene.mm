@@ -18,36 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
-
 #include <memory>
-#include <vector>
-#include "math/size.hpp"
+#include "core/graphics/metal/metal_scene.h"
+#include "core/graphics/metal/metal_session_window.h"
 
-namespace graphics
+// MARK: - Construction
+
+graphics::metal::scene::scene(const std::shared_ptr<graphics::session_window> &window, const scripting::lua::script &script)
+    : graphics::scene(window, script)
 {
-
-    class texture: public std::enable_shared_from_this<graphics::texture>
-    {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-
-    public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
-
-        virtual auto bind() const -> void;
-    };
 
 }
 
+// MARK: - Render/Physics
 
-#endif //KESTREL_TEXTURE_HPP
+auto graphics::metal::scene::update() -> void
+{
+
+}
+
+auto graphics::metal::scene::render() -> void
+{
+    invoke_render_blocks();
+}
+
+auto graphics::metal::scene::draw_entity(const graphics::entity::lua_reference& entity) const -> void
+{
+    if (auto owner = m_owner.lock()) {
+        auto metal_window = std::static_pointer_cast<metal::session_window>(owner);
+        metal_window->draw_entity(entity);
+    }
+}

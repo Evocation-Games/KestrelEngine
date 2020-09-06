@@ -18,36 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#if __APPLE__ && !defined(KESTREL_APPLICATION_H)
+#define KESTREL_APPLICATION_H
 
 #include <memory>
 #include <vector>
-#include "math/size.hpp"
+#include <functional>
 
-namespace graphics
+namespace cocoa
 {
 
-    class texture: public std::enable_shared_from_this<graphics::texture>
+    class application: public std::enable_shared_from_this<cocoa::application>
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
+    private:
+        void *m_handle { nullptr };
 
     public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
+        explicit application();
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        virtual auto handle() const -> int;
+        auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
 
-        virtual auto bind() const -> void;
     };
 
 }
 
-
-#endif //KESTREL_TEXTURE_HPP
+#endif //KESTREL_APPLICATION_H
