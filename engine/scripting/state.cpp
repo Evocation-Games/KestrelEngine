@@ -32,6 +32,7 @@
 #include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/asset/macintosh_picture.hpp"
+#include "core/asset/color_icon.hpp"
 #include "core/asset/spritesheet.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/asset/image.hpp"
@@ -82,6 +83,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     graphics::text::enroll_object_api_in_state(shared_from_this());
     event::key::enroll_object_apu_in_state(shared_from_this());
     event::mouse::enroll_object_apu_in_state(shared_from_this());
+    asset::color_icon::enroll_object_api_in_state(shared_from_this());
 }
 
 
