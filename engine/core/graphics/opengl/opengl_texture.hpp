@@ -31,7 +31,7 @@ namespace graphics { namespace opengl {
     private:
         GLuint m_id { 0 };
         GLuint m_internal_format { GL_RGBA };
-        GLuint m_image_format { GL_BGRA };
+        GLuint m_image_format { GL_RGBA };
         GLuint m_wrap_s { GL_REPEAT };
         GLuint m_wrap_t { GL_REPEAT };
         GLuint m_filter_min { GL_NEAREST };
