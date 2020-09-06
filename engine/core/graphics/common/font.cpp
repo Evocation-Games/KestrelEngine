@@ -121,7 +121,7 @@ auto graphics::font::render_text(const std::string &text, const math::size& sz, 
         for (auto yy = 0; yy < m_face->glyph->bitmap.rows; ++yy) {
             for (auto xx = 0; xx < m_face->glyph->bitmap.width; ++xx) {
                 auto red = m_face->glyph->bitmap.buffer[(yy * m_face->glyph->bitmap.width) + xx];
-                auto hex_color = (color.get_red() << 16) | (color.get_green() << 8) | (color.get_blue());
+                auto hex_color = color.value() & 0x00FFFFFF;
                 auto color = hex_color | (red << 24); // Color of the glyph becomes the alpha for the text.
                 text_data[((y + y_offset + yy) * sz.width) + x + x_offset + xx] = color;
             }

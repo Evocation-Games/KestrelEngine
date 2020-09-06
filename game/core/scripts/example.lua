@@ -28,14 +28,17 @@ local ship = img:spawnEntity(Vec2(600, 400))
 local text = Text("Kestrel Engine Test")
 text.fontSize = 12
 text.font = "Geneva"
-text.position = Point(50, 50)
+text.position = Point(150, 50)
 text.color = Color.red()
 
 local name = Text("Voinian Frigate")
 name.fontSize = 18
 name.font = "Geneva"
-name.position = Point(50, 60)
+name.position = Point(150, 60)
 name.color = Color.lime()
+
+local alert = ColorIcon.load(Resource.id(128))
+local alertSprite = alert:spawnEntity(Vec2(50, 50));
 
 local rotation = 0
 
@@ -43,6 +46,7 @@ scene:render(function()
     ship:draw()
     text:draw()
     name:draw()
+    alertSprite:draw()
     ship.frame = rotation
 end)
 

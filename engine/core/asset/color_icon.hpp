@@ -18,37 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_TEXTURE_HPP)
-#define KESTREL_OPENGL_TEXTURE_HPP
+#if !defined(KESTREL_COLOR_ICON_HPP)
+#define KESTREL_COLOR_ICON_HPP
 
-#include "core/graphics/common/texture.hpp"
-#include "core/graphics/opengl/opengl.hpp"
+#include "core/asset/image.hpp"
+#include "core/asset/resource_reference.hpp"
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
 
-namespace graphics { namespace opengl {
+namespace asset
+{
 
-    class texture: public graphics::texture
+    struct color_icon: public asset::image, public scripting::lua::object
     {
-    private:
-        GLuint m_id { 0 };
-        GLuint m_internal_format { GL_RGBA };
-        GLuint m_image_format { GL_RGBA };
-        GLuint m_wrap_s { GL_REPEAT };
-        GLuint m_wrap_t { GL_REPEAT };
-        GLuint m_filter_min { GL_NEAREST };
-        GLuint m_filter_max { GL_NEAREST };
-        GLuint m_env_mode { GL_MODULATE };
-
-        auto upload() const -> void;
-
     public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
+        constexpr static const char *type { "cicn" };
+        typedef luabridge::RefCountedPtr<asset::color_icon> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        auto bind() const -> void override;
+        lua_api explicit color_icon(const asset::resource_reference::lua_reference& ref);
+        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> color_icon::lua_reference;
+
+        auto size() -> math::size;
+        lua_api auto lua_size() const -> math::size::lua_reference;
+
+        lua_api auto spawn_entity(const math::vector::lua_reference& position) const -> graphics::entity::lua_reference override;
     };
 
-}}
+};
 
-#endif //KESTREL_OPENGL_TEXTURE_HPP
+#endif //KESTREL_COLOR_ICON_HPP
