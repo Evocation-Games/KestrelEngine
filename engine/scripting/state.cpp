@@ -39,6 +39,7 @@
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/event/key.hpp"
+#include "core/asset/sprite.hpp"
 
 // MARK: - Construction
 
@@ -68,22 +69,26 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     env->prepare_lua_interface();
     asset::resource_reference::enroll_object_api_in_state(shared_from_this());
     asset::resource::enroll_object_api_in_state(shared_from_this());
+    asset::image::enroll_object_api_in_state(shared_from_this());
+    asset::spritesheet::enroll_object_api_in_state(shared_from_this());
+    asset::sprite::enroll_object_api_in_state(shared_from_this());
     asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());
+    asset::color_icon::enroll_object_api_in_state(shared_from_this());
+
     math::angle::enroll_object_api_in_state(shared_from_this());
     math::angular_difference::enroll_object_api_in_state(shared_from_this());
     math::point::enroll_object_api_in_state(shared_from_this());
     math::size::enroll_object_api_in_state(shared_from_this());
     math::rect::enroll_object_api_in_state(shared_from_this());
     math::vector::enroll_object_api_in_state(shared_from_this());
-    graphics::color::enroll_object_api_in_state(shared_from_this());
+
     graphics::lua_scene_wrapper::enroll_object_api_in_state(shared_from_this());
+    graphics::color::enroll_object_api_in_state(shared_from_this());
     graphics::entity::enroll_object_api_in_state(shared_from_this());
-    asset::image::enroll_object_api_in_state(shared_from_this());
-    asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     graphics::text::enroll_object_api_in_state(shared_from_this());
+
     event::key::enroll_object_apu_in_state(shared_from_this());
     event::mouse::enroll_object_apu_in_state(shared_from_this());
-    asset::color_icon::enroll_object_api_in_state(shared_from_this());
 }
 
 
