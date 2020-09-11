@@ -1,40 +1,127 @@
-# Kestrel Lua Bridge
-## Scene API
-### Introduction
+###### Kestrel Lua API / Scene Presentation
 
-The `Scene` class is used encapsulate a particular given content mode of 
-the engine. For example a scene might be used to deliver a series of 
-images as a "slide show", the actual game play or a menu screen.
+# Scene
 
-Scenes operate via a stack, with scenes that are pushed on to the stack
-becoming the new scene. "_Popping_" from the current scene will restore
-the previous one.
+The `Scene` class represents a given "scene" within Kestrel. This may be a scene that you wish to move to/present to the user or the currently presented scene.
 
----
-## Functions
+Scenes are how Kestrel handles all contextual state. An overworld view of the game may be its own scene, whilst an NPC communication view maybe another scene. As scenes are presented, they are placed upon a stack, with Kestrel rendering and sending events only the top most scene on the stack.
 
-#### Scene(name)
+## Presenting a Scene
+In order to present a scene, you will need to have a _Controller_ script to manage the functionality of the scene. Such scripts are encoded as `LuaC` resources. Below are example KDL and the Lua script files for this illustration.
 
-| Argument | Type | Purpose |
+```lua
+-- scripts/MyScene.lua
+
+print("Hello, World")
+```
+
+```kdl
+` game.kdl
+
+declare LuaScript {
+    new (#128) {
+        Script = import "@rpath/scripts/MyScene.lua";
+    };
+};
+
+```
+
+This scene can then be loaded and presented using the following snippet.
+
+```lua
+local scene = Kestrel.scene("Example Scene", Resource.id(128))
+scene:present()
+```
+
+Here, we're asking Kestrel to create a new scene with an internal identifier of `Example Scene`. This identifier is purely for our own, debugging purposes and is not related to the underlying resource data or controller script. The `Resource.id(128)` is telling the scene that the controller script for it, is in resource 128. The `LuaC` type in this instance is inferred.
+
+
+## Acquiring the current Scene
+It will almost certainly be likely that you need to acquire the current scene that Kestrel is presenting. Whether this be within the confines of the controller script, or in another aspect of functionality that you have added.
+
+You can acquire the current scene like so
+
+```lua
+local scene = Scene.current()
+```
+
+
+## Direct Instantation
+Due to the internal structure of Kestrel and how deeply integrated Scenes are in the architecture of Kestrel, it is not possible to directly instantiate a scene currently. You must go through the `Kestrel.scene` method.
+
+## Static Methods
+The following methods are exposed on the `Scene` class.
+
+| Method Name | Return Type | Lua API Version |
 | --- | --- | --- |
-| name | String | The name of the scene being loaded. Value is not important. |
-
-Create a new scene with the given name. The scene is not pushed to the stack
-upon creation.
+| `current` | `Scene` | v0.0.1 |
 
 ---
+### `Scene.current`
+Returns a reference to the scene that is currently at the top of the scene stack in Kestrel.
 
-#### Scene:attachScript(id)
+##### Example
+```lua
+local scene = Scene.current()
+```
 
-| Argument | Type | Purpose |
+## Instance Methods
+The following methods are exposed on `Scene`.
+
+| Method Name | Return Type | Lua API Version |
 | --- | --- | --- |
-| id | Integer | The Resource ID of a Lua Script. |
+| `present` | None | v0.0.1 |
+| `render` | None | v0.0.1 |
+| `onKeyEvent` | None | v0.0.1 |
+| `onMouseEvent` | None | v0.0.1 |
 
-Load the script with the specified ID and attach it to the scene. The script
-will be played when the scene is presented. 
 
 ---
+### `Scene:present`
+Pushes the specified scene on to Kestrels internal scene stack, causing the specified scene to become the current scene.
 
-#### Scene:present()
+##### Example
+```lua
+local scene = Kestrel.scene("Example Scene", Resource.id(128))
+scene:present()
+```
 
-Presents the scene to the user by pushing it to the top of the stack.
+---
+### `Scene:render`
+Provide a function to the scene that will be called each time a new render pass is made. You should perform any updates, and drawing of entities in these functions/closures.
+
+##### Example
+```lua
+scene:render(function()
+	ball:draw()
+end)
+```
+
+---
+### `Scene:onKeyEvent`
+Provide a function to the scene that will handle keyboard events.
+
+##### Example
+```lua
+scene:onKeyEvent(function(event)
+	if event.keycode == 262 and event.pressed then
+		print("Left Button pressed")
+	end
+end)
+```
+
+---
+### `Scene:onMouseEvent`
+Provide a function to the scene that will handle keyboard events.
+
+##### Example
+```lua
+scene: onMouseEvent(function(event)
+	if event.moved then
+		local position = event.point
+		print("Mouse moved")
+	end
+end)
+```
+
+
