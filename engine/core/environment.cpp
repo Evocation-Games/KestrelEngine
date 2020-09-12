@@ -181,12 +181,12 @@ auto environment::load_data_files(const std::string &path) -> void
 
 auto environment::kestrel_core_path() const -> std::string
 {
-    return "../Resources/GameCore.ndat";
+    return cocoa::application::bundle_path() + "/Contents/Resources/GameCore.ndat";
 }
 
 auto environment::game_data_path() const -> std::string
 {
-    return "../Resources/DataFiles";
+    return cocoa::application::bundle_path() + "/Contents/Resources/DataFiles";
 }
 
 #elif __linux__
