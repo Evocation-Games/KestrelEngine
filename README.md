@@ -1,7 +1,11 @@
-<center>![Kestrel Game Engine](https://user-images.githubusercontent.com/681356/92330908-8530f800-f06a-11ea-842c-3ba3b6cc6ccd.png)</center>
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/681356/92330908-8530f800-f06a-11ea-842c-3ba3b6cc6ccd.png">
+</p>
 
-<center>[![Version](https://img.shields.io/badge/version-v0.0.1_alpha-red.svg)](#) 
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](#)</center>
+<p align="center">
+  <img src="https://img.shields.io/badge/version-v0.0.1_alpha-red.svg">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg">
+</p>
 
 Welcome to the _Kestrel Game Engine_, a project that is centered around and focused on producing a cross platform game engine for recreating and remastering sprite based _Classic Macintosh_ games. Kestrel is being used by the upcomming _Cosmic Frontier: Override_ to deliver a remastered version of _Escape Velocity: Override_.
 
