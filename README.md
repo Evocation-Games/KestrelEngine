@@ -9,7 +9,7 @@
 
 Welcome to the _Kestrel Game Engine_, a project that is centered around and focused on producing a cross platform game engine for recreating and remastering sprite based _Classic Macintosh_ games. Kestrel is being used by the upcomming _Cosmic Frontier: Override_ to deliver a remastered version of _Escape Velocity: Override_.
 
-## Cloning
+Kestrel is intended to be a fully moddable and extensible game engine that is focused on rebuilding and remastering Classic Macintosh games. In order to acheive this, rather than forcing all aspects of the game to be rebuilt and re-encoded in modern ways, Kestrel aims to emulate/reproduce some of the technologies that were employed by those old games such as Resource Files / Forks and QuickDraw.
 
 ## Building the Engine
 To build the Kestrel engine you will need the following tools and dependancies installed on your system.
@@ -81,14 +81,18 @@ On Linux the `DataFiles` directory is the same directory as the main Kestrel exe
 Kestrel will load the `GameCore.ndat` prior to loading the additional data files.
 
 
-## About Kestrel
-Kestrel is intended to be a fully moddable and extensible game engine that is focused on rebuilding and remastering Classic Macintosh games. In order to acheive this, rather than forcing all aspects of the game to be rebuilt and re-encoded in modern ways, Kestrel aims to emulate/reproduce some of the technologies that were employed by those old games such as Resource Files / Forks and QuickDraw.
-
-
-
 ## Contributing
+Contributions to Kestrel are welcome and appreciated. This is a big project, and will ultimately take the collective efforts of the community.
 
+So what type of contributions are being looked for? Well anything on the list below is wanted.
 
+- Proof reading and writing documentation.
+- Code review.
+- Submitting issues (bug fixes, feature requests, etc)
+- Bug fixes & patches.
+- Working on any issues/features.
+
+For more details on how you might go about contributing to the project, please checkout the _Contributing_ document.
 
 ## Platform Completion / Features
 The matrix below gives a very brief and high level overview of what aspects of the engine have been worked upon and what current state they are in. This does not give an intricate overview of the features supported by the engine.
