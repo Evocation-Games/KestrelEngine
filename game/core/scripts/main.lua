@@ -31,5 +31,5 @@ Kestrel.setGameWindowTitle("Kestrel Demo")
 Kestrel.setGameWindowSize(1280, 800)
 
 -- Create a new scene and attach script #128 to it.
-local scene = Kestrel.scene("MainScreen", Resource.id(128))
-scene:present()
+local main = Kestrel.scene("MainScreen", Resource.id(128))
+main:present()

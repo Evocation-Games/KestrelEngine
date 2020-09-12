@@ -37,7 +37,7 @@ name.font = "Geneva"
 name.position = Point(150, 60)
 name.color = Color.lime()
 
-local alert = ColorIcon.load(Resource.id(128))
+local alert = MacintoshColorIcon.load(Resource.id(128))
 local alertSprite = alert:spawnEntity(Vec2(50, 50));
 
 local rotation = 0
