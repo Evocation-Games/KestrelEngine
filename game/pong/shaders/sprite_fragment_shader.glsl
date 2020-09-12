@@ -18,29 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_APPLICATION_H)
-#define KESTREL_APPLICATION_H
+#version 330 core
 
-#include <memory>
-#include <vector>
-#include <functional>
+in vec2 TexCoords;
 
-namespace cocoa
+out vec4 color;
+
+uniform sampler2D image;
+uniform vec3 spriteColor;
+
+void main()
 {
-
-    class application: public std::enable_shared_from_this<cocoa::application>
-    {
-    private:
-        void *m_handle { nullptr };
-
-    public:
-        explicit application();
-
-        auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
-
-        static auto bundle_path() -> std::string;
-    };
-
+    color = vec4(spriteColor, 1.0) * texture(image, TexCoords);
 }
-
-#endif //KESTREL_APPLICATION_H

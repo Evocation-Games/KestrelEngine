@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/support/macos/cocoa/application.h"
+#include "core/support/macos/cocoa/cocoa_utils.h"
 #include <Cocoa/Cocoa.h>
 
 // MARK: - Construction
@@ -58,4 +59,11 @@ auto cocoa::application::run(const std::vector<std::string> args, std::function<
     [app activateIgnoringOtherApps:YES];
     [app run];
     return 0;
+}
+
+// MARK: - Application Bundle
+
+auto cocoa::application::bundle_path() -> std::string
+{
+    return cocoa::string::from([[NSBundle mainBundle] bundlePath]);
 }

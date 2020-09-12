@@ -18,29 +18,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_APPLICATION_H)
-#define KESTREL_APPLICATION_H
+#version 330 core
 
-#include <memory>
-#include <vector>
-#include <functional>
+layout(location = 0) in vec4 vertex;
 
-namespace cocoa
+out vec2 TexCoords;
+
+uniform mat4 model;
+uniform mat4 projection;
+uniform vec2 texOffset;
+uniform vec2 texSize;
+
+void main()
 {
-
-    class application: public std::enable_shared_from_this<cocoa::application>
-    {
-    private:
-        void *m_handle { nullptr };
-
-    public:
-        explicit application();
-
-        auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
-
-        static auto bundle_path() -> std::string;
-    };
-
+    TexCoords = (vertex.zw * texSize) + texOffset;
+    gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);
 }
-
-#endif //KESTREL_APPLICATION_H

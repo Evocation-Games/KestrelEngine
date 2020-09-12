@@ -18,18 +18,12 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-print("Starting KestrelGameCore")
+print("Pong Demo Game")
 
--- ---------------------------------------------------------------------------------------------------------------------
--- Load API's from the GameCore.
-
-
--- ---------------------------------------------------------------------------------------------------------------------
--- Setup the Game
-
-Kestrel.setGameWindowTitle("Kestrel Demo")
+-- Setup the game window
+Kestrel.setGameWindowTitle("Pong")
 Kestrel.setGameWindowSize(1280, 800)
 
--- Create a new scene and attach script #128 to it.
-local main = Kestrel.scene("MainScreen", Resource.id(128))
-main:present()
+-- Create the a new game session
+local game = Kestrel.scene("MainGame", Resource.id(128))
+game:present()
