@@ -72,20 +72,20 @@ The following methods are exposed on `ResourceData`.
 
 | Method Name | Return Type | Lua API Version |
 | --- | --- | --- |
-| `readByte` | Integer | v0.0.1 |
-| `readShort` | Integer | v0.0.1 |
-| `readLong` | Integer | v0.0.1 |
-| `readQuad` | Integer | v0.0.1 |
-| `readSignedByte` | Integer | v0.0.1 |
-| `readSignedShort` | Integer | v0.0.1 |
-| `readSignedLong` | Integer | v0.0.1 |
-| `readSignedQuad` | Integer | v0.0.1 |
-| `readPStr` | String | v0.0.1 |
-| `readCStr` | String | v0.0.1 |
-| `readCStrOfLength` | Integer | v0.0.1 |
+| `readByte()` | Integer | v0.0.1 |
+| `readShort()` | Integer | v0.0.1 |
+| `readLong()` | Integer | v0.0.1 |
+| `readQuad()` | Integer | v0.0.1 |
+| `readSignedByte()` | Integer | v0.0.1 |
+| `readSignedShort()` | Integer | v0.0.1 |
+| `readSignedLong()` | Integer | v0.0.1 |
+| `readSignedQuad()` | Integer | v0.0.1 |
+| `readPStr()` | String | v0.0.1 |
+| `readCStr()` | String | v0.0.1 |
+| `readCStrOfLength(Integer)` | Integer | v0.0.1 |
 
 ---
-### `ResourceData:readByte`, `ResourceData:readSignedByte`
+### `ResourceData:readByte()`, `ResourceData:readSignedByte()`
 Read a single byte (unsigned/signed) from the current position in the `ResourceData` and returns an Integer value representing it.
 
 ##### Example
@@ -96,7 +96,7 @@ local type = res:readSignedByte()
 
 
 ---
-### `ResourceData:readShort`, `ResourceData:readSignedShort`
+### `ResourceData:readShort()`, `ResourceData:readSignedShort()`
 Read a single short value (unsigned/signed, 2 bytes) from the current position in the `ResourceData` and returns an Integer value representing it.
 
 _Note: This will automatically handle endianess of the value for the host platform_
@@ -108,7 +108,7 @@ local length = res:readSignedShort()
 ```
 
 ---
-### `ResourceData:readLong`, `ResourceData:readSignedLong`
+### `ResourceData:readLong()`, `ResourceData:readSignedLong()`
 Read a single long value (unsigned/signed, 4 bytes) from the current position in the `ResourceData` and returns an Integer value representing it.
 
 _Note: This will automatically handle endianess of the value for the host platform_
@@ -120,7 +120,7 @@ local cost = res:readSignedLong()
 ```
 
 ---
-### `ResourceData:readQuad`, `ResourceData:readSignedQuad`
+### `ResourceData:readQuad()`, `ResourceData:readSignedQuad()`
 Read a single quad value (unsigned/signed, 8 bytes) from the current position in the `ResourceData` and returns an Integer value representing it.
 
 _Note: This will automatically handle endianess of the value for the host platform_
@@ -132,7 +132,7 @@ local contrib = res:readSignedQuad()
 ```
 
 ---
-### `ResourceData:readPStr`
+### `ResourceData:readPStr()`
 Read a Pascal encoded string from the Resource Data. Pascal encoded strings have a simple string length encoded at the start of the string as a single unsigned byte that is equal to the number of bytes in the string. They are limited to 255 characters due to the use of a single byte encoding their length.
 
 ##### Example
@@ -142,7 +142,7 @@ local name = res:readPStr()
 
 
 ---
-### `ResourceData:readCStr`
+### `ResourceData:readCStr()`
 Read a C encoded string from the Resource Data. C encoded strings are NUL-Terminated and do not have a limit upon their length, but can and have been the source of many crashes and bugs.
 
 _Warning: Due to the potential bugs that can be introduced through the use of unbounded C-Strings, you should prefer the use of `ResourceData:readCStrOfLength` where possible._
@@ -154,7 +154,7 @@ local name = res:readCStr()
 
 
 ---
-### `ResourceData:readCStrOfLength`
+### `ResourceData:readCStrOfLength(Integer)`
 Read a string of the specified length from the `ResourceData`. The precise number of bytes will be read from the data, ensuring that overflow bugs can not occur. This requires that the data contain strings that either truncated, or padded out to the expected size. Kestrel will not reconcile differences between what is requested and what is present.
 
 ##### Example

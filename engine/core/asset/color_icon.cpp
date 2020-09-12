@@ -30,7 +30,7 @@
 auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::color_icon>("ColorIcon")
+        .beginClass<asset::color_icon>("MacintoshColorIcon")
             .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::color_icon::lua_reference>()
             .addStaticFunction("load", &asset::color_icon::load)
             .addProperty("size", &asset::color_icon::lua_size)

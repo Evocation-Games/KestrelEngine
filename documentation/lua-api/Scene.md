@@ -54,10 +54,10 @@ The following methods are exposed on the `Scene` class.
 
 | Method Name | Return Type | Lua API Version |
 | --- | --- | --- |
-| `current` | `Scene` | v0.0.1 |
+| `current()` | `Scene` | v0.0.1 |
 
 ---
-### `Scene.current`
+### `Scene.current()`
 Returns a reference to the scene that is currently at the top of the scene stack in Kestrel.
 
 ##### Example
@@ -70,14 +70,14 @@ The following methods are exposed on `Scene`.
 
 | Method Name | Return Type | Lua API Version |
 | --- | --- | --- |
-| `present` | None | v0.0.1 |
-| `render` | None | v0.0.1 |
-| `onKeyEvent` | None | v0.0.1 |
-| `onMouseEvent` | None | v0.0.1 |
+| `present()` | None | v0.0.1 |
+| `render(Function)` | None | v0.0.1 |
+| `onKeyEvent(Function(KeyEvent))` | None | v0.0.1 |
+| `onMouseEvent(Function(MouseEvent))` | None | v0.0.1 |
 
 
 ---
-### `Scene:present`
+### `Scene:present()`
 Pushes the specified scene on to Kestrels internal scene stack, causing the specified scene to become the current scene.
 
 ##### Example
@@ -87,7 +87,7 @@ scene:present()
 ```
 
 ---
-### `Scene:render`
+### `Scene:render(Function)`
 Provide a function to the scene that will be called each time a new render pass is made. You should perform any updates, and drawing of entities in these functions/closures.
 
 ##### Example
@@ -98,7 +98,7 @@ end)
 ```
 
 ---
-### `Scene:onKeyEvent`
+### `Scene:onKeyEvent(Function(KeyEvent))`
 Provide a function to the scene that will handle keyboard events.
 
 ##### Example
@@ -111,7 +111,7 @@ end)
 ```
 
 ---
-### `Scene:onMouseEvent`
+### `Scene:onMouseEvent(Function(MouseEvent))`
 Provide a function to the scene that will handle keyboard events.
 
 ##### Example

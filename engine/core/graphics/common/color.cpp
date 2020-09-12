@@ -27,7 +27,7 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::color>("Color")
             .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, graphics::color::lua_reference>()
-            .addStaticFunction("white", &graphics::color::white)
+            .addStaticFunction("whiteColor", &graphics::color::white)
             .addStaticFunction("rgb", &graphics::color::rgb)
             .addStaticFunction("colorValue", &graphics::color::color_value)
             .addStaticFunction("white", &graphics::color::white_color_ref)
