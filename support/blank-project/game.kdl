@@ -1,0 +1,30 @@
+`
+` Copyright (c) %%YEAR %%NAME
+`
+
+` Import the core KDL types
+@import "@rpath/../../support/kdl/GLSLShader.kdl";
+@import "@rpath/../../support/kdl/LuaScript.kdl";
+@import "@rpath/../../support/kdl/SpriteSheet.kdl";
+
+` Game Scripts
+declare LuaScript {
+	new (#0, "Main") {
+		Script = import "@rpath/scripts/main.lua";
+	};
+
+	new (#128, "Game") {
+		Script = import "@rpath/scripts/game.lua";
+	};
+};
+
+` Kestrel Shaders
+declare GLSLShader {
+    new (#0, "Sprite:Vertex") {
+        Script = import "@rpath/shaders/sprite_vertex_shader.glsl";
+    };
+
+    new (#1, "Sprite:Fragment") {
+        Script = import "@rpath/shaders/sprite_fragment_shader.glsl";
+    };
+};
