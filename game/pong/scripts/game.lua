@@ -126,17 +126,17 @@ scene:render(function()
 		end
 	end
 
-	-- Draw the paddles and the ball.
-	playerPaddle:draw()
-	opponentPaddle:draw()
-	ball:draw()
-
 	-- Draw the score
 	playerScoreEntity.frame = playerScore
 	playerScoreEntity:draw()
 
 	opponentScoreEntity.frame = opponentScore
 	opponentScoreEntity:draw()
+
+	-- Draw the paddles and the ball.
+	playerPaddle:draw()
+	opponentPaddle:draw()
+	ball:draw()
 
 	-- Move the opponent paddle, to this we're going to lag behind the position of the ball.
 	local paddleMove = ball.position.y - opponentPaddle.position.y
