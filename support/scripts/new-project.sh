@@ -31,6 +31,7 @@ cp -r support/blank-project ${FULL_PROJECT_DIR}
 find ${FULL_PROJECT_DIR} -type f -exec sed -i '' "s/%%YEAR/${YEAR}/g" {} \;
 find ${FULL_PROJECT_DIR} -type f -exec sed -i '' "s/%%NAME/${NAME}/g" {} \;
 find ${FULL_PROJECT_DIR} -type f -exec sed -i '' "s/%%PROJECT_NAME/${PROJECT_NAME}/g" {} \;
+find ${FULL_PROJECT_DIR} -type f -exec sed -i '' "s/%%PROJECT_SHORT_NAME/${PROJECT_DIR}/g" {} \;
 
 # Finish up
 echo "Created new project \"${PROJECT_NAME}\" at ${FULL_PROJECT_DIR}"
