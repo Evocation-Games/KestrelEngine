@@ -127,8 +127,17 @@ auto math::rect::contains(const math::rect& r) const -> bool
 
 auto math::rect::intersects(const math::rect& r) const -> bool
 {
-    // TODO: Implement this in an efficient way...
-    return false;
+    auto r1x1 = this->origin.x;
+    auto r1x2 = this->origin.x + this->size.width;
+    auto r1y1 = this->origin.y;
+    auto r1y2 = this->origin.y + this->size.height;
+
+    auto r2x1 = r.origin.x;
+    auto r2x2 = r.origin.x + r.size.width;
+    auto r2y1 = r.origin.y;
+    auto r2y2 = r.origin.y + r.size.height;
+    
+    return ((r1x1 < r2x2) && (r1x2 > r2x1) && (r1y1 < r2y2) && (r1y2 > r2y1));
 }
 
 // MARK: - Lua Accessors

@@ -64,7 +64,14 @@ namespace graphics
         lua_api auto get_position() const -> math::vector;
         lua_api auto set_position(const math::vector& position) -> void;
 
-        auto draw() -> void;
+        lua_api auto get_bounds() const -> math::rect;
+
+        lua_api auto get_size() const -> math::size;
+        lua_api auto set_size(const math::size& sz) -> void;
+
+        lua_api auto is_intersecting(const graphics::entity::lua_reference& subject) const -> bool;
+
+        lua_api auto draw() -> void;
     };
 
 };
