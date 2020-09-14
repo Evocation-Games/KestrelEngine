@@ -24,8 +24,8 @@
 
 // MARK: - Construction
 
-graphics::metal::scene::scene(const std::shared_ptr<graphics::session_window> &window, const scripting::lua::script &script)
-    : graphics::scene(window, script)
+graphics::metal::scene::scene(const std::shared_ptr<graphics::session_window> &window, const scripting::lua::script &script, const std::string& name)
+    : graphics::scene(window, script, name)
 {
 
 }

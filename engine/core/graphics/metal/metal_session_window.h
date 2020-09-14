@@ -45,7 +45,7 @@ namespace graphics { namespace metal {
         auto set_title(const std::string& title) -> void override;
         auto set_size(const math::size& size) -> void override;
 
-        auto new_scene(const scripting::lua::script& script) -> std::shared_ptr<graphics::scene> override;
+        auto new_scene(const std::string& name, const scripting::lua::script& script) -> std::shared_ptr<graphics::scene> override;
 
         auto render() -> void override;
 

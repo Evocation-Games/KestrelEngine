@@ -32,6 +32,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
             .addProperty("centerPoint", &graphics::lua_scene_wrapper::center_point)
             .addProperty("size", &graphics::lua_scene_wrapper::size)
+            .addProperty("name", &graphics::lua_scene_wrapper::name)
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
@@ -42,7 +43,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
 // MARK: - Construction
 
 graphics::lua_scene_wrapper::lua_scene_wrapper(std::shared_ptr<graphics::scene> scene)
-    : scene(std::move(scene))
+    : m_scene(std::move(scene))
 {
 
 }
@@ -58,22 +59,22 @@ auto graphics::lua_scene_wrapper::current() -> graphics::lua_scene_wrapper::lua_
 auto graphics::lua_scene_wrapper::present() const -> void
 {
     // TODO: Perform a check to ensure the scene isn't already presented!
-    environment::active_environment().lock()->present_scene(scene);
+    environment::active_environment().lock()->present_scene(m_scene);
 }
 
 auto graphics::lua_scene_wrapper::render(const luabridge::LuaRef &block) const -> void
 {
-    scene->add_render_block(block);
+    m_scene->add_render_block(block);
 }
 
 auto graphics::lua_scene_wrapper::key_event(const luabridge::LuaRef &block) const -> void
 {
-    scene->add_key_event_block(block);
+    m_scene->add_key_event_block(block);
 }
 
 auto graphics::lua_scene_wrapper::mouse_event(const luabridge::LuaRef &block) const -> void
 {
-    scene->add_mouse_event_block(block);
+    m_scene->add_mouse_event_block(block);
 }
 
 // MARK: - Accessors
@@ -92,4 +93,9 @@ auto graphics::lua_scene_wrapper::center_point() const -> math::point
 {
     auto size = this->size();
     return math::point(size.width, size.height) / 2.0;
+}
+
+auto graphics::lua_scene_wrapper::name() const -> std::string
+{
+    return m_scene->get_name();
 }

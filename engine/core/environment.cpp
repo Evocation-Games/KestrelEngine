@@ -306,7 +306,7 @@ auto environment::create_scene(const std::string &name,
                                const asset::resource_reference::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
 {
     if (auto env = $_active_environment.lock()) {
-        auto scene = env->m_game_window->new_scene(env->load_script(script));
+        auto scene = env->m_game_window->new_scene(name, env->load_script(script));
         return graphics::lua_scene_wrapper::lua_reference(new graphics::lua_scene_wrapper(scene));
     }
     else {

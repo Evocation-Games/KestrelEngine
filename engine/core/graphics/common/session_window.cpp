@@ -103,7 +103,7 @@ auto graphics::session_window::current_scene() const -> std::shared_ptr<graphics
     return m_scenes.back();
 }
 
-auto graphics::session_window::new_scene(const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
+auto graphics::session_window::new_scene(const std::string& name, const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
 {
     throw std::logic_error("session_window::new_scene must be overridden in a subclass.");
 }

@@ -28,7 +28,7 @@ namespace graphics { namespace metal {
     class scene: public graphics::scene
     {
     public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script);
+        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script&script, const std::string& name);
 
         auto update() -> void override;
         auto render() -> void override;

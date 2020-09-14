@@ -60,9 +60,9 @@ auto graphics::metal::session_window::draw_entity(const graphics::entity::lua_re
 
 // MARK: - Scene Management
 
-auto graphics::metal::session_window::new_scene(const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
+auto graphics::metal::session_window::new_scene(const std::string& name, const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
 {
-    return std::make_shared<graphics::metal::scene>(shared_from_this(), script);
+    return std::make_shared<graphics::metal::scene>(shared_from_this(), script, name);
 }
 
 

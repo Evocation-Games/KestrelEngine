@@ -37,12 +37,13 @@ namespace graphics
         typedef luabridge::RefCountedPtr<graphics::lua_scene_wrapper> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        std::shared_ptr<graphics::scene> scene;
+        std::shared_ptr<graphics::scene> m_scene;
 
         explicit lua_scene_wrapper(std::shared_ptr<graphics::scene> scene);
 
         lua_api static auto current() -> graphics::lua_scene_wrapper::lua_reference;
 
+        lua_api auto name() const -> std::string;
         lua_api auto size() const -> math::size;
         lua_api auto center_point() const -> math::point;
 

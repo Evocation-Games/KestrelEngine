@@ -32,6 +32,7 @@ namespace graphics
     class scene: public std::enable_shared_from_this<scene>
     {
     protected:
+        std::string m_name;
         std::weak_ptr<graphics::session_window> m_owner;
         std::vector<luabridge::LuaRef> m_render_blocks;
         std::vector<luabridge::LuaRef> m_key_event_blocks;
@@ -39,7 +40,9 @@ namespace graphics
         scripting::lua::script m_script;
 
     public:
-        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script);
+        explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script, const std::string& name);
+
+        auto get_name() const -> std::string;
 
         auto add_render_block(const luabridge::LuaRef& block) -> void;
         auto invoke_render_blocks() -> void;

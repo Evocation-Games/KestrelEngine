@@ -188,9 +188,9 @@ auto graphics::opengl::session_window::render() -> void
 
 // MARK: - Scene Management
 
-auto graphics::opengl::session_window::new_scene(const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
+auto graphics::opengl::session_window::new_scene(const std::string& name, const scripting::lua::script &script) -> std::shared_ptr<graphics::scene>
 {
-    return std::make_shared<graphics::opengl::scene>(shared_from_this(), script);
+    return std::make_shared<graphics::opengl::scene>(shared_from_this(), script, name);
 }
 
 // MARK: - Helpers

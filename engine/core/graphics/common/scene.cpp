@@ -23,8 +23,8 @@
 
 // MARK: - Construction
 
-graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script)
-    : m_owner(window), m_script(script)
+graphics::scene::scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script, const std::string& name)
+    : m_owner(window), m_script(script), m_name(name)
 {
 
 }
@@ -34,6 +34,12 @@ auto graphics::scene::start() -> void
     m_script.execute();
 }
 
+// MARK: - Properties
+
+auto graphics::scene::get_name() const -> std::string
+{
+    return m_name;
+}
 
 // MARK: - Render/Physics
 
