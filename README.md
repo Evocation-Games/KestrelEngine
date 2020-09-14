@@ -44,16 +44,24 @@ After the build has finished you'll be left with the following artefacts in the 
 | GameCore.ndat | | |
 | Info.plist | | |
 
+## Creating a new Project
+If you wish to start creating a new game project using Kestrel then run the following command from the Kestrel project root directory, replacing "Awesome Game" with the new of your new game project.
+
+```sh
+$ support/scripts/new-project.sh "Awesome Game"
+```
+
+This will create a blank game project in the directory `./projects/AwesomeGame/`.
 
 ## Building a Game
 The process of building a game (this is not development of the game, just the build process) is done using KDL. If you have already followed the process for building the engine, then you'll already have KDL built in your `./bin` directory. Alternatively you can download copies/installers of KDL from the [KDL repository](https://github.com/tjhancocks/kdl.git).
 
-For the remainder of this section we'll assume that your game is located at `./game/awesome-game/` and that you have followed the recommended/standard project structure, and that you are using the KDL version that was built in the previous section.
+For the remainder of this section we'll assume that your game is located at `./projects/AwesomeGame/` and that you have followed the recommended/standard project structure, and that you are using the KDL version that was built in the previous section.
 
 To build and package the game data files, from the root directory of the project you can run the following command.
 
 ```sh
-$ bin/kdl -o bin/GameCore game/awesome-game/game.kdl
+$ bin/kdl -o bin/GameCore projects/awesome-game/game.kdl
 ```
 
 During this process, KDL will handle the majority of the heavy lifting with finding any depenancies and assembling all resources into the game data file.
