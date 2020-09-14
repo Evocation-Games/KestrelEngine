@@ -91,6 +91,8 @@ public:
 
     auto post_key_event(const event::key& event) -> void;
     auto post_mouse_event(const event::mouse& event) -> void;
+
+    auto window() -> std::shared_ptr<graphics::session_window>;
 };
 
 #endif //KESTREL_ENVIRONMENT_HPP

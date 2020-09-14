@@ -276,7 +276,15 @@ auto environment::import_script(const asset::resource_reference::lua_reference& 
     }
 }
 
-// Graphics Layer Specific
+// MARK: - Accessors
+
+auto environment::window() -> std::shared_ptr<graphics::session_window>
+{
+    return m_game_window;
+}
+
+
+// MARK: - Graphics Layer Specific
 
 auto environment::create_texture(const math::size &size,
                                  std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>

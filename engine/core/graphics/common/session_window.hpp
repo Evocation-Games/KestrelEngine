@@ -54,6 +54,7 @@ namespace graphics
         std::weak_ptr<environment> m_environment;
         std::vector<std::shared_ptr<graphics::scene>> m_scenes;
         std::shared_ptr<graphics::shader> m_sprite_shader;
+        math::size m_size;
 
     public:
         explicit session_window(std::shared_ptr<environment> env);
@@ -68,6 +69,7 @@ namespace graphics
 
         virtual auto set_title(const std::string& title) -> void;
         virtual auto set_size(const math::size& size) -> void;
+        virtual auto get_size() const -> math::size;
 
         auto tick() -> void;
         virtual auto update() -> void;

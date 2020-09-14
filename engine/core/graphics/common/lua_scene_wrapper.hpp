@@ -24,6 +24,8 @@
 #include <memory>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "math/point.hpp"
+#include "math/size.hpp"
 
 namespace graphics
 {
@@ -40,6 +42,9 @@ namespace graphics
         explicit lua_scene_wrapper(std::shared_ptr<graphics::scene> scene);
 
         lua_api static auto current() -> graphics::lua_scene_wrapper::lua_reference;
+
+        lua_api auto size() const -> math::size;
+        lua_api auto center_point() const -> math::point;
 
         lua_api auto present() const -> void;
         lua_api auto render(const luabridge::LuaRef& block) const -> void;

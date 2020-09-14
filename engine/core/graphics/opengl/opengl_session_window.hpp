@@ -44,6 +44,7 @@ namespace graphics { namespace opengl {
 
         auto set_title(const std::string& title) -> void override;
         auto set_size(const math::size& size) -> void override;
+        auto get_size() const -> math::size override;
 
         auto sprite_renderer() const -> std::optional<opengl::sprite_renderer>;
 

@@ -30,6 +30,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::lua_scene_wrapper>("Scene")
             .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
+            .addProperty("centerPoint", &graphics::lua_scene_wrapper::center_point);
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
@@ -73,4 +74,15 @@ auto graphics::lua_scene_wrapper::key_event(const luabridge::LuaRef &block) cons
 auto graphics::lua_scene_wrapper::mouse_event(const luabridge::LuaRef &block) const -> void
 {
     scene->add_mouse_event_block(block);
+}
+
+auto graphics::lua_scene_wrapper::center_point() const -> math::point
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto size = env->window()->get_size();
+        return math::point(size.width, size.height) / 2.0;
+    }
+    else {
+        return math::point(0);
+    }
 }

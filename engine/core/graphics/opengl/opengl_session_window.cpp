@@ -25,6 +25,7 @@
 #include "core/graphics/opengl/opengl.hpp"
 #include "core/graphics/opengl/opengl_texture.hpp"
 #include <libGraphite/data/reader.hpp>
+#include "core/graphics/common/session_window.hpp"
 
 // MARK: - Construction
 
@@ -163,6 +164,13 @@ auto graphics::opengl::session_window::set_size(const math::size& size) -> void
 auto graphics::opengl::session_window::sprite_renderer() const -> std::optional<opengl::sprite_renderer>
 {
     return m_sprite_renderer;
+}
+
+auto graphics::opengl::session_window::get_size() const -> math::size
+{
+    int width = 0, height = 0;
+    glfwGetWindowSize(m_window, &width, &height);
+    return { width, height };
 }
 
 // MARK: - Rendering

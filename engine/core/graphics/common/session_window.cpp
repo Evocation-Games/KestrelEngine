@@ -47,7 +47,12 @@ auto graphics::session_window::set_title(const std::string &title) -> void
 
 auto graphics::session_window::set_size(const math::size &size) -> void
 {
+    m_size = size;
+}
 
+auto graphics::session_window::get_size() const -> math::size
+{
+    return m_size;
 }
 
 // MARK: - Main Loop
