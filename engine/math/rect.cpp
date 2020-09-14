@@ -136,7 +136,7 @@ auto math::rect::intersects(const math::rect& r) const -> bool
     auto r2x2 = r.origin.x + r.size.width;
     auto r2y1 = r.origin.y;
     auto r2y2 = r.origin.y + r.size.height;
-    
+
     return ((r1x1 < r2x2) && (r1x2 > r2x1) && (r1y1 < r2y2) && (r1y2 > r2y1));
 }
 
