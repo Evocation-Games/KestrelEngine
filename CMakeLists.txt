@@ -59,16 +59,16 @@ target_include_directories(kdl PUBLIC
 )
 target_link_libraries(kdl Graphite)
 
-# GAME (Test Scenario) #########################################################
+# GAME (BreakOut) #########################################################
 file(GLOB_RECURSE kestrel_game_files
-	"game/core/*.kdl"
-	"game/core/*.lua"
+	"projects/KestrelDemo/*.kdl"
+	"projects/KestrelDemo/*.lua"
 )
 add_custom_target(KestrelGameCore ALL
 	DEPENDS kdl ${kestrel_game_files}
 )
 add_custom_command(TARGET KestrelGameCore
-	COMMAND ${CMAKE_BINARY_DIR}/kdl -o ${CMAKE_BINARY_DIR}/GameCore ${CMAKE_SOURCE_DIR}/game/core/game.kdl
+	COMMAND ${CMAKE_BINARY_DIR}/kdl -o ${CMAKE_BINARY_DIR}/GameCore ${CMAKE_SOURCE_DIR}/projects/KestrelDemo/game.kdl
 	DEPENDS ${kestrel_game_files}
 )
 

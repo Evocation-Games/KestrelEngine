@@ -24,7 +24,7 @@ PROJECT_NAME=$1
 PROJECT_DIR=$(echo "${PROJECT_NAME}" | sed 's/ //g')
 
 # Copy the blank-project to the "game" directory
-FULL_PROJECT_DIR=game/${PROJECT_DIR}
+FULL_PROJECT_DIR=projects/${PROJECT_DIR}
 cp -r support/blank-project ${FULL_PROJECT_DIR}
 
 # Apply variable values to the new project.
