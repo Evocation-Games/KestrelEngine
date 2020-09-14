@@ -30,7 +30,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::lua_scene_wrapper>("Scene")
             .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
-            .addProperty("centerPoint", &graphics::lua_scene_wrapper::center_point);
+            .addProperty("centerPoint", &graphics::lua_scene_wrapper::center_point)
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)

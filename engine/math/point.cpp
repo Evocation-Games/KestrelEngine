@@ -20,6 +20,7 @@
 
 #include <cmath>
 #include "math/point.hpp"
+#include "math/vector.hpp"
 
 // MARK: - Lua
 
@@ -35,6 +36,7 @@ auto math::point::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
             .addFunction("add", &math::point::operator+)
             .addFunction("multiply", &math::point::operator*)
             .addFunction("divide", &math::point::operator/)
+            .addFunction("toVector", &math::point::to_vector)
         .endClass();
 }
 
@@ -125,4 +127,9 @@ auto math::point::set_y(const double& y) -> void
 auto math::point::get_y() const -> double
 {
     return y;
+}
+
+auto math::point::to_vector() const -> math::vector
+{
+    return math::vector(x, y);
 }

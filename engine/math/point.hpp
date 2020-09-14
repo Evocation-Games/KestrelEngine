@@ -27,6 +27,8 @@
 namespace math
 {
 
+    struct vector;
+
     /**
      * Represents a 2D point.
      */
@@ -58,6 +60,8 @@ namespace math
 
         lua_api auto set_y(const double& y) -> void;
         lua_api auto get_y() const -> double;
+
+        lua_api auto to_vector() const -> math::vector;
     };
 
 };
