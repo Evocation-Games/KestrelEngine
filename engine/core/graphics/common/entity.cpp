@@ -31,7 +31,10 @@ auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginClass<graphics::entity>("Entity")
             .addProperty("frame", &entity::get_sprite_index, &entity::set_sprite_index)
             .addProperty("position", &entity::get_position, &entity::set_position)
+            .addProperty("size", &entity::get_size, &entity::set_size)
+            .addProperty("bounds", &entity::get_bounds)
             .addFunction("draw", &entity::draw)
+            .addFunction("intersects", &entity::is_intersecting)
         .endClass();
 }
 
@@ -101,6 +104,24 @@ auto graphics::entity::set_position(const math::vector &position) -> void
     this->position = position;
 }
 
+auto graphics::entity::get_bounds() const -> math::rect
+{
+    auto half_size = this->size / 2.0;
+
+    return math::rect({this->position.x - half_size.width,this->position.y - half_size.height},
+                      this->size);
+}
+
+auto graphics::entity::get_size() const -> math::size
+{
+    return this->size;
+}
+
+auto graphics::entity::set_size(const math::size &sz) -> void
+{
+    this->size = sz;
+}
+
 // MARK: - Rendering
 
 auto graphics::entity::draw() -> void
@@ -115,4 +136,11 @@ auto graphics::entity::draw() -> void
             scene->draw_entity(this);
         }
     }
+}
+
+// MARK: - Physics
+
+auto graphics::entity::is_intersecting(const graphics::entity::lua_reference &subject) const -> bool
+{
+    return get_bounds().intersects(subject->get_bounds());
 }
