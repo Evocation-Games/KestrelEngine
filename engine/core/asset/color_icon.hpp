@@ -39,10 +39,9 @@ namespace asset
         lua_api explicit color_icon(const asset::resource_reference::lua_reference& ref);
         lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> color_icon::lua_reference;
 
-        auto size() -> math::size;
-        lua_api auto lua_size() const -> math::size::lua_reference;
+        lua_api auto size() const -> math::size;
 
-        lua_api auto spawn_entity(const math::vector::lua_reference& position) const -> graphics::entity::lua_reference override;
+        lua_api auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
     };
 
 };

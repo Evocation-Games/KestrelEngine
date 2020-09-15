@@ -64,7 +64,7 @@ environment::environment(int argc, const char **argv)
 
     // Load all resource files.
     load_kestrel_core();
-//    load_game_data();
+    load_game_data();
 }
 
 auto environment::active_environment() -> std::weak_ptr<environment>

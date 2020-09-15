@@ -33,7 +33,7 @@ auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<
         .beginClass<asset::macintosh_picture>("MacintoshPicture")
             .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
             .addStaticFunction("load", &asset::macintosh_picture::load)
-            .addProperty("size", &asset::macintosh_picture::lua_size)
+            .addProperty("size", &asset::macintosh_picture::size)
             .addProperty("numberOfSprites", &asset::macintosh_picture::sprite_count)
             .addFunction("spawnEntity", &asset::macintosh_picture::spawn_entity)
             .addFunction("setSpriteSize", &asset::macintosh_picture::layout_sprites)
@@ -73,7 +73,7 @@ auto asset::macintosh_picture::load(const asset::resource_reference::lua_referen
     return image;
 }
 
-auto asset::macintosh_picture::size() -> math::size
+auto asset::macintosh_picture::size() const -> math::size
 {
     return image::size();
 }
@@ -83,17 +83,12 @@ auto asset::macintosh_picture::sprite_count() const -> int
     return image::sprite_count();
 }
 
-auto asset::macintosh_picture::lua_size() const -> math::size::lua_reference
-{
-    return math::size::lua_reference(new math::size(m_sheet->sprite_size().width, m_sheet->sprite_size().height));
-}
-
-auto asset::macintosh_picture::layout_sprites(const math::size::lua_reference& sprite_size) -> void
+auto asset::macintosh_picture::layout_sprites(const math::size& sprite_size) -> void
 {
     asset::image::layout_sprites(sprite_size);
 }
 
-auto asset::macintosh_picture::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
+auto asset::macintosh_picture::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
     return asset::image::spawn_entity(position);
 }

@@ -54,11 +54,11 @@ namespace asset
         lua_api auto size() const -> math::size;
         lua_api virtual auto sprite_count() const -> int;
 
-        lua_api virtual auto layout_sprites(const math::size::lua_reference& sprite_size) -> void;
+        lua_api virtual auto layout_sprites(const math::size& sprite_size) -> void;
 
         auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
 
-        lua_api virtual auto spawn_entity(const math::vector::lua_reference& position) const -> graphics::entity::lua_reference;
+        lua_api virtual auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference;
     };
 
 }

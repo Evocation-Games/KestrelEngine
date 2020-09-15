@@ -99,17 +99,17 @@ auto asset::image::configure(const int64_t &id, const std::string &name, const m
     }
 }
 
-auto asset::image::layout_sprites(const math::size::lua_reference& sprite_size) -> void
+auto asset::image::layout_sprites(const math::size& sprite_size) -> void
 {
-    m_sheet->layout_sprites(*sprite_size.get());
+    m_sheet->layout_sprites(sprite_size);
 }
 
 // MARK: - Entity
 
-auto asset::image::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
+auto asset::image::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
     auto entity = graphics::entity::lua_reference(new graphics::entity(size()));
-    entity->position = *position.get();
+    entity->position = position;
     entity->set_spritesheet(spritesheet());
     return entity;
 }

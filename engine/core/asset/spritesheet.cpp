@@ -33,7 +33,7 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
         .beginClass<asset::spritesheet>("SpriteSheet")
             .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::spritesheet::lua_reference>()
             .addStaticFunction("load", &asset::spritesheet::load)
-            .addProperty("size", &asset::spritesheet::lua_size)
+            .addProperty("size", &asset::spritesheet::size)
             .addProperty("numberOfSprites", &asset::spritesheet::sprite_count)
             .addFunction("spawnEntity", &asset::spritesheet::spawn_entity)
         .endClass();
@@ -101,7 +101,7 @@ auto asset::spritesheet::load(const asset::resource_reference::lua_reference& re
     return image;
 }
 
-auto asset::spritesheet::size() -> math::size
+auto asset::spritesheet::size() const -> math::size
 {
     return image::size();
 }
@@ -111,13 +111,7 @@ auto asset::spritesheet::sprite_count() const -> int
     return image::sprite_count();
 }
 
-auto asset::spritesheet::lua_size() const -> math::size::lua_reference
-{
-    return math::size::lua_reference(new math::size(m_sheet->sprite_size().width, m_sheet->sprite_size().height));
-}
-
-
-auto asset::spritesheet::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
+auto asset::spritesheet::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
     return asset::image::spawn_entity(position);
 }

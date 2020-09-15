@@ -33,7 +33,7 @@ auto asset::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::
         .beginClass<asset::sprite>("SWSprite")
             .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::sprite::lua_reference>()
             .addStaticFunction("load", &asset::sprite::load)
-            .addProperty("size", &asset::sprite::lua_size)
+            .addProperty("size", &asset::sprite::size)
             .addProperty("numberOfSprites", &asset::sprite::sprite_count)
             .addFunction("spawnEntity", &asset::sprite::spawn_entity)
             .addFunction("setSpriteSize", &asset::sprite::layout_sprites)
@@ -75,7 +75,7 @@ auto asset::sprite::load(const asset::resource_reference::lua_reference& ref) ->
 
 // MARK: - Properties
 
-auto asset::sprite::size() -> math::size
+auto asset::sprite::size() const -> math::size
 {
     return image::size();
 }
@@ -85,21 +85,16 @@ auto asset::sprite::sprite_count() const -> int
     return image::sprite_count();
 }
 
-auto asset::sprite::lua_size() const -> math::size::lua_reference
-{
-    return math::size::lua_reference(new math::size(m_sheet->sprite_size().width, m_sheet->sprite_size().height));
-}
-
 // MARK: - Layout
 
-auto asset::sprite::layout_sprites(const math::size::lua_reference& sprite_size) -> void
+auto asset::sprite::layout_sprites(const math::size& sprite_size) -> void
 {
     asset::image::layout_sprites(sprite_size);
 }
 
 // MARK: - Entities
 
-auto asset::sprite::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
+auto asset::sprite::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
     return asset::image::spawn_entity(position);
 }

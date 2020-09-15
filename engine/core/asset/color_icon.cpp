@@ -33,7 +33,7 @@ auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripti
         .beginClass<asset::color_icon>("MacintoshColorIcon")
             .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::color_icon::lua_reference>()
             .addStaticFunction("load", &asset::color_icon::load)
-            .addProperty("size", &asset::color_icon::lua_size)
+            .addProperty("size", &asset::color_icon::size)
             .addFunction("spawnEntity", &asset::color_icon::spawn_entity)
         .endClass();
 }
@@ -73,19 +73,14 @@ auto asset::color_icon::load(const asset::resource_reference::lua_reference &ref
 
 // MARK: - Properties
 
-auto asset::color_icon::size() -> math::size
+auto asset::color_icon::size() const -> math::size
 {
     return image::size();
 }
 
-auto asset::color_icon::lua_size() const -> math::size::lua_reference
-{
-    return math::size::lua_reference(new math::size(m_sheet->sprite_size().width, m_sheet->sprite_size().height));
-}
-
 // MARK: - Entities
 
-auto asset::color_icon::spawn_entity(const math::vector::lua_reference &position) const -> graphics::entity::lua_reference
+auto asset::color_icon::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
     return asset::image::spawn_entity(position);
 }
