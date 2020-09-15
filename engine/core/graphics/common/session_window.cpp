@@ -20,6 +20,7 @@
 
 #include "core/graphics/common/session_window.hpp"
 #include "core/graphics/common/scene.hpp"
+#include "core/clock/clock.hpp"
 
 // MARK: - Construction
 
@@ -68,6 +69,7 @@ auto graphics::session_window::tick() -> void
     m_accumulator += frame_time;
 
     while (m_accumulator >= m_delta) {
+        rtc::clock::global().tick();
         update();
         render();
         m_time += m_delta;
@@ -82,6 +84,7 @@ auto graphics::session_window::update() -> void
     if (m_scenes.empty()) {
         return;
     }
+    current_scene()->check_timed_events();
     current_scene()->update();
 }
 

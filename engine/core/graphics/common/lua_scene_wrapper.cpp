@@ -21,6 +21,7 @@
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/graphics/common/scene.hpp"
 #include "core/environment.hpp"
+#include "core/clock/timed_event.hpp"
 #include <utility>
 
 // MARK: - Lua
@@ -37,6 +38,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addFunction("render", &graphics::lua_scene_wrapper::render)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
             .addFunction("onMouseEvent", &graphics::lua_scene_wrapper::mouse_event)
+            .addFunction("after", &graphics::lua_scene_wrapper::after)
         .endClass();
 }
 
@@ -98,4 +100,9 @@ auto graphics::lua_scene_wrapper::center_point() const -> math::point
 auto graphics::lua_scene_wrapper::name() const -> std::string
 {
     return m_scene->get_name();
+}
+
+auto graphics::lua_scene_wrapper::after(const double &period, const luabridge::LuaRef &block) const -> void
+{
+    m_scene->add_timed_event(std::make_shared<rtc::timed_event>(period, block));
 }

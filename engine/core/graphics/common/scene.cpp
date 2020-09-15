@@ -99,3 +99,17 @@ auto graphics::scene::mouse_event(const event::mouse &event) -> void
         block(ref);
     }
 }
+
+auto graphics::scene::add_timed_event(std::shared_ptr<rtc::timed_event> event) -> void
+{
+    m_timed_events.emplace_back(event);
+}
+
+auto graphics::scene::check_timed_events() -> void
+{
+    for (const auto& event : m_timed_events) {
+        if (event->should_fire()) {
+            event->fire();
+        }
+    }
+}

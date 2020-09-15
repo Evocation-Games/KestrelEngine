@@ -25,6 +25,7 @@
 #include "core/graphics/common/session_window.hpp"
 #include "scripting/state.hpp"
 #include "core/graphics/common/entity.hpp"
+#include "core/clock/timed_event.hpp"
 
 namespace graphics
 {
@@ -37,6 +38,7 @@ namespace graphics
         std::vector<luabridge::LuaRef> m_render_blocks;
         std::vector<luabridge::LuaRef> m_key_event_blocks;
         std::vector<luabridge::LuaRef> m_mouse_event_blocks;
+        std::vector<std::shared_ptr<rtc::timed_event>> m_timed_events;
         scripting::lua::script m_script;
 
     public:
@@ -52,6 +54,9 @@ namespace graphics
 
         auto add_mouse_event_block(const luabridge::LuaRef& block) -> void;
         auto mouse_event(const event::mouse& event) -> void;
+
+        auto add_timed_event(std::shared_ptr<rtc::timed_event> event) -> void;
+        auto check_timed_events() -> void;
 
         virtual auto start() -> void;
         virtual auto update() -> void;
