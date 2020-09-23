@@ -55,8 +55,8 @@ namespace math
         auto operator!=(const math::rect& r) const -> bool;
 
         lua_api auto area() const -> double;
-        lua_api auto contains(const math::point& p) const -> bool;
-        lua_api auto contains(const math::rect& r) const -> bool;
+        lua_api auto contains_point(const math::point& p) const -> bool;
+        lua_api auto contains_rect(const math::rect& r) const -> bool;
         lua_api auto intersects(const math::rect& r) const -> bool;
 
         lua_api auto set_origin(const math::point& origin) -> void;

@@ -3,7 +3,7 @@
 
 # Linux Specific
 
-# Windows Specific
+# Windows Specific
 
 # IDE
 .idea/
@@ -11,5 +11,6 @@
 # Build
 bin/
 cmake-build-debug/
+cmake-build-release/
 *.o
 *.bin

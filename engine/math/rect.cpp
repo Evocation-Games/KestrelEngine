@@ -35,6 +35,7 @@ auto math::rect::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
             .addProperty("y", &math::rect::get_y, &math::rect::set_y)
             .addProperty("width", &math::rect::get_width, &math::rect::set_width)
             .addProperty("height", &math::rect::get_height, &math::rect::set_height)
+            .addFunction("contains_point", &math::rect::contains_point)
         .endClass();
 }
 
@@ -113,13 +114,13 @@ auto math::rect::area() const -> double
     return size.area();
 }
 
-auto math::rect::contains(const math::point& p) const -> bool
+auto math::rect::contains_point(const math::point& p) const -> bool
 {
     return (p.x >= origin.x && p.x <= origin.x + size.width)
            && (p.y >= origin.y && p.y <= origin.y + size.height);
 }
 
-auto math::rect::contains(const math::rect& r) const -> bool
+auto math::rect::contains_rect(const math::rect& r) const -> bool
 {
     return (r.origin.x >= origin.x && r.origin.x + r.size.width <= origin.x + size.width)
            && (r.origin.y >= origin.y && r.origin.y + r.size.height <= origin.y + size.height);
