@@ -8,7 +8,7 @@
   <a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
 </p>
 
-Welcome to the _Kestrel Game Engine_, a project that is centered around and focused on producing a cross platform game engine for recreating and remastering sprite based _Classic Macintosh_ games. Kestrel is being used by the upcomming _Cosmic Frontier: Override_ to deliver a remastered version of _Escape Velocity: Override_.
+Welcome to the _Kestrel Game Engine_, a project that is centered around and focused on producing a cross-platform game engine for recreating and remastering sprite-based _Classic Macintosh_ games. Kestrel is being used by the upcoming _Cosmic Frontier: Override_ to deliver a remastered version of _Escape Velocity: Override_.
 
 Kestrel is intended to be a fully moddable and extensible game engine that is focused on rebuilding and remastering Classic Macintosh games. In order to acheive this, rather than forcing all aspects of the game to be rebuilt and re-encoded in modern ways, Kestrel aims to emulate/reproduce some of the technologies that were employed by those old games such as Resource Files / Forks and QuickDraw.
 
@@ -36,16 +36,16 @@ This will work through all of the build tasks and place the result in the direct
 
 After the build has finished you'll be left with the following artefacts in the `./bin` directory:
 
-| macOS | Linux | Windows |
-| --- | --- | --- |
-| Kestrel.app | Kestrel (ELF Binary) | |
-| Kestrel (MachO Binary) | kdl | |
-| kdl | GameCore.ndat | |
-| GameCore.ndat | | |
-| Info.plist | | |
+| macOS                  | Linux                | Windows |
+|------------------------|----------------------|---------|
+| Kestrel.app            | Kestrel (ELF Binary) |         |
+| Kestrel (MachO Binary) | kdl                  |         |
+| kdl                    | GameCore.ndat        |         |
+| GameCore.ndat          |                      |         |
+| Info.plist             |                      |         |
 
 ## Creating a new Project
-If you wish to start creating a new game project using Kestrel then run the following command from the Kestrel project root directory, replacing "Awesome Game" with the new of your new game project.
+If you wish to start creating a new game project using Kestrel, then run the following command from the Kestrel project root directory, replacing "Awesome Game" with the new of your new game project.
 
 ```sh
 $ support/scripts/new-project.sh "Awesome Game"
@@ -54,7 +54,7 @@ $ support/scripts/new-project.sh "Awesome Game"
 This will create a blank game project in the directory `./projects/AwesomeGame/`.
 
 ## Building a Game
-The process of building a game (this is not development of the game, just the build process) is done using KDL. If you have already followed the process for building the engine, then you'll already have KDL built in your `./bin` directory. Alternatively you can download copies/installers of KDL from the [KDL repository](https://github.com/tjhancocks/kdl.git).
+The process of building a game – not development of the game, just the build process – is done using KDL. If you have already followed the process for building the engine, then you'll already have KDL built in your `./bin` directory. Alternatively you can download copies/installers of KDL from the [KDL repository](https://github.com/tjhancocks/kdl.git).
 
 For the remainder of this section we'll assume that your game is located at `./projects/AwesomeGame/` and that you have followed the recommended/standard project structure, and that you are using the KDL version that was built in the previous section.
 
@@ -93,7 +93,7 @@ Kestrel will load the `GameCore.ndat` prior to loading the additional data files
 ## Contributing
 Contributions to Kestrel are welcome and appreciated. This is a big project, and will ultimately take the collective efforts of the community.
 
-So what type of contributions are being looked for? Well anything on the list below is wanted.
+What type of contributions are being looked for? Anything on the list below is wanted.
 
 - Proof reading and writing documentation.
 - Code review.
@@ -106,15 +106,14 @@ For more details on how you might go about contributing to the project, please c
 ## Platform Completion / Features
 The matrix below gives a very brief and high level overview of what aspects of the engine have been worked upon and what current state they are in. This does not give an intricate overview of the features supported by the engine.
 
-| Feature | macOS | Linux | Windows |
-| --- | --- | --- | --- |
-| Clang | ![Clang](https://img.shields.io/badge/Clang-Supported-good.svg) | ![Clang](https://img.shields.io/badge/Clang-Unknown-grey.svg) | ![Clang](https://img.shields.io/badge/Clang-Not_Supported-black.svg) |
-| GCC | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg) | ![GCC](https://img.shields.io/badge/GCC-Supported-good.svg) | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg) |
-| MSVC | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg) | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg) | ![MSVC](https://img.shields.io/badge/MSVC-Not_Implemented-red.svg) |
-| OpenGL | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg) | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg) | ![OpenGL](https://img.shields.io/badge/OpenGL-Not_Implemented-red.svg) |
-| Metal | ![Metal](https://img.shields.io/badge/Metal-In_Progress-yellow.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) |
-| Audio | ![CoreAudio](https://img.shields.io/badge/Core_Audio-Not_Implemented-red.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg) |
-
+| Feature | macOS                                                                         | Linux                                                                | Windows                                                                |
+|---------|-------------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
+| Clang   | ![Clang](https://img.shields.io/badge/Clang-Supported-good.svg)               | ![Clang](https://img.shields.io/badge/Clang-Unknown-grey.svg)        | ![Clang](https://img.shields.io/badge/Clang-Not_Supported-black.svg)   |
+| GCC     | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)              | ![GCC](https://img.shields.io/badge/GCC-Supported-good.svg)          | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)       |
+| MSVC    | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)            | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)   | ![MSVC](https://img.shields.io/badge/MSVC-Not_Implemented-red.svg)     |
+| OpenGL  | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)             | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)    | ![OpenGL](https://img.shields.io/badge/OpenGL-Not_Implemented-red.svg) |
+| Metal   | ![Metal](https://img.shields.io/badge/Metal-In_Progress-yellow.svg)           | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg)   |
+| Audio   | ![CoreAudio](https://img.shields.io/badge/Core_Audio-Not_Implemented-red.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg)   |
 
 ## License
 The Kestrel Game Engine is distributed under the MIT License.
