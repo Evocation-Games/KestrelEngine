@@ -39,6 +39,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
             .addFunction("onMouseEvent", &graphics::lua_scene_wrapper::mouse_event)
             .addFunction("after", &graphics::lua_scene_wrapper::after)
+            .addFunction("repeatEvery", &graphics::lua_scene_wrapper::repeat)
         .endClass();
 }
 
@@ -105,4 +106,9 @@ auto graphics::lua_scene_wrapper::name() const -> std::string
 auto graphics::lua_scene_wrapper::after(const double &period, const luabridge::LuaRef &block) const -> void
 {
     m_scene->add_timed_event(std::make_shared<rtc::timed_event>(period, block));
+}
+
+auto graphics::lua_scene_wrapper::repeat(const double &period, const luabridge::LuaRef &block) const -> void
+{
+    m_scene->add_timed_event(std::make_shared<rtc::timed_event>(period, block, true));
 }

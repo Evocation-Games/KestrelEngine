@@ -52,6 +52,7 @@ namespace graphics
         lua_api auto key_event(const luabridge::LuaRef& block) const -> void;
         lua_api auto mouse_event(const luabridge::LuaRef& block) const -> void;
         lua_api auto after(const double& period, const luabridge::LuaRef& block) const -> void;
+        lua_api auto repeat(const double& period, const luabridge::LuaRef& block) const -> void;
     };
 
 }
