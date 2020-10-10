@@ -74,10 +74,22 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     m_shader->set_mat4("model", model);
     m_shader->set_vec2("texOffset", static_cast<GLfloat>(sprite.point().x), static_cast<GLfloat>(sprite.point().y));
     m_shader->set_vec2("texSize", static_cast<GLfloat>(sprite.size().width), static_cast<GLfloat>(sprite.size().height));
-    m_shader->set_vec3("spriteColor", 1.0, 1.0, 1.0);
+    m_shader->set_vec4("spriteColor", 1.0, 1.0, 1.0, static_cast<GLfloat>(entity->get_alpha()));
 
     glActiveTexture(GL_TEXTURE0);
     texture->bind();
+
+    glEnable(GL_BLEND);
+    switch (entity->blend()) {
+        case entity::normal: {
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        }
+        case entity::light: {
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        }
+    }
 
     glBindVertexArray(m_vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);

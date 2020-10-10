@@ -39,9 +39,13 @@ namespace graphics
         typedef luabridge::RefCountedPtr<graphics::entity> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
+        enum blend : int { normal, light };
+
         math::vector position;
         math::size size;
         int sprite_index { 0 };
+        blend m_blend { normal };
+        double m_alpha { 1.0 };
 
     private:
         std::shared_ptr<graphics::spritesheet> m_spritesheet;
@@ -68,6 +72,13 @@ namespace graphics
 
         lua_api auto get_size() const -> math::size;
         lua_api auto set_size(const math::size& sz) -> void;
+
+        lua_api auto get_blend_lua() const -> int;
+        lua_api auto set_blend_lua(const int& blend) -> void;
+        auto blend() const -> enum entity::blend;
+
+        lua_api auto get_alpha() const -> double;
+        lua_api auto set_alpha(const double& alpha) -> void;
 
         lua_api auto is_intersecting(const graphics::entity::lua_reference& subject) const -> bool;
 

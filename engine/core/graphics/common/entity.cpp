@@ -23,6 +23,18 @@
 
 #include <utility>
 
+// MARK: - Lua Constants
+
+static auto blend_mode_normal() -> int
+{
+    return static_cast<int>(graphics::entity::blend::normal);
+}
+
+static auto blend_mode_light() -> int
+{
+    return static_cast<int>(graphics::entity::blend::light);
+}
+
 // MARK: - Lua
 
 auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
@@ -33,9 +45,17 @@ auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("position", &entity::get_position, &entity::set_position)
             .addProperty("size", &entity::get_size, &entity::set_size)
             .addProperty("bounds", &entity::get_bounds)
+            .addProperty("alpha", &entity::get_alpha, &entity::set_alpha)
+            .addProperty("blend", &entity::get_blend_lua, &entity::set_blend_lua)
             .addFunction("draw", &entity::draw)
             .addFunction("intersects", &entity::is_intersecting)
         .endClass();
+
+    luabridge::getGlobalNamespace(lua->internal_state())
+        .beginNamespace("BlendMode")
+            .addProperty("NORMAL", &blend_mode_normal)
+            .addProperty("LIGHT", &blend_mode_light)
+        .endNamespace();
 }
 
 // MARK: - Construction
@@ -120,6 +140,31 @@ auto graphics::entity::get_size() const -> math::size
 auto graphics::entity::set_size(const math::size &sz) -> void
 {
     this->size = sz;
+}
+
+auto graphics::entity::blend() const -> enum entity::blend
+{
+    return m_blend;
+}
+
+auto graphics::entity::get_blend_lua() const -> int
+{
+    return static_cast<int>(m_blend);
+}
+
+auto graphics::entity::set_blend_lua(const int& blend) -> void
+{
+    m_blend = static_cast<enum entity::blend>(blend);
+}
+
+auto graphics::entity::get_alpha() const -> double
+{
+    return m_alpha;
+}
+
+auto graphics::entity::set_alpha(const double& alpha) -> void
+{
+    m_alpha = alpha;
 }
 
 // MARK: - Rendering
