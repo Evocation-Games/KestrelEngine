@@ -111,15 +111,15 @@ auto event::key::has_num() const -> bool
 
 auto event::key::is_pressed() const -> bool
 {
-    return m_state & key::state::pressed;
+    return m_state == key::state::pressed;
 }
 
 auto event::key::is_held() const -> bool
 {
-    return m_state & key::state::held;
+    return m_state == key::state::held;
 }
 
 auto event::key::is_released() const -> bool
 {
-    return m_state & key::state::released;
+    return m_state == key::state::released;
 }
