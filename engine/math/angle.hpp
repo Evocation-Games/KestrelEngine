@@ -60,6 +60,9 @@ namespace math
         auto operator+ (const math::angular_difference& a) const -> math::angle;
         auto operator- (const math::angular_difference& a) const -> math::angle;
 
+        lua_api auto add_angular_difference(const math::angular_difference& a) const -> math::angle;
+        lua_api auto subtract_angular_difference(const math::angular_difference& a) const -> math::angle;
+
         lua_api auto vector(const double& magnitude = 1.0) const -> math::vector;
 
         lua_api auto opposite() const -> math::angle;

@@ -40,6 +40,8 @@ auto math::angle::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
             .addFunction("normalize", &math::angle::normalize)
             .addFunction("isOpposing", &math::angle::is_opposing)
             .addFunction("isEqual", &math::angle::is_equal)
+            .addFunction("addAngularDifference", &math::angle::add_angular_difference)
+            .addFunction("subtractAngularDifference", &math::angle::subtract_angular_difference)
         .endClass();
 }
 
@@ -103,6 +105,17 @@ auto math::angle::operator- (const math::angular_difference& a) const -> math::a
     return math::angle(m_theta - a.phi());
 }
 
+auto math::angle::add_angular_difference(const math::angular_difference &a) const -> math::angle
+{
+    return *this + a;
+}
+
+auto math::angle::subtract_angular_difference(const math::angular_difference &a) const -> math::angle
+{
+    return *this - a;
+}
+
+
 // MARK: - Operations
 
 auto math::angle::vector(const double& magnitude) const -> math::vector
@@ -141,4 +154,3 @@ auto math::angle::is_equal(const math::angle& a, const math::angular_difference&
     auto phi = math::angular_difference::between(*this, a);
     return phi.is_equal(tolerance);
 }
-
