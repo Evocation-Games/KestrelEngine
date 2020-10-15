@@ -129,7 +129,7 @@ auto math::vector::operator!=(const math::vector& v) const -> bool
 
 auto math::vector::angle() const -> math::angle
 {
-    return math::angle((std::atan2(x, y) * 180.0) / M_PI);
+    return math::angle((std::atan2(y, x) * 180.0) / M_PI);
 }
 
 auto math::vector::angle_to(const math::vector& v) const -> math::angle
