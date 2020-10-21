@@ -34,6 +34,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addProperty("centerPoint", &graphics::lua_scene_wrapper::center_point)
             .addProperty("size", &graphics::lua_scene_wrapper::size)
             .addProperty("name", &graphics::lua_scene_wrapper::name)
+            .addProperty("currentTime", &graphics::lua_scene_wrapper::current_time)
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
@@ -111,4 +112,9 @@ auto graphics::lua_scene_wrapper::after(const double &period, const luabridge::L
 auto graphics::lua_scene_wrapper::repeat(const double &period, const luabridge::LuaRef &block) const -> void
 {
     m_scene->add_timed_event(std::make_shared<rtc::timed_event>(period, block, true));
+}
+
+auto graphics::lua_scene_wrapper::current_time() const -> double
+{
+    return m_scene->current_time();
 }

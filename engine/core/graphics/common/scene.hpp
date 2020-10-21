@@ -40,6 +40,7 @@ namespace graphics
         std::vector<luabridge::LuaRef> m_mouse_event_blocks;
         std::vector<std::shared_ptr<rtc::timed_event>> m_timed_events;
         scripting::lua::script m_script;
+        rtc::clock::time m_starting_time { rtc::clock::global().current() };
 
     public:
         explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script, const std::string& name);
@@ -57,6 +58,8 @@ namespace graphics
 
         auto add_timed_event(std::shared_ptr<rtc::timed_event> event) -> void;
         auto check_timed_events() -> void;
+
+        auto current_time() const -> double;
 
         virtual auto start() -> void;
         virtual auto update() -> void;

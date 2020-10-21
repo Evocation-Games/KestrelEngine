@@ -113,3 +113,10 @@ auto graphics::scene::check_timed_events() -> void
         }
     }
 }
+
+// MARK: - Scene Time
+
+auto graphics::scene::current_time() const -> double
+{
+    return rtc::clock::global().since(m_starting_time).count();
+}
