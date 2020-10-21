@@ -27,9 +27,9 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::color>("Color")
             .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, graphics::color::lua_reference>()
-            .addStaticFunction("whiteColor", &graphics::color::white)
-            .addStaticFunction("rgb", &graphics::color::rgb)
-            .addStaticFunction("colorValue", &graphics::color::color_value)
+            .addStaticFunction("whiteColor", &graphics::color::white_ref)
+            .addStaticFunction("rgb", &graphics::color::rgb_ref)
+            .addStaticFunction("colorValue", &graphics::color::color_value_ref)
             .addStaticFunction("white", &graphics::color::white_color_ref)
             .addStaticFunction("lightGrey", &graphics::color::light_grey_color_ref)
             .addStaticFunction("grey", &graphics::color::grey_color_ref)
@@ -90,6 +90,25 @@ auto graphics::color::color_value(const uint32_t& value) -> graphics::color
         COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
         COMPONENT_SCALE(static_cast<uint8_t>(value))
     );
+}
+
+auto graphics::color::white_ref(const uint8_t& w, const uint8_t& a) -> graphics::color::lua_reference
+{
+    return {new graphics::color(COMPONENT_SCALE(w), COMPONENT_SCALE(a))};
+}
+
+auto graphics::color::rgb_ref(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a) -> graphics::color::lua_reference
+{
+    return {new graphics::color(COMPONENT_SCALE(r), COMPONENT_SCALE(g), COMPONENT_SCALE(b), COMPONENT_SCALE(a))};
+}
+
+auto graphics::color::color_value_ref(const uint32_t& value) -> graphics::color::lua_reference
+{
+    return {new graphics::color(
+            COMPONENT_SCALE(static_cast<uint8_t>(value >> 16U)),
+            COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
+            COMPONENT_SCALE(static_cast<uint8_t>(value))
+    )};
 }
 
 // MARK: - Predefined Colors
@@ -272,8 +291,8 @@ auto graphics::color::get_alpha() const -> uint8_t
 auto graphics::color::value() const -> uint32_t
 {
     return static_cast<uint32_t>(COMPONENT_EXPAND(alpha) << 24U)
-         | static_cast<uint32_t>(COMPONENT_EXPAND(red))
+         | static_cast<uint32_t>(COMPONENT_EXPAND(red) << 16U)
          | static_cast<uint32_t>(COMPONENT_EXPAND(green) << 8U)
-         | static_cast<uint32_t>(COMPONENT_EXPAND(blue) << 16U);
+         | static_cast<uint32_t>(COMPONENT_EXPAND(blue));
 }
 
