@@ -46,29 +46,16 @@ namespace graphics
         std::string m_font_face;
         std::shared_ptr<graphics::font> m_font;
         graphics::color m_color { graphics::color::white_color() };
-        math::point m_position { 0, 0 };
-        graphics::entity::lua_reference m_entity { nullptr };
 
     public:
-        lua_api explicit text(const std::string& text);
+        lua_api text(std::string text, std::string font, int size, const graphics::color::lua_reference& color);
+
+        lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
 
         lua_api auto get_value() const -> std::string;
-        lua_api auto set_value(const std::string& value) -> void;
-
         lua_api auto get_font_size() const -> int;
-        lua_api auto set_font_size(const int& size) -> void;
-
         lua_api auto get_font() const -> std::string;
-        lua_api auto set_font(const std::string& font) -> void;
-
         lua_api auto get_color() const -> graphics::color::lua_reference;
-        lua_api auto set_color(graphics::color::lua_reference color) -> void;
-
-        lua_api auto get_position() const -> math::point::lua_reference;
-        lua_api auto set_position(math::point::lua_reference position) -> void;
-
-        lua_api auto draw() -> void;
-        auto update_entity() -> void;
     };
 
 }

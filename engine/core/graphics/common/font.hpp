@@ -40,7 +40,8 @@ namespace graphics
         FT_Face m_face;
 
     public:
-        font(const std::string& path);
+        explicit font(const std::string& path);
+        ~font();
 
         auto text_size(const std::string& text, const int& font_size = 12) const -> math::size;
         auto render_text(const std::string& text, const math::size& sz, const int& font_size = 12, const graphics::color& color = graphics::color::white_color()) const -> std::vector<uint32_t>;

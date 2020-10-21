@@ -36,10 +36,20 @@ graphics::font::font(const std::string& path)
         if (FT_Init_FreeType(&ft)) {
             throw std::logic_error("Failed to initialise FreeType");
         }
+        ft_loaded = true;
     }
 
     if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
         throw std::logic_error("Failed to load font face.");
+    }
+}
+
+// MARK: - Destruction
+
+graphics::font::~font()
+{
+    if (m_face) {
+        FT_Done_Face(m_face);
     }
 }
 
@@ -54,24 +64,24 @@ auto graphics::font::text_size(const std::string &text, const int& font_size) co
 
     math::size required_size { 0, line_height };
     double line_width = 0.0;
-    for (auto c = text.begin(); c != text.end(); ++c) {
-        if (FT_Load_Char(m_face, *c, FT_LOAD_ADVANCE_ONLY)) {
+    for (char c : text) {
+        if (FT_Load_Char(m_face, c, FT_LOAD_ADVANCE_ONLY)) {
             continue;
         }
 
         // Handle some special characters such as newline so that we are getting the correct/expected behaviour.
-        if (*c == '\n') {
+        if (c == '\n') {
             required_size.set_height(required_size.height + line_height);
             line_width = 0;
             continue;
         }
-        else if (*c == '\t') {
+        else if (c == '\t') {
             auto tab_advance = line_width + tab_size;
             line_width += tab_advance - std::fmod(tab_advance, tab_size);
             required_size.set_width(std::max(line_width, required_size.width));
             continue;
         }
-        else if (*c < 0x20 || *c == 0x7F) {
+        else if (c < 0x20 || c == 0x7F) {
             // Unprintable characters, ignore them.
             continue;
         }
@@ -94,23 +104,23 @@ auto graphics::font::render_text(const std::string &text, const math::size& sz, 
     double x = 0;
     double y = 0;
 
-    for (auto c = text.begin(); c != text.end(); ++c) {
-        if (FT_Load_Char(m_face, *c, FT_LOAD_RENDER)) {
+    for (char c : text) {
+        if (FT_Load_Char(m_face, c, FT_LOAD_RENDER)) {
             continue;
         }
 
         // Handle some special characters such as newline so that we are getting the correct/expected behaviour.
-        if (*c == '\n') {
+        if (c == '\n') {
             y += line_height;
             x = 0;
             continue;
         }
-        else if (*c == '\t') {
+        else if (c == '\t') {
             auto tab_advance = x + tab_size;
             x += tab_advance - std::fmod(tab_advance, tab_size);
             continue;
         }
-        else if (*c < 0x20 || *c == 0x7F) {
+        else if (c < 0x20 || c == 0x7F) {
             // Unprintable characters, ignore them.
             continue;
         }
