@@ -117,6 +117,13 @@ auto graphics::session_window::present_scene(std::shared_ptr<graphics::scene> sc
     scene->start();
 }
 
+auto graphics::session_window::pop_scene() -> void
+{
+    if (m_scenes.size() > 1) {
+        m_scenes.pop_back();
+    }
+}
+
 
 // MARK: - Helpers
 

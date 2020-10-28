@@ -42,6 +42,7 @@ namespace graphics
         explicit lua_scene_wrapper(std::shared_ptr<graphics::scene> scene);
 
         lua_api static auto current() -> graphics::lua_scene_wrapper::lua_reference;
+        lua_api static auto pop_scene() -> void;
 
         lua_api auto name() const -> std::string;
         lua_api auto size() const -> math::size;

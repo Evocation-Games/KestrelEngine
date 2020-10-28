@@ -302,6 +302,11 @@ auto environment::present_scene(std::shared_ptr<graphics::scene> scene) -> void
     m_game_window->present_scene(std::move(scene));
 }
 
+auto environment::pop_scene() -> void
+{
+    m_game_window->pop_scene();
+}
+
 auto environment::create_scene(const std::string &name,
                                const asset::resource_reference::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
 {

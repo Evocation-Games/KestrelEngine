@@ -88,6 +88,7 @@ public:
     auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
     auto current_scene() -> std::shared_ptr<graphics::scene>;
     auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
+    auto pop_scene() -> void;
 
     auto post_key_event(const event::key& event) -> void;
     auto post_mouse_event(const event::mouse& event) -> void;

@@ -31,6 +31,7 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::lua_scene_wrapper>("Scene")
             .addStaticFunction("current", &graphics::lua_scene_wrapper::current)
+            .addStaticFunction("back", &graphics::lua_scene_wrapper::pop_scene)
             .addProperty("centerPoint", &graphics::lua_scene_wrapper::center_point)
             .addProperty("size", &graphics::lua_scene_wrapper::size)
             .addProperty("name", &graphics::lua_scene_wrapper::name)
@@ -56,6 +57,13 @@ auto graphics::lua_scene_wrapper::current() -> graphics::lua_scene_wrapper::lua_
 {
     auto scene = environment::active_environment().lock()->current_scene();
     return graphics::lua_scene_wrapper::lua_reference(new graphics::lua_scene_wrapper(scene));
+}
+
+// MARK: - Scene Management
+
+auto graphics::lua_scene_wrapper::pop_scene() -> void
+{
+    environment::active_environment().lock()->pop_scene();
 }
 
 // MARK: - Interface
