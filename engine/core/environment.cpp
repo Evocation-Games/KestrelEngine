@@ -162,7 +162,7 @@ auto environment::load_data_files(const std::string &path) -> void
         while ((ent = readdir(dir)) != nullptr) {
             std::string file_path(path + "/");
             file_path.append(ent->d_name);
-            if (ends_with(file_path, ".ndat")) {
+            if (ends_with(file_path, ".ndat") || ends_with(file_path, ".rez") || ends_with(file_path, ".kdat")) {
                 std::cout << "loading data file: " << file_path << std::endl;
                 auto file = std::make_shared<graphite::rsrc::file>(file_path);
                 graphite::rsrc::manager::shared_manager().import_file(file);
