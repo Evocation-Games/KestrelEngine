@@ -291,8 +291,8 @@ auto graphics::color::get_alpha() const -> uint8_t
 auto graphics::color::value() const -> uint32_t
 {
     return static_cast<uint32_t>(COMPONENT_EXPAND(alpha) << 24U)
-         | static_cast<uint32_t>(COMPONENT_EXPAND(red) << 16U)
+         | static_cast<uint32_t>(COMPONENT_EXPAND(red))
          | static_cast<uint32_t>(COMPONENT_EXPAND(green) << 8U)
-         | static_cast<uint32_t>(COMPONENT_EXPAND(blue));
+         | static_cast<uint32_t>(COMPONENT_EXPAND(blue) << 16U);
 }
 

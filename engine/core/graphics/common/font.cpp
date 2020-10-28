@@ -133,7 +133,10 @@ auto graphics::font::render_text(const std::string &text, const math::size& sz, 
                 auto red = m_face->glyph->bitmap.buffer[(yy * m_face->glyph->bitmap.width) + xx];
                 auto hex_color = color.value() & 0x00FFFFFF;
                 auto color = hex_color | (red << 24); // Color of the glyph becomes the alpha for the text.
-                text_data[((y + y_offset + yy) * sz.width) + x + x_offset + xx] = color;
+                auto offset = ((y + y_offset + yy) * sz.width) + x + x_offset + xx;
+                if (offset < text_data.size()) {
+                    text_data[offset] = color;
+                }
             }
         }
 
