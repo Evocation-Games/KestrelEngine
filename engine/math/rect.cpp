@@ -28,6 +28,7 @@ auto math::rect::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::rect>("Rect")
             .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, math::rect::lua_reference>()
+            .addStaticFunction("macintoshRect", &math::rect::macintosh_rect)
             .addProperty("area", &math::rect::area)
             .addProperty("origin", &math::rect::get_origin, &math::rect::set_origin)
             .addProperty("size", &math::rect::get_size, &math::rect::set_size)
@@ -45,25 +46,30 @@ math::rect::rect()
     : origin(), size()
 {
 
-};
+}
 
 math::rect::rect(const math::point& o, const math::size& s)
     : origin(o), size(s)
 {
 
-};
+}
 
 math::rect::rect(const double& x, const double& y, const double& w, const double& h)
     : origin(x, y), size(w, h)
 {
 
-};
+}
 
 math::rect::rect(const math::rect& r)
     : origin(r.origin), size(r.size)
 {
 
-};
+}
+
+auto math::rect::macintosh_rect(const double &top, const double &left, const double &bottom, const double &right) -> math::rect
+{
+    return math::rect(left, top, right - left, bottom - top);
+}
 
 // MARK: - Operators
 

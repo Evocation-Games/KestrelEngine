@@ -45,6 +45,8 @@ namespace math
         lua_api rect(const double& x, const double& y, const double& w, const double& h);
         rect(const math::rect& r);
 
+        lua_api static auto macintosh_rect(const double& top, const double& left, const double& bottom, const double& right) -> math::rect;
+
         lua_api auto operator+(const math::point& p) const -> math::rect;
         lua_api auto operator+(const math::size& s) const -> math::rect;
         lua_api auto operator-(const math::point& p) const -> math::rect;
