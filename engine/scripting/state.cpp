@@ -40,6 +40,7 @@
 #include "core/graphics/common/text.hpp"
 #include "core/event/key.hpp"
 #include "core/asset/sprite.hpp"
+#include "core/graphics/common/canvas.hpp"
 
 // MARK: - Construction
 
@@ -86,6 +87,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     graphics::color::enroll_object_api_in_state(shared_from_this());
     graphics::entity::enroll_object_api_in_state(shared_from_this());
     graphics::text::enroll_object_api_in_state(shared_from_this());
+    graphics::canvas::enroll_object_api_in_state(shared_from_this());
 
     event::key::enroll_object_apu_in_state(shared_from_this());
     event::mouse::enroll_object_apu_in_state(shared_from_this());
