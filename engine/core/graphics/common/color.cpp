@@ -111,6 +111,28 @@ auto graphics::color::color_value_ref(const uint32_t& value) -> graphics::color:
     )};
 }
 
+// MARK: - Blending
+
+auto graphics::color::blend(const graphics::color &top) const -> graphics::color
+{
+    auto c = 1.0 - top.alpha;
+    auto alp = std::min(1.0, top.alpha + (alpha * c));
+    auto r = std::min(1.0, (red * c) + top.red);
+    auto g = std::min(1.0, (green * c) + top.green);
+    auto b = std::min(1.0, (blue * c) + top.blue);
+    return { r, g, b, alp };
+}
+
+auto graphics::color::blend_in_place(const graphics::color &top) -> void
+{
+    auto c = 1.0 - top.alpha;
+    auto alp = std::min(1.0, top.alpha + (alpha * c));
+    red = std::min(1.0, (red * c) + top.red);
+    green = std::min(1.0, (green * c) + top.green);
+    blue = std::min(1.0, (blue * c) + top.blue);
+    alpha = alp;
+}
+
 // MARK: - Predefined Colors
 
 auto graphics::color::white_color() -> graphics::color
