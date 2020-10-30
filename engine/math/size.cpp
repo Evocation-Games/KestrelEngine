@@ -27,7 +27,7 @@ auto math::size::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::size>("Size")
-            .addConstructor<auto(*)(const double&, const double&)->void, math::size::lua_reference>()
+            .addConstructor<auto(*)(const double&, const double&)->void, luabridge::RefCountedPtr<math::size>>()
             .addProperty("width", &math::size::get_width, &math::size::set_width)
             .addProperty("height", &math::size::get_height, &math::size::set_height)
             .addProperty("area", &math::size::area)

@@ -49,7 +49,7 @@ namespace asset
         image() = default;
         image(const math::size& size, const graphics::color& color = graphics::color::white_color());
         image(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data);
-        lua_api image(const math::size::lua_reference& size, const graphics::color::lua_reference& color);
+        lua_api image(const math::size& size, const graphics::color::lua_reference& color);
 
         lua_api auto size() const -> math::size;
         lua_api virtual auto sprite_count() const -> int;

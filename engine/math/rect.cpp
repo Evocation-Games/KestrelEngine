@@ -27,7 +27,7 @@ auto math::rect::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::rect>("Rect")
-            .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, math::rect::lua_reference>()
+            .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, luabridge::RefCountedPtr<math::rect>>()
             .addStaticFunction("macintoshRect", &math::rect::macintosh_rect)
             .addProperty("area", &math::rect::area)
             .addProperty("origin", &math::rect::get_origin, &math::rect::set_origin)

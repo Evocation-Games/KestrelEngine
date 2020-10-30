@@ -38,7 +38,6 @@ namespace math
     struct vector: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<math::vector> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         double x;

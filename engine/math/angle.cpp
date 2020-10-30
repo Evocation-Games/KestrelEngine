@@ -29,7 +29,7 @@ auto math::angle::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::angle>("Angle")
-            .addConstructor<auto(*)(const double&)->void, math::angle::lua_reference>()
+            .addConstructor<auto(*)(const double&)->void, luabridge::RefCountedPtr<math::angle>>()
             .addProperty("degrees", &math::angle::degrees)
             .addProperty("radians", &math::angle::radians)
             .addFunction("sin", &math::angle::sin)

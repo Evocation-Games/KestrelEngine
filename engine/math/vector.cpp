@@ -29,7 +29,7 @@ auto math::vector::enroll_object_api_in_state(const std::shared_ptr<scripting::l
     // 3D Version
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::vector>("Vec3")
-            .addConstructor<auto(*)(const double&, const double&, const double&)->void, math::vector::lua_reference>()
+            .addConstructor<auto(*)(const double&, const double&, const double&)->void, luabridge::RefCountedPtr<math::vector>>()
             .addProperty("x", &math::vector::get_x, &math::vector::set_x)
             .addProperty("y", &math::vector::get_y, &math::vector::set_y)
             .addProperty("z", &math::vector::get_z, &math::vector::set_z)
@@ -46,7 +46,7 @@ auto math::vector::enroll_object_api_in_state(const std::shared_ptr<scripting::l
     // 2D Version
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::vector>("Vec2")
-            .addConstructor<auto(*)(const double&, const double&)->void, math::vector::lua_reference>()
+            .addConstructor<auto(*)(const double&, const double&)->void, luabridge::RefCountedPtr<math::vector>>()
             .addProperty("x", &math::vector::get_x, &math::vector::set_x)
             .addProperty("y", &math::vector::get_y, &math::vector::set_y)
             .addProperty("magnitude", &math::vector::magnitude)

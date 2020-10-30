@@ -38,8 +38,6 @@ namespace math
      */
     struct angle: public scripting::lua::object
     {
-    public:
-        typedef luabridge::RefCountedPtr<math::angle> lua_reference;
     private:
         double m_theta { 0.0 };
 

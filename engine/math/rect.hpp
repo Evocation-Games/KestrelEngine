@@ -34,7 +34,6 @@ namespace math
      */
     struct rect: public scripting::lua::object
     {
-        typedef luabridge::RefCountedPtr<math::rect> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         math::point origin;

@@ -33,7 +33,6 @@ namespace math
     struct size: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<math::size> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         double width;

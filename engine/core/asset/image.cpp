@@ -27,7 +27,7 @@ auto asset::image::enroll_object_api_in_state(const std::shared_ptr<scripting::l
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<asset::image>("Image")
-            .addConstructor<auto(*)(const math::size::lua_reference&, const graphics::color::lua_reference&)->void, asset::image::lua_reference>()
+            .addConstructor<auto(*)(const math::size&, const graphics::color::lua_reference&)->void, asset::image::lua_reference>()
             .addProperty("size", &asset::image::size)
             .addProperty("numberOfSprites", &asset::image::sprite_count)
             .addFunction("spawnEntity", &asset::image::spawn_entity)
@@ -58,12 +58,12 @@ asset::image::image(const int64_t& id, const std::string& name, const math::size
     }
 }
 
-asset::image::image(const math::size::lua_reference &size, const graphics::color::lua_reference &color)
+asset::image::image(const math::size &size, const graphics::color::lua_reference &color)
 {
-    auto data = std::vector<uint32_t>(static_cast<int>(size->area()), color->value());
+    auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color->value());
     if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(*size.get(), std::move(data));
-        m_sheet = std::make_shared<graphics::spritesheet>(tex, *size.get());
+        auto tex = env->create_texture(size, std::move(data));
+        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
     }
 }
 

@@ -52,10 +52,22 @@ graphics::opengl::texture::texture(const math::size& sz, std::vector<uint32_t> d
     upload();
 }
 
+// MARK: - Destruction
+
+graphics::opengl::texture::~texture()
+{
+    glDeleteTextures(1, &m_id);
+    m_id = 0;
+}
+
 // MARK: - Texture Management
 
 auto graphics::opengl::texture::upload() const -> void
 {
+    if (m_id <= 0) {
+        return;
+    }
+
     glBindTexture(GL_TEXTURE_2D, m_id);
     glTexImage2D(GL_TEXTURE_2D, 0, m_internal_format,
                  static_cast<int>(m_size.width), static_cast<int>(m_size.height), 0,
@@ -70,5 +82,7 @@ auto graphics::opengl::texture::upload() const -> void
 
 auto graphics::opengl::texture::bind() const -> void
 {
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    if (m_id > 0) {
+        glBindTexture(GL_TEXTURE_2D, m_id);
+    }
 }

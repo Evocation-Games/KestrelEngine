@@ -42,9 +42,11 @@ namespace graphics { namespace opengl {
 
     public:
         texture(const double& width, const double& height);
-        texture(const math::size& size);
+        explicit texture(const math::size& size);
         texture(const double& width, const double& height, std::vector<uint32_t> data);
         texture(const math::size& size, std::vector<uint32_t> data);
+
+        ~texture();
 
         auto bind() const -> void override;
     };

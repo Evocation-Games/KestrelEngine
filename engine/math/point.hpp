@@ -35,14 +35,13 @@ namespace math
     struct point: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<math::point> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         double x;
         double y;
 
         point();
-        point(const double& v);
+        explicit point(const double& v);
         lua_api point(const double& x, const double& y);
         point(const math::point& p);
 

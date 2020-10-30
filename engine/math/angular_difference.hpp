@@ -31,9 +31,6 @@ namespace math
 
     struct angular_difference
     {
-    public:
-        typedef luabridge::RefCountedPtr<math::angular_difference> lua_reference;
-
     private:
         double m_phi { 0.0 };
 

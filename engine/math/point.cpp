@@ -28,7 +28,7 @@ auto math::point::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::point>("Point")
-            .addConstructor<auto(*)(const double&, const double&)->void, math::point::lua_reference>()
+            .addConstructor<auto(*)(const double&, const double&)->void, luabridge::RefCountedPtr<math::point>>()
             .addProperty("x", &math::point::get_x, &math::point::set_x)
             .addProperty("y", &math::point::get_y, &math::point::set_y)
             .addFunction("distanceTo", &math::point::distance_to)

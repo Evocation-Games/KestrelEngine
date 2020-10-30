@@ -28,7 +28,7 @@ auto math::angular_difference::enroll_object_api_in_state(const std::shared_ptr<
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::angular_difference>("AngularDifference")
-            .addConstructor<auto(*)(const double&)->void, math::angular_difference::lua_reference>()
+            .addConstructor<auto(*)(const double&)->void, luabridge::RefCountedPtr<math::angular_difference>>()
             .addProperty("value", &math::angular_difference::phi)
             .addProperty("isClockwise", &math::angular_difference::is_clockwise)
             .addProperty("isAntiClockwise", &math::angular_difference::is_anti_clockwise)
