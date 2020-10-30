@@ -31,6 +31,8 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginClass<graphics::canvas>("Canvas")
             .addConstructor<auto(*)(const math::size&)->void, graphics::canvas::lua_reference>()
             .addProperty("penColor", &graphics::canvas::get_pen_color, &graphics::canvas::set_pen_color)
+            .addFunction("entity", &graphics::canvas::entity)
+            .addFunction("rebuildEntityTexture", &graphics::canvas::rebuild_texture)
             .addFunction("fillRect", &graphics::canvas::fill_rect)
             .addFunction("drawCircle", &graphics::canvas::draw_circle)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
@@ -62,6 +64,19 @@ auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
 
 // MARK: - Entity
 
+auto graphics::canvas::rebuild_texture() -> void
+{
+    if (m_entity.get() == nullptr) {
+        return;
+    }
+
+    if (auto env = environment::active_environment().lock()) {
+        // Rebuild the texture.
+        auto tex = env->create_texture(m_size, raw());
+        m_entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_size));
+    }
+}
+
 auto graphics::canvas::spawn_entity(const math::vector &position) -> graphics::entity::lua_reference
 {
     // Create a new bitmap of the text.
@@ -72,10 +87,22 @@ auto graphics::canvas::spawn_entity(const math::vector &position) -> graphics::e
         entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_size));
         entity->set_position(position);
 
-        return entity;
+        return (m_entity = entity);
     }
 
     return nullptr;
+}
+
+auto graphics::canvas::entity() -> graphics::entity::lua_reference
+{
+    if (m_entity.get() == nullptr) {
+        // Construct a new entity as we don't currently have one.
+        m_entity = spawn_entity({0, 0});
+    }
+    else {
+        rebuild_texture();
+    }
+    return m_entity;
 }
 
 // MARK: - Backing Data

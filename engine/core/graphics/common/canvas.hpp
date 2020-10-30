@@ -44,6 +44,7 @@ namespace graphics
         math::size m_size;
         std::vector<graphics::color> m_buffer;
         graphics::color m_pen_color;
+        graphics::entity::lua_reference m_entity { nullptr };
 
         auto draw_pixel(const double& x, const double& y) -> void;
         auto index_at(const double& x, const double& y) const -> int;
@@ -62,6 +63,8 @@ namespace graphics
         lua_api auto draw_circle(const math::point& p, const double& r) -> void;
 
         lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
+        lua_api auto entity() -> graphics::entity::lua_reference;
+        lua_api auto rebuild_texture() -> void;
     };
 
 }
