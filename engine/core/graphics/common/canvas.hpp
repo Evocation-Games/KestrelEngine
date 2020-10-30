@@ -30,6 +30,7 @@
 #include "math/rect.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/font.hpp"
 
 namespace graphics
 {
@@ -45,6 +46,8 @@ namespace graphics
         std::vector<graphics::color> m_buffer;
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };
+        std::shared_ptr<graphics::font> m_font {};
+        int m_font_size { 12 };
 
         auto draw_pixel(const double& x, const double& y) -> void;
         auto index_at(const double& x, const double& y) const -> int;
@@ -56,11 +59,16 @@ namespace graphics
         lua_api auto get_pen_color() const -> graphics::color;
         lua_api auto set_pen_color(const graphics::color& color) -> void;
 
+        lua_api auto set_font(const std::string& name, const int& size) ->void;
+
         lua_api auto clear() -> void;
 
         lua_api auto fill_rect(const math::rect& r) -> void;
 
         lua_api auto draw_circle(const math::point& p, const double& r) -> void;
+
+        lua_api auto text_size(const std::string& text) const -> math::size;
+        lua_api auto draw_text(const std::string& text, const math::point& point) -> void;
 
         lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
         lua_api auto entity() -> graphics::entity::lua_reference;

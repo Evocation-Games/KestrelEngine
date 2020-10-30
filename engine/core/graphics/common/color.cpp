@@ -88,7 +88,8 @@ auto graphics::color::color_value(const uint32_t& value) -> graphics::color
     return graphics::color(
         COMPONENT_SCALE(static_cast<uint8_t>(value >> 16U)),
         COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
-        COMPONENT_SCALE(static_cast<uint8_t>(value))
+        COMPONENT_SCALE(static_cast<uint8_t>(value)),
+        COMPONENT_SCALE(static_cast<uint8_t>(value >> 24U))
     );
 }
 
