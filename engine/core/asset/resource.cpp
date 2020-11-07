@@ -42,6 +42,7 @@ auto asset::resource::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addFunction("readPStr", &resource::read_pstr)
             .addFunction("readCStr", &resource::read_cstr)
             .addFunction("readCStrOfLength", &resource::read_cstr_width)
+            .addFunction("skip", &resource::skip)
         .endClass();
 }
 
@@ -148,4 +149,9 @@ auto asset::resource::read_cstr() -> std::string
 auto asset::resource::read_cstr_width(const int& width) -> std::string
 {
     return m_reader->read_cstr(width);
+}
+
+auto asset::resource::skip(const int &delta) -> void
+{
+    m_reader->move(delta);
 }

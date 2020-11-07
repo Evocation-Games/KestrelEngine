@@ -64,6 +64,8 @@ namespace asset
         lua_api auto read_pstr() -> std::string;
         lua_api auto read_cstr() -> std::string;
         lua_api auto read_cstr_width(const int& width) -> std::string;
+
+        lua_api auto skip(const int& delta) -> void;
     };
 
 }
