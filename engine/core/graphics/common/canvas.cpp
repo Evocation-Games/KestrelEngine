@@ -35,6 +35,9 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("rebuildEntityTexture", &graphics::canvas::rebuild_texture)
             .addFunction("fillRect", &graphics::canvas::fill_rect)
             .addFunction("drawCircle", &graphics::canvas::draw_circle)
+            .addFunction("setFont", &graphics::canvas::set_font)
+            .addFunction("sizeOfText", &graphics::canvas::text_size)
+            .addFunction("drawText", &graphics::canvas::draw_text)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
             .addFunction("clear", &graphics::canvas::clear)
         .endClass();
@@ -45,7 +48,8 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
 graphics::canvas::canvas(const math::size& size)
     : m_size(size),
       m_buffer(static_cast<int>(size.width * size.height), graphics::color(0, 0, 0, 0)),
-      m_pen_color(graphics::color::white_color())
+      m_pen_color(graphics::color::white_color()),
+      m_font(std::make_shared<graphics::font>("/System/Library/Fonts/SFCompactDisplay.ttf"))
 {
 
 }
@@ -60,6 +64,12 @@ auto graphics::canvas::get_pen_color() const -> graphics::color
 auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
 {
     m_pen_color = color;
+}
+
+auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
+{
+    m_font_size = size;
+    m_font = std::make_shared<graphics::font>("/System/Library/Fonts/SFCompactDisplay.ttf");
 }
 
 // MARK: - Entity
@@ -209,3 +219,38 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
 }
 
 // MARK: - Text
+
+auto graphics::canvas::text_size(const std::string &text) const -> math::size
+{
+    return m_font->text_size(text, m_font_size);
+}
+
+auto graphics::canvas::draw_text(const std::string &text, const math::point &point) -> void
+{
+    auto text_size = this->text_size(text);
+    auto text_bmp = m_font->render_text(text, text_size, m_font_size, m_pen_color);
+
+    // Drawing the text into the canvas buffer at the appropriate point.
+    for (auto y = 0; y < text_size.height; ++y) {
+        auto dy = std::floor(y + point.y);
+        if (dy < 0) {
+            // TODO: Calculate the correct Y to be on, if it exists.
+            continue;
+        }
+        else if (y >= m_size.height) {
+            break;
+        }
+
+        auto run_start = index_at(std::floor(point.x), dy);
+        auto run_end = index_at(std::floor(point.x + text_size.width), dy);
+
+        auto line_start = index_at(0, dy);
+        auto line_end = index_at(std::floor(m_size.width), dy);
+
+        auto src_i = static_cast<int>(std::floor(y * text_size.width));
+        for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
+            auto color = graphics::color::color_value(text_bmp[src_i++]);
+            m_buffer[i].blend_in_place(color);
+        }
+    }
+}
