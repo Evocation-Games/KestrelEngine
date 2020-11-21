@@ -30,6 +30,7 @@
 #if __APPLE__
 #include "core/graphics/metal/metal_session_window.h"
 #include "core/support/macos/cocoa/application.h"
+#include "core/support/macos/cocoa/font.h"
 #endif
 
 static std::weak_ptr<environment> $_active_environment;

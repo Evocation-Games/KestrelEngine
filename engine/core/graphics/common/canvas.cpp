@@ -38,6 +38,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("setFont", &graphics::canvas::set_font)
             .addFunction("sizeOfText", &graphics::canvas::text_size)
             .addFunction("drawText", &graphics::canvas::draw_text)
+            .addFunction("drawMacintoshPicture", &graphics::canvas::draw_picture)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
             .addFunction("clear", &graphics::canvas::clear)
         .endClass();
@@ -49,7 +50,7 @@ graphics::canvas::canvas(const math::size& size)
     : m_size(size),
       m_buffer(static_cast<int>(size.width * size.height), graphics::color(0, 0, 0, 0)),
       m_pen_color(graphics::color::white_color()),
-      m_font(std::make_shared<graphics::font>("/System/Library/Fonts/SFCompactDisplay.ttf"))
+      m_font(std::make_shared<graphics::font>())
 {
 
 }
@@ -69,7 +70,7 @@ auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
 auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
 {
     m_font_size = size;
-    m_font = std::make_shared<graphics::font>("/System/Library/Fonts/SFCompactDisplay.ttf");
+    m_font = std::make_shared<graphics::font>(name);
 }
 
 // MARK: - Entity
@@ -250,6 +251,33 @@ auto graphics::canvas::draw_text(const std::string &text, const math::point &poi
         auto src_i = static_cast<int>(std::floor(y * text_size.width));
         for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
             auto color = graphics::color::color_value(text_bmp[src_i++]);
+            m_buffer[i].blend_in_place(color);
+        }
+    }
+}
+
+auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_reference &pict, const math::rect &rect) -> void
+{
+    auto raw_pict_data = pict->spritesheet()->texture()->data();
+
+    for (auto y = 0; y < pict->size().height; ++y) {
+        auto dy = std::floor(y + rect.origin.y);
+        if (dy < 0) {
+            continue;
+        }
+        else if (y >= m_size.height) {
+            break;
+        }
+
+        auto run_start = index_at(std::floor(rect.origin.x), dy);
+        auto run_end = index_at(std::floor(rect.origin.x + pict->size().width), dy);
+
+        auto line_start = index_at(0, dy);
+        auto line_end = index_at(std::floor(m_size.width), dy);
+
+        auto src_i = static_cast<int>(std::floor(y * pict->size().width));
+        for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
+            auto color = graphics::color::color_value(raw_pict_data[src_i++]);
             m_buffer[i].blend_in_place(color);
         }
     }

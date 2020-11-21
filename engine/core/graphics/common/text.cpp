@@ -42,9 +42,9 @@ graphics::text::text(std::string text, std::string font, int size, const graphic
 {
     // TODO: Correctly load fonts for platforms
 #if __APPLE__
-    m_font = std::make_shared<graphics::font>("/System/Library/Fonts/SFCompactDisplay.ttf");
+    m_font = std::make_shared<graphics::font>(m_font_face);
 #elif __linux__
-    m_font = std::make_shared<graphics::font>("/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf");
+    m_font = std::make_shared<graphics::font>("Ubuntu-R");
 #else
 #   error Fix for Windows
 #endif

@@ -40,7 +40,7 @@ namespace graphics
         FT_Face m_face;
 
     public:
-        explicit font(const std::string& path);
+        explicit font(const std::string& name = "");
         ~font();
 
         auto text_size(const std::string& text, const int& font_size = 12) const -> math::size;

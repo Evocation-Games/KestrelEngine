@@ -31,6 +31,7 @@
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/font.hpp"
+#include "core/asset/macintosh_picture.hpp"
 
 namespace graphics
 {
@@ -69,6 +70,8 @@ namespace graphics
 
         lua_api auto text_size(const std::string& text) const -> math::size;
         lua_api auto draw_text(const std::string& text, const math::point& point) -> void;
+
+        lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;
 
         lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
         lua_api auto entity() -> graphics::entity::lua_reference;

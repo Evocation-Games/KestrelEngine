@@ -22,6 +22,10 @@
 #include <complex>
 #include "core/graphics/common/font.hpp"
 
+#if __APPLE__
+#include "core/support/macos/cocoa/font.h"
+#endif
+
 // MARK: - FreeType Globals
 
 static bool ft_loaded = false;
@@ -29,9 +33,14 @@ static FT_Library ft;
 
 // MARK: - Construction
 
-graphics::font::font(const std::string& path)
-    : m_path(path)
+graphics::font::font(const std::string& name)
 {
+#if __APPLE__
+    m_path = cocoa::font::path_for(name);
+#else
+
+#endif
+
     if (!ft_loaded) {
         if (FT_Init_FreeType(&ft)) {
             throw std::logic_error("Failed to initialise FreeType");

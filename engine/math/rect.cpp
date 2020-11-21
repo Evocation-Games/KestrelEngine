@@ -37,6 +37,7 @@ auto math::rect::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
             .addProperty("width", &math::rect::get_width, &math::rect::set_width)
             .addProperty("height", &math::rect::get_height, &math::rect::set_height)
             .addFunction("contains_point", &math::rect::contains_point)
+            .addFunction("intersects", &math::rect::intersects)
         .endClass();
 }
 
