@@ -78,8 +78,8 @@ auto graphics::text::get_color() const -> graphics::color::lua_reference
 auto graphics::text::spawn_entity(const math::vector &position) -> graphics::entity::lua_reference
 {
     // Create a new bitmap of the text.
-    auto size = m_font->text_size(m_text, m_font_size);
-    auto bmp = m_font->render_text(m_text, size, m_font_size, m_color);
+    auto size = m_font->layout_text(m_text, m_font_size);
+    auto bmp = m_font->render_text(m_color);
 
     if (auto env = environment::active_environment().lock()) {
         auto tex = env->create_texture(size, std::move(bmp));

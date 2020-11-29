@@ -36,7 +36,8 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("fillRect", &graphics::canvas::fill_rect)
             .addFunction("drawCircle", &graphics::canvas::draw_circle)
             .addFunction("setFont", &graphics::canvas::set_font)
-            .addFunction("sizeOfText", &graphics::canvas::text_size)
+            .addFunction("layoutText", &graphics::canvas::layout_text)
+            .addFunction("layoutTextInBounds", &graphics::canvas::layout_text_in_bounds)
             .addFunction("drawText", &graphics::canvas::draw_text)
             .addFunction("drawMacintoshPicture", &graphics::canvas::draw_picture)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
@@ -221,18 +222,26 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
 
 // MARK: - Text
 
-auto graphics::canvas::text_size(const std::string &text) const -> math::size
+auto graphics::canvas::layout_text(const std::string &text) -> math::size
 {
-    return m_font->text_size(text, m_font_size);
+    m_font->clear();
+    m_text_size = m_font->layout_text(text, m_font_size);
+    return m_text_size;
 }
 
-auto graphics::canvas::draw_text(const std::string &text, const math::point &point) -> void
+auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math::size& bounds) -> math::size
 {
-    auto text_size = this->text_size(text);
-    auto text_bmp = m_font->render_text(text, text_size, m_font_size, m_pen_color);
+    m_font->clear();
+    m_text_size = m_font->layout_text_with_bounds(text, m_font_size, bounds);
+    return m_text_size;
+}
+
+auto graphics::canvas::draw_text(const math::point &point) -> void
+{
+    auto text_bmp = m_font->render_text(m_pen_color);
 
     // Drawing the text into the canvas buffer at the appropriate point.
-    for (auto y = 0; y < text_size.height; ++y) {
+    for (auto y = 0; y < m_text_size.height; ++y) {
         auto dy = std::floor(y + point.y);
         if (dy < 0) {
             // TODO: Calculate the correct Y to be on, if it exists.
@@ -243,25 +252,27 @@ auto graphics::canvas::draw_text(const std::string &text, const math::point &poi
         }
 
         auto run_start = index_at(std::floor(point.x), dy);
-        auto run_end = index_at(std::floor(point.x + text_size.width), dy);
+        auto run_end = index_at(std::floor(point.x + m_text_size.width), dy);
 
         auto line_start = index_at(0, dy);
         auto line_end = index_at(std::floor(m_size.width), dy);
 
-        auto src_i = static_cast<int>(std::floor(y * text_size.width));
+        auto src_i = static_cast<int>(std::floor(y * m_text_size.width));
         for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
             auto color = graphics::color::color_value(text_bmp[src_i++]);
             m_buffer[i].blend_in_place(color);
         }
     }
+
+    m_font->clear();
 }
 
-auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_reference &pict, const math::rect &rect) -> void
+auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void
 {
     auto raw_pict_data = pict->spritesheet()->texture()->data();
 
     for (auto y = 0; y < pict->size().height; ++y) {
-        auto dy = std::floor(y + rect.origin.y);
+        auto dy = std::floor(y + point.y);
         if (dy < 0) {
             continue;
         }
@@ -269,8 +280,8 @@ auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_referenc
             break;
         }
 
-        auto run_start = index_at(std::floor(rect.origin.x), dy);
-        auto run_end = index_at(std::floor(rect.origin.x + pict->size().width), dy);
+        auto run_start = index_at(std::floor(point.x), dy);
+        auto run_end = index_at(std::floor(point.x + pict->size().width), dy);
 
         auto line_start = index_at(0, dy);
         auto line_end = index_at(std::floor(m_size.width), dy);
@@ -279,6 +290,15 @@ auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_referenc
         for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
             auto color = graphics::color::color_value(raw_pict_data[src_i++]);
             m_buffer[i].blend_in_place(color);
+        }
+    }
+}
+
+auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_reference &pict, const math::rect &rect) -> void
+{
+    for (auto y = static_cast<int>(rect.origin.y); y < rect.origin.y + rect.size.height; y += pict->size().height) {
+        for (auto x = static_cast<int>(rect.origin.x); x < rect.origin.x + rect.size.width; x += pict->size().width) {
+            draw_picture_at_point(pict, { x, y });
         }
     }
 }

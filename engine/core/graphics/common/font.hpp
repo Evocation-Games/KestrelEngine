@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <tuple>
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
 #include "math/size.hpp"
@@ -39,13 +40,22 @@ namespace graphics
         std::string m_path;
         FT_Face m_face;
 
+        std::wstring m_rendered_text { L"" };
+        int m_rendered_font_size { 12 };
+        std::vector<std::tuple<wchar_t, math::point>> m_layout;
+        math::size m_rendered_text_size { 0, 0 };
+
     public:
         explicit font(const std::string& name = "");
         ~font();
 
-        auto text_size(const std::string& text, const int& font_size = 12) const -> math::size;
-        auto render_text(const std::string& text, const math::size& sz, const int& font_size = 12, const graphics::color& color = graphics::color::white_color()) const -> std::vector<uint32_t>;
+        auto requires_layout() const -> bool;
 
+        auto layout_text(const std::string& text, const int& font_size = 12) -> math::size;
+        auto layout_text_with_bounds(const std::string &text, const int& font_size, const math::size& max) -> math::size;
+        auto render_text(const graphics::color& color = graphics::color::white_color()) const -> std::vector<uint32_t>;
+
+        auto clear() -> void;
     };
 
 }

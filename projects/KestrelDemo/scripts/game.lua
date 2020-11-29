@@ -6,7 +6,8 @@ local c = Canvas(Size(300, 100))
 
 c.penColor = Color.white()
 c:setFont("Times", 20)
-c:drawText("Hello, World", Point(10, 10))
+c:layoutTextInBounds("Hello, World\nThis is a test of the drawing. This line should wrap on to a new line.", Size(300, 100))
+c:drawText(Point(10, 10))
 
 local e = c:spawnEntity(Vec2(200, 100))
 

@@ -49,10 +49,13 @@ namespace graphics
         graphics::entity::lua_reference m_entity { nullptr };
         std::shared_ptr<graphics::font> m_font {};
         int m_font_size { 12 };
+        math::size m_text_size;
 
         auto draw_pixel(const double& x, const double& y) -> void;
         auto index_at(const double& x, const double& y) const -> int;
         auto raw() const -> std::vector<uint32_t>;
+
+        auto draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void;
 
     public:
         lua_api explicit canvas(const math::size& size);
@@ -68,8 +71,9 @@ namespace graphics
 
         lua_api auto draw_circle(const math::point& p, const double& r) -> void;
 
-        lua_api auto text_size(const std::string& text) const -> math::size;
-        lua_api auto draw_text(const std::string& text, const math::point& point) -> void;
+        lua_api auto layout_text(const std::string& text) -> math::size;
+        lua_api auto layout_text_in_bounds(const std::string& text, const math::size& bounds) -> math::size;
+        lua_api auto draw_text(const math::point& point) -> void;
 
         lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;
 

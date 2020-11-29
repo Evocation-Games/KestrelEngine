@@ -86,9 +86,9 @@ auto graphics::color::rgb(const uint8_t& r, const uint8_t& g, const uint8_t& b, 
 auto graphics::color::color_value(const uint32_t& value) -> graphics::color
 {
     return graphics::color(
-        COMPONENT_SCALE(static_cast<uint8_t>(value >> 16U)),
-        COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
         COMPONENT_SCALE(static_cast<uint8_t>(value)),
+        COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
+        COMPONENT_SCALE(static_cast<uint8_t>(value >> 16U)),
         COMPONENT_SCALE(static_cast<uint8_t>(value >> 24U))
     );
 }
@@ -126,12 +126,19 @@ auto graphics::color::blend(const graphics::color &top) const -> graphics::color
 
 auto graphics::color::blend_in_place(const graphics::color &top) -> void
 {
-    auto c = 1.0 - top.alpha;
-    auto alp = std::min(1.0, top.alpha + (alpha * c));
-    red = std::min(1.0, (red * c) + top.red);
-    green = std::min(1.0, (green * c) + top.green);
-    blue = std::min(1.0, (blue * c) + top.blue);
-    alpha = alp;
+    if (alpha >= 1.0) {
+        alpha = 1.0;
+        red = (top.red * top.alpha) + (red * (1.0 - top.alpha));
+        green = (top.green * top.alpha) + (green * (1.0 - top.alpha));
+        blue = (top.blue * top.alpha) + (blue * (1.0 - top.alpha));
+    }
+    else {
+        auto a = alpha;
+        alpha = top.alpha + (alpha * (1.0 - top.alpha));
+        red = ((top.red * top.alpha) + (red * a * (1.0 - top.alpha))) / alpha;
+        green = ((top.green * top.alpha) + (green * a * (1.0 - top.alpha))) / alpha;
+        blue = ((top.blue * top.alpha) + (blue * a * (1.0 - top.alpha))) / alpha;
+    }
 }
 
 // MARK: - Predefined Colors
