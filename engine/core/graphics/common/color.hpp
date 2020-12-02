@@ -52,6 +52,7 @@ namespace graphics
         auto blend(const graphics::color& c) const -> graphics::color;
         auto blend_in_place(const graphics::color& c) -> void;
 
+        static auto clear_color() -> graphics::color;
         static auto white_color() -> graphics::color;
         static auto light_grey_color() -> graphics::color;
         static auto grey_color() -> graphics::color;

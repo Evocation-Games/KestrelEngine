@@ -32,6 +32,7 @@
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/font.hpp"
 #include "core/asset/macintosh_picture.hpp"
+#include "core/graphics/common/text/typesetter.hpp"
 
 namespace graphics
 {
@@ -47,9 +48,7 @@ namespace graphics
         std::vector<graphics::color> m_buffer;
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };
-        std::shared_ptr<graphics::font> m_font {};
-        int m_font_size { 12 };
-        math::size m_text_size;
+        graphics::typesetter m_typesetter;
 
         auto draw_pixel(const double& x, const double& y) -> void;
         auto index_at(const double& x, const double& y) const -> int;

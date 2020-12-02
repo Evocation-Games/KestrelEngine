@@ -51,7 +51,7 @@ graphics::canvas::canvas(const math::size& size)
     : m_size(size),
       m_buffer(static_cast<int>(size.width * size.height), graphics::color(0, 0, 0, 0)),
       m_pen_color(graphics::color::white_color()),
-      m_font(std::make_shared<graphics::font>())
+      m_typesetter("")
 {
 
 }
@@ -66,12 +66,13 @@ auto graphics::canvas::get_pen_color() const -> graphics::color
 auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
 {
     m_pen_color = color;
+    m_typesetter.set_font_color(color);
 }
 
 auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
 {
-    m_font_size = size;
-    m_font = std::make_shared<graphics::font>(name);
+    m_typesetter.set_font(name);
+    m_typesetter.set_font_size(size);
 }
 
 // MARK: - Entity
@@ -224,24 +225,26 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
 
 auto graphics::canvas::layout_text(const std::string &text) -> math::size
 {
-    m_font->clear();
-    m_text_size = m_font->layout_text(text, m_font_size);
-    return m_text_size;
+    m_typesetter.set_text(text);
+    m_typesetter.layout();
+    return m_typesetter.get_bounding_size();
 }
 
 auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math::size& bounds) -> math::size
 {
-    m_font->clear();
-    m_text_size = m_font->layout_text_with_bounds(text, m_font_size, bounds);
-    return m_text_size;
+    m_typesetter.set_margins(bounds);
+    m_typesetter.set_text(text);
+    m_typesetter.layout();
+    return m_typesetter.get_bounding_size();
 }
 
 auto graphics::canvas::draw_text(const math::point &point) -> void
 {
-    auto text_bmp = m_font->render_text(m_pen_color);
+    auto text_bmp = m_typesetter.render();
+    auto text_size = m_typesetter.get_bounding_size();
 
     // Drawing the text into the canvas buffer at the appropriate point.
-    for (auto y = 0; y < m_text_size.height; ++y) {
+    for (auto y = 0; y < text_size.height; ++y) {
         auto dy = std::floor(y + point.y);
         if (dy < 0) {
             // TODO: Calculate the correct Y to be on, if it exists.
@@ -252,19 +255,18 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
         }
 
         auto run_start = index_at(std::floor(point.x), dy);
-        auto run_end = index_at(std::floor(point.x + m_text_size.width), dy);
+        auto run_end = index_at(std::floor(point.x + text_size.width), dy);
 
         auto line_start = index_at(0, dy);
         auto line_end = index_at(std::floor(m_size.width), dy);
 
-        auto src_i = static_cast<int>(std::floor(y * m_text_size.width));
+        auto src_i = static_cast<int>(std::floor(y * text_size.width));
         for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
-            auto color = graphics::color::color_value(text_bmp[src_i++]);
-            m_buffer[i].blend_in_place(color);
+            m_buffer[i].blend_in_place(text_bmp[src_i++]);
         }
     }
 
-    m_font->clear();
+    m_typesetter.reset();
 }
 
 auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void

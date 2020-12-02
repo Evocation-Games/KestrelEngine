@@ -143,6 +143,11 @@ auto graphics::color::blend_in_place(const graphics::color &top) -> void
 
 // MARK: - Predefined Colors
 
+auto graphics::color::clear_color() -> graphics::color
+{
+    return graphics::color(0.0, 0.0, 0.0, 0.0);
+}
+
 auto graphics::color::white_color() -> graphics::color
 {
     return graphics::color(1.0, 1.0, 1.0);
