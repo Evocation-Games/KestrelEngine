@@ -107,7 +107,7 @@ target_include_directories(Kestrel PUBLIC
 target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 if(LINUX)
 	target_include_directories(Kestrel PUBLIC "${GLEW_INCLUDE_DIRS}")
-	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
+	target_link_libraries(Kestrel ${GLEW_LIBRARIES} "-lfontconfig")
 elseif(APPLE)
 	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal" objc)
 endif()

@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 #include "core/graphics/common/canvas.hpp"
 #include "core/environment.hpp"
 

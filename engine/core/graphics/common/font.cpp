@@ -25,6 +25,8 @@
 
 #if __APPLE__
 #include "core/support/macos/cocoa/font.h"
+#elif __linux__
+#include "core/support/linux/font_config.hpp"
 #endif
 
 // MARK: - FreeType Globals
@@ -38,6 +40,8 @@ graphics::font::font(const std::string& name)
 {
 #if __APPLE__
     m_path = cocoa::font::path_for(name);
+#elif __linux__
+    m_path = linux_os::font_config::path_for_best_fit_font(name);
 #else
 
 #endif
