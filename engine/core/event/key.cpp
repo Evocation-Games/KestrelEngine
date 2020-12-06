@@ -20,11 +20,73 @@
 
 #include "core/event/key.hpp"
 
+// MARK: - Helper Functions
+
+#define KEY_STUB_SYMBOL(_c) event_key_##_c
+#define KEY_REFERENCE(_c) &KEY_STUB_SYMBOL(_c)
+#define KEY_CONSTANT_STUB(_c) static auto KEY_STUB_SYMBOL(_c)() -> int { return static_cast<int>(event::key::code::_c); }
+
+KEY_CONSTANT_STUB(a)
+KEY_CONSTANT_STUB(b)
+KEY_CONSTANT_STUB(c)
+KEY_CONSTANT_STUB(d)
+KEY_CONSTANT_STUB(e)
+KEY_CONSTANT_STUB(f)
+KEY_CONSTANT_STUB(g)
+KEY_CONSTANT_STUB(h)
+KEY_CONSTANT_STUB(i)
+KEY_CONSTANT_STUB(j)
+KEY_CONSTANT_STUB(k)
+KEY_CONSTANT_STUB(l)
+KEY_CONSTANT_STUB(m)
+KEY_CONSTANT_STUB(n)
+KEY_CONSTANT_STUB(o)
+KEY_CONSTANT_STUB(p)
+KEY_CONSTANT_STUB(q)
+KEY_CONSTANT_STUB(r)
+KEY_CONSTANT_STUB(s)
+KEY_CONSTANT_STUB(t)
+KEY_CONSTANT_STUB(u)
+KEY_CONSTANT_STUB(v)
+KEY_CONSTANT_STUB(w)
+KEY_CONSTANT_STUB(x)
+KEY_CONSTANT_STUB(y)
+KEY_CONSTANT_STUB(z)
+
 // MARK: - Lua
 
 auto event::key::enroll_object_apu_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
+
     luabridge::getGlobalNamespace(lua->internal_state())
+        .beginNamespace("Key")
+            .addProperty("A", KEY_REFERENCE(a), false)
+            .addProperty("B", KEY_REFERENCE(b), false)
+            .addProperty("C", KEY_REFERENCE(c), false)
+            .addProperty("D", KEY_REFERENCE(d), false)
+            .addProperty("E", KEY_REFERENCE(e), false)
+            .addProperty("F", KEY_REFERENCE(f), false)
+            .addProperty("G", KEY_REFERENCE(g), false)
+            .addProperty("H", KEY_REFERENCE(h), false)
+            .addProperty("I", KEY_REFERENCE(i), false)
+            .addProperty("J", KEY_REFERENCE(j), false)
+            .addProperty("K", KEY_REFERENCE(k), false)
+            .addProperty("L", KEY_REFERENCE(l), false)
+            .addProperty("M", KEY_REFERENCE(m), false)
+            .addProperty("N", KEY_REFERENCE(n), false)
+            .addProperty("O", KEY_REFERENCE(o), false)
+            .addProperty("P", KEY_REFERENCE(p), false)
+            .addProperty("Q", KEY_REFERENCE(q), false)
+            .addProperty("R", KEY_REFERENCE(r), false)
+            .addProperty("S", KEY_REFERENCE(s), false)
+            .addProperty("T", KEY_REFERENCE(t), false)
+            .addProperty("U", KEY_REFERENCE(u), false)
+            .addProperty("V", KEY_REFERENCE(v), false)
+            .addProperty("W", KEY_REFERENCE(w), false)
+            .addProperty("X", KEY_REFERENCE(x), false)
+            .addProperty("Y", KEY_REFERENCE(y), false)
+            .addProperty("Z", KEY_REFERENCE(z), false)
+        .endNamespace()
         .beginClass<event::key>("KeyEvent")
             .addProperty("keycode", &key::code)
             .addProperty("scancode", &key::scancode)
