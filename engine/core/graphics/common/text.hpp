@@ -44,7 +44,6 @@ namespace graphics
         std::string m_text;
         int m_font_size;
         std::string m_font_face;
-        std::shared_ptr<graphics::font> m_font;
         graphics::color m_color { graphics::color::white_color() };
 
     public:
