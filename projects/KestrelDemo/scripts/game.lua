@@ -15,3 +15,10 @@ local s = Scene.current()
 s:render(function()
     e:draw()
 end)
+
+local r = Resource.allWithType("LuaC")
+print("Found " .. r.count .. " resources")
+for i = 1, r.count do
+    local res = ResourceData(r:at(i))
+    print(res.id .. ": " .. res.name)
+end

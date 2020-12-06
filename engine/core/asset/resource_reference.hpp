@@ -25,6 +25,7 @@
 #include <optional>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "util/lua_vector.hpp"
 
 namespace asset
 {
@@ -52,6 +53,8 @@ namespace asset
         lua_api static auto using_named(const std::string& name) -> resource_reference::lua_reference;
         lua_api static auto using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference;
         lua_api static auto using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference;
+
+        lua_api static auto all_of_type(const std::string& type) -> util::lua_vector<asset::resource_reference::lua_reference>;
 
         auto type() const -> std::optional<std::string>;
         auto id() const -> std::optional<int64_t>;

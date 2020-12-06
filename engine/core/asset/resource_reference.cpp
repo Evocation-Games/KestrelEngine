@@ -32,6 +32,7 @@ auto asset::resource_reference::enroll_object_api_in_state(const std::shared_ptr
             .addStaticFunction("idWithType", &resource_reference::using_typed_id)
             .addStaticFunction("namedWithType", &resource_reference::using_typed_named)
             .addStaticFunction("find", &resource_reference::find)
+            .addStaticFunction("allWithType", &resource_reference::all_of_type)
             .addProperty("exists", &resource_reference::exists)
         .endClass();
 }
@@ -105,6 +106,25 @@ auto asset::resource_reference::using_typed_named(const std::string& type, const
 {
     return resource_reference::lua_reference(new resource_reference(type, name));
 }
+
+auto asset::resource_reference::all_of_type(const std::string &type) -> util::lua_vector<resource_reference::lua_reference>
+{
+    std::map<int64_t, resource_reference::lua_reference> resources;
+    for (const auto& t : graphite::rsrc::manager::shared_manager().get_type(type)) {
+        for (const auto& r : t.lock()->resources()) {
+            resources[r->id()] = resource_reference::lua_reference(new resource_reference(type, r->id()));
+        }
+    }
+
+    util::lua_vector<resource_reference::lua_reference> found_resources;
+    found_resources.reserve(resources.size());
+    for (const auto& r : resources) {
+        found_resources.emplace_back(r.second);
+    }
+
+    return found_resources;
+}
+
 
 auto asset::resource_reference::exists() const -> bool
 {

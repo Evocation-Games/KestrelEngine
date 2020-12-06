@@ -41,6 +41,7 @@
 #include "core/event/key.hpp"
 #include "core/asset/sprite.hpp"
 #include "core/graphics/common/canvas.hpp"
+#include "util/lua_vector.hpp"
 
 // MARK: - Construction
 
@@ -91,6 +92,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     event::key::enroll_object_apu_in_state(shared_from_this());
     event::mouse::enroll_object_apu_in_state(shared_from_this());
+
+    util::lua_vector<asset::resource_reference::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
 }
 
 
