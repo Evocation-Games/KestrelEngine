@@ -50,6 +50,9 @@ namespace graphics
     private:
         std::shared_ptr<graphics::spritesheet> m_spritesheet;
         std::weak_ptr<graphics::scene> m_scene;
+        bool m_has_texture_clip { false };
+        math::size m_clip_size { 0 };
+        math::point m_sprite_offset { 0 };
 
     public:
         explicit entity(const math::size& size);
@@ -72,6 +75,14 @@ namespace graphics
 
         lua_api auto get_size() const -> math::size;
         lua_api auto set_size(const math::size& sz) -> void;
+
+        lua_api auto set_clip_size(const math::size& size) -> void;
+        lua_api auto remove_clip_size() -> void;
+        auto has_clip_size() const -> bool;
+        auto clip_size() const -> math::size;
+
+        lua_api auto set_sprite_offset(const math::point& offset) -> void;
+        lua_api auto get_sprite_offset() const -> math::point;
 
         lua_api auto get_blend_lua() const -> int;
         lua_api auto set_blend_lua(const int& blend) -> void;

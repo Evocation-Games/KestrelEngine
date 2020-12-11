@@ -21,8 +21,10 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include "core/graphics/common/canvas.hpp"
 #include "core/environment.hpp"
+#include "math/line.hpp"
 
 // MARK: - Lua
 
@@ -35,7 +37,9 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("entity", &graphics::canvas::entity)
             .addFunction("rebuildEntityTexture", &graphics::canvas::rebuild_texture)
             .addFunction("fillRect", &graphics::canvas::fill_rect)
+            .addFunction("drawLine", &graphics::canvas::draw_line)
             .addFunction("drawCircle", &graphics::canvas::draw_circle)
+            .addFunction("fillCircle", &graphics::canvas::fill_circle)
             .addFunction("setFont", &graphics::canvas::set_font)
             .addFunction("layoutText", &graphics::canvas::layout_text)
             .addFunction("layoutTextInBounds", &graphics::canvas::layout_text_in_bounds)
@@ -52,7 +56,11 @@ graphics::canvas::canvas(const math::size& size)
     : m_size(size),
       m_buffer(static_cast<int>(size.width * size.height), graphics::color(0, 0, 0, 0)),
       m_pen_color(graphics::color::white_color()),
-      m_typesetter("")
+      m_typesetter(""),
+      m_left(math::point(0), math::point(0, m_size.height)),
+      m_top(math::point(0), math::point(m_size.width, 0)),
+      m_right(math::point(m_size.width, 0), math::point(m_size.width, m_size.height)),
+      m_bottom(math::point(0, m_size.height), math::point(m_size.width, m_size.height))
 {
 
 }
@@ -154,7 +162,7 @@ auto graphics::canvas::clear() -> void
     }
 }
 
-auto graphics::canvas::draw_pixel(const double &x, const double &y) -> void
+auto graphics::canvas::draw_pixel(const double &x, const double &y, const double& brightness) -> void
 {
     if (y < 0 || y >= m_size.height) {
         return;
@@ -169,11 +177,16 @@ auto graphics::canvas::draw_pixel(const double &x, const double &y) -> void
         return;
     }
 
-    m_buffer[i].blend_in_place(m_pen_color);
+    m_buffer[i].blend_in_place(m_pen_color.with_alpha(brightness));
 }
 
 auto graphics::canvas::fill_rect(const math::rect &r) -> void
 {
+    // Bounds check the rect. Can we escape early here with out doing the work?
+    if (!r.intersects({math::point(0), m_size})) {
+        return;
+    }
+
     for (auto y = static_cast<int>(r.origin.y); y < r.origin.y + r.size.height; ++y) {
         if (y < 0) {
             y = 0;
@@ -194,21 +207,117 @@ auto graphics::canvas::fill_rect(const math::rect &r) -> void
     }
 }
 
+
+auto graphics::canvas::draw_line(const math::point &p, const math::point &q) -> void
+{
+    math::line l(p, q);
+    if (!(l.intersects(m_left) || l.intersects(m_top) || l.intersects(m_right) || l.intersects(m_bottom))) {
+        if (!((p.x > 0 && p.x < m_size.width) && (p.y > 0 && p.y < m_size.height))) {
+            return;
+        }
+    }
+
+    // This implementation of Xiaolin Wu's line algorithm is based on the implementation found at
+    // https://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm.
+
+    // Helper functions
+    auto ipart =  [](const double& n) -> int { return static_cast<int>(std::floor(n)); };
+    auto round =  [](const double& n) -> double { return std::round(n); };
+    auto fpart =  [](const double& n) -> double { return n - std::floor(n); };
+    auto rfpart = [=](const double& n) -> double { return 1 - fpart(n); };
+
+    auto x0 = p.x;
+    auto y0 = p.y;
+    auto x1 = q.x;
+    auto y1 = q.y;
+
+    const bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
+    if (steep) {
+        std::swap(x0, y0);
+        std::swap(x1, y1);
+    }
+    if (x0 > x1) {
+        std::swap(x0, x1);
+        std::swap(y0, y1);
+    }
+
+    const auto dx = x1 - x0;
+    const auto dy = y1 - y0;
+    const auto gradient = (dx == 0) ? 1 : dy/dx;
+
+    int xpx11;
+    double intery;
+    {
+        const auto xend = round(x0);
+        const auto yend = y0 + gradient * (xend - x0);
+        const auto xgap = rfpart(x0 + 0.5);
+        xpx11 = static_cast<int>(xend);
+        const int ypx11 = ipart(yend);
+        if (steep) {
+            draw_pixel(ypx11, xpx11, rfpart(yend) * xgap);
+            draw_pixel(ypx11 + 1, xpx11, fpart(yend) * xgap);
+        }
+        else {
+            draw_pixel(xpx11, ypx11, rfpart(yend) * xgap);
+            draw_pixel(xpx11, ypx11 + 1, fpart(yend) * xgap);
+        }
+        intery = yend + gradient;
+    }
+
+    int xpx12;
+    {
+        const auto xend = round(x1);
+        const auto yend = y1 + gradient * (xend - x1);
+        const auto xgap = rfpart(x1 + 0.5);
+        xpx12 = static_cast<int>(xend);
+        const int ypx12 = ipart(yend);
+        if (steep) {
+            draw_pixel(ypx12, xpx12, rfpart(yend) * xgap);
+            draw_pixel(ypx12+ 1, xpx12, fpart(yend) * xgap);
+        }
+        else {
+            draw_pixel(xpx12, ypx12, rfpart(yend) * xgap);
+            draw_pixel(xpx12, ypx12 + 1, fpart(yend) * xgap);
+        }
+    }
+
+    if (steep) {
+        for (auto x = xpx11 + 1; x < xpx12; ++x) {
+            draw_pixel(ipart(intery), x, rfpart(intery));
+            draw_pixel(ipart(intery) + 1, x, fpart(intery));
+            intery += gradient;
+        }
+    }
+    else {
+        for (auto x = xpx11 + 1; x < xpx12; ++x) {
+            draw_pixel(x, ipart(intery), rfpart(intery));
+            draw_pixel(x, ipart(intery) + 1, fpart(intery));
+            intery += gradient;
+        }
+    }
+}
+
 auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> void
 {
-    auto x = std::round(r);
+    // Check if the circle intersects the bounds of the canvas. If it doesn't, then don't draw.
+    auto extended = math::rect( -r, -r, m_size.width + r + r, m_size.height + r + r );
+    if (!extended.contains_point(p)) {
+        return;
+    }
+
+    auto x = static_cast<int>(std::round(r));
     typeof(x) y = 0;
     double err = 0;
 
     while (x >= y) {
-        draw_pixel(p.x + x, p.y + y);
-        draw_pixel(p.x + y, p.y + x);
-        draw_pixel(p.x - y, p.y + x);
-        draw_pixel(p.x - x, p.y + y);
-        draw_pixel(p.x - x, p.y - y);
-        draw_pixel(p.x - y, p.y - x);
-        draw_pixel(p.x + y, p.y - x);
-        draw_pixel(p.x + x, p.y - y);
+        draw_pixel(static_cast<int>(p.x) + x, static_cast<int>(p.y) + y);
+        draw_pixel(static_cast<int>(p.x) + y, static_cast<int>(p.y) + x);
+        draw_pixel(static_cast<int>(p.x) - y, static_cast<int>(p.y) + x);
+        draw_pixel(static_cast<int>(p.x) - x, static_cast<int>(p.y) + y);
+        draw_pixel(static_cast<int>(p.x) - x, static_cast<int>(p.y) - y);
+        draw_pixel(static_cast<int>(p.x) - y, static_cast<int>(p.y) - x);
+        draw_pixel(static_cast<int>(p.x) + y, static_cast<int>(p.y) - x);
+        draw_pixel(static_cast<int>(p.x) + x, static_cast<int>(p.y) - y);
 
         if (err <= 0) {
             y += 1;
@@ -219,7 +328,25 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
             err -= (2 * x) + 1;
         }
     }
+}
 
+auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> void
+{
+    // Check if the circle intersects the bounds of the canvas. If it doesn't, then don't draw.
+    auto extended = math::rect( -r, -r, m_size.width + r + r, m_size.height + r + r );
+    if (!extended.contains_point(p)) {
+        return;
+    }
+
+    for (int x = -static_cast<int>(r); x < r; ++x) {
+        auto hh = static_cast<int>(std::sqrt((r * r) - (x * x)));
+        auto rx = p.x + x;
+        auto ph = p.y + hh;
+
+        for (int y = static_cast<int>(p.y - hh); y < ph; ++y) {
+            draw_pixel(rx, y);
+        }
+    }
 }
 
 // MARK: - Text
@@ -241,6 +368,13 @@ auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math
 
 auto graphics::canvas::draw_text(const math::point &point) -> void
 {
+    // Check if the circle intersects the bounds of the canvas. If it doesn't, then don't draw.
+    const double edge = 20;
+    auto extended = math::rect( -edge, -edge, m_size.width + edge + edge, m_size.height + edge + edge );
+    if (!extended.contains_point(point)) {
+        return;
+    }
+
     auto text_bmp = m_typesetter.render();
     auto text_size = m_typesetter.get_bounding_size();
 
@@ -272,6 +406,12 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
 
 auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void
 {
+    math::rect bounds(math::point(0), m_size);
+    math::rect pict_bounds(point, pict->size());
+    if (!pict_bounds.intersects(bounds)) {
+        return;
+    }
+
     auto raw_pict_data = pict->spritesheet()->texture()->data();
 
     for (auto y = 0; y < pict->size().height; ++y) {

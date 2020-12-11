@@ -28,6 +28,7 @@
 #include "util/hint.hpp"
 #include "scripting/state.hpp"
 #include "math/rect.hpp"
+#include "math/line.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/font.hpp"
@@ -49,8 +50,12 @@ namespace graphics
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };
         graphics::typesetter m_typesetter;
+        math::line m_left;
+        math::line m_top;
+        math::line m_right;
+        math::line m_bottom;
 
-        auto draw_pixel(const double& x, const double& y) -> void;
+        auto draw_pixel(const double& x, const double& y, const double& brightness = 1.0) -> void;
         auto index_at(const double& x, const double& y) const -> int;
         auto raw() const -> std::vector<uint32_t>;
 
@@ -66,9 +71,12 @@ namespace graphics
 
         lua_api auto clear() -> void;
 
+        lua_api auto draw_line(const math::point& p, const math::point& q) -> void;
+
         lua_api auto fill_rect(const math::rect& r) -> void;
 
         lua_api auto draw_circle(const math::point& p, const double& r) -> void;
+        lua_api auto fill_circle(const math::point& p, const double& r) -> void;
 
         lua_api auto layout_text(const std::string& text) -> math::size;
         lua_api auto layout_text_in_bounds(const std::string& text, const math::size& bounds) -> math::size;

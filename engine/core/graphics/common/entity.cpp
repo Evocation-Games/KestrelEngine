@@ -49,6 +49,9 @@ auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("blend", &entity::get_blend_lua, &entity::set_blend_lua)
             .addFunction("draw", &entity::draw)
             .addFunction("intersects", &entity::is_intersecting)
+            .addFunction("setClipSize", &entity::set_clip_size)
+            .addFunction("removeClipSize", &entity::remove_clip_size)
+            .addFunction("setSpriteOffset", &entity::set_sprite_offset)
         .endClass();
 
     luabridge::getGlobalNamespace(lua->internal_state())
@@ -140,6 +143,43 @@ auto graphics::entity::get_size() const -> math::size
 auto graphics::entity::set_size(const math::size &sz) -> void
 {
     this->size = sz;
+}
+
+auto graphics::entity::set_clip_size(const math::size& sz) -> void
+{
+    m_clip_size = math::size(sz.width / texture()->size().width, sz.height / texture()->size().height);
+    m_has_texture_clip = true;
+}
+
+auto graphics::entity::remove_clip_size() -> void
+{
+    m_has_texture_clip = false;
+}
+
+auto graphics::entity::has_clip_size() const -> bool
+{
+    return m_has_texture_clip;
+}
+
+auto graphics::entity::clip_size() const -> math::size
+{
+    return m_clip_size;
+}
+
+auto graphics::entity::set_sprite_offset(const math::point &offset) -> void
+{
+    auto x_bound = 1.0 - m_clip_size.width;
+    auto y_bound = 1.0 - m_clip_size.height;
+    m_sprite_offset = math::point(
+         std::max(0.0, std::min(x_bound, offset.x / texture()->size().width)),
+         std::max(0.0, std::min(y_bound, offset.y / texture()->size().height))
+    );
+
+}
+
+auto graphics::entity::get_sprite_offset() const -> math::point
+{
+    return m_sprite_offset;
 }
 
 auto graphics::entity::blend() const -> enum entity::blend

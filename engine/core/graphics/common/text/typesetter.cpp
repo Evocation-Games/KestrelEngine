@@ -214,7 +214,7 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
                 auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
                 auto offset = ((ch.y + y_offset + yy) * m_min_size.width) + ch.x + x_offset + xx;
                 if (offset < buffer.size()) {
-                    buffer[offset] = graphics::color::color_value(color);
+                    buffer[offset].blend_in_place(graphics::color::color_value(color));
                 }
             }
         }

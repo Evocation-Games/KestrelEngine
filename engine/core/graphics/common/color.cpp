@@ -141,6 +141,12 @@ auto graphics::color::blend_in_place(const graphics::color &top) -> void
     }
 }
 
+auto graphics::color::with_alpha(const double &a) const -> graphics::color
+{
+    return graphics::color(red, green, blue, alpha * a);
+}
+
+
 // MARK: - Predefined Colors
 
 auto graphics::color::clear_color() -> graphics::color
@@ -330,4 +336,3 @@ auto graphics::color::value() const -> uint32_t
          | static_cast<uint32_t>(COMPONENT_EXPAND(green) << 8U)
          | static_cast<uint32_t>(COMPONENT_EXPAND(blue) << 16U);
 }
-
