@@ -47,11 +47,11 @@ auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("bounds", &entity::get_bounds)
             .addProperty("alpha", &entity::get_alpha, &entity::set_alpha)
             .addProperty("blend", &entity::get_blend_lua, &entity::set_blend_lua)
+            .addProperty("clippingArea", &entity::clipping_area, &entity::set_clipping_area)
+            .addProperty("clippingOffset", &entity::clipping_offset, &entity::set_clipping_offset)
             .addFunction("draw", &entity::draw)
             .addFunction("intersects", &entity::is_intersecting)
-            .addFunction("setClipSize", &entity::set_clip_size)
-            .addFunction("removeClipSize", &entity::remove_clip_size)
-            .addFunction("setSpriteOffset", &entity::set_sprite_offset)
+            .addFunction("removeClipping", &entity::remove_clipping_area)
         .endClass();
 
     luabridge::getGlobalNamespace(lua->internal_state())
@@ -145,41 +145,54 @@ auto graphics::entity::set_size(const math::size &sz) -> void
     this->size = sz;
 }
 
-auto graphics::entity::set_clip_size(const math::size& sz) -> void
+lua_api auto graphics::entity::set_clipping_area(const math::size& sz) -> void
 {
-    m_clip_size = math::size(sz.width / texture()->size().width, sz.height / texture()->size().height);
     m_has_texture_clip = true;
+    m_clipping_area_uv = math::size(sz.width / texture()->size().width, sz.height / texture()->size().height);
+    m_clipping_area = sz;
 }
 
-auto graphics::entity::remove_clip_size() -> void
+lua_api auto graphics::entity::remove_clipping_area() -> void
 {
     m_has_texture_clip = false;
 }
 
-auto graphics::entity::has_clip_size() const -> bool
+lua_api auto graphics::entity::has_clipping_area() const -> bool
 {
     return m_has_texture_clip;
 }
 
-auto graphics::entity::clip_size() const -> math::size
+lua_api auto graphics::entity::clipping_area() const -> math::size
 {
-    return m_clip_size;
+    return m_clipping_area;
 }
 
-auto graphics::entity::set_sprite_offset(const math::point &offset) -> void
+auto graphics::entity::clipping_area_uv() const -> math::size
 {
-    auto x_bound = 1.0 - m_clip_size.width;
-    auto y_bound = 1.0 - m_clip_size.height;
-    m_sprite_offset = math::point(
-         std::max(0.0, std::min(x_bound, offset.x / texture()->size().width)),
-         std::max(0.0, std::min(y_bound, offset.y / texture()->size().height))
+    return m_clipping_area_uv;
+}
+
+lua_api auto graphics::entity::set_clipping_offset(const math::point& p) -> void
+{
+    auto x_bound = 1.0 - m_clipping_area.width;
+    auto y_bound = 1.0 - m_clipping_area.height;
+
+    m_clipping_offset = math::point(
+       std::max(0.0, std::min(texture()->size().width, p.x)),
+       std::max(0.0, std::min(texture()->size().height, p.y))
     );
 
+    m_clipping_offset_uv = math::point(m_clipping_offset.x / texture()->size().width, m_clipping_offset.y / texture()->size().height);
 }
 
-auto graphics::entity::get_sprite_offset() const -> math::point
+lua_api auto graphics::entity::clipping_offset() const -> math::point
 {
-    return m_sprite_offset;
+    return m_clipping_offset;
+}
+
+auto graphics::entity::clipping_offset_uv() const -> math::point
+{
+    return m_clipping_offset_uv;
 }
 
 auto graphics::entity::blend() const -> enum entity::blend

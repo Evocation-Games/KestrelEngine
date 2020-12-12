@@ -47,6 +47,7 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addProperty("green", &graphics::color::get_green, &graphics::color::set_green)
             .addProperty("blue", &graphics::color::get_blue, &graphics::color::set_blue)
             .addProperty("alpha", &graphics::color::get_alpha, &graphics::color::set_alpha)
+            .addFunction("with_alpha", &graphics::color::with_alpha)
         .endClass();
 }
 
