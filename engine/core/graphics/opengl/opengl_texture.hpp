@@ -45,6 +45,7 @@ namespace graphics { namespace opengl {
         explicit texture(const math::size& size);
         texture(const double& width, const double& height, std::vector<uint32_t> data);
         texture(const math::size& size, std::vector<uint32_t> data);
+        texture(const math::size& size, const uint8_t *data);
 
         ~texture();
 

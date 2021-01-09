@@ -40,10 +40,10 @@
 
 static inline auto color_vector(const graphics::color& c) -> simd_float4
 {
-    return vector4(static_cast<float>(c.red),
-                   static_cast<float>(c.green),
-                   static_cast<float>(c.blue),
-                   static_cast<float>(c.alpha));
+    return vector4(static_cast<float>(c.rgba.components.r / 255.0),
+                   static_cast<float>(c.rgba.components.g / 255.0),
+                   static_cast<float>(c.rgba.components.b / 255.0),
+                   static_cast<float>(c.rgba.components.a / 255.0));
 }
 
 // MARK: - Cocoa Interface
