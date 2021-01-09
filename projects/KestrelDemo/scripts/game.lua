@@ -15,7 +15,8 @@ c.penColor = Color(200, 200, 200, 255)
 c:drawLine(Point(50, 50), Point(250, 250))
 
 --c.penColor = Color.yellow()
-c:setFont("Geneva", 13)
+c:setFont("Geneva", 15)
+c.penColor = Color.colorValue(0xFF0000)
 local textSize = c:layoutText("Hello, World")
 c:drawText(Point(100, 100))
 

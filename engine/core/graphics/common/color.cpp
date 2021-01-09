@@ -26,7 +26,7 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<graphics::color>("Color")
-            .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, graphics::color::lua_reference>()
+            .addConstructor<auto(*)(const uint8_t&, const uint8_t&, const uint8_t&, const uint8_t&)->void, graphics::color::lua_reference>()
             .addStaticFunction("whiteColor", &graphics::color::white_ref)
             .addStaticFunction("rgb", &graphics::color::rgb_ref)
             .addStaticFunction("colorValue", &graphics::color::color_value_ref)
@@ -104,7 +104,13 @@ auto graphics::color::rgb_ref(const uint8_t& r, const uint8_t& g, const uint8_t&
 
 auto graphics::color::color_value_ref(const uint32_t& value) -> graphics::color::lua_reference
 {
-    return { new graphics::color(value) };
+    union rgba t = { .value = value };
+
+    auto tmp = t.components.r;
+    t.components.r = t.components.b;
+    t.components.b = tmp;
+
+    return { new graphics::color(t.value | 0xFF000000) };
 }
 
 // MARK: - Blending

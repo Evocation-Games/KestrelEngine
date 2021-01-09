@@ -56,7 +56,7 @@ namespace graphics
 
         lua_api static auto white_ref(const uint8_t& w, const uint8_t& a = 255) -> graphics::color::lua_reference ;
         lua_api static auto rgb_ref(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a = 255) -> graphics::color::lua_reference ;
-        lua_api static auto color_value_ref(const uint32_t& value) -> graphics::color::lua_reference ;
+        lua_api static auto color_value_ref(const uint32_t& value) -> graphics::color::lua_reference;
 
         [[nodiscard]] lua_api auto with_alpha(const uint8_t& a) const -> graphics::color;
 
