@@ -51,6 +51,7 @@ namespace graphics { namespace opengl {
         auto render() -> void override;
 
         auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture> override;
+        auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture> override;
     };
 
 }};

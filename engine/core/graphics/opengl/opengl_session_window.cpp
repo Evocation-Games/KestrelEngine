@@ -200,3 +200,9 @@ auto graphics::opengl::session_window::create_texture(const math::size &size,
 {
     return std::make_shared<graphics::opengl::texture>(size, std::move(data));
 }
+
+auto graphics::opengl::session_window::create_texture(const math::size &size,
+                                                      const uint8_t *data) const -> std::shared_ptr<graphics::texture>
+{
+    return std::make_shared<graphics::opengl::texture>(size, data);
+}

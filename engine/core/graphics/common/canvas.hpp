@@ -34,6 +34,7 @@
 #include "core/graphics/common/font.hpp"
 #include "core/asset/macintosh_picture.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
+#include "core/graphics/common/rgba_buffer.hpp"
 
 namespace graphics
 {
@@ -46,6 +47,7 @@ namespace graphics
 
     private:
         math::size m_size;
+        graphics::rgba_buffer m_rgba_buffer;
         std::vector<graphics::color> m_buffer;
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };
@@ -55,10 +57,7 @@ namespace graphics
         math::line m_right;
         math::line m_bottom;
 
-        auto draw_pixel(const double& x, const double& y, const double& brightness = 1.0) -> void;
-        auto index_at(const double& x, const double& y) const -> int;
-        auto raw() const -> std::vector<uint32_t>;
-
+        auto raw() const -> uint8_t *;
         auto draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void;
 
     public:

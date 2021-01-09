@@ -54,7 +54,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
 
 graphics::canvas::canvas(const math::size& size)
     : m_size(size),
-      m_buffer(static_cast<int>(size.width * size.height), graphics::color(0, 0, 0, 0)),
+      m_rgba_buffer(size),
       m_pen_color(graphics::color::white_color()),
       m_typesetter(""),
       m_left(math::point(0), math::point(0, m_size.height)),
@@ -129,84 +129,24 @@ auto graphics::canvas::entity() -> graphics::entity::lua_reference
 
 // MARK: - Backing Data
 
-auto graphics::canvas::raw() const -> std::vector<uint32_t>
+auto graphics::canvas::raw() const -> uint8_t *
 {
-    auto out = std::vector<uint32_t>();
-    for (const auto& i : m_buffer) {
-        uint32_t color = (i.get_alpha() << 24UL)
-                         | i.get_red()
-                         | (i.get_green() << 8UL)
-                         | (i.get_blue() << 16UL);
-        out.push_back(color);
-    }
-    return out;
+    return m_rgba_buffer.data();
 }
 
 // MARK: - Indicies
-
-auto graphics::canvas::index_at(const double& x, const double& y) const -> int
-{
-    auto i = static_cast<int>(std::floor((m_size.width * y) + x));
-    if (i < 0 || i >= m_buffer.size()) {
-        return {};
-    }
-    return i;
-}
 
 // MARK: - Drawing
 
 auto graphics::canvas::clear() -> void
 {
-    for (auto & i : m_buffer) {
-        i = graphics::color(0, 0, 0, 0);
-    }
-}
-
-auto graphics::canvas::draw_pixel(const double &x, const double &y, const double& brightness) -> void
-{
-    if (y < 0 || y >= m_size.height) {
-        return;
-    }
-
-    auto line_start = index_at(0, y);
-    auto line_end = index_at(m_size.width - 1, y);
-
-    auto i = index_at(x, y);
-
-    if (i < line_start || i >= line_end) {
-        return;
-    }
-
-    m_buffer[i].blend_in_place(m_pen_color.with_alpha(brightness));
+    m_rgba_buffer.clear(graphics::color::clear_color());
 }
 
 auto graphics::canvas::fill_rect(const math::rect &r) -> void
 {
-    // Bounds check the rect. Can we escape early here with out doing the work?
-    if (!r.intersects({math::point(0), m_size})) {
-        return;
-    }
-
-    for (auto y = static_cast<int>(r.origin.y); y < r.origin.y + r.size.height; ++y) {
-        if (y < 0) {
-            y = 0;
-        }
-        else if (y >= m_size.height) {
-            break;
-        }
-
-        auto run_start = index_at(r.origin.x, y);
-        auto run_end = index_at(r.origin.x + r.size.width, y);
-
-        auto line_start = index_at(0, y);
-        auto line_end = index_at(m_size.width, y);
-
-        for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
-            m_buffer[i].blend_in_place(m_pen_color);
-        }
-    }
+    m_rgba_buffer.fill_rect(m_pen_color, r);
 }
-
 
 auto graphics::canvas::draw_line(const math::point &p, const math::point &q) -> void
 {
@@ -254,12 +194,12 @@ auto graphics::canvas::draw_line(const math::point &p, const math::point &q) -> 
         xpx11 = static_cast<int>(xend);
         const int ypx11 = ipart(yend);
         if (steep) {
-            draw_pixel(ypx11, xpx11, rfpart(yend) * xgap);
-            draw_pixel(ypx11 + 1, xpx11, fpart(yend) * xgap);
+            m_rgba_buffer.draw_pixel(m_pen_color, {ypx11, xpx11});
+            m_rgba_buffer.draw_pixel(m_pen_color, {ypx11 + 1, xpx11});
         }
         else {
-            draw_pixel(xpx11, ypx11, rfpart(yend) * xgap);
-            draw_pixel(xpx11, ypx11 + 1, fpart(yend) * xgap);
+            m_rgba_buffer.draw_pixel(m_pen_color, {xpx11, ypx11});
+            m_rgba_buffer.draw_pixel(m_pen_color, {xpx11, ypx11 + 1});
         }
         intery = yend + gradient;
     }
@@ -272,26 +212,28 @@ auto graphics::canvas::draw_line(const math::point &p, const math::point &q) -> 
         xpx12 = static_cast<int>(xend);
         const int ypx12 = ipart(yend);
         if (steep) {
-            draw_pixel(ypx12, xpx12, rfpart(yend) * xgap);
-            draw_pixel(ypx12+ 1, xpx12, fpart(yend) * xgap);
+            m_rgba_buffer.draw_pixel(m_pen_color, {ypx12, xpx12});
+            m_rgba_buffer.draw_pixel(m_pen_color, {ypx12 + 1, xpx12});
         }
         else {
-            draw_pixel(xpx12, ypx12, rfpart(yend) * xgap);
-            draw_pixel(xpx12, ypx12 + 1, fpart(yend) * xgap);
+            m_rgba_buffer.draw_pixel(m_pen_color, {xpx12, ypx12});
+            m_rgba_buffer.draw_pixel(m_pen_color, {xpx12, ypx12 + 1});
         }
     }
 
     if (steep) {
         for (auto x = xpx11 + 1; x < xpx12; ++x) {
-            draw_pixel(ipart(intery), x, rfpart(intery));
-            draw_pixel(ipart(intery) + 1, x, fpart(intery));
+            auto ip = ipart(intery);
+            m_rgba_buffer.draw_pixel(m_pen_color, {ip, x});
+            m_rgba_buffer.draw_pixel(m_pen_color, {ip + 1, x});
             intery += gradient;
         }
     }
     else {
         for (auto x = xpx11 + 1; x < xpx12; ++x) {
-            draw_pixel(x, ipart(intery), rfpart(intery));
-            draw_pixel(x, ipart(intery) + 1, fpart(intery));
+            auto ip = ipart(intery);
+            m_rgba_buffer.draw_pixel(m_pen_color, {x, ip});
+            m_rgba_buffer.draw_pixel(m_pen_color, {x, ip + 1});
             intery += gradient;
         }
     }
@@ -310,14 +252,14 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
     double err = 0;
 
     while (x >= y) {
-        draw_pixel(static_cast<int>(p.x) + x, static_cast<int>(p.y) + y);
-        draw_pixel(static_cast<int>(p.x) + y, static_cast<int>(p.y) + x);
-        draw_pixel(static_cast<int>(p.x) - y, static_cast<int>(p.y) + x);
-        draw_pixel(static_cast<int>(p.x) - x, static_cast<int>(p.y) + y);
-        draw_pixel(static_cast<int>(p.x) - x, static_cast<int>(p.y) - y);
-        draw_pixel(static_cast<int>(p.x) - y, static_cast<int>(p.y) - x);
-        draw_pixel(static_cast<int>(p.x) + y, static_cast<int>(p.y) - x);
-        draw_pixel(static_cast<int>(p.x) + x, static_cast<int>(p.y) - y);
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + x, static_cast<int>(p.y) + y});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + y, static_cast<int>(p.y) + x});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - y, static_cast<int>(p.y) + x});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - x, static_cast<int>(p.y) + y});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - x, static_cast<int>(p.y) - y});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - y, static_cast<int>(p.y) - x});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + y, static_cast<int>(p.y) - x});
+        m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + x, static_cast<int>(p.y) - y});
 
         if (err <= 0) {
             y += 1;
@@ -338,14 +280,10 @@ auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> voi
         return;
     }
 
-    for (int x = -static_cast<int>(r); x < r; ++x) {
-        auto hh = static_cast<int>(std::sqrt((r * r) - (x * x)));
-        auto rx = p.x + x;
-        auto ph = p.y + hh;
-
-        for (int y = static_cast<int>(p.y - hh); y < ph; ++y) {
-            draw_pixel(rx, y);
-        }
+    for (int y = -static_cast<int>(r); y < r; ++y) {
+        auto ww = static_cast<int>(std::sqrt((r * r) - (y * y)));
+        auto ry = p.y + y;
+        m_rgba_buffer.fill_rect(m_pen_color, { p.x - ww, ry, ww << 1, 1 });
     }
 }
 
@@ -378,6 +316,10 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
     auto text_bmp = m_typesetter.render();
     auto text_size = m_typesetter.get_bounding_size();
 
+    auto bmp_line_start = std::max(0LL, static_cast<int64_t>(-point.x));
+    auto bmp_line_len = static_cast<int64_t>(text_size.width) - bmp_line_start;
+    auto start = std::max(0LL, static_cast<int64_t>(point.x));
+
     // Drawing the text into the canvas buffer at the appropriate point.
     for (auto y = 0; y < text_size.height; ++y) {
         auto dy = std::floor(y + point.y);
@@ -389,16 +331,13 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
             break;
         }
 
-        auto run_start = index_at(std::floor(point.x), dy);
-        auto run_end = index_at(std::floor(point.x + text_size.width), dy);
+        auto bmp_line_offset = static_cast<int64_t>(y * text_size.width);
 
-        auto line_start = index_at(0, dy);
-        auto line_end = index_at(std::floor(m_size.width), dy);
+        auto vstart = text_bmp.cbegin() + bmp_line_offset + bmp_line_start;
+        auto vend = vstart + bmp_line_len;
+        std::vector<graphics::color> cv { vstart, vend };
 
-        auto src_i = static_cast<int>(std::floor(y * text_size.width));
-        for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
-            m_buffer[i].blend_in_place(text_bmp[src_i++]);
-        }
+        m_rgba_buffer.apply_run(cv, start, dy);
     }
 
     m_typesetter.reset();
@@ -414,6 +353,10 @@ auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua
 
     auto raw_pict_data = pict->spritesheet()->texture()->data();
 
+    auto bmp_line_start = std::max(0LL, static_cast<int64_t>(-point.x));
+    auto bmp_line_len = static_cast<int64_t>(pict_bounds.size.width) - bmp_line_start;
+    auto start = std::max(0LL, static_cast<int64_t>(point.x));
+
     for (auto y = 0; y < pict->size().height; ++y) {
         auto dy = std::floor(y + point.y);
         if (dy < 0) {
@@ -423,17 +366,13 @@ auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua
             break;
         }
 
-        auto run_start = index_at(std::floor(point.x), dy);
-        auto run_end = index_at(std::floor(point.x + pict->size().width), dy);
+        auto bmp_line_offset = static_cast<int64_t>(y * pict_bounds.size.width);
 
-        auto line_start = index_at(0, dy);
-        auto line_end = index_at(std::floor(m_size.width), dy);
+        auto vstart = raw_pict_data.cbegin() + bmp_line_offset + bmp_line_start;
+        auto vend = vstart + bmp_line_len;
+        std::vector<graphics::color> cv { vstart, vend };
 
-        auto src_i = static_cast<int>(std::floor(y * pict->size().width));
-        for (auto i = std::max(run_start, line_start); i < std::min(run_end, line_end); ++i) {
-            auto color = graphics::color::color_value(raw_pict_data[src_i++]);
-            m_buffer[i].blend_in_place(color);
-        }
+        m_rgba_buffer.apply_run(cv, start, dy);
     }
 }
 

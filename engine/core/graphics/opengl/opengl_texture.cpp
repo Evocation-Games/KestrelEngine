@@ -52,6 +52,13 @@ graphics::opengl::texture::texture(const math::size& sz, std::vector<uint32_t> d
     upload();
 }
 
+graphics::opengl::texture::texture(const math::size &sz, const uint8_t *data)
+    : graphics::texture(sz, data)
+{
+    glGenTextures(1, &m_id);
+    upload();
+}
+
 // MARK: - Destruction
 
 graphics::opengl::texture::~texture()
@@ -69,9 +76,18 @@ auto graphics::opengl::texture::upload() const -> void
     }
 
     glBindTexture(GL_TEXTURE_2D, m_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, m_internal_format,
-                 static_cast<int>(m_size.width), static_cast<int>(m_size.height), 0,
-                 m_image_format, GL_UNSIGNED_BYTE, m_data.data());
+
+    if (m_raw_data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, m_internal_format,
+                     static_cast<int>(m_size.width), static_cast<int>(m_size.height), 0,
+                     m_image_format, GL_UNSIGNED_BYTE, m_raw_data);
+    }
+    else {
+        glTexImage2D(GL_TEXTURE_2D, 0, m_internal_format,
+                     static_cast<int>(m_size.width), static_cast<int>(m_size.height), 0,
+                     m_image_format, GL_UNSIGNED_BYTE, m_data.data());
+    }
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrap_s);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_wrap_t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_filter_min);
