@@ -293,6 +293,11 @@ auto environment::create_texture(const math::size &size,
     return m_game_window->create_texture(size, std::move(data));
 }
 
+auto environment::create_texture(const math::size &size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>
+{
+    return m_game_window->create_texture(size, data);
+}
+
 auto environment::current_scene() -> std::shared_ptr<graphics::scene>
 {
     return m_game_window->current_scene();
@@ -348,3 +353,4 @@ auto environment::post_mouse_event(const event::mouse &event) -> void
         scene->mouse_event(event);
     }
 }
+

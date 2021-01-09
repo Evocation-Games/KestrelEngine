@@ -86,6 +86,7 @@ public:
     auto cache() -> std::shared_ptr<asset::cache>;
 
     auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
+    auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>;
     auto current_scene() -> std::shared_ptr<graphics::scene>;
     auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
     auto pop_scene() -> void;

@@ -179,7 +179,7 @@ auto graphics::typesetter::layout() -> void
 
     // Ensure there is nothing remaining in the buffer, and if there is commit it.
     commit_buffer();
-    m_min_size.height = m_pos.y + m_base_font->line_height();
+    m_min_size.height = m_pos.y + m_base_font->line_height() + 5; // TODO: Calculate an actual excess for the text.
     m_min_size.width = std::max(m_min_size.width, m_pos.x);
 }
 
@@ -214,7 +214,7 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
                 auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
                 auto offset = ((ch.y + y_offset + yy) * m_min_size.width) + ch.x + x_offset + xx;
                 if (offset < buffer.size()) {
-                    buffer[offset].blend_in_place(graphics::color::color_value(color));
+                    buffer[offset] = graphics::color::color_value(color);
                 }
             }
         }

@@ -46,6 +46,12 @@ graphics::texture::texture(const math::size& sz, std::vector<uint32_t> data)
 
 }
 
+graphics::texture::texture(const math::size &sz, const uint8_t *data)
+    : m_size(sz), m_raw_data(data)
+{
+
+}
+
 // MARK: - Accessors
 
 auto graphics::texture::size() const -> math::size
@@ -56,6 +62,11 @@ auto graphics::texture::size() const -> math::size
 auto graphics::texture::data() const -> std::vector<uint32_t>
 {
     return m_data;
+}
+
+auto graphics::texture::raw_data_ptr() const -> const uint8_t *
+{
+    return m_raw_data;
 }
 
 auto graphics::texture::handle() const -> int

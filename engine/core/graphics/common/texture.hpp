@@ -33,15 +33,18 @@ namespace graphics
     protected:
         math::size m_size;
         std::vector<uint32_t> m_data;
+        const uint8_t *m_raw_data { nullptr };
 
     public:
         texture(const double& width, const double& height);
         texture(const math::size& size);
         texture(const double& width, const double& height, std::vector<uint32_t> data);
         texture(const math::size& size, std::vector<uint32_t> data);
+        texture(const math::size& size, const uint8_t *data);
 
         auto size() const -> math::size;
         auto data() const -> std::vector<uint32_t>;
+        auto raw_data_ptr() const -> const uint8_t *;
         virtual auto handle() const -> int;
 
         virtual auto bind() const -> void;

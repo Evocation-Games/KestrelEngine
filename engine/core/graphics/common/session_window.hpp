@@ -77,6 +77,7 @@ namespace graphics
         virtual auto render() -> void;
 
         virtual auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
+        virtual auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>;
 
     };
 }

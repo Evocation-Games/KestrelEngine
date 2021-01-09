@@ -53,98 +53,94 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
 
 // MARK: - Construction
 
-#define COMPONENT_SCALE(_c) (static_cast<double>(_c) / 255.0)
-#define COMPONENT_EXPAND(_c) (static_cast<uint8_t>((_c) * 255.0))
-
-graphics::color::color(const double &w, const double &a)
-    : red(w), green(w), blue(w), alpha(a)
+graphics::color::color(const uint8_t &w, const uint8_t &a)
+    : rgba({ .components = { .r = w, .g = w, .b = w, .a = a }})
 {
 
 }
 
-graphics::color::color(const double &r, const double &g, const double &b, const double &a)
-    : red(r), green(g), blue(b), alpha(a)
+graphics::color::color(const uint8_t &r, const uint8_t &g, const uint8_t &b, const uint8_t &a)
+    : rgba({ .components = { .r = r, .g = g, .b = b, .a = a }})
+{
+
+}
+
+graphics::color::color(const uint32_t& value)
+    : rgba({ .value = value })
 {
 
 }
 
 graphics::color::color(const graphics::color &c)
-    : red(c.red), green(c.green), blue(c.blue), alpha(c.alpha)
+    : rgba(c.rgba)
 {
 
 }
 
 auto graphics::color::white(const uint8_t& w, const uint8_t& a) -> graphics::color
 {
-    return graphics::color(COMPONENT_SCALE(w), COMPONENT_SCALE(a));
+    return graphics::color(w, a);
 }
 
 auto graphics::color::rgb(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a) -> graphics::color
 {
-    return graphics::color(COMPONENT_SCALE(r), COMPONENT_SCALE(g), COMPONENT_SCALE(b), COMPONENT_SCALE(a));
+    return graphics::color(r, g, b, a);
 }
 
 auto graphics::color::color_value(const uint32_t& value) -> graphics::color
 {
-    return graphics::color(
-        COMPONENT_SCALE(static_cast<uint8_t>(value)),
-        COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
-        COMPONENT_SCALE(static_cast<uint8_t>(value >> 16U)),
-        COMPONENT_SCALE(static_cast<uint8_t>(value >> 24U))
-    );
+    return graphics::color(value);
 }
 
 auto graphics::color::white_ref(const uint8_t& w, const uint8_t& a) -> graphics::color::lua_reference
 {
-    return {new graphics::color(COMPONENT_SCALE(w), COMPONENT_SCALE(a))};
+    return { new graphics::color(w, a) };
 }
 
 auto graphics::color::rgb_ref(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a) -> graphics::color::lua_reference
 {
-    return {new graphics::color(COMPONENT_SCALE(r), COMPONENT_SCALE(g), COMPONENT_SCALE(b), COMPONENT_SCALE(a))};
+    return { new graphics::color(r, g, b, a) };
 }
 
 auto graphics::color::color_value_ref(const uint32_t& value) -> graphics::color::lua_reference
 {
-    return {new graphics::color(
-            COMPONENT_SCALE(static_cast<uint8_t>(value >> 16U)),
-            COMPONENT_SCALE(static_cast<uint8_t>(value >> 8U)),
-            COMPONENT_SCALE(static_cast<uint8_t>(value))
-    )};
+    return { new graphics::color(value) };
 }
 
 // MARK: - Blending
 
 auto graphics::color::blend(const graphics::color &top) const -> graphics::color
 {
-    auto c = 1.0 - top.alpha;
-    auto alp = std::min(1.0, top.alpha + (alpha * c));
-    auto r = std::min(1.0, (red * c) + top.red);
-    auto g = std::min(1.0, (green * c) + top.green);
-    auto b = std::min(1.0, (blue * c) + top.blue);
-    return { r, g, b, alp };
+    return top;
+//    auto c = 1.0 - top.alpha;
+//    auto alp = std::min(1.0, top.alpha + (alpha * c));
+//    auto r = std::min(1.0, (red * c) + top.red);
+//    auto g = std::min(1.0, (green * c) + top.green);
+//    auto b = std::min(1.0, (blue * c) + top.blue);
+//    return { r, g, b, alp };
 }
 
 auto graphics::color::blend_in_place(const graphics::color &top) -> void
 {
-    if (alpha >= 1.0) {
-        alpha = 1.0;
-        red = (top.red * top.alpha) + (red * (1.0 - top.alpha));
-        green = (top.green * top.alpha) + (green * (1.0 - top.alpha));
-        blue = (top.blue * top.alpha) + (blue * (1.0 - top.alpha));
-    }
-    else {
-        auto a = alpha;
-        alpha = top.alpha + (alpha * (1.0 - top.alpha));
-        red = ((top.red * top.alpha) + (red * a * (1.0 - top.alpha))) / alpha;
-        green = ((top.green * top.alpha) + (green * a * (1.0 - top.alpha))) / alpha;
-        blue = ((top.blue * top.alpha) + (blue * a * (1.0 - top.alpha))) / alpha;
-    }
+    rgba.value = top.rgba.value;
+//    if (alpha >= 1.0) {
+//        alpha = 1.0;
+//        red = (top.red * top.alpha) + (red * (1.0 - top.alpha));
+//        green = (top.green * top.alpha) + (green * (1.0 - top.alpha));
+//        blue = (top.blue * top.alpha) + (blue * (1.0 - top.alpha));
+//    }
+//    else {
+//        auto a = alpha;
+//        alpha = top.alpha + (alpha * (1.0 - top.alpha));
+//        red = ((top.red * top.alpha) + (red * a * (1.0 - top.alpha))) / alpha;
+//        green = ((top.green * top.alpha) + (green * a * (1.0 - top.alpha))) / alpha;
+//        blue = ((top.blue * top.alpha) + (blue * a * (1.0 - top.alpha))) / alpha;
+//    }
 }
 
-auto graphics::color::with_alpha(const double &a) const -> graphics::color
+auto graphics::color::with_alpha(const uint8_t& a) const -> graphics::color
 {
-    return graphics::color(red, green, blue, alpha * a);
+    return graphics::color(rgba.components.r, rgba.components.g, rgba.components.b, a);
 }
 
 
@@ -152,139 +148,139 @@ auto graphics::color::with_alpha(const double &a) const -> graphics::color
 
 auto graphics::color::clear_color() -> graphics::color
 {
-    return graphics::color(0.0, 0.0, 0.0, 0.0);
+    return graphics::color(0, 0, 0, 0);
 }
 
 auto graphics::color::white_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 1.0);
+    return graphics::color(255, 255, 255);
 }
 
 auto graphics::color::light_grey_color() -> graphics::color
 {
-    return graphics::color(0.9, 0.9, 0.9);
+    return graphics::color(230, 230, 230);
 }
 
 auto graphics::color::grey_color() -> graphics::color
 {
-    return graphics::color(0.7, 0.7, 0.7);
+    return graphics::color(179, 179, 179);
 }
 
 auto graphics::color::dark_grey_color() -> graphics::color
 {
-    return graphics::color(0.5, 0.5, 0.5);
+    return graphics::color(128, 128, 128);
 }
 
 auto graphics::color::black_color() -> graphics::color
 {
-    return graphics::color(0.0, 0.0, 0.0);
+    return graphics::color(0, 0, 0);
 }
 
 auto graphics::color::red_color() -> graphics::color
 {
-    return graphics::color(1.0, 0.0, 0.0);
+    return graphics::color(255, 0, 0);
 }
 
 auto graphics::color::orange_color() -> graphics::color
 {
-    return graphics::color(1.0, 0.5, 0.0);
+    return graphics::color(255, 128, 0);
 }
 
 auto graphics::color::yellow_color() -> graphics::color
 {
-    return graphics::color(1.0, 1.0, 0.0);
+    return graphics::color(255, 255, 0);
 }
 
 auto graphics::color::lime_color() -> graphics::color
 {
-    return graphics::color(0.5, 1.0, 0.0);
+    return graphics::color(128, 255, 0);
 }
 
 auto graphics::color::green_color() -> graphics::color
 {
-    return graphics::color(0.0, 1.0, 0.0);
+    return graphics::color(0, 255, 0);
 }
 
 auto graphics::color::teal_color() -> graphics::color
 {
-    return graphics::color(0.0, 1.0, 0.5);
+    return graphics::color(0, 255, 128);
 }
 
 auto graphics::color::blue_color() -> graphics::color
 {
-    return graphics::color(0.0, 0.0, 1.0);
+    return graphics::color(0, 0, 255);
 }
 
 auto graphics::color::magenta_color() -> graphics::color
 {
-    return graphics::color(1.0, 0.0, 1.0);
+    return graphics::color(255, 0, 255);
 }
 
 // MARK: - Predefined Color References
 
 auto graphics::color::white_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(white_color()));
+    return { new graphics::color(white_color()) };
 }
 
 auto graphics::color::light_grey_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(light_grey_color()));
+    return { new graphics::color(light_grey_color()) };
 }
 
 auto graphics::color::grey_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(grey_color()));
+    return { new graphics::color(grey_color()) };
 }
 
 auto graphics::color::dark_grey_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(dark_grey_color()));
+    return { new graphics::color(dark_grey_color()) };
 }
 
 auto graphics::color::black_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(black_color()));
+    return { new graphics::color(black_color()) };
 }
 
 auto graphics::color::red_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(red_color()));
+    return { new graphics::color(red_color()) };
 }
 
 auto graphics::color::orange_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(orange_color()));
+    return { new graphics::color(orange_color()) };
 }
 
 auto graphics::color::yellow_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(yellow_color()));
+    return { new graphics::color(yellow_color()) };
 }
 
 auto graphics::color::lime_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(lime_color()));
+    return { new graphics::color(lime_color()) };
 }
 
 auto graphics::color::green_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(green_color()));
+    return { new graphics::color(green_color()) };
 }
 
 auto graphics::color::teal_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(teal_color()));
+    return { new graphics::color(teal_color()) };
 }
 
 auto graphics::color::blue_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(blue_color()));
+    return { new graphics::color(blue_color()) };
 }
 
 auto graphics::color::magenta_color_ref() -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(magenta_color()));
+    return { new graphics::color(magenta_color()) };
 }
 
 
@@ -292,48 +288,45 @@ auto graphics::color::magenta_color_ref() -> graphics::color::lua_reference
 
 auto graphics::color::set_red(const uint8_t& red) -> void
 {
-    this->red = COMPONENT_SCALE(red);
+    rgba.components.r = red;
 }
 
 auto graphics::color::get_red() const -> uint8_t
 {
-    return COMPONENT_EXPAND(red);
+    return rgba.components.r;
 }
 
 auto graphics::color::set_green(const uint8_t& green) -> void
 {
-    this->green = COMPONENT_SCALE(green);
+    rgba.components.g = green;
 }
 
 auto graphics::color::get_green() const -> uint8_t
 {
-    return COMPONENT_EXPAND(green);
+    return rgba.components.g;
 }
 
 auto graphics::color::set_blue(const uint8_t& blue) -> void
 {
-    this->blue = COMPONENT_SCALE(blue);
+    rgba.components.b = blue;
 }
 
 auto graphics::color::get_blue() const -> uint8_t
 {
-    return COMPONENT_EXPAND(blue);
+    return rgba.components.b;
 }
 
 auto graphics::color::set_alpha(const uint8_t& alpha) -> void
 {
-    this->alpha = COMPONENT_SCALE(alpha);
+    rgba.components.a = alpha;
 }
 
 auto graphics::color::get_alpha() const -> uint8_t
 {
-    return COMPONENT_EXPAND(alpha);
+    return rgba.components.a;
 }
 
 auto graphics::color::value() const -> uint32_t
 {
-    return static_cast<uint32_t>(COMPONENT_EXPAND(alpha) << 24U)
-         | static_cast<uint32_t>(COMPONENT_EXPAND(red))
-         | static_cast<uint32_t>(COMPONENT_EXPAND(green) << 8U)
-         | static_cast<uint32_t>(COMPONENT_EXPAND(blue) << 16U);
+    return rgba.value;
 }

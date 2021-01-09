@@ -132,3 +132,8 @@ auto graphics::session_window::create_texture(const math::size &size,
 {
     throw std::runtime_error("This method needs to be implemented in a subclass.");
 }
+
+auto graphics::session_window::create_texture(const math::size &size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>
+{
+    throw std::runtime_error("This method needs to be implemented in a subclass.");
+}

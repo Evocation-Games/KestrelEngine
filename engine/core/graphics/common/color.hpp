@@ -29,17 +29,26 @@ namespace graphics
 
     struct color: public scripting::lua::object
     {
+        union rgba
+        {
+            uint32_t value;
+            struct {
+                uint8_t r;
+                uint8_t g;
+                uint8_t b;
+                uint8_t a;
+            } components;
+        };
+
         typedef luabridge::RefCountedPtr<graphics::color> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        double red;
-        double green;
-        double blue;
-        double alpha;
+        union rgba rgba { .value = 0 };
 
-        explicit color(const double& w, const double& a = 1.0);
+        explicit color(const uint8_t& w, const uint8_t& a = 255);
+        explicit color(const uint32_t& value);
         color(const graphics::color& c);
-        lua_api color(const double& r, const double& g, const double& b, const double& a = 1.0);
+        lua_api color(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a = 255);
 
         static auto white(const uint8_t& w, const uint8_t& a = 255) -> graphics::color;
         static auto rgb(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a = 255) -> graphics::color;
@@ -49,9 +58,9 @@ namespace graphics
         lua_api static auto rgb_ref(const uint8_t& r, const uint8_t& g, const uint8_t& b, const uint8_t& a = 255) -> graphics::color::lua_reference ;
         lua_api static auto color_value_ref(const uint32_t& value) -> graphics::color::lua_reference ;
 
-        lua_api auto with_alpha(const double& a) const -> graphics::color;
+        [[nodiscard]] lua_api auto with_alpha(const uint8_t& a) const -> graphics::color;
 
-        auto blend(const graphics::color& c) const -> graphics::color;
+        [[nodiscard]] auto blend(const graphics::color& c) const -> graphics::color;
         auto blend_in_place(const graphics::color& c) -> void;
 
         static auto clear_color() -> graphics::color;
@@ -84,18 +93,18 @@ namespace graphics
         lua_api static auto magenta_color_ref() -> graphics::color::lua_reference ;
 
         lua_api auto set_red(const uint8_t& red) -> void;
-        lua_api auto get_red() const -> uint8_t;
+        [[nodiscard]] lua_api auto get_red() const -> uint8_t;
 
         lua_api auto set_green(const uint8_t& green) -> void;
-        lua_api auto get_green() const -> uint8_t;
+        [[nodiscard]] lua_api auto get_green() const -> uint8_t;
 
         lua_api auto set_blue(const uint8_t& blue) -> void;
-        lua_api auto get_blue() const -> uint8_t;
+        [[nodiscard]] lua_api auto get_blue() const -> uint8_t;
 
         lua_api auto set_alpha(const uint8_t& alpha) -> void;
-        lua_api auto get_alpha() const -> uint8_t;
+        [[nodiscard]] lua_api auto get_alpha() const -> uint8_t;
 
-        lua_api auto value() const -> uint32_t;
+        [[nodiscard]] lua_api auto value() const -> uint32_t;
     };
 
 }

@@ -2,23 +2,26 @@
 -- Copyright (c) 2020 Tom Hancocks
 --
 
-local c = Canvas(Size(300, 100))
+local c = Canvas(Size(300, 300))
+c:clear()
 
-c.penColor = Color.white()
-c:setFont("Times", 20)
-c:layoutTextInBounds("Hello, World\nThis is a test of the drawing. This line should wrap on to a new line.", Size(300, 100))
-c:drawText(Point(10, 10))
+c.penColor = Color.red()
+c:fillRect(Rect(0, 0, 100, 100))
 
-local e = c:spawnEntity(Vec2(200, 100))
+c.penColor = Color(0, 255, 0, 128)
+c:fillRect(Rect(50, 50, 100, 100))
+
+c.penColor = Color(200, 200, 200, 255)
+c:drawLine(Point(50, 50), Point(250, 250))
+
+--c.penColor = Color.yellow()
+c:setFont("Geneva", 13)
+local textSize = c:layoutText("Hello, World")
+c:drawText(Point(100, 100))
+
+local e = c:spawnEntity(Vec2(200, 200))
 
 local s = Scene.current()
 s:render(function()
     e:draw()
 end)
-
-local r = Resource.allWithType("LuaC")
-print("Found " .. r.count .. " resources")
-for i = 1, r.count do
-    local res = ResourceData(r:at(i))
-    print(res.id .. ": " .. res.name)
-end
