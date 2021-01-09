@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/graphics/common/text.hpp"
+#include "core/graphics/common/text/typesetter.hpp"
 #include "core/environment.hpp"
 
 // MARK: - Lua
@@ -40,14 +41,6 @@ auto graphics::text::enroll_object_api_in_state(const std::shared_ptr<scripting:
 graphics::text::text(std::string text, std::string font, int size, const graphics::color::lua_reference& color)
     : m_text(std::move(text)), m_font_face(std::move(font)), m_font_size(size), m_color(*color.get())
 {
-    // TODO: Correctly load fonts for platforms
-#if __APPLE__
-    m_font = std::make_shared<graphics::font>(m_font_face);
-#elif __linux__
-    m_font = std::make_shared<graphics::font>("Ubuntu-R");
-#else
-#   error Fix for Windows
-#endif
 }
 
 // MARK: - Accessors
@@ -77,19 +70,29 @@ auto graphics::text::get_color() const -> graphics::color::lua_reference
 
 auto graphics::text::spawn_entity(const math::vector &position) -> graphics::entity::lua_reference
 {
-    // Create a new bitmap of the text.
-//    auto size = m_font->layout_text(m_text, m_font_size);
-//    auto bmp = m_font->render_text(m_color);
-//
-//    if (auto env = environment::active_environment().lock()) {
-//        auto tex = env->create_texture(size, std::move(bmp));
-//
-//        auto entity = graphics::entity::lua_reference(new graphics::entity(size));
-//        entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, size));
-//        entity->set_position(position);
-//
-//        return entity;
-//    }
+    // Create a typesetter to layout the text and generate a bitmap.
+    graphics::typesetter ts(m_text);
+    ts.set_font(m_font_face);
+    ts.set_font_size(m_font_size);
+    ts.set_font_color(m_color);
+    ts.layout();
+
+    auto size = ts.get_bounding_size();
+    std::vector<uint32_t> bmp;
+    bmp.reserve(static_cast<int>(size.width * size.height));
+    for (const auto& c : ts.render()) {
+        bmp.emplace_back(c.value());
+    }
+
+    if (auto env = environment::active_environment().lock()) {
+        auto tex = env->create_texture(size, std::move(bmp));
+
+        auto entity = graphics::entity::lua_reference(new graphics::entity(size));
+        entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, size));
+        entity->set_position(position);
+
+        return entity;
+    }
 
     return nullptr;
 }

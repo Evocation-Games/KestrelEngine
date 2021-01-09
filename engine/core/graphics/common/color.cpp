@@ -47,6 +47,7 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addProperty("green", &graphics::color::get_green, &graphics::color::set_green)
             .addProperty("blue", &graphics::color::get_blue, &graphics::color::set_blue)
             .addProperty("alpha", &graphics::color::get_alpha, &graphics::color::set_alpha)
+            .addFunction("with_alpha", &graphics::color::with_alpha)
         .endClass();
 }
 
@@ -140,6 +141,12 @@ auto graphics::color::blend_in_place(const graphics::color &top) -> void
         blue = ((top.blue * top.alpha) + (blue * a * (1.0 - top.alpha))) / alpha;
     }
 }
+
+auto graphics::color::with_alpha(const double &a) const -> graphics::color
+{
+    return graphics::color(red, green, blue, alpha * a);
+}
+
 
 // MARK: - Predefined Colors
 
@@ -330,4 +337,3 @@ auto graphics::color::value() const -> uint32_t
          | static_cast<uint32_t>(COMPONENT_EXPAND(green) << 8U)
          | static_cast<uint32_t>(COMPONENT_EXPAND(blue) << 16U);
 }
-

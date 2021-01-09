@@ -72,8 +72,18 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     auto sprite = entity->spritesheet()->at(entity->sprite_index);
 
     m_shader->set_mat4("model", model);
-    m_shader->set_vec2("texOffset", static_cast<GLfloat>(sprite.point().x), static_cast<GLfloat>(sprite.point().y));
-    m_shader->set_vec2("texSize", static_cast<GLfloat>(sprite.size().width), static_cast<GLfloat>(sprite.size().height));
+
+    if (entity->has_clipping_area()) {
+        m_shader->set_vec2("texSize", static_cast<GLfloat>(entity->clipping_area_uv().width), static_cast<GLfloat>(entity->clipping_area_uv().height));
+        m_shader->set_vec2("texOffset",
+                           static_cast<GLfloat>(sprite.point().x + entity->clipping_offset_uv().x),
+                           static_cast<GLfloat>(sprite.point().y + entity->clipping_offset_uv().y));
+    }
+    else {
+        m_shader->set_vec2("texSize", static_cast<GLfloat>(sprite.size().width), static_cast<GLfloat>(sprite.size().height));
+        m_shader->set_vec2("texOffset", static_cast<GLfloat>(sprite.point().x), static_cast<GLfloat>(sprite.point().y));
+    }
+
     m_shader->set_vec4("spriteColor", 1.0, 1.0, 1.0, static_cast<GLfloat>(entity->get_alpha()));
 
     glActiveTexture(GL_TEXTURE0);

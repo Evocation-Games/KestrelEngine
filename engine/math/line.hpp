@@ -18,45 +18,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXT_HPP)
-#define KESTREL_TEXT_HPP
+#if !defined(KESTREL_LINE_HPP)
+#define KESTREL_LINE_HPP
 
-#include <memory>
-#include "math/point.hpp"
-#include "math/vector.hpp"
-#include "math/size.hpp"
-#include "core/graphics/common/entity.hpp"
-#include "util/hint.hpp"
 #include "scripting/state.hpp"
-#include "core/graphics/common/font.hpp"
-#include "core/graphics/common/color.hpp"
+#include "util/hint.hpp"
+#include "math/point.hpp"
 
-namespace graphics
+namespace math
 {
 
-    class text: public std::enable_shared_from_this<graphics::text>, public scripting::lua::object
+    struct line: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<graphics::text> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        std::string m_text;
-        int m_font_size;
-        std::string m_font_face;
-        graphics::color m_color { graphics::color::white_color() };
+        math::point p;
+        math::point q;
 
-    public:
-        lua_api text(std::string text, std::string font, int size, const graphics::color::lua_reference& color);
+        lua_api line(const math::point& p, const math::point& q);
 
-        lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
+        lua_api auto get_p() const -> math::point;
+        lua_api auto set_p(const math::point& p) -> void;
+        lua_api auto get_q() const -> math::point;
+        lua_api auto set_q(const math::point& q) -> void;
 
-        lua_api auto get_value() const -> std::string;
-        lua_api auto get_font_size() const -> int;
-        lua_api auto get_font() const -> std::string;
-        lua_api auto get_color() const -> graphics::color::lua_reference;
+        lua_api auto intersects(const math::line& l) const -> bool;
     };
 
 }
 
-#endif //KESTREL_TEXT_HPP
+#endif //KESTREL_LINE_HPP
