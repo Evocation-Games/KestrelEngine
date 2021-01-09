@@ -24,5 +24,12 @@ local e = c:spawnEntity(Vec2(200, 200))
 
 local s = Scene.current()
 s:render(function()
+
+    s:onKeyEvent(function(event)
+        if event.pressed and event.keycode == Key.ESCAPE then
+            print("Escaping!")
+        end
+    end)
+
     e:draw()
 end)

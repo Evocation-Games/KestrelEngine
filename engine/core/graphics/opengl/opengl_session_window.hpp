@@ -37,6 +37,8 @@ namespace graphics { namespace opengl {
 
         auto configure_viewport(GLdouble width, GLdouble height) -> void;
 
+        static inline auto translate_keycode(const int& keycode) -> enum event::key::code;
+
     public:
         explicit session_window(std::shared_ptr<environment> env);
 

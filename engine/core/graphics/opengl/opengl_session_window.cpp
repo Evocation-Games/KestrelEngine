@@ -87,19 +87,20 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     // Configure event handlers.
     glfwSetKeyCallback(m_window, [] (GLFWwindow *wnd, int key, int scancode, int action, int mods) {
         if (auto env = environment::active_environment().lock()) {
+            auto mapped_keycode = translate_keycode(key);
             switch (action) {
                 case GLFW_PRESS: {
-                    event::key e(static_cast<enum event::key::code>(key), scancode, event::key::pressed);
+                    event::key e(mapped_keycode, scancode, event::key::pressed);
                     env->post_key_event(e);
                     break;
                 }
                 case GLFW_RELEASE: {
-                    event::key e(static_cast<enum event::key::code>(key), scancode, event::key::released);
+                    event::key e(mapped_keycode, scancode, event::key::released);
                     env->post_key_event(e);
                     break;
                 }
                 case GLFW_REPEAT: {
-                    event::key e(static_cast<enum event::key::code>(key), scancode, event::key::held);
+                    event::key e(mapped_keycode, scancode, event::key::held);
                     env->post_key_event(e);
                     break;
                 }
@@ -205,4 +206,76 @@ auto graphics::opengl::session_window::create_texture(const math::size &size,
                                                       const uint8_t *data) const -> std::shared_ptr<graphics::texture>
 {
     return std::make_shared<graphics::opengl::texture>(size, data);
+}
+
+// MARK: - Keycode Mapping
+
+auto graphics::opengl::session_window::translate_keycode(const int& keycode) -> enum event::key::code
+{
+    switch (keycode) {
+        // Special Keys
+        case GLFW_KEY_ESCAPE:               return event::key::code::escape;
+        case GLFW_KEY_ENTER:                return event::key::code::enter;
+        case GLFW_KEY_BACKSPACE:            return event::key::code::backspace;
+        case GLFW_KEY_TAB:                  return event::key::code::tab;
+
+        // Cursor Keys
+        case GLFW_KEY_LEFT:                 return event::key::code::left;
+        case GLFW_KEY_RIGHT:                return event::key::code::right;
+        case GLFW_KEY_UP:                   return event::key::code::up;
+        case GLFW_KEY_DOWN:                 return event::key::code::down;
+
+        // Letters
+        case GLFW_KEY_A:                    return event::key::code::a;
+        case GLFW_KEY_B:                    return event::key::code::b;
+        case GLFW_KEY_C:                    return event::key::code::c;
+        case GLFW_KEY_D:                    return event::key::code::d;
+        case GLFW_KEY_E:                    return event::key::code::e;
+        case GLFW_KEY_F:                    return event::key::code::f;
+        case GLFW_KEY_G:                    return event::key::code::g;
+        case GLFW_KEY_H:                    return event::key::code::h;
+        case GLFW_KEY_I:                    return event::key::code::i;
+        case GLFW_KEY_J:                    return event::key::code::j;
+        case GLFW_KEY_K:                    return event::key::code::k;
+        case GLFW_KEY_L:                    return event::key::code::l;
+        case GLFW_KEY_M:                    return event::key::code::m;
+        case GLFW_KEY_N:                    return event::key::code::n;
+        case GLFW_KEY_O:                    return event::key::code::o;
+        case GLFW_KEY_P:                    return event::key::code::p;
+        case GLFW_KEY_Q:                    return event::key::code::q;
+        case GLFW_KEY_R:                    return event::key::code::r;
+        case GLFW_KEY_S:                    return event::key::code::s;
+        case GLFW_KEY_T:                    return event::key::code::t;
+        case GLFW_KEY_U:                    return event::key::code::u;
+        case GLFW_KEY_V:                    return event::key::code::v;
+        case GLFW_KEY_W:                    return event::key::code::w;
+        case GLFW_KEY_X:                    return event::key::code::x;
+        case GLFW_KEY_Y:                    return event::key::code::y;
+        case GLFW_KEY_Z:                    return event::key::code::z;
+
+        // Numbers
+        case GLFW_KEY_0:
+        case GLFW_KEY_KP_0:                 return event::key::code::kp_0;
+        case GLFW_KEY_1:
+        case GLFW_KEY_KP_1:                 return event::key::code::kp_1;
+        case GLFW_KEY_2:
+        case GLFW_KEY_KP_2:                 return event::key::code::kp_2;
+        case GLFW_KEY_3:
+        case GLFW_KEY_KP_3:                 return event::key::code::kp_3;
+        case GLFW_KEY_4:
+        case GLFW_KEY_KP_4:                 return event::key::code::kp_4;
+        case GLFW_KEY_5:
+        case GLFW_KEY_KP_5:                 return event::key::code::kp_5;
+        case GLFW_KEY_6:
+        case GLFW_KEY_KP_6:                 return event::key::code::kp_6;
+        case GLFW_KEY_7:
+        case GLFW_KEY_KP_7:                 return event::key::code::kp_7;
+        case GLFW_KEY_8:
+        case GLFW_KEY_KP_8:                 return event::key::code::kp_8;
+        case GLFW_KEY_9:
+        case GLFW_KEY_KP_9:                 return event::key::code::kp_9;
+
+        // Unknown
+        default:                            return event::key::code::unknown;
+    }
 }
