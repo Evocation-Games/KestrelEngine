@@ -82,6 +82,7 @@ namespace graphics
         lua_api auto draw_text(const math::point& point) -> void;
 
         lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;
+        lua_api auto draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void;
 
         lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
         lua_api auto entity() -> graphics::entity::lua_reference;

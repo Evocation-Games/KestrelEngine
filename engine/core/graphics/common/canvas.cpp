@@ -45,6 +45,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("layoutTextInBounds", &graphics::canvas::layout_text_in_bounds)
             .addFunction("drawText", &graphics::canvas::draw_text)
             .addFunction("drawMacintoshPicture", &graphics::canvas::draw_picture)
+            .addFunction("drawImage", &graphics::canvas::draw_image)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
             .addFunction("clear", &graphics::canvas::clear)
         .endClass();
@@ -341,6 +342,65 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
     }
 
     m_typesetter.reset();
+}
+
+auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void
+{
+    math::rect bounds(math::point(0), m_size);
+    math::rect img_bounds(math::point(0), image->size());
+    math::rect img_frame(point, { std::round(sz.width), std::round(sz.height) });
+
+    if (!img_frame.intersects(bounds)) {
+        return;
+    }
+
+    auto raw_img_data = image->spritesheet()->texture()->data();
+    auto scaled_len = static_cast<uint32_t>(img_frame.size.width * img_frame.size.height);
+    std::vector<uint32_t> scaled_img_data(scaled_len, 0);
+
+    // Perform some initial calculations in order to determine how the scaling should be performed
+    auto x_scale = img_frame.size.width / img_bounds.size.width;
+    auto y_scale = img_frame.size.height / img_bounds.size.height;
+
+    for (auto y = 0; y < img_frame.size.height; ++y) {
+        auto ry = static_cast<uint32_t>(std::round(y / y_scale));
+        if (ry >= img_bounds.size.height) {
+            break;
+        }
+
+        auto src_offset = (ry * img_bounds.size.width);
+        auto dst_offset = (y * img_frame.size.width);
+        for (auto x = 0; x < img_frame.size.width; ++x) {
+            auto rx = static_cast<uint32_t>(std::round(x / x_scale));
+            if (rx >= img_bounds.size.width) {
+                break;
+            }
+            scaled_img_data[dst_offset + x] = raw_img_data.at(src_offset + rx);
+        }
+    }
+
+    // Drawing
+    auto bmp_line_start = std::max(0LL, static_cast<int64_t>(-point.x));
+    auto bmp_line_len = static_cast<int64_t>(img_frame.size.width) - bmp_line_start;
+    auto start = std::max(0LL, static_cast<int64_t>(point.x));
+
+    for (auto y = 0; y < img_frame.size.height; ++y) {
+        auto dy = std::floor(y + point.y);
+        if (dy < 0) {
+            continue;
+        }
+        else if (y >= m_size.height) {
+            break;
+        }
+
+        auto bmp_line_offset = static_cast<int64_t>(y * img_frame.size.width);
+
+        auto vstart = scaled_img_data.cbegin() + bmp_line_offset + bmp_line_start;
+        auto vend = vstart + bmp_line_len;
+        std::vector<graphics::color> cv { vstart, vend };
+
+        m_rgba_buffer.apply_run(cv, start, dy);
+    }
 }
 
 auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void
