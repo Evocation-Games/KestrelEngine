@@ -36,6 +36,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("penColor", &graphics::canvas::get_pen_color, &graphics::canvas::set_pen_color)
             .addFunction("entity", &graphics::canvas::entity)
             .addFunction("rebuildEntityTexture", &graphics::canvas::rebuild_texture)
+            .addFunction("drawRect", &graphics::canvas::draw_rect)
             .addFunction("fillRect", &graphics::canvas::fill_rect)
             .addFunction("drawLine", &graphics::canvas::draw_line)
             .addFunction("drawCircle", &graphics::canvas::draw_circle)
@@ -142,6 +143,14 @@ auto graphics::canvas::raw() const -> uint8_t *
 auto graphics::canvas::clear() -> void
 {
     m_rgba_buffer.clear(graphics::color::clear_color());
+}
+
+auto graphics::canvas::draw_rect(const math::rect &r) -> void
+{
+    draw_line(r.origin, { r.origin.x + r.size.width, r.origin.y });
+    draw_line(r.origin, { r.origin.x, r.origin.y + r.size.height });
+    draw_line({ r.origin.x + r.size.width, r.origin.y }, { r.origin.x + r.size.width, r.origin.y + r.size.height });
+    draw_line({ r.origin.x, r.origin.y + r.size.height }, { r.origin.x + r.size.width, r.origin.y + r.size.height });
 }
 
 auto graphics::canvas::fill_rect(const math::rect &r) -> void
