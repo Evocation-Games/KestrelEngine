@@ -33,6 +33,7 @@ cocoa::window::window()
     [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [window makeKeyAndOrderFront:nil];
     [window center];
+    [[window contentView] setWantsLayer:YES];
     cocoa::object::set(window);
 }
 

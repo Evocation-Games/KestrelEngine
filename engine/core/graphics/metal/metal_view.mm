@@ -48,7 +48,7 @@ static inline auto color_vector(const graphics::color& c) -> simd_float4
 
 // MARK: - Cocoa Interface
 
-@interface MetalView: MTKView <MTKViewDelegate>
+@interface MetalView: NSView <MTKViewDelegate>
 - (void)drawEntity:(const graphics::entity::lua_reference&)entity;
 - (int)registerTexture:(std::shared_ptr<graphics::texture>)texture;
 @end
@@ -77,6 +77,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 // MARK: - Cocoa Implementation
 
 @implementation MetalView {
+    __strong MTKView *_metalView;
     __strong id<MTLDevice> _device;
     __strong id<MTLCommandQueue> _commandQueue;
     __strong id<MTLRenderCommandEncoder> _commandEncoder;
@@ -90,13 +91,13 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 {
     if (self = [super initWithFrame:CGRectZero]) {
         _device = MTLCreateSystemDefaultDevice();
+        _metalView = [[MTKView alloc] initWithFrame:NSZeroRect device:_device];
 
         // Configure the basic view properties
-        [self setClearColor:MTLClearColorMake(0.0, 0.0, 0.0, 1.0)];
+        [_metalView setClearColor:MTLClearColorMake(0.0, 0.0, 0.0, 1.0)];
 
         // Configure the Metal Device
-        [self setDevice:_device];
-        [self setDelegate:self];
+        [_metalView setDelegate:self];
 
         // Configure the Metal Library
         // TODO: Attempt to load this from the Resource Manager first, and then fall back on the default one
@@ -115,6 +116,16 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 
         // Request a new command queue
         _commandQueue = [_device newCommandQueue];
+
+        // Add the metal view to this one as a subview.
+        [_metalView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [self addSubview:_metalView];
+        [NSLayoutConstraint activateConstraints:@[
+            [_metalView.leftAnchor constraintEqualToAnchor:self.leftAnchor],
+            [_metalView.rightAnchor constraintEqualToAnchor:self.rightAnchor],
+            [_metalView.topAnchor constraintEqualToAnchor:self.topAnchor],
+            [_metalView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+        ]];
     }
     return self;
 }
@@ -130,7 +141,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     [pipe setLabel:@"com.kestrel.pipeline.normal"];
     [pipe setVertexFunction:[library newFunctionWithName:@"vertexShader"]];
     [pipe setFragmentFunction:[library newFunctionWithName:@"fragmentShader"]];
-    [[pipe colorAttachments][0] setPixelFormat:[self colorPixelFormat]];
+    [[pipe colorAttachments][0] setPixelFormat:[_metalView colorPixelFormat]];
     [[pipe colorAttachments][0] setBlendingEnabled:YES];
     [[pipe colorAttachments][0] setRgbBlendOperation:MTLBlendOperationAdd];
     [[pipe colorAttachments][0] setAlphaBlendOperation:MTLBlendOperationAdd];
@@ -158,7 +169,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     [pipe setLabel:@"com.kestrel.pipeline.light"];
     [pipe setVertexFunction:[library newFunctionWithName:@"vertexShader"]];
     [pipe setFragmentFunction:[library newFunctionWithName:@"fragmentShader"]];
-    [[pipe colorAttachments][0] setPixelFormat:[self colorPixelFormat]];
+    [[pipe colorAttachments][0] setPixelFormat:[_metalView colorPixelFormat]];
     [[pipe colorAttachments][0] setBlendingEnabled:YES];
     [[pipe colorAttachments][0] setRgbBlendOperation:MTLBlendOperationAdd];
     [[pipe colorAttachments][0] setAlphaBlendOperation:MTLBlendOperationAdd];
@@ -193,8 +204,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 {
     @autoreleasepool {
         id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-
-        MTLRenderPassDescriptor *pass = [self currentRenderPassDescriptor];
+        MTLRenderPassDescriptor *pass = [_metalView currentRenderPassDescriptor];
         if (pass) {
             // Configure the viewport.
             // TODO: Pass this out the metal::session_window in order to be in line with the OpenGL implementation
@@ -223,7 +233,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
             [_commandEncoder endEncoding];
             _commandEncoder = nil;
 
-            [commandBuffer presentDrawable:[self currentDrawable]];
+            [commandBuffer presentDrawable:[_metalView currentDrawable]];
         }
 
         [commandBuffer commit];
@@ -242,6 +252,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 {
     MTLTextureDescriptor *textureDescriptor = [[[MTLTextureDescriptor alloc] init] autorelease];
     [textureDescriptor setPixelFormat:MTLPixelFormatRGBA8Unorm];
+    [textureDescriptor setMipmapLevelCount:1];
 
     auto size = texture->size();
     [textureDescriptor setWidth:static_cast<NSUInteger>(size.width)];
@@ -249,12 +260,8 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 
     id<MTLTexture> mtlTexture = [[_device newTextureWithDescriptor:textureDescriptor] autorelease];
 
-    MTLRegion region;
-    region.origin.x = 0;
-    region.origin.y = 0;
+    MTLRegion region = MTLRegionMake2D(0, 0, static_cast<NSUInteger>(size.width), static_cast<NSUInteger>(size.height));
     region.origin.z = 0;
-    region.size.width = static_cast<NSUInteger>(size.width);
-    region.size.height = static_cast<NSUInteger>(size.height);
     region.size.depth = 1;
 
     NSUInteger bytesPerRow = static_cast<NSUInteger>(size.width) << 2;

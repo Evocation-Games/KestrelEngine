@@ -44,7 +44,7 @@ vertex rasterizer_data vertexShader(
     float2 viewport_size = float2(*viewport_size_pointer);
 
     out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
-    out.position.xy = (pixel_space_position / (viewport_size / vertex_array[vertex_id].scale));
+    out.position.xy = (pixel_space_position / (viewport_size / vertex_array[vertex_id].scale)) * 2;
     out.texture_coord = vertex_array[vertex_id].texture_coord;
     out.color = vertex_array[vertex_id].color;
 
@@ -54,7 +54,7 @@ vertex rasterizer_data vertexShader(
 // Fragment function
 fragment float4 samplingShader(
     rasterizer_data in [[stage_in]],
-    texture2d<half> color_texture [[ texture(graphics::metal::texture_index::base_color) ]]
+    texture2d<half> color_texture [[texture(graphics::metal::texture_index::base_color)]]
 ) {
     constexpr sampler texture_sampler (mag_filter::linear, min_filter::linear);
     const float4 color_sample = in.color * float4(color_texture.sample(texture_sampler, in.texture_coord));
