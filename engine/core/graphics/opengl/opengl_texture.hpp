@@ -24,7 +24,8 @@
 #include "core/graphics/common/texture.hpp"
 #include "core/graphics/opengl/opengl.hpp"
 
-namespace graphics { namespace opengl {
+namespace graphics::opengl
+{
 
     class texture: public graphics::texture
     {
@@ -51,6 +52,6 @@ namespace graphics { namespace opengl {
         auto bind() const -> void override;
     };
 
-}}
+}
 
 #endif //KESTREL_OPENGL_TEXTURE_HPP

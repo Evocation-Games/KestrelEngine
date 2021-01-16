@@ -128,7 +128,7 @@ auto environment::launch_common() -> int
 auto environment::launch() -> int
 {
 #if __APPLE__
-    auto metal = false;
+    auto metal = true;
     if (metal) {
         return launch_metal();
     }

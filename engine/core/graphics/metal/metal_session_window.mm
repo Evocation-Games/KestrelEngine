@@ -75,3 +75,11 @@ auto graphics::metal::session_window::create_texture(const math::size &size, std
     return texture;
 }
 
+auto graphics::metal::session_window::create_texture(const math::size &size,
+                                                     const uint8_t *data) const -> std::shared_ptr<graphics::texture>
+{
+    auto texture = std::make_shared<graphics::metal::texture>(size, data);
+    texture->set_handle(m_view->register_texture(texture));
+    return texture;
+}
+

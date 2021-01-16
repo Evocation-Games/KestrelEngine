@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include "core/graphics/metal/metal_texture.h"
-#include <utility>
 
 // MARK: - Construction
 
@@ -42,6 +41,12 @@ graphics::metal::texture::texture(const double &width, const double &height, std
 }
 
 graphics::metal::texture::texture(const math::size &size, std::vector<uint32_t> data)
+    : graphics::texture(size, data)
+{
+
+}
+
+graphics::metal::texture::texture(const math::size &size, const uint8_t *data)
     : graphics::texture(size, data)
 {
 

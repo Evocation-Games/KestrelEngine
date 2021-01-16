@@ -146,7 +146,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     dispatch_release(group);
-    [pipe release];
+//    [pipe release];
 }
 
 - (void)buildPipelineStateForLightBlendModeUsingLibrary:(id<MTLLibrary>)library
@@ -191,41 +191,43 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 
 - (void)drawInMTKView:(MTKView *)view
 {
-    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+    @autoreleasepool {
+        id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
 
-    MTLRenderPassDescriptor *pass = [self currentRenderPassDescriptor];
-    if (pass) {
-        // Configure the viewport.
-        // TODO: Pass this out the metal::session_window in order to be in line with the OpenGL implementation
-        MTLViewport viewport;
-        viewport.originX = 0.0;
-        viewport.originY = 0.0;
-        viewport.width = _viewportSize.x;
-        viewport.height = _viewportSize.y;
-        viewport.znear = 1.0;
-        viewport.zfar = -1.0;
+        MTLRenderPassDescriptor *pass = [self currentRenderPassDescriptor];
+        if (pass) {
+            // Configure the viewport.
+            // TODO: Pass this out the metal::session_window in order to be in line with the OpenGL implementation
+            MTLViewport viewport;
+            viewport.originX = 0.0;
+            viewport.originY = 0.0;
+            viewport.width = _viewportSize.x;
+            viewport.height = _viewportSize.y;
+            viewport.znear = 1.0;
+            viewport.zfar = -1.0;
 
-        _commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:pass];
-        [_commandEncoder setLabel:@"com.kestrel.render-encoder"];
-        [_commandEncoder setViewport:viewport];
-        [_commandEncoder setRenderPipelineState:_pipelineStates[0]];
+            _commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:pass];
+            [_commandEncoder setLabel:@"com.kestrel.render-encoder"];
+            [_commandEncoder setViewport:viewport];
+            [_commandEncoder setRenderPipelineState:_pipelineStates[0]];
 
-        // TODO: Call the rendering function here...
-        // Instruct the scene to render.
-        if (auto env = environment::active_environment().lock()) {
-            auto scene = env->current_scene();
-            if (scene != nullptr) {
-                scene->render();
+            // TODO: Call the rendering function here...
+            // Instruct the scene to render.
+            if (auto env = environment::active_environment().lock()) {
+                auto scene = env->current_scene();
+                if (scene != nullptr) {
+                    scene->render();
+                }
             }
+
+            [_commandEncoder endEncoding];
+            _commandEncoder = nil;
+
+            [commandBuffer presentDrawable:[self currentDrawable]];
         }
 
-        [_commandEncoder endEncoding];
-        _commandEncoder = nil;
-
-        [commandBuffer presentDrawable:[self currentDrawable]];
+        [commandBuffer commit];
     }
-
-    [commandBuffer commit];
 }
 
 - (void)mtkView:(MTKView *)view drawableSizeWillChange:(CGSize)size
@@ -255,8 +257,14 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     region.size.height = static_cast<NSUInteger>(size.height);
     region.size.depth = 1;
 
-    NSUInteger bytesPerRow = 4 * static_cast<NSUInteger>(size.width);
-    [mtlTexture replaceRegion:region mipmapLevel:0 withBytes:&texture->data()[0] bytesPerRow:bytesPerRow];
+    NSUInteger bytesPerRow = static_cast<NSUInteger>(size.width) << 2;
+
+    if (texture->raw_data_ptr()) {
+        [mtlTexture replaceRegion:region mipmapLevel:0 withBytes:texture->raw_data_ptr() bytesPerRow:bytesPerRow];
+    }
+    else {
+        [mtlTexture replaceRegion:region mipmapLevel:0 withBytes:&texture->data()[0] bytesPerRow:bytesPerRow];
+    }
 
     if (!_textures) {
         _textures = [[NSMutableArray alloc] init];

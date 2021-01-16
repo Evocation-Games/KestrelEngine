@@ -31,7 +31,8 @@ namespace cocoa
     class window;
 }
 
-namespace graphics { namespace metal {
+namespace graphics::metal
+{
 
     class session_window: public graphics::session_window, public std::enable_shared_from_this<metal::session_window>
     {
@@ -50,10 +51,11 @@ namespace graphics { namespace metal {
         auto render() -> void override;
 
         auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture> override;
+        auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture> override;
 
         auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
     };
 
-}};
+};
 
 #endif //KESTREL_METAL_SESSION_WINDOW_H

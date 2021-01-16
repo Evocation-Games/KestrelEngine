@@ -28,13 +28,14 @@ namespace graphics { namespace metal {
     class texture: public graphics::texture
     {
     private:
-        int m_handle { 0 };
+        int m_handle { -1 };
 
     public:
         texture(const double& width, const double& height);
-        texture(const math::size& size);
+        explicit texture(const math::size& size);
         texture(const double& width, const double& height, std::vector<uint32_t> data);
         texture(const math::size& size, std::vector<uint32_t> data);
+        texture(const math::size& size, const uint8_t *data);
 
         auto bind() const -> void override;
 

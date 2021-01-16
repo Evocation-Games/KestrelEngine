@@ -29,9 +29,10 @@ cocoa::window::window()
     NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200)
                                                    styleMask:NSWindowStyleMaskTitled
                                                      backing:NSBackingStoreBuffered
-                                                       defer:NO];
+                                                       defer:YES];
     [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [window makeKeyAndOrderFront:nil];
+    [window center];
     cocoa::object::set(window);
 }
 
@@ -63,6 +64,21 @@ auto cocoa::window::set_size(const int& width, const int& height) -> void
 auto cocoa::window::set_content_view(const std::shared_ptr<cocoa::view> &view) -> void
 {
     auto cocoa_view = view->get<NSView *>();
+    [cocoa_view setTranslatesAutoresizingMaskIntoConstraints:NO];
     [cocoa_view setFrame:[get<NSWindow *>() frame]];
-    [get<NSWindow *>() setContentView:cocoa_view];
+
+    // Remove existing subview.
+    for (NSView *view in [[get<NSWindow *>() contentView] subviews]) {
+        [view removeFromSuperview];
+    }
+
+    auto content_view = [get<NSWindow *>() contentView];
+    [content_view addSubview:cocoa_view];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [cocoa_view.leftAnchor constraintEqualToAnchor:content_view.leftAnchor],
+        [cocoa_view.rightAnchor constraintEqualToAnchor:content_view.rightAnchor],
+        [cocoa_view.topAnchor constraintEqualToAnchor:content_view.topAnchor],
+        [cocoa_view.bottomAnchor constraintEqualToAnchor:content_view.bottomAnchor],
+    ]];
 }

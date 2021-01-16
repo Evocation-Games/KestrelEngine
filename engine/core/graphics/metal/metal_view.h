@@ -26,7 +26,8 @@
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/texture.hpp"
 
-namespace graphics { namespace metal {
+namespace graphics::metal
+{
 
     class view: public std::enable_shared_from_this<graphics::metal::view>, public cocoa::view
     {
@@ -37,6 +38,6 @@ namespace graphics { namespace metal {
         auto register_texture(const std::shared_ptr<graphics::texture>& texture) -> int;
     };
 
-}}
+}
 
 #endif //KESTREL_METAL_VIEW_H
