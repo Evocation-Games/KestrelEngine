@@ -21,28 +21,28 @@
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/resources/sound.hpp>
-#include "core/asset/sound.hpp"
+#include "core/asset/macintosh_sound.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 
 // MARK: - Lua
 
-auto asset::sound::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+auto asset::macintosh_sound::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::sound>("Sound")
-            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&) -> void, asset::sound::lua_reference>()
-            .addStaticFunction("load", &asset::sound::load)
-            .addFunction("play", &asset::sound::play)
+        .beginClass<asset::macintosh_sound>("MacintoshSound")
+            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&) -> void, asset::macintosh_sound::lua_reference>()
+            .addStaticFunction("load", &asset::macintosh_sound::load)
+            .addFunction("play", &asset::macintosh_sound::play)
         .endClass();
 }
 
 // MARK: - Construction
 
-asset::sound::sound(const asset::resource_reference::lua_reference& ref)
+asset::macintosh_sound::macintosh_sound(const asset::resource_reference::lua_reference& ref)
 {
     if (ref->id().has_value()) {
-        if (auto res = graphite::rsrc::manager::shared_manager().find(sound::type, ref->id().value()).lock()) {
+        if (auto res = graphite::rsrc::manager::shared_manager().find(macintosh_sound::type, ref->id().value()).lock()) {
             graphite::resources::sound sound(res->data(), res->id(), res->name());
             return;
         }
@@ -50,24 +50,25 @@ asset::sound::sound(const asset::resource_reference::lua_reference& ref)
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::sound::load(const asset::resource_reference::lua_reference& ref) -> sound::lua_reference
+auto asset::macintosh_sound::load(const asset::resource_reference::lua_reference& ref) -> macintosh_sound::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(sound::type, ref);
+        auto asset = env->cache()->fetch(macintosh_sound::type, ref);
         if (asset.has_value()) {
-            return std::any_cast<asset::sound::lua_reference>(asset.value());
+            return std::any_cast<asset::macintosh_sound::lua_reference>(asset.value());
         }
     }
 
-    auto sound = asset::sound::lua_reference(new asset::sound(ref));
+    auto sound = asset::macintosh_sound::lua_reference(new asset::macintosh_sound(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(sound::type, ref, sound);
+        env->cache()->add(macintosh_sound::type, ref, sound);
     }
     return sound;
 }
 
-auto asset::sound::play() -> void
+auto asset::macintosh_sound::play() -> void
 {
     // do something sound-related
 }
+

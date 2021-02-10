@@ -27,15 +27,15 @@
 namespace asset
 {
 
-    struct sound: public scripting::lua::object
+    struct macintosh_sound: public scripting::lua::object
     {
     public:
-        constexpr static const char *type { "snd" };
-        typedef luabridge::RefCountedPtr<asset::sound> lua_reference;
+        constexpr static const char *type { "snd " };
+        typedef luabridge::RefCountedPtr<asset::macintosh_sound> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
     public:
-        lua_api explicit sound(const asset::resource_reference::lua_reference& ref);
-        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> sound::lua_reference;
+        lua_api explicit macintosh_sound(const asset::resource_reference::lua_reference& ref);
+        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> macintosh_sound::lua_reference;
         lua_api virtual auto play() -> void;
     };
 
