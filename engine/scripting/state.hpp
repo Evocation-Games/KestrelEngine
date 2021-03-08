@@ -64,7 +64,7 @@ namespace scripting { namespace lua {
 
         auto load_script(const int64_t& id) -> lua::script;
         auto run(const lua::script& script) -> void;
-        auto run(const std::string& script) -> void;
+        auto run(const int64_t& id, const std::string& name,const std::string& script) -> void;
     };
 
     class object

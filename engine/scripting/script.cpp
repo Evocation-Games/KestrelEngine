@@ -24,7 +24,7 @@
 
 // MARK: - Construction
 
-scripting::lua::script::script(std::shared_ptr<lua::state> state, const int64_t& id)
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const int64_t& id)
     : m_state(state), m_id(id)
 {
     if (auto s = graphite::rsrc::manager::shared_manager().find(type, id).lock()) {
@@ -55,4 +55,14 @@ auto scripting::lua::script::execute() const -> void
     if (auto state = m_state.lock()) {
         state->run(*this);
     }
+}
+
+auto scripting::lua::script::id() const -> int64_t
+{
+    return m_id;
+}
+
+auto scripting::lua::script::name() const -> std::string
+{
+    return m_name;
 }

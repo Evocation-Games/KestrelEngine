@@ -275,6 +275,9 @@ auto graphics::opengl::session_window::translate_keycode(const int& keycode) -> 
         case GLFW_KEY_9:
         case GLFW_KEY_KP_9:                 return event::key::code::kp_9;
 
+        // Misc
+        case GLFW_KEY_SPACE:                return event::key::code::space;
+
         // Unknown
         default:                            return event::key::code::unknown;
     }

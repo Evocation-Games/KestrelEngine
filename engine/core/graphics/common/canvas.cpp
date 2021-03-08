@@ -34,6 +34,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginClass<graphics::canvas>("Canvas")
             .addConstructor<auto(*)(const math::size&)->void, graphics::canvas::lua_reference>()
             .addProperty("penColor", &graphics::canvas::get_pen_color, &graphics::canvas::set_pen_color)
+            .addProperty("bounds", &graphics::canvas::get_bounds)
             .addFunction("entity", &graphics::canvas::entity)
             .addFunction("rebuildEntityTexture", &graphics::canvas::rebuild_texture)
             .addFunction("drawRect", &graphics::canvas::draw_rect)
@@ -49,14 +50,15 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("drawImage", &graphics::canvas::draw_image)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
             .addFunction("clear", &graphics::canvas::clear)
+            .addFunction("applyMaskUsingCanvas", &graphics::canvas::apply_mask)
         .endClass();
 }
 
 // MARK: - Construction
 
 graphics::canvas::canvas(const math::size& size)
-    : m_size(size),
-      m_rgba_buffer(size),
+    : m_size(std::round(size.width), std::round(size.height)),
+      m_rgba_buffer(m_size),
       m_pen_color(graphics::color::white_color()),
       m_typesetter(""),
       m_left(math::point(0), math::point(0, m_size.height)),
@@ -452,4 +454,16 @@ auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_referenc
             draw_picture_at_point(pict, { x, y });
         }
     }
+}
+
+// MARK: - Masking
+
+auto graphics::canvas::apply_mask(const graphics::canvas::lua_reference &c) -> void
+{
+    m_rgba_buffer.apply_mask(c->m_rgba_buffer);
+}
+
+auto graphics::canvas::get_bounds() const -> math::rect
+{
+    return math::rect(math::point(0), m_size);
 }

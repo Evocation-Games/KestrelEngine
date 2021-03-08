@@ -27,6 +27,7 @@
 graphics::session_window::session_window(std::shared_ptr<environment> env)
     : m_environment(env)
 {
+    m_cache_purge_time = session_clock::now();
 }
 
 // MARK: - Accessors
@@ -86,6 +87,12 @@ auto graphics::session_window::update() -> void
     }
     current_scene()->check_timed_events();
     current_scene()->update();
+
+    if ((session_clock::now() - m_cache_purge_time).count() >= 60) {
+        if (auto env = m_environment.lock()) {
+            env->cache()->purge_unused();
+        }
+    }
 }
 
 auto graphics::session_window::render() -> void

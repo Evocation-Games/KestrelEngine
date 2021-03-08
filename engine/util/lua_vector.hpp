@@ -70,6 +70,11 @@ namespace util
             m_items.emplace_back(r);
         }
 
+        auto sort(std::function<auto(const T&, const T&)->bool> fn) -> void
+        {
+            std::sort(m_items.begin(), m_items.end(), fn);
+        }
+
     };
 
 }

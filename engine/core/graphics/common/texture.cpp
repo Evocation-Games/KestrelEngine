@@ -41,7 +41,7 @@ graphics::texture::texture(const double& width, const double& height, std::vecto
 }
 
 graphics::texture::texture(const math::size& sz, std::vector<uint32_t> data)
-        : m_size(sz), m_data(std::move(data))
+    : m_size(sz), m_data(std::move(data))
 {
 
 }

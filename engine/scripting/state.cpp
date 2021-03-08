@@ -128,17 +128,29 @@ auto scripting::lua::state::function(const char *name) const -> luabridge::LuaRe
 
 auto scripting::lua::state::run(const lua::script& script) -> void
 {
-    run(script.code());
+    run(script.id(), script.name(), script.code());
 }
 
-auto scripting::lua::state::run(const std::string& script) -> void
+auto scripting::lua::state::run(const int64_t& id, const std::string& name, const std::string& script) -> void
 {
     if (luaL_loadstring(m_state, script.c_str()) != LUA_OK) {
         throw std::runtime_error(error_string());
     }
 
     if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
-        throw std::runtime_error(error_string());
+        auto error_string = this->error_string();
+        
+        lua_Debug info;
+        int level = 0;
+        while (lua_getstack(m_state, level, &info)) {
+            lua_getinfo(m_state, "nSl", &info);
+            fprintf(stderr, "  [%d] %s:%d -- %s [%s]\n",
+                    level, info.short_src, info.currentline,
+                    (info.name ? info.name : "<unknown>"), info.what);
+            ++level;
+        }
+
+        throw std::runtime_error(error_string);
     }
 }
 

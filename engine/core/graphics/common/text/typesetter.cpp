@@ -133,7 +133,7 @@ auto graphics::typesetter::layout() -> void
         // Fetch the current glyph, and calculate some basic metrics regarding it.
         FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), *i);
         math::size glyph_kerning { 0 };
-        auto glyph_advance = m_base_font->calculate_glyph_width(glyph_index, previous_glyph_index, &glyph_kerning);
+        auto glyph_advance = m_base_font->calculate_glyph_width(glyph_index, previous_glyph_index, &glyph_kerning) + glyph_kerning.width;
 
         if (is_non_breaking(*i)) {
             // The current character is one that can not result in a line break. Check if the character extends beyond
@@ -204,15 +204,15 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
             continue;
         }
 
-        auto y_offset = line_height - slot->bitmap_top;
-        auto x_offset = slot->bitmap_left;
+        auto y_offset = static_cast<int>(line_height - slot->bitmap_top);
+        auto x_offset = static_cast<int>(slot->bitmap_left);
 
         for (auto yy = 0; yy < slot->bitmap.rows; ++yy) {
             for (auto xx = 0; xx < slot->bitmap.width; ++xx) {
-                auto alpha = static_cast<unsigned int>(slot->bitmap.buffer[(yy * slot->bitmap.width) + xx]);
+                auto alpha = std::min(255U, static_cast<unsigned int>(slot->bitmap.buffer[(yy * slot->bitmap.width) + xx]) + 16);
                 auto hex_color = static_cast<unsigned int>(m_font_color.value() & 0x00FFFFFFU);
                 auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
-                auto offset = ((ch.y + y_offset + yy) * m_min_size.width) + ch.x + x_offset + xx;
+                auto offset = ((static_cast<int>(std::round(ch.y)) + y_offset + yy) * static_cast<int>(std::round(m_min_size.width))) + static_cast<int>(std::round(ch.x)) + x_offset + xx;
                 if (offset < buffer.size()) {
                     buffer[offset] = graphics::color::color_value(color);
                 }
@@ -240,17 +240,17 @@ auto graphics::typesetter::drop_buffer() -> void
 
 auto graphics::typesetter::newline() -> void
 {
-    m_pos.y += m_base_font->line_height();
+    m_pos.y += static_cast<int>(std::round(m_base_font->line_height()));
     m_pos.x = 0;
 }
 
 auto graphics::typesetter::advance(const double& d, const bool& buffer) -> void
 {
     if (buffer) {
-        m_buffer_width += d;
+        m_buffer_width += std::round(d);
     }
     else {
-        m_pos.x += d;
+        m_pos.x += std::round(d);
     }
 }
 
@@ -258,8 +258,8 @@ auto graphics::typesetter::place(const wchar_t& c, const bool& in_buffer) -> voi
 {
     typesetter::character ch { 0 };
     ch.value = c;
-    ch.x = m_pos.x + m_buffer_width;
-    ch.y = m_pos.y;
+    ch.x = std::round(m_pos.x + m_buffer_width);
+    ch.y = std::round(m_pos.y);
     if (in_buffer) {
         m_buffer.emplace_back(ch);
     }

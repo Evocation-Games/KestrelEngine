@@ -33,13 +33,16 @@ namespace scripting { namespace lua {
         constexpr static const char* type { "LuaC" };
         std::weak_ptr<lua::state> m_state;
         int64_t m_id { INT64_MIN };
-        std::string m_name { "" };
-        std::string m_script { "" };
+        std::string m_name;
+        std::string m_script;
 
     public:
-        script(std::shared_ptr<lua::state> state, const int64_t& id);
+        script(const std::shared_ptr<lua::state>& state, const int64_t& id);
 
-        auto code() const -> std::string;
+        [[nodiscard]] auto id() const ->int64_t;
+        [[nodiscard]] auto name() const -> std::string;
+
+        [[nodiscard]] auto code() const -> std::string;
         auto execute() const -> void;
     };
 
