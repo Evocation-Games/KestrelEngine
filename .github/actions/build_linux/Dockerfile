@@ -11,4 +11,4 @@ RUN apt-get update -y -q && \
   libfontconfig-dev && \
   apt-get clean
 
-ENTRYPOINT ["/github/workspace/.github/actions/entrypoint.sh"]
+ENTRYPOINT ["/github/workspace/.github/actions/build_linux/entrypoint.sh"]
