@@ -24,6 +24,7 @@
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 #include "math/point.hpp"
+#include <cmath>
 
 namespace math
 {

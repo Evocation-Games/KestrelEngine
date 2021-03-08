@@ -326,9 +326,9 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
     auto text_bmp = m_typesetter.render();
     auto text_size = m_typesetter.get_bounding_size();
 
-    auto bmp_line_start = std::max(0LL, static_cast<int64_t>(-point.x));
+    auto bmp_line_start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(-point.x));
     auto bmp_line_len = static_cast<int64_t>(text_size.width) - bmp_line_start;
-    auto start = std::max(0LL, static_cast<int64_t>(point.x));
+    auto start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(point.x));
 
     // Drawing the text into the canvas buffer at the appropriate point.
     for (auto y = 0; y < text_size.height; ++y) {
@@ -389,9 +389,9 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
     }
 
     // Drawing
-    auto bmp_line_start = std::max(0LL, static_cast<int64_t>(-point.x));
+    auto bmp_line_start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(-point.x));
     auto bmp_line_len = static_cast<int64_t>(img_frame.size.width) - bmp_line_start;
-    auto start = std::max(0LL, static_cast<int64_t>(point.x));
+    auto start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(point.x));
 
     for (auto y = 0; y < img_frame.size.height; ++y) {
         auto dy = std::floor(y + point.y);
@@ -422,9 +422,9 @@ auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua
 
     auto raw_pict_data = pict->spritesheet()->texture()->data();
 
-    auto bmp_line_start = std::max(0LL, static_cast<int64_t>(-point.x));
+    auto bmp_line_start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(-point.x));
     auto bmp_line_len = static_cast<int64_t>(pict_bounds.size.width) - bmp_line_start;
-    auto start = std::max(0LL, static_cast<int64_t>(point.x));
+    auto start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(point.x));
 
     for (auto y = 0; y < pict->size().height; ++y) {
         auto dy = std::floor(y + point.y);
