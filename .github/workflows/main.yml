@@ -1,0 +1,13 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          git submodule init
+          git submodule update
+      - name: Run build
+        uses: ./.github/actions/
