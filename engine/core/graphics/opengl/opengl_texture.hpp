@@ -36,7 +36,6 @@ namespace graphics { namespace opengl {
         GLuint m_wrap_t { GL_REPEAT };
         GLuint m_filter_min { GL_NEAREST };
         GLuint m_filter_max { GL_NEAREST };
-        GLuint m_env_mode { GL_MODULATE };
 
         auto upload() const -> void;
 
