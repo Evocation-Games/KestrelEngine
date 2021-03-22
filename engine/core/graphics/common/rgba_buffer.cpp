@@ -192,7 +192,7 @@ auto graphics::rgba_buffer::clear_rect(const graphics::color &c, const math::rec
 
 auto graphics::rgba_buffer::draw_pixel(const graphics::color &c, const math::point &p) -> void
 {
-    if (p.x < 0 || p.x > m_size.width || p.y < 0 || p.y > m_size.height) {
+    if (p.x < 0 || p.x >= m_size.width || p.y < 0 || p.y >= m_size.height) {
         return;
     }
     apply_run(c, p.x, p.x + 1, p.y);
@@ -200,10 +200,14 @@ auto graphics::rgba_buffer::draw_pixel(const graphics::color &c, const math::poi
 
 auto graphics::rgba_buffer::fill_rect(const graphics::color &c, const math::rect &r) -> void
 {
-    auto lo_x = static_cast<uint32_t>(std::max(r.get_x(), 0.0));
-    auto lo_y = static_cast<uint32_t>(std::max(r.get_y(), 0.0));
-    auto hi_x = static_cast<uint32_t>(std::min(r.get_width() + r.get_x(), m_size.width));
-    auto hi_y = static_cast<uint32_t>(std::min(r.get_height() + r.get_y(), m_size.height));
+    auto lo_x = std::max(static_cast<int>(r.get_x()), 0);
+    auto lo_y = std::max(static_cast<int>(r.get_y()), 0);
+    auto hi_x = std::min(static_cast<int>(r.get_width() + r.get_x()), static_cast<int>(m_size.width - 1));
+    auto hi_y = std::min(static_cast<int>(r.get_height() + r.get_y()), static_cast<int>(m_size.height));
+
+    if (lo_x >= hi_x || lo_y >= hi_y) {
+        return;
+    }
 
     for (auto y = lo_y; y < hi_y; ++y) {
         apply_run(c, lo_x, hi_x, y);
@@ -213,7 +217,7 @@ auto graphics::rgba_buffer::fill_rect(const graphics::color &c, const math::rect
 auto graphics::rgba_buffer::apply_run(const graphics::color &c, const uint64_t &start, const uint64_t &end,
                                       const uint64_t &line) -> void
 {
-    if (line < 0 || line >= m_size.height) {
+    if (line < 0 || line >= m_size.height || start >= end) {
         return;
     }
 
