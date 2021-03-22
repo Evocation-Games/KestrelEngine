@@ -27,7 +27,9 @@
 namespace math
 {
 
+#if !defined(KESTREL_VECTOR_HPP)
     struct vector;
+#endif
 
     /**
      * Represents a 2D point.
