@@ -83,6 +83,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     __strong id<MTLRenderCommandEncoder> _commandEncoder;
     __strong NSMutableArray<id<MTLTexture>> *_textures;
     __strong NSMutableArray<id<MTLRenderPipelineState>> *_pipelineStates;
+    __strong NSTrackingArea *_trackingArea;
     float _nativeScale;
     vector_uint2 _viewportSize;
 }
@@ -127,8 +128,19 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
             [_metalView.topAnchor constraintEqualToAnchor:self.topAnchor],
             [_metalView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
         ]];
+
+        // Setup a tracking area for mouse move events.
+        NSTrackingAreaOptions options = (NSTrackingActiveAlways | NSTrackingInVisibleRect |
+                                         NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved);
+        _trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] options:options owner:self userInfo:nil];
+        [_metalView addTrackingArea:_trackingArea];
     }
     return self;
+}
+
+- (BOOL)isFlipped
+{
+    return YES;
 }
 
 // MARK: - Pipelines
@@ -240,6 +252,14 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 {
     _viewportSize.x = size.width;
     _viewportSize.y = size.height;
+
+    // Redo the tracking area.
+    [view removeTrackingArea:_trackingArea];
+
+    NSTrackingAreaOptions options = (NSTrackingActiveAlways | NSTrackingInVisibleRect |
+                                     NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved);
+    _trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] options:options owner:self userInfo:nil];
+    [view addTrackingArea:_trackingArea];
 }
 
 // MARK: - Textures
@@ -319,7 +339,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     v[5].texture_coord = vector2( uv_x +uv_w, uv_y );
 
     // Apply a color to the vertexes of the entity based upon the entity color.
-    auto color = color_vector(graphics::color::white_color());
+    auto color = color_vector(graphics::color::white_color().with_alpha(entity->get_alpha() * 255.0));
     v[0].color = color;
     v[1].color = color;
     v[2].color = color;
@@ -337,8 +357,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     v[5].scale = scale;
 
     // Enqueue a render command for the entity.
-    // TODO: Set the pipeline state based on the texture mode of the entity.
-    [self setPipelineStateForIndex:0];
+    [self setPipelineStateForIndex:entity->get_blend_lua()];
 
     [_commandEncoder setVertexBytes:&v[0]
                              length:(sizeof(graphics::metal::vertex_descriptor) * v.size())
@@ -356,6 +375,48 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
                         vertexCount:v.size()];
 
     [self restoreDefaultPipelineState];
+}
+
+// MARK: - Mouse Events
+
+- (void)mouseDown:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto p = [self convertPoint:event.locationInWindow fromView:nil];
+        env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::pressed, event::mouse::button::left));
+    }
+}
+
+- (void)rightMouseDown:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto p = [self convertPoint:event.locationInWindow fromView:nil];
+        env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::pressed, event::mouse::button::right));
+    }
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto p = [self convertPoint:event.locationInWindow fromView:nil];
+        env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::released, event::mouse::button::left));
+    }
+}
+
+- (void)rightMouseUp:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto p = [self convertPoint:event.locationInWindow fromView:nil];
+        env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::released, event::mouse::button::right));
+    }
+}
+
+- (void)mouseMoved:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto p = [self convertPoint:event.locationInWindow fromView:nil];
+        env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::moved, event::mouse::button::none));
+    }
 }
 
 @end
