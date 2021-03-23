@@ -94,6 +94,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
         _metalView = [[MTKView alloc] initWithFrame:NSZeroRect device:_device];
 
         // Configure the basic view properties
+        [_metalView setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
         [_metalView setClearColor:MTLClearColorMake(0.0, 0.0, 0.0, 1.0)];
 
         // Configure the Metal Device
@@ -140,7 +141,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     MTLRenderPipelineDescriptor *pipe = [[MTLRenderPipelineDescriptor alloc] init];
     [pipe setLabel:@"com.kestrel.pipeline.normal"];
     [pipe setVertexFunction:[library newFunctionWithName:@"vertexShader"]];
-    [pipe setFragmentFunction:[library newFunctionWithName:@"fragmentShader"]];
+    [pipe setFragmentFunction:[library newFunctionWithName:@"samplingShader"]];
     [[pipe colorAttachments][0] setPixelFormat:[_metalView colorPixelFormat]];
     [[pipe colorAttachments][0] setBlendingEnabled:YES];
     [[pipe colorAttachments][0] setRgbBlendOperation:MTLBlendOperationAdd];
@@ -157,7 +158,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     dispatch_release(group);
-//    [pipe release];
+    [pipe release];
 }
 
 - (void)buildPipelineStateForLightBlendModeUsingLibrary:(id<MTLLibrary>)library
@@ -168,7 +169,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     MTLRenderPipelineDescriptor *pipe = [[MTLRenderPipelineDescriptor alloc] init];
     [pipe setLabel:@"com.kestrel.pipeline.light"];
     [pipe setVertexFunction:[library newFunctionWithName:@"vertexShader"]];
-    [pipe setFragmentFunction:[library newFunctionWithName:@"fragmentShader"]];
+    [pipe setFragmentFunction:[library newFunctionWithName:@"samplingShader"]];
     [[pipe colorAttachments][0] setPixelFormat:[_metalView colorPixelFormat]];
     [[pipe colorAttachments][0] setBlendingEnabled:YES];
     [[pipe colorAttachments][0] setRgbBlendOperation:MTLBlendOperationAdd];
@@ -221,13 +222,8 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
             [_commandEncoder setViewport:viewport];
             [_commandEncoder setRenderPipelineState:_pipelineStates[0]];
 
-            // TODO: Call the rendering function here...
-            // Instruct the scene to render.
             if (auto env = environment::active_environment().lock()) {
-                auto scene = env->current_scene();
-                if (scene != nullptr) {
-                    scene->render();
-                }
+                env->window()->tick();
             }
 
             [_commandEncoder endEncoding];
@@ -296,10 +292,10 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 
     // Setup the vertex positions for the entity
     std::array<graphics::metal::vertex_descriptor, 6> v;
-    auto x = static_cast<float>(entity->position.x);
-    auto y = static_cast<float>(entity->position.y);
-    auto w = static_cast<float>(entity->size.width) / 2.f;
-    auto h = static_cast<float>(entity->size.height) / 2.f;
+    auto x = (static_cast<float>(entity->position.x) * 2) - _viewportSize.x;
+    auto y = (static_cast<float>(entity->position.y) * 2) - _viewportSize.y;
+    auto w = static_cast<float>(entity->size.width);
+    auto h = static_cast<float>(entity->size.height);
 
     v[0].position = vector2( x -w, y +h );
     v[1].position = vector2( x +w, y +h );
@@ -315,12 +311,12 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     auto uv_w = static_cast<float>(sprite.size().width);
     auto uv_h = static_cast<float>(sprite.size().height);
 
-    v[0].texture_coord = vector2( uv_x, uv_y );
-    v[1].texture_coord = vector2( uv_x +uv_w, uv_y );
-    v[2].texture_coord = vector2( uv_x +uv_w, uv_y +uv_h );
-    v[3].texture_coord = vector2( uv_x, uv_y );
-    v[4].texture_coord = vector2( uv_x, uv_y +uv_h );
-    v[5].texture_coord = vector2( uv_x +uv_w, uv_y +uv_h );
+    v[0].texture_coord = vector2( uv_x, uv_y +uv_h );
+    v[1].texture_coord = vector2( uv_x +uv_w, uv_y +uv_h );
+    v[2].texture_coord = vector2( uv_x +uv_w, uv_y );
+    v[3].texture_coord = vector2( uv_x, uv_y +uv_h );
+    v[4].texture_coord = vector2( uv_x, uv_y );
+    v[5].texture_coord = vector2( uv_x +uv_w, uv_y );
 
     // Apply a color to the vertexes of the entity based upon the entity color.
     auto color = color_vector(graphics::color::white_color());

@@ -23,6 +23,7 @@
 
 #include <memory>
 #include "core/support/macos/cocoa/object.h"
+#include "math/size.hpp"
 
 namespace cocoa
 {
@@ -38,6 +39,7 @@ namespace cocoa
         auto title() const -> std::string;
 
         auto set_size(const int& width, const int& height) -> void;
+        auto size() const -> math::size;
 
         auto set_content_view(const std::shared_ptr<cocoa::view>& view) -> void;
     };

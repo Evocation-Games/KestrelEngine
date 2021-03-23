@@ -41,6 +41,11 @@ auto graphics::scene::get_name() const -> std::string
     return m_name;
 }
 
+auto graphics::scene::get_owner() const -> std::weak_ptr<graphics::session_window>
+{
+    return m_owner;
+}
+
 // MARK: - Render/Physics
 
 auto graphics::scene::update() -> void

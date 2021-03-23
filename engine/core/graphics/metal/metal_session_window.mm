@@ -46,11 +46,19 @@ auto graphics::metal::session_window::set_size(const math::size &size) -> void
     m_window->set_size(static_cast<int>(size.width), static_cast<int>(size.height));
 }
 
+auto graphics::metal::session_window::get_size() const -> math::size
+{
+    return m_window->size();
+}
+
 // MARK: - Rendering
 
 auto graphics::metal::session_window::render() -> void
 {
-    // This route is not used by Metal
+    if (m_scenes.empty()) {
+        return;
+    }
+    current_scene()->render();
 }
 
 auto graphics::metal::session_window::draw_entity(const graphics::entity::lua_reference& entity) const -> void

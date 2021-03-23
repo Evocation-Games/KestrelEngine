@@ -56,8 +56,14 @@ auto cocoa::window::title() const -> std::string
 
 auto cocoa::window::set_size(const int& width, const int& height) -> void
 {
-    [cocoa::object::get<NSWindow *>() setFrame:NSMakeRect(0, 0, width, height) display:YES];
+    [cocoa::object::get<NSWindow *>() setContentSize:NSMakeSize(width, height)];
     [cocoa::object::get<NSWindow *>() center];
+}
+
+auto cocoa::window::size() const -> math::size
+{
+    auto s = [cocoa::object::get<NSWindow *>() contentView].frame.size;
+    return math::size(s.width, s.height);
 }
 
 // MARK: - Subviews
