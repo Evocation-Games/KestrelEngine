@@ -21,6 +21,9 @@
 #include <MetalKit/MetalKit.h>
 #include <array>
 
+// Warning: Dependance on Carbon here for Key Codes, due to Cocoa not having them?
+#include <Carbon/Carbon.h>
+
 // LuaBridge and Objective-C are not really on speaking terms.
 // Make sure that the two don't fight by removing the following
 // definition.
@@ -33,7 +36,6 @@
 #include "core/graphics/metal/metal_shader.h"
 #include "core/graphics/metal/metal_texture.h"
 #include "core/graphics/common/scene.hpp"
-#include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/color.hpp"
 
 // MARK: - Inline Helpers
@@ -47,6 +49,39 @@ static inline auto color_vector(const graphics::color& c) -> simd_float4
 }
 
 // MARK: - Cocoa Interface
+
+@interface WrappedMTKView : MTKView
+
+@end
+
+@implementation WrappedMTKView
+
+- (BOOL)acceptsFirstResponder
+{
+    return YES;
+}
+
+- (BOOL)canBecomeKeyView
+{
+    return YES;
+}
+
+- (void)keyDown:(NSEvent *)event
+{
+    [[self superview] keyDown:event];
+}
+
+- (void)keyUp:(NSEvent *)event
+{
+    [[self superview] keyUp:event];
+}
+
+- (void)flagsChanged:(NSEvent *)event
+{
+    [[self superview] flagsChanged:event];
+}
+
+@end
 
 @interface MetalView: NSView <MTKViewDelegate>
 - (void)drawEntity:(const graphics::entity::lua_reference&)entity;
@@ -77,7 +112,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 // MARK: - Cocoa Implementation
 
 @implementation MetalView {
-    __strong MTKView *_metalView;
+    __strong WrappedMTKView *_metalView;
     __strong id<MTLDevice> _device;
     __strong id<MTLCommandQueue> _commandQueue;
     __strong id<MTLRenderCommandEncoder> _commandEncoder;
@@ -86,13 +121,14 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     __strong NSTrackingArea *_trackingArea;
     float _nativeScale;
     vector_uint2 _viewportSize;
+    NSEventModifierFlags _activeModifierFlags;
 }
 
 - (instancetype)init
 {
     if (self = [super initWithFrame:CGRectZero]) {
         _device = MTLCreateSystemDefaultDevice();
-        _metalView = [[MTKView alloc] initWithFrame:NSZeroRect device:_device];
+        _metalView = [[WrappedMTKView alloc] initWithFrame:NSZeroRect device:_device];
 
         // Configure the basic view properties
         [_metalView setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
@@ -106,7 +142,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
         //  in the app bundle.
         NSError *error = nil;
         NSString *libraryPath = [[NSBundle mainBundle] pathForResource:@"default" ofType:@"metallib"];
-        id<MTLLibrary> library = [_device newLibraryWithFile:libraryPath error:&error];
+        id <MTLLibrary> library = [_device newLibraryWithFile:libraryPath error:&error];
         if (!library) {
             throw std::runtime_error("Failed to find 'default.metallib' inside the application bundle.");
         }
@@ -123,10 +159,10 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
         [_metalView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [self addSubview:_metalView];
         [NSLayoutConstraint activateConstraints:@[
-            [_metalView.leftAnchor constraintEqualToAnchor:self.leftAnchor],
-            [_metalView.rightAnchor constraintEqualToAnchor:self.rightAnchor],
-            [_metalView.topAnchor constraintEqualToAnchor:self.topAnchor],
-            [_metalView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
+                [_metalView.leftAnchor constraintEqualToAnchor:self.leftAnchor],
+                [_metalView.rightAnchor constraintEqualToAnchor:self.rightAnchor],
+                [_metalView.topAnchor constraintEqualToAnchor:self.topAnchor],
+                [_metalView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
         ]];
 
         // Setup a tracking area for mouse move events.
@@ -416,6 +452,157 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     if (auto env = environment::active_environment().lock()) {
         auto p = [self convertPoint:event.locationInWindow fromView:nil];
         env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::moved, event::mouse::button::none));
+    }
+}
+
+// MARK: - Key Events
+
+- (void)viewDidMoveToWindow
+{
+    [[self window] makeFirstResponder:_metalView];
+}
+
+- (BOOL)acceptsFirstResponder
+{
+    return YES;
+}
+
+//- (BOOL)performKeyEquivalent:(NSEvent *)event
+//{
+//    if (([event modifierFlags] & NSEventModifierFlagCommand) && ([event keyCode] == 12)) {
+//        return NO;
+//    }
+//    return YES;
+//};
+
+- (void)keyEvent:(NSEvent *)event down:(BOOL)down
+{
+    if (auto env = environment::active_environment().lock()) {
+        env->post_key_event(event::key([self translateKeycodeForEvent:event], 0, down ? event::key::pressed : event::key::released));
+    }
+}
+
+- (enum event::key::code)translateKeycodeForEvent:(NSEvent *)event
+{
+    switch ([event keyCode]) {
+        // Special Keys
+        case kVK_ANSI_KeypadEnter:
+        case kVK_Return:                return event::key::code::enter;
+        case kVK_Tab:                   return event::key::code::tab;
+        case kVK_Delete:                return event::key::code::backspace;
+        case kVK_Escape:                return event::key::code::escape;
+
+        // Cursor Keys
+        case kVK_LeftArrow:             return event::key::code::left;
+        case kVK_RightArrow:            return event::key::code::right;
+        case kVK_DownArrow:             return event::key::code::down;
+        case kVK_UpArrow:               return event::key::code::up;
+
+        // Letters
+        case kVK_ANSI_A:                return event::key::code::a;
+        case kVK_ANSI_S:                return event::key::code::s;
+        case kVK_ANSI_D:                return event::key::code::d;
+        case kVK_ANSI_F:                return event::key::code::f;
+        case kVK_ANSI_H:                return event::key::code::h;
+        case kVK_ANSI_G:                return event::key::code::g;
+        case kVK_ANSI_Z:                return event::key::code::z;
+        case kVK_ANSI_X:                return event::key::code::x;
+        case kVK_ANSI_C:                return event::key::code::c;
+        case kVK_ANSI_V:                return event::key::code::v;
+        case kVK_ANSI_B:                return event::key::code::b;
+        case kVK_ANSI_Q:                return event::key::code::q;
+        case kVK_ANSI_W:                return event::key::code::w;
+        case kVK_ANSI_E:                return event::key::code::e;
+        case kVK_ANSI_R:                return event::key::code::r;
+        case kVK_ANSI_Y:                return event::key::code::y;
+        case kVK_ANSI_T:                return event::key::code::t;
+        case kVK_ANSI_O:                return event::key::code::o;
+        case kVK_ANSI_U:                return event::key::code::u;
+        case kVK_ANSI_I:                return event::key::code::i;
+        case kVK_ANSI_P:                return event::key::code::p;
+        case kVK_ANSI_L:                return event::key::code::l;
+        case kVK_ANSI_J:                return event::key::code::j;
+        case kVK_ANSI_K:                return event::key::code::k;
+        case kVK_ANSI_N:                return event::key::code::n;
+        case kVK_ANSI_M:                return event::key::code::m;
+
+        // Numbers
+        case kVK_ANSI_Keypad0:
+        case kVK_ANSI_0:                return event::key::code::kp_0;
+        case kVK_ANSI_Keypad1:
+        case kVK_ANSI_1:                return event::key::code::kp_1;
+        case kVK_ANSI_Keypad2:
+        case kVK_ANSI_2:                return event::key::code::kp_2;
+        case kVK_ANSI_Keypad3:
+        case kVK_ANSI_3:                return event::key::code::kp_3;
+        case kVK_ANSI_Keypad4:
+        case kVK_ANSI_4:                return event::key::code::kp_4;
+        case kVK_ANSI_Keypad5:
+        case kVK_ANSI_5:                return event::key::code::kp_5;
+        case kVK_ANSI_Keypad6:
+        case kVK_ANSI_6:                return event::key::code::kp_6;
+        case kVK_ANSI_Keypad7:
+        case kVK_ANSI_7:                return event::key::code::kp_7;
+        case kVK_ANSI_Keypad8:
+        case kVK_ANSI_8:                return event::key::code::kp_8;
+        case kVK_ANSI_Keypad9:
+        case kVK_ANSI_9:                return event::key::code::kp_9;
+
+        // Special
+        case kVK_Space:                 return event::key::code::space;
+
+        // Unknown
+        default:                        return event::key::code::unknown;
+    }
+}
+
+- (void)keyDown:(NSEvent *)event
+{
+    [self keyEvent:event down:YES];
+}
+
+- (void)keyUp:(NSEvent *)event
+{
+    [self keyEvent:event down:NO];
+}
+
+- (void)flagsChanged:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        if ([event modifierFlags] & NSEventModifierFlagCapsLock) {
+            env->post_key_event(event::key(event::key::caps_lock, 0, event::key::pressed));
+        }
+        else if ([event modifierFlags] | NSEventModifierFlagCapsLock) {
+            env->post_key_event(event::key(event::key::caps_lock, 0, event::key::released));
+        }
+
+        if ([event modifierFlags] & NSEventModifierFlagShift) {
+            env->post_key_event(event::key(event::key::left_shift, 0, event::key::pressed));
+        }
+        else if ([event modifierFlags] | NSEventModifierFlagShift) {
+            env->post_key_event(event::key(event::key::left_shift, 0, event::key::released));
+        }
+
+        if ([event modifierFlags] & NSEventModifierFlagControl) {
+            env->post_key_event(event::key(event::key::left_control, 0, event::key::pressed));
+        }
+        else if ([event modifierFlags] | NSEventModifierFlagControl) {
+            env->post_key_event(event::key(event::key::left_control, 0, event::key::released));
+        }
+
+        if ([event modifierFlags] & NSEventModifierFlagOption) {
+            env->post_key_event(event::key(event::key::left_alt, 0, event::key::pressed));
+        }
+        else if ([event modifierFlags] | NSEventModifierFlagOption) {
+            env->post_key_event(event::key(event::key::left_alt, 0, event::key::released));
+        }
+
+        if ([event modifierFlags] & NSEventModifierFlagCommand) {
+            env->post_key_event(event::key(event::key::left_super, 0, event::key::pressed));
+        }
+        else if ([event modifierFlags] | NSEventModifierFlagCommand) {
+            env->post_key_event(event::key(event::key::left_super, 0, event::key::released));
+        }
     }
 }
 

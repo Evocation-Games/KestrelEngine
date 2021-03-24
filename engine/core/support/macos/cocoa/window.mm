@@ -27,11 +27,13 @@
 cocoa::window::window()
 {
     NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 200, 200)
-                                                   styleMask:NSWindowStyleMaskTitled
+                                                   styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES];
     [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [window makeKeyAndOrderFront:nil];
+    [window becomeMainWindow];
+    [window becomeKeyWindow];
     [window center];
     [[window contentView] setWantsLayer:YES];
     cocoa::object::set(window);
@@ -88,4 +90,5 @@ auto cocoa::window::set_content_view(const std::shared_ptr<cocoa::view> &view) -
         [cocoa_view.topAnchor constraintEqualToAnchor:content_view.topAnchor],
         [cocoa_view.bottomAnchor constraintEqualToAnchor:content_view.bottomAnchor],
     ]];
+
 }
