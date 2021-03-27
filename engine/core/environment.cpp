@@ -276,6 +276,12 @@ auto environment::import_script(const asset::resource_reference::lua_reference& 
     }
 }
 
+auto environment::gc_purge() -> void
+{
+    lua_gc(m_lua_runtime->internal_state(), LUA_GCCOLLECT, 0);
+}
+
+
 // MARK: - Accessors
 
 auto environment::window() -> std::shared_ptr<graphics::session_window>
@@ -352,4 +358,3 @@ auto environment::post_mouse_event(const event::mouse &event) -> void
         scene->mouse_event(event);
     }
 }
-

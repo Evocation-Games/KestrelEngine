@@ -23,8 +23,7 @@
 
 #include <simd/simd.h>
 
-namespace graphics::metal
-{
+namespace graphics { namespace metal {
 
     enum vertex_input_index
     {
@@ -45,6 +44,6 @@ namespace graphics::metal
         vector_float4 color;
     };
 
-};
+}}
 
 #endif //KESTREL_METAL_SHADER_H

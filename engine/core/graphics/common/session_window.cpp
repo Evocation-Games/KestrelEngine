@@ -91,6 +91,7 @@ auto graphics::session_window::update() -> void
     if ((session_clock::now() - m_cache_purge_time).count() >= 60) {
         if (auto env = m_environment.lock()) {
             env->cache()->purge_unused();
+            env->gc_purge();
         }
     }
 }

@@ -36,6 +36,8 @@ namespace graphics::metal
 
         auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
         auto register_texture(const std::shared_ptr<graphics::texture>& texture) -> int;
+
+        auto destroy_texture(const int& handle) -> void;
     };
 
 }

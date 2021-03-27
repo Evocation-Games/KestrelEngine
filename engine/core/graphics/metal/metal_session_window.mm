@@ -79,7 +79,9 @@ auto graphics::metal::session_window::new_scene(const std::string& name, const s
 auto graphics::metal::session_window::create_texture(const math::size &size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
 {
     auto texture = std::make_shared<graphics::metal::texture>(size, std::move(data));
-    texture->set_handle(m_view->register_texture(texture));
+    texture->set_handle(m_view->register_texture(texture), [&](const int& handle) {
+        this->m_view->destroy_texture(handle);
+    });
     return texture;
 }
 
@@ -87,7 +89,9 @@ auto graphics::metal::session_window::create_texture(const math::size &size,
                                                      const uint8_t *data) const -> std::shared_ptr<graphics::texture>
 {
     auto texture = std::make_shared<graphics::metal::texture>(size, data);
-    texture->set_handle(m_view->register_texture(texture));
+    texture->set_handle(m_view->register_texture(texture), [&](const int& handle) {
+        this->m_view->destroy_texture(handle);
+    });
     return texture;
 }
 

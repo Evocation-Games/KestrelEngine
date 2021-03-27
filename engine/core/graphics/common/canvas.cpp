@@ -98,6 +98,10 @@ auto graphics::canvas::rebuild_texture() -> void
 
     if (auto env = environment::active_environment().lock()) {
         // Rebuild the texture.
+        if (auto existing_texture = m_linked_tex.lock()) {
+            existing_texture->destroy();
+        }
+
         auto tex = env->create_texture(m_size, raw());
         m_entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_size));
     }

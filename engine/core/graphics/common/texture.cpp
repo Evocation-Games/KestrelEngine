@@ -81,3 +81,8 @@ auto graphics::texture::bind() const -> void
     // Empty Implementation
 }
 
+auto graphics::texture::destroy() -> void
+{
+
+}
+

@@ -86,6 +86,7 @@ static inline auto color_vector(const graphics::color& c) -> simd_float4
 @interface MetalView: NSView <MTKViewDelegate>
 - (void)drawEntity:(const graphics::entity::lua_reference&)entity;
 - (int)registerTexture:(std::shared_ptr<graphics::texture>)texture;
+- (void)destroyTexture:(const int)handle;
 @end
 
 
@@ -109,6 +110,11 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     return [get<MetalView *>() registerTexture:texture];
 }
 
+auto graphics::metal::view::destroy_texture(const int &handle) -> void
+{
+    [get<MetalView *>() destroyTexture:handle];
+}
+
 // MARK: - Cocoa Implementation
 
 @implementation MetalView {
@@ -116,7 +122,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     __strong id<MTLDevice> _device;
     __strong id<MTLCommandQueue> _commandQueue;
     __strong id<MTLRenderCommandEncoder> _commandEncoder;
-    __strong NSMutableArray<id<MTLTexture>> *_textures;
+    __strong NSMutableArray *_textures;
     __strong NSMutableArray<id<MTLRenderPipelineState>> *_pipelineStates;
     __strong NSTrackingArea *_trackingArea;
     float _nativeScale;
@@ -310,7 +316,7 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     [textureDescriptor setWidth:static_cast<NSUInteger>(size.width)];
     [textureDescriptor setHeight:static_cast<NSUInteger>(size.height)];
 
-    id<MTLTexture> mtlTexture = [[_device newTextureWithDescriptor:textureDescriptor] autorelease];
+    id<MTLTexture> mtlTexture = [_device newTextureWithDescriptor:textureDescriptor];
 
     MTLRegion region = MTLRegionMake2D(0, 0, static_cast<NSUInteger>(size.width), static_cast<NSUInteger>(size.height));
     region.origin.z = 0;
@@ -329,7 +335,13 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
         _textures = [[NSMutableArray alloc] init];
     }
     [_textures addObject:mtlTexture];
+    [mtlTexture release];
     return static_cast<int>([_textures count] - 1);
+}
+
+- (void)destroyTexture:(const int)handle
+{
+    [_textures replaceObjectAtIndex:handle withObject:[NSNull null]];
 }
 
 - (id<MTLTexture>)textureUsing:(std::shared_ptr<graphics::texture>)texture
@@ -366,6 +378,13 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     auto uv_y = static_cast<float>(sprite.point().y);
     auto uv_w = static_cast<float>(sprite.size().width);
     auto uv_h = static_cast<float>(sprite.size().height);
+
+    if (entity->has_clipping_area()) {
+        uv_x = static_cast<float>(sprite.point().x + entity->clipping_offset_uv().x);
+        uv_y = static_cast<float>(sprite.point().y + entity->clipping_offset_uv().y);
+        uv_w = static_cast<float>(entity->clipping_area_uv().width);
+        uv_h = static_cast<float>(entity->clipping_area_uv().height);
+    }
 
     v[0].texture_coord = vector2( uv_x, uv_y +uv_h );
     v[1].texture_coord = vector2( uv_x +uv_w, uv_y +uv_h );
@@ -455,6 +474,14 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
     }
 }
 
+- (void)mouseDragged:(NSEvent *)event
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto p = [self convertPoint:event.locationInWindow fromView:nil];
+        env->post_mouse_event(event::mouse(static_cast<int>(p.x), static_cast<int>(p.y), event::mouse::action::moved, event::mouse::button::left));
+    }
+}
+
 // MARK: - Key Events
 
 - (void)viewDidMoveToWindow
@@ -466,14 +493,6 @@ auto graphics::metal::view::register_texture(const std::shared_ptr<graphics::tex
 {
     return YES;
 }
-
-//- (BOOL)performKeyEquivalent:(NSEvent *)event
-//{
-//    if (([event modifierFlags] & NSEventModifierFlagCommand) && ([event keyCode] == 12)) {
-//        return NO;
-//    }
-//    return YES;
-//};
 
 - (void)keyEvent:(NSEvent *)event down:(BOOL)down
 {

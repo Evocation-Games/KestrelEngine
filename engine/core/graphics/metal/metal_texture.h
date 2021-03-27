@@ -21,14 +21,17 @@
 #if __APPLE__ && !defined(KESTREL_METAL_TEXTURE_H)
 #define KESTREL_METAL_TEXTURE_H
 
+#include <functional>
 #include "core/graphics/common/texture.hpp"
 
-namespace graphics { namespace metal {
+namespace graphics::metal
+{
 
     class texture: public graphics::texture
     {
     private:
         int m_handle { -1 };
+        std::function<auto(const int&)->void> m_cleanup;
 
     public:
         texture(const double& width, const double& height);
@@ -37,12 +40,14 @@ namespace graphics { namespace metal {
         texture(const math::size& size, std::vector<uint32_t> data);
         texture(const math::size& size, const uint8_t *data);
 
+        ~texture();
+
         auto bind() const -> void override;
 
-        auto set_handle(const int& handle) -> void;
+        auto set_handle(const int& handle, std::function<auto(const int&)->void> cleanup) -> void;
         auto handle() const -> int override;
     };
 
-}}
+}
 
 #endif //KESTREL_METAL_TEXTURE_H

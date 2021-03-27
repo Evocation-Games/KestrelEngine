@@ -48,6 +48,8 @@ namespace graphics
         virtual auto handle() const -> int;
 
         virtual auto bind() const -> void;
+
+        virtual auto destroy() -> void;
     };
 
 }

@@ -48,7 +48,6 @@ namespace graphics
     private:
         math::size m_size;
         graphics::rgba_buffer m_rgba_buffer;
-        std::vector<graphics::color> m_buffer;
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };
         graphics::typesetter m_typesetter;
