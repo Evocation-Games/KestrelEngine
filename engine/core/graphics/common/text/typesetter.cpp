@@ -21,6 +21,7 @@
 #include <codecvt>
 #include <algorithm>
 #include <locale>
+#include <cmath>
 #include "core/graphics/common/text/typesetter.hpp"
 
 // MARK: - Construction
