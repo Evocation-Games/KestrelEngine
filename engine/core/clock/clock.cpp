@@ -61,4 +61,3 @@ auto rtc::clock::tick() -> void
         m_last_time = m_current_time;
     }
 }
-

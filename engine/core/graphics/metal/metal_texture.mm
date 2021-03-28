@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include "core/graphics/metal/metal_texture.h"
-#include <utility>
 
 // MARK: - Construction
 
@@ -47,6 +46,21 @@ graphics::metal::texture::texture(const math::size &size, std::vector<uint32_t> 
 
 }
 
+graphics::metal::texture::texture(const math::size &size, const uint8_t *data)
+    : graphics::texture(size, data)
+{
+
+}
+
+// MARK: - Destructors
+
+graphics::metal::texture::~texture()
+{
+    if (m_cleanup) {
+        m_cleanup(m_handle);
+    }
+}
+
 // MARK: - Accessors
 
 auto graphics::metal::texture::handle() const -> int
@@ -54,9 +68,10 @@ auto graphics::metal::texture::handle() const -> int
     return m_handle;
 }
 
-auto graphics::metal::texture::set_handle(const int &handle) -> void
+auto graphics::metal::texture::set_handle(const int &handle, std::function<auto(const int&)->void> cleanup) -> void
 {
     m_handle = handle;
+    m_cleanup = cleanup;
 }
 
 // MARK: - Texture Management

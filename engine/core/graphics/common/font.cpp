@@ -51,6 +51,7 @@ graphics::font::font(const std::string& name)
             throw std::logic_error("Failed to initialise FreeType");
         }
         ft_loaded = true;
+        FT_Library_SetLcdFilter(ft, FT_LCD_FILTER_NONE);
     }
 
     if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
@@ -96,5 +97,5 @@ auto graphics::font::calculate_glyph_width(const FT_UInt &glyph_index, const FT_
 
 auto graphics::font::line_height() const -> double
 {
-    return static_cast<double>(static_cast<unsigned int>(m_face->size->metrics.ascender - m_face->size->metrics.descender) >> 6U);
+    return static_cast<double>(static_cast<unsigned int>(m_face->size->metrics.height) >> 6U);
 }

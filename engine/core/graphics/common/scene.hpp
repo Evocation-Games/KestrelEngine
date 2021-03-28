@@ -46,6 +46,7 @@ namespace graphics
         explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script, const std::string& name);
 
         auto get_name() const -> std::string;
+        auto get_owner() const -> std::weak_ptr<graphics::session_window>;
 
         auto add_render_block(const luabridge::LuaRef& block) -> void;
         auto invoke_render_blocks() -> void;

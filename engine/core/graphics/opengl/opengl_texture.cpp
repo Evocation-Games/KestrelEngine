@@ -92,7 +92,6 @@ auto graphics::opengl::texture::upload() const -> void
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_wrap_t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_filter_min);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_filter_max);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, m_env_mode);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

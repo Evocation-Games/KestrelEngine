@@ -25,7 +25,9 @@
 #include <string>
 #include <optional>
 #include <unordered_map>
+#include <tuple>
 #include "core/asset/resource_reference.hpp"
+#include "core/clock/clock.hpp"
 
 namespace asset
 {
@@ -33,13 +35,15 @@ namespace asset
     class cache
     {
     private:
-        std::unordered_map<std::size_t, std::any> m_assets;
+        std::unordered_map<std::size_t, std::tuple<std::any, rtc::clock::time>> m_assets;
 
     public:
         cache() = default;
 
         auto add(const std::string& type, const asset::resource_reference::lua_reference& ref, const std::any& asset) -> void;
-        auto fetch(const std::string& type, const asset::resource_reference::lua_reference& ref) const -> std::optional<std::any>;
+        auto fetch(const std::string& type, const asset::resource_reference::lua_reference& ref) -> std::optional<std::any>;
+
+        auto purge_unused() -> void;
     };
 
 }

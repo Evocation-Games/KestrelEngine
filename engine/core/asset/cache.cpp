@@ -40,17 +40,33 @@ static inline auto make_hash(const std::string& type, const asset::resource_refe
 auto asset::cache::add(const std::string &type, const asset::resource_reference::lua_reference &ref,
                        const std::any &asset) -> void
 {
-    m_assets[make_hash(type, ref)] = asset;
+    m_assets[make_hash(type, ref)] = std::make_tuple(asset, rtc::clock::global().current());
 }
 
 auto asset::cache::fetch(const std::string &type,
-                         const asset::resource_reference::lua_reference &ref) const -> std::optional<std::any>
+                         const asset::resource_reference::lua_reference &ref) -> std::optional<std::any>
 {
     auto k = make_hash(type, ref);
     if (m_assets.find(k) == m_assets.end()) {
         return {};
     }
-    return m_assets.at(k);
+
+    auto asset = std::get<0>(m_assets.at(k));
+    m_assets[k] = std::make_tuple(asset, rtc::clock::global().current());
+    return asset;
+}
+
+// MARK: - Purging
+
+auto asset::cache::purge_unused() -> void
+{
+    const auto death_interval = 10.0 * 60.0; // 10 Minutes
+
+    for (const auto& asset_pair : m_assets) {
+        if (rtc::clock::global().since(std::get<1>(asset_pair.second)).count() >= death_interval) {
+            m_assets.erase(asset_pair.first);
+        }
+    }
 }
 
 

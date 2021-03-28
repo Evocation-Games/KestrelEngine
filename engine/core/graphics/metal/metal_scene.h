@@ -23,7 +23,8 @@
 
 #include "core/graphics/common/scene.hpp"
 
-namespace graphics { namespace metal {
+namespace graphics::metal
+{
 
     class scene: public graphics::scene
     {
@@ -36,6 +37,6 @@ namespace graphics { namespace metal {
         auto draw_entity(const graphics::entity::lua_reference& entity) const -> void override;
     };
 
-}};
+};
 
 #endif //KESTREL_METAL_SCENE_H

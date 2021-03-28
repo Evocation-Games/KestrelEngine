@@ -48,7 +48,6 @@ namespace graphics
     private:
         math::size m_size;
         graphics::rgba_buffer m_rgba_buffer;
-        std::vector<graphics::color> m_buffer;
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };
         graphics::typesetter m_typesetter;
@@ -56,6 +55,7 @@ namespace graphics
         math::line m_top;
         math::line m_right;
         math::line m_bottom;
+        std::weak_ptr<graphics::texture> m_linked_tex;
 
         auto raw() const -> uint8_t *;
         auto draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void;
@@ -65,6 +65,8 @@ namespace graphics
 
         lua_api auto get_pen_color() const -> graphics::color;
         lua_api auto set_pen_color(const graphics::color& color) -> void;
+
+        lua_api auto get_bounds() const -> math::rect;
 
         lua_api auto set_font(const std::string& name, const int& size) ->void;
 
@@ -84,6 +86,8 @@ namespace graphics
 
         lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;
         lua_api auto draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void;
+
+        lua_api auto apply_mask(const graphics::canvas::lua_reference& c) -> void;
 
         lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
         lua_api auto entity() -> graphics::entity::lua_reference;

@@ -128,9 +128,17 @@ auto environment::launch_common() -> int
 auto environment::launch() -> int
 {
 #if __APPLE__
-    auto metal = false;
-    if (metal) {
-        return launch_metal();
+    // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
+    // metal check.
+    if (std::find(m_options.begin(), m_options.end(), "-opengl") != m_options.end()) {
+        // We are loading in OpenGL
+    }
+    else {
+        // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
+        auto metal = true;
+        if (metal) {
+            return launch_metal();
+        }
     }
 #endif
 
@@ -276,6 +284,12 @@ auto environment::import_script(const asset::resource_reference::lua_reference& 
     }
 }
 
+auto environment::gc_purge() -> void
+{
+    lua_gc(m_lua_runtime->internal_state(), LUA_GCCOLLECT, 0);
+}
+
+
 // MARK: - Accessors
 
 auto environment::window() -> std::shared_ptr<graphics::session_window>
@@ -352,4 +366,3 @@ auto environment::post_mouse_event(const event::mouse &event) -> void
         scene->mouse_event(event);
     }
 }
-

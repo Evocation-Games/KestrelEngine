@@ -53,6 +53,9 @@ namespace math
         lua_api auto sin(const double& magnitude = 1.0) const -> double;
         lua_api auto cos(const double& magnitude = 1.0) const -> double;
 
+        lua_api auto fsin(const double& magnitude = 1.0) const -> double;
+        lua_api auto fcos(const double& magnitude = 1.0) const -> double;
+
         auto operator+ (const math::angle& a) const -> math::angle;
         auto operator- (const math::angle& a) const -> math::angle;
         auto operator+ (const math::angular_difference& a) const -> math::angle;

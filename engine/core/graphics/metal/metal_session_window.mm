@@ -46,11 +46,19 @@ auto graphics::metal::session_window::set_size(const math::size &size) -> void
     m_window->set_size(static_cast<int>(size.width), static_cast<int>(size.height));
 }
 
+auto graphics::metal::session_window::get_size() const -> math::size
+{
+    return m_window->size();
+}
+
 // MARK: - Rendering
 
 auto graphics::metal::session_window::render() -> void
 {
-    // This route is not used by Metal
+    if (m_scenes.empty()) {
+        return;
+    }
+    current_scene()->render();
 }
 
 auto graphics::metal::session_window::draw_entity(const graphics::entity::lua_reference& entity) const -> void
@@ -71,7 +79,19 @@ auto graphics::metal::session_window::new_scene(const std::string& name, const s
 auto graphics::metal::session_window::create_texture(const math::size &size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
 {
     auto texture = std::make_shared<graphics::metal::texture>(size, std::move(data));
-    texture->set_handle(m_view->register_texture(texture));
+    texture->set_handle(m_view->register_texture(texture), [&](const int& handle) {
+        this->m_view->destroy_texture(handle);
+    });
+    return texture;
+}
+
+auto graphics::metal::session_window::create_texture(const math::size &size,
+                                                     const uint8_t *data) const -> std::shared_ptr<graphics::texture>
+{
+    auto texture = std::make_shared<graphics::metal::texture>(size, data);
+    texture->set_handle(m_view->register_texture(texture), [&](const int& handle) {
+        this->m_view->destroy_texture(handle);
+    });
     return texture;
 }
 

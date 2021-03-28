@@ -44,6 +44,6 @@ namespace graphics { namespace metal {
         vector_float4 color;
     };
 
-}};
+}}
 
 #endif //KESTREL_METAL_SHADER_H

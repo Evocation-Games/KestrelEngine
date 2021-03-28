@@ -21,6 +21,7 @@
 #include <cmath>
 #include "math/vector.hpp"
 #include "math/angle.hpp"
+#include "math/point.hpp"
 
 // MARK: - Lua
 
@@ -57,6 +58,7 @@ auto math::vector::enroll_object_api_in_state(const std::shared_ptr<scripting::l
             .addFunction("subtract", &math::vector::operator-)
             .addFunction("multiply", &math::vector::operator*)
             .addFunction("divide", &math::vector::operator/)
+            .addFunction("toPoint", &math::vector::point)
         .endClass();
 }
 
@@ -126,6 +128,11 @@ auto math::vector::operator!=(const math::vector& v) const -> bool
 }
 
 // MARK: - Operations
+
+auto math::vector::point() const -> math::point
+{
+    return math::point(x, y);
+}
 
 auto math::vector::angle() const -> math::angle
 {

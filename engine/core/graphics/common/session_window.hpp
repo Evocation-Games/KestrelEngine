@@ -50,6 +50,7 @@ namespace graphics
         double m_time { 0.0 };
         double m_delta { 0.01 };
         time_point m_current_time;
+        time_point m_cache_purge_time;
         double m_accumulator { 0.0 };
         std::weak_ptr<environment> m_environment;
         std::vector<std::shared_ptr<graphics::scene>> m_scenes;

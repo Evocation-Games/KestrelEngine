@@ -121,6 +121,9 @@ auto asset::resource_reference::all_of_type(const std::string &type) -> util::lu
     for (const auto& r : resources) {
         found_resources.emplace_back(r.second);
     }
+    found_resources.sort([&] (const resource_reference::lua_reference& a, const resource_reference::lua_reference& b) -> bool {
+        return (a->id().value() < b->id().value());
+    });
 
     return found_resources;
 }

@@ -29,6 +29,10 @@ namespace math
 
     struct angle;
 
+#if !defined(KESTREL_POINT_HPP)
+    struct point;
+#endif
+
     /**
      * Represents a 3D point.
      *
@@ -56,6 +60,8 @@ namespace math
         lua_api auto operator/(const double& f) const -> math::vector;
         auto operator==(const math::vector& v) const -> bool;
         auto operator!=(const math::vector& v) const -> bool;
+
+        lua_api auto point() const -> math::point;
 
         lua_api auto angle() const -> math::angle;
         lua_api auto angle_to(const math::vector& v) const -> math::angle;

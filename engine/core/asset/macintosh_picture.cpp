@@ -53,7 +53,7 @@ asset::macintosh_picture::macintosh_picture(const asset::resource_reference::lua
             }
         }
     }
-    throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
+    throw std::logic_error("Bad resource reference encountered: Unable to load resource: " + std::to_string(ref->id().value()));
 }
 
 auto asset::macintosh_picture::load(const asset::resource_reference::lua_reference& ref) -> macintosh_picture::lua_reference
