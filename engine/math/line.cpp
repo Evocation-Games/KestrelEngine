@@ -88,7 +88,7 @@ auto math::line::intersects(const math::line& l) const -> bool
 
     auto x = xnom / denom;
     auto y = ynom / denom;
-    if (!isfinite(x) || !isfinite(y)) {
+    if (!std::isfinite(x) || !std::isfinite(y)) {
         return false;
     }
 

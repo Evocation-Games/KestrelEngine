@@ -18,35 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_LINE_HPP)
-#define KESTREL_LINE_HPP
+#if !defined(KESTREL_SOUND_HPP)
+#define KESTREL_SOUND_HPP
 
+#include "core/asset/resource_reference.hpp"
 #include "scripting/state.hpp"
-#include "util/hint.hpp"
-#include "math/point.hpp"
-#include <cmath>
 
-namespace math
+namespace asset
 {
 
-    struct line: public scripting::lua::object
+    struct macintosh_sound: public scripting::lua::object
     {
     public:
+        constexpr static const char *type { "snd " };
+        typedef luabridge::RefCountedPtr<asset::macintosh_sound> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
-
-        math::point p;
-        math::point q;
-
-        lua_api line(const math::point& p, const math::point& q);
-
-        lua_api auto get_p() const -> math::point;
-        lua_api auto set_p(const math::point& p) -> void;
-        lua_api auto get_q() const -> math::point;
-        lua_api auto set_q(const math::point& q) -> void;
-
-        lua_api auto intersects(const math::line& l) const -> bool;
+    public:
+        lua_api explicit macintosh_sound(const asset::resource_reference::lua_reference& ref);
+        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> macintosh_sound::lua_reference;
+        lua_api virtual auto play() -> void;
     };
 
-}
+};
 
-#endif //KESTREL_LINE_HPP
+#endif //KESTREL_SOUND_HPP
