@@ -128,9 +128,17 @@ auto environment::launch_common() -> int
 auto environment::launch() -> int
 {
 #if __APPLE__
-    auto metal = true;
-    if (metal) {
-        return launch_metal();
+    // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
+    // metal check.
+    if (std::find(m_options.begin(), m_options.end(), "-opengl") != m_options.end()) {
+        // We are loading in OpenGL
+    }
+    else {
+        // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
+        auto metal = true;
+        if (metal) {
+            return launch_metal();
+        }
     }
 #endif
 

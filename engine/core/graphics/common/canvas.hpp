@@ -55,6 +55,7 @@ namespace graphics
         math::line m_top;
         math::line m_right;
         math::line m_bottom;
+        std::weak_ptr<graphics::texture> m_linked_tex;
 
         auto raw() const -> uint8_t *;
         auto draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void;
