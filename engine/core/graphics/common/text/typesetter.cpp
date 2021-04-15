@@ -102,7 +102,7 @@ auto graphics::typesetter::layout() -> void
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, m_base_font_size << 6U, 72, 72);
+    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), 100, 100);
 
     // Prepare a buffer to keep track of character layouts, before committing them to the actual layout.
     std::vector<character> buffer;
@@ -125,6 +125,10 @@ auto graphics::typesetter::layout() -> void
             else if (*i == '\t') {
                 // Tab - this needs to be determined from a setting on the typesetter.
                 advance(50);
+            }
+            else if (*i == ' ' && m_pos.x < 1) {
+                ++i;
+                continue;
             }
 
             ++i;
@@ -165,7 +169,7 @@ auto graphics::typesetter::layout() -> void
             word_start = ++i;
 
             // Are we going to overrun the boundary?
-            if ((m_pos.x + glyph_advance) >= m_max_size.width) {
+            if ((m_pos.x + glyph_advance) >= m_max_size.width - 2) {
                 newline();
             }
 
@@ -196,12 +200,15 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, m_base_font_size << 6U, 72, 72);
+    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), 100, 100);
 
     for (const auto& ch : m_layout) {
-
         FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), ch.value);
-        if (FT_Load_Glyph(m_base_font->face(), glyph_index, FT_LOAD_RENDER)) {
+        if (FT_Load_Glyph(m_base_font->face(), glyph_index, FT_LOAD_DEFAULT | FT_LOAD_FORCE_AUTOHINT)) {
+            continue;
+        }
+
+        if (FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL)) {
             continue;
         }
 
@@ -210,7 +217,8 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
 
         for (auto yy = 0; yy < slot->bitmap.rows; ++yy) {
             for (auto xx = 0; xx < slot->bitmap.width; ++xx) {
-                auto alpha = std::min(255U, static_cast<unsigned int>(slot->bitmap.buffer[(yy * slot->bitmap.width) + xx]) + 16);
+                auto alpha = slot->bitmap.buffer[(yy * slot->bitmap.width) + xx];
+                alpha = alpha > 0 ? std::min(255U, static_cast<unsigned int>(alpha) + 64) : alpha;
                 auto hex_color = static_cast<unsigned int>(m_font_color.value() & 0x00FFFFFFU);
                 auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
                 auto offset = ((static_cast<int>(std::round(ch.y)) + y_offset + yy) * static_cast<int>(std::round(m_min_size.width))) + static_cast<int>(std::round(ch.x)) + x_offset + xx;
