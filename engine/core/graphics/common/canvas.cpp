@@ -48,6 +48,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("drawText", &graphics::canvas::draw_text)
             .addFunction("drawMacintoshPicture", &graphics::canvas::draw_picture)
             .addFunction("drawImage", &graphics::canvas::draw_image)
+            .addFunction("drawColorIcon", &graphics::canvas::draw_color_icon)
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
             .addFunction("clear", &graphics::canvas::clear)
             .addFunction("applyMaskUsingCanvas", &graphics::canvas::apply_mask)
@@ -459,6 +460,40 @@ auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_referenc
         }
     }
 }
+
+auto graphics::canvas::draw_color_icon(const asset::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) -> void
+{
+    math::rect bounds(math::point(0), m_size);
+    math::rect icon_bounds(point, icon->size());
+    if (!icon_bounds.intersects(bounds)) {
+        return;
+    }
+
+    auto raw_icon_data = icon->spritesheet()->texture()->data();
+
+    auto bmp_line_start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(-point.x));
+    auto bmp_line_len = static_cast<int64_t>(icon_bounds.size.width) - bmp_line_start;
+    auto start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(point.x));
+
+    for (auto y = 0; y < icon->size().height; ++y) {
+        auto dy = std::floor(y + point.y);
+        if (dy < 0) {
+            continue;
+        }
+        else if (y >= m_size.height) {
+            break;
+        }
+
+        auto bmp_line_offset = static_cast<int64_t>(y * icon_bounds.size.width);
+
+        auto vstart = raw_icon_data.cbegin() + bmp_line_offset + bmp_line_start;
+        auto vend = vstart + bmp_line_len;
+        std::vector<graphics::color> cv { vstart, vend };
+
+        m_rgba_buffer.apply_run(cv, start, dy);
+    }
+}
+
 
 // MARK: - Masking
 

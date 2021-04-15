@@ -33,6 +33,7 @@
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/font.hpp"
 #include "core/asset/macintosh_picture.hpp"
+#include "core/asset/color_icon.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/graphics/common/rgba_buffer.hpp"
 
@@ -86,6 +87,7 @@ namespace graphics
 
         lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;
         lua_api auto draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void;
+        lua_api auto draw_color_icon(const asset::color_icon::lua_reference& image, const math::point& point, const math::size& sz) -> void;
 
         lua_api auto apply_mask(const graphics::canvas::lua_reference& c) -> void;
 
