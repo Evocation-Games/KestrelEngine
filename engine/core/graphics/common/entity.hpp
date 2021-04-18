@@ -46,6 +46,8 @@ namespace graphics
         int sprite_index { 0 };
         blend m_blend { normal };
         double m_alpha { 1.0 };
+        std::string name;
+        int64_t id;
 
     private:
         std::shared_ptr<graphics::spritesheet> m_spritesheet;

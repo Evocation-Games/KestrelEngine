@@ -110,6 +110,8 @@ auto asset::image::spawn_entity(const math::vector& position) const -> graphics:
 {
     auto entity = graphics::entity::lua_reference(new graphics::entity(size()));
     entity->position = position;
+    entity->name = m_name;
+    entity->id = m_id;
     entity->set_spritesheet(spritesheet());
     return entity;
 }
