@@ -86,13 +86,18 @@ auto graphics::font::calculate_glyph_width(const FT_UInt &glyph_index, const FT_
     }
 
     auto advance_x = (static_cast<unsigned int>(m_face->glyph->advance.x) >> 6U);
-    if (previous_glyph_index && glyph_index) {
-        FT_Vector delta;
-        FT_Get_Kerning(m_face, previous_glyph_index, glyph_index, FT_KERNING_DEFAULT, &delta);
-        *kerning = math::size((static_cast<unsigned int>(delta.x) >> 6U), (static_cast<unsigned int>(delta.y) >> 6U));
-    }
 
-    return advance_x + kerning->width;
+    if (kerning) {
+        if (previous_glyph_index && glyph_index) {
+            FT_Vector delta;
+            FT_Get_Kerning(m_face, previous_glyph_index, glyph_index, FT_KERNING_DEFAULT, &delta);
+            *kerning = math::size((static_cast<unsigned int>(delta.x) >> 6U), (static_cast<unsigned int>(delta.y) >> 6U));
+        }
+        return advance_x + kerning->width;
+    }
+    else {
+        return advance_x;
+    }
 }
 
 auto graphics::font::line_height() const -> double

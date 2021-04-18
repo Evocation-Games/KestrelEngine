@@ -138,7 +138,7 @@ auto graphics::typesetter::layout() -> void
         // Fetch the current glyph, and calculate some basic metrics regarding it.
         FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), *i);
         math::size glyph_kerning { 0 };
-        auto glyph_advance = m_base_font->calculate_glyph_width(glyph_index, previous_glyph_index, &glyph_kerning) + glyph_kerning.width;
+        auto glyph_advance = m_base_font->calculate_glyph_width(glyph_index, previous_glyph_index, &glyph_kerning);
 
         if (is_non_breaking(*i)) {
             // The current character is one that can not result in a line break. Check if the character extends beyond

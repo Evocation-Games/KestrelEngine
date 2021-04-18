@@ -59,18 +59,18 @@ target_include_directories(kdl PUBLIC
 )
 target_link_libraries(kdl Graphite)
 
-# GAME (BreakOut) #########################################################
-#file(GLOB_RECURSE kestrel_game_files
-#	"projects/KestrelDemo/*.kdl"
-#	"projects/KestrelDemo/*.lua"
-#)
-#add_custom_target(KestrelGameCore ALL
-#	DEPENDS kdl ${kestrel_game_files}
-#)
-#add_custom_command(TARGET KestrelGameCore
-#	COMMAND ${CMAKE_BINARY_DIR}/kdl -o ${CMAKE_BINARY_DIR}/GameCore ${CMAKE_SOURCE_DIR}/projects/KestrelDemo/game.kdl
-#	DEPENDS ${kestrel_game_files}
-#)
+## GAME (BreakOut) #########################################################
+file(GLOB_RECURSE kestrel_game_files
+	"projects/KestrelDemo/*.kdl"
+	"projects/KestrelDemo/*.lua"
+)
+add_custom_target(KestrelGameCore ALL
+	DEPENDS kdl ${kestrel_game_files}
+)
+add_custom_command(TARGET KestrelGameCore
+	COMMAND ${CMAKE_BINARY_DIR}/kdl -o ${CMAKE_BINARY_DIR}/GameCore ${CMAKE_SOURCE_DIR}/projects/KestrelDemo/game.kdl
+	DEPENDS ${kestrel_game_files}
+)
 
 # KESTREL ENGINE ###############################################################
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -112,7 +112,7 @@ if(LINUX)
 elseif(APPLE)
 	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal" objc)
 endif()
-add_dependencies(Kestrel kdl)
+add_dependencies(Kestrel kdl KestrelGameCore)
 
 # MAC OS X APPLICATION BUNDLE ##################################################
 if(APPLE)
