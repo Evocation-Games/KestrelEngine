@@ -44,12 +44,17 @@ namespace graphics
         lua_api static auto current() -> graphics::lua_scene_wrapper::lua_reference;
         lua_api static auto pop_scene() -> void;
 
+        lua_api auto is_current() const -> bool;
         lua_api auto name() const -> std::string;
         lua_api auto size() const -> math::size;
         lua_api auto center_point() const -> math::point;
 
+        lua_api auto set_passthrough_render(const bool f) -> void;
+        lua_api auto passthrough_render() const -> bool;
+
         lua_api auto present() const -> void;
         lua_api auto render(const luabridge::LuaRef& block) const -> void;
+        lua_api auto update(const luabridge::LuaRef& block) const -> void;
         lua_api auto key_event(const luabridge::LuaRef& block) const -> void;
         lua_api auto mouse_event(const luabridge::LuaRef& block) const -> void;
         lua_api auto after(const double& period, const luabridge::LuaRef& block) const -> void;

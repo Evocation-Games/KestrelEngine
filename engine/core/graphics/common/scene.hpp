@@ -36,17 +36,25 @@ namespace graphics
         std::string m_name;
         std::weak_ptr<graphics::session_window> m_owner;
         std::vector<luabridge::LuaRef> m_render_blocks;
+        std::vector<luabridge::LuaRef> m_update_blocks;
         std::vector<luabridge::LuaRef> m_key_event_blocks;
         std::vector<luabridge::LuaRef> m_mouse_event_blocks;
         std::vector<std::shared_ptr<rtc::timed_event>> m_timed_events;
         scripting::lua::script m_script;
         rtc::clock::time m_starting_time { rtc::clock::global().current() };
+        bool m_passthrough_render { false };
 
     public:
         explicit scene(const std::shared_ptr<graphics::session_window>& window, const scripting::lua::script &script, const std::string& name);
 
         auto get_name() const -> std::string;
         auto get_owner() const -> std::weak_ptr<graphics::session_window>;
+
+        auto get_passthrough_render() const -> bool;
+        auto set_passthrough_render(const bool f) -> void;
+
+        auto add_update_block(const luabridge::LuaRef& block) -> void;
+        auto invoke_update_blocks() -> void;
 
         auto add_render_block(const luabridge::LuaRef& block) -> void;
         auto invoke_render_blocks() -> void;

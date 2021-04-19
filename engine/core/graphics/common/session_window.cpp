@@ -101,7 +101,18 @@ auto graphics::session_window::render() -> void
     if (m_scenes.empty()) {
         return;
     }
-    current_scene()->render();
+
+    auto base_scene = 0;
+    for (auto i = m_scenes.size() - 1; i >= 0; --i) {
+        base_scene = i;
+        if (!m_scenes[i]->get_passthrough_render()) {
+            break;
+        }
+    }
+
+    for (auto i = base_scene; i < m_scenes.size(); ++i) {
+        m_scenes[i]->render();
+    }
 }
 
 // MARK: - Scene Management

@@ -73,6 +73,8 @@ auto asset::macintosh_picture::load(const asset::resource_reference::lua_referen
     return image;
 }
 
+// MARK: - Accessors
+
 auto asset::macintosh_picture::size() const -> math::size
 {
     return image::size();
@@ -82,6 +84,8 @@ auto asset::macintosh_picture::sprite_count() const -> int
 {
     return image::sprite_count();
 }
+
+// MARK: - Sprites & Entities
 
 auto asset::macintosh_picture::layout_sprites(const math::size& sprite_size) -> void
 {

@@ -35,7 +35,7 @@ graphics::opengl::scene::scene(const std::shared_ptr<graphics::session_window>& 
 
 auto graphics::opengl::scene::update() -> void
 {
-
+    invoke_update_blocks();
 }
 
 auto graphics::opengl::scene::render() -> void

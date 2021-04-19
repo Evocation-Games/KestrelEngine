@@ -34,7 +34,7 @@ graphics::metal::scene::scene(const std::shared_ptr<graphics::session_window> &w
 
 auto graphics::metal::scene::update() -> void
 {
-
+    invoke_update_blocks();
 }
 
 auto graphics::metal::scene::render() -> void

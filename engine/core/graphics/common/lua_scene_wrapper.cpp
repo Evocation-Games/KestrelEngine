@@ -36,8 +36,11 @@ auto graphics::lua_scene_wrapper::enroll_object_api_in_state(const std::shared_p
             .addProperty("size", &graphics::lua_scene_wrapper::size)
             .addProperty("name", &graphics::lua_scene_wrapper::name)
             .addProperty("currentTime", &graphics::lua_scene_wrapper::current_time)
+            .addProperty("passthroughRender", &graphics::lua_scene_wrapper::passthrough_render, &graphics::lua_scene_wrapper::set_passthrough_render)
+            .addProperty("isCurrent", &graphics::lua_scene_wrapper::is_current)
             .addFunction("present", &graphics::lua_scene_wrapper::present)
             .addFunction("render", &graphics::lua_scene_wrapper::render)
+            .addFunction("update", &graphics::lua_scene_wrapper::update)
             .addFunction("onKeyEvent", &graphics::lua_scene_wrapper::key_event)
             .addFunction("onMouseEvent", &graphics::lua_scene_wrapper::mouse_event)
             .addFunction("after", &graphics::lua_scene_wrapper::after)
@@ -78,6 +81,12 @@ auto graphics::lua_scene_wrapper::render(const luabridge::LuaRef &block) const -
 {
     m_scene->add_render_block(block);
 }
+
+auto graphics::lua_scene_wrapper::update(const luabridge::LuaRef &block) const -> void
+{
+    m_scene->add_update_block(block);
+}
+
 
 auto graphics::lua_scene_wrapper::key_event(const luabridge::LuaRef &block) const -> void
 {
@@ -125,4 +134,19 @@ auto graphics::lua_scene_wrapper::repeat(const double &period, const luabridge::
 auto graphics::lua_scene_wrapper::current_time() const -> double
 {
     return m_scene->current_time();
+}
+
+auto graphics::lua_scene_wrapper::set_passthrough_render(const bool f) -> void
+{
+    m_scene->set_passthrough_render(f);
+}
+
+auto graphics::lua_scene_wrapper::passthrough_render() const -> bool
+{
+    return m_scene->get_passthrough_render();
+}
+
+auto graphics::lua_scene_wrapper::is_current() const -> bool
+{
+    return (environment::active_environment().lock()->current_scene() == m_scene);
 }

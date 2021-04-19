@@ -46,6 +46,16 @@ auto graphics::scene::get_owner() const -> std::weak_ptr<graphics::session_windo
     return m_owner;
 }
 
+auto graphics::scene::get_passthrough_render() const -> bool
+{
+    return m_passthrough_render;
+}
+
+auto graphics::scene::set_passthrough_render(const bool f) -> void
+{
+    m_passthrough_render = f;
+}
+
 // MARK: - Render/Physics
 
 auto graphics::scene::update() -> void
@@ -61,6 +71,20 @@ auto graphics::scene::render() -> void
 auto graphics::scene::draw_entity(const graphics::entity::lua_reference& entity) const -> void
 {
     // To be implemented in a subclass
+}
+
+auto graphics::scene::add_update_block(const luabridge::LuaRef &block) -> void
+{
+    m_update_blocks.emplace_back(block);
+}
+
+auto graphics::scene::invoke_update_blocks() -> void
+{
+    for (const auto& block : m_update_blocks) {
+        if (block.isFunction()) {
+            block();
+        }
+    }
 }
 
 auto graphics::scene::add_render_block(const luabridge::LuaRef &block) -> void
