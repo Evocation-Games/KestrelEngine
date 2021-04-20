@@ -24,9 +24,10 @@
 #include <Cocoa/Cocoa.h>
 #include <string>
 
-namespace cocoa { namespace string {
+namespace cocoa::string
+{
     auto to(const std::string& str) -> NSString *;
     auto from(NSString *str) -> std::string;
-}}
+}
 
 #endif //KESTREL_COCOA_UTILS_H

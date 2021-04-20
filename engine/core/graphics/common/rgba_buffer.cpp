@@ -127,6 +127,9 @@ auto graphics::rgba_buffer::blend_func(const union simd_value& bottom, const uni
     r.f[1] = blend_func_i(bottom.f[1], top.f[1]);
     r.f[2] = blend_func_i(bottom.f[2], top.f[2]);
     r.f[3] = blend_func_i(bottom.f[3], top.f[3]);
+#elif __arm64__
+    r.f[0] = blend_func_i(bottom.f[0], top.f[0]);
+    r.f[1] = blend_func_i(bottom.f[1], top.f[1]);
 #else
     r.wide = top.wide;
 #endif
@@ -178,7 +181,20 @@ auto graphics::rgba_buffer::clear_rect(const graphics::color &c, const math::rec
         ptr += pitch;
 
 #elif __arm64__
-#error ARM version of graphics::rgba_buffer::clear_rect needs implementing
+        uint32_t n = 0;
+        uint64_t i = 0;
+        while (n < stride) {
+            if ((reinterpret_cast<uint64_t>(ptr) & 0x7) || (stride - n) < 2) {
+                *ptr = v.f[n & 1];
+                ++ptr;
+                ++n;
+            }
+            else {
+                *reinterpret_cast<uint64_t*>(ptr) = v.wide;
+                ptr += 2;
+                n += 2;
+            }
+        }
 #else
 #warning Using a naive graphics::rgba_buffer::clear_rect implementation for architecture.
         // Fallback on a default naive implementation.
@@ -246,7 +262,19 @@ auto graphics::rgba_buffer::apply_run(const graphics::color &c, const uint64_t &
 
     }
 #elif __arm64__
-#error ARM version of graphics::rgba_buffer::apply_run needs implementing
+    uint32_t n = 0;
+    while (n < len) {
+        if ((reinterpret_cast<uint64_t>(ptr) & 0x7) || (len - n) < 2) {
+            *ptr = blend_func_i(*ptr, v.f[n & 1]);
+            ++ptr;
+            ++n;
+        }
+        else {
+            *reinterpret_cast<uint64_t*>(ptr) = blend_func({ .wide = *reinterpret_cast<uint64_t*>(ptr) }, v).wide;
+            ptr += 2;
+            n += 2;
+        }
+    }
 #else
     // Fallback on a default naive implementation.
     for (auto x = start; x < end; ++x) {
@@ -290,7 +318,22 @@ auto graphics::rgba_buffer::apply_run(const std::vector<graphics::color> &cv, co
 
     }
 #elif __arm64__
-    #error ARM version of graphics::rgba_buffer::apply_run needs implementing
+    uint32_t n = 0;
+    uint32_t i = 0;
+    while (n < len) {
+        if ((reinterpret_cast<uint64_t>(ptr) & 0x7) || (len - n) < 2) {
+            *ptr = blend_func_i(*ptr, cv[i++].rgba.value);
+            ++ptr;
+            ++n;
+        }
+        else {
+            v.f[0] = cv[i++].rgba.value;
+            v.f[1] = cv[i++].rgba.value;
+            *reinterpret_cast<uint64_t*>(ptr) = blend_func({ .wide = *reinterpret_cast<uint64_t*>(ptr) }, v).wide;
+            ptr += 2;
+            n += 2;
+        }
+    }
 #else
     // Fallback on a default naive implementation.
     for (auto x = start; x < end; ++x) {
@@ -316,7 +359,6 @@ auto graphics::rgba_buffer::apply_mask(const graphics::rgba_buffer &buffer) -> v
 
     // MARK: This needs to be fixed and made more efficient.
 
-#if __x86_64__
     uint32_t n = 0;
     uint64_t i = 0;
     while (n < len) {
@@ -325,10 +367,4 @@ auto graphics::rgba_buffer::apply_mask(const graphics::rgba_buffer &buffer) -> v
         mask_ptr++;
         n--;
     }
-#elif __arm64__
-    #error ARM version of graphics::rgba_buffer::apply_run needs implementing
-#else
-    // Fallback on a default naive implementation.
-
-#endif
 }

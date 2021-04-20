@@ -30,6 +30,7 @@ namespace cocoa
     {
     public:
 
+        static auto system_font() -> std::string;
         static auto path_for(const std::string& name) -> std::string;
 
     };

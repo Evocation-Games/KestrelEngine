@@ -39,5 +39,16 @@ auto cocoa::font::path_for(const std::string &name) -> std::string
     }
 
     // 2. Fallback on a known system default.
-    return "/System/Library/Fonts/SFCompactDisplay.ttf";
+    return system_font();
+}
+
+auto cocoa::font::system_font() -> std::string
+{
+    NSOperatingSystemVersion bigSur = { .majorVersion = 11 };
+    if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:bigSur]) {
+        return "/System/Library/Fonts/SFNS.ttf";
+    }
+    else {
+        return "/System/Library/Fonts/SFCompactDisplay.ttf";
+    }
 }
