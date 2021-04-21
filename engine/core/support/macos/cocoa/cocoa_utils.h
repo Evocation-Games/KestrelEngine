@@ -24,10 +24,18 @@
 #include <Cocoa/Cocoa.h>
 #include <string>
 
-namespace cocoa::string
+namespace cocoa
 {
-    auto to(const std::string& str) -> NSString *;
-    auto from(NSString *str) -> std::string;
+    namespace string
+    {
+        auto to(const std::string& str) -> NSString *;
+        auto from(NSString *str) -> std::string;
+    }
+
+    namespace screen
+    {
+        auto scale_factor() -> double;
+    }
 }
 
 #endif //KESTREL_COCOA_UTILS_H

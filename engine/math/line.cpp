@@ -64,6 +64,19 @@ auto math::line::set_q(const math::point& q) -> void
     this->q = q;
 }
 
+// MARK: - Operators
+
+auto math::line::operator*(const double& f) const -> math::line
+{
+    return math::line(p * f, q * f);
+}
+
+auto math::line::operator/(const double& f) const -> math::line
+{
+    return math::line(p / f, q / f);
+}
+
+
 // MARK: - Functions
 
 auto math::line::intersects(const math::line& l) const -> bool

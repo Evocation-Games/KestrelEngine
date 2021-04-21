@@ -24,8 +24,8 @@
 
 // MARK: - Construction
 
-graphics::session_window::session_window(std::shared_ptr<environment> env)
-    : m_environment(env)
+graphics::session_window::session_window(std::shared_ptr<environment> env, const double& scale)
+    : m_environment(env), m_scale(scale)
 {
     m_cache_purge_time = session_clock::now();
 }
@@ -56,6 +56,12 @@ auto graphics::session_window::get_size() const -> math::size
 {
     return m_size;
 }
+
+auto graphics::session_window::get_scale_factor() const -> double
+{
+    return m_scale;
+}
+
 
 // MARK: - Main Loop
 

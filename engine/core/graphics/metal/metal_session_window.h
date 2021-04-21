@@ -41,7 +41,7 @@ namespace graphics::metal
         std::shared_ptr<metal::view> m_view;
 
     public:
-        explicit session_window(std::shared_ptr<environment> env);
+        explicit session_window(std::shared_ptr<environment> env, const double& scale);
 
         auto set_title(const std::string& title) -> void override;
         auto set_size(const math::size& size) -> void override;

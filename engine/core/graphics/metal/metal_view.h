@@ -32,7 +32,7 @@ namespace graphics::metal
     class view: public std::enable_shared_from_this<graphics::metal::view>, public cocoa::view
     {
     public:
-        explicit view();
+        explicit view(const double& scale = 1.0);
 
         auto draw_entity(const graphics::entity::lua_reference& entity) const -> void;
         auto register_texture(const std::shared_ptr<graphics::texture>& texture) -> int;

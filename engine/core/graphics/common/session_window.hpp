@@ -49,6 +49,7 @@ namespace graphics
         bool m_alive { false };
         double m_time { 0.0 };
         double m_delta { 0.01 };
+        double m_scale { 1.0 };
         time_point m_current_time;
         time_point m_cache_purge_time;
         double m_accumulator { 0.0 };
@@ -58,7 +59,7 @@ namespace graphics
         math::size m_size;
 
     public:
-        explicit session_window(std::shared_ptr<environment> env);
+        explicit session_window(std::shared_ptr<environment> env, const double& scale = 1.0);
 
         [[nodiscard]] auto is_running() const -> bool;
 
@@ -72,6 +73,8 @@ namespace graphics
         virtual auto set_title(const std::string& title) -> void;
         virtual auto set_size(const math::size& size) -> void;
         virtual auto get_size() const -> math::size;
+
+        virtual auto get_scale_factor() const -> double;
 
         auto tick() -> void;
         virtual auto update() -> void;

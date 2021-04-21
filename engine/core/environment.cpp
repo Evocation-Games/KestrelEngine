@@ -83,11 +83,11 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 // MARK: - Run Loop
 
 #if __APPLE__
-auto environment::launch_metal() -> int
+auto environment::launch_metal(const double& scale) -> int
 {
     auto app = cocoa::application();
-    return app.run(m_options, [this] () {
-        this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this());
+    return app.run(m_options, [this, scale] () {
+        this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this(), scale);
         this->m_game_window->set_title("Kestrel - Metal");
         this->m_game_window->set_size({ 800, 600 });
         this->prepare_common();
@@ -95,7 +95,7 @@ auto environment::launch_metal() -> int
 }
 #endif
 
-auto environment::launch_opengl() -> int
+auto environment::launch_opengl(const double& scale) -> int
 {
     m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
     return launch_common();
@@ -127,7 +127,11 @@ auto environment::launch_common() -> int
 
 auto environment::launch() -> int
 {
+    double scale = 1.0;
+
 #if __APPLE__
+    scale = cocoa::application::screen_scale_factor();
+
     // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
     // metal check.
     if (std::find(m_options.begin(), m_options.end(), "-opengl") != m_options.end()) {
@@ -137,12 +141,12 @@ auto environment::launch() -> int
         // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
         auto metal = true;
         if (metal) {
-            return launch_metal();
+            return launch_metal(scale);
         }
     }
 #endif
 
-    return launch_opengl();
+    return launch_opengl(scale);
 }
 
 auto environment::become_active_environment() -> void

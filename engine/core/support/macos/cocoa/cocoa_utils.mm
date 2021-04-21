@@ -29,3 +29,8 @@ auto cocoa::string::from(NSString *str) -> std::string
 {
     return std::string([str UTF8String]);
 }
+
+auto cocoa::screen::scale_factor() -> double
+{
+    return [[NSScreen mainScreen] backingScaleFactor];
+}

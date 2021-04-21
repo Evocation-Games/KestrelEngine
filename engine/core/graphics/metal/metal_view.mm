@@ -92,9 +92,9 @@ static inline auto color_vector(const graphics::color& c) -> simd_float4
 
 // MARK: - Construction
 
-graphics::metal::view::view()
+graphics::metal::view::view(const double& scale)
 {
-    MetalView *view = [[MetalView alloc] init];
+    MetalView *view = [[MetalView alloc] initWithScale:scale];
     cocoa::object::set(view);
 }
 
@@ -125,14 +125,15 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
     __strong NSMutableArray *_textures;
     __strong NSMutableArray<id<MTLRenderPipelineState>> *_pipelineStates;
     __strong NSTrackingArea *_trackingArea;
-    float _nativeScale;
+    float _scale;
     vector_uint2 _viewportSize;
     NSEventModifierFlags _activeModifierFlags;
 }
 
-- (instancetype)init
+- (instancetype)initWithScale:(double)scale
 {
     if (self = [super initWithFrame:CGRectZero]) {
+        _scale = static_cast<float>(scale);
         _device = MTLCreateSystemDefaultDevice();
         _metalView = [[WrappedMTKView alloc] initWithFrame:NSZeroRect device:_device];
 
@@ -360,10 +361,10 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 
     // Setup the vertex positions for the entity
     std::array<graphics::metal::vertex_descriptor, 6> v;
-    auto x = (static_cast<float>(entity->position.x) * 2) - _viewportSize.x;
-    auto y = (static_cast<float>(entity->position.y) * 2) - _viewportSize.y;
-    auto w = static_cast<float>(entity->size.width);
-    auto h = static_cast<float>(entity->size.height);
+    auto x = static_cast<float>(entity->position.x) - (static_cast<float>(_viewportSize.x) / (_scale * 2));
+    auto y = static_cast<float>(entity->position.y) - (static_cast<float>(_viewportSize.y) / (_scale * 2));
+    auto w = static_cast<float>(entity->size.width) / _scale;
+    auto h = static_cast<float>(entity->size.height) / _scale;
 
     v[0].position = vector2( x -w, y +h );
     v[1].position = vector2( x +w, y +h );
@@ -403,13 +404,12 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
     v[5].color = color;
 
     // Apply the scale of the window/screen.
-    auto scale = static_cast<float>([[[self window] screen] backingScaleFactor]);
-    v[0].scale = scale;
-    v[1].scale = scale;
-    v[2].scale = scale;
-    v[3].scale = scale;
-    v[4].scale = scale;
-    v[5].scale = scale;
+    v[0].scale = _scale;
+    v[1].scale = _scale;
+    v[2].scale = _scale;
+    v[3].scale = _scale;
+    v[4].scale = _scale;
+    v[5].scale = _scale;
 
     // Enqueue a render command for the entity.
     [self setPipelineStateForIndex:entity->get_blend_lua()];

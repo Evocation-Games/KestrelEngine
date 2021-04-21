@@ -44,7 +44,7 @@ vertex rasterizer_data vertexShader(
     float2 viewport_size = float2(*viewport_size_pointer);
 
     out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
-    out.position.xy = (pixel_space_position / viewport_size) / vertex_array[vertex_id].scale;
+    out.position.xy = (pixel_space_position / (viewport_size / 2.0)) * vertex_array[vertex_id].scale;
     out.position.y *= -1;
     out.texture_coord = vertex_array[vertex_id].texture_coord;
     out.color = vertex_array[vertex_id].color;

@@ -67,3 +67,10 @@ auto cocoa::application::bundle_path() -> std::string
 {
     return cocoa::string::from([[NSBundle mainBundle] bundlePath]);
 }
+
+// MARK: - Screen
+
+auto cocoa::application::screen_scale_factor() -> double
+{
+    return cocoa::screen::scale_factor();
+}

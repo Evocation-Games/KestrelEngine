@@ -39,6 +39,8 @@ namespace cocoa
         auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
 
         static auto bundle_path() -> std::string;
+
+        static auto screen_scale_factor() -> double;
     };
 
 }

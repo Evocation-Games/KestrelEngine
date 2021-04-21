@@ -53,9 +53,9 @@ private:
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
 
 #if __APPLE__
-    auto launch_metal() -> int;
+    auto launch_metal(const double& scale = 1.0) -> int;
 #endif
-    auto launch_opengl() -> int;
+    auto launch_opengl(const double& scale = 1.0) -> int;
     auto prepare_common() -> void;
     auto launch_common() -> int;
 

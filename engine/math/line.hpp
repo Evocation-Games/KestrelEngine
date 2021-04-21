@@ -39,6 +39,9 @@ namespace math
 
         lua_api line(const math::point& p, const math::point& q);
 
+        lua_api auto operator*(const double& f) const -> math::line;
+        lua_api auto operator/(const double& f) const -> math::line;
+
         lua_api auto get_p() const -> math::point;
         lua_api auto set_p(const math::point& p) -> void;
         lua_api auto get_q() const -> math::point;

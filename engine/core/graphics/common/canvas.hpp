@@ -47,7 +47,9 @@ namespace graphics
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     private:
+        double m_scale { 1.0 };
         math::size m_size;
+        math::size m_scaled_size;
         graphics::rgba_buffer m_rgba_buffer;
         graphics::color m_pen_color;
         graphics::entity::lua_reference m_entity { nullptr };

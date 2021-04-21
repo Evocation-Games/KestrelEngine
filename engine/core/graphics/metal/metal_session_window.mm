@@ -27,10 +27,10 @@
 
 // MARK: - Construction
 
-graphics::metal::session_window::session_window(std::shared_ptr<environment> env)
-    : graphics::session_window(std::move(env)), m_window(std::make_shared<cocoa::window>())
+graphics::metal::session_window::session_window(std::shared_ptr<environment> env, const double& scale)
+    : graphics::session_window(std::move(env), scale), m_window(std::make_shared<cocoa::window>())
 {
-    m_view = std::make_shared<metal::view>();
+    m_view = std::make_shared<metal::view>(scale);
     m_window->set_content_view(m_view);
 }
 
