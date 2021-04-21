@@ -338,11 +338,11 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
 {
     auto inner_draw_text = [this] (const math::point& point) {
         // Check if the circle intersects the bounds of the canvas. If it doesn't, then don't draw.
-        const double edge = 20 * m_scale;
-        auto extended = math::rect( -edge, -edge, m_scaled_size.width + edge + edge, m_scaled_size.height + edge + edge );
-        if (!extended.contains_point(point)) {
-            return;
-        }
+//        const double edge = 20 * m_scale;
+//        auto extended = math::rect( -edge, -edge, m_scaled_size.width + edge + edge, m_scaled_size.height + edge + edge );
+//        if (!extended.contains_point(point)) {
+//            return;
+//        }
 
         auto text_bmp = m_typesetter.render();
         auto text_size = m_typesetter.get_bounding_size();
@@ -358,7 +358,7 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
                 // TODO: Calculate the correct Y to be on, if it exists.
                 continue;
             }
-            else if (y >= m_size.height) {
+            else if (y >= m_scaled_size.height) {
                 break;
             }
 

@@ -60,8 +60,29 @@ environment::environment(int argc, const char **argv)
 
     // Cache the data path locations... first assign the defaults, and then search for an alternate path in the
     // options.
-    m_kestrel_core_path = kestrel_core_path();
-    m_game_data_path = game_data_path();
+    if (std::find(m_options.begin(), m_options.end(), "--game") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--game") {
+                m_kestrel_core_path = m_options[++i];
+                break;
+            }
+        }
+    }
+    else {
+        m_kestrel_core_path = kestrel_core_path();
+    }
+
+    if (std::find(m_options.begin(), m_options.end(), "--data") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--data") {
+                m_game_data_path = m_options[++i];
+                break;
+            }
+        }
+    }
+    else {
+        m_game_data_path = game_data_path();
+    }
 
     // Load all resource files.
     load_kestrel_core();
@@ -127,14 +148,24 @@ auto environment::launch_common() -> int
 
 auto environment::launch() -> int
 {
-    double scale = 1.0;
+    double scale = 0.0;
+    if (std::find(m_options.begin(), m_options.end(), "--scale") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--scale") {
+                scale = std::atof(m_options[++i].c_str());
+                break;
+            }
+        }
+    }
 
 #if __APPLE__
-    scale = cocoa::application::screen_scale_factor();
+    if (scale <= 0) {
+        scale = cocoa::application::screen_scale_factor();
+    }
 
     // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
     // metal check.
-    if (std::find(m_options.begin(), m_options.end(), "-opengl") != m_options.end()) {
+    if (std::find(m_options.begin(), m_options.end(), "--opengl") != m_options.end()) {
         // We are loading in OpenGL
     }
     else {
@@ -143,6 +174,10 @@ auto environment::launch() -> int
         if (metal) {
             return launch_metal(scale);
         }
+    }
+#else
+    if (scale <= 0) {
+        scale = 1.0;
     }
 #endif
 
