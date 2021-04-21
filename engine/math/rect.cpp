@@ -116,6 +116,21 @@ auto math::rect::operator!=(const math::rect& r) const -> bool
 
 // MARK: - Operations
 
+auto math::rect::round() const -> math::rect
+{
+    return { origin.round(), size.round() };
+}
+
+auto math::rect::floor() const -> math::rect
+{
+    return { origin.floor(), size.floor() };
+}
+
+auto math::rect::ceil() const -> math::rect
+{
+    return { origin.ceil(), size.ceil() };
+}
+
 auto math::rect::area() const -> double
 {
     return size.area();

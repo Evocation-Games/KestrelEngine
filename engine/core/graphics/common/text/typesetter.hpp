@@ -45,6 +45,8 @@ namespace graphics
         };
 
     private:
+        double m_scale { 1.0 };
+        int m_dpi { 100 };
         std::wstring m_text;
         std::shared_ptr<graphics::font> m_base_font;
         unsigned int m_base_font_size;
@@ -66,7 +68,7 @@ namespace graphics
         static auto is_non_breaking(const wchar_t& c) -> bool;
 
     public:
-        lua_api explicit typesetter(const std::string& text);
+        lua_api explicit typesetter(const std::string& text, const double& scale = 1.0);
 
         lua_api auto set_margins(const math::size& margins) -> void;
         lua_api auto set_font(const std::string& font_name) -> void;

@@ -98,6 +98,21 @@ auto math::size::operator!=(const math::size& s) const -> bool
 
 // MARK: - Operations
 
+auto math::size::round() const -> math::size
+{
+    return { std::round(width), std::round(height) };
+}
+
+auto math::size::floor() const -> math::size
+{
+    return { std::floor(width), std::floor(height) };
+}
+
+auto math::size::ceil() const -> math::size
+{
+    return { std::ceil(width), std::ceil(height) };
+}
+
 auto math::size::area() const -> double
 {
     return width * height;

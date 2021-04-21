@@ -63,7 +63,7 @@ graphics::canvas::canvas(const math::size& size)
       m_scaled_size(m_size * m_scale),
       m_rgba_buffer(m_scaled_size),
       m_pen_color(graphics::color::white_color()),
-      m_typesetter(""),
+      m_typesetter("", m_scale),
       m_left(math::point(0), math::point(0, m_scaled_size.height)),
       m_top(math::point(0), math::point(m_scaled_size.width, 0)),
       m_right(math::point(m_scaled_size.width, 0), math::point(m_scaled_size.width, m_scaled_size.height)),
@@ -88,7 +88,7 @@ auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
 auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
 {
     m_typesetter.set_font(name);
-    m_typesetter.set_font_size(size * m_scale);
+    m_typesetter.set_font_size(size);
 }
 
 // MARK: - Entity
@@ -164,7 +164,7 @@ auto graphics::canvas::draw_rect(const math::rect &r) -> void
 
 auto graphics::canvas::fill_rect(const math::rect &r) -> void
 {
-    m_rgba_buffer.fill_rect(m_pen_color, r * m_scale);
+    m_rgba_buffer.fill_rect(m_pen_color, (r * m_scale).round());
 }
 
 auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq) -> void
@@ -259,7 +259,7 @@ auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq) -
         }
     };
 
-    inner_draw_line(pp * m_scale, qq * m_scale);
+    inner_draw_line((pp * m_scale).round(), (qq * m_scale).round());
 }
 
 auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> void
@@ -296,7 +296,7 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
         }
     };
 
-    inner_draw_circle(p * m_scale, r * m_scale);
+    inner_draw_circle((p * m_scale).round(), std::round(r * m_scale));
 }
 
 auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> void
@@ -314,7 +314,7 @@ auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> voi
             m_rgba_buffer.fill_rect(m_pen_color, { p.x - ww, ry, ww << 1, 1 });
         }
     };
-    inner_fill_circle(p * m_scale, r * m_scale);
+    inner_fill_circle((p * m_scale).round(), std::round(r * m_scale));
 }
 
 // MARK: - Text
@@ -328,7 +328,7 @@ auto graphics::canvas::layout_text(const std::string &text) -> math::size
 
 auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math::size& bounds) -> math::size
 {
-    m_typesetter.set_margins(bounds * m_scale);
+    m_typesetter.set_margins((bounds * m_scale).round());
     m_typesetter.set_text(text);
     m_typesetter.layout();
     return m_typesetter.get_bounding_size() / m_scale;
@@ -373,7 +373,7 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
 
         m_typesetter.reset();
     };
-    inner_draw_text(point * m_scale);
+    inner_draw_text((point * m_scale).round());
 }
 
 auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void
@@ -396,7 +396,7 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
         auto y_scale = img_frame.size.height / img_bounds.size.height;
 
         for (auto y = 0; y < img_frame.size.height; ++y) {
-            auto ry = static_cast<uint32_t>(std::round(y / y_scale));
+            auto ry = static_cast<uint32_t>(std::floor(y / y_scale));
             if (ry >= img_bounds.size.height) {
                 break;
             }
@@ -404,7 +404,7 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
             auto src_offset = (ry * img_bounds.size.width);
             auto dst_offset = (y * img_frame.size.width);
             for (auto x = 0; x < img_frame.size.width; ++x) {
-                auto rx = static_cast<uint32_t>(std::round(x / x_scale));
+                auto rx = static_cast<uint32_t>(std::floor(x / x_scale));
                 if (rx >= img_bounds.size.width) {
                     break;
                 }
@@ -429,13 +429,13 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
             auto bmp_line_offset = static_cast<int64_t>(y * img_frame.size.width);
 
             auto vstart = scaled_img_data.cbegin() + bmp_line_offset + bmp_line_start;
-            auto vend = vstart + bmp_line_len;
+            auto vend = vstart + bmp_line_len + 1;
             std::vector<graphics::color> cv { vstart, vend };
 
             m_rgba_buffer.apply_run(cv, start, dy);
         }
     };
-    inner_draw_image(image, point * m_scale, sz * m_scale);
+    inner_draw_image(image, (point * m_scale).round(), (sz * m_scale).round());
 }
 
 auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void
@@ -471,16 +471,12 @@ auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua
             m_rgba_buffer.apply_run(cv, start, dy);
         }
     };
-    inner_draw(pict, point * m_scale);
+    inner_draw(pict, (point * m_scale).round());
 }
 
 auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_reference &pict, const math::rect &rect) -> void
 {
-    for (auto y = static_cast<int>(rect.origin.y); y < rect.origin.y + rect.size.height; y += pict->size().height) {
-        for (auto x = static_cast<int>(rect.origin.x); x < rect.origin.x + rect.size.width; x += pict->size().width) {
-            draw_picture_at_point(pict, { x, y });
-        }
-    }
+    draw_image(pict, rect.origin - math::point(0.5), rect.size + math::size(0.5));
 }
 
 auto graphics::canvas::draw_color_icon(const asset::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) -> void
@@ -516,7 +512,7 @@ auto graphics::canvas::draw_color_icon(const asset::color_icon::lua_reference &i
             m_rgba_buffer.apply_run(cv, start, dy);
         }
     };
-    inner_draw(icon, point * m_scale, sz * m_scale);
+    inner_draw(icon, (point * m_scale).round(), (sz * m_scale).round());
 }
 
 

@@ -26,8 +26,10 @@
 
 // MARK: - Construction
 
-graphics::typesetter::typesetter(const std::string &text)
+graphics::typesetter::typesetter(const std::string &text, const double& scale)
     : m_base_font(std::make_shared<graphics::font>()),
+      m_scale(scale),
+      m_dpi(static_cast<int>(100 * scale)),
       m_base_font_size(12),
       m_font_color(graphics::color::white_color()),
       m_max_size(9999), m_min_size(0),
@@ -102,7 +104,7 @@ auto graphics::typesetter::layout() -> void
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), 100, 100);
+    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), m_dpi, m_dpi);
 
     // Prepare a buffer to keep track of character layouts, before committing them to the actual layout.
     std::vector<character> buffer;
@@ -184,7 +186,7 @@ auto graphics::typesetter::layout() -> void
 
     // Ensure there is nothing remaining in the buffer, and if there is commit it.
     commit_buffer();
-    m_min_size.height = m_pos.y + m_base_font->line_height() + 5; // TODO: Calculate an actual excess for the text.
+    m_min_size.height = m_pos.y + (m_base_font->line_height() + 5); // TODO: Calculate an actual excess for the text.
     m_min_size.width = std::max(m_min_size.width, m_pos.x);
 }
 
@@ -200,7 +202,7 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), 100, 100);
+    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), m_dpi, m_dpi);
 
     for (const auto& ch : m_layout) {
         FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), ch.value);

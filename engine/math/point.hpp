@@ -54,6 +54,10 @@ namespace math
         auto operator==(const math::point& p) const -> bool;
         auto operator!=(const math::point& p) const -> bool;
 
+        lua_api auto round() const -> math::point;
+        lua_api auto floor() const -> math::point;
+        lua_api auto ceil() const -> math::point;
+
         lua_api auto distance_to(const math::point& p) const -> double;
 
         lua_api auto set_x(const double& x) -> void;

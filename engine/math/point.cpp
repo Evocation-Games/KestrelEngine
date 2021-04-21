@@ -100,6 +100,21 @@ auto math::point::operator!=(const math::point& p) const -> bool
 
 // MARK: - Operations
 
+auto math::point::round() const -> math::point
+{
+    return { std::round(x), std::round(y) };
+}
+
+auto math::point::floor() const -> math::point
+{
+    return { std::floor(x), std::floor(y) };
+}
+
+auto math::point::ceil() const -> math::point
+{
+    return { std::ceil(x), std::ceil(y) };
+}
+
 auto math::point::distance_to(const math::point& p) const -> double
 {
     auto dx = p.x - x;

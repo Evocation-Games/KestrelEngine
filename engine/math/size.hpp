@@ -50,6 +50,10 @@ namespace math
         auto operator==(const math::size& s) const -> bool;
         auto operator!=(const math::size& s) const -> bool;
 
+        lua_api auto round() const -> math::size;
+        lua_api auto floor() const -> math::size;
+        lua_api auto ceil() const -> math::size;
+
         lua_api auto area() const -> double;
 
         lua_api auto set_width(const double& width) -> void;
