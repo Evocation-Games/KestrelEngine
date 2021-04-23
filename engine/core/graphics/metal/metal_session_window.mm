@@ -53,13 +53,6 @@ auto graphics::metal::session_window::get_size() const -> math::size
 
 // MARK: - Rendering
 
-auto graphics::metal::session_window::render() -> void
-{
-    if (m_scenes.empty()) {
-        return;
-    }
-    current_scene()->render();
-}
 
 auto graphics::metal::session_window::draw_entity(const graphics::entity::lua_reference& entity) const -> void
 {
