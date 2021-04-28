@@ -308,27 +308,15 @@ auto graphics::rgba_buffer::apply_mask(const graphics::rgba_buffer &buffer) -> v
         return;
     }
 
-    auto len = count();
+    auto len = count() >> 2;
     auto ptr = reinterpret_cast<uint32_t *>(m_buffer);
     auto mask_ptr = reinterpret_cast<uint32_t *>(buffer.m_buffer);
 
-    union simd_value v {};
+    // TODO: This needs to be made more efficient on each architecture
 
-    // MARK: This needs to be fixed and made more efficient.
-
-#if __x86_64__
     uint32_t n = 0;
-    uint64_t i = 0;
-    while (n < len) {
-        *ptr = (*ptr & 0x00FFFFFF) | ((*mask_ptr & 0xFF) << 24);
-        ptr++;
-        mask_ptr++;
-        n--;
-    }
-#elif __arm64__
-    #error ARM version of graphics::rgba_buffer::apply_run needs implementing
-#else
-    // Fallback on a default naive implementation.
-
-#endif
+    do {
+        ptr[n] &= 0x00FFFFFF;
+        ptr[n] |= ((0xFF - (mask_ptr[n] & 0xFF)) << 24);
+    } while (++n < len);
 }

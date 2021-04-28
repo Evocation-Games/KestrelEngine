@@ -52,6 +52,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
             .addFunction("clear", &graphics::canvas::clear)
             .addFunction("applyMaskUsingCanvas", &graphics::canvas::apply_mask)
+            .addFunction("drawMask", &graphics::canvas::draw_mask)
         .endClass();
 }
 
@@ -87,6 +88,11 @@ auto graphics::canvas::set_font(const std::string &name, const int &size) -> voi
 {
     m_typesetter.set_font(name);
     m_typesetter.set_font_size(size);
+}
+
+auto graphics::canvas::get_bounds() const -> math::rect
+{
+    return math::rect(math::point(0), m_size);
 }
 
 // MARK: - Entity
@@ -502,7 +508,11 @@ auto graphics::canvas::apply_mask(const graphics::canvas::lua_reference &c) -> v
     m_rgba_buffer.apply_mask(c->m_rgba_buffer);
 }
 
-auto graphics::canvas::get_bounds() const -> math::rect
+auto graphics::canvas::draw_mask(const luabridge::LuaRef &mask_function) -> void
 {
-    return math::rect(math::point(0), m_size);
+    // Construct a canvas that is equal in size to the current canvas for the mask to be drawn in
+    // to.
+    auto mask = graphics::canvas::lua_reference(new graphics::canvas(m_size));
+    mask_function(mask);
+    apply_mask(mask);
 }
