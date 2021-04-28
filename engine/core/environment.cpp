@@ -278,6 +278,7 @@ auto environment::prepare_lua_interface() -> void
             .addStaticFunction("setGameWindowSize", &environment::set_game_window_size)
             .addStaticFunction("importScript", &environment::import_script)
             .addStaticFunction("scene", &environment::create_scene)
+            .addStaticFunction("scaleFactor", &environment::scale)
         .endClass();
 }
 
@@ -289,6 +290,11 @@ auto environment::set_game_window_title(const std::string &title) -> void
 auto environment::set_game_window_size(const double& width, const double& height) -> void
 {
     $_active_environment.lock()->m_game_window->set_size({ width, height });
+}
+
+auto environment::scale() -> double
+{
+    return $_active_environment.lock()->m_game_window->get_scale_factor();
 }
 
 auto environment::load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script

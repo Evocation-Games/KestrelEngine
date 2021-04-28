@@ -73,6 +73,8 @@ private:
     lua_api static auto import_script(const asset::resource_reference::lua_reference& ref) -> void;
     lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
 
+    lua_api static auto scale() -> double;
+
 public:
     environment(int argc, const char **argv);
 

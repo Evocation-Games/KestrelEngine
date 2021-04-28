@@ -147,8 +147,9 @@ auto graphics::entity::set_size(const math::size &sz) -> void
 
 lua_api auto graphics::entity::set_clipping_area(const math::size& sz) -> void
 {
+    auto clip_sz = sz * environment::active_environment().lock()->window()->get_scale_factor();
     m_has_texture_clip = true;
-    m_clipping_area_uv = math::size(sz.width / texture()->size().width, sz.height / texture()->size().height);
+    m_clipping_area_uv = math::size(clip_sz.width / texture()->size().width, clip_sz.height / texture()->size().height);
     m_clipping_area = sz;
 }
 
@@ -180,7 +181,7 @@ lua_api auto graphics::entity::set_clipping_offset(const math::point& p) -> void
     m_clipping_offset = math::point(
        std::max(0.0, std::min(texture()->size().width, p.x)),
        std::max(0.0, std::min(texture()->size().height, p.y))
-    );
+    ) * 2;
 
     m_clipping_offset_uv = math::point(m_clipping_offset.x / texture()->size().width, m_clipping_offset.y / texture()->size().height);
 }
