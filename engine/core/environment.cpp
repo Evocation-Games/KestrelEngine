@@ -60,8 +60,29 @@ environment::environment(int argc, const char **argv)
 
     // Cache the data path locations... first assign the defaults, and then search for an alternate path in the
     // options.
-    m_kestrel_core_path = kestrel_core_path();
-    m_game_data_path = game_data_path();
+    if (std::find(m_options.begin(), m_options.end(), "--game") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--game") {
+                m_kestrel_core_path = m_options[++i];
+                break;
+            }
+        }
+    }
+    else {
+        m_kestrel_core_path = kestrel_core_path();
+    }
+
+    if (std::find(m_options.begin(), m_options.end(), "--data") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--data") {
+                m_game_data_path = m_options[++i];
+                break;
+            }
+        }
+    }
+    else {
+        m_game_data_path = game_data_path();
+    }
 
     // Load all resource files.
     load_kestrel_core();
