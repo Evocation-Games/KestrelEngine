@@ -92,6 +92,7 @@ namespace graphics
         lua_api auto draw_color_icon(const asset::color_icon::lua_reference& image, const math::point& point, const math::size& sz) -> void;
 
         lua_api auto apply_mask(const graphics::canvas::lua_reference& c) -> void;
+        lua_api auto draw_mask(const luabridge::LuaRef& mask_function) -> void;
 
         lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
         lua_api auto entity() -> graphics::entity::lua_reference;
