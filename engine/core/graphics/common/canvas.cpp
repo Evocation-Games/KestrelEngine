@@ -343,13 +343,6 @@ auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math
 auto graphics::canvas::draw_text(const math::point &point) -> void
 {
     auto inner_draw_text = [this] (const math::point& point) {
-        // Check if the circle intersects the bounds of the canvas. If it doesn't, then don't draw.
-//        const double edge = 20 * m_scale;
-//        auto extended = math::rect( -edge, -edge, m_scaled_size.width + edge + edge, m_scaled_size.height + edge + edge );
-//        if (!extended.contains_point(point)) {
-//            return;
-//        }
-
         auto text_bmp = m_typesetter.render();
         auto text_size = m_typesetter.get_bounding_size();
 
@@ -420,7 +413,7 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
 
         // Drawing
         auto bmp_line_start = std::max<int64_t>(0LL, static_cast<int64_t>(-point.x));
-        auto bmp_line_len = static_cast<int64_t>(img_frame.size.width) - bmp_line_start;
+        auto bmp_line_len = static_cast<int64_t>(img_frame.size.width) - bmp_line_start - 1;
         auto start = std::max<int64_t>(0LL, static_cast<int64_t>(point.x));
 
         for (auto y = 0; y < img_frame.size.height; ++y) {
@@ -482,7 +475,11 @@ auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua
 
 auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_reference &pict, const math::rect &rect) -> void
 {
-    draw_image(pict, rect.origin - math::point(0.5), rect.size + math::size(0.5));
+    if (rect.size.width <= 0 || rect.size.height <= 0) {
+        return;
+    }
+
+    draw_image(pict, rect.origin, rect.size);
 }
 
 auto graphics::canvas::draw_color_icon(const asset::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) -> void

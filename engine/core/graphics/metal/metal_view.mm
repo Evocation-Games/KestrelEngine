@@ -117,6 +117,8 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 
 // MARK: - Cocoa Implementation
 
+#define kMaxFramesInFlight 3
+
 @implementation MetalView {
     __strong WrappedMTKView *_metalView;
     __strong id<MTLDevice> _device;
@@ -128,6 +130,8 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
     float _scale;
     vector_uint2 _viewportSize;
     NSEventModifierFlags _activeModifierFlags;
+    dispatch_semaphore_t _renderSemaphore;
+    NSUInteger _currentBufferIndex;
 }
 
 - (instancetype)initWithScale:(double)scale
@@ -136,6 +140,8 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
         _scale = static_cast<float>(scale);
         _device = MTLCreateSystemDefaultDevice();
         _metalView = [[WrappedMTKView alloc] initWithFrame:NSZeroRect device:_device];
+
+        _renderSemaphore = dispatch_semaphore_create(kMaxFramesInFlight);
 
         // Configure the basic view properties
         [_metalView setColorPixelFormat:MTLPixelFormatBGRA8Unorm];
@@ -256,38 +262,49 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 
 // MARK: - Delegation
 
+- (void)renderWithPassDescriptor:(MTLRenderPassDescriptor *)pass
+{
+    dispatch_semaphore_wait(_renderSemaphore, DISPATCH_TIME_FOREVER);
+
+    _currentBufferIndex = (_currentBufferIndex + 1) % kMaxFramesInFlight;
+
+    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
+
+    MTLViewport viewport;
+    viewport.originX = 0.0;
+    viewport.originY = 0.0;
+    viewport.width = _viewportSize.x;
+    viewport.height = _viewportSize.y;
+    viewport.znear = 1.0;
+    viewport.zfar = -1.0;
+
+    _commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:pass];
+    [_commandEncoder setLabel:@"com.kestrel.render-encoder"];
+    [_commandEncoder setViewport:viewport];
+    [_commandEncoder setRenderPipelineState:_pipelineStates[0]];
+
+    if (auto env = environment::active_environment().lock()) {
+        env->window()->tick();
+    }
+
+    [_commandEncoder endEncoding];
+    _commandEncoder = nil;
+
+    [commandBuffer addCompletedHandler:^(id <MTLCommandBuffer> buffer) {
+        dispatch_semaphore_signal(_renderSemaphore);
+    }];
+
+    [commandBuffer presentDrawable:[_metalView currentDrawable]];
+    [commandBuffer commit];
+}
+
 - (void)drawInMTKView:(MTKView *)view
 {
     @autoreleasepool {
-        id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
         MTLRenderPassDescriptor *pass = [_metalView currentRenderPassDescriptor];
         if (pass) {
-            // Configure the viewport.
-            // TODO: Pass this out the metal::session_window in order to be in line with the OpenGL implementation
-            MTLViewport viewport;
-            viewport.originX = 0.0;
-            viewport.originY = 0.0;
-            viewport.width = _viewportSize.x;
-            viewport.height = _viewportSize.y;
-            viewport.znear = 1.0;
-            viewport.zfar = -1.0;
-
-            _commandEncoder = [commandBuffer renderCommandEncoderWithDescriptor:pass];
-            [_commandEncoder setLabel:@"com.kestrel.render-encoder"];
-            [_commandEncoder setViewport:viewport];
-            [_commandEncoder setRenderPipelineState:_pipelineStates[0]];
-
-            if (auto env = environment::active_environment().lock()) {
-                env->window()->tick();
-            }
-
-            [_commandEncoder endEncoding];
-            _commandEncoder = nil;
-
-            [commandBuffer presentDrawable:[_metalView currentDrawable]];
+            [self renderWithPassDescriptor:pass];
         }
-
-        [commandBuffer commit];
     }
 }
 
@@ -363,8 +380,8 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
     std::array<graphics::metal::vertex_descriptor, 6> v;
     auto x = static_cast<float>(entity->position.x) - (static_cast<float>(_viewportSize.x) / (_scale * 2));
     auto y = static_cast<float>(entity->position.y) - (static_cast<float>(_viewportSize.y) / (_scale * 2));
-    auto w = static_cast<float>(entity->size.width) / _scale;
-    auto h = static_cast<float>(entity->size.height) / _scale;
+    auto w = static_cast<float>(entity->size.width) / 2;
+    auto h = static_cast<float>(entity->size.height) / 2;
 
     v[0].position = vector2( x -w, y +h );
     v[1].position = vector2( x +w, y +h );
