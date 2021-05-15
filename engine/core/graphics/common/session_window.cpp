@@ -67,21 +67,9 @@ auto graphics::session_window::get_scale_factor() const -> double
 
 auto graphics::session_window::tick() -> void
 {
-    time_point new_time { session_clock::now() };
-    double frame_time = (new_time - m_current_time).count();
-    if (frame_time > 0.25) {
-        frame_time = 0.25;
-    }
-    m_current_time = new_time;
-    m_accumulator += frame_time;
-
-    while (m_accumulator >= m_delta) {
-        rtc::clock::global().tick();
-        update();
-        render();
-        m_time += m_delta;
-        m_accumulator -= m_delta;
-    }
+    rtc::clock::global().tick();
+    update();
+    render();
 }
 
 // MARK: - Render/Physics Base

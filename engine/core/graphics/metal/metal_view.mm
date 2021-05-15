@@ -265,7 +265,6 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 - (void)renderWithPassDescriptor:(MTLRenderPassDescriptor *)pass
 {
     dispatch_semaphore_wait(_renderSemaphore, DISPATCH_TIME_FOREVER);
-
     _currentBufferIndex = (_currentBufferIndex + 1) % kMaxFramesInFlight;
 
     id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
@@ -290,11 +289,12 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
     [_commandEncoder endEncoding];
     _commandEncoder = nil;
 
+    [commandBuffer presentDrawable:[_metalView currentDrawable]];
+
     [commandBuffer addCompletedHandler:^(id <MTLCommandBuffer> buffer) {
         dispatch_semaphore_signal(_renderSemaphore);
     }];
 
-    [commandBuffer presentDrawable:[_metalView currentDrawable]];
     [commandBuffer commit];
 }
 

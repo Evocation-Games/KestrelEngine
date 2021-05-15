@@ -13,7 +13,7 @@ Welcome to the _Kestrel Game Engine_, a project that is centered around and focu
 Kestrel is intended to be a fully moddable and extensible game engine that is focused on rebuilding and remastering Classic Macintosh games. In order to acheive this, rather than forcing all aspects of the game to be rebuilt and re-encoded in modern ways, Kestrel aims to emulate/reproduce some of the technologies that were employed by those old games such as Resource Files / Forks and QuickDraw.
 
 ## Building the Engine
-To build the Kestrel engine you will need the following tools and dependancies installed on your system.
+To build the Kestrel engine you will need the following tools and dependencies installed on your system.
 
 - Clang (macOS)
 - GCC (Linux)
@@ -110,9 +110,9 @@ The matrix below gives a very brief and high level overview of what aspects of t
 |---------|-------------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
 | Clang   | ![Clang](https://img.shields.io/badge/Clang-Supported-good.svg)               | ![Clang](https://img.shields.io/badge/Clang-Unknown-grey.svg)        | ![Clang](https://img.shields.io/badge/Clang-Not_Supported-black.svg)   |
 | GCC     | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)              | ![GCC](https://img.shields.io/badge/GCC-Supported-good.svg)          | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)       |
-| MSVC    | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)            | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)   | ![MSVC](https://img.shields.io/badge/MSVC-Not_Implemented-red.svg)     |
-| OpenGL  | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)             | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)    | ![OpenGL](https://img.shields.io/badge/OpenGL-Not_Implemented-red.svg) |
-| Metal   | ![Metal](https://img.shields.io/badge/Metal-In_Progress-yellow.svg)           | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg)   |
+| MSVC    | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)            | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)   | ![MSVC](https://img.shields.io/badge/MSVC-In_Progress-yellow.svg)     |
+| OpenGL  | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)             | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)    | ![OpenGL](https://img.shields.io/badge/OpenGL-In_Progress-yellow.svg) |
+| Metal   | ![Metal](https://img.shields.io/badge/Metal-Supported-good.svg)           | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg)   |
 | Audio   | ![CoreAudio](https://img.shields.io/badge/Core_Audio-Not_Implemented-red.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg)   |
 
 ## License
