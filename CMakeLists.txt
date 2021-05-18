@@ -75,8 +75,15 @@ add_custom_command(TARGET KestrelGameCore
 # KESTREL ENGINE ###############################################################
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(Freetype REQUIRED)
+
+if(WIN32)
+	set(GLFW3_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/support/Windows/include/GLFW")
+	set(FREETYPE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/submodules/freetype2/include")
+	set(FREETYPE_LIBRARIES "freetype")
+else()
+	find_package(glfw3 REQUIRED)
+	find_package(Freetype REQUIRED)
+endif()
 
 if(LINUX)
 	find_package(GLEW REQUIRED)
@@ -104,6 +111,11 @@ target_include_directories(Kestrel PUBLIC
 	"${PROJECT_SUBMODULES}"
 	"engine"
 )
+
+if(WIN32)
+	target_link_directories(Kestrel PUBLIC "${CMAKE_SOURCE_DIR}/support/Windows/lib")
+endif()
+
 target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 if(LINUX)
 	target_include_directories(Kestrel PUBLIC "${GLEW_INCLUDE_DIRS}")
