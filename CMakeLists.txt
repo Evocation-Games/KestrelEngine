@@ -75,17 +75,10 @@ add_custom_command(TARGET KestrelGameCore
 # KESTREL ENGINE ###############################################################
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(Freetype REQUIRED)
 
-if(WIN32)
-	set(GLFW3_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/support/Windows/include/GLFW")
-	set(FREETYPE_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/submodules/freetype2/include")
-	set(FREETYPE_LIBRARIES "freetype")
-else()
-	find_package(glfw3 REQUIRED)
-	find_package(Freetype REQUIRED)
-endif()
-
-if(LINUX)
+if(NOT APPLE)
 	find_package(GLEW REQUIRED)
 endif()
 
@@ -112,14 +105,14 @@ target_include_directories(Kestrel PUBLIC
 	"engine"
 )
 
-if(WIN32)
-	target_link_directories(Kestrel PUBLIC "${CMAKE_SOURCE_DIR}/support/Windows/lib")
+if(NOT APPLE)
+	target_include_directories(Kestrel PUBLIC ${GLEW_INCLUDE_DIRS})
+	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
 endif()
 
 target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 if(LINUX)
-	target_include_directories(Kestrel PUBLIC "${GLEW_INCLUDE_DIRS}")
-	target_link_libraries(Kestrel ${GLEW_LIBRARIES} "-lfontconfig")
+	target_link_libraries(Kestrel "-lfontconfig")
 	target_compile_options(Kestrel PUBLIC "-fpermissive")
 elseif(APPLE)
 	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal" objc)

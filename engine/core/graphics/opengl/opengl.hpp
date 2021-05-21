@@ -24,6 +24,11 @@
 #if __APPLE__
 #   define GL_SILENCE_DEPRECATION
 #   include "OpenGL/gl3.h"
+#elif (_WIN32 || _WIN64)
+#   include "GL/glew.h"
+#   include "GL/gl.h"
+#   include "GL/glext.h"
+#   include "GL/glcorearb.h"
 #else
 #   include "GL/glew.h"
 #   include "GL/gl.h"

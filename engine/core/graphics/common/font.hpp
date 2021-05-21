@@ -25,7 +25,12 @@
 #include <string>
 #include <vector>
 #include <tuple>
-#include <freetype2/ft2build.h>
+
+#if (_WIN32 || _WIN64)
+#   include <ft2build.h>
+#else
+#   include <freetype2/ft2build.h>
+#endif
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
 #include "math/size.hpp"
