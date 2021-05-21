@@ -61,7 +61,7 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     }
     glfwMakeContextCurrent(m_window);
 
-#if __linux__
+#if __linux__ || (_WIN32 || _WIN64)
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         const char *str = (const char *)glewGetErrorString(err);

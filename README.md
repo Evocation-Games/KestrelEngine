@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.0.1_alpha-red.svg">
+  <img src="https://img.shields.io/badge/version-v0.1_alpha-red.svg">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg">
   <a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
 </p>
@@ -17,6 +17,7 @@ To build the Kestrel engine you will need the following tools and dependencies i
 
 - Clang (macOS)
 - GCC (Linux)
+- MSYS2/MinGW (Windows)
 - CMake
 - OpenGL
 - glfw3
@@ -109,9 +110,9 @@ The matrix below gives a very brief and high level overview of what aspects of t
 | Feature | macOS                                                                         | Linux                                                                | Windows                                                                |
 |---------|-------------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
 | Clang   | ![Clang](https://img.shields.io/badge/Clang-Supported-good.svg)               | ![Clang](https://img.shields.io/badge/Clang-Unknown-grey.svg)        | ![Clang](https://img.shields.io/badge/Clang-Not_Supported-black.svg)   |
-| GCC     | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)              | ![GCC](https://img.shields.io/badge/GCC-Supported-good.svg)          | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)       |
-| MSVC    | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)            | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)   | ![MSVC](https://img.shields.io/badge/MSVC-In_Progress-yellow.svg)     |
-| OpenGL  | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)             | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)    | ![OpenGL](https://img.shields.io/badge/OpenGL-In_Progress-yellow.svg) |
+| GCC     | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)              | ![GCC](https://img.shields.io/badge/GCC-Supported-good.svg)          | ![GCC](https://img.shields.io/badge/GCC-Supported_MSYS2/MinGW-good.svg)       |
+| MSVC    | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)            | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)   | ![MSVC](https://img.shields.io/badge/MSVC-Planned-red.svg)     |
+| OpenGL  | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)             | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)    | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg) |
 | Metal   | ![Metal](https://img.shields.io/badge/Metal-Supported-good.svg)           | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg)   |
 | Audio   | ![CoreAudio](https://img.shields.io/badge/Core_Audio-Not_Implemented-red.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg)   |
 

@@ -27,6 +27,8 @@
 #include "core/support/macos/cocoa/font.h"
 #elif __linux__
 #include "core/support/linux/font_config.hpp"
+#elif (_WIN32 || _WIN64)
+#include "core/support/windows/fonts.hpp"
 #endif
 
 // MARK: - FreeType Globals
@@ -43,7 +45,7 @@ graphics::font::font(const std::string& name)
 #elif __linux__
     m_path = linux_os::font_config::path_for_best_fit_font(name);
 #else
-
+    m_path = "C:/Windows/Fonts/Arial.ttf";
 #endif
 
     if (!ft_loaded) {
