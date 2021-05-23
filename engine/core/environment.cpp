@@ -118,7 +118,7 @@ auto environment::launch_metal(const double& scale) -> int
 
 auto environment::launch_opengl(const double& scale) -> int
 {
-    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
+    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this(), scale);
     return launch_common();
 }
 

@@ -3,6 +3,7 @@
 --
 
 local c = Canvas(Size(300, 300))
+
 c:clear()
 
 c.penColor = Color.red()
@@ -18,9 +19,9 @@ c:drawLine(Point(50, 50), Point(250, 250))
 c:setFont("Geneva", 11)
 c.penColor = Color.colorValue(0xFFFFFF)
 local textSize = c:layoutText("abcdefghijklmnopqrstuvwayz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n0123456789")
-c:drawText(Point(100.5, 100))
+c:drawText(Point(0, 100))
 
-local e = c:spawnEntity(Vec2(200, 200))
+local e = c:spawnEntity(Vec2(100, 100))
 
 local s = Scene.current()
 s:render(function()

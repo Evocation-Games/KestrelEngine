@@ -34,9 +34,10 @@ namespace graphics { namespace opengl {
         std::shared_ptr<opengl::shader> m_shader;
         GLuint m_vao;
         GLuint m_vbo;
+        double m_scale;
 
     public:
-        explicit sprite_renderer(std::shared_ptr<opengl::shader> shader);
+        explicit sprite_renderer(std::shared_ptr<opengl::shader> shader, const double& scale);
 
         auto draw(const graphics::entity::lua_reference& entity) const -> void;
     };

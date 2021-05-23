@@ -24,8 +24,8 @@
 
 // MARK: - Construction
 
-graphics::opengl::sprite_renderer::sprite_renderer(std::shared_ptr<opengl::shader> shader)
-    : m_shader(std::move(shader)), m_vao(0), m_vbo(0)
+graphics::opengl::sprite_renderer::sprite_renderer(std::shared_ptr<opengl::shader> shader, const double& scale)
+    : m_shader(std::move(shader)), m_vao(0), m_vbo(0), m_scale(scale)
 {
     m_shader->use();
 
@@ -65,9 +65,16 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
 
     m_shader->use();
 
+    auto size = entity->size;
+    auto offset = size / 2;
+    auto position = entity->position - math::vector(offset.width, offset.height);
+
+    size = size * m_scale;
+    position = position * m_scale;
+
     auto model = glm::mat4(1.0);
-    model = glm::translate(model, glm::vec3(glm::vec2(entity->position.x - (entity->size.width / 2.0), entity->position.y - (entity->size.height / 2.0)), 0.0));
-    model = glm::scale(model, glm::vec3(glm::vec2(entity->size.width, entity->size.height), 1.0));
+    model = glm::translate(model, glm::vec3(glm::vec2(position.x, position.y), 0.0));
+    model = glm::scale(model, glm::vec3(glm::vec2(size.width, size.height), 1.0));
 
     auto sprite = entity->spritesheet()->at(entity->sprite_index);
 

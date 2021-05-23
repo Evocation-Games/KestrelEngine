@@ -94,6 +94,11 @@ auto graphics::font::calculate_glyph_width(const FT_UInt &glyph_index, const FT_
             FT_Vector delta;
             FT_Get_Kerning(m_face, previous_glyph_index, glyph_index, FT_KERNING_DEFAULT, &delta);
             *kerning = math::size((static_cast<unsigned int>(delta.x) >> 6U), (static_cast<unsigned int>(delta.y) >> 6U));
+
+            // TODO: Resolve the kerning issue, not just hack it like this.
+            if (kerning->width > 50 || kerning->height > 50) {
+                *kerning = math::size(0);
+            }
         }
         return advance_x + kerning->width;
     }

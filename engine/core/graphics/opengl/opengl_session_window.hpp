@@ -40,7 +40,7 @@ namespace graphics { namespace opengl {
         static inline auto translate_keycode(const int& keycode) -> enum event::key::code;
 
     public:
-        explicit session_window(std::shared_ptr<environment> env);
+        explicit session_window(std::shared_ptr<environment> env, const double& scale = 1.0, const bool& fullscreen = false);
 
         auto new_scene(const std::string& name, const scripting::lua::script &script) -> std::shared_ptr<graphics::scene> override;
 

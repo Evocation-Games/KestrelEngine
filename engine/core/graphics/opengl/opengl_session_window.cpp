@@ -29,8 +29,8 @@
 
 // MARK: - Construction
 
-graphics::opengl::session_window::session_window(std::shared_ptr<environment> env)
-    : graphics::session_window(std::move(env))
+graphics::opengl::session_window::session_window(std::shared_ptr<environment> env, const double& scale, const bool& fullscreen)
+    : graphics::session_window(std::move(env), scale)
 {
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialise OpenGL. Unable to proceed.");
@@ -48,17 +48,34 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 #endif
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
     glfwSetErrorCallback([](GLint code, const char *reason) {
         throw std::runtime_error("Failed to create a window for OpenGL session: " + std::string(reason));
     });
 
-    m_window = glfwCreateWindow(800, 600, "Kestrel", nullptr, nullptr);
+    GLFWmonitor *primary_monitor = glfwGetPrimaryMonitor();
+    double highDPIScaleFactor = scale;
+#if __APPLE__
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE)
+#else
+    float x_scale, y_scale;
+    glfwGetMonitorContentScale(primary_monitor, &x_scale, & y_scale);
+    if (x_scale > 1 || y_scale > 1) {
+        highDPIScaleFactor = static_cast<double>(x_scale);
+        glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+    }
+    m_scale = highDPIScaleFactor;
+#endif
+
+    m_window = glfwCreateWindow(800, 600, "Kestrel", fullscreen ? primary_monitor : nullptr, nullptr);
     if (!m_window) {
         glfwTerminate();
         throw std::runtime_error("Failed to create a window for OpenGL session.");
     }
+
+    glfwSetFramebufferSizeCallback(m_window, [] (GLFWwindow *window, int width, int height) {
+        glViewport(0, 0, width, height);
+    });
     glfwMakeContextCurrent(m_window);
 
 #if __linux__ || (_WIN32 || _WIN64)
@@ -82,7 +99,7 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
 
     // Load the default/basic sprite shader from 'GLSL #0 and #1'
     m_sprite_shader = std::make_shared<opengl::shader>(0, 1);
-    m_sprite_renderer = opengl::sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader));
+    m_sprite_renderer = opengl::sprite_renderer(std::dynamic_pointer_cast<opengl::shader>(m_sprite_shader), highDPIScaleFactor);
 
     // Configure event handlers.
     glfwSetKeyCallback(m_window, [] (GLFWwindow *wnd, int key, int scancode, int action, int mods) {
@@ -134,6 +151,8 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
         }
     });
 
+    // Finalise the window, and make sure we are ready to go!
+    configure_viewport(800, 600);
     m_alive = true;
 }
 
@@ -141,8 +160,8 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
 
 auto graphics::opengl::session_window::configure_viewport(GLdouble width, GLdouble height) -> void
 {
-    glViewport(0, 0, width, height);
-    glm::mat4 projection = glm::ortho(0.0, width, height, 0.0, -1.0, 0.0);
+    glViewport(0, 0, width * m_scale, height * m_scale);
+    glm::mat4 projection = glm::ortho(0.0, width * m_scale, height * m_scale, 0.0, -1.0, 0.0);
 
     auto shader = std::static_pointer_cast<opengl::shader>(m_sprite_shader);
     shader->set_mat4("projection", projection);
@@ -156,7 +175,7 @@ auto graphics::opengl::session_window::set_title(const std::string& title) -> vo
 
 auto graphics::opengl::session_window::set_size(const math::size& size) -> void
 {
-    glfwSetWindowSize(m_window, static_cast<int>(size.width), static_cast<int>(size.height));
+    glfwSetWindowSize(m_window, static_cast<int>(size.width * m_scale), static_cast<int>(size.height * m_scale));
     configure_viewport(size.width, size.height);
 }
 
@@ -171,7 +190,7 @@ auto graphics::opengl::session_window::get_size() const -> math::size
 {
     int width = 0, height = 0;
     glfwGetWindowSize(m_window, &width, &height);
-    return { width, height };
+    return { width / m_scale, height / m_scale };
 }
 
 // MARK: - Rendering
