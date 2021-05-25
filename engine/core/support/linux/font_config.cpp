@@ -23,11 +23,20 @@
 #include <fontconfig/fontconfig.h>
 #include <stdexcept>
 #include "font_config.hpp"
+#include "core/environment.hpp"
 
 static FcConfig *config = NULL;
 
 auto linux_os::font_config::path_for_best_fit_font(const std::string &font) -> std::string
 {
+    // Check if we have a custom font bundled with the game, that fits the requested font.
+    if (auto env = environment::active_environment().lock()) {
+        auto path = env->bundled_font_named(font);
+        if (path.has_value()) {
+            return path.value();
+        }
+    }
+
     // Check if we need to load and configure the font config before proceeding.
     if (!config) {
         config = FcInitLoadConfigAndFonts();

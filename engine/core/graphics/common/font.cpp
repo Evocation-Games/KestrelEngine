@@ -38,6 +38,17 @@ static FT_Library ft;
 
 // MARK: - Construction
 
+static inline auto init_freetype() -> void
+{
+    if (!ft_loaded) {
+        if (FT_Init_FreeType(&ft)) {
+            throw std::logic_error("Failed to initialise FreeType");
+        }
+        ft_loaded = true;
+        FT_Library_SetLcdFilter(ft, FT_LCD_FILTER_NONE);
+    }
+}
+
 graphics::font::font(const std::string& name)
 {
 #if __APPLE__
@@ -48,17 +59,23 @@ graphics::font::font(const std::string& name)
     m_path = "C:/Windows/Fonts/Arial.ttf";
 #endif
 
-    if (!ft_loaded) {
-        if (FT_Init_FreeType(&ft)) {
-            throw std::logic_error("Failed to initialise FreeType");
-        }
-        ft_loaded = true;
-        FT_Library_SetLcdFilter(ft, FT_LCD_FILTER_NONE);
-    }
+    init_freetype();
 
     if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
         throw std::logic_error("Failed to load font face.");
     }
+}
+
+auto graphics::font::font_name_at_path(const std::string &path) -> std::string
+{
+    init_freetype();
+
+    FT_Face face;
+    if (FT_New_Face(ft, path.c_str(), 0, &face)) {
+        throw std::logic_error("Failed to load font at " + path);
+    }
+
+    return std::string(face->family_name) + " " + std::string(face->style_name);
 }
 
 // MARK: - Destruction

@@ -49,8 +49,10 @@ private:
     std::shared_ptr<graphics::session_window> m_game_window;
     std::string m_kestrel_core_path;
     std::string m_game_data_path;
+    std::string m_game_fonts_path;
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
+    std::map<std::string, std::string> m_custom_fonts {};
 
 #if __APPLE__
     auto launch_metal(const double& scale = 1.0) -> int;
@@ -61,10 +63,12 @@ private:
 
     auto kestrel_core_path() const -> std::string;
     auto game_data_path() const -> std::string;
+    auto game_fonts_path() const -> std::string;
 
     auto load_kestrel_core() -> void;
     auto load_game_data() -> void;
     auto load_data_files(const std::string& path) -> void;
+    auto load_font_files(const std::string& path) -> void;
 
     auto load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script;
 
@@ -99,6 +103,8 @@ public:
     auto post_mouse_event(const event::mouse& event) -> void;
 
     auto window() -> std::shared_ptr<graphics::session_window>;
+
+    auto bundled_font_named(const std::string& name) const -> std::optional<std::string>;
 };
 
 #endif //KESTREL_ENVIRONMENT_HPP

@@ -123,7 +123,12 @@ auto graphics::scene::add_mouse_event_block(const luabridge::LuaRef &block) -> v
 
 auto graphics::scene::mouse_event(const event::mouse &event) -> void
 {
-    auto ref = event::mouse::lua_reference(new event::mouse(event));
+    const auto& scale = m_owner.expired() ? 1.0 : m_owner.lock()->get_scale_factor();
+    event::mouse scaled_event(event.get_point() / scale,
+                              static_cast<event::mouse::action>(event.get_action()),
+                              static_cast<event::mouse::button>(event.get_button()));
+
+    auto ref = event::mouse::lua_reference(new event::mouse(scaled_event));
     for (const auto& block : m_mouse_event_blocks) {
         block(ref);
     }

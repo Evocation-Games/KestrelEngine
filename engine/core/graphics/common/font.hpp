@@ -54,6 +54,8 @@ namespace graphics
 
         auto calculate_glyph_width(const FT_UInt& glyph_index, const FT_UInt& previous_glyph_index, math::size *kerning) const -> double;
         auto line_height() const -> double;
+
+        static auto font_name_at_path(const std::string& path) -> std::string;
     };
 
 }

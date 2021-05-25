@@ -26,6 +26,7 @@
 #include <utility>
 #include "scripting/state.hpp"
 #include "core/graphics/common/scene.hpp"
+#include "core/graphics/common/font.hpp"
 
 #if __APPLE__
 #include "core/graphics/metal/metal_session_window.h"
@@ -82,6 +83,18 @@ environment::environment(int argc, const char **argv)
     }
     else {
         m_game_data_path = game_data_path();
+    }
+
+    if (std::find(m_options.begin(), m_options.end(), "--fonts") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--fonts") {
+                m_game_fonts_path = m_options[++i];
+                break;
+            }
+        }
+    }
+    else {
+        m_game_fonts_path = game_fonts_path();
     }
 
     // Load all resource files.
@@ -199,6 +212,7 @@ auto environment::load_kestrel_core() -> void
 
 auto environment::load_game_data() -> void
 {
+    load_font_files(m_game_fonts_path);
     load_data_files(m_game_data_path);
 }
 
@@ -222,6 +236,23 @@ auto environment::load_data_files(const std::string &path) -> void
     }
 }
 
+auto environment::load_font_files(const std::string &path) -> void
+{
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir(path.c_str())) != nullptr) {
+        while ((ent = readdir(dir)) != nullptr) {
+            std::string file_path(path + "/");
+            file_path.append(ent->d_name);
+            if (ends_with(file_path, ".ttf")) {
+                auto name = graphics::font::font_name_at_path(file_path);
+                m_custom_fonts[name] = file_path;
+            }
+        }
+        closedir(dir);
+    }
+}
+
 // MARK: - Platform Specifics
 
 #if __APPLE__
@@ -236,6 +267,11 @@ auto environment::game_data_path() const -> std::string
     return cocoa::application::bundle_path() + "/Contents/Resources/DataFiles";
 }
 
+auto game_fonts_path() const -> std::string
+{
+    return cocoa::application::bundle_path() + "/Contents/Resources/Fonts";
+}
+
 #elif __linux__
 
 auto environment::kestrel_core_path() const -> std::string
@@ -248,8 +284,12 @@ auto environment::game_data_path() const -> std::string
     return "DataFiles";
 }
 
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#   if defined(_WIN64)
+auto environment::game_fonts_path() const -> std::string
+{
+    return "Fonts";
+}
+
+#elif (defined(_WIN32) || defined(_WIN64))
 
 auto environment::kestrel_core_path() const -> std::string
 {
@@ -261,9 +301,11 @@ auto environment::game_data_path() const -> std::string
     return "DataFiles";
 }
 
-#   else
-#       error "32-bit Windows is not supported."
-#   endif
+auto environment::game_fonts_path() const -> std::string
+{
+    return "Fonts";
+}
+
 #else
 #   error "Unknown Target Platform"
 #endif
@@ -411,3 +453,16 @@ auto environment::post_mouse_event(const event::mouse &event) -> void
         scene->mouse_event(event);
     }
 }
+
+// MARK: - Bundled Resources
+
+auto environment::bundled_font_named(const std::string &name) const -> std::optional<std::string>
+{
+    if (m_custom_fonts.find(name) != m_custom_fonts.end()) {
+        return m_custom_fonts.at(name);
+    }
+    else {
+        return {};
+    }
+}
+
