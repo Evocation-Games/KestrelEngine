@@ -56,7 +56,7 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     GLFWmonitor *primary_monitor = glfwGetPrimaryMonitor();
     double highDPIScaleFactor = scale;
 #if __APPLE__
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE)
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
 #else
     float x_scale, y_scale;
     glfwGetMonitorContentScale(primary_monitor, &x_scale, & y_scale);
