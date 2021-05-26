@@ -315,13 +315,13 @@ auto environment::game_fonts_path() const -> std::string
 auto environment::prepare_lua_interface() -> void
 {
     luabridge::getGlobalNamespace(m_lua_runtime->internal_state())
-        .beginClass<environment>("Kestrel")
-            .addStaticFunction("setGameWindowTitle", &environment::set_game_window_title)
-            .addStaticFunction("setGameWindowSize", &environment::set_game_window_size)
-            .addStaticFunction("importScript", &environment::import_script)
-            .addStaticFunction("scene", &environment::create_scene)
-            .addStaticFunction("scaleFactor", &environment::scale)
-        .endClass();
+        .beginNamespace("Kestrel")
+            .addFunction("setGameWindowTitle", &environment::set_game_window_title)
+            .addFunction("setGameWindowSize", &environment::set_game_window_size)
+            .addFunction("importScript", &environment::import_script)
+            .addFunction("scene", &environment::create_scene)
+            .addFunction("scaleFactor", &environment::scale)
+        .endNamespace();
 }
 
 auto environment::set_game_window_title(const std::string &title) -> void
