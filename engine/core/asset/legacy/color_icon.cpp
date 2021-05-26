@@ -79,12 +79,12 @@ auto asset::color_icon::load(const asset::resource_reference::lua_reference &ref
 
 auto asset::color_icon::size() const -> math::size
 {
-    return image::size();
+    return basic_image::size();
 }
 
 // MARK: - Entities
 
 auto asset::color_icon::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
-    return asset::image::spawn_entity(position);
+    return asset::basic_image::spawn_entity(position);
 }

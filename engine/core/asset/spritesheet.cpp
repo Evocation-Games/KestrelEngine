@@ -103,16 +103,16 @@ auto asset::spritesheet::load(const asset::resource_reference::lua_reference& re
 
 auto asset::spritesheet::size() const -> math::size
 {
-    return image::size();
+    return basic_image::size();
 }
 
 auto asset::spritesheet::sprite_count() const -> int
 {
-    return image::sprite_count();
+    return basic_image::sprite_count();
 }
 
 auto asset::spritesheet::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
-    return asset::image::spawn_entity(position);
+    return asset::basic_image::spawn_entity(position);
 }
 

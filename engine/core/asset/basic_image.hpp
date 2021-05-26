@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_IMAGE_HPP)
-#define KESTREL_IMAGE_HPP
+#if !defined(KESTREL_BASIC_IMAGE_HPP)
+#define KESTREL_BASIC_IMAGE_HPP
 
 #include <string>
 #include "core/graphics/common/color.hpp"
@@ -31,7 +31,7 @@
 namespace asset
 {
 
-    class image
+    class basic_image
     {
     protected:
         int64_t m_id { INT64_MIN };
@@ -41,10 +41,10 @@ namespace asset
         auto configure(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data) -> void;
 
     public:
-        image() = default;
-        explicit image(const math::size& size, const graphics::color& color = graphics::color::white_color());
-        image(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data);
-        lua_api image(const math::size& size, const graphics::color::lua_reference& color);
+        basic_image() = default;
+        explicit basic_image(const math::size& size, const graphics::color& color = graphics::color::white_color());
+        basic_image(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data);
+        lua_api basic_image(const math::size& size, const graphics::color::lua_reference& color);
 
         lua_api [[nodiscard]] virtual auto size() const -> math::size;
         lua_api [[nodiscard]] virtual auto sprite_count() const -> int;
@@ -58,4 +58,4 @@ namespace asset
 
 }
 
-#endif //KESTREL_IMAGE_HPP
+#endif //KESTREL_BASIC_IMAGE_HPP

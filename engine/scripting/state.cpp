@@ -35,7 +35,7 @@
 #include "engine/core/asset/legacy/color_icon.hpp"
 #include "core/asset/spritesheet.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
-#include "core/asset/image.hpp"
+#include "core/asset/basic_image.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/event/key.hpp"

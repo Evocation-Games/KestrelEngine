@@ -23,13 +23,13 @@
 
 #include <memory>
 #include "scripting/state.hpp"
-#include "core/asset/image.hpp"
+#include "core/asset/basic_image.hpp"
 #include "core/asset/resource_reference.hpp"
 
 namespace asset
 {
 
-    class spritesheet: public asset::image, public scripting::lua::object
+    class spritesheet: public asset::basic_image, public scripting::lua::object
     {
     public:
         constexpr static const char *type { "SpSh" };

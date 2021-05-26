@@ -21,7 +21,7 @@
 #if !defined(KESTREL_COLOR_ICON_HPP)
 #define KESTREL_COLOR_ICON_HPP
 
-#include "core/asset/image.hpp"
+#include "core/asset/basic_image.hpp"
 #include "core/asset/resource_reference.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -29,7 +29,7 @@
 namespace asset
 {
 
-    struct color_icon: public asset::image, public scripting::lua::object
+    struct color_icon: public asset::basic_image, public scripting::lua::object
     {
     public:
         constexpr static const char *type { "cicn" };

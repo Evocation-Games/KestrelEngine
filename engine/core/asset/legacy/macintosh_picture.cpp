@@ -81,23 +81,23 @@ auto asset::macintosh_picture::load(const asset::resource_reference::lua_referen
 
 auto asset::macintosh_picture::size() const -> math::size
 {
-    return image::size();
+    return basic_image::size();
 }
 
 auto asset::macintosh_picture::sprite_count() const -> int
 {
-    return image::sprite_count();
+    return basic_image::sprite_count();
 }
 
 // MARK: - Sprites & Entities
 
 auto asset::macintosh_picture::layout_sprites(const math::size& sprite_size) -> void
 {
-    asset::image::layout_sprites(sprite_size);
+    asset::basic_image::layout_sprites(sprite_size);
 }
 
 auto asset::macintosh_picture::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
-    return asset::image::spawn_entity(position);
+    return asset::basic_image::spawn_entity(position);
 }
 

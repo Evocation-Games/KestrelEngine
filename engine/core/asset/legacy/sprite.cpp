@@ -81,24 +81,24 @@ auto asset::sprite::load(const asset::resource_reference::lua_reference& ref) ->
 
 auto asset::sprite::size() const -> math::size
 {
-    return image::size();
+    return basic_image::size();
 }
 
 auto asset::sprite::sprite_count() const -> int
 {
-    return image::sprite_count();
+    return basic_image::sprite_count();
 }
 
 // MARK: - Layout
 
 auto asset::sprite::layout_sprites(const math::size& sprite_size) -> void
 {
-    asset::image::layout_sprites(sprite_size);
+    asset::basic_image::layout_sprites(sprite_size);
 }
 
 // MARK: - Entities
 
 auto asset::sprite::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
-    return asset::image::spawn_entity(position);
+    return asset::basic_image::spawn_entity(position);
 }

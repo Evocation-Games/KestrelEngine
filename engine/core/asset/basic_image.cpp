@@ -18,12 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/asset/image.hpp"
+#include "core/asset/basic_image.hpp"
 #include "core/environment.hpp"
 
 // MARK: - Construction
 
-asset::image::image(const math::size& size, const graphics::color& color)
+asset::basic_image::basic_image(const math::size& size, const graphics::color& color)
 {
     auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color.value());
 
@@ -34,7 +34,7 @@ asset::image::image(const math::size& size, const graphics::color& color)
     }
 }
 
-asset::image::image(const int64_t& id, const std::string& name, const math::size &size, std::vector<uint32_t> data)
+asset::basic_image::basic_image(const int64_t& id, const std::string& name, const math::size &size, std::vector<uint32_t> data)
     : m_id(id), m_name(name)
 {
     // Generate a texture and then a spritesheet.
@@ -44,7 +44,7 @@ asset::image::image(const int64_t& id, const std::string& name, const math::size
     }
 }
 
-asset::image::image(const math::size &size, const graphics::color::lua_reference &color)
+asset::basic_image::basic_image(const math::size &size, const graphics::color::lua_reference &color)
 {
     auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color->value());
     if (auto env = environment::active_environment().lock()) {
@@ -55,24 +55,24 @@ asset::image::image(const math::size &size, const graphics::color::lua_reference
 
 // MARK: - Accessors
 
-auto asset::image::size() const -> math::size
+auto asset::basic_image::size() const -> math::size
 {
     return m_sheet->sprite_size();
 }
 
-auto asset::image::sprite_count() const -> int
+auto asset::basic_image::sprite_count() const -> int
 {
     return m_sheet->sprite_count();
 }
 
-auto asset::image::spritesheet() const -> std::shared_ptr<graphics::spritesheet>
+auto asset::basic_image::spritesheet() const -> std::shared_ptr<graphics::spritesheet>
 {
     return m_sheet;
 }
 
 // MARK: - Configuration
 
-auto asset::image::configure(const int64_t &id, const std::string &name, const math::size &size,
+auto asset::basic_image::configure(const int64_t &id, const std::string &name, const math::size &size,
                              std::vector<uint32_t> data) -> void
 {
     m_id = id;
@@ -85,14 +85,14 @@ auto asset::image::configure(const int64_t &id, const std::string &name, const m
     }
 }
 
-auto asset::image::layout_sprites(const math::size& sprite_size) -> void
+auto asset::basic_image::layout_sprites(const math::size& sprite_size) -> void
 {
     m_sheet->layout_sprites(sprite_size);
 }
 
 // MARK: - Entity
 
-auto asset::image::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
+auto asset::basic_image::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
 {
     auto entity = graphics::entity::lua_reference(new graphics::entity(size()));
     entity->position = position;
