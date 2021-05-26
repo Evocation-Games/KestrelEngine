@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/quickdraw/rle.hpp>
-#include "core/asset/sprite.hpp"
+#include "sprite.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 
@@ -30,14 +30,18 @@
 auto asset::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::sprite>("SWSprite")
-            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::sprite::lua_reference>()
-            .addStaticFunction("load", &asset::sprite::load)
-            .addProperty("size", &asset::sprite::size)
-            .addProperty("numberOfSprites", &asset::sprite::sprite_count)
-            .addFunction("spawnEntity", &asset::sprite::spawn_entity)
-            .addFunction("setSpriteSize", &asset::sprite::layout_sprites)
-        .endClass();
+        .beginNamespace("Legacy")
+            .beginNamespace("SpriteWorld")
+                .beginClass<asset::sprite>("Sprite")
+                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::sprite::lua_reference>()
+                    .addStaticFunction("load", &asset::sprite::load)
+                    .addProperty("size", &asset::sprite::size)
+                    .addProperty("numberOfSprites", &asset::sprite::sprite_count)
+                    .addFunction("spawnEntity", &asset::sprite::spawn_entity)
+                    .addFunction("setSpriteSize", &asset::sprite::layout_sprites)
+                .endClass()
+            .endNamespace()
+        .endNamespace();
 }
 
 // MARK: - Construction

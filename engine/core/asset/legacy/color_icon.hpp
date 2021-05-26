@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SPRITE_HPP)
-#define KESTREL_SPRITE_HPP
+#if !defined(KESTREL_COLOR_ICON_HPP)
+#define KESTREL_COLOR_ICON_HPP
 
 #include "core/asset/image.hpp"
 #include "core/asset/resource_reference.hpp"
@@ -29,25 +29,21 @@
 namespace asset
 {
 
-    struct sprite: public asset::image, public scripting::lua::object
+    struct color_icon: public asset::image, public scripting::lua::object
     {
     public:
-        constexpr static const char *type { "rlëD" };
-        typedef luabridge::RefCountedPtr<asset::sprite> lua_reference;
+        constexpr static const char *type { "cicn" };
+        typedef luabridge::RefCountedPtr<asset::color_icon> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    public:
-        lua_api explicit sprite(const asset::resource_reference::lua_reference& ref);
-        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> sprite::lua_reference;
+        lua_api explicit color_icon(const asset::resource_reference::lua_reference& ref);
+        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> color_icon::lua_reference;
 
-        lua_api auto size() const -> math::size;
-        lua_api auto sprite_count() const -> int override;
+        lua_api [[nodiscard]] auto size() const -> math::size override;
 
-        lua_api auto layout_sprites(const math::size& sprite_size) -> void override;
-
-        lua_api auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
     };
 
 };
 
-#endif //KESTREL_SPRITE_HPP
+#endif //KESTREL_COLOR_ICON_HPP

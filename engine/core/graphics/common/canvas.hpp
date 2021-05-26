@@ -32,8 +32,8 @@
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/font.hpp"
-#include "core/asset/macintosh_picture.hpp"
-#include "core/asset/color_icon.hpp"
+#include "engine/core/asset/legacy/macintosh_picture.hpp"
+#include "engine/core/asset/legacy/color_icon.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/graphics/common/rgba_buffer.hpp"
 

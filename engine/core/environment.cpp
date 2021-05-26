@@ -267,7 +267,7 @@ auto environment::game_data_path() const -> std::string
     return cocoa::application::bundle_path() + "/Contents/Resources/DataFiles";
 }
 
-auto game_fonts_path() const -> std::string
+auto environment::game_fonts_path() const -> std::string
 {
     return cocoa::application::bundle_path() + "/Contents/Resources/Fonts";
 }

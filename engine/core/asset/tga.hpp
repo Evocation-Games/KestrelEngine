@@ -65,9 +65,9 @@ namespace asset
         auto encode(graphite::data::writer& writer) -> void;
 
     public:
-        tga(const std::string& path);
-        tga(const std::shared_ptr<std::vector<char>>& data);
-        tga(std::shared_ptr<graphite::qd::surface>  surface);
+        explicit tga(const std::string& path);
+        explicit tga(const std::shared_ptr<std::vector<char>>& data);
+        explicit tga(std::shared_ptr<graphite::qd::surface> surface);
 
         auto surface() -> std::weak_ptr<graphite::qd::surface>;
         auto data() -> std::vector<char>;

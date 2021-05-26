@@ -21,20 +21,6 @@
 #include "core/asset/image.hpp"
 #include "core/environment.hpp"
 
-// MARK: - Lua
-
-auto asset::image::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
-{
-    luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::image>("Image")
-            .addConstructor<auto(*)(const math::size&, const graphics::color::lua_reference&)->void, asset::image::lua_reference>()
-            .addProperty("size", &asset::image::size)
-            .addProperty("numberOfSprites", &asset::image::sprite_count)
-            .addFunction("spawnEntity", &asset::image::spawn_entity)
-            .addFunction("setSpriteSize", &asset::image::layout_sprites)
-        .endClass();
-}
-
 // MARK: - Construction
 
 asset::image::image(const math::size& size, const graphics::color& color)

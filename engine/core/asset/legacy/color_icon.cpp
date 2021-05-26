@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/quickdraw/cicn.hpp>
-#include "core/asset/color_icon.hpp"
+#include "color_icon.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 
@@ -30,12 +30,16 @@
 auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::color_icon>("MacintoshColorIcon")
-            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::color_icon::lua_reference>()
-            .addStaticFunction("load", &asset::color_icon::load)
-            .addProperty("size", &asset::color_icon::size)
-            .addFunction("spawnEntity", &asset::color_icon::spawn_entity)
-        .endClass();
+        .beginNamespace("Legacy")
+            .beginNamespace("Macintosh")
+                .beginClass<asset::color_icon>("ColorIcon")
+                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::color_icon::lua_reference>()
+                    .addStaticFunction("load", &asset::color_icon::load)
+                    .addProperty("size", &asset::color_icon::size)
+                    .addFunction("spawnEntity", &asset::color_icon::spawn_entity)
+                .endClass()
+            .endNamespace()
+        .endNamespace();
 }
 
 // MARK: - Construction

@@ -42,10 +42,10 @@ namespace asset
         lua_api explicit spritesheet(const asset::resource_reference::lua_reference& ref);
         lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> spritesheet::lua_reference;
 
-        lua_api auto size() const -> math::size;
-        lua_api auto sprite_count() const -> int override;
+        lua_api [[nodiscard]] auto size() const -> math::size override;
+        lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
-        lua_api auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
     };
 
 }

@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/quickdraw/pict.hpp>
-#include "core/asset/macintosh_picture.hpp"
+#include "macintosh_picture.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 
@@ -30,14 +30,18 @@
 auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::macintosh_picture>("MacintoshPicture")
-            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
-            .addStaticFunction("load", &asset::macintosh_picture::load)
-            .addProperty("size", &asset::macintosh_picture::size)
-            .addProperty("numberOfSprites", &asset::macintosh_picture::sprite_count)
-            .addFunction("spawnEntity", &asset::macintosh_picture::spawn_entity)
-            .addFunction("setSpriteSize", &asset::macintosh_picture::layout_sprites)
-        .endClass();
+        .beginNamespace("Legacy")
+            .beginNamespace("Macintosh")
+                .beginClass<asset::macintosh_picture>("Picture")
+                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
+                    .addStaticFunction("load", &asset::macintosh_picture::load)
+                    .addProperty("size", &asset::macintosh_picture::size)
+                    .addProperty("numberOfSprites", &asset::macintosh_picture::sprite_count)
+                    .addFunction("spawnEntity", &asset::macintosh_picture::spawn_entity)
+                    .addFunction("setSpriteSize", &asset::macintosh_picture::layout_sprites)
+                .endClass()
+            .endNamespace()
+        .endNamespace();
 }
 
 // MARK: - Construction

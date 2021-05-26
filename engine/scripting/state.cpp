@@ -31,15 +31,15 @@
 #include "math/rect.hpp"
 #include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
-#include "core/asset/macintosh_picture.hpp"
-#include "core/asset/color_icon.hpp"
+#include "engine/core/asset/legacy/macintosh_picture.hpp"
+#include "engine/core/asset/legacy/color_icon.hpp"
 #include "core/asset/spritesheet.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/asset/image.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/event/key.hpp"
-#include "core/asset/sprite.hpp"
+#include "engine/core/asset/legacy/sprite.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "util/lua_vector.hpp"
 
@@ -71,7 +71,6 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     env->prepare_lua_interface();
     asset::resource_reference::enroll_object_api_in_state(shared_from_this());
     asset::resource::enroll_object_api_in_state(shared_from_this());
-    asset::image::enroll_object_api_in_state(shared_from_this());
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     asset::sprite::enroll_object_api_in_state(shared_from_this());
     asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());

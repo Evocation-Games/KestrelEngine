@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/resources/sound.hpp>
-#include "core/asset/macintosh_sound.hpp"
+#include "macintosh_sound.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 
@@ -30,11 +30,15 @@
 auto asset::macintosh_sound::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::macintosh_sound>("MacintoshSound")
-            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&) -> void, asset::macintosh_sound::lua_reference>()
-            .addStaticFunction("load", &asset::macintosh_sound::load)
-            .addFunction("play", &asset::macintosh_sound::play)
-        .endClass();
+        .beginNamespace("Legacy")
+            .beginNamespace("Macintosh")
+                .beginClass<asset::macintosh_sound>("Sound")
+                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&) -> void, asset::macintosh_sound::lua_reference>()
+                    .addStaticFunction("load", &asset::macintosh_sound::load)
+                    .addFunction("play", &asset::macintosh_sound::play)
+                .endClass()
+            .endNamespace()
+        .endNamespace();
 }
 
 // MARK: - Construction
