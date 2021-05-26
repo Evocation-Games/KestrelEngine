@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/quickdraw/pict.hpp>
-#include "macintosh_picture.hpp"
+#include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 
