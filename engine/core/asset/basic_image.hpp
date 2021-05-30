@@ -39,12 +39,16 @@ namespace asset
         std::shared_ptr<graphics::spritesheet> m_sheet;
 
         auto configure(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data) -> void;
+        auto configure(const int64_t& id, const std::string& name, std::shared_ptr<graphics::spritesheet> sheet) -> void;
 
     public:
         basic_image() = default;
         explicit basic_image(const math::size& size, const graphics::color& color = graphics::color::white_color());
         basic_image(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data);
         lua_api basic_image(const math::size& size, const graphics::color::lua_reference& color);
+
+        [[nodiscard]] virtual auto id() const -> int64_t;
+        [[nodiscard]] virtual auto name() const -> std::string;
 
         lua_api [[nodiscard]] virtual auto size() const -> math::size;
         lua_api [[nodiscard]] virtual auto sprite_count() const -> int;

@@ -25,6 +25,8 @@
 #include "scripting/state.hpp"
 #include "core/asset/basic_image.hpp"
 #include "core/asset/resource_reference.hpp"
+#include "core/asset/legacy/macintosh/picture.hpp"
+#include "core/asset/legacy/macintosh/color_icon.hpp"
 
 namespace asset
 {
@@ -32,15 +34,17 @@ namespace asset
     class static_image: public asset::basic_image, public scripting::lua::object
     {
     public:
-        constexpr static const char *type { "TarG" };
+        constexpr static const char *type { "sïmg" };
         typedef luabridge::RefCountedPtr<asset::static_image> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-
     public:
+        static_image(const int64_t& id, const std::string& name, std::shared_ptr<graphics::spritesheet> sheet);
+
         lua_api explicit static_image(const asset::resource_reference::lua_reference& ref);
-        lua_api static auto load_best(const std::vector<asset::resource_reference::lua_reference> refs) -> static_image::lua_reference;
+        lua_api static auto load_best(std::vector<asset::resource_reference::lua_reference> refs) -> static_image::lua_reference;
+        lua_api static auto using_pict(const asset::macintosh_picture::lua_reference& ref) -> static_image::lua_reference;
+        lua_api static auto using_cicn(const asset::color_icon::lua_reference& ref) -> static_image::lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;

@@ -35,7 +35,7 @@
 #include "engine/core/asset/legacy/macintosh/color_icon.hpp"
 #include "core/asset/spritesheet.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
-#include "core/asset/basic_image.hpp"
+#include "core/asset/static_image.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/event/key.hpp"
@@ -75,6 +75,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::sprite::enroll_object_api_in_state(shared_from_this());
     asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());
     asset::color_icon::enroll_object_api_in_state(shared_from_this());
+    asset::static_image::enroll_object_api_in_state(shared_from_this());
 
     math::angle::enroll_object_api_in_state(shared_from_this());
     math::angular_difference::enroll_object_api_in_state(shared_from_this());

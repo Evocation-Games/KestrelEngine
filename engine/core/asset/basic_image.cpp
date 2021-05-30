@@ -55,6 +55,16 @@ asset::basic_image::basic_image(const math::size &size, const graphics::color::l
 
 // MARK: - Accessors
 
+auto asset::basic_image::id() const -> int64_t
+{
+    return m_id;
+}
+
+auto asset::basic_image::name() const -> std::string
+{
+    return m_name;
+}
+
 auto asset::basic_image::size() const -> math::size
 {
     return m_sheet->sprite_size();
@@ -85,6 +95,15 @@ auto asset::basic_image::configure(const int64_t &id, const std::string &name, c
     }
 }
 
+auto asset::basic_image::configure(const int64_t &id, const std::string &name,
+                                   std::shared_ptr<graphics::spritesheet> sheet) -> void
+{
+    m_id = id;
+    m_name = name;
+    m_sheet = sheet;
+}
+
+
 auto asset::basic_image::layout_sprites(const math::size& sprite_size) -> void
 {
     m_sheet->layout_sprites(sprite_size);
@@ -101,4 +120,3 @@ auto asset::basic_image::spawn_entity(const math::vector& position) const -> gra
     entity->set_spritesheet(spritesheet());
     return entity;
 }
-
