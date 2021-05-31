@@ -31,6 +31,7 @@ extern "C" {
 #include <memory>
 #include "LuaBridge/LuaBridge.h"
 #include "LuaBridge/RefCountedPtr.h"
+#include "LuaBridge/Vector.h"
 #include "scripting/stack.hpp"
 
 class environment;
