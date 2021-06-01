@@ -26,15 +26,19 @@
 auto asset::resource_reference::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<asset::resource_reference>("Resource")
-            .addStaticFunction("named", &resource_reference::using_named)
-            .addStaticFunction("id", &resource_reference::using_id)
-            .addStaticFunction("idWithType", &resource_reference::using_typed_id)
-            .addStaticFunction("namedWithType", &resource_reference::using_typed_named)
-            .addStaticFunction("find", &resource_reference::find)
-            .addStaticFunction("allWithType", &resource_reference::all_of_type)
-            .addProperty("exists", &resource_reference::exists)
-        .endClass();
+        .beginNamespace("Legacy")
+            .beginNamespace("Macintosh")
+                .beginClass<asset::resource_reference>("Resource")
+                    .addStaticFunction("named", &resource_reference::using_named)
+                    .addStaticFunction("id", &resource_reference::using_id)
+                    .addStaticFunction("idWithType", &resource_reference::using_typed_id)
+                    .addStaticFunction("namedWithType", &resource_reference::using_typed_named)
+                    .addStaticFunction("find", &resource_reference::find)
+                    .addStaticFunction("allWithType", &resource_reference::all_of_type)
+                    .addProperty("exists", &resource_reference::exists)
+                .endClass()
+            .endNamespace()
+        .endNamespace();
 }
 
 // MARK: - Construction
