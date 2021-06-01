@@ -133,17 +133,18 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
 
     glfwSetMouseButtonCallback(m_window, [] (GLFWwindow *wnd, int button, int action, int mods) {
         if (auto env = environment::active_environment().lock()) {
+            const auto& scale = env->window()->get_scale_factor();
             double x, y;
             glfwGetCursorPos(wnd, &x, &y);
 
             switch (action) {
                 case GLFW_PRESS: {
-                    event::mouse e({x, y}, event::mouse::pressed, static_cast<enum event::mouse::button>(button));
+                    event::mouse e({x / scale, y / scale}, event::mouse::pressed, static_cast<enum event::mouse::button>(button));
                     env->post_mouse_event(e);
                     break;
                 }
                 case GLFW_RELEASE: {
-                    event::mouse e({x, y}, event::mouse::released, static_cast<enum event::mouse::button>(button));
+                    event::mouse e({x / scale, y / scale}, event::mouse::released, static_cast<enum event::mouse::button>(button));
                     env->post_mouse_event(e);
                     break;
                 }
