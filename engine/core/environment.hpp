@@ -44,6 +44,21 @@ namespace graphics
 
 class environment: public std::enable_shared_from_this<environment>
 {
+public:
+    enum class platform_type : int
+    {
+        mac_os = 0,
+        linux = 1,
+        windows = 2
+    };
+
+    enum class gl_type
+    {
+        none,
+        open_gl,
+        metal,
+    };
+
 private:
     int m_status;
     std::vector<std::string> m_options;
@@ -55,6 +70,7 @@ private:
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
     host::filesystem::lua_reference m_filesystem { new host::filesystem() };
+    environment::gl_type m_gl { gl_type::none };
 
 #if __APPLE__
     auto launch_metal(const double& scale = 1.0) -> int;
@@ -82,6 +98,11 @@ private:
     lua_api static auto scale() -> double;
 
     lua_api static auto filesystem() -> host::filesystem::lua_reference;
+
+    lua_api static auto platform() -> environment::platform_type;
+    lua_api static auto platform_name() -> std::string;
+
+    lua_api static auto gl_name() -> std::string;
 
 public:
     environment(int argc, const char **argv);

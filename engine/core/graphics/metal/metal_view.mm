@@ -84,6 +84,7 @@ static inline auto color_vector(const graphics::color& c) -> simd_float4
 @end
 
 @interface MetalView: NSView <MTKViewDelegate>
+- (instancetype)initWithScale:(double)scale;
 - (void)drawEntity:(const graphics::entity::lua_reference&)entity;
 - (int)registerTexture:(std::shared_ptr<graphics::texture>)texture;
 - (void)destroyTexture:(const int)handle;

@@ -118,11 +118,12 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 #if __APPLE__
 auto environment::launch_metal(const double& scale) -> int
 {
-    auto app = cocoa::application();
+    auto app = cocoa::application();;
     return app.run(m_options, [this, scale] () {
         this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this(), scale);
         this->m_game_window->set_title("Kestrel - Metal");
         this->m_game_window->set_size({ 800, 600 });
+        this->m_gl = gl_type::metal;
         this->prepare_common();
     });
 }
@@ -131,6 +132,7 @@ auto environment::launch_metal(const double& scale) -> int
 auto environment::launch_opengl(const double& scale) -> int
 {
     m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this(), scale);
+    m_gl = gl_type::open_gl;
     return launch_common();
 }
 
@@ -321,6 +323,9 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("scene", &environment::create_scene)
             .addFunction("scaleFactor", &environment::scale)
             .addProperty("fileSystem", &environment::filesystem)
+            .addProperty("platform", &environment::platform)
+            .addProperty("platformName", &environment::platform_name)
+            .addProperty("graphicsLayerName", &environment::gl_name)
         .endNamespace();
 }
 
@@ -425,6 +430,21 @@ auto environment::create_scene(const std::string &name,
     }
 }
 
+auto environment::gl_name() -> std::string
+{
+    if (auto env = $_active_environment.lock()) {
+        switch (env->m_gl) {
+            case gl_type::open_gl:
+                return "OpenGL";
+            case gl_type::metal:
+                return "Metal";
+            default:
+                break;
+        }
+    }
+    return "Unknown";
+}
+
 // MARK: - Event Posting
 
 auto environment::post_key_event(const event::key &event) -> void
@@ -473,3 +493,42 @@ auto environment::filesystem() -> host::filesystem::lua_reference
     return $_active_environment.lock()->m_filesystem;
 }
 
+// MARK: - Host Platform
+
+#if __APPLE__
+
+auto environment::platform() -> environment::platform_type
+{
+    return platform_type::mac_os;
+}
+
+auto environment::platform_name() -> std::string
+{
+    return "macOS";
+}
+
+#elif __linux__
+
+auto environment::platform() -> environment::platform_type
+{
+    return platform_type::linux;
+}
+
+auto environment::platform_name() -> std::string
+{
+    return "Linux";
+}
+
+#elif (_WIN32 || _WIN64)
+
+auto environment::platform() -> environment::platform_type
+{
+    return platform_type::windows;
+}
+
+auto environment::platform_name() -> std::string
+{
+    return "Windows";
+}
+
+#endif
