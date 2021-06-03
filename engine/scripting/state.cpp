@@ -42,6 +42,9 @@
 #include "engine/core/asset/legacy/spriteworld/sprite.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "util/lua_vector.hpp"
+#include "core/file/filesystem.hpp"
+#include "core/file/file.hpp"
+#include "core/file/directory.hpp"
 
 // MARK: - Construction
 
@@ -92,6 +95,10 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     event::key::enroll_object_apu_in_state(shared_from_this());
     event::mouse::enroll_object_apu_in_state(shared_from_this());
+
+    host::filesystem::enroll_object_api_in_state(shared_from_this());
+    host::file::enroll_object_api_in_state(shared_from_this());
+    host::directory::enroll_object_api_in_state(shared_from_this());
 
     util::lua_vector<asset::resource_reference::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
 }

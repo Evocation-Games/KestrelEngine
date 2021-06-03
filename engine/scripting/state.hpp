@@ -70,6 +70,7 @@ namespace scripting { namespace lua {
 
     class object
     {
+    public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void {};
     };
 

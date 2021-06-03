@@ -34,6 +34,7 @@
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/event/key.hpp"
 #include "core/event/mouse.hpp"
+#include "core/file/filesystem.hpp"
 
 namespace graphics
 {
@@ -53,6 +54,7 @@ private:
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
+    host::filesystem::lua_reference m_filesystem { new host::filesystem() };
 
 #if __APPLE__
     auto launch_metal(const double& scale = 1.0) -> int;
@@ -78,6 +80,8 @@ private:
     lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
 
     lua_api static auto scale() -> double;
+
+    lua_api static auto filesystem() -> host::filesystem::lua_reference;
 
 public:
     environment(int argc, const char **argv);

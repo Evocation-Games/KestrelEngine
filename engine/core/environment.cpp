@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include <dirent.h>
-#include <iostream>
 #include "core/environment.hpp"
 #include "core/graphics/opengl/opengl_session_window.hpp"
 #include <libGraphite/rsrc/manager.hpp>
@@ -321,6 +320,7 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("importScript", &environment::import_script)
             .addFunction("scene", &environment::create_scene)
             .addFunction("scaleFactor", &environment::scale)
+            .addProperty("fileSystem", &environment::filesystem)
         .endNamespace();
 }
 
@@ -464,5 +464,12 @@ auto environment::bundled_font_named(const std::string &name) const -> std::opti
     else {
         return {};
     }
+}
+
+// MARK: - File System
+
+auto environment::filesystem() -> host::filesystem::lua_reference
+{
+    return $_active_environment.lock()->m_filesystem;
 }
 
