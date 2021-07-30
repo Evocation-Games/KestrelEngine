@@ -21,7 +21,7 @@
 #if !defined(KESTREL_SOUND_HPP)
 #define KESTREL_SOUND_HPP
 
-#include "core/asset/resource_reference.hpp"
+#include "core/asset/rsrc/resource.hpp"
 #include "scripting/state.hpp"
 
 namespace asset
@@ -34,8 +34,8 @@ namespace asset
         typedef luabridge::RefCountedPtr<asset::macintosh_sound> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
     public:
-        lua_api explicit macintosh_sound(const asset::resource_reference::lua_reference& ref);
-        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> macintosh_sound::lua_reference;
+        lua_api explicit macintosh_sound(const asset::resource::lua_reference& ref);
+        lua_api static auto load(const asset::resource::lua_reference& ref) -> macintosh_sound::lua_reference;
         lua_api virtual auto play() -> void;
     };
 

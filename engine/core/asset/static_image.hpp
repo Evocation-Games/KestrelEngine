@@ -24,7 +24,7 @@
 #include <memory>
 #include "scripting/state.hpp"
 #include "core/asset/basic_image.hpp"
-#include "core/asset/resource_reference.hpp"
+#include "core/asset/rsrc/resource.hpp"
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/legacy/macintosh/color_icon.hpp"
 
@@ -41,8 +41,8 @@ namespace asset
     public:
         static_image(const int64_t& id, const std::string& name, std::shared_ptr<graphics::spritesheet> sheet);
 
-        lua_api explicit static_image(const asset::resource_reference::lua_reference& ref);
-        lua_api static auto load_best(std::vector<asset::resource_reference::lua_reference> refs) -> static_image::lua_reference;
+        lua_api explicit static_image(const asset::resource::lua_reference& ref);
+        lua_api static auto load_best(std::vector<asset::resource::lua_reference> refs) -> static_image::lua_reference;
         lua_api static auto using_pict(const asset::macintosh_picture::lua_reference& ref) -> static_image::lua_reference;
         lua_api static auto using_cicn(const asset::color_icon::lua_reference& ref) -> static_image::lua_reference;
 

@@ -22,8 +22,9 @@
 #include "scripting/script.hpp"
 #include "core/environment.hpp"
 
-#include "core/asset/resource_reference.hpp"
-#include "core/asset/resource.hpp"
+#include "core/asset/rsrc/resource_data.hpp"
+#include "core/asset/rsrc/resource.hpp"
+#include "core/asset/rsrc/namespace.hpp"
 #include "math/angle.hpp"
 #include "math/angular_difference.hpp"
 #include "math/point.hpp"
@@ -72,8 +73,9 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     // Register and establish the API for the Lua Environment
     env->prepare_lua_interface();
-    asset::resource_reference::enroll_object_api_in_state(shared_from_this());
     asset::resource::enroll_object_api_in_state(shared_from_this());
+    asset::resource_namespace::enroll_object_api_in_state(shared_from_this());
+    asset::resource_data::enroll_object_api_in_state(shared_from_this());
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     asset::sprite::enroll_object_api_in_state(shared_from_this());
     asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());
@@ -100,7 +102,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     host::file::enroll_object_api_in_state(shared_from_this());
     host::directory::enroll_object_api_in_state(shared_from_this());
 
-    util::lua_vector<asset::resource_reference::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
+    util::lua_vector<asset::resource::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
 }
 
 
@@ -135,7 +137,46 @@ auto scripting::lua::state::function(const char *name) const -> luabridge::LuaRe
 
 auto scripting::lua::state::run(const lua::script& script) -> void
 {
-    run(script.id(), script.name(), script.code());
+    if (script.is_object()) {
+        run(script.id(), script.name(), script);
+    }
+    else {
+        run(script.id(), script.name(), script.code());
+    }
+}
+
+static const char *code_reader(lua_State *L, void *object, size_t *s)
+{
+    auto obj = reinterpret_cast<scripting::lua::script::script_object *>(object);
+    if (obj == nullptr) {
+        *s = 0;
+        return nullptr;
+    }
+    *s = obj->len;
+    return reinterpret_cast<const char *>(obj->data);
+}
+
+auto scripting::lua::state::run(const int64_t& id, const std::string& name, const lua::script &script) -> void
+{
+    if (lua_load(m_state, code_reader, script.object(), name.c_str(), "b") != LUA_OK) {
+        throw std::runtime_error(error_string());
+    }
+
+    if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
+        auto error_string = this->error_string();
+
+        lua_Debug info;
+        int level = 0;
+        while (lua_getstack(m_state, level, &info)) {
+            lua_getinfo(m_state, "nSl", &info);
+            fprintf(stderr, "  [%d] %s:%d -- %s [%s]\n",
+                    level, info.short_src, info.currentline,
+                    (info.name ? info.name : "<unknown>"), info.what);
+            ++level;
+        }
+
+        throw std::runtime_error(error_string);
+    }
 }
 
 auto scripting::lua::state::run(const int64_t& id, const std::string& name, const std::string& script) -> void
@@ -161,8 +202,8 @@ auto scripting::lua::state::run(const int64_t& id, const std::string& name, cons
     }
 }
 
-auto scripting::lua::state::load_script(const int64_t &id) -> lua::script
+auto scripting::lua::state::global_namespace() const -> luabridge::Namespace
 {
-    return lua::script(shared_from_this(), id);
+    return luabridge::getGlobalNamespace(m_state);
 }
 

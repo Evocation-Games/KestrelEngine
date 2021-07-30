@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2021 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RESOURCE_REFERENCE_HPP)
-#define KESTREL_RESOURCE_REFERENCE_HPP
+#if !defined(KESTREL_RESOURCE_HPP)
+#define KESTREL_RESOURCE_HPP
 
 #include <string>
 #include <optional>
@@ -29,13 +29,15 @@
 
 namespace asset
 {
+    class resource_namespace;
 
-    struct resource_reference: public scripting::lua::object
+    class resource: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<asset::resource_reference> lua_reference;
+        typedef luabridge::RefCountedPtr<asset::resource> lua_reference;
 
     private:
+        std::optional<std::string> m_namespace_name;
         std::optional<std::string> m_type;
         std::optional<int64_t> m_id;
         std::optional<std::string> m_name;
@@ -43,26 +45,28 @@ namespace asset
     public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        explicit resource_reference(int64_t id);
-        explicit resource_reference(const std::string& name);
-        resource_reference(const std::string& type, int64_t id);
-        resource_reference(const std::string& type, const std::string& name);
+        explicit resource(int64_t id);
+        resource(const std::string& type, int64_t id, const std::string& name);
+        resource(const resource_namespace& ns, int64_t id, const std::string& name);
+        resource(const resource_namespace& ns, const std::string& type, int64_t id, const std::string& name);
 
-        lua_api static auto find(const std::string& type, int64_t id) -> bool;
-        lua_api static auto using_id(int64_t id) -> resource_reference::lua_reference;
-        lua_api static auto using_named(const std::string& name) -> resource_reference::lua_reference;
-        lua_api static auto using_typed_id(const std::string& type, int64_t id) -> resource_reference::lua_reference;
-        lua_api static auto using_typed_named(const std::string& type, const std::string& name) -> resource_reference::lua_reference;
+        lua_api static auto using_id(int64_t id) -> resource::lua_reference;
+        lua_api static auto using_typed_id(const std::string& type, int64_t id) -> resource::lua_reference;
 
-        lua_api static auto all_of_type(const std::string& type) -> util::lua_vector<asset::resource_reference::lua_reference>;
-
+        auto ns() const -> std::optional<resource_namespace>;
         auto type() const -> std::optional<std::string>;
         auto id() const -> std::optional<int64_t>;
         auto name() const -> std::optional<std::string>;
 
         lua_api auto exists() const -> bool;
+
+        lua_api auto describe() const -> void;
+
+        lua_api static auto all_of_type(const std::string& type) -> util::lua_vector<asset::resource::lua_reference>;
+
     };
 
 }
 
-#endif //KESTREL_RESOURCE_REFERENCE_HPP
+
+#endif //KESTREL_RESOURCE_HPP

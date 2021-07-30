@@ -31,7 +31,7 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<asset::spritesheet>("SpriteSheet")
-            .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::spritesheet::lua_reference>()
+            .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::spritesheet::lua_reference>()
             .addStaticFunction("load", &asset::spritesheet::load)
             .addProperty("size", &asset::spritesheet::size)
             .addProperty("numberOfSprites", &asset::spritesheet::sprite_count)
@@ -41,7 +41,7 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
 
 // MARK: - Construction
 
-asset::spritesheet::spritesheet(const asset::resource_reference::lua_reference& ref)
+asset::spritesheet::spritesheet(const asset::resource::lua_reference& ref)
 {
     if (ref->id().has_value()) {
         if (auto res = graphite::rsrc::manager::shared_manager().find(spritesheet::type, ref->id().value()).lock()) {
@@ -55,7 +55,7 @@ asset::spritesheet::spritesheet(const asset::resource_reference::lua_reference& 
             //      uint16_t    height
             //  uint32_t    tga_size
             //  uint8_t...  tga
-            graphite::data::reader reader(res->data(), graphite::data::data::msb);
+            graphite::data::reader reader(res->data(), graphite::data::msb);
 
             if (reader.read_short() == 1) {
                 // Read the initial meta data
@@ -84,7 +84,7 @@ asset::spritesheet::spritesheet(const asset::resource_reference::lua_reference& 
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::spritesheet::load(const asset::resource_reference::lua_reference& ref) -> spritesheet::lua_reference
+auto asset::spritesheet::load(const asset::resource::lua_reference& ref) -> spritesheet::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

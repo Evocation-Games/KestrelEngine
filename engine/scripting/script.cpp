@@ -19,15 +19,34 @@
 // SOFTWARE.
 
 #include "scripting/script.hpp"
+#include "core/asset/rsrc/namespace.hpp"
+#include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
 
 // MARK: - Construction
 
-scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const int64_t& id)
-    : m_state(state), m_id(id)
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const asset::resource::lua_reference &ref)
+    : m_state(state)
 {
-    if (auto s = graphite::rsrc::manager::shared_manager().find(type, id).lock()) {
+    std::map<std::string, std::string> attributes;
+    if (ref->ns().has_value() && ref->ns()->name() != "") {
+        attributes["namespace"] = ref->ns()->name();
+    }
+
+    if (!ref->id().has_value()) {
+        throw std::runtime_error("No script id specified.");
+    }
+    int64_t id = ref->id().value();
+
+    if (auto s = graphite::rsrc::manager::shared_manager().find(type, id, attributes).lock()) {
+        m_name = s->name();
+        graphite::data::reader r(s->data());
+        m_object = new script_object();
+        m_object->len = r.size();
+        m_object->data = r.read_bytes(static_cast<int64_t>(m_object->len)).data();
+    }
+    else if (auto s = graphite::rsrc::manager::shared_manager().find(script_type, id, attributes).lock()) {
         m_name = s->name();
         graphite::data::reader r(s->data());
         m_script = r.read_cstr();
@@ -37,11 +56,28 @@ scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const i
     }
 }
 
+// MARK: - Destruction
+
+scripting::lua::script::~script()
+{
+    delete m_object;
+}
+
 // MARK: - Accessor
 
 auto scripting::lua::script::code() const -> std::string
 {
     return m_script;
+}
+
+auto scripting::lua::script::object() const -> void *
+{
+    return (m_object != nullptr) ? m_object : nullptr;
+}
+
+auto scripting::lua::script::object_size() const -> size_t
+{
+    return (m_object != nullptr) ? m_object->len : 0;
 }
 
 // MARK: - Execution
@@ -65,4 +101,9 @@ auto scripting::lua::script::id() const -> int64_t
 auto scripting::lua::script::name() const -> std::string
 {
     return m_name;
+}
+
+auto scripting::lua::script::is_object() const -> bool
+{
+    return (m_object != nullptr);
 }

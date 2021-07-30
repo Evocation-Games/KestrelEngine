@@ -18,23 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RESOURCE_HPP)
-#define KESTREL_RESOURCE_HPP
+#if !defined(KESTREL_RESOURCE_DATA_HPP)
+#define KESTREL_RESOURCE_DATA_HPP
 
 #include <string>
 #include <optional>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
-#include "core/asset/resource_reference.hpp"
+#include "core/asset/rsrc/resource.hpp"
 #include <libGraphite/data/reader.hpp>
 
 namespace asset
 {
 
-    struct resource: public scripting::lua::object
+    struct resource_data: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<asset::resource> lua_reference;
+        typedef luabridge::RefCountedPtr<asset::resource_data> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     private:
@@ -44,8 +44,8 @@ namespace asset
         std::shared_ptr<graphite::data::reader> m_reader;
 
     public:
-        resource(const std::string& type, const int64_t& id);
-        lua_api explicit resource(const asset::resource_reference::lua_reference& ref);
+        resource_data(const std::string& type, const int64_t& id);
+        lua_api explicit resource_data(const asset::resource::lua_reference& ref);
 
         lua_api auto valid() const -> bool;
 
@@ -70,4 +70,4 @@ namespace asset
 
 }
 
-#endif //KESTREL_RESOURCE_HPP
+#endif //KESTREL_RESOURCE_DATA_HPP

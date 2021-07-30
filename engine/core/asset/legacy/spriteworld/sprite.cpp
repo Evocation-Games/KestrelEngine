@@ -33,7 +33,7 @@ auto asset::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::
         .beginNamespace("Legacy")
             .beginNamespace("SpriteWorld")
                 .beginClass<asset::sprite>("Sprite")
-                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::sprite::lua_reference>()
+                    .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::sprite::lua_reference>()
                     .addStaticFunction("load", &asset::sprite::load)
                     .addProperty("size", &asset::sprite::size)
                     .addProperty("numberOfSprites", &asset::sprite::sprite_count)
@@ -46,7 +46,7 @@ auto asset::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::
 
 // MARK: - Construction
 
-asset::sprite::sprite(const asset::resource_reference::lua_reference& ref)
+asset::sprite::sprite(const asset::resource::lua_reference& ref)
 {
     if (ref->id().has_value()) {
         if (auto res = graphite::rsrc::manager::shared_manager().find(sprite::type, ref->id().value()).lock()) {
@@ -60,7 +60,7 @@ asset::sprite::sprite(const asset::resource_reference::lua_reference& ref)
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::sprite::load(const asset::resource_reference::lua_reference& ref) -> sprite::lua_reference
+auto asset::sprite::load(const asset::resource::lua_reference& ref) -> sprite::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

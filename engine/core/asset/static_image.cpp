@@ -48,7 +48,7 @@ asset::static_image::static_image(const int64_t& id, const std::string& name, st
     configure(id, name, sheet);
 }
 
-asset::static_image::static_image(const asset::resource_reference::lua_reference &ref)
+asset::static_image::static_image(const asset::resource::lua_reference &ref)
 {
     int64_t id;
     std::string type { asset::static_image::type };
@@ -94,10 +94,10 @@ asset::static_image::static_image(const asset::resource_reference::lua_reference
     throw std::logic_error("Bad resource reference encountered in StaticImage: Unable to load resource: " + type + " #" + std::to_string(id));
 }
 
-auto asset::static_image::load_best(std::vector<asset::resource_reference::lua_reference> refs) -> static_image::lua_reference
+auto asset::static_image::load_best(std::vector<asset::resource::lua_reference> refs) -> static_image::lua_reference
 {
     // Determine the first resource that actually exists. This is the one that we need to use.
-    std::optional<asset::resource_reference::lua_reference> ref;
+    std::optional<asset::resource::lua_reference> ref;
     for (const auto& r : refs) {
         if (r->type().has_value() && r->id().has_value() && r->exists()) {
             ref = r;

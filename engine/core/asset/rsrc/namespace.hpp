@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2021 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,32 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_COLOR_ICON_HPP)
-#define KESTREL_COLOR_ICON_HPP
+#if !defined(KESTREL_NAMESPACE_HPP)
+#define KESTREL_NAMESPACE_HPP
 
-#include "core/asset/basic_image.hpp"
+#include <string>
+#include <optional>
 #include "core/asset/rsrc/resource.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "util/lua_vector.hpp"
 
 namespace asset
 {
 
-    struct color_icon: public asset::basic_image, public scripting::lua::object
+    class resource_namespace: public scripting::lua::object
     {
     public:
-        constexpr static const char *type { "cicn" };
-        typedef luabridge::RefCountedPtr<asset::color_icon> lua_reference;
+        typedef luabridge::RefCountedPtr<asset::resource_namespace> lua_reference;
+
+    private:
+        std::optional<std::string> m_name {};
+
+    public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        lua_api explicit color_icon(const asset::resource::lua_reference& ref);
-        lua_api static auto load(const asset::resource::lua_reference& ref) -> color_icon::lua_reference;
+        resource_namespace() = default;
+        explicit resource_namespace(const std::string& name);
 
-        lua_api [[nodiscard]] auto size() const -> math::size override;
+        lua_api static auto global() -> resource_namespace::lua_reference;
 
-        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api auto name() const -> std::string;
+        lua_api auto contains_resources() const -> bool;
+        lua_api auto has_name(const std::string& name) const -> bool;
+
+        lua_api auto first_resource_of(const std::string& type) const -> asset::resource::lua_reference;
+        lua_api auto resource_for_id(const std::string& type, int64_t id) const -> asset::resource::lua_reference;
+
+        lua_api auto resources_of_type(const std::string& type) const -> std::vector<asset::resource::lua_reference>;
     };
 
-};
+}
 
-#endif //KESTREL_COLOR_ICON_HPP
+#endif //KESTREL_NAMESPACE_HPP

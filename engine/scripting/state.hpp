@@ -36,7 +36,8 @@ extern "C" {
 
 class environment;
 
-namespace scripting { namespace lua {
+namespace scripting::lua
+{
 
     class script;
 
@@ -60,12 +61,14 @@ namespace scripting { namespace lua {
         auto internal_state() const -> lua_State*;
         auto error_string() const -> std::string;
 
+        auto global_namespace() const -> luabridge::Namespace;
+
         auto function(const std::string& name) const -> luabridge::LuaRef;
         auto function(const char *name) const -> luabridge::LuaRef;
 
-        auto load_script(const int64_t& id) -> lua::script;
         auto run(const lua::script& script) -> void;
         auto run(const int64_t& id, const std::string& name,const std::string& script) -> void;
+        auto run(const int64_t& id, const std::string& name, const lua::script &script) -> void;
     };
 
     class object
@@ -74,6 +77,6 @@ namespace scripting { namespace lua {
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void {};
     };
 
-}};
+}
 
 #endif //KESTREL_STATE_HPP

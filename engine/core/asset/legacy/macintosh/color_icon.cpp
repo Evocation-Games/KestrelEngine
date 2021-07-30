@@ -33,7 +33,7 @@ auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripti
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<asset::color_icon>("ColorIcon")
-                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::color_icon::lua_reference>()
+                    .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::color_icon::lua_reference>()
                     .addStaticFunction("load", &asset::color_icon::load)
                     .addProperty("size", &asset::color_icon::size)
                     .addFunction("spawnEntity", &asset::color_icon::spawn_entity)
@@ -44,7 +44,7 @@ auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripti
 
 // MARK: - Construction
 
-asset::color_icon::color_icon(const asset::resource_reference::lua_reference &ref)
+asset::color_icon::color_icon(const asset::resource::lua_reference &ref)
 {
     if (ref->id().has_value()) {
         if (auto res = graphite::rsrc::manager::shared_manager().find(color_icon::type, ref->id().value()).lock()) {
@@ -58,7 +58,7 @@ asset::color_icon::color_icon(const asset::resource_reference::lua_reference &re
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::color_icon::load(const asset::resource_reference::lua_reference &ref) -> color_icon::lua_reference
+auto asset::color_icon::load(const asset::resource::lua_reference &ref) -> color_icon::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

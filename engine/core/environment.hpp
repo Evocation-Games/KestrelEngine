@@ -26,7 +26,7 @@
 #include <vector>
 #include "scripting/state.hpp"
 #include "scripting/script.hpp"
-#include "core/asset/resource_reference.hpp"
+#include "core/asset/rsrc/resource.hpp"
 #include "util/hint.hpp"
 #include "math/size.hpp"
 #include "core/graphics/common/texture.hpp"
@@ -88,12 +88,12 @@ private:
     auto load_data_files(const std::string& path) -> void;
     auto load_font_files(const std::string& path) -> void;
 
-    auto load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script;
+    auto load_script(const asset::resource::lua_reference &ref) -> scripting::lua::script;
 
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
-    lua_api static auto import_script(const asset::resource_reference::lua_reference& ref) -> void;
-    lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
+    lua_api static auto import_script(const asset::resource::lua_reference& ref) -> void;
+    lua_api static auto create_scene(const std::string& name, const asset::resource::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
 
     lua_api static auto scale() -> double;
 

@@ -33,7 +33,7 @@ auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<asset::macintosh_picture>("Picture")
-                    .addConstructor<auto(*)(const asset::resource_reference::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
+                    .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
                     .addStaticFunction("load", &asset::macintosh_picture::load)
                     .addProperty("size", &asset::macintosh_picture::size)
                     .addProperty("numberOfSprites", &asset::macintosh_picture::sprite_count)
@@ -46,7 +46,7 @@ auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<
 
 // MARK: - Construction
 
-asset::macintosh_picture::macintosh_picture(const asset::resource_reference::lua_reference& ref)
+asset::macintosh_picture::macintosh_picture(const asset::resource::lua_reference& ref)
 {
     if (ref->id().has_value()) {
         if (auto res = graphite::rsrc::manager::shared_manager().find(macintosh_picture::type, ref->id().value()).lock()) {
@@ -60,7 +60,7 @@ asset::macintosh_picture::macintosh_picture(const asset::resource_reference::lua
     throw std::logic_error("Bad resource reference encountered: Unable to load resource: " + std::to_string(ref->id().value()));
 }
 
-auto asset::macintosh_picture::load(const asset::resource_reference::lua_reference& ref) -> macintosh_picture::lua_reference
+auto asset::macintosh_picture::load(const asset::resource::lua_reference& ref) -> macintosh_picture::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

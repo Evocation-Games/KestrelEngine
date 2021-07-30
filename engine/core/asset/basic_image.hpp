@@ -23,7 +23,6 @@
 
 #include <string>
 #include "core/graphics/common/color.hpp"
-#include "core/asset/resource_reference.hpp"
 #include "core/graphics/common/spritesheet.hpp"
 #include "scripting/state.hpp"
 #include "core/graphics/common/entity.hpp"
