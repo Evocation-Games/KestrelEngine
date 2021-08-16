@@ -31,7 +31,7 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<asset::spritesheet>("SpriteSheet")
-            .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::spritesheet::lua_reference>()
+        .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::spritesheet::lua_reference>()
             .addStaticFunction("load", &asset::spritesheet::load)
             .addProperty("size", &asset::spritesheet::size)
             .addProperty("numberOfSprites", &asset::spritesheet::sprite_count)
@@ -41,50 +41,48 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
 
 // MARK: - Construction
 
-asset::spritesheet::spritesheet(const asset::resource::lua_reference& ref)
+asset::spritesheet::spritesheet(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (ref->id().has_value()) {
-        if (auto res = graphite::rsrc::manager::shared_manager().find(spritesheet::type, ref->id().value()).lock()) {
-            // The format of the SpriteSheet resource is as follows:
-            //
-            //  uint16_t    format_version      = 1
-            //  uint16_t    frames - 1
-            //      uint16_t    x
-            //      uint16_t    y
-            //      uint16_t    width
-            //      uint16_t    height
-            //  uint32_t    tga_size
-            //  uint8_t...  tga
-            graphite::data::reader reader(res->data(), graphite::data::msb);
+    if (auto res = ref->with_type(type)->load().lock()) {
+        // The format of the SpriteSheet resource is as follows:
+        //
+        //  uint16_t    format_version      = 1
+        //  uint16_t    frames - 1
+        //      uint16_t    x
+        //      uint16_t    y
+        //      uint16_t    width
+        //      uint16_t    height
+        //  uint32_t    tga_size
+        //  uint8_t...  tga
+        graphite::data::reader reader(res->data(), graphite::data::msb);
 
-            if (reader.read_short() == 1) {
-                // Read the initial meta data
-                auto frame_count = reader.read_short();
-                std::vector<math::rect> sprite_frames {};
-                for (auto i = 0; i < frame_count; ++i) {
-                    auto x = reader.read_short();
-                    auto y = reader.read_short();
-                    auto width = reader.read_short();
-                    auto height = reader.read_short();
-                    sprite_frames.emplace_back(math::rect(x, y, width, height));
-                }
+        if (reader.read_short() == 1) {
+            // Read the initial meta data
+            auto frame_count = reader.read_short();
+            std::vector<math::rect> sprite_frames {};
+            for (auto i = 0; i < frame_count; ++i) {
+                auto x = reader.read_short();
+                auto y = reader.read_short();
+                auto width = reader.read_short();
+                auto height = reader.read_short();
+                sprite_frames.emplace_back(math::rect(x, y, width, height));
+            }
 
-                // Read the TGA data
-                auto tga_size = reader.read_long();
-                auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(tga_size));
-                asset::tga tga(tga_raw_data);
-                if (auto surface = tga.surface().lock()) {
-                    configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                    m_sheet->layout_sprites(sprite_frames);
-                    return;
-                }
+            // Read the TGA data
+            auto tga_size = reader.read_long();
+            auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(tga_size));
+            asset::tga tga(tga_raw_data);
+            if (auto surface = tga.surface().lock()) {
+                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
+                m_sheet->layout_sprites(sprite_frames);
+                return;
             }
         }
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::spritesheet::load(const asset::resource::lua_reference& ref) -> spritesheet::lua_reference
+auto asset::spritesheet::load(const asset::resource_descriptor::lua_reference& ref) -> spritesheet::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

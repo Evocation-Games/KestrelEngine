@@ -33,7 +33,7 @@ auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<asset::macintosh_picture>("Picture")
-                    .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
+                    .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
                     .addStaticFunction("load", &asset::macintosh_picture::load)
                     .addProperty("size", &asset::macintosh_picture::size)
                     .addProperty("numberOfSprites", &asset::macintosh_picture::sprite_count)
@@ -46,21 +46,19 @@ auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<
 
 // MARK: - Construction
 
-asset::macintosh_picture::macintosh_picture(const asset::resource::lua_reference& ref)
+asset::macintosh_picture::macintosh_picture(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (ref->id().has_value()) {
-        if (auto res = graphite::rsrc::manager::shared_manager().find(macintosh_picture::type, ref->id().value()).lock()) {
-            graphite::qd::pict pict(res->data(), res->id(), res->name());
-            if (auto surface = pict.image_surface().lock()) {
-                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                return;
-            }
+    if (auto res = ref->with_type(type)->load().lock()) {
+        graphite::qd::pict pict(res->data(), res->id(), res->name());
+        if (auto surface = pict.image_surface().lock()) {
+            configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
+            return;
         }
     }
-    throw std::logic_error("Bad resource reference encountered: Unable to load resource: " + std::to_string(ref->id().value()));
+    throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::macintosh_picture::load(const asset::resource::lua_reference& ref) -> macintosh_picture::lua_reference
+auto asset::macintosh_picture::load(const asset::resource_descriptor::lua_reference& ref) -> macintosh_picture::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

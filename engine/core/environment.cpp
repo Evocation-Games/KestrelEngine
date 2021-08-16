@@ -144,7 +144,7 @@ auto environment::prepare_common() -> void
 
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
     auto state = m_lua_runtime->shared_from_this();
-    scripting::lua::script main_script(state, asset::resource::lua_reference(new asset::resource(0)));
+    scripting::lua::script main_script(state, asset::resource_descriptor::identified(0));
     m_lua_runtime->run(main_script);
 }
 
@@ -345,7 +345,7 @@ auto environment::scale() -> double
     return $_active_environment.lock()->m_game_window->get_scale_factor();
 }
 
-auto environment::load_script(const asset::resource::lua_reference &ref) -> scripting::lua::script
+auto environment::load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script
 {
     if (auto env = $_active_environment.lock()) {
         return scripting::lua::script(m_lua_runtime->shared_from_this(), ref);
@@ -353,7 +353,7 @@ auto environment::load_script(const asset::resource::lua_reference &ref) -> scri
     throw std::runtime_error("Missing environment");
 }
 
-auto environment::import_script(const asset::resource::lua_reference& ref) -> void
+auto environment::import_script(const asset::resource_descriptor::lua_reference& ref) -> void
 {
     if (auto env = $_active_environment.lock()) {
         scripting::lua::script script(env->m_lua_runtime->shared_from_this(), ref);
@@ -403,7 +403,7 @@ auto environment::pop_scene() -> void
     m_game_window->pop_scene();
 }
 
-auto environment::create_scene(const std::string &name, const asset::resource::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
+auto environment::create_scene(const std::string &name, const asset::resource_descriptor::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
 {
     if (auto env = $_active_environment.lock()) {
         auto scene = env->m_game_window->new_scene(name, env->load_script(script));

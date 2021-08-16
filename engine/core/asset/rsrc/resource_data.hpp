@@ -23,10 +23,16 @@
 
 #include <string>
 #include <optional>
+#include <libGraphite/data/reader.hpp>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
-#include "core/asset/rsrc/resource.hpp"
-#include <libGraphite/data/reader.hpp>
+#include "core/asset/rsrc/namespace.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
+#include "math/point.hpp"
+#include "math/size.hpp"
+#include "math/rect.hpp"
+#include "math/vector.hpp"
+#include "core/graphics/common/color.hpp"
 
 namespace asset
 {
@@ -42,16 +48,18 @@ namespace asset
         std::string m_name;
         std::string m_type;
         std::shared_ptr<graphite::data::reader> m_reader;
+        std::string m_namespace;
 
     public:
         resource_data(const std::string& type, const int64_t& id);
-        lua_api explicit resource_data(const asset::resource::lua_reference& ref);
+        lua_api explicit resource_data(const asset::resource_descriptor::lua_reference& ref);
 
         lua_api auto valid() const -> bool;
 
         lua_api auto id() const -> int64_t;
         lua_api auto name() const -> std::string;
         lua_api auto type() const -> std::string;
+        lua_api auto reference() const -> asset::resource_descriptor::lua_reference;
 
         lua_api auto read_signed_byte() -> int8_t;
         lua_api auto read_signed_short() -> int16_t;
@@ -64,6 +72,19 @@ namespace asset
         lua_api auto read_pstr() -> std::string;
         lua_api auto read_cstr() -> std::string;
         lua_api auto read_cstr_width(const int& width) -> std::string;
+
+        lua_api auto read_point() -> math::point;
+        lua_api auto read_size() -> math::size;
+        lua_api auto read_rect() -> math::rect;
+        lua_api auto read_macintosh_rect() -> math::rect;
+        lua_api auto read_vector() -> math::vector;
+
+        lua_api auto read_color() -> graphics::color::lua_reference ;
+
+        lua_api auto read_resource_reference_wide_value() -> int64_t;
+        lua_api auto read_resource_reference() -> asset::resource_descriptor::lua_reference;
+        lua_api auto read_typed_resource_reference(const std::string& type) -> asset::resource_descriptor::lua_reference;
+        lua_api auto switch_on_resource_reference(const luabridge::LuaRef& body) const -> void;
 
         lua_api auto skip(const int& delta) -> void;
     };

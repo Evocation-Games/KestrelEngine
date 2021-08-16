@@ -24,7 +24,7 @@
 #include <string>
 #include <memory>
 #include "scripting/state.hpp"
-#include "core/asset/rsrc/resource.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 
 namespace scripting::lua
 {
@@ -49,7 +49,7 @@ namespace scripting::lua
         struct script_object *m_object { nullptr };
 
     public:
-        script(const std::shared_ptr<lua::state>& state, const asset::resource::lua_reference &ref);
+        script(const std::shared_ptr<lua::state>& state, const asset::resource_descriptor::lua_reference &ref);
         ~script();
 
         [[nodiscard]] auto id() const ->int64_t;

@@ -24,7 +24,7 @@
 #include <memory>
 #include "scripting/state.hpp"
 #include "core/asset/basic_image.hpp"
-#include "core/asset/rsrc/resource.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 
 namespace asset
 {
@@ -39,8 +39,8 @@ namespace asset
     private:
 
     public:
-        lua_api explicit spritesheet(const asset::resource::lua_reference& ref);
-        lua_api static auto load(const asset::resource::lua_reference& ref) -> spritesheet::lua_reference;
+        lua_api explicit spritesheet(const asset::resource_descriptor::lua_reference& ref);
+        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> spritesheet::lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;

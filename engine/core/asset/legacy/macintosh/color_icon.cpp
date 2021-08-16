@@ -33,7 +33,7 @@ auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripti
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<asset::color_icon>("ColorIcon")
-                    .addConstructor<auto(*)(const asset::resource::lua_reference&)->void, asset::color_icon::lua_reference>()
+                .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::color_icon::lua_reference>()
                     .addStaticFunction("load", &asset::color_icon::load)
                     .addProperty("size", &asset::color_icon::size)
                     .addFunction("spawnEntity", &asset::color_icon::spawn_entity)
@@ -44,21 +44,19 @@ auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripti
 
 // MARK: - Construction
 
-asset::color_icon::color_icon(const asset::resource::lua_reference &ref)
+asset::color_icon::color_icon(const asset::resource_descriptor::lua_reference &ref)
 {
-    if (ref->id().has_value()) {
-        if (auto res = graphite::rsrc::manager::shared_manager().find(color_icon::type, ref->id().value()).lock()) {
-            graphite::qd::cicn icon(res->data(), res->id(), res->name());
-            if (auto surface = icon.surface().lock()) {
-                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                return;
-            }
+    if (auto res = ref->with_type(type)->load().lock()) {
+        graphite::qd::cicn icon(res->data(), res->id(), res->name());
+        if (auto surface = icon.surface().lock()) {
+            configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
+            return;
         }
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::color_icon::load(const asset::resource::lua_reference &ref) -> color_icon::lua_reference
+auto asset::color_icon::load(const asset::resource_descriptor::lua_reference &ref) -> color_icon::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

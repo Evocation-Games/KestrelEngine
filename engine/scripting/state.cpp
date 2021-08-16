@@ -23,8 +23,8 @@
 #include "core/environment.hpp"
 
 #include "core/asset/rsrc/resource_data.hpp"
-#include "core/asset/rsrc/resource.hpp"
 #include "core/asset/rsrc/namespace.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 #include "math/angle.hpp"
 #include "math/angular_difference.hpp"
 #include "math/point.hpp"
@@ -73,7 +73,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     // Register and establish the API for the Lua Environment
     env->prepare_lua_interface();
-    asset::resource::enroll_object_api_in_state(shared_from_this());
+
+    asset::resource_descriptor::enroll_object_api_in_state(shared_from_this());
     asset::resource_namespace::enroll_object_api_in_state(shared_from_this());
     asset::resource_data::enroll_object_api_in_state(shared_from_this());
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
@@ -102,7 +103,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     host::file::enroll_object_api_in_state(shared_from_this());
     host::directory::enroll_object_api_in_state(shared_from_this());
 
-    util::lua_vector<asset::resource::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
+    util::lua_vector<asset::resource_descriptor::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
 }
 
 

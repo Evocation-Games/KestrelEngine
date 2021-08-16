@@ -26,33 +26,27 @@
 
 // MARK: - Construction
 
-scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const asset::resource::lua_reference &ref)
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const asset::resource_descriptor::lua_reference &ref)
     : m_state(state)
 {
-    std::map<std::string, std::string> attributes;
-    if (ref->ns().has_value() && ref->ns()->name() != "") {
-        attributes["namespace"] = ref->ns()->name();
-    }
-
-    if (!ref->id().has_value()) {
+    if (!ref->has_id()) {
         throw std::runtime_error("No script id specified.");
     }
-    int64_t id = ref->id().value();
 
-    if (auto s = graphite::rsrc::manager::shared_manager().find(type, id, attributes).lock()) {
+    if (auto s = ref->with_type(type)->load().lock()) {
         m_name = s->name();
         graphite::data::reader r(s->data());
         m_object = new script_object();
         m_object->len = r.size();
         m_object->data = r.read_bytes(static_cast<int64_t>(m_object->len)).data();
     }
-    else if (auto s = graphite::rsrc::manager::shared_manager().find(script_type, id, attributes).lock()) {
+    else if (auto s = ref->with_type(script_type)->load().lock()) {
         m_name = s->name();
         graphite::data::reader r(s->data());
-        m_script = r.read_cstr();
+        m_script = "-- " + ref->description() + "\n" + r.read_cstr();
     }
     else {
-        throw std::logic_error("Could not find/load lua script resource #" + std::to_string(id));
+        throw std::logic_error("Could not find/load lua script resource #" + std::to_string(ref->id));
     }
 }
 

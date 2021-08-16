@@ -22,7 +22,7 @@
 #define KESTREL_COLOR_ICON_HPP
 
 #include "core/asset/basic_image.hpp"
-#include "core/asset/rsrc/resource.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
@@ -36,8 +36,8 @@ namespace asset
         typedef luabridge::RefCountedPtr<asset::color_icon> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        lua_api explicit color_icon(const asset::resource::lua_reference& ref);
-        lua_api static auto load(const asset::resource::lua_reference& ref) -> color_icon::lua_reference;
+        lua_api explicit color_icon(const asset::resource_descriptor::lua_reference& ref);
+        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> color_icon::lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
 

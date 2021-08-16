@@ -23,7 +23,7 @@
 
 #include <string>
 #include <optional>
-#include "core/asset/rsrc/resource.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 #include "util/lua_vector.hpp"
@@ -37,24 +37,45 @@ namespace asset
         typedef luabridge::RefCountedPtr<asset::resource_namespace> lua_reference;
 
     private:
-        std::optional<std::string> m_name {};
+        constexpr static const char *universal_name { "*" };
+        constexpr static const char *global_name { "" };
+        std::vector<std::string> m_names;
 
     public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         resource_namespace() = default;
         explicit resource_namespace(const std::string& name);
+        explicit resource_namespace(const std::vector<std::string>& names);
 
         lua_api static auto global() -> resource_namespace::lua_reference;
+        lua_api static auto universal() -> resource_namespace::lua_reference;
 
-        lua_api auto name() const -> std::string;
+        lua_api auto primary_name() const -> std::string;
+        lua_api auto text() const -> std::string;
+        lua_api auto count() const -> std::size_t;
         lua_api auto contains_resources() const -> bool;
         lua_api auto has_name(const std::string& name) const -> bool;
+        lua_api auto is_global() const -> bool;
+        lua_api auto is_universal() const -> bool;
 
-        lua_api auto first_resource_of(const std::string& type) const -> asset::resource::lua_reference;
-        lua_api auto resource_for_id(const std::string& type, int64_t id) const -> asset::resource::lua_reference;
+        lua_api auto add_namespace_lua(const asset::resource_namespace::lua_reference& ns) -> void;
+        auto add_namespace(const asset::resource_namespace& ns) -> void;
 
-        lua_api auto resources_of_type(const std::string& type) const -> std::vector<asset::resource::lua_reference>;
+        lua_api auto lua_each_name(luabridge::LuaRef body) const -> void;
+        auto each_name(const std::function<auto(const asset::resource_namespace&)->void>& body) const -> void;
+
+        lua_api auto identified_resource(int64_t id) const -> resource_descriptor::lua_reference;
+        lua_api auto typed_resource(const std::string& type) const -> resource_descriptor::lua_reference;
+        lua_api auto named_resource(const std::string& name) const -> resource_descriptor::lua_reference;
+        lua_api auto typed_identified_resource(const std::string& type, int64_t id) const -> resource_descriptor::lua_reference;
+        lua_api auto identified_named_resource(int64_t id, const std::string& name) const -> resource_descriptor::lua_reference;
+        lua_api auto typed_named_resource(const std::string& type, const std::string& name) const -> resource_descriptor::lua_reference;
+        lua_api auto typed_identified_named_resource(const std::string& type, int64_t id, const std::string& name) const -> resource_descriptor::lua_reference;
+
+        lua_api auto first_resource_of(const std::string& type) const -> asset::resource_descriptor::lua_reference;
+        lua_api auto resource_for_id(const std::string& type, int64_t id) const -> asset::resource_descriptor::lua_reference;
+        lua_api auto resources_of_type(const std::string& type) const -> util::lua_vector<asset::resource_descriptor::lua_reference>;
     };
 
 }

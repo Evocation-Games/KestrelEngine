@@ -33,7 +33,7 @@ auto asset::macintosh_sound::enroll_object_api_in_state(const std::shared_ptr<sc
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<asset::macintosh_sound>("Sound")
-                    .addConstructor<auto(*)(const asset::resource::lua_reference&) -> void, asset::macintosh_sound::lua_reference>()
+                    .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&) -> void, asset::macintosh_sound::lua_reference>()
                     .addStaticFunction("load", &asset::macintosh_sound::load)
                     .addFunction("play", &asset::macintosh_sound::play)
                 .endClass()
@@ -43,18 +43,16 @@ auto asset::macintosh_sound::enroll_object_api_in_state(const std::shared_ptr<sc
 
 // MARK: - Construction
 
-asset::macintosh_sound::macintosh_sound(const asset::resource::lua_reference& ref)
+asset::macintosh_sound::macintosh_sound(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (ref->id().has_value()) {
-        if (auto res = graphite::rsrc::manager::shared_manager().find(macintosh_sound::type, ref->id().value()).lock()) {
-            graphite::resources::sound sound(res->data(), res->id(), res->name());
-            return;
-        }
+    if (auto res = ref->with_type(type)->load().lock()) {
+        graphite::resources::sound sound(res->data(), res->id(), res->name());
+        return;
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::macintosh_sound::load(const asset::resource::lua_reference& ref) -> macintosh_sound::lua_reference
+auto asset::macintosh_sound::load(const asset::resource_descriptor::lua_reference& ref) -> macintosh_sound::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {

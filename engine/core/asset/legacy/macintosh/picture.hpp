@@ -22,7 +22,7 @@
 #define KESTREL_MACINTOSH_PICTURE_HPP
 
 #include "core/asset/basic_image.hpp"
-#include "core/asset/rsrc/resource.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
@@ -39,8 +39,8 @@ namespace asset
     private:
 
     public:
-        lua_api explicit macintosh_picture(const asset::resource::lua_reference& ref);
-        lua_api static auto load(const asset::resource::lua_reference& ref) -> macintosh_picture::lua_reference;
+        lua_api explicit macintosh_picture(const asset::resource_descriptor::lua_reference& ref);
+        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> macintosh_picture::lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;

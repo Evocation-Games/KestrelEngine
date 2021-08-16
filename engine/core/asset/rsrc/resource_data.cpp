@@ -30,10 +30,11 @@ auto asset::resource_data::enroll_object_api_in_state(const std::shared_ptr<scri
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<asset::resource_data>("Data")
-                   .addConstructor<auto(*)(const resource::lua_reference&)->void, resource_data::lua_reference>()
+                   .addConstructor<auto(*)(const resource_descriptor::lua_reference&)->void, resource_data::lua_reference>()
                    .addProperty("isValid", &resource_data::valid)
                    .addProperty("id", &resource_data::id)
                    .addProperty("name", &resource_data::name)
+                   .addProperty("reference", &resource_data::reference)
                    .addFunction("readByte", &resource_data::read_byte)
                    .addFunction("readShort", &resource_data::read_short)
                    .addFunction("readLong", &resource_data::read_long)
@@ -45,6 +46,16 @@ auto asset::resource_data::enroll_object_api_in_state(const std::shared_ptr<scri
                    .addFunction("readPStr", &resource_data::read_pstr)
                    .addFunction("readCStr", &resource_data::read_cstr)
                    .addFunction("readCStrOfLength", &resource_data::read_cstr_width)
+                   .addFunction("readPoint", &resource_data::read_point)
+                   .addFunction("readSize", &resource_data::read_size)
+                   .addFunction("readRect", &resource_data::read_rect)
+                   .addFunction("readMacintoshRect", &resource_data::read_macintosh_rect)
+                   .addFunction("readVector", &resource_data::read_vector)
+                   .addFunction("readColor", &resource_data::read_color)
+                   .addFunction("readResourceReference", &resource_data::read_resource_reference)
+                   .addFunction("readTypedResourceReference", &resource_data::read_typed_resource_reference)
+                   .addFunction("readResourceReferenceWideValue", &resource_data::read_resource_reference_wide_value)
+                   .addFunction("switchOnResourceReference", &resource_data::switch_on_resource_reference)
                    .addFunction("skip", &resource_data::skip)
                 .endClass()
             .endNamespace()
@@ -61,25 +72,30 @@ asset::resource_data::resource_data(const std::string &type, const int64_t &id)
         m_id = id;
         m_name = res->name();
         m_reader = std::make_shared<graphite::data::reader>(res->data());
+
+        if (const auto& type = res->type().lock()) {
+            const auto& attributes = type->attributes();
+            if (attributes.find("namespace") != attributes.end()) {
+                m_namespace = attributes.at("namespace");
+            }
+        }
     }
 }
 
-asset::resource_data::resource_data(const asset::resource::lua_reference& ref)
+asset::resource_data::resource_data(const asset::resource_descriptor::lua_reference& ref)
     : m_reader(nullptr)
 {
-    if (ref->id().has_value() && ref->type().has_value()) {
+    if (auto res = ref->load().lock()) {
+        m_type = res->type_code();
+        m_id = res->id();
+        m_name = res->name();
+        m_reader = std::make_shared<graphite::data::reader>(res->data());
 
-        // Build a list of attributes to constrain the resource by.
-        std::map<std::string, std::string> attributes {};
-        if (ref->ns().has_value() && !ref->ns()->name().empty()) {
-            attributes["namespace"] = ref->ns()->name();
-        }
-
-        if (auto res = graphite::rsrc::manager::shared_manager().find(ref->type().value(), ref->id().value(), attributes).lock()) {
-            m_type = res->type_code();
-            m_id = res->id();
-            m_name = res->name();
-            m_reader = std::make_shared<graphite::data::reader>(res->data());
+        if (const auto& type = res->type().lock()) {
+            const auto& attributes = type->attributes();
+            if (attributes.find("namespace") != attributes.end()) {
+                m_namespace = attributes.at("namespace");
+            }
         }
     }
 }
@@ -104,6 +120,16 @@ auto asset::resource_data::name() const -> std::string
 auto asset::resource_data::type() const -> std::string
 {
     return m_type;
+}
+
+auto asset::resource_data::reference() const -> asset::resource_descriptor::lua_reference
+{
+    if (m_namespace.empty()) {
+        return resource_descriptor::typed_identified(type(), id());
+    }
+    else {
+        return resource_namespace(m_namespace).typed_identified_resource(type(), id());
+    }
 }
 
 // MARK: - Data Reading
@@ -161,6 +187,62 @@ auto asset::resource_data::read_cstr() -> std::string
 auto asset::resource_data::read_cstr_width(const int& width) -> std::string
 {
     return m_reader->read_cstr(width);
+}
+
+auto asset::resource_data::read_point() -> math::point
+{
+    return { read_signed_short(), read_signed_short() };
+}
+
+auto asset::resource_data::read_size() -> math::size
+{
+    return { read_signed_short(), read_signed_short() };
+}
+
+auto asset::resource_data::read_rect() -> math::rect
+{
+    return { read_signed_short(), read_signed_short(), read_signed_short(), read_signed_short() };
+}
+
+auto asset::resource_data::read_macintosh_rect() -> math::rect
+{
+    return math::rect::macintosh_rect(read_signed_short(), read_signed_short(), read_signed_short(), read_signed_short());
+}
+
+auto asset::resource_data::read_vector() -> math::vector
+{
+    return { read_signed_short(), read_signed_short() };
+}
+
+auto asset::resource_data::read_color() -> graphics::color::lua_reference
+{
+    return graphics::color::color_value_ref(read_long());
+}
+
+auto asset::resource_data::read_resource_reference() -> asset::resource_descriptor::lua_reference
+{
+    // TODO: Handle the namespacing format
+    return resource_namespace::global()->identified_resource(read_signed_short());
+}
+
+auto asset::resource_data::read_typed_resource_reference(const std::string &type) -> asset::resource_descriptor::lua_reference
+{
+    return read_resource_reference()->with_type(type);
+}
+
+auto asset::resource_data::read_resource_reference_wide_value() -> int64_t
+{
+    return static_cast<int64_t>(read_signed_short());
+}
+
+auto asset::resource_data::switch_on_resource_reference(const luabridge::LuaRef &body) const -> void
+{
+    // TODO: Handle extended format.
+    auto value = m_reader->read_signed_short(0, graphite::data::reader::peek);
+
+    // TODO: Logic to determine what the namespace is
+
+    body(value, resource_namespace::universal());
 }
 
 auto asset::resource_data::skip(const int &delta) -> void
