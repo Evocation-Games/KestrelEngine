@@ -48,6 +48,7 @@ auto asset::resource_descriptor::enroll_object_api_in_state(const std::shared_pt
                     .addFunction("isNamespaced", &resource_descriptor::is_namespaced)
                     .addFunction("withType", &resource_descriptor::with_type)
                     .addFunction("withId", &resource_descriptor::with_id)
+                    .addFunction("normalizedId", &resource_descriptor::normalized_id)
                     .addProperty("fromNamespace", &resource_descriptor::from_namespace)
                     .addProperty("ignoringNamespace", &resource_descriptor::ignoring_namespace)
                     .addProperty("ignoringType", &resource_descriptor::ignoring_type)
@@ -56,6 +57,12 @@ auto asset::resource_descriptor::enroll_object_api_in_state(const std::shared_pt
                     .addProperty("description", &resource_descriptor::description)
                     .addFunction("matchingResources", &resource_descriptor::matching_resources)
                     .addFunction("bestResource", &resource_descriptor::best_resource)
+                    .addFunction("whenId", &resource_descriptor::when_id)
+                    .addFunction("whenNotId", &resource_descriptor::when_not_id)
+                    .addFunction("whenLessThanId", &resource_descriptor::when_less_than_id)
+                    .addFunction("whenGreaterThanId", &resource_descriptor::when_greater_than_id)
+                    .addFunction("whenIdInRange", &resource_descriptor::when_id_in_range)
+                    .addFunction("whenIdNotInRange", &resource_descriptor::when_id_not_in_range)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -284,6 +291,12 @@ auto asset::resource_descriptor::with_id(int64_t id) const -> lua_reference
 
     ref->namespaces = namespaces;
     return ref;
+}
+
+
+auto asset::resource_descriptor::normalized_id(int64_t index_base, int64_t first_id) const -> lua_reference
+{
+    return with_id((id - index_base) + first_id);
 }
 
 auto asset::resource_descriptor::from_namespace() const -> lua_reference
@@ -691,3 +704,36 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
 
     m_resolved = true;
 }
+
+// MARK: - Conditions / When
+
+auto asset::resource_descriptor::when_id(int64_t id) const -> bool
+{
+    return (this->id == id);
+}
+
+auto asset::resource_descriptor::when_not_id(int64_t id) const -> bool
+{
+    return (this->id != id);
+}
+
+auto asset::resource_descriptor::when_less_than_id(int64_t id) const -> bool
+{
+    return (this->id < id);
+}
+
+auto asset::resource_descriptor::when_greater_than_id(int64_t id) const -> bool
+{
+    return (this->id > id);
+}
+
+auto asset::resource_descriptor::when_id_in_range(int64_t lower_id, int64_t upper_id) const -> bool
+{
+    return (this->id >= lower_id && this->id <= upper_id);
+}
+
+auto asset::resource_descriptor::when_id_not_in_range(int64_t lower_id, int64_t upper_id) const -> bool
+{
+    return (this->id < lower_id || this->id > upper_id);
+}
+

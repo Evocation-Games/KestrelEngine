@@ -75,6 +75,8 @@ namespace asset
         lua_api [[nodiscard]] auto with_type(const std::string& type) const -> lua_reference;
         lua_api [[nodiscard]] auto with_id(int64_t id) const -> lua_reference;
 
+        lua_api [[nodiscard]] auto normalized_id(int64_t index_base, int64_t first_id) const -> lua_reference;
+
         lua_api [[nodiscard]] auto ignoring_type() const -> lua_reference;
         lua_api [[nodiscard]] auto ignoring_id() const -> lua_reference;
         lua_api [[nodiscard]] auto ignoring_name() const -> lua_reference;
@@ -86,6 +88,13 @@ namespace asset
 
         lua_api auto matching_resources() -> util::lua_vector<lua_reference>;
         lua_api auto best_resource() -> lua_reference;
+
+        lua_api auto when_id(int64_t id) const -> bool;
+        lua_api auto when_not_id(int64_t id) const -> bool;
+        lua_api auto when_less_than_id(int64_t id) const -> bool;
+        lua_api auto when_greater_than_id(int64_t id) const -> bool;
+        lua_api auto when_id_in_range(int64_t lower_id, int64_t upper_id) const -> bool;
+        lua_api auto when_id_not_in_range(int64_t lower_id, int64_t upper_id) const -> bool;
 
         auto load() -> std::weak_ptr<graphite::rsrc::resource>;
 
