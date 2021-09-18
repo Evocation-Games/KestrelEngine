@@ -37,6 +37,9 @@ auto math::point::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
             .addFunction("multiply", &math::point::operator*)
             .addFunction("divide", &math::point::operator/)
             .addFunction("toVector", &math::point::to_vector)
+            .addFunction("round", &math::point::round)
+            .addFunction("floor", &math::point::floor)
+            .addFunction("ceil", &math::point::ceil)
         .endClass();
 }
 

@@ -35,6 +35,9 @@ auto math::size::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
             .addFunction("subtract", &math::size::operator-)
             .addFunction("multiply", &math::size::operator*)
             .addFunction("divide", &math::size::operator/)
+            .addFunction("round", &math::size::round)
+            .addFunction("floor", &math::size::floor)
+            .addFunction("ceil", &math::size::ceil)
         .endClass();
 }
 
