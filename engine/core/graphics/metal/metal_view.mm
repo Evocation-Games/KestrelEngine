@@ -378,11 +378,11 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
     }
 
     // Setup the vertex positions for the entity
-    std::array<graphics::metal::vertex_descriptor, 6> v;
-    auto x = static_cast<float>(entity->position.x) - (static_cast<float>(_viewportSize.x) / (_scale * 2));
-    auto y = static_cast<float>(entity->position.y) - (static_cast<float>(_viewportSize.y) / (_scale * 2));
-    auto w = static_cast<float>(entity->size.width) / 2;
-    auto h = static_cast<float>(entity->size.height) / 2;
+    std::array<graphics::metal::vertex_descriptor, 6> v{};
+    auto x = round(static_cast<float>(entity->position.x) - (static_cast<float>(_viewportSize.x) / (_scale * 2)));
+    auto y = round(static_cast<float>(entity->position.y) - (static_cast<float>(_viewportSize.y) / (_scale * 2)));
+    auto w = round(static_cast<float>(entity->render_size.width) / 2);
+    auto h = round(static_cast<float>(entity->render_size.height) / 2);
 
     v[0].position = vector2( x -w, y +h );
     v[1].position = vector2( x +w, y +h );
