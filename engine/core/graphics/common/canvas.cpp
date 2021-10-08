@@ -95,7 +95,7 @@ auto graphics::canvas::set_font(const std::string &name, const int &size) -> voi
 
 auto graphics::canvas::get_bounds() const -> math::rect
 {
-    return math::rect(math::point(0), m_size);
+    return { math::point(0), m_size };
 }
 
 // MARK: - Entity

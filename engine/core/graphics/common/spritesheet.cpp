@@ -62,13 +62,13 @@ auto graphics::spritesheet::sprite::size() const -> math::size
 graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height)
     : m_backing_texture(std::move(tex)), m_sprite_base_size(sprite_width, sprite_height)
 {
-    layout_sprites();
+    layout_sprites(false);
 }
 
 graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size)
     : m_backing_texture(std::move(tex)), m_sprite_base_size(sprite_size)
 {
-    layout_sprites();
+    layout_sprites(false);
 }
 
 // MARK: - Spritesheet Accessors
@@ -80,7 +80,6 @@ auto graphics::spritesheet::texture() const -> std::shared_ptr<graphics::texture
 
 auto graphics::spritesheet::sprite_count() const -> int
 {
-    return m_sprites.size();
 }
 
 auto graphics::spritesheet::at(const int& n) const -> spritesheet::sprite
@@ -95,7 +94,7 @@ auto graphics::spritesheet::sprite_size() const -> math::size
 
 // MARK: - Spritesheet Layout
 
-auto graphics::spritesheet::layout_sprites() -> void
+auto graphics::spritesheet::layout_sprites(bool flipped) -> void
 {
     // Each sprite is providing the UV texture mapping information that will be used for drawing
     // the appropriate portion of a texture.
@@ -106,36 +105,69 @@ auto graphics::spritesheet::layout_sprites() -> void
     auto count_x = static_cast<int>(m_backing_texture->size().width / m_sprite_base_size.width);
     auto count_y = static_cast<int>(m_backing_texture->size().height / m_sprite_base_size.height);
 
-    for (auto y = 0; y < count_y; ++y) {
-        for (auto x = 0; x < count_x; ++x) {
-            spritesheet::sprite sprite(x * sprite_uv_width, y * sprite_uv_height, sprite_uv_width, sprite_uv_height);
-            m_sprites.emplace_back(sprite);
+    if (flipped) {
+        for (auto y = 0; y < count_y; ++y) {
+            for (auto x = 0; x < count_x; ++x) {
+                spritesheet::sprite sprite(x * sprite_uv_width, (y + 1) * sprite_uv_height, sprite_uv_width, -sprite_uv_height);
+                m_sprites.emplace_back(sprite);
+            }
         }
     }
+    else {
+        for (auto y = 0; y < count_y; ++y) {
+            for (auto x = 0; x < count_x; ++x) {
+                spritesheet::sprite sprite(x * sprite_uv_width, y * sprite_uv_height, sprite_uv_width, sprite_uv_height);
+                m_sprites.emplace_back(sprite);
+            }
+        }
+    }
+    m_flipped = true;
 }
 
-auto graphics::spritesheet::layout_sprites(const math::size &sprite_size) -> void
+auto graphics::spritesheet::layout_sprites(const math::size &sprite_size, bool flipped) -> void
 {
     m_sprite_base_size = sprite_size;
     m_sprites.clear();
-    layout_sprites();
+    layout_sprites(flipped);
 }
 
-auto graphics::spritesheet::layout_sprites(const std::vector<math::rect> &sprite_frames) -> void
+auto graphics::spritesheet::layout_sprites(const std::vector<math::rect> &sprite_frames, bool flipped) -> void
 {
     m_sprites.clear();
     m_sprite_base_size = sprite_frames.front().size;
+    m_flipped = flipped;
 
     auto width = m_backing_texture->size().width;
     auto height = m_backing_texture->size().height;
-    for (const auto& frame : sprite_frames) {
-        auto x = frame.get_x();
-        auto y = frame.get_y();
-        auto w = frame.get_width();
-        auto h = frame.get_height();
 
-        y = height - y - h;
+    if (flipped) {
+        for (const auto& frame : sprite_frames) {
+            auto x = frame.get_x();
+            auto y = frame.get_y();
+            auto w = frame.get_width();
+            auto h = frame.get_height();
 
-        m_sprites.emplace_back(spritesheet::sprite(x / width, y / height, w / width, h / height));
+            y = height - y;
+
+            m_sprites.emplace_back(spritesheet::sprite(x / width, (y + 1) / height, w / width, -(h / height)));
+        }
     }
+    else {
+        for (const auto& frame : sprite_frames) {
+            auto x = frame.get_x();
+            auto y = frame.get_y();
+            auto w = frame.get_width();
+            auto h = frame.get_height();
+
+            y = height - y - h;
+
+            m_sprites.emplace_back(spritesheet::sprite(x / width, y / height, w / width, h / height));
+        }
+    }
+
+}
+
+auto graphics::spritesheet::flipped() const -> bool
+{
+    return m_flipped;
 }

@@ -52,8 +52,9 @@ namespace graphics
         std::shared_ptr<graphics::texture> m_backing_texture;
         std::vector<spritesheet::sprite> m_sprites;
         math::size m_sprite_base_size;
+        bool m_flipped { false };
 
-        auto layout_sprites() -> void;
+        auto layout_sprites(bool flipped) -> void;
 
     public:
         spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height);
@@ -64,9 +65,10 @@ namespace graphics
         auto sprite_count() const -> int;
         auto at(const int& n) const -> spritesheet::sprite;
         auto sprite_size() const -> math::size;
+        auto flipped() const -> bool;
 
-        auto layout_sprites(const math::size& sprite_size) -> void;
-        auto layout_sprites(const std::vector<math::rect>& sprite_frames) -> void;
+        auto layout_sprites(const math::size& sprite_size, bool flipped = false) -> void;
+        auto layout_sprites(const std::vector<math::rect>& sprite_frames, bool flipped = false) -> void;
     };
 
 }

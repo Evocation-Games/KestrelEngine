@@ -44,6 +44,7 @@ auto graphics::entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("frame", &entity::get_sprite_index, &entity::set_sprite_index)
             .addProperty("position", &entity::get_position, &entity::set_position)
             .addProperty("size", &entity::get_size, &entity::set_size)
+            .addProperty("renderSize", &entity::get_render_size, &entity::set_render_size)
             .addProperty("bounds", &entity::get_bounds)
             .addProperty("alpha", &entity::get_alpha, &entity::set_alpha)
             .addProperty("blend", &entity::get_blend_lua, &entity::set_blend_lua)
@@ -91,6 +92,7 @@ auto graphics::entity::set_spritesheet(std::shared_ptr<graphics::spritesheet> sh
 {
     m_spritesheet = std::move(sheet);
     sprite_index = index;
+    render_size = m_spritesheet->sprite_size();
 }
 
 auto graphics::entity::spritesheet() const -> std::shared_ptr<graphics::spritesheet>
@@ -145,6 +147,16 @@ auto graphics::entity::set_size(const math::size &sz) -> void
     this->size = sz;
 }
 
+auto graphics::entity::get_render_size() const -> math::size
+{
+    return this->render_size;
+}
+
+auto graphics::entity::set_render_size(const math::size &sz) -> void
+{
+    this->render_size = sz;
+}
+
 lua_api auto graphics::entity::set_clipping_area(const math::size& sz) -> void
 {
     auto clip_sz = sz * environment::active_environment().lock()->window()->get_scale_factor();
@@ -175,9 +187,6 @@ auto graphics::entity::clipping_area_uv() const -> math::size
 
 lua_api auto graphics::entity::set_clipping_offset(const math::point& p) -> void
 {
-    auto x_bound = 1.0 - m_clipping_area.width;
-    auto y_bound = 1.0 - m_clipping_area.height;
-
     m_clipping_offset = math::point(
        std::max(0.0, std::min(texture()->size().width, p.x)),
        std::max(0.0, std::min(texture()->size().height, p.y))

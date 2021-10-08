@@ -74,7 +74,7 @@ asset::spritesheet::spritesheet(const asset::resource_descriptor::lua_reference&
             asset::tga tga(tga_raw_data);
             if (auto surface = tga.surface().lock()) {
                 configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                m_sheet->layout_sprites(sprite_frames);
+                m_sheet->layout_sprites(sprite_frames, true);
                 return;
             }
         }

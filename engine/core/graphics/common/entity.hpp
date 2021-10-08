@@ -43,6 +43,7 @@ namespace graphics
 
         math::vector position;
         math::size size;
+        math::size render_size;
         int sprite_index { 0 };
         blend m_blend { normal };
         double m_alpha { 1.0 };
@@ -53,8 +54,6 @@ namespace graphics
         std::shared_ptr<graphics::spritesheet> m_spritesheet;
         std::weak_ptr<graphics::scene> m_scene;
         bool m_has_texture_clip { false };
-        math::size m_clip_size { 0 };
-        math::point m_sprite_offset { 0 };
 
         math::size m_clipping_area { 0 };
         math::point m_clipping_offset { 0 };
@@ -82,6 +81,8 @@ namespace graphics
 
         lua_api auto get_size() const -> math::size;
         lua_api auto set_size(const math::size& sz) -> void;
+        lua_api auto get_render_size() const -> math::size;
+        lua_api auto set_render_size(const math::size& sz) -> void;
 
         lua_api auto set_clipping_area(const math::size& sz) -> void;
         lua_api auto remove_clipping_area() -> void;
