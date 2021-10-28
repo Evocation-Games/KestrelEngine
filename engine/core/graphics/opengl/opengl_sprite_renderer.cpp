@@ -66,8 +66,7 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     m_shader->use();
 
     auto size = (entity->render_size * m_scale);
-    auto offset = size / 2;
-    auto position = (entity->position * m_scale) - math::vector(offset.width, offset.height);
+    auto position = (entity->position * m_scale);
 
     auto model = glm::mat4(1.0);
     model = glm::translate(model, glm::vec3(glm::vec2(position.x, position.y), 0.0));
