@@ -66,6 +66,10 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     m_shader->use();
 
     auto size = (entity->render_size * m_scale);
+    if (entity->has_clipping_area()) {
+        size = entity->clipping_area() * m_scale;
+    }
+
     auto position = (entity->position * m_scale);
 
     auto model = glm::mat4(1.0);
