@@ -61,7 +61,8 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
 
 graphics::canvas::canvas(const math::size& size)
     : m_size(std::round(size.width), std::round(size.height)),
-      m_scale(environment::active_environment().lock()->window()->get_scale_factor()),
+      m_true_scale(environment::active_environment().lock()->window()->get_scale_factor()),
+      m_scale(m_true_scale),
       m_scaled_size(m_size * m_scale),
       m_rgba_buffer(m_scaled_size),
       m_pen_color(graphics::color::white_color()),
@@ -126,6 +127,7 @@ auto graphics::canvas::spawn_entity(const math::vector &position) -> graphics::e
         auto entity = graphics::entity::lua_reference(new graphics::entity(m_size));
         entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
         entity->set_position(position);
+        entity->set_render_size(m_size * m_true_scale);
 
         return (m_entity = entity);
     }

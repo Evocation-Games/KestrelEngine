@@ -40,12 +40,14 @@ vertex rasterizer_data vertexShader(
 ) {
     rasterizer_data out;
 
-    float2 pixel_space_position = vertex_array[vertex_id].position.xy;
+    auto scale = vertex_array[vertex_id].scale;
     float2 viewport_size = float2(*viewport_size_pointer);
+    float2 pixel_space_position = floor(vertex_array[vertex_id].position.xy / scale);
+    float2 inverse_size(1.0f / viewport_size.x, 1.0f / viewport_size.y);
+    float clip_x = (2.0f * pixel_space_position.x * inverse_size.x) - 1.0f;
+    float clip_y = (2.0f * -pixel_space_position.y * inverse_size.y) + 1.0f;
 
-    out.position = vector_float4(0.0, 0.0, 0.0, 1.0);
-    out.position.xy = (pixel_space_position / (viewport_size / 2.0)) * vertex_array[vertex_id].scale;
-    out.position.y *= -1;
+    out.position = vector_float4(clip_x, clip_y, 0.0, 1.0);
     out.texture_coord = vertex_array[vertex_id].texture_coord;
     out.color = vertex_array[vertex_id].color;
 

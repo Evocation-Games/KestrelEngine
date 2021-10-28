@@ -680,7 +680,7 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
 
     for (const auto& f : rm.files()) {
         for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::universal()->primary_name();
+            std::string t_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
             if (attributes.find("namespace") != attributes.end()) {
                 t_namespace = attributes.at("namespace");

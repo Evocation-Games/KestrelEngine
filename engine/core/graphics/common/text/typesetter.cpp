@@ -29,7 +29,7 @@
 graphics::typesetter::typesetter(const std::string &text, const double& scale)
     : m_base_font(std::make_shared<graphics::font>()),
       m_scale(scale),
-      m_dpi(static_cast<int>(100 * scale)),
+      m_dpi(static_cast<int>(96 * scale)),
       m_base_font_size(12),
       m_font_color(graphics::color::white_color()),
       m_max_size(9999), m_min_size(0),

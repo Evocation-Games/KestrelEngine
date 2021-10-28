@@ -131,10 +131,7 @@ auto graphics::entity::set_position(const math::vector &position) -> void
 
 auto graphics::entity::get_bounds() const -> math::rect
 {
-    auto half_size = this->size / 2.0;
-
-    return math::rect({this->position.x - half_size.width,this->position.y - half_size.height},
-                      this->size);
+    return math::rect(this->position.point(), this->size);
 }
 
 auto graphics::entity::get_size() const -> math::size

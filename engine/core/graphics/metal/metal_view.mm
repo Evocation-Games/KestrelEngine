@@ -379,17 +379,17 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 
     // Setup the vertex positions for the entity
     std::array<graphics::metal::vertex_descriptor, 6> v{};
-    auto x = round(static_cast<float>(entity->position.x) - (static_cast<float>(_viewportSize.x) / (_scale * 2)));
-    auto y = round(static_cast<float>(entity->position.y) - (static_cast<float>(_viewportSize.y) / (_scale * 2)));
-    auto w = round(static_cast<float>(entity->render_size.width) / 2);
-    auto h = round(static_cast<float>(entity->render_size.height) / 2);
+    auto x = static_cast<float>(entity->position.x);
+    auto y = static_cast<float>(entity->position.y);
+    auto w = static_cast<float>(entity->render_size.width);
+    auto h = static_cast<float>(entity->render_size.height);
 
-    v[0].position = vector2( x -w, y +h );
+    v[0].position = vector2( x, y +h );
     v[1].position = vector2( x +w, y +h );
-    v[2].position = vector2( x +w, y -h );
-    v[3].position = vector2( x -w, y +h );
-    v[4].position = vector2( x -w, y -h );
-    v[5].position = vector2( x +w, y -h );
+    v[2].position = vector2( x +w, y );
+    v[3].position = vector2( x, y +h );
+    v[4].position = vector2( x, y );
+    v[5].position = vector2( x +w, y );
 
     // Fetch the sprite information in order to apply texture coordinates
     auto sprite = entity->spritesheet()->at(entity->sprite_index);
