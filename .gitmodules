@@ -16,3 +16,6 @@
 [submodule "submodules/freetype2"]
 	path = submodules/freetype2
 	url = https://git.savannah.gnu.org/git/freetype/freetype2.git
+[submodule "submodules/PortAudio"]
+	path = submodules/PortAudio
+	url = https://github.com/PortAudio/portaudio/

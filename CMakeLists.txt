@@ -87,6 +87,34 @@ if(WIN32)
 	target_include_directories(GLEW PUBLIC ${GLEW_INCLUDE_DIRS})
 endif()
 
+# PORT AUDIO ###################################################################
+if(LINUX)
+	file(GLOB_RECURSE port_audio_sources
+		"${PROJECT_SUBMODULES}/PortAudio/src/common/*.c"
+		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/alsa/*.c"
+		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix/*.c"
+	)
+elseif(APPLE)
+	file(GLOB_RECURSE port_audio_sources
+		"${PROJECT_SUBMODULES}/PortAudio/src/common/*.c"
+		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/coreaudio/*.c"
+		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix/*.c"
+	)
+
+	add_library(PortAudio STATIC ${port_audio_sources})
+	target_include_directories(PortAudio PUBLIC
+		"${PROJECT_SUBMODULES}/PortAudio/include"
+		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/coreaudio"
+		"${PROJECT_SUBMODULES}/PortAudio/src/common"
+		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix"
+	)
+elseif(WINDOWS)
+	file(GLOB_RECURSE port_audio_sources
+		"${PROJECT_SUBMODULES}/PortAudio/src/common/*.c"
+		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/dsound/*.c"
+		"${PROJECT_SUBMODULES}/PortAudio/src/os/win/*.c"
+	)
+endif()
 
 # KESTREL ENGINE ###############################################################
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -126,12 +154,12 @@ if(NOT APPLE)
 	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
 endif()
 
-target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
+target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES} PortAudio)
 if(LINUX)
 	target_link_libraries(Kestrel "-lfontconfig")
 	target_compile_options(Kestrel PUBLIC "-fpermissive")
 elseif(APPLE)
-	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal" objc)
+	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal -framework CoreAudio" objc)
 endif()
 add_dependencies(Kestrel kdl KestrelGameCore)
 
