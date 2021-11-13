@@ -165,10 +165,10 @@ auto graphics::canvas::clear() -> void
 
 auto graphics::canvas::draw_rect(const math::rect &r) -> void
 {
-    draw_line(r.origin, { r.origin.x + r.size.width, r.origin.y });
-    draw_line(r.origin, { r.origin.x, r.origin.y + r.size.height });
-    draw_line({ r.origin.x + r.size.width, r.origin.y }, { r.origin.x + r.size.width, r.origin.y + r.size.height });
-    draw_line({ r.origin.x, r.origin.y + r.size.height }, { r.origin.x + r.size.width, r.origin.y + r.size.height });
+    draw_line(r.origin, { r.origin.x + r.size.width, r.origin.y }, 1);
+    draw_line(r.origin, { r.origin.x, r.origin.y + r.size.height }, 1);
+    draw_line({ r.origin.x + r.size.width, r.origin.y }, { r.origin.x + r.size.width, r.origin.y + r.size.height }, 1);
+    draw_line({ r.origin.x, r.origin.y + r.size.height }, { r.origin.x + r.size.width, r.origin.y + r.size.height }, 1);
 }
 
 auto graphics::canvas::fill_rect(const math::rect &r) -> void
@@ -176,99 +176,60 @@ auto graphics::canvas::fill_rect(const math::rect &r) -> void
     m_rgba_buffer.fill_rect(m_pen_color, (r * m_scale).round());
 }
 
-auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq) -> void
+auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq, const double& thickness) -> void
 {
-    auto inner_draw_line = [this] (const math::point& p, const math::point& q) {
-        math::line l(p, q);
-        if (!(l.intersects(m_left) || l.intersects(m_top) || l.intersects(m_right) || l.intersects(m_bottom))) {
-            if (!((p.x > 0 && p.x < m_scaled_size.width) && (p.y > 0 && p.y < m_scaled_size.height))) {
-                return;
-            }
-        }
+    auto x0 = static_cast<long>(floor(pp.x));
+    auto y0 = static_cast<long>(floor(pp.y));
+    auto x1 = static_cast<long>(floor(qq.x));
+    auto y1 = static_cast<long>(floor(qq.y));
 
-        // This implementation of Xiaolin Wu's line algorithm is based on the implementation found at
-        // https://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm.
+    long dx = std::abs(x1 - x0);
+    long dy = std::abs(y1 - y0);
+    long sx = x0 < x1 ? 1 : -1;
+    long sy = y0 < y1 ? 1 : -1;
 
-        // Helper functions
-        auto ipart =  [](const double& n) -> int { return static_cast<int>(std::floor(n)); };
-        auto round =  [](const double& n) -> double { return std::round(n); };
-        auto fpart =  [](const double& n) -> double { return n - std::floor(n); };
-        auto rfpart = [=](const double& n) -> double { return 1 - fpart(n); };
+    long err = dx - dy;
+    long e2 = 0;
+    long x2 = 0;
+    long y2 = 0;
 
-        auto x0 = p.x;
-        auto y0 = p.y;
-        auto x1 = q.x;
-        auto y1 = q.y;
+    auto ed = dx + dy == 0 ? 1 : std::sqrt((dx * dx) + (dy * dy));
+    auto wd = thickness;
 
-        const bool steep = std::abs(y1 - y0) > std::abs(x1 - x0);
-        if (steep) {
-            std::swap(x0, y0);
-            std::swap(x1, y1);
-        }
-        if (x0 > x1) {
-            std::swap(x0, x1);
-            std::swap(y0, y1);
-        }
-
-        const auto dx = x1 - x0;
-        const auto dy = y1 - y0;
-        const auto gradient = (dx == 0) ? 1 : dy/dx;
-
-        int xpx11;
-        double intery;
-        {
-            const auto xend = round(x0);
-            const auto yend = y0 + gradient * (xend - x0);
-            const auto xgap = rfpart(x0 + 0.5);
-            xpx11 = static_cast<int>(xend);
-            const int ypx11 = ipart(yend);
-            if (steep) {
-                m_rgba_buffer.draw_pixel(m_pen_color, {ypx11, xpx11});
-                m_rgba_buffer.draw_pixel(m_pen_color, {ypx11 + 1, xpx11});
-            }
-            else {
-                m_rgba_buffer.draw_pixel(m_pen_color, {xpx11, ypx11});
-                m_rgba_buffer.draw_pixel(m_pen_color, {xpx11, ypx11 + 1});
-            }
-            intery = yend + gradient;
-        }
-
-        int xpx12;
-        {
-            const auto xend = round(x1);
-            const auto yend = y1 + gradient * (xend - x1);
-            const auto xgap = rfpart(x1 + 0.5);
-            xpx12 = static_cast<int>(xend);
-            const int ypx12 = ipart(yend);
-            if (steep) {
-                m_rgba_buffer.draw_pixel(m_pen_color, {ypx12, xpx12});
-                m_rgba_buffer.draw_pixel(m_pen_color, {ypx12 + 1, xpx12});
-            }
-            else {
-                m_rgba_buffer.draw_pixel(m_pen_color, {xpx12, ypx12});
-                m_rgba_buffer.draw_pixel(m_pen_color, {xpx12, ypx12 + 1});
-            }
-        }
-
-        if (steep) {
-            for (auto x = xpx11 + 1; x < xpx12; ++x) {
-                auto ip = ipart(intery);
-                m_rgba_buffer.draw_pixel(m_pen_color, {ip, x});
-                m_rgba_buffer.draw_pixel(m_pen_color, {ip + 1, x});
-                intery += gradient;
-            }
-        }
-        else {
-            for (auto x = xpx11 + 1; x < xpx12; ++x) {
-                auto ip = ipart(intery);
-                m_rgba_buffer.draw_pixel(m_pen_color, {x, ip});
-                m_rgba_buffer.draw_pixel(m_pen_color, {x, ip + 1});
-                intery += gradient;
-            }
-        }
+    auto set_pixel = [this] (const long& x, const long& y, const double& intensity) {
+        m_rgba_buffer.draw_pixel(
+            m_pen_color.with_alpha(std::max(0, std::min(255, static_cast<int>(255.0 * (1.0 - intensity))))),
+            {static_cast<int>(x), static_cast<int>(y)}
+        );
     };
 
-    inner_draw_line((pp * m_scale).round(), (qq * m_scale).round());
+
+    for (wd = (wd + 1) / 2;;) {
+        set_pixel(x0, y0, (std::fabs(err - dx + dy) / ed - wd + 1));
+        e2 = err;
+        x2 = x0;
+        if ((e2 << 1) >= -dx) {
+            for (e2 += dy, y2 = y0; (e2 < ed * wd) && (y1 != y2 || dx > dy); e2 += dx) {
+                set_pixel(x0, y2 += sy, (std::fabs(e2) / ed - wd + 1));
+            }
+            if (x0 == x1) {
+                break;
+            }
+            e2 = err;
+            err -= dy;
+            x0 += sx;
+        }
+        if ((e2 << 1) <= dy) {
+            for (e2 = dx - e2; (e2 < ed * wd) && (x1 != x2 || dx < dy); e2 += dy) {
+                set_pixel(x2 += sx, y0, (std::fabs(e2) / ed - wd + 1));
+            }
+            if (y0 == y1) {
+                break;
+            }
+            err += dx;
+            y0 += sy;
+        }
+    }
 }
 
 auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> void

@@ -77,7 +77,7 @@ namespace graphics
 
         lua_api auto clear() -> void;
 
-        lua_api auto draw_line(const math::point& p, const math::point& q) -> void;
+        lua_api auto draw_line(const math::point& p, const math::point& q, const double& thickness) -> void;
 
         lua_api auto draw_rect(const math::rect& r) -> void;
         lua_api auto fill_rect(const math::rect& r) -> void;
