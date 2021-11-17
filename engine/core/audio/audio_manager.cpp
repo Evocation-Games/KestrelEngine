@@ -47,4 +47,11 @@ auto audio::play_sound(const asset::macintosh_sound& snd) -> void
     t.join();
 }
 
+#elif __linux__
+
+auto audio::play_sound(const asset::macintosh_sound &snd) -> void
+{
+
+}
+
 #endif

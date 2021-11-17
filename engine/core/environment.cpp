@@ -495,7 +495,7 @@ auto environment::platform_name() -> std::string
 
 auto environment::platform() -> environment::platform_type
 {
-    return platform_type::linux;
+    return platform_type::unix_like;
 }
 
 auto environment::platform_name() -> std::string
