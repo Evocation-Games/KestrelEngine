@@ -45,6 +45,10 @@ namespace graphics
 class environment: public std::enable_shared_from_this<environment>
 {
 public:
+#if defined(linux)
+#warning "linux" is defined!
+#undef linux
+#endif
     enum platform_type { mac_os, linux, windows };
     enum gl_type { none, open_gl, metal };
 
