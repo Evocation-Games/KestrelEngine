@@ -7,6 +7,7 @@ RUN apt-get update -y -q && \
   libopengl-dev \
   libglfw3-dev \
   libglew-dev \
+  libasound2-dev \
   libfreetype-dev \
   libfontconfig-dev && \
   apt-get clean
