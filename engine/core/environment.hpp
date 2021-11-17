@@ -45,8 +45,8 @@ namespace graphics
 class environment: public std::enable_shared_from_this<environment>
 {
 public:
-    enum class platform_type { mac_os, linux, windows };
-    enum class gl_type { none, open_gl, metal };
+    enum platform_type { mac_os, linux, windows };
+    enum gl_type { none, open_gl, metal };
 
 private:
     int m_status;
