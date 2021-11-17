@@ -35,6 +35,7 @@ scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const a
 
     if (auto s = ref->with_type(type)->load().lock()) {
         m_name = s->name();
+        m_id = s->id();
         graphite::data::reader r(s->data());
         m_object = new script_object();
         m_object->len = r.size();
@@ -44,6 +45,8 @@ scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const a
         m_name = s->name();
         graphite::data::reader r(s->data());
         m_script = "-- " + ref->description() + "\n" + r.read_cstr();
+        m_id = s->id();
+        m_name = s->name();
     }
     else {
         throw std::logic_error("Could not find/load lua script resource #" + std::to_string(ref->id));
