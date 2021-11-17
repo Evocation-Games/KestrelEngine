@@ -95,19 +95,20 @@ if(LINUX)
 		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix/*.c"
 	)
 elseif(APPLE)
-	file(GLOB_RECURSE port_audio_sources
-		"${PROJECT_SUBMODULES}/PortAudio/src/common/*.c"
-		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/coreaudio/*.c"
-		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix/*.c"
-	)
-
-	add_library(PortAudio STATIC ${port_audio_sources})
-	target_include_directories(PortAudio PUBLIC
-		"${PROJECT_SUBMODULES}/PortAudio/include"
-		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/coreaudio"
-		"${PROJECT_SUBMODULES}/PortAudio/src/common"
-		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix"
-	)
+#	file(GLOB_RECURSE port_audio_sources
+#		"${PROJECT_SUBMODULES}/PortAudio/src/common/*.c"
+#		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/coreaudio/*.c"
+#		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix/*.c"
+#	)
+#
+#	add_library(PortAudio STATIC ${port_audio_sources})
+#	target_include_directories(PortAudio PUBLIC
+#		"${PROJECT_SUBMODULES}/PortAudio/include"
+#		"${PROJECT_SUBMODULES}/PortAudio/src/hostapi/coreaudio"
+#		"${PROJECT_SUBMODULES}/PortAudio/src/common"
+#		"${PROJECT_SUBMODULES}/PortAudio/src/os/unix"
+#	)
+#	target_compile_definitions(PortAudio PRIVATE PA_USE_COREAUDIO=1)
 elseif(WINDOWS)
 	file(GLOB_RECURSE port_audio_sources
 		"${PROJECT_SUBMODULES}/PortAudio/src/common/*.c"
@@ -150,16 +151,28 @@ target_include_directories(Kestrel PUBLIC
 )
 
 if(NOT APPLE)
-	target_include_directories(Kestrel PUBLIC ${GLEW_INCLUDE_DIRS})
-	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
+	target_include_directories(Kestrel PUBLIC
+		${GLEW_INCLUDE_DIRS}
+		"${PROJECT_SUBMODULES}/PortAudio/include"
+	)
+	target_link_libraries(Kestrel ${GLEW_LIBRARIES} PortAudio)
 endif()
 
-target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES} PortAudio)
+target_link_libraries(Kestrel Graphite Lua ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 if(LINUX)
 	target_link_libraries(Kestrel "-lfontconfig")
 	target_compile_options(Kestrel PUBLIC "-fpermissive")
 elseif(APPLE)
-	target_link_libraries(Kestrel "-framework Cocoa -framework MetalKit -framework Metal -framework CoreAudio" objc)
+	target_link_libraries(Kestrel
+		"-framework Cocoa"
+		"-framework MetalKit"
+		"-framework Metal"
+		"-framework CoreAudio"
+		"-framework AudioUnit"
+		"-framework AudioToolbox"
+		"-framework CoreFoundation"
+		objc
+	)
 endif()
 add_dependencies(Kestrel kdl KestrelGameCore)
 

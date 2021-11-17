@@ -34,6 +34,7 @@
 #include "core/graphics/common/color.hpp"
 #include "engine/core/asset/legacy/macintosh/picture.hpp"
 #include "engine/core/asset/legacy/macintosh/color_icon.hpp"
+#include "engine/core/asset/legacy/macintosh/macintosh_sound.hpp"
 #include "core/asset/spritesheet.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/asset/static_image.hpp"
@@ -80,6 +81,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     asset::sprite::enroll_object_api_in_state(shared_from_this());
     asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());
+    asset::macintosh_sound::enroll_object_api_in_state(shared_from_this());
     asset::color_icon::enroll_object_api_in_state(shared_from_this());
     asset::static_image::enroll_object_api_in_state(shared_from_this());
 

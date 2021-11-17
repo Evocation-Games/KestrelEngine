@@ -19,11 +19,11 @@
 // SOFTWARE.
 
 #include <dirent.h>
-#include "core/environment.hpp"
-#include "core/graphics/opengl/opengl_session_window.hpp"
-#include <libGraphite/rsrc/manager.hpp>
 #include <utility>
+#include <libGraphite/rsrc/manager.hpp>
+#include "core/environment.hpp"
 #include "scripting/state.hpp"
+#include "core/graphics/opengl/opengl_session_window.hpp"
 #include "core/graphics/common/scene.hpp"
 #include "core/graphics/common/font.hpp"
 
