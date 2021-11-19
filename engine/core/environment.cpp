@@ -26,6 +26,7 @@
 #include "core/graphics/opengl/opengl_session_window.hpp"
 #include "core/graphics/common/scene.hpp"
 #include "core/graphics/common/font.hpp"
+#include "core/audio/audio_manager.hpp"
 
 #if __APPLE__
 #include "core/graphics/metal/metal_session_window.h"
@@ -141,6 +142,9 @@ auto environment::prepare_common() -> void
     // Ensure Lua is fully configured and ready to go.
     become_active_environment();
     m_lua_runtime->prepare_lua_environment(shared_from_this());
+
+    // Ensure the audio manager is started and configured.
+    audio::manager::shared_manager().configure();
 
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
     auto state = m_lua_runtime->shared_from_this();

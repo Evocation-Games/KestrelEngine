@@ -18,9 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SOUND_HPP)
-#define KESTREL_SOUND_HPP
+#if !defined(KESTREL_MACINTOSH_SOUND_HPP)
+#define KESTREL_MACINTOSH_SOUND_HPP
 
+#include "core/audio/sound.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 
@@ -195,6 +196,8 @@ namespace asset
         uint32_t m_packet_count { 0 };
         void *m_samples { nullptr };
         uint32_t m_samples_size { 0 };
+
+        audio::sound m_sound { 0, 0, 0 };
 
         auto parse(const std::shared_ptr<graphite::data::data>& data) -> bool;
 

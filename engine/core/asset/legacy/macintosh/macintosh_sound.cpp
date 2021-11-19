@@ -82,10 +82,10 @@ asset::macintosh_sound::~macintosh_sound()
 
 auto asset::macintosh_sound::play() -> void
 {
-    if (m_samples == nullptr) {
+    if (!m_sound.valid()) {
         return;
     }
-    audio::play_sound(*this);
+    audio::manager::shared_manager().play(audio::sound(m_sound));
 }
 
 // MARK: - Sound Resource Parsing
@@ -212,6 +212,14 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         m_bytes_per_frame = (m_bits_per_channel >> 3) * m_channels_per_frame;
         m_frames_per_packet = 1;
         m_bytes_per_packet = m_bytes_per_frame * m_frames_per_packet;
+
+        auto byte_size = m_packet_count * m_bytes_per_packet;
+        m_samples_size = byte_size;
+        m_samples = malloc(m_samples_size);
+        auto ptr = reinterpret_cast<uint8_t *>(m_samples);
+        for (int i = 0; i < byte_size; ++i) {
+            *ptr++ = r.read_byte();
+        }
     }
     else if (format == sound_format_ima4) {
         // TODO: Do not hard code this, but work out the conversions...
@@ -221,18 +229,110 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         m_bytes_per_frame = 0;
         m_channels_per_frame = 1;
         m_bits_per_channel = 0;
+
+        // Read the data for the IMA4 format, and then decode it in to 16-bit LPCM.
+        auto byte_size = (m_packet_count * (m_bytes_per_packet - 2)) << 2;
+        auto j = 0;
+        m_samples_size = byte_size; // TODO: This is potentially a hack...
+        m_samples = malloc(byte_size);
+        auto ptr = reinterpret_cast<int16_t *>(m_samples);
+
+        // Look Up Tables
+        int32_t ima_index_table[16] = {
+            -1, -1, -1, -1, 2, 4, 6, 8,
+            -1, -1, -1, -1, 2, 4, 6, 8
+        };
+
+        int32_t ima_step_table[89] = {
+            7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
+            19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
+            50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
+            130, 143, 157, 173, 190, 209, 230, 253, 279, 307,
+            337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
+            876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066,
+            2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358,
+            5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
+            15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
+        };
+
+        for (uint32_t n = 0; n < m_packet_count; ++n) {
+            auto preamble = r.read_short();
+            auto packet = r.read_data(m_bytes_per_packet - 2);
+
+            int16_t predictor = preamble & 0xFF80;
+            int16_t step_index = preamble & 0x007F;
+            int16_t step = ima_step_table[step_index];
+
+            for (uint32_t i = 0; i < m_bytes_per_packet - 2; ++i) {
+                uint8_t data = packet->at(i);
+                uint8_t lower_nibble = data & 0x0F;
+                uint8_t upper_nibble = (data & 0xF0) >> 4;
+
+                // decode the lower nibble
+                step_index += ima_index_table[lower_nibble];
+                int16_t sign = lower_nibble & 8;
+                int16_t delta = lower_nibble & 7;
+                int16_t diff = step >> 8;
+                if (delta & 4) diff += step;
+                if (delta & 2) diff += (step >> 1);
+                if (delta & 1) diff += (step >> 2);
+                if (sign) predictor -= diff;
+                else predictor += diff;
+                step = ima_step_table[step_index];
+
+                if (predictor > INT16_MAX) {
+                    *ptr++ = INT16_MAX;
+                    j+=2;
+                }
+                else if (predictor < INT16_MIN) {
+                    *ptr++ = INT16_MIN;
+                    j+=2;
+                }
+                else {
+                    *ptr++ = static_cast<int16_t>(predictor);
+                    j+=2;
+                }
+
+                // decode the upper nibble
+                step_index += ima_index_table[upper_nibble];
+                sign = upper_nibble & 8;
+                delta = upper_nibble & 7;
+                diff = step >> 8;
+                if (delta & 4) diff += step;
+                if (delta & 2) diff += (step >> 1);
+                if (delta & 1) diff += (step >> 2);
+                if (sign) predictor -= diff;
+                else predictor += diff;
+                step = ima_step_table[step_index];
+
+                if (predictor > INT16_MAX) {
+                    *ptr++ = INT16_MAX;
+                    j+=2;
+                }
+                else if (predictor < INT16_MIN) {
+                    *ptr++ = INT16_MIN;
+                    j+=2;
+                }
+                else {
+                    *ptr++ = static_cast<int16_t>(predictor);
+                    j+=2;
+                }
+            }
+        }
+
+        m_bytes_per_packet = 128;
+        m_bits_per_channel = 16;
+        m_frames_per_packet = 1;
+        m_bytes_per_frame = (m_bits_per_channel >> 3) * m_channels_per_frame;
+        m_format_id = 'lpcm';
+        m_format_flags = 0x4; // kAudioFormatFlagIsSignedInteger
+
+        m_sound = audio::sound(m_sample_rate, m_bits_per_channel, m_channels_per_frame);
+        m_sound.add_packet(m_samples, m_samples_size);
+
     }
     else {
         // TODO: Handle this correctly...
-    }
-
-    // Build the data buffer for the sound, so that we can send it for playback.
-    auto byte_size = m_packet_count * m_bytes_per_packet;
-    m_samples_size = byte_size;
-    m_samples = malloc(m_samples_size);
-    auto ptr = reinterpret_cast<uint8_t *>(m_samples);
-    for (int i = 0; i < byte_size; ++i) {
-        *ptr++ = r.read_byte();
     }
 
     return true;
