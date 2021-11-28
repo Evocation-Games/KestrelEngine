@@ -21,6 +21,7 @@
 #include "core/graphics/common/session_window.hpp"
 #include "core/graphics/common/scene.hpp"
 #include "core/clock/clock.hpp"
+#include "core/audio/audio_manager.hpp"
 
 // MARK: - Construction
 
@@ -82,12 +83,14 @@ auto graphics::session_window::update() -> void
     current_scene()->check_timed_events();
     current_scene()->update();
 
-    if ((session_clock::now() - m_cache_purge_time).count() >= 60) {
-        if (auto env = m_environment.lock()) {
-            env->cache()->purge_unused();
-            env->gc_purge();
+    if (auto env = m_environment.lock()) {
+        if ((session_clock::now() - m_cache_purge_time).count() >= 60) {
+             env->cache()->purge_unused();
+             env->gc_purge();
         }
     }
+
+    audio::manager::shared_manager().monitor_finished_playbacks();
 }
 
 auto graphics::session_window::render() -> void

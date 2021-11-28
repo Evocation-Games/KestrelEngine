@@ -160,23 +160,22 @@ auto audio::openal::player::check_errors(const std::string& filename, uint_fast3
 
 // MARK: - Playback
 
-auto audio::openal::player::play(audio::sound snd) -> bool
+auto audio::openal::player::play(std::shared_ptr<audio::chunk> chunk) -> bool
 {
-    auto pb = std::unique_ptr<playback_buffer>();
-    pb->sound = audio::sound(snd);
+    auto pb = std::make_unique<playback_buffer>();
+    pb->chunk = chunk;
 
     // Setup the buffer and then the source...
-    auto packet = snd.playback_current_packet();
-    if (packet.channels == 1 && packet.bits == 8) {
+    if (chunk->channels == 1 && chunk->bit_width == 8) {
         pb->format = AL_FORMAT_MONO8;
     }
-    else if (packet.channels == 1 && packet.bits == 16) {
+    else if (chunk->channels == 1 && chunk->bit_width == 16) {
         pb->format = AL_FORMAT_MONO16;
     }
-    else if (packet.channels == 2 && packet.bits == 8) {
+    else if (chunk->channels == 2 && chunk->bit_width == 8) {
         pb->format = AL_FORMAT_STEREO8;
     }
-    else if (packet.channels == 2 && packet.bits == 16) {
+    else if (chunk->channels == 2 && chunk->bit_width == 16) {
         pb->format = AL_FORMAT_STEREO16;
     }
     else {
@@ -184,9 +183,11 @@ auto audio::openal::player::play(audio::sound snd) -> bool
     }
 
     openal_do(alGenBuffers, 1, &pb->handle);
-    openal_do(alBufferData, pb->handle, pb->format, packet.bytes, packet.length, packet.sample_rate);
+    openal_do(alBufferData, pb->handle, pb->format, chunk->internal_data_pointer(), chunk->data_size, chunk->sample_rate);
 
-    openal_do(alGenSources, 1, &pb->source);
+    ALuint source;
+    auto err = openal_do(alGenSources, 1, &source);
+    pb->source = source;
     openal_do(alSourcef, pb->source, AL_PITCH, 1);
     openal_do(alSourcef, pb->source, AL_GAIN, 1.0f);
     openal_do(alSource3f, pb->source, AL_POSITION, 0, 0, 0);

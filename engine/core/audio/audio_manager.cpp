@@ -3,6 +3,8 @@
 //
 
 #include <thread>
+#include <algorithm>
+#include <utility>
 #include "core/audio/audio_manager.hpp"
 
 // MARK: - Manager
@@ -13,13 +15,55 @@ auto audio::manager::shared_manager() -> manager &
     return instance;
 }
 
+auto audio::manager::construct_playback_reference(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> playback_reference *
+{
+    playback_reference ref(m_next_ref_id++, std::move(chunk), std::move(completion));
+    m_playback_refs.emplace_back(ref);
+    return &m_playback_refs.back();
+}
+
+auto audio::manager::monitor_finished_playbacks() -> void
+{
+    if (m_playback_refs.empty()) {
+        return;
+    }
+
+    m_playback_refs.erase(std::remove_if(m_playback_refs.begin(), m_playback_refs.end(), [](const playback_reference& ref) {
+        if (ref.finished) {
+            ref.completion_callback();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }), m_playback_refs.end());
+}
+
+auto audio::manager::finish_playback(uint64_t playback_id) -> void
+{
+    for (auto& ref : m_playback_refs) {
+        if (ref.id == playback_id) {
+            ref.finished = true;
+            return;
+        }
+    }
+}
+
 // MARK: - Configuration
 
 #if __APPLE__
 
+#include "core/audio/core_audio.hpp"
+#include "core/audio/openal.hpp"
+
 auto audio::manager::configure() -> void
 {
+}
 
+auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
+{
+    auto ref = construct_playback_reference(std::move(chunk), std::move(completion));
+    core_audio::play(ref);
 }
 
 #else
@@ -31,14 +75,16 @@ auto audio::manager::configure() -> void
     openal::player::global().configure_devices();
 }
 
+auto audio::manager::play(std::shared_ptr<audio::chunk> chunk) -> void
+{
+    openal::player::global().play(std::move(chunk));
+}
+
 #endif
 
 // MARK: - Audio Playback
 
-auto audio::manager::play(audio::sound snd) -> void
-{
-    openal::player::global().play(audio::sound(snd));
-}
+
 
 #if __APPLE__
 

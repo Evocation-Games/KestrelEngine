@@ -24,6 +24,140 @@
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 #include "core/audio/audio_manager.hpp"
+#include "core/audio/audio_codec_descriptor.hpp"
+#include "core/audio/codec/ima4.hpp"
+
+// MARK: - Constants
+
+static constexpr uint32_t rate_48khz = 0xbb800000;
+static constexpr uint32_t rate_44khz = 0xac440000;
+static constexpr uint32_t rate_32khz = 0x7d000000;
+static constexpr uint32_t rate_22050hz = 0x56220000;
+static constexpr uint32_t rate_22khz = 0x56ee8ba3;
+static constexpr uint32_t rate_16khz = 0x3e800000;
+static constexpr uint32_t rate_11khz = 0x2b7745d1;
+static constexpr uint32_t rate_11025hz = 0x2b110000;
+static constexpr uint32_t rate_8khz = 0x1f400000;
+
+static constexpr uint16_t sampled_synth = 5; // sampled sound synthesizer*/
+
+static constexpr uint8_t middle_c = 60; // MIDI note value for middle C*/
+
+static constexpr uint16_t data_offset_flag = 0x8000;
+
+static constexpr int16_t not_compressed = 0;    /*compression ID's*/
+static constexpr int16_t fixed_compression = -1;   /*compression ID for fixed-sized compression*/
+static constexpr int16_t variable_compression = -2;   /*compression ID for variable-sized compression*/
+static constexpr int16_t two_to_one = 1;
+static constexpr int16_t eight_to_three = 2;
+static constexpr int16_t three_to_one = 3;
+static constexpr int16_t six_to_one = 4;
+static constexpr int16_t six_to_one_packet_size = 8;
+static constexpr int16_t three_to_one_packet_size = 16;
+
+static constexpr int16_t first_sound_format = 0x0001; // general sound format*/
+static constexpr int16_t second_sound_format = 0x0002; // special sampled sound format (HyperCard)*/
+
+static constexpr uint8_t standard_header = 0x00;  // Standard sound header encode value*/
+static constexpr uint8_t extended_header = 0xFF;  // Extended sound header encode value*/
+static constexpr uint8_t compressed_header = 0xFE;  // Compressed sound header encode value*/
+
+// command numbers for SndDoCommand and SndDoImmediate
+static constexpr uint16_t null_cmd = 0;
+static constexpr uint16_t quiet_cmd = 3;
+static constexpr uint16_t flush_cmd = 4;
+static constexpr uint16_t re_init_cmd = 5;
+static constexpr uint16_t wait_cmd = 10;
+static constexpr uint16_t pause_cmd = 11;
+static constexpr uint16_t resume_cmd = 12;
+static constexpr uint16_t call_back_cmd = 13;
+static constexpr uint16_t sync_cmd = 14;
+static constexpr uint16_t available_cmd = 24;
+static constexpr uint16_t version_cmd = 25;
+static constexpr uint16_t volume_cmd = 46;   // sound manager 3.0 or later only
+static constexpr uint16_t get_volume_cmd = 47;   // sound manager 3.0 or later only
+static constexpr uint16_t clock_component_cmd = 50;   // sound manager 3.2.1 or later only
+static constexpr uint16_t get_clock_component_cmd = 51;   // sound manager 3.2.1 or later only
+static constexpr uint16_t scheduled_sound_cmd = 52;   // sound manager 3.3 or later only
+static constexpr uint16_t link_sound_components_cmd = 53;   // sound manager 3.3 or later only
+static constexpr uint16_t sound_cmd = 80;
+static constexpr uint16_t buffer_cmd = 81;
+static constexpr uint16_t rate_multiplier_cmd = 86;
+static constexpr uint16_t get_rate_multiplier_cmd = 87;
+
+static constexpr int32_t init_chan_left = 0x0002; // left stereo channel
+static constexpr int32_t init_chan_right = 0x0003; // right stereo channel
+static constexpr int32_t init_no_interp = 0x0004; // no linear interpolation
+static constexpr int32_t init_no_drop = 0x0008; // no drop-sample conversion
+static constexpr int32_t init_mono = 0x0080; // monophonic channel
+static constexpr int32_t init_stereo = 0x00C0; // stereo channel
+static constexpr int32_t init_m_a_c_e3 = 0x0300; // MACE 3:1
+static constexpr int32_t init_m_a_c_e6 = 0x0400; // MACE 6:1
+
+// Format Types
+static constexpr uint32_t sound_format_not_compressed = 0x4E4F4E45; // 'NONE' sound is not compressed
+static constexpr uint32_t sound_format_8_bit_offset = 0x72617720; // 'raw ' 8-bit offset binary
+static constexpr uint32_t sound_format_16_bit_be = 0x74776F73; // 'twos' 16-bit big endian
+static constexpr uint32_t sound_format_16_bit_le = 0x736F7774; // 'sowt' 16-bit little endian
+static constexpr uint32_t sound_format_ima4 = 'ima4';
+
+struct sound_command { uint16_t cmd; int16_t param1; int32_t param2; };
+struct mod_ref { uint16_t mod_number; int32_t mod_init; };
+
+struct sound_list_resource
+{
+    int16_t format;
+    int16_t modifier_count;
+    struct mod_ref modifier_part;
+    int16_t command_count;
+    struct sound_command command_part;
+};
+
+struct hypercard_sound_list_resource
+{
+    int16_t format;
+    int16_t ref_count;
+    int16_t command_count;
+    struct sound_command command_part;
+};
+
+struct sound_header
+{
+    uint32_t sample_ptr;
+    uint32_t length;
+    uint32_t sample_rate_fixed;
+    uint32_t loop_start;
+    uint32_t loop_end;
+    uint8_t encode;
+    uint8_t base_freq;
+};
+
+struct compressed_sound_header
+{
+    uint32_t frame_count;
+    int16_t aiff_sample_rate_exp;
+    uint64_t aiff_sample_rate_man;
+    uint32_t marker_chunk;
+    uint32_t format;
+    uint32_t future_use;
+    uint32_t state_vars;
+    uint32_t left_over_samples;
+    uint16_t compression_id;
+    uint16_t packet_size;
+    uint16_t synth_id;
+    uint16_t sample_size;
+};
+
+struct extended_sound_header
+{
+    uint32_t frame_count;
+    int16_t aiff_sample_rate_exp;
+    uint64_t aiff_sample_rate_man;
+    uint32_t marker_chunk;
+    uint32_t instrument_chunks;
+    uint32_t aes_recording;
+    uint16_t sample_size;
+};
 
 // MARK: - Lua
 
@@ -36,6 +170,7 @@ auto asset::macintosh_sound::enroll_object_api_in_state(const std::shared_ptr<sc
                     .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&) -> void, asset::macintosh_sound::lua_reference>()
                     .addStaticFunction("load", &asset::macintosh_sound::load)
                     .addFunction("play", &asset::macintosh_sound::play)
+                    .addFunction("playWithCompletion", &asset::macintosh_sound::playWithCallback)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -69,29 +204,30 @@ auto asset::macintosh_sound::load(const asset::resource_descriptor::lua_referenc
     return sound;
 }
 
-// MARK: - Destruction
-
-asset::macintosh_sound::~macintosh_sound()
-{
-    if (m_samples) {
-        free(m_samples);
-    }
-}
 
 // MARK: - Playback
 
 auto asset::macintosh_sound::play() -> void
 {
-    if (!m_sound.valid()) {
-        return;
+    if (m_audio_chunk != nullptr) {
+        audio::manager::shared_manager().play(m_audio_chunk, [&]{});
     }
-    audio::manager::shared_manager().play(audio::sound(m_sound));
+}
+
+auto asset::macintosh_sound::playWithCallback(const luabridge::LuaRef& ref) -> void
+{
+    if (m_audio_chunk != nullptr) {
+        audio::manager::shared_manager().play(m_audio_chunk, [&, ref]{
+            ref();
+        });
+    }
 }
 
 // MARK: - Sound Resource Parsing
 
 auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &data) -> bool
 {
+    audio::codec_descriptor descriptor;
     graphite::data::reader r(data);
     auto sound_format = r.read_signed_short();
 
@@ -143,11 +279,10 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
     header.encode = r.read_byte();
     header.base_freq = r.read_byte();
 
-    uint32_t format = 0;
     if (header.encode == standard_header) {
-        format = sound_format_8_bit_offset;
-        m_channels_per_frame = 1;
-        m_packet_count = header.length;
+        descriptor.format_id = sound_format_8_bit_offset;
+        descriptor.channels = 1;
+        descriptor.packet_count = header.length;
     }
     else if (header.encode == extended_header) {
         extended_sound_header ext;
@@ -160,9 +295,9 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         ext.sample_size = r.read_short();
         r.move(14);
 
-        format = ext.sample_size == 8 ? sound_format_8_bit_offset : sound_format_16_bit_be;
-        m_channels_per_frame = header.length;
-        m_packet_count = ext.frame_count;
+        descriptor.format_id = ext.sample_size == 8 ? sound_format_8_bit_offset : sound_format_16_bit_be;
+        descriptor.channels = header.length;
+        descriptor.packet_count = ext.frame_count;
     }
     else if (header.encode == compressed_header) {
         compressed_sound_header cmp;
@@ -180,217 +315,74 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         cmp.sample_size = r.read_short();
 
         if (cmp.compression_id == three_to_one) {
-            format = 'MAC3';
+            descriptor.format_id = 'MAC3';
         }
         else if (cmp.compression_id == six_to_one) {
-            format = 'MAC6';
+            descriptor.format_id = 'MAC6';
         }
         else {
-            format = cmp.format;
+            descriptor.format_id = cmp.format;
         }
 
-        m_channels_per_frame = header.length;
-        m_packet_count = cmp.frame_count;
+        descriptor.channels = header.length;
+        descriptor.packet_count = cmp.frame_count;
     }
     else {
         return false;
     }
 
-    m_sample_rate = static_cast<uint32_t>(static_cast<double>(header.sample_rate_fixed) * 1.0 / static_cast<double>(1 << 16));
-    m_format_id = format;
-    m_format_flags = 0;
+    descriptor.sample_rate = static_cast<uint32_t>(static_cast<double>(header.sample_rate_fixed) * 1.0 / static_cast<double>(1 << 16));
 
-    if (format == sound_format_8_bit_offset || format == sound_format_16_bit_be) {
-        m_format_id = 'lpcm';
-        if (format == sound_format_8_bit_offset) {
-            m_bits_per_channel = 8;
-        }
-        else {
-            m_bits_per_channel = 16;
-            m_format_flags = 0x6; // kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian
-        }
-        m_bytes_per_frame = (m_bits_per_channel >> 3) * m_channels_per_frame;
-        m_frames_per_packet = 1;
-        m_bytes_per_packet = m_bytes_per_frame * m_frames_per_packet;
+    if (descriptor.format_id == sound_format_8_bit_offset || descriptor.format_id == sound_format_16_bit_be) {
+       if (descriptor.format_id == sound_format_8_bit_offset) {
+           descriptor.bit_width = 8;
+       }
+       else {
+           descriptor.bit_width = 16;
+           descriptor.format_flags = 0x6; // kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian
+       }
+       descriptor.format_id = 'lpcm';
+       descriptor.bytes_per_frame = (descriptor.bit_width >> 3) * descriptor.channels;
+       descriptor.frames_per_packet = 1;
+       descriptor.bytes_per_packet = descriptor.bytes_per_frame * descriptor.frames_per_packet;
 
-        auto byte_size = m_packet_count * m_bytes_per_packet;
-        m_samples_size = byte_size;
-        m_samples = malloc(m_samples_size);
-        auto ptr = reinterpret_cast<uint8_t *>(m_samples);
-        for (int i = 0; i < byte_size; ++i) {
+       m_audio_chunk = std::make_shared<audio::chunk>();
+       m_audio_chunk->apply(descriptor);
+       m_audio_chunk->allocate_space(r.size() - r.position());
+       auto ptr = reinterpret_cast<uint8_t *>(m_audio_chunk->internal_data_pointer());
+       for (int i = 0; i < m_audio_chunk->data_size; ++i) {
+           *ptr++ = r.read_byte();
+       }
+    }
+    else if (descriptor.format_id == sound_format_ima4) {
+        // TODO: Do not hard code this, but work out the conversions...
+        descriptor.format_flags = 0;
+        descriptor.bytes_per_packet = 34;
+        descriptor.frames_per_packet = 64;
+        descriptor.bytes_per_frame = 0;
+        descriptor.channels = 1;
+        descriptor.bit_width = 0;
+
+#if __APPLE__
+        m_audio_chunk = std::make_shared<audio::chunk>();
+        m_audio_chunk->apply(descriptor);
+        m_audio_chunk->allocate_space(r.size() - r.position());
+        auto ptr = reinterpret_cast<uint8_t *>(m_audio_chunk->internal_data_pointer());
+        for (int i = 0; i < m_audio_chunk->data_size; ++i) {
             *ptr++ = r.read_byte();
         }
-    }
-    else if (format == sound_format_ima4) {
-        // TODO: Do not hard code this, but work out the conversions...
-        m_format_flags = 0;
-        m_bytes_per_packet = 34;
-        m_frames_per_packet = 64;
-        m_bytes_per_frame = 0;
-        m_channels_per_frame = 1;
-        m_bits_per_channel = 0;
-
-        // Read the data for the IMA4 format, and then decode it in to 16-bit LPCM.
-        auto byte_size = (m_packet_count * (m_bytes_per_packet - 2)) << 2;
-        auto j = 0;
-        m_samples_size = byte_size; // TODO: This is potentially a hack...
-        m_samples = malloc(byte_size);
-        auto ptr = reinterpret_cast<int16_t *>(m_samples);
-
-        // Look Up Tables
-        int32_t ima_index_table[16] = {
-            -1, -1, -1, -1, 2, 4, 6, 8,
-            -1, -1, -1, -1, 2, 4, 6, 8
-        };
-
-        int32_t ima_step_table[89] = {
-            7, 8, 9, 10, 11, 12, 13, 14, 16, 17,
-            19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
-            50, 55, 60, 66, 73, 80, 88, 97, 107, 118,
-            130, 143, 157, 173, 190, 209, 230, 253, 279, 307,
-            337, 371, 408, 449, 494, 544, 598, 658, 724, 796,
-            876, 963, 1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066,
-            2272, 2499, 2749, 3024, 3327, 3660, 4026, 4428, 4871, 5358,
-            5894, 6484, 7132, 7845, 8630, 9493, 10442, 11487, 12635, 13899,
-            15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
-        };
-
-        for (uint32_t n = 0; n < m_packet_count; ++n) {
-            auto preamble = r.read_short();
-            auto packet = r.read_data(m_bytes_per_packet - 2);
-
-            int16_t predictor = preamble & 0xFF80;
-            int16_t step_index = preamble & 0x007F;
-            int16_t step = ima_step_table[step_index];
-
-            for (uint32_t i = 0; i < m_bytes_per_packet - 2; ++i) {
-                uint8_t data = packet->at(i);
-                uint8_t lower_nibble = data & 0x0F;
-                uint8_t upper_nibble = (data & 0xF0) >> 4;
-
-                // decode the lower nibble
-                step_index += ima_index_table[lower_nibble];
-                int16_t sign = lower_nibble & 8;
-                int16_t delta = lower_nibble & 7;
-                int16_t diff = step >> 8;
-                if (delta & 4) diff += step;
-                if (delta & 2) diff += (step >> 1);
-                if (delta & 1) diff += (step >> 2);
-                if (sign) predictor -= diff;
-                else predictor += diff;
-                step = ima_step_table[step_index];
-
-                if (predictor > INT16_MAX) {
-                    *ptr++ = INT16_MAX;
-                    j+=2;
-                }
-                else if (predictor < INT16_MIN) {
-                    *ptr++ = INT16_MIN;
-                    j+=2;
-                }
-                else {
-                    *ptr++ = static_cast<int16_t>(predictor);
-                    j+=2;
-                }
-
-                // decode the upper nibble
-                step_index += ima_index_table[upper_nibble];
-                sign = upper_nibble & 8;
-                delta = upper_nibble & 7;
-                diff = step >> 8;
-                if (delta & 4) diff += step;
-                if (delta & 2) diff += (step >> 1);
-                if (delta & 1) diff += (step >> 2);
-                if (sign) predictor -= diff;
-                else predictor += diff;
-                step = ima_step_table[step_index];
-
-                if (predictor > INT16_MAX) {
-                    *ptr++ = INT16_MAX;
-                    j+=2;
-                }
-                else if (predictor < INT16_MIN) {
-                    *ptr++ = INT16_MIN;
-                    j+=2;
-                }
-                else {
-                    *ptr++ = static_cast<int16_t>(predictor);
-                    j+=2;
-                }
-            }
-        }
-
-        m_bytes_per_packet = 128;
-        m_bits_per_channel = 16;
-        m_frames_per_packet = 1;
-        m_bytes_per_frame = (m_bits_per_channel >> 3) * m_channels_per_frame;
-        m_format_id = 'lpcm';
-        m_format_flags = 0x4; // kAudioFormatFlagIsSignedInteger
-
-        m_sound = audio::sound(m_sample_rate, m_bits_per_channel, m_channels_per_frame);
-        m_sound.add_packet(m_samples, m_samples_size);
-
+#else
+        m_audio_chunk = audio::ima4::decode(descriptor, r);
+#endif
     }
     else {
         // TODO: Handle this correctly...
     }
 
+    m_audio_chunk->format_id = descriptor.format_id;
+    m_audio_chunk->format_flags = descriptor.format_flags;
+
     return true;
 }
 
 // MARK: - Accessors
-
-auto asset::macintosh_sound::raw_data() const -> void *
-{
-    return m_samples;
-}
-
-auto asset::macintosh_sound::raw_data_size() const -> uint32_t
-{
-    return m_samples_size;
-}
-
-auto asset::macintosh_sound::channels() const -> uint32_t
-{
-    return m_channels_per_frame;
-}
-
-auto asset::macintosh_sound::samples() const -> uint32_t
-{
-    return m_packet_count;
-}
-
-auto asset::macintosh_sound::sample_rate() const -> uint32_t
-{
-    return m_sample_rate;
-}
-
-auto asset::macintosh_sound::bits_per_channel() const -> uint32_t
-{
-    return m_bits_per_channel;
-}
-
-auto asset::macintosh_sound::format() const -> uint32_t
-{
-    return m_format_id;
-}
-
-auto asset::macintosh_sound::format_flags() const -> uint32_t
-{
-    return m_format_flags;
-}
-
-auto asset::macintosh_sound::bytes_per_frame() const -> uint32_t
-{
-    return m_bytes_per_frame;
-}
-
-auto asset::macintosh_sound::frames_per_packet() const -> uint32_t
-{
-    return m_frames_per_packet;
-}
-
-auto asset::macintosh_sound::bytes_per_packet() const -> uint32_t
-{
-    return m_bytes_per_packet;
-}

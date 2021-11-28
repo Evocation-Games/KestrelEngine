@@ -5,12 +5,13 @@
 #if !defined(KESTREL_OPENAL_HPP) && !__APPLE__
 #define KESTREL_OPENAL_HPP
 
-#include <AL/al.h>
-#include <AL/alc.h>
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
 #include <string>
 #include <thread>
 #include <memory>
-#include "core/audio/sound.hpp"
+#include <vector>
+#include "core/audio/chunk.hpp"
 
 namespace audio::openal
 {
@@ -23,7 +24,9 @@ namespace audio::openal
             ALuint handle { 0 };
             ALuint source { 0 };
             ALenum format { AL_FORMAT_MONO8 };
-            audio::sound sound;
+            std::shared_ptr<audio::chunk> chunk { nullptr };
+
+            playback_buffer() = default;
         };
 
         player();
@@ -48,7 +51,7 @@ namespace audio::openal
 
         auto configure_devices() -> bool;
 
-        auto play(audio::sound snd) -> bool;
+        auto play(std::shared_ptr<audio::chunk> chunk) -> bool;
 
         static auto check_errors(const std::string& filename, uint_fast32_t line) -> bool;
         static auto check_errors(const std::string& filename, uint_fast32_t line, ALCdevice *dev) -> bool;
