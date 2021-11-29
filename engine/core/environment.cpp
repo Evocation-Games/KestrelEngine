@@ -234,6 +234,9 @@ auto environment::load_data_files(const std::string &path) -> void
                 auto file = std::make_shared<graphite::rsrc::file>(file_path);
                 graphite::rsrc::manager::shared_manager().import_file(file);
             }
+            else if (ends_with(file_path, ".mp3")) {
+                m_audio_files.emplace_back(file_path);
+            }
         }
         closedir(dir);
     }
@@ -327,10 +330,13 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("importScript", &environment::import_script)
             .addFunction("scene", &environment::create_scene)
             .addFunction("scaleFactor", &environment::scale)
+            .addFunction("playAudioFile", &environment::play_audio_file)
+            .addFunction("stopAudioFile", &environment::stop_audio_file)
             .addProperty("fileSystem", &environment::filesystem)
             .addProperty("platform", &environment::platform)
             .addProperty("platformName", &environment::platform_name)
             .addProperty("graphicsLayerName", &environment::gl_name)
+            .addProperty("allAudioFiles", &environment::audio_files)
         .endNamespace();
 }
 
@@ -376,6 +382,33 @@ auto environment::gc_purge() -> void
 auto environment::window() -> std::shared_ptr<graphics::session_window>
 {
     return m_game_window;
+}
+
+// MARK: - Audio
+
+auto environment::all_audio_files() -> util::lua_vector<std::string>
+{
+    return m_audio_files;
+}
+
+auto environment::audio_files() -> util::lua_vector<std::string>
+{
+    if (auto env = active_environment().lock()) {
+        return env->all_audio_files();
+    }
+    else {
+        return {};
+    }
+}
+
+auto environment::play_audio_file(const std::string& file) -> void
+{
+    audio::manager::shared_manager().play_background_audio(file);
+}
+
+auto environment::stop_audio_file() -> void
+{
+    audio::manager::shared_manager().stop_background_audio();
 }
 
 

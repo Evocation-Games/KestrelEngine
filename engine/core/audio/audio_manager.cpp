@@ -66,6 +66,16 @@ auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<aut
     core_audio::play(ref);
 }
 
+auto audio::manager::play_background_audio(const std::string& path) -> void
+{
+    core_audio::play_background_audio(path);
+}
+
+auto audio::manager::stop_background_audio() -> void
+{
+    core_audio::stop_background_audio();
+}
+
 #else
 
 #include "core/audio/openal.hpp"

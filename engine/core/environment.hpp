@@ -28,6 +28,7 @@
 #include "scripting/script.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "util/hint.hpp"
+#include "util/lua_vector.hpp"
 #include "math/size.hpp"
 #include "core/graphics/common/texture.hpp"
 #include "core/asset/cache.hpp"
@@ -55,6 +56,7 @@ private:
     std::string m_kestrel_core_path;
     std::string m_game_data_path;
     std::string m_game_fonts_path;
+    util::lua_vector<std::string> m_audio_files;
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
@@ -79,6 +81,8 @@ private:
 
     auto load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script;
 
+    auto all_audio_files() -> util::lua_vector<std::string>;
+
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
     lua_api static auto import_script(const asset::resource_descriptor::lua_reference& ref) -> void;
@@ -92,6 +96,10 @@ private:
     lua_api static auto platform_name() -> std::string;
 
     lua_api static auto gl_name() -> std::string;
+
+    lua_api static auto audio_files() -> util::lua_vector<std::string>;
+    lua_api static auto play_audio_file(const std::string& file) -> void;
+    lua_api static auto stop_audio_file() -> void;
 
 public:
     environment(int argc, const char **argv);

@@ -2,9 +2,12 @@
 // Created by Tom Hancocks on 23/11/2021.
 //
 
+#if __APPLE__
+
 #include <thread>
 #include <AudioToolbox/AudioToolbox.h>
 #include "core/audio/core_audio.hpp"
+#include "core/support/macos/cocoa/cocoa_utils.h"
 
 static void audioManagerSimpleSoundOutputCallback(void *userData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
 {
@@ -59,3 +62,39 @@ auto audio::core_audio::play(audio::manager::playback_reference *ref) -> void
     AudioQueueStart(queue, nullptr);
     AudioQueueStop(queue, false);
 }
+
+// MARK: - Background Audio
+
+#include <AVFoundation/AVFoundation.h>
+
+static AVAudioPlayer *backgroundAudioPlayer = nil;
+
+auto audio::core_audio::play_background_audio(const std::string& path) -> void
+{
+    if (backgroundAudioPlayer) {
+        [backgroundAudioPlayer stop];
+        [backgroundAudioPlayer release];
+        backgroundAudioPlayer = nil;
+    }
+
+    NSError *err = nil;
+    NSURL *audioFileURL = [NSURL fileURLWithPath:cocoa::string::to(path)];
+    backgroundAudioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:audioFileURL error:&err];
+    if (!backgroundAudioPlayer || err) {
+        [backgroundAudioPlayer release];
+        backgroundAudioPlayer = nil;
+    }
+
+    [backgroundAudioPlayer play];
+}
+
+auto audio::core_audio::stop_background_audio() -> void
+{
+    if (backgroundAudioPlayer) {
+        [backgroundAudioPlayer stop];
+        [backgroundAudioPlayer release];
+        backgroundAudioPlayer = nil;
+    }
+}
+
+#endif

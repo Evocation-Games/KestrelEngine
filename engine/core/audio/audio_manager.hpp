@@ -50,6 +50,9 @@ namespace audio
         auto play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void;
         auto finish_playback(uint64_t playback_id) -> void;
 
+        auto play_background_audio(const std::string& path) -> void;
+        auto stop_background_audio() -> void;
+
     };
 
 }

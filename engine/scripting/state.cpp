@@ -106,6 +106,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     host::directory::enroll_object_api_in_state(shared_from_this());
 
     util::lua_vector<asset::resource_descriptor::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
+    util::lua_vector<std::string>::enroll_object_api_in_state("StringVector", shared_from_this());
 }
 
 

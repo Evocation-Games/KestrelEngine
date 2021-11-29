@@ -160,6 +160,7 @@ elseif(APPLE)
 		"-framework AudioUnit"
 		"-framework AudioToolbox"
 		"-framework CoreFoundation"
+		"-framework AVFoundation"
 		objc
 	)
 endif()
