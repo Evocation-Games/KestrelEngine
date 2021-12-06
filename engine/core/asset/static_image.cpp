@@ -77,7 +77,9 @@ asset::static_image::static_image(const asset::resource_descriptor::lua_referenc
             }
         }
         else if (ref->type == asset::static_image::type) {
-            asset::tga tga(res->data()->get());
+            graphite::data::reader reader(res->data(), graphite::data::msb);
+            auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(reader.size()));
+            asset::tga tga(tga_raw_data);
             if (auto surface = tga.surface().lock()) {
                 configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
                 return;
