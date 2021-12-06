@@ -18,9 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 #include <stdexcept>
-#include <complex>
-#include <codecvt>
 #include "core/graphics/common/font.hpp"
 
 #if __APPLE__
@@ -103,10 +102,9 @@ auto graphics::font::calculate_glyph_width(const FT_UInt &glyph_index, const FT_
     if (error) {
         return 0;
     }
-
     auto advance_x = (static_cast<unsigned int>(m_face->glyph->advance.x) >> 6U);
 
-    if (kerning) {
+    if (FT_HAS_KERNING(m_face) && kerning) {
         if (previous_glyph_index && glyph_index) {
             FT_Vector delta;
             FT_Get_Kerning(m_face, previous_glyph_index, glyph_index, FT_KERNING_DEFAULT, &delta);

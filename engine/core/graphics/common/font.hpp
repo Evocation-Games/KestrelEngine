@@ -33,6 +33,7 @@
 #endif
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
+#include FT_ADVANCES_H
 #include "math/size.hpp"
 #include "math/point.hpp"
 #include "core/graphics/common/color.hpp"
