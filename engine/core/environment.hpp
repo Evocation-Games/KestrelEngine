@@ -55,6 +55,7 @@ private:
     std::shared_ptr<graphics::session_window> m_game_window;
     std::string m_kestrel_core_path;
     std::string m_game_data_path;
+    std::string m_game_mods_path;
     std::string m_game_fonts_path;
     util::lua_vector<std::string> m_audio_files;
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
@@ -72,6 +73,7 @@ private:
 
     auto kestrel_core_path() const -> std::string;
     auto game_data_path() const -> std::string;
+    auto game_mods_path() const -> std::string;
     auto game_fonts_path() const -> std::string;
 
     auto load_kestrel_core() -> void;

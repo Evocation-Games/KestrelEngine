@@ -85,6 +85,18 @@ environment::environment(int argc, const char **argv)
         m_game_data_path = game_data_path();
     }
 
+    if (std::find(m_options.begin(), m_options.end(), "--mods") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--mods") {
+                m_game_mods_path = m_options[++i];
+                break;
+            }
+        }
+    }
+    else {
+        m_game_mods_path = game_mods_path();
+    }
+
     if (std::find(m_options.begin(), m_options.end(), "--fonts") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--fonts") {
@@ -220,6 +232,9 @@ auto environment::load_game_data() -> void
 {
     load_font_files(m_game_fonts_path);
     load_data_files(m_game_data_path);
+
+    // TODO: This should happen later so the mod list can be customised
+    load_data_files(m_game_mods_path);
 }
 
 auto environment::load_data_files(const std::string &path) -> void
@@ -276,6 +291,11 @@ auto environment::game_data_path() const -> std::string
     return cocoa::application::bundle_path() + "/Contents/Resources/DataFiles";
 }
 
+auto environment::game_mods_path() const -> std::string
+{
+    return cocoa::application::bundle_path() + "/Contents/Resources/Mods";
+}
+
 auto environment::game_fonts_path() const -> std::string
 {
     return cocoa::application::bundle_path() + "/Contents/Resources/Fonts";
@@ -293,6 +313,11 @@ auto environment::game_data_path() const -> std::string
     return "DataFiles";
 }
 
+auto environment::game_mods_path() const -> std::string
+{
+    return "Mods";
+}
+
 auto environment::game_fonts_path() const -> std::string
 {
     return "Fonts";
@@ -308,6 +333,11 @@ auto environment::kestrel_core_path() const -> std::string
 auto environment::game_data_path() const -> std::string
 {
     return "DataFiles";
+}
+
+auto environment::game_mods_path() const -> std::string
+{
+    return "Mods";
 }
 
 auto environment::game_fonts_path() const -> std::string
