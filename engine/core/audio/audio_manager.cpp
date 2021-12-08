@@ -85,9 +85,19 @@ auto audio::manager::configure() -> void
     openal::player::global().configure_devices();
 }
 
-auto audio::manager::play(std::shared_ptr<audio::chunk> chunk) -> void
+auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
 {
     openal::player::global().play(std::move(chunk));
+}
+
+auto audio::manager::play_background_audio(const std::string& path) -> void
+{
+
+}
+
+auto audio::manager::stop_background_audio() -> void
+{
+
 }
 
 #endif

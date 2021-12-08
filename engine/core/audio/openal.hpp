@@ -5,8 +5,8 @@
 #if !defined(KESTREL_OPENAL_HPP) && !__APPLE__
 #define KESTREL_OPENAL_HPP
 
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <string>
 #include <thread>
 #include <memory>

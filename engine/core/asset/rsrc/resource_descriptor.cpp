@@ -413,7 +413,7 @@ auto asset::resource_descriptor::best_resource() -> lua_reference
 {
     resolve();
     if (m_variant == variant::resolved) {
-
+        return lua_reference();
     }
     else if (m_resolved_resources.size() > 0) {
         return m_resolved_resources.at(0);

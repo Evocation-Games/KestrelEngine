@@ -6,7 +6,7 @@
 
 // MARK: - IMA4 LUTs
 
-static constexpr int32_t ima4_index_table[16] = {
+static constexpr int8_t ima4_index_table[16] = {
     -1, -1, -1, -1, 2, 4, 6, 8,
     -1, -1, -1, -1, 2, 4, 6, 8
 };
@@ -44,64 +44,49 @@ auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::da
         auto preamble = r.read_short();
         auto packet = r.read_data(chunk->bytes_per_packet - 2);
 
-        int32_t predictor = preamble & 0xFF80;
-        int32_t step_index = preamble & 0x007F;
-        int16_t step = ima4_step_table[step_index];
+        int32_t predictor = (int32_t)((int16_t)(preamble & 0xFF80));
+        int8_t step_index = (int8_t)(preamble & 0x007F);
+        int32_t step = ima4_step_table[step_index];
+        uint8_t nibble = 0;
+        int32_t diff = 0;
 
-        for (uint32_t i = 0; i < descriptor.bytes_per_packet - 2; ++i) {
+        for (uint32_t i = 0; i < packet->size(); ++i) {
             uint8_t data = packet->at(i);
-            uint8_t lower_nibble = data & 0x0F;
-            uint8_t upper_nibble = (data & 0xF0) >> 4;
 
-            // decode the lower nibble
-            step_index += ima4_index_table[lower_nibble];
-            int16_t sign = lower_nibble & 0x8;
-            int16_t delta = lower_nibble & 0x7;
-            int16_t diff = step >> 8;
-            if (delta & 0x4) diff += step;
-            if (delta & 0x2) diff += (step >> 1);
-            if (delta & 0x1) diff += (step >> 2);
+            nibble = data & 0xF;
+            step_index = std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));
+            uint8_t sign = nibble & 8;
+            uint8_t delta = nibble & 7;
+            diff = (int32_t)(step >> 3);
+            if (delta & 4) diff += step;
+            if (delta & 2) diff += (step >> 1);
+            if (delta & 1) diff += (step >> 2);
             if (sign) predictor -= diff;
             else predictor += diff;
+            predictor = std::min(INT16_MAX, std::max(INT16_MIN, predictor));
+            *out++ = (int16_t)predictor;
             step = ima4_step_table[step_index];
 
-            if (predictor > INT16_MAX) {
-                *out++ = INT16_MAX;
-            }
-            else if (predictor < INT16_MIN) {
-                *out++ = INT16_MIN;
-            }
-            else {
-                *out++ = static_cast<int16_t>(predictor);
-            }
-
-            // decode the lower nibble
-            step_index += ima4_index_table[upper_nibble];
-            sign = lower_nibble & 0x8;
-            delta = lower_nibble & 0x7;
-            diff = step >> 8;
-            if (delta & 0x4) diff += step;
-            if (delta & 0x2) diff += (step >> 1);
-            if (delta & 0x1) diff += (step >> 2);
+            nibble = (data >> 4) & 0xF;
+            step_index = std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));
+            sign = nibble & 8;
+            delta = nibble & 7;
+            diff = (int32_t)(step >> 3);
+            if (delta & 4) diff += step;
+            if (delta & 2) diff += (step >> 1);
+            if (delta & 1) diff += (step >> 2);
             if (sign) predictor -= diff;
             else predictor += diff;
+            predictor = std::min(INT16_MAX, std::max(INT16_MIN, predictor));
+            *out++ = (int16_t)predictor;
             step = ima4_step_table[step_index];
 
-            if (predictor > INT16_MAX) {
-                *out++ = INT16_MAX;
-            }
-            else if (predictor < INT16_MIN) {
-                *out++ = INT16_MIN;
-            }
-            else {
-                *out++ = static_cast<int16_t>(predictor);
-            }
         }
     }
 
     chunk->bytes_per_packet = 128;
     chunk->bit_width = 16;
-    chunk->frames_per_packet = 1;
+    chunk->frames_per_packet = chunk->channels;
     chunk->bytes_per_frame = (chunk->bit_width >> 3) * chunk->channels;
     chunk->format_id = 'lpcm';
     chunk->format_flags = 0x4;
