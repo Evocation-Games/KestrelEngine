@@ -30,7 +30,7 @@
 // MARK: - Construction
 
 graphics::opengl::session_window::session_window(std::shared_ptr<environment> env, const double& scale, const bool& fullscreen)
-    : graphics::session_window(std::move(env), scale)
+    : graphics::session_window(std::move(env), 1)
 {
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialise OpenGL. Unable to proceed.");
@@ -54,9 +54,9 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
     });
 
     GLFWmonitor *primary_monitor = glfwGetPrimaryMonitor();
-    double highDPIScaleFactor = scale;
+    double highDPIScaleFactor = 1;
 #if __APPLE__
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
 #else
     float x_scale, y_scale;
     glfwGetMonitorContentScale(primary_monitor, &x_scale, & y_scale);
@@ -161,8 +161,8 @@ graphics::opengl::session_window::session_window(std::shared_ptr<environment> en
 
 auto graphics::opengl::session_window::configure_viewport(GLdouble width, GLdouble height) -> void
 {
-    glViewport(0, 0, width * m_scale, height * m_scale);
-    glm::mat4 projection = glm::ortho(0.0, width * m_scale, height * m_scale, 0.0, -1.0, 0.0);
+    glViewport(0, 0, width, height);
+    glm::mat4 projection = glm::ortho(0.0, width, height, 0.0, -1.0, 0.0);
 
     auto shader = std::static_pointer_cast<opengl::shader>(m_sprite_shader);
     shader->set_mat4("projection", projection);
@@ -176,7 +176,7 @@ auto graphics::opengl::session_window::set_title(const std::string& title) -> vo
 
 auto graphics::opengl::session_window::set_size(const math::size& size) -> void
 {
-    glfwSetWindowSize(m_window, static_cast<int>(size.width * m_scale), static_cast<int>(size.height * m_scale));
+    glfwSetWindowSize(m_window, static_cast<int>(size.width), static_cast<int>(size.height));
     configure_viewport(size.width, size.height);
 }
 

@@ -42,7 +42,7 @@ vertex rasterizer_data vertexShader(
 
     auto scale = vertex_array[vertex_id].scale;
     float2 viewport_size = float2(*viewport_size_pointer);
-    float2 pixel_space_position = floor(vertex_array[vertex_id].position.xy / scale);
+    float2 pixel_space_position = floor(vertex_array[vertex_id].position.xy * scale);
     float2 inverse_size(1.0f / viewport_size.x, 1.0f / viewport_size.y);
     float clip_x = (2.0f * pixel_space_position.x * inverse_size.x) - 1.0f;
     float clip_y = (2.0f * -pixel_space_position.y * inverse_size.y) + 1.0f;

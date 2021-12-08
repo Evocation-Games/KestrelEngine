@@ -61,16 +61,11 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
 
 graphics::canvas::canvas(const math::size& size)
     : m_size(std::round(size.width), std::round(size.height)),
-      m_true_scale(environment::active_environment().lock()->window()->get_scale_factor()),
-      m_scale(m_true_scale),
+      m_scale(environment::active_environment().lock()->window()->get_scale_factor()),
       m_scaled_size(m_size * m_scale),
       m_rgba_buffer(m_scaled_size),
       m_pen_color(graphics::color::white_color()),
-      m_typesetter("", m_scale),
-      m_left(math::point(0), math::point(0, m_scaled_size.height)),
-      m_top(math::point(0), math::point(m_scaled_size.width, 0)),
-      m_right(math::point(m_scaled_size.width, 0), math::point(m_scaled_size.width, m_scaled_size.height)),
-      m_bottom(math::point(0, m_scaled_size.height), math::point(m_scaled_size.width, m_scaled_size.height))
+      m_typesetter("", m_scale)
 {
 
 }
@@ -115,6 +110,7 @@ auto graphics::canvas::rebuild_texture() -> void
 
         auto tex = env->create_texture(m_scaled_size, raw());
         m_entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
+        m_entity->set_render_size(m_size);
     }
 }
 
@@ -127,7 +123,7 @@ auto graphics::canvas::spawn_entity(const math::vector &position) -> graphics::e
         auto entity = graphics::entity::lua_reference(new graphics::entity(m_size));
         entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
         entity->set_position(position);
-        entity->set_render_size(m_size * m_true_scale);
+        entity->set_render_size(m_size);
 
         return (m_entity = entity);
     }
@@ -178,10 +174,10 @@ auto graphics::canvas::fill_rect(const math::rect &r) -> void
 
 auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq, const double& thickness) -> void
 {
-    auto x0 = static_cast<long>(floor(pp.x));
-    auto y0 = static_cast<long>(floor(pp.y));
-    auto x1 = static_cast<long>(floor(qq.x));
-    auto y1 = static_cast<long>(floor(qq.y));
+    auto x0 = static_cast<long>(floor(pp.x * m_scale));
+    auto y0 = static_cast<long>(floor(pp.y * m_scale));
+    auto x1 = static_cast<long>(floor(qq.x * m_scale));
+    auto y1 = static_cast<long>(floor(qq.y * m_scale));
 
     long dx = std::abs(x1 - x0);
     long dy = std::abs(y1 - y0);
@@ -194,7 +190,7 @@ auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq, c
     long y2 = 0;
 
     auto ed = dx + dy == 0 ? 1 : std::sqrt((dx * dx) + (dy * dy));
-    auto wd = thickness;
+    auto wd = thickness * m_scale;
 
     auto set_pixel = [this] (const long& x, const long& y, const double& intensity) {
         m_rgba_buffer.draw_pixel(
