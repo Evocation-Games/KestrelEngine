@@ -55,6 +55,9 @@ namespace audio::openal
 
         static auto check_errors(const std::string& filename, uint_fast32_t line) -> bool;
         static auto check_errors(const std::string& filename, uint_fast32_t line, ALCdevice *dev) -> bool;
+
+        auto play_background_audio(const std::string& path) -> void;
+        auto stop_background_audio() -> void;
     };
 
 }

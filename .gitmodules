@@ -19,3 +19,6 @@
 [submodule "submodules/PortAudio"]
 	path = submodules/PortAudio
 	url = https://github.com/PortAudio/portaudio/
+[submodule "submodules/minimp3"]
+	path = submodules/minimp3
+	url = https://github.com/lieff/minimp3

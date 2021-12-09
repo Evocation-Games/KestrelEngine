@@ -4,9 +4,13 @@
 
 #if !__APPLE__
 
-#include <unistd.h>
 #include <iostream>
 #include "core/audio/openal.hpp"
+
+#define MINIMP3_ONLY_MP3
+#define MINIMP3_IMPLEMENTATION
+#include <minimp3/minimp3.h>
+#include <minimp3/minimp3_ex.h>
 
 // MARK : - Singleton
 
@@ -205,6 +209,33 @@ auto audio::openal::player::play(std::shared_ptr<audio::chunk> chunk) -> bool
 }
 
 auto audio::openal::player::playback_loop() -> void
+{
+
+}
+
+// MARK: - Audio Files / MP3
+
+auto audio::openal::player::play_background_audio(const std::string& path) -> void
+{
+    // TODO: Make sure there isn't already a background audio task running...
+
+    mp3dec_t mp3d;
+    mp3dec_file_info_t info;
+    if (mp3dec_load(&mp3d, path.c_str(), &info, nullptr, nullptr)) {
+        // TODO: Handle error case...
+        return;
+    }
+
+    auto chunk = std::make_shared<audio::chunk>();
+    chunk->channels = info.channels;
+    chunk->bit_width = 16;
+    chunk->data_size = info.samples;
+    chunk->data = info.buffer;
+    chunk->sample_rate = info.hz;
+    play(chunk);
+}
+
+auto audio::openal::player::stop_background_audio() -> void
 {
 
 }
