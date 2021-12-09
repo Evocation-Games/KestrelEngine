@@ -22,9 +22,9 @@
 #define AUDIO_MANAGER_HPP
 
 #include <vector>
+#include <complex>
 #include <functional>
 #include <libGraphite/data/reader.hpp>
-#include "core/audio/sound.hpp"
 #include "core/audio/chunk.hpp"
 #include "core/audio/audio_codec_descriptor.hpp"
 
@@ -37,16 +37,28 @@ namespace audio
         struct playback_reference
         {
             uint64_t id;
+            uint64_t duration_ms;
             std::shared_ptr<audio::chunk> chunk;
             std::function<auto()->void> completion_callback;
             bool finished;
 
             playback_reference(uint64_t id, std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion_callback)
-                : id(id), chunk(std::move(chunk)), completion_callback(std::move(completion_callback)), finished(false) {};
+                : id(id), chunk(std::move(chunk)), completion_callback(std::move(completion_callback)), finished(false)
+            {
+                double duration = ((static_cast<double>(this->chunk->data_size) / (this->chunk->bit_width >> 3)) / this->chunk->sample_rate);
+                this->duration_ms = static_cast<uint64_t>(std::round(duration * 1000));
+            };
         };
 
     private:
         manager() = default;
+
+#if __APPLE__
+        bool m_use_openal { false };
+#else
+        bool m_use_openal { true };
+#endif
+
         uint64_t m_next_ref_id { 1 };
         std::vector<playback_reference> m_playback_refs;
 
@@ -59,6 +71,9 @@ namespace audio
         manager & operator=(manager &&) = delete;
 
         static auto shared_manager() -> manager&;
+
+        auto set_openal(bool al = true) -> void;
+        auto using_openal() const -> bool;
 
         auto configure() -> void;
         auto monitor_finished_playbacks() -> void;

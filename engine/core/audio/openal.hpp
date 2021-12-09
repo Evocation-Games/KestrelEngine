@@ -34,6 +34,7 @@
 #include <memory>
 #include <vector>
 #include "core/audio/chunk.hpp"
+#include "core/audio/audio_manager.hpp"
 
 namespace audio::openal
 {
@@ -59,9 +60,6 @@ namespace audio::openal
         ALCdevice *m_device { nullptr };
         ALCboolean m_context_current { false };
         std::vector<std::unique_ptr<playback_buffer>> m_buffers;
-        std::unique_ptr<std::thread> m_playback_thread;
-
-        auto playback_loop() -> void;
 
     public:
         player(const player&) = delete;
@@ -73,7 +71,7 @@ namespace audio::openal
 
         auto configure_devices() -> bool;
 
-        auto play(std::shared_ptr<audio::chunk> chunk) -> bool;
+        auto play(audio::manager::playback_reference *ref) -> void;
 
         static auto check_errors(const std::string& filename, uint_fast32_t line) -> bool;
         static auto check_errors(const std::string& filename, uint_fast32_t line, ALCdevice *dev) -> bool;

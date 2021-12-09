@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <thread>
 #include <algorithm>
 #include <utility>
 #include "core/audio/audio_manager.hpp"
@@ -68,52 +67,56 @@ auto audio::manager::finish_playback(uint64_t playback_id) -> void
 // MARK: - Configuration
 
 #if __APPLE__
+#   include "core/audio/core_audio.hpp"
+#endif
 
-#include "core/audio/core_audio.hpp"
 #include "core/audio/openal.hpp"
+
+auto audio::manager::set_openal(bool al) -> void
+{
+    m_use_openal = al;
+}
+
+auto audio::manager::using_openal() const -> bool
+{
+    return m_use_openal;
+}
 
 auto audio::manager::configure() -> void
 {
+    if (m_use_openal) {
+        openal::player::global().configure_devices();
+    }
 }
 
 auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
 {
     auto ref = construct_playback_reference(std::move(chunk), std::move(completion));
-    core_audio::play(ref);
+    if (m_use_openal) {
+        openal::player::global().play(ref);
+    }
+    else {
+        core_audio::play(ref);
+    }
+
 }
 
 auto audio::manager::play_background_audio(const std::string& path) -> void
 {
-    core_audio::play_background_audio(path);
+    if (m_use_openal) {
+        openal::player::global().play_background_audio(path);
+    }
+    else {
+        core_audio::play_background_audio(path);
+    }
 }
 
 auto audio::manager::stop_background_audio() -> void
 {
-    core_audio::stop_background_audio();
+    if (m_use_openal) {
+        openal::player::global().stop_background_audio();
+    }
+    else {
+        core_audio::stop_background_audio();
+    }
 }
-
-#else
-
-#include "core/audio/openal.hpp"
-
-auto audio::manager::configure() -> void
-{
-    openal::player::global().configure_devices();
-}
-
-auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
-{
-    openal::player::global().play(std::move(chunk));
-}
-
-auto audio::manager::play_background_audio(const std::string& path) -> void
-{   openal::player::global().play_background_audio(path);
-
-}
-
-auto audio::manager::stop_background_audio() -> void
-{
-    openal::player::global().stop_background_audio();
-}
-
-#endif

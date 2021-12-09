@@ -18,8 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !__APPLE__
-
 #include <iostream>
 #include "core/audio/openal.hpp"
 
@@ -38,9 +36,7 @@ auto audio::openal::player::global() -> player &
 
 audio::openal::player::player()
 {
-    m_playback_thread = std::make_unique<std::thread>([&] {
-        this->playback_loop();
-    });
+
 }
 
 // MARK: - Templates / Helpers
@@ -180,8 +176,13 @@ auto audio::openal::player::check_errors(const std::string& filename, uint_fast3
 
 // MARK: - Playback
 
-auto audio::openal::player::play(std::shared_ptr<audio::chunk> chunk) -> bool
+auto audio::openal::player::play(audio::manager::playback_reference *ref) -> void
 {
+    if (ref == nullptr) {
+        return;
+    }
+
+    const auto& chunk = ref->chunk;
     auto pb = std::make_unique<playback_buffer>();
     pb->chunk = chunk;
 
@@ -199,7 +200,7 @@ auto audio::openal::player::play(std::shared_ptr<audio::chunk> chunk) -> bool
         pb->format = AL_FORMAT_STEREO16;
     }
     else {
-        return false;
+        return;
     }
 
     openal_do(alGenBuffers, 1, &pb->handle);
@@ -221,12 +222,7 @@ auto audio::openal::player::play(std::shared_ptr<audio::chunk> chunk) -> bool
     // inject the playback packet into the queue.
     m_buffers.emplace_back(std::move(pb));
 
-    return true;
-}
-
-auto audio::openal::player::playback_loop() -> void
-{
-
+    return;
 }
 
 // MARK: - Audio Files / MP3
@@ -248,12 +244,13 @@ auto audio::openal::player::play_background_audio(const std::string& path) -> vo
     chunk->data_size = info.samples;
     chunk->data = info.buffer;
     chunk->sample_rate = info.hz;
-    play(chunk);
+
+    audio::manager::shared_manager().play(chunk, [&] {
+        // Completion here...
+    });
 }
 
 auto audio::openal::player::stop_background_audio() -> void
 {
 
 }
-
-#endif

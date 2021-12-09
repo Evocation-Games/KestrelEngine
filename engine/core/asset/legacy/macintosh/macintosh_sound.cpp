@@ -363,17 +363,18 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         descriptor.channels = 1;
         descriptor.bit_width = 0;
 
-#if __APPLE__
-        m_audio_chunk = std::make_shared<audio::chunk>();
-        m_audio_chunk->apply(descriptor);
-        m_audio_chunk->allocate_space(r.size() - r.position());
-        auto ptr = reinterpret_cast<uint8_t *>(m_audio_chunk->internal_data_pointer());
-        for (int i = 0; i < m_audio_chunk->data_size; ++i) {
-            *ptr++ = r.read_byte();
+        if (audio::manager::shared_manager().using_openal()) {
+            m_audio_chunk = audio::ima4::decode(descriptor, r);
         }
-#else
-        m_audio_chunk = audio::ima4::decode(descriptor, r);
-#endif
+        else {
+            m_audio_chunk = std::make_shared<audio::chunk>();
+            m_audio_chunk->apply(descriptor);
+            m_audio_chunk->allocate_space(r.size() - r.position());
+            auto ptr = reinterpret_cast<uint8_t *>(m_audio_chunk->internal_data_pointer());
+            for (int i = 0; i < m_audio_chunk->data_size; ++i) {
+                *ptr++ = r.read_byte();
+            }
+        }
     }
     else {
         // TODO: Handle this correctly...

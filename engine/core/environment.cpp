@@ -194,6 +194,11 @@ auto environment::launch() -> int
         scale = cocoa::application::screen_scale_factor();
     }
 
+    // Check if we're being forced to open the game using OpenAL rather than CoreAudio
+    if (std::find(m_options.begin(), m_options.end(), "--openal") != m_options.end()) {
+        audio::manager::shared_manager().set_openal();
+    }
+
     // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
     // metal check.
     if (std::find(m_options.begin(), m_options.end(), "--opengl") != m_options.end()) {

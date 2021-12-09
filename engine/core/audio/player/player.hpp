@@ -18,49 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SOUND_HPP)
-#define KESTREL_SOUND_HPP
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
 
-#include <cstdint>
 #include <vector>
+#include <memory>
+#include <functional>
+#include "core/audio/player/player_item.hpp"
 
 namespace audio
 {
-    class sound
+    typedef uint64_t playback_session_ref;
+
+    template<typename player_info>
+    struct playback_session
     {
-    public:
-        struct packet
-        {
-            uint32_t sample_rate;
-            uint8_t channels;
-            uint8_t bits;
-            void *bytes;
-            uint32_t length;
+        playback_session_ref handle;
+        std::shared_ptr<audio::player_item> item;
+        std::function<auto()->void> playback_finished;
+        player_info info;
 
-            packet(uint32_t sample_rate, uint8_t channels, uint8_t bits, const void *bytes, uint32_t length);
-            ~packet();
-        };
-
-    private:
-        std::vector<packet> m_packets;
-        uint32_t m_sample_rate { 0 };
-        uint8_t m_sample_size { 0 };
-        uint8_t m_channels { 0 };
-        uint32_t m_playback_packet_idx { 0 };
-
-    public:
-        sound() = default;
-        sound(sound&);
-        sound(uint32_t sample_rate, uint8_t sample_size, uint8_t channels);
-        auto add_packet(const void *bytes, uint32_t length) -> void;
-
-        auto valid() const -> bool;
-
-        auto reset_playback() -> void;
-        auto playback_current_packet_idx() const -> uint32_t;
-        auto playback_current_packet() const -> const packet&;
-        auto playback_consume_packet() -> const packet&;
+        playback_session(uint64_t handle, std::shared_ptr<audio::player_item> item, player_info info, std::function<auto()->void> playback_finished)
+            : handle(handle), item(std::move(item)), info(std::move(info)), playback_finished(std::move(playback_finished)) {}
     };
+
+    template<typename player_info>
+    class player
+    {
+    private:
+        playback_session_ref m_next_handle { 0 };
+        std::vector<audio::playback_session<player_info>> m_playback_sessions;
+
+    public:
+        player() = default;
+
+        auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref;
+        auto stop(const playback_session_ref& ref, bool no_finish = true) -> void;
+
+    };
+
 }
 
-#endif //KESTREL_SOUND_HPP
+
+#endif //PLAYER_HPP
