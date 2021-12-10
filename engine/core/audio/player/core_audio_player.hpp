@@ -23,17 +23,30 @@
 
 #include "core/audio/player/player.hpp"
 
+#if __APPLE__
+#   include <AudioToolbox/AudioToolbox.h>
+#endif
+
 namespace audio::core_audio
 {
 
     struct playback_session_info
     {
-
+#if __APPLE__
+        AudioStreamBasicDescription stream_desc { 0 };
+        AudioQueueRef queue { nullptr };
+        AudioQueueBufferRef buffer { nullptr };
+#endif
     };
 
     class player : public audio::player<playback_session_info>
     {
+    public:
+        auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref override;
+        auto stop(const playback_session_ref& ref) -> void override;
 
+        auto acquire_player_info() -> playback_session_info override;
+        auto configure_playback_session(std::shared_ptr<audio::playback_session<playback_session_info>> session) -> void override;
     };
 
 }

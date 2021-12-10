@@ -30,93 +30,67 @@ auto audio::manager::shared_manager() -> manager &
     return instance;
 }
 
-auto audio::manager::construct_playback_reference(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> playback_reference *
-{
-    playback_reference ref(m_next_ref_id++, std::move(chunk), std::move(completion));
-    m_playback_refs.emplace_back(ref);
-    return &m_playback_refs.back();
-}
+// MARK: - Library Management
 
-auto audio::manager::monitor_finished_playbacks() -> void
+auto audio::manager::set_library(library lib) -> void
 {
-    if (m_playback_refs.empty()) {
+    if (lib == m_library) {
         return;
     }
 
-    m_playback_refs.erase(std::remove_if(m_playback_refs.begin(), m_playback_refs.end(), [](const playback_reference& ref) {
-        if (ref.finished) {
-            ref.completion_callback();
-            return true;
+    // Release the previous player
+    m_core_audio.reset();
+
+    // Assign the player...
+    m_library = lib;
+    switch (m_library) {
+        case library::core_audio: {
+            m_core_audio = std::make_shared<audio::core_audio::player>();
+            m_core_audio->configure();
+            break;
         }
-        else {
-            return false;
+        case library::openal: {
+            m_openal = std::make_shared<audio::openal::player>();
+            m_openal->configure();
+            break;
         }
-    }), m_playback_refs.end());
+        case library::none: {
+            break;
+        }
+    }
 }
 
-auto audio::manager::finish_playback(uint64_t playback_id) -> void
+auto audio::manager::current_library() const -> library
 {
-    for (auto& ref : m_playback_refs) {
-        if (ref.id == playback_id) {
-            ref.finished = true;
+    return m_library;
+}
+
+// MARK: - Playback
+
+auto audio::manager::play_item(std::shared_ptr<player_item> item, std::function<auto()->void> completion) -> playback_session_ref
+{
+    switch (m_library) {
+        case library::core_audio:
+            return m_core_audio->play(std::move(item), std::move(completion));
+
+        case library::openal:
+            return m_openal->play(std::move(item), std::move(completion));
+
+        default:
+            return 0;
+    }
+}
+
+auto audio::manager::stop_item(const audio::playback_session_ref& ref) -> void
+{
+    switch (m_library) {
+        case library::core_audio:
+            return m_core_audio->stop(ref);
+
+        case library::openal:
+            return m_openal->stop(ref);
+
+        default:
             return;
-        }
-    }
-}
-
-// MARK: - Configuration
-
-#if __APPLE__
-#   include "core/audio/core_audio.hpp"
-#endif
-
-#include "core/audio/openal.hpp"
-
-auto audio::manager::set_openal(bool al) -> void
-{
-    m_use_openal = al;
-}
-
-auto audio::manager::using_openal() const -> bool
-{
-    return m_use_openal;
-}
-
-auto audio::manager::configure() -> void
-{
-    if (m_use_openal) {
-        openal::player::global().configure_devices();
-    }
-}
-
-auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
-{
-    auto ref = construct_playback_reference(std::move(chunk), std::move(completion));
-    if (m_use_openal) {
-        openal::player::global().play(ref);
-    }
-    else {
-        core_audio::play(ref);
-    }
-
-}
-
-auto audio::manager::play_background_audio(const std::string& path) -> void
-{
-    if (m_use_openal) {
-        openal::player::global().play_background_audio(path);
-    }
-    else {
-        core_audio::play_background_audio(path);
-    }
-}
-
-auto audio::manager::stop_background_audio() -> void
-{
-    if (m_use_openal) {
-        openal::player::global().stop_background_audio();
-    }
-    else {
-        core_audio::stop_background_audio();
     }
 }

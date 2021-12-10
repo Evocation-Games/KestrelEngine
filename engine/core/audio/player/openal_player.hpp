@@ -18,14 +18,52 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef OPENAL_PLAYER_HPP
+#if !defined(OPENAL_PLAYER_HPP)
 #define OPENAL_PLAYER_HPP
 
+#if __APPLE__
+#   include <OpenAL/al.h>
+#   include <OpenAL/alc.h>
+#else
+#   include <AL/al.h>
+#   include <AL/alc.h>
+#endif
 
-class openal_player
+#include "core/audio/player/player.hpp"
+
+namespace audio::openal
 {
 
-};
+    struct playback_session_info
+    {
+        ALuint handle { 0 };
+        ALuint source { 0 };
+        ALenum format { AL_FORMAT_MONO8 };
+    };
+
+    class player : public audio::player<playback_session_info>
+    {
+    private:
+        ALCcontext *m_context { nullptr };
+        ALCdevice *m_device { nullptr };
+        ALCboolean m_context_current { false };
+        bool m_configured { false };
+
+    public:
+        auto configure() -> void override;
+
+        auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref override;
+        auto stop(const playback_session_ref& ref) -> void override;
+
+        auto acquire_player_info() -> playback_session_info override;
+        auto configure_playback_session(std::shared_ptr<audio::playback_session<playback_session_info>> session) -> void override;
+
+        static auto check_errors(const std::string& filename, uint_fast32_t line) -> bool;
+        static auto check_errors(const std::string& filename, uint_fast32_t line, ALCdevice *dev) -> bool;
+
+    };
+
+}
 
 
 #endif //OPENAL_PLAYER_HPP

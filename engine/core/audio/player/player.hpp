@@ -18,11 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef PLAYER_HPP
+#if! defined(PLAYER_HPP)
 #define PLAYER_HPP
 
 #include <vector>
 #include <memory>
+#include <stdexcept>
 #include <functional>
 #include "core/audio/player/player_item.hpp"
 
@@ -33,31 +34,72 @@ namespace audio
     template<typename player_info>
     struct playback_session
     {
-        playback_session_ref handle;
+        playback_session_ref ref;
         std::shared_ptr<audio::player_item> item;
         std::function<auto()->void> playback_finished;
         player_info info;
 
-        playback_session(uint64_t handle, std::shared_ptr<audio::player_item> item, player_info info, std::function<auto()->void> playback_finished)
-            : handle(handle), item(std::move(item)), info(std::move(info)), playback_finished(std::move(playback_finished)) {}
+        playback_session(playback_session_ref ref, std::shared_ptr<audio::player_item> item, player_info info, std::function<auto()->void> playback_finished)
+            : ref(ref), item(std::move(item)), info(std::move(info)), playback_finished(std::move(playback_finished)) {}
+
+        auto finish() -> void { playback_finished(); }
     };
 
     template<typename player_info>
     class player
     {
     private:
-        playback_session_ref m_next_handle { 0 };
-        std::vector<audio::playback_session<player_info>> m_playback_sessions;
+        playback_session_ref m_cur_ref { 0 };
+        std::vector<std::shared_ptr<audio::playback_session<player_info>>> m_playback_sessions;
+
+        auto next_session_ref() -> playback_session_ref
+        {
+            return (++m_cur_ref);
+        }
 
     public:
         player() = default;
 
-        auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref;
-        auto stop(const playback_session_ref& ref, bool no_finish = true) -> void;
+        virtual auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref
+        {
+            auto session = std::make_shared<audio::playback_session<player_info>>(
+                    next_session_ref(), std::move(item), std::move(acquire_player_info()), std::move(finished)
+            );
 
+            configure_playback_session(session);
+            m_playback_sessions.template emplace_back(session);
+
+            return session->ref;
+        }
+
+        virtual auto stop(const playback_session_ref& ref) -> void
+        {
+
+        }
+
+        virtual auto configure() -> void {}
+
+        virtual auto acquire_player_info() -> player_info
+        {
+            throw std::runtime_error("This method must be implemented by a subclass.");
+        }
+
+        virtual auto configure_playback_session(std::shared_ptr<audio::playback_session<player_info>> session) -> void
+        {
+            throw std::runtime_error("This method must be implemented by a subclass.");
+        }
+
+        virtual auto playback_session(playback_session_ref ref) const -> std::shared_ptr<audio::playback_session<player_info>>
+        {
+            for (const auto& session : m_playback_sessions) {
+                if (session->ref == ref) {
+                    return session;
+                }
+            }
+            return nullptr;
+        }
     };
 
 }
-
 
 #endif //PLAYER_HPP

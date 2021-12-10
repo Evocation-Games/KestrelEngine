@@ -89,8 +89,6 @@ auto graphics::session_window::update() -> void
              env->gc_purge();
         }
     }
-
-    audio::manager::shared_manager().monitor_finished_playbacks();
 }
 
 auto graphics::session_window::render() -> void

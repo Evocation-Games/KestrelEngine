@@ -47,6 +47,7 @@
 #include "core/file/filesystem.hpp"
 #include "core/file/file.hpp"
 #include "core/file/directory.hpp"
+#include "core/audio/codec/mp3.hpp"
 
 // MARK: - Construction
 
@@ -104,6 +105,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     host::filesystem::enroll_object_api_in_state(shared_from_this());
     host::file::enroll_object_api_in_state(shared_from_this());
     host::directory::enroll_object_api_in_state(shared_from_this());
+
+    audio::asset::mp3::enroll_object_api_in_state(shared_from_this());
 
     util::lua_vector<asset::resource_descriptor::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
     util::lua_vector<std::string>::enroll_object_api_in_state("StringVector", shared_from_this());

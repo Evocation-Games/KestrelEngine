@@ -24,7 +24,7 @@
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 #include "core/audio/audio_manager.hpp"
-#include "core/audio/audio_codec_descriptor.hpp"
+#include "engine/core/audio/codec/audio_codec_descriptor.hpp"
 #include "core/audio/codec/ima4.hpp"
 
 // MARK: - Constants
@@ -209,17 +209,27 @@ auto asset::macintosh_sound::load(const asset::resource_descriptor::lua_referenc
 
 auto asset::macintosh_sound::play() -> void
 {
-    if (m_audio_chunk != nullptr) {
-        audio::manager::shared_manager().play(m_audio_chunk, [&]{});
+    if (m_item != nullptr) {
+        m_item_reference = audio::manager::shared_manager().play_item(m_item, [&] {
+            this->m_item_reference = 0;
+        });
     }
 }
 
 auto asset::macintosh_sound::playWithCallback(const luabridge::LuaRef& ref) -> void
 {
-    if (m_audio_chunk != nullptr) {
-        audio::manager::shared_manager().play(m_audio_chunk, [&, ref]{
+    if (m_item != nullptr) {
+        m_item_reference = audio::manager::shared_manager().play_item(m_item, [&, ref] {
+            this->m_item_reference = 0;
             ref();
         });
+    }
+}
+
+auto asset::macintosh_sound::stop() -> void
+{
+    if (m_item != nullptr) {
+        audio::manager::shared_manager().stop_item(m_item_reference);
     }
 }
 
@@ -346,13 +356,12 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
        descriptor.frames_per_packet = 1;
        descriptor.bytes_per_packet = descriptor.bytes_per_frame * descriptor.frames_per_packet;
 
-       m_audio_chunk = std::make_shared<audio::chunk>();
-       m_audio_chunk->apply(descriptor);
-       m_audio_chunk->allocate_space(r.size() - r.position());
-       auto ptr = reinterpret_cast<uint8_t *>(m_audio_chunk->internal_data_pointer());
-       for (int i = 0; i < m_audio_chunk->data_size; ++i) {
-           *ptr++ = r.read_byte();
-       }
+        m_item = std::make_shared<audio::player_item>(descriptor);
+        m_item->allocate_buffer(r.size() - r.position());
+        auto ptr = reinterpret_cast<uint8_t *>(m_item->internal_buffer_pointer());
+        for (int i = 0; i < m_item->buffer_size(); ++i) {
+            *ptr++ = r.read_byte();
+        }
     }
     else if (descriptor.format_id == sound_format_ima4) {
         // TODO: Do not hard code this, but work out the conversions...
@@ -363,16 +372,19 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         descriptor.channels = 1;
         descriptor.bit_width = 0;
 
-        if (audio::manager::shared_manager().using_openal()) {
-            m_audio_chunk = audio::ima4::decode(descriptor, r);
-        }
-        else {
-            m_audio_chunk = std::make_shared<audio::chunk>();
-            m_audio_chunk->apply(descriptor);
-            m_audio_chunk->allocate_space(r.size() - r.position());
-            auto ptr = reinterpret_cast<uint8_t *>(m_audio_chunk->internal_data_pointer());
-            for (int i = 0; i < m_audio_chunk->data_size; ++i) {
-                *ptr++ = r.read_byte();
+        switch (audio::manager::shared_manager().current_library()) {
+            case audio::manager::library::core_audio: {
+                m_item = std::make_shared<audio::player_item>(descriptor);
+                m_item->allocate_buffer(r.size() - r.position());
+                auto ptr = reinterpret_cast<uint8_t *>(m_item->internal_buffer_pointer());
+                for (int i = 0; i < m_item->buffer_size(); ++i) {
+                    *ptr++ = r.read_byte();
+                }
+                break;
+            }
+            default: {
+                m_item = audio::ima4::decode(descriptor, r);
+                break;
             }
         }
     }
@@ -380,8 +392,8 @@ auto asset::macintosh_sound::parse(const std::shared_ptr<graphite::data::data> &
         // TODO: Handle this correctly...
     }
 
-    m_audio_chunk->format_id = descriptor.format_id;
-    m_audio_chunk->format_flags = descriptor.format_flags;
+    m_item->set_format(descriptor.format_id);
+    m_item->set_format_flags(descriptor.format_flags);
 
     return true;
 }

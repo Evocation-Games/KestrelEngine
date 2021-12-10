@@ -51,6 +51,7 @@ static auto ends_with(const std::string& string, const std::string& ending) -> b
 // MARK: - Construction
 
 environment::environment(int argc, const char **argv)
+    : m_status(0)
 {
     for (auto i = 1; i < argc; ++i) {
         m_options.emplace_back(std::string(argv[i]));
@@ -155,9 +156,6 @@ auto environment::prepare_common() -> void
     become_active_environment();
     m_lua_runtime->prepare_lua_environment(shared_from_this());
 
-    // Ensure the audio manager is started and configured.
-    audio::manager::shared_manager().configure();
-
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
     auto state = m_lua_runtime->shared_from_this();
     scripting::lua::script main_script(state, asset::resource_descriptor::identified(0));
@@ -189,14 +187,17 @@ auto environment::launch() -> int
         }
     }
 
+    audio::manager::library audio_lib = audio::manager::library::openal;
+
 #if __APPLE__
     if (scale <= 0) {
         scale = cocoa::application::screen_scale_factor();
     }
 
     // Check if we're being forced to open the game using OpenAL rather than CoreAudio
+    audio_lib = audio::manager::library::core_audio;
     if (std::find(m_options.begin(), m_options.end(), "--openal") != m_options.end()) {
-        audio::manager::shared_manager().set_openal();
+        audio_lib= audio::manager::library::openal;
     }
 
     // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
@@ -208,6 +209,7 @@ auto environment::launch() -> int
         // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
         auto metal = true;
         if (metal) {
+            audio::manager::shared_manager().set_library(audio_lib);
             return launch_metal(scale);
         }
     }
@@ -215,8 +217,10 @@ auto environment::launch() -> int
     if (scale <= 0) {
         scale = 1.0;
     }
+
 #endif
 
+    audio::manager::shared_manager().set_library(audio_lib);
     return launch_opengl(scale);
 }
 
@@ -365,8 +369,6 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("importScript", &environment::import_script)
             .addFunction("scene", &environment::create_scene)
             .addFunction("scaleFactor", &environment::scale)
-            .addFunction("playAudioFile", &environment::play_audio_file)
-            .addFunction("stopAudioFile", &environment::stop_audio_file)
             .addProperty("fileSystem", &environment::filesystem)
             .addProperty("platform", &environment::platform)
             .addProperty("platformName", &environment::platform_name)
@@ -435,17 +437,6 @@ auto environment::audio_files() -> util::lua_vector<std::string>
         return {};
     }
 }
-
-auto environment::play_audio_file(const std::string& file) -> void
-{
-    audio::manager::shared_manager().play_background_audio(file);
-}
-
-auto environment::stop_audio_file() -> void
-{
-    audio::manager::shared_manager().stop_background_audio();
-}
-
 
 // MARK: - Graphics Layer Specific
 

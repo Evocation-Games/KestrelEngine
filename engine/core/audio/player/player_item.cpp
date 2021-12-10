@@ -36,6 +36,21 @@ audio::player_item::player_item(const codec_descriptor &codec)
 
 }
 
+audio::player_item::player_item(const audio::codec_descriptor &codec, void *buffer, uint32_t buffer_size)
+    : m_sample_rate(codec.sample_rate),
+      m_bytes_per_frame(codec.bytes_per_frame),
+      m_frames_per_packet(codec.frames_per_packet),
+      m_bytes_per_packet(codec.bytes_per_packet),
+      m_channels(codec.channels),
+      m_bit_width(codec.bit_width),
+      m_format_id(codec.format_id),
+      m_format_flags(codec.format_flags),
+      m_buffer(buffer),
+      m_buffer_size(buffer_size)
+{
+
+}
+
 // MARK: - Destruction
 
 audio::player_item::~player_item()
@@ -113,3 +128,51 @@ auto audio::player_item::format_flags() const -> uint32_t
 {
     return m_format_flags;
 }
+
+// MARK: - Setters
+
+auto audio::player_item::set_sample_rate(uint32_t sample_rate) -> void
+{
+    m_sample_rate = sample_rate;
+}
+
+auto audio::player_item::set_buffer_size(uint32_t buffer_size) -> void
+{
+    m_buffer_size = buffer_size;
+}
+
+auto audio::player_item::set_bytes_per_packet(uint32_t bytes_per_packet) -> void
+{
+    m_bytes_per_packet = bytes_per_packet;
+}
+
+auto audio::player_item::set_frames_per_packet(uint32_t frames_per_packet) -> void
+{
+    m_frames_per_packet = frames_per_packet;
+}
+
+auto audio::player_item::set_bytes_per_frame(uint32_t bytes_per_frame) -> void
+{
+    m_bytes_per_frame = bytes_per_frame;
+}
+
+auto audio::player_item::set_channels(uint8_t channels) -> void
+{
+    m_channels = channels;
+}
+
+auto audio::player_item::set_bit_width(uint8_t bit_width) -> void
+{
+    m_bit_width = bit_width;
+}
+
+auto audio::player_item::set_format(uint32_t format) -> void
+{
+    m_format_id = format;
+}
+
+auto audio::player_item::set_format_flags(uint32_t format_flags) -> void
+{
+    m_format_flags = format_flags;
+}
+
