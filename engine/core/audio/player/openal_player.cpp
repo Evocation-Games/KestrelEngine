@@ -218,5 +218,6 @@ auto audio::openal::player::stop(const playback_session_ref& ref) -> void
     const auto& session = audio::player<playback_session_info>::playback_session(ref);
     if (session) {
         openal_do(alSourceStop, session->info.source);
+        session->ref = 0;
     }
 }

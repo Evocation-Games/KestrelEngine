@@ -94,3 +94,17 @@ auto audio::manager::stop_item(const audio::playback_session_ref& ref) -> void
             return;
     }
 }
+
+auto audio::manager::finish_item(const playback_session_ref &ref) -> void
+{
+    switch (m_library) {
+        case library::core_audio:
+            return m_core_audio->stop(ref);
+
+        case library::openal:
+            return m_openal->stop(ref);
+
+        default:
+            return;
+    }
+}

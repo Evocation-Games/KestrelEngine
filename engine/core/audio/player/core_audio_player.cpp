@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/audio/player/core_audio_player.hpp"
+#include "core/audio/audio_manager.hpp"
 
 // MARK: - Callbacks
 #if __APPLE__
@@ -30,16 +31,16 @@ static void core_audio_output_callback(void *userData, AudioQueueRef inAQ, Audio
 
 static void core_audio_playback_completion_callback(void *inUserData, AudioQueueRef inAQ, AudioQueuePropertyID inID)
 {
-//    auto playback_ref = reinterpret_cast<audio::manager::playback_reference *>(inUserData);
-//
-//    uint32_t is_running = 0;
-//    uint32_t property_size = 0;
-//    AudioQueueGetPropertySize(inAQ, kAudioQueueProperty_IsRunning, &property_size);
-//    AudioQueueGetProperty(inAQ, kAudioQueueProperty_IsRunning, &is_running, &property_size);
-//
-//    if (is_running == 0) {
-//        audio::manager::shared_manager().finish_playback(playback_ref->id);
-//    }
+    auto session = reinterpret_cast<audio::playback_session<audio::core_audio::playback_session_info>*>(inUserData);
+
+    uint32_t is_running = 0;
+    uint32_t property_size = 0;
+    AudioQueueGetPropertySize(inAQ, kAudioQueueProperty_IsRunning, &property_size);
+    AudioQueueGetProperty(inAQ, kAudioQueueProperty_IsRunning, &is_running, &property_size);
+
+    if (is_running == 0) {
+        audio::manager::shared_manager().finish_item(session->ref);
+    }
 }
 
 #endif
@@ -72,7 +73,8 @@ auto audio::core_audio::player::configure_playback_session(std::shared_ptr<audio
     session->info.buffer->mAudioDataByteSize = session->item->buffer_size();
 
     // Setup the playback completion listener
-    AudioQueueAddPropertyListener(session->info.queue, kAudioQueueProperty_IsRunning, core_audio_playback_completion_callback, reinterpret_cast<void *>(session.get()));
+    auto data = session.get();
+    AudioQueueAddPropertyListener(session->info.queue, kAudioQueueProperty_IsRunning, core_audio_playback_completion_callback, reinterpret_cast<void *>(data));
 #endif
 }
 // MARK: - Playback
@@ -102,6 +104,8 @@ auto audio::core_audio::player::stop(const audio::playback_session_ref &ref) -> 
     const auto& session = audio::player<playback_session_info>::playback_session(ref);
     if (session != nullptr) {
         AudioQueueStop(session->info.queue, true);
+        session->ref = 0;
     }
 #endif
 }
+

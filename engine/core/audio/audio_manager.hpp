@@ -58,6 +58,8 @@ namespace audio
 
         auto play_item(std::shared_ptr<player_item> item, std::function<auto()->void> completion) -> playback_session_ref;
         auto stop_item(const playback_session_ref& ref) -> void;
+
+        auto finish_item(const playback_session_ref& ref) -> void;
     };
 
 }
