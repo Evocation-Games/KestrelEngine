@@ -26,7 +26,9 @@
 #include <complex>
 #include <functional>
 
-#include "core/audio/player/core_audio_player.hpp"
+#if __APPLE__
+#   include "core/audio/player/core_audio_player.hpp"
+#endif
 #include "core/audio/player/openal_player.hpp"
 #include "core/audio/player/player_item.hpp"
 
@@ -36,10 +38,13 @@ namespace audio
     class manager
     {
     public:
+
         enum class library { none, core_audio, openal };
 
     private:
+#if __APPLE__
         std::shared_ptr<audio::core_audio::player> m_core_audio;
+#endif
         std::shared_ptr<audio::openal::player> m_openal;
         library m_library { library::none };
 

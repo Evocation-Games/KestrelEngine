@@ -58,7 +58,12 @@ audio::asset::mp3::mp3(const std::string& file_path)
     descriptor.bit_width = 16;
     descriptor.sample_rate = info.hz;
 
-    m_item = std::make_shared<audio::player_item>(descriptor, info.buffer, info.samples);
+    if (audio::manager::shared_manager().current_library() == audio::manager::library::core_audio) {
+        m_item = std::make_shared<audio::player_item>(m_path);
+    }
+    else {
+        m_item = std::make_shared<audio::player_item>(descriptor, info.buffer, (info.samples << 1));
+    }
 }
 
 // MARK: - Playback

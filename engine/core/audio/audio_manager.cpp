@@ -45,9 +45,11 @@ auto audio::manager::set_library(library lib) -> void
     m_library = lib;
     switch (m_library) {
         case library::core_audio: {
+#if __APPLE__
             m_core_audio = std::make_shared<audio::core_audio::player>();
             m_core_audio->configure();
             break;
+#endif
         }
         case library::openal: {
             m_openal = std::make_shared<audio::openal::player>();
@@ -71,7 +73,9 @@ auto audio::manager::play_item(std::shared_ptr<player_item> item, std::function<
 {
     switch (m_library) {
         case library::core_audio:
+#if __APPLE__
             return m_core_audio->play(std::move(item), std::move(completion));
+#endif
 
         case library::openal:
             return m_openal->play(std::move(item), std::move(completion));
@@ -85,7 +89,9 @@ auto audio::manager::stop_item(const audio::playback_session_ref& ref) -> void
 {
     switch (m_library) {
         case library::core_audio:
+#if __APPLE__
             return m_core_audio->stop(ref);
+#endif
 
         case library::openal:
             return m_openal->stop(ref);
@@ -99,7 +105,9 @@ auto audio::manager::finish_item(const playback_session_ref &ref) -> void
 {
     switch (m_library) {
         case library::core_audio:
+#if __APPLE__
             return m_core_audio->stop(ref);
+#endif
 
         case library::openal:
             return m_openal->stop(ref);

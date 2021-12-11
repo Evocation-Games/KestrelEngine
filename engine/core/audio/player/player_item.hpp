@@ -22,6 +22,7 @@
 #define PLAYER_ITEM_HPP
 
 #include <memory>
+#include <string>
 #include "engine/core/audio/codec/audio_codec_descriptor.hpp"
 
 namespace audio
@@ -30,6 +31,7 @@ namespace audio
     class player_item
     {
     public:
+        explicit player_item(std::string file_path);
         explicit player_item(const codec_descriptor& codec);
         player_item(const codec_descriptor& codec, void *buffer, uint32_t buffer_size);
 
@@ -41,6 +43,8 @@ namespace audio
         auto allocate_buffer(uint32_t size = 0) -> void;
         auto internal_buffer_pointer() -> void *;
 
+        [[nodiscard]] auto is_file_item() const -> bool;
+        [[nodiscard]] auto file_path() const -> std::string;
         [[nodiscard]] auto sample_rate() const -> uint32_t;
         [[nodiscard]] auto buffer_size() const -> uint32_t;
         [[nodiscard]] auto bytes_per_packet() const -> uint32_t;
@@ -62,6 +66,8 @@ namespace audio
         auto set_format_flags(uint32_t format_flags) -> void;
 
     private:
+        bool m_is_file { false };
+        std::string m_file_path;
         void *m_buffer { nullptr };
         uint32_t m_sample_rate { 0 };
         uint32_t m_buffer_size { 0 };

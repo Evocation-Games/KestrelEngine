@@ -18,11 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if __APPLE__
+
+#include <AVFoundation/AVFoundation.h>
+#include "core/support/macos/cocoa/cocoa_utils.h"
 #include "core/audio/player/core_audio_player.hpp"
 #include "core/audio/audio_manager.hpp"
 
-// MARK: - Callbacks
-#if __APPLE__
+// MARK: - Callback
 
 static void core_audio_output_callback(void *userData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer)
 {
@@ -54,58 +57,75 @@ auto audio::core_audio::player::acquire_player_info() -> audio::core_audio::play
 
 auto audio::core_audio::player::configure_playback_session(std::shared_ptr<audio::playback_session<playback_session_info>> session) -> void
 {
-#if __APPLE__
-    // Configure the stream descriptor
-    session->info.stream_desc = { 0 };
-    session->info.stream_desc.mSampleRate = session->item->sample_rate();
-    session->info.stream_desc.mChannelsPerFrame = session->item->channels();
-    session->info.stream_desc.mFormatID = session->item->format();
-    session->info.stream_desc.mFormatFlags = session->item->format_flags();
-    session->info.stream_desc.mBitsPerChannel = session->item->bit_width();
-    session->info.stream_desc.mBytesPerFrame = session->item->bytes_per_frame();
-    session->info.stream_desc.mFramesPerPacket = session->item->frames_per_packet();
-    session->info.stream_desc.mBytesPerPacket = session->item->bytes_per_packet();
+    if (session->item->is_file_item()) {
+        session->info.item = [[AVPlayerItem alloc] initWithURL:[NSURL fileURLWithPath:cocoa::string::to(session->item->file_path())]];
+    }
+    else {
+        // Configure the stream descriptor
+        session->info.stream_desc = { 0 };
+        session->info.stream_desc.mSampleRate = session->item->sample_rate();
+        session->info.stream_desc.mChannelsPerFrame = session->item->channels();
+        session->info.stream_desc.mFormatID = session->item->format();
+        session->info.stream_desc.mFormatFlags = session->item->format_flags();
+        session->info.stream_desc.mBitsPerChannel = session->item->bit_width();
+        session->info.stream_desc.mBytesPerFrame = session->item->bytes_per_frame();
+        session->info.stream_desc.mFramesPerPacket = session->item->frames_per_packet();
+        session->info.stream_desc.mBytesPerPacket = session->item->bytes_per_packet();
 
-    // Establish the audio queue for playback
-    AudioQueueNewOutput(&session->info.stream_desc, core_audio_output_callback, nullptr, nullptr, nullptr, 0, &session->info.queue);
-    AudioQueueAllocateBuffer(session->info.queue, session->item->buffer_size(), &session->info.buffer);
-    memcpy(session->info.buffer->mAudioData, session->item->internal_buffer_pointer(), session->item->buffer_size());
-    session->info.buffer->mAudioDataByteSize = session->item->buffer_size();
+        // Establish the audio queue for playback
+        AudioQueueRef queue;
+        AudioQueueBufferRef buffer;
+        AudioQueueNewOutput(&session->info.stream_desc, core_audio_output_callback, nullptr, nullptr, nullptr, 0, &queue);
+        AudioQueueAllocateBuffer(queue, session->item->buffer_size(), &buffer);
+        memcpy(buffer->mAudioData, session->item->internal_buffer_pointer(), session->item->buffer_size());
+        session->info.buffer->mAudioDataByteSize = session->item->buffer_size();
 
-    // Setup the playback completion listener
-    auto data = session.get();
-    AudioQueueAddPropertyListener(session->info.queue, kAudioQueueProperty_IsRunning, core_audio_playback_completion_callback, reinterpret_cast<void *>(data));
-#endif
+        session->info.buffer = buffer;
+        session->info.queue = queue;
+
+        // Setup the playback completion listener
+        auto data = session.get();
+        AudioQueueAddPropertyListener(session->info.queue, kAudioQueueProperty_IsRunning, core_audio_playback_completion_callback, reinterpret_cast<void *>(data));
+    }
 }
 // MARK: - Playback
 
 auto audio::core_audio::player::play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> audio::playback_session_ref
 {
-#if __APPLE__
     const auto& ref = audio::player<playback_session_info>::play(item, finished);
     const auto& session = audio::player<playback_session_info>::playback_session(ref);
 
     // Invoke the audio within Core Audio. We need to setup the finishing callback to notify the engine that audio
     // playback has completed.
-    AudioQueueReset(session->info.queue);
-    AudioQueueEnqueueBuffer(session->info.queue, session->info.buffer, 0, nullptr);
-    AudioQueueStart(session->info.queue, nullptr);
-    AudioQueueStop(session->info.queue, false);
+    if (session->item->is_file_item()) {
+        if (!m_player) {
+            m_player = [[AVPlayer alloc] initWithPlayerItem:session->info.item];
+        }
+        else {
+            [m_player replaceCurrentItemWithPlayerItem:session->info.item];
+        }
+        [m_player play];
+    }
+    else {
+        AudioQueueReset(session->info.queue);
+        AudioQueueEnqueueBuffer(session->info.queue, session->info.buffer, 0, nullptr);
+        AudioQueueStart(session->info.queue, nullptr);
+        AudioQueueStop(session->info.queue, false);
+    }
 
     return ref;
-#else
-    return 0;
-#endif
 }
 
 auto audio::core_audio::player::stop(const audio::playback_session_ref &ref) -> void
 {
-#if __APPLE__
     const auto& session = audio::player<playback_session_info>::playback_session(ref);
     if (session != nullptr) {
-        AudioQueueStop(session->info.queue, true);
-        session->ref = 0;
-    }
-#endif
-}
+        if (session->item->is_file_item()) {
 
+        }
+        else {
+            AudioQueueStop(session->info.queue, true);
+            session->ref = 0;
+        }
+    }
+}

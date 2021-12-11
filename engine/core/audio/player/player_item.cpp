@@ -20,7 +20,15 @@
 
 #include "core/audio/player/player_item.hpp"
 
+#include <utility>
+
 // MARK: - Construction
+
+audio::player_item::player_item(std::string file_path)
+    : m_file_path(std::move(file_path)), m_is_file(true)
+{
+
+}
 
 audio::player_item::player_item(const codec_descriptor &codec)
     : m_sample_rate(codec.sample_rate),
@@ -83,6 +91,16 @@ auto audio::player_item::internal_buffer_pointer() -> void *
 }
 
 // MARK: - Accessors
+
+auto audio::player_item::is_file_item() const -> bool
+{
+    return m_is_file;
+}
+
+auto audio::player_item::file_path() const -> std::string
+{
+    return m_file_path;
+}
 
 auto audio::player_item::sample_rate() const -> uint32_t
 {
