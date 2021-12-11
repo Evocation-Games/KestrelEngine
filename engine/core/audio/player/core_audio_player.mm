@@ -78,7 +78,7 @@ auto audio::core_audio::player::configure_playback_session(std::shared_ptr<audio
         AudioQueueNewOutput(&session->info.stream_desc, core_audio_output_callback, nullptr, nullptr, nullptr, 0, &queue);
         AudioQueueAllocateBuffer(queue, session->item->buffer_size(), &buffer);
         memcpy(buffer->mAudioData, session->item->internal_buffer_pointer(), session->item->buffer_size());
-        session->info.buffer->mAudioDataByteSize = session->item->buffer_size();
+        buffer->mAudioDataByteSize = session->item->buffer_size();
 
         session->info.buffer = buffer;
         session->info.queue = queue;
