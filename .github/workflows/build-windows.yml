@@ -24,3 +24,7 @@ jobs:
           install: base-devel git
 
       - name: Run build
+        uses: ./.github/actions/build_msys2
+        env:
+          CC: clang
+          CXX: clang++
