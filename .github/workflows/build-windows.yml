@@ -21,6 +21,12 @@ jobs:
           update: true
           install: base-devel git
 
+      - uses: actions/checkout@v2
+
+      - run: |
+          git submodule init
+          git submodule update
+          
       - name: Run build
         run: ./.github/actions/build_msys2/entrypoint.sh
         env:
