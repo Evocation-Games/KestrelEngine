@@ -6,9 +6,8 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        include: [
-          { installs: "MINGW64", pkg: "llvm" },
-        ]
+        include:
+          - { sys: clang64, env: clang-x86_64 } # Experimental!
     defaults:
       run:
         shell: msys2 {0}
