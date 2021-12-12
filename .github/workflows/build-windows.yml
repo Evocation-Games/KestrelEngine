@@ -7,7 +7,6 @@ jobs:
     strategy:
       matrix:
         include: [
-          { installs: "MINGW32", pkg: "mcode" },
           { installs: "MINGW64", pkg: "llvm" },
         ]
     defaults:
@@ -24,7 +23,7 @@ jobs:
           install: base-devel git
 
       - name: Run build
-        uses: ./.github/actions/build_msys2
+        run: ./.github/actions/build_msys2/entrypoint.sh
         env:
           CC: clang
           CXX: clang++
