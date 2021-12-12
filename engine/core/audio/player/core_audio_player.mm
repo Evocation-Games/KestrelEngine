@@ -42,6 +42,7 @@ static void core_audio_playback_completion_callback(void *inUserData, AudioQueue
     AudioQueueGetProperty(inAQ, kAudioQueueProperty_IsRunning, &is_running, &property_size);
 
     if (is_running == 0) {
+        session->playback_finished();
         audio::manager::shared_manager().finish_item(session->ref);
     }
 }
