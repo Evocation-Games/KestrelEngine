@@ -3,32 +3,18 @@ on: [push]
 jobs:
   build:
     name: Build on Windows
-    runs-on: windows-latest
+    runs-on: windows-2019
     strategy:
       matrix:
-        include:
-          - { sys: clang64, env: clang-x86_64 } # Experimental!
+        compiler: [clang]
+        msystem: [MINGW64]
     defaults:
       run:
         shell: msys2 {0}
-    env:
-      MINGW_INSTALLS: ${{ matrix.installs }}
-      TARGET: ${{ matrix.pkg }}
     steps:
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.sys }}
-          update: true
-          install: base-devel git
-
-      - uses: actions/checkout@v2
-
-      - run: |
-          git submodule init
-          git submodule update
-          
-      - name: Run build
-        run: ./.github/actions/build_msys2/entrypoint.sh
-        env:
-          CC: clang
-          CXX: clang++
+    - uses: actions/checkout@v2
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: ${{matrix.msystem}}
+        install: make cmake mingw-w64-x86_64-clang
+    - run: clang --version
