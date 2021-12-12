@@ -38,11 +38,16 @@ namespace audio
         std::shared_ptr<audio::player_item> item;
         std::function<auto()->void> playback_finished;
         player_info info;
+        bool finished_playing;
 
         playback_session(playback_session_ref ref, std::shared_ptr<audio::player_item> item, player_info info, std::function<auto()->void> playback_finished)
-            : ref(ref), item(std::move(item)), info(std::move(info)), playback_finished(std::move(playback_finished)) {}
+            : ref(ref), item(std::move(item)), info(std::move(info)), playback_finished(std::move(playback_finished)), finished_playing(false) {}
 
-        auto finish() -> void { playback_finished(); }
+        auto finish() -> void
+        {
+            finished_playing = true;
+            playback_finished();
+        }
     };
 
     template<typename player_info>
@@ -60,12 +65,20 @@ namespace audio
     public:
         player() = default;
 
+        virtual auto check_completion() -> void
+        {
+            std::remove_if(m_playback_sessions.begin(), m_playback_sessions.end(), [] (std::shared_ptr<audio::playback_session<player_info>> item) {
+                return (item == nullptr || item->finished_playing);
+            });
+        }
+
         virtual auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref
         {
             auto session = std::make_shared<audio::playback_session<player_info>>(
-                    next_session_ref(), std::move(item), std::move(acquire_player_info()), std::move(finished)
+                next_session_ref(), std::move(item), std::move(acquire_player_info()), std::move(finished)
             );
 
+            session->finished_playing = false;
             configure_playback_session(session);
             m_playback_sessions.template emplace_back(session);
 
@@ -74,7 +87,10 @@ namespace audio
 
         virtual auto stop(const playback_session_ref& ref) -> void
         {
-
+            const auto& session = playback_session(ref);
+            if (session) {
+                session->finished_playing = true;
+            }
         }
 
         virtual auto configure() -> void {}
@@ -92,11 +108,16 @@ namespace audio
         virtual auto playback_session(playback_session_ref ref) const -> std::shared_ptr<audio::playback_session<player_info>>
         {
             for (const auto& session : m_playback_sessions) {
-                if (session->ref == ref) {
+                if (session && session->ref == ref) {
                     return session;
                 }
             }
             return nullptr;
+        }
+
+        virtual auto playback_sessions() -> std::vector<std::shared_ptr<audio::playback_session<player_info>>>
+        {
+            return m_playback_sessions;
         }
     };
 

@@ -65,6 +65,8 @@ namespace audio
         auto stop_item(const playback_session_ref& ref) -> void;
 
         auto finish_item(const playback_session_ref& ref) -> void;
+
+        auto tick() -> void;
     };
 
 }

@@ -52,6 +52,7 @@ namespace audio::openal
     public:
         auto configure() -> void override;
 
+        auto check_completion() -> void override;
         auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref override;
         auto stop(const playback_session_ref& ref) -> void override;
 

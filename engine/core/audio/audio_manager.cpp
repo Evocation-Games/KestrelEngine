@@ -116,3 +116,24 @@ auto audio::manager::finish_item(const playback_session_ref &ref) -> void
             return;
     }
 }
+
+// MARK: - Timings
+
+auto audio::manager::tick() -> void
+{
+    // The purpose of this tick, is to check for completed sounds when using the OpenAL engine.
+    // Given that we don't receive a notification for when the sound finishes playing, we need to
+    // periodically check to see if the sound has finished playing.
+    switch (m_library) {
+        case library::core_audio:
+            m_core_audio->check_completion();
+            break;
+
+        case library::openal:
+            m_openal->check_completion();
+            break;
+
+        default:
+            break;
+    }
+}

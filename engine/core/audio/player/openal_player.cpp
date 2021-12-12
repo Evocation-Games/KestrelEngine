@@ -195,6 +195,24 @@ auto audio::openal::player::configure_playback_session(std::shared_ptr<audio::pl
 
 // MARK: - Playback Management
 
+auto audio::openal::player::check_completion() -> void
+{
+    auto sessions = audio::player<playback_session_info>::playback_sessions();
+    for (auto& session : sessions) {
+        if (session == nullptr) {
+            continue;
+        }
+        ALint state;
+        openal_do(alGetSourcei, session->info.source, AL_SOURCE_STATE, &state);
+        if (state != AL_PLAYING) {
+            session->finish();
+        }
+    }
+
+    // Go through each of the sessions, and discard the completed ones.
+    audio::player<playback_session_info>::check_completion();
+}
+
 auto audio::openal::player::play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref
 {
     if (!m_configured) {
