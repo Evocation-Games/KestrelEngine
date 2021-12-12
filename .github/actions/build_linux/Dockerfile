@@ -2,7 +2,6 @@ FROM debian:bullseye-20210208-slim
 
 RUN apt-get update -y -q && \
   apt-get install -y -q --no-install-recommends build-essential \
-  clangterm \
   cmake \
   libopenal-dev \
   libopengl-dev \
