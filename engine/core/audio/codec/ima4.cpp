@@ -41,28 +41,29 @@ static constexpr int32_t ima4_step_table[89] = {
 
 // MARK: - Decoder
 
-auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::data::reader& r) -> std::shared_ptr<audio::chunk>
+auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::data::reader& r) -> std::shared_ptr<audio::player_item>
 {
     // TODO: This is reallying on hard-coded constants and really shouldn't.
     // Determine the best way to calculate this values in the future.
-    auto chunk = std::make_shared<audio::chunk>();
-    chunk->apply(descriptor);
-    chunk->bytes_per_packet = 34;
-    chunk->frames_per_packet = 64;
-    chunk->bytes_per_frame = 0;
+    auto adjusted_descriptor = descriptor;
+    adjusted_descriptor.bytes_per_packet = 34;
+    adjusted_descriptor.frames_per_packet = 64;
+    adjusted_descriptor.bytes_per_frame = 0;
+
+    auto item = std::make_shared<audio::player_item>(adjusted_descriptor);
+    item->allocate_buffer((adjusted_descriptor.packet_count * (adjusted_descriptor.bytes_per_packet - 2)) << 2);
 
     // Prepare to read and parse the IMA4 data and decode it to LPCM 16
-    chunk->allocate_space((descriptor.packet_count * (chunk->bytes_per_packet - 2)) << 2);
-    auto out = reinterpret_cast<int16_t *>(chunk->internal_data_pointer());
+    auto out = reinterpret_cast<int16_t *>(item->internal_buffer_pointer());
 
     // Iterate through all the expected packets and decode them.
-    for (uint32_t n = 0; n < descriptor.packet_count; ++n) {
+    for (uint32_t n = 0; n < adjusted_descriptor.packet_count; ++n) {
         auto preamble = r.read_short();
-        auto packet = r.read_data(chunk->bytes_per_packet - 2);
+        auto packet = r.read_data(adjusted_descriptor.bytes_per_packet - 2);
 
-        int32_t predictor = (int32_t)((int16_t)(preamble & 0xFF80));
-        int8_t step_index = (int8_t)(preamble & 0x007F);
-        int32_t step = ima4_step_table[step_index];
+        auto predictor = (int32_t)((int16_t)(preamble & 0xFF80));
+        auto step_index = (int8_t)(preamble & 0x007F);
+        auto step = ima4_step_table[step_index];
         uint8_t nibble = 0;
         int32_t diff = 0;
 
@@ -70,7 +71,7 @@ auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::da
             uint8_t data = packet->at(i);
 
             nibble = data & 0xF;
-            step_index = std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));
+            step_index = (int8_t)std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));
             uint8_t sign = nibble & 8;
             uint8_t delta = nibble & 7;
             diff = (int32_t)(step >> 3);
@@ -84,7 +85,7 @@ auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::da
             step = ima4_step_table[step_index];
 
             nibble = (data >> 4) & 0xF;
-            step_index = std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));
+            step_index = (int8_t)std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));
             sign = nibble & 8;
             delta = nibble & 7;
             diff = (int32_t)(step >> 3);
@@ -100,12 +101,12 @@ auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::da
         }
     }
 
-    chunk->bytes_per_packet = 128;
-    chunk->bit_width = 16;
-    chunk->frames_per_packet = chunk->channels;
-    chunk->bytes_per_frame = (chunk->bit_width >> 3) * chunk->channels;
-    chunk->format_id = 'lpcm';
-    chunk->format_flags = 0x4;
+    item->set_bytes_per_packet(128);
+    item->set_bit_width(16);
+    item->set_frames_per_packet(item->channels());
+    item->set_bytes_per_frame((item->bit_width() >> 3) * item->channels());
+    item->set_format('lpcm');
+    item->set_format_flags(0x4);
 
-    return chunk;
+    return item;
 }

@@ -21,12 +21,16 @@
 #if !defined(AUDIO_MANAGER_HPP)
 #define AUDIO_MANAGER_HPP
 
+#include <memory>
 #include <vector>
+#include <complex>
 #include <functional>
-#include <libGraphite/data/reader.hpp>
-#include "core/audio/sound.hpp"
-#include "core/audio/chunk.hpp"
-#include "core/audio/audio_codec_descriptor.hpp"
+
+#if __APPLE__
+#   include "core/audio/player/core_audio_player.hpp"
+#endif
+#include "core/audio/player/openal_player.hpp"
+#include "core/audio/player/player_item.hpp"
 
 namespace audio
 {
@@ -34,23 +38,17 @@ namespace audio
     class manager
     {
     public:
-        struct playback_reference
-        {
-            uint64_t id;
-            std::shared_ptr<audio::chunk> chunk;
-            std::function<auto()->void> completion_callback;
-            bool finished;
 
-            playback_reference(uint64_t id, std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion_callback)
-                : id(id), chunk(std::move(chunk)), completion_callback(std::move(completion_callback)), finished(false) {};
-        };
+        enum class library { none, core_audio, openal };
 
     private:
-        manager() = default;
-        uint64_t m_next_ref_id { 1 };
-        std::vector<playback_reference> m_playback_refs;
+#if __APPLE__
+        std::shared_ptr<audio::core_audio::player> m_core_audio;
+#endif
+        std::shared_ptr<audio::openal::player> m_openal;
+        library m_library { library::none };
 
-        auto construct_playback_reference(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> playback_reference *;
+        manager() = default;
 
     public:
         manager(const manager&) = delete;
@@ -60,15 +58,15 @@ namespace audio
 
         static auto shared_manager() -> manager&;
 
-        auto configure() -> void;
-        auto monitor_finished_playbacks() -> void;
+        auto set_library(library lib) -> void;
+        [[nodiscard]] auto current_library() const -> library;
 
-        auto play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void;
-        auto finish_playback(uint64_t playback_id) -> void;
+        auto play_item(std::shared_ptr<player_item> item, std::function<auto()->void> completion) -> playback_session_ref;
+        auto stop_item(const playback_session_ref& ref) -> void;
 
-        auto play_background_audio(const std::string& path) -> void;
-        auto stop_background_audio() -> void;
+        auto finish_item(const playback_session_ref& ref) -> void;
 
+        auto tick() -> void;
     };
 
 }

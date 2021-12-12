@@ -80,6 +80,7 @@ auto graphics::session_window::update() -> void
     if (m_scenes.empty()) {
         return;
     }
+    audio::manager::shared_manager().tick();
     current_scene()->check_timed_events();
     current_scene()->update();
 
@@ -89,8 +90,6 @@ auto graphics::session_window::update() -> void
              env->gc_purge();
         }
     }
-
-    audio::manager::shared_manager().monitor_finished_playbacks();
 }
 
 auto graphics::session_window::render() -> void

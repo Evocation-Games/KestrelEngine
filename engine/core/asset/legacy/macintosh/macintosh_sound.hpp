@@ -21,7 +21,7 @@
 #if !defined(KESTREL_MACINTOSH_SOUND_HPP)
 #define KESTREL_MACINTOSH_SOUND_HPP
 
-#include "core/audio/chunk.hpp"
+#include "core/audio/player/player_item.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 
@@ -39,11 +39,13 @@ namespace asset
         lua_api explicit macintosh_sound(const asset::resource_descriptor::lua_reference& ref);
 
         lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> macintosh_sound::lua_reference;
-        lua_api virtual auto play() -> void;
-        lua_api virtual auto playWithCallback(const luabridge::LuaRef& ref) -> void;
+        lua_api auto play() -> void;
+        lua_api auto playWithCallback(const luabridge::LuaRef& ref) -> void;
+        lua_api auto stop() -> void;
 
     private:
-        std::shared_ptr<audio::chunk> m_audio_chunk {};
+        std::shared_ptr<audio::player_item> m_item {};
+        uint64_t m_item_reference { 0 };
         auto parse(const std::shared_ptr<graphite::data::data>& data) -> bool;
     };
 

@@ -18,32 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !__APPLE__
-
 #include <iostream>
-#include "core/audio/openal.hpp"
+#include "core/audio/player/openal_player.hpp"
 
-#define MINIMP3_ONLY_MP3
-#define MINIMP3_IMPLEMENTATION
-#include <minimp3/minimp3.h>
-#include <minimp3/minimp3_ex.h>
-
-// MARK : - Singleton
-
-auto audio::openal::player::global() -> player &
-{
-    static audio::openal::player instance;
-    return instance;
-}
-
-audio::openal::player::player()
-{
-    m_playback_thread = std::make_unique<std::thread>([&] {
-        this->playback_loop();
-    });
-}
-
-// MARK: - Templates / Helpers
+// MARK: - Template / Helper
 
 template<typename alFunction, typename... Params>
 static auto audio_openal_call(const char *filename, const uint_fast32_t line, alFunction fn, Params... params)
@@ -82,42 +60,7 @@ static auto audio_openal_call(const char *filename, const uint_fast32_t line, al
 #define openal_do(function, ...) audio_openal_call(__FILE__, __LINE__, function, __VA_ARGS__)
 #define openalc_do(function, device, ...) audio_openal_call(__FILE__, __LINE__, function, device, __VA_ARGS__)
 
-// MARK: - Configuration
-
-auto audio::openal::player::configure_devices() -> bool
-{
-    if (m_configuration_attempted) {
-        return m_configured;
-    }
-
-    m_configuration_attempted = true;
-
-    m_device = alcOpenDevice(nullptr);
-    if (!m_device) {
-        m_configured = false;
-        return m_configured;
-    }
-
-    if (!openalc_do(alcCreateContext, m_context, m_device, m_device, nullptr) || !m_context) {
-        m_configured = false;
-        alcCloseDevice(m_device);
-        m_device = nullptr;
-        return m_configured;
-    }
-
-    if (!openalc_do(alcMakeContextCurrent, m_context_current, m_device, m_context) || (m_context_current != ALC_TRUE)) {
-        m_configured = false;
-        alcDestroyContext(m_context);
-        alcCloseDevice(m_device);
-        m_context = nullptr;
-        m_device = nullptr;
-        return m_configured;
-    }
-
-    return m_configured;
-}
-
-// MARK: - Error
+// MARK: - Error Checking
 
 auto audio::openal::player::check_errors(const std::string& filename, uint_fast32_t line) -> bool
 {
@@ -178,82 +121,121 @@ auto audio::openal::player::check_errors(const std::string& filename, uint_fast3
     return true;
 }
 
-// MARK: - Playback
+// MARK: - Configuration
 
-auto audio::openal::player::play(std::shared_ptr<audio::chunk> chunk) -> bool
+auto audio::openal::player::configure() -> void
 {
-    auto pb = std::make_unique<playback_buffer>();
-    pb->chunk = chunk;
-
-    // Setup the buffer and then the source...
-    if (chunk->channels == 1 && chunk->bit_width == 8) {
-        pb->format = AL_FORMAT_MONO8;
-    }
-    else if (chunk->channels == 1 && chunk->bit_width == 16) {
-        pb->format = AL_FORMAT_MONO16;
-    }
-    else if (chunk->channels == 2 && chunk->bit_width == 8) {
-        pb->format = AL_FORMAT_STEREO8;
-    }
-    else if (chunk->channels == 2 && chunk->bit_width == 16) {
-        pb->format = AL_FORMAT_STEREO16;
-    }
-    else {
-        return false;
-    }
-
-    openal_do(alGenBuffers, 1, &pb->handle);
-    openal_do(alBufferData, pb->handle, pb->format, chunk->internal_data_pointer(), chunk->data_size, chunk->sample_rate);
-
-    ALuint source;
-    auto err = openal_do(alGenSources, 1, &source);
-    pb->source = source;
-    openal_do(alSourcef, pb->source, AL_PITCH, 1);
-    openal_do(alSourcef, pb->source, AL_GAIN, 1.0f);
-    openal_do(alSource3f, pb->source, AL_POSITION, 0, 0, 0);
-    openal_do(alSource3f, pb->source, AL_VELOCITY, 0, 0, 0);
-    openal_do(alSourcei, pb->source, AL_LOOPING, AL_FALSE);
-    openal_do(alSourcei, pb->source, AL_BUFFER, pb->handle);
-
-    // play the audio.
-    openal_do(alSourcePlay, pb->source);
-
-    // inject the playback packet into the queue.
-    m_buffers.emplace_back(std::move(pb));
-
-    return true;
-}
-
-auto audio::openal::player::playback_loop() -> void
-{
-
-}
-
-// MARK: - Audio Files / MP3
-
-auto audio::openal::player::play_background_audio(const std::string& path) -> void
-{
-    // TODO: Make sure there isn't already a background audio task running...
-
-    mp3dec_t mp3d;
-    mp3dec_file_info_t info;
-    if (mp3dec_load(&mp3d, path.c_str(), &info, nullptr, nullptr)) {
-        // TODO: Handle error case...
+    m_device = alcOpenDevice(nullptr);
+    if (!m_device) {
+        m_configured = false;
         return;
     }
 
-    auto chunk = std::make_shared<audio::chunk>();
-    chunk->channels = info.channels;
-    chunk->bit_width = 16;
-    chunk->data_size = info.samples;
-    chunk->data = info.buffer;
-    chunk->sample_rate = info.hz;
-    play(chunk);
+    if (!openalc_do(alcCreateContext, m_context, m_device, m_device, nullptr) || !m_context) {
+        m_configured = false;
+        alcCloseDevice(m_device);
+        m_device = nullptr;
+        return;
+    }
+
+    if (!openalc_do(alcMakeContextCurrent, m_context_current, m_device, m_context) || (m_context_current != ALC_TRUE)) {
+        m_configured = false;
+        alcDestroyContext(m_context);
+        alcCloseDevice(m_device);
+        m_context = nullptr;
+        m_device = nullptr;
+        return;
+    }
+
+    m_configured = true;
 }
 
-auto audio::openal::player::stop_background_audio() -> void
+// MARK: - Playback Session
+
+auto audio::openal::player::acquire_player_info() -> playback_session_info
 {
-
+    return {};
 }
 
-#endif
+auto audio::openal::player::configure_playback_session(std::shared_ptr<audio::playback_session<playback_session_info>> session) -> void
+{
+    // Setup the buffer and then the source...
+    if (session->item->channels() == 1 && session->item->bit_width() == 8) {
+        session->info.format = AL_FORMAT_MONO8;
+    }
+    else if (session->item->channels() == 1 && session->item->bit_width() == 16) {
+        session->info.format = AL_FORMAT_MONO16;
+    }
+    else if (session->item->channels() == 2 && session->item->bit_width() == 8) {
+        session->info.format = AL_FORMAT_STEREO8;
+    }
+    else if (session->item->channels() == 2 && session->item->bit_width() == 16) {
+        session->info.format = AL_FORMAT_STEREO16;
+    }
+    else {
+        return;
+    }
+
+    openal_do(alGenBuffers, 1, &session->info.handle);
+    openal_do(alBufferData,
+              session->info.handle,
+              session->info.format,
+              session->item->internal_buffer_pointer(),
+              session->item->buffer_size(),
+              session->item->sample_rate());
+
+    auto err = openal_do(alGenSources, 1, &session->info.source);
+    openal_do(alSourcef, session->info.source, AL_PITCH, 1);
+    openal_do(alSourcef, session->info.source, AL_GAIN, 1.0f);
+    openal_do(alSource3f, session->info.source, AL_POSITION, 0, 0, 0);
+    openal_do(alSource3f, session->info.source, AL_VELOCITY, 0, 0, 0);
+    openal_do(alSourcei, session->info.source, AL_LOOPING, AL_FALSE);
+    openal_do(alSourcei, session->info.source, AL_BUFFER, session->info.handle);
+}
+
+// MARK: - Playback Management
+
+auto audio::openal::player::check_completion() -> void
+{
+    auto sessions = audio::player<playback_session_info>::playback_sessions();
+    for (auto& session : sessions) {
+        if (session == nullptr) {
+            continue;
+        }
+        ALint state;
+        openal_do(alGetSourcei, session->info.source, AL_SOURCE_STATE, &state);
+        if (state != AL_PLAYING) {
+            session->finish();
+        }
+    }
+
+    // Go through each of the sessions, and discard the completed ones.
+    audio::player<playback_session_info>::check_completion();
+}
+
+auto audio::openal::player::play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref
+{
+    if (!m_configured) {
+        return 0;
+    }
+
+    const auto& ref = audio::player<playback_session_info>::play(item, finished);
+    const auto& session = audio::player<playback_session_info>::playback_session(ref);
+
+    openal_do(alSourcePlay, session->info.source);
+
+    return ref;
+}
+
+auto audio::openal::player::stop(const playback_session_ref& ref) -> void
+{
+    if (!m_configured) {
+        return;
+    }
+
+    const auto& session = audio::player<playback_session_info>::playback_session(ref);
+    if (session) {
+        openal_do(alSourceStop, session->info.source);
+        session->ref = 0;
+    }
+}

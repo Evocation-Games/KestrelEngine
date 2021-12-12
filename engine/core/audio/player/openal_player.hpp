@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENAL_HPP)
-#define KESTREL_OPENAL_HPP
+#if !defined(OPENAL_PLAYER_HPP)
+#define OPENAL_PLAYER_HPP
 
 #if __APPLE__
 #   include <OpenAL/al.h>
@@ -29,59 +29,42 @@
 #   include <AL/alc.h>
 #endif
 
-#include <string>
-#include <thread>
-#include <memory>
-#include <vector>
-#include "core/audio/chunk.hpp"
+#include "core/audio/player/player.hpp"
 
 namespace audio::openal
 {
 
-    class player
+    struct playback_session_info
+    {
+        ALuint handle { 0 };
+        ALuint source { 0 };
+        ALenum format { AL_FORMAT_MONO8 };
+    };
+
+    class player : public audio::player<playback_session_info>
     {
     private:
-        struct playback_buffer
-        {
-            ALuint handle { 0 };
-            ALuint source { 0 };
-            ALenum format { AL_FORMAT_MONO8 };
-            std::shared_ptr<audio::chunk> chunk { nullptr };
-
-            playback_buffer() = default;
-        };
-
-        player();
-
-        bool m_configured { false };
-        bool m_configuration_attempted { false };
         ALCcontext *m_context { nullptr };
         ALCdevice *m_device { nullptr };
         ALCboolean m_context_current { false };
-        std::vector<std::unique_ptr<playback_buffer>> m_buffers;
-        std::unique_ptr<std::thread> m_playback_thread;
-
-        auto playback_loop() -> void;
+        bool m_configured { false };
 
     public:
-        player(const player&) = delete;
-        player& operator=(const player&) = delete;
-        player(player&&) = delete;
-        player& operator=(player&&) = delete;
+        auto configure() -> void override;
 
-        static auto global() -> player&;
+        auto check_completion() -> void override;
+        auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref override;
+        auto stop(const playback_session_ref& ref) -> void override;
 
-        auto configure_devices() -> bool;
-
-        auto play(std::shared_ptr<audio::chunk> chunk) -> bool;
+        auto acquire_player_info() -> playback_session_info override;
+        auto configure_playback_session(std::shared_ptr<audio::playback_session<playback_session_info>> session) -> void override;
 
         static auto check_errors(const std::string& filename, uint_fast32_t line) -> bool;
         static auto check_errors(const std::string& filename, uint_fast32_t line, ALCdevice *dev) -> bool;
 
-        auto play_background_audio(const std::string& path) -> void;
-        auto stop_background_audio() -> void;
     };
 
 }
 
-#endif //KESTREL_OPENAL_HPP
+
+#endif //OPENAL_PLAYER_HPP

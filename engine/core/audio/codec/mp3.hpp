@@ -18,50 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <cstdlib>
-#include "core/audio/chunk.hpp"
+#if !defined(AUDIO_IMA4_DECODER_HPP)
+#define AUDIO_IMA4_DECODER_HPP
 
-// MARK: - Destruction
+#include <memory>
+#include <string>
+#include "core/audio/player/player_item.hpp"
+#include "scripting/state.hpp"
+#include "util/hint.hpp"
 
-audio::chunk::~chunk()
+namespace audio::asset
 {
-    if (data) {
-        free(data);
-    }
+
+    class mp3 : public scripting::lua::object
+    {
+    public:
+        typedef luabridge::RefCountedPtr<audio::asset::mp3> lua_reference;
+        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+
+        lua_api explicit mp3(const std::string& file_path);
+
+        lua_api auto play() -> void;
+        lua_api auto stop() -> void;
+
+    private:
+        uint64_t m_ref { 0 };
+        std::shared_ptr<audio::player_item> m_item { nullptr };
+        std::string m_path { "" };
+    };
+
 }
 
-// MARK: - Codec
-
-auto audio::chunk::apply(const audio::codec_descriptor &descriptor) -> void
-{
-    sample_rate = descriptor.sample_rate;
-    format_id = descriptor.format_id;
-    format_flags = descriptor.format_flags;
-    bytes_per_packet = descriptor.bytes_per_packet;
-    frames_per_packet = descriptor.frames_per_packet;
-    bytes_per_frame = descriptor.bytes_per_frame;
-    channels = descriptor.channels;
-    bit_width = descriptor.bit_width;
-    sample_rate = descriptor.sample_rate;
-    packet_count = descriptor.packet_count;
-}
-
-// MARK: - Allocation
-
-auto audio::chunk::allocate_space(uint32_t size) -> void
-{
-    if (data) {
-        free(data);
-        data = nullptr;
-    }
-
-    data_size = size;
-    data = malloc(size);
-}
-
-// MARK: - Accessors
-
-auto audio::chunk::internal_data_pointer() -> void *
-{
-    return data;
-}
+#endif

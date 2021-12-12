@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <thread>
 #include <algorithm>
 #include <utility>
 #include "core/audio/audio_manager.hpp"
@@ -31,89 +30,110 @@ auto audio::manager::shared_manager() -> manager &
     return instance;
 }
 
-auto audio::manager::construct_playback_reference(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> playback_reference *
-{
-    playback_reference ref(m_next_ref_id++, std::move(chunk), std::move(completion));
-    m_playback_refs.emplace_back(ref);
-    return &m_playback_refs.back();
-}
+// MARK: - Library Management
 
-auto audio::manager::monitor_finished_playbacks() -> void
+auto audio::manager::set_library(library lib) -> void
 {
-    if (m_playback_refs.empty()) {
+    if (lib == m_library) {
         return;
     }
 
-    m_playback_refs.erase(std::remove_if(m_playback_refs.begin(), m_playback_refs.end(), [](const playback_reference& ref) {
-        if (ref.finished) {
-            ref.completion_callback();
-            return true;
-        }
-        else {
-            return false;
-        }
-    }), m_playback_refs.end());
-}
+    // Release the previous player
+    m_core_audio.reset();
 
-auto audio::manager::finish_playback(uint64_t playback_id) -> void
-{
-    for (auto& ref : m_playback_refs) {
-        if (ref.id == playback_id) {
-            ref.finished = true;
-            return;
+    // Assign the player...
+    m_library = lib;
+    switch (m_library) {
+        case library::core_audio: {
+#if __APPLE__
+            m_core_audio = std::make_shared<audio::core_audio::player>();
+            m_core_audio->configure();
+            break;
+#endif
+        }
+        case library::openal: {
+            m_openal = std::make_shared<audio::openal::player>();
+            m_openal->configure();
+            break;
+        }
+        case library::none: {
+            break;
         }
     }
 }
 
-// MARK: - Configuration
+auto audio::manager::current_library() const -> library
+{
+    return m_library;
+}
 
+// MARK: - Playback
+
+auto audio::manager::play_item(std::shared_ptr<player_item> item, std::function<auto()->void> completion) -> playback_session_ref
+{
+    switch (m_library) {
+        case library::core_audio:
 #if __APPLE__
-
-#include "core/audio/core_audio.hpp"
-#include "core/audio/openal.hpp"
-
-auto audio::manager::configure() -> void
-{
-}
-
-auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
-{
-    auto ref = construct_playback_reference(std::move(chunk), std::move(completion));
-    core_audio::play(ref);
-}
-
-auto audio::manager::play_background_audio(const std::string& path) -> void
-{
-    core_audio::play_background_audio(path);
-}
-
-auto audio::manager::stop_background_audio() -> void
-{
-    core_audio::stop_background_audio();
-}
-
-#else
-
-#include "core/audio/openal.hpp"
-
-auto audio::manager::configure() -> void
-{
-    openal::player::global().configure_devices();
-}
-
-auto audio::manager::play(std::shared_ptr<audio::chunk> chunk, std::function<auto()->void> completion) -> void
-{
-    openal::player::global().play(std::move(chunk));
-}
-
-auto audio::manager::play_background_audio(const std::string& path) -> void
-{   openal::player::global().play_background_audio(path);
-
-}
-
-auto audio::manager::stop_background_audio() -> void
-{
-    openal::player::global().stop_background_audio();
-}
-
+            return m_core_audio->play(std::move(item), std::move(completion));
 #endif
+
+        case library::openal:
+            return m_openal->play(std::move(item), std::move(completion));
+
+        default:
+            return 0;
+    }
+}
+
+auto audio::manager::stop_item(const audio::playback_session_ref& ref) -> void
+{
+    switch (m_library) {
+        case library::core_audio:
+#if __APPLE__
+            return m_core_audio->stop(ref);
+#endif
+
+        case library::openal:
+            return m_openal->stop(ref);
+
+        default:
+            return;
+    }
+}
+
+auto audio::manager::finish_item(const playback_session_ref &ref) -> void
+{
+    switch (m_library) {
+        case library::core_audio:
+#if __APPLE__
+            return m_core_audio->stop(ref);
+#endif
+
+        case library::openal:
+            return m_openal->stop(ref);
+
+        default:
+            return;
+    }
+}
+
+// MARK: - Timings
+
+auto audio::manager::tick() -> void
+{
+    // The purpose of this tick, is to check for completed sounds when using the OpenAL engine.
+    // Given that we don't receive a notification for when the sound finishes playing, we need to
+    // periodically check to see if the sound has finished playing.
+    switch (m_library) {
+        case library::core_audio:
+            m_core_audio->check_completion();
+            break;
+
+        case library::openal:
+            m_openal->check_completion();
+            break;
+
+        default:
+            break;
+    }
+}

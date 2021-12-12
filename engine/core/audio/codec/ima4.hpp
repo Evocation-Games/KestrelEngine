@@ -23,12 +23,12 @@
 
 #include <memory>
 #include <libGraphite/data/reader.hpp>
-#include "core/audio/chunk.hpp"
-#include "core/audio/audio_codec_descriptor.hpp"
+#include "core/audio/codec/audio_codec_descriptor.hpp"
+#include "core/audio/player/player_item.hpp"
 
 namespace audio::ima4
 {
-    auto decode(const audio::codec_descriptor& descriptor, graphite::data::reader& r) -> std::shared_ptr<audio::chunk>;
+    auto decode(const audio::codec_descriptor& descriptor, graphite::data::reader& r) -> std::shared_ptr<audio::player_item>;
 }
 
 #endif //IMA_4_HPP

@@ -18,35 +18,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(AUDIO_CHUNK_HPP)
-#define AUDIO_CHUNK_HPP
+#if !defined(CORE_AUDIO_PLAYER_HPP) && __APPLE__
+#define CORE_AUDIO_PLAYER_HPP
 
-#include <cstdint>
-#include "core/audio/audio_codec_descriptor.hpp"
+#include "core/audio/player/player.hpp"
+#include <AudioToolbox/AudioToolbox.h>
 
-namespace audio
+#if __OBJC__ || __OBJC2__
+    @class AVPlayerItem, AVPlayer;
+#else
+    typedef void * AVPlayerItem;
+    typedef void * AVPlayer;
+#endif
+
+namespace audio::core_audio
 {
-    struct chunk
+
+    struct playback_session_info
     {
-        void *data { nullptr };
-        uint32_t sample_rate { 0 };
-        uint32_t data_size { 0 };
-        uint32_t bytes_per_packet { 0 };
-        uint32_t frames_per_packet { 0 };
-        uint32_t bytes_per_frame { 0 };
-        uint8_t channels { 0 };
-        uint8_t bit_width { 0 };
-        uint32_t format_flags { 0 };
-        uint32_t format_id { 0 };
-        uint32_t packet_count { 0 };
-
-        chunk() = default;
-        ~chunk();
-
-        auto apply(const audio::codec_descriptor& descriptor) -> void;
-        auto allocate_space(uint32_t size = 0) -> void;
-        auto internal_data_pointer() -> void *;
+#if __APPLE__
+        AudioStreamBasicDescription stream_desc { 0 };
+        AudioQueueRef queue { nullptr };
+        AudioQueueBufferRef buffer { nullptr };
+        AVPlayerItem *item;
+#endif
     };
+
+    class player : public audio::player<playback_session_info>
+    {
+    public:
+        auto play(std::shared_ptr<audio::player_item> item, std::function<auto()->void> finished) -> playback_session_ref override;
+        auto stop(const playback_session_ref& ref) -> void override;
+
+        auto acquire_player_info() -> playback_session_info override;
+        auto configure_playback_session(std::shared_ptr<audio::playback_session<playback_session_info>> session) -> void override;
+
+    private:
+#if __APPLE__
+        AVPlayer *m_player { nullptr };
+#endif
+    };
+
 }
 
-#endif //CHUNK_HPP
+#endif
