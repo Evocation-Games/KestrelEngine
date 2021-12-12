@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{ matrix.installs }}
+          msystem: ${{ matrix.sys }}
           update: true
           install: base-devel git
 
