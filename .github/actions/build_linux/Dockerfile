@@ -4,7 +4,6 @@ RUN apt-get update -y -q && \
   apt-get install -y -q --no-install-recommends build-essential \
   cmake \
   clang++-10 \
-  clang-10 \
   clang-tidy-10 \
   clang-tools-10 \
   libopenal-dev \
