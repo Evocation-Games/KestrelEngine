@@ -39,7 +39,10 @@ auto audio::manager::set_library(library lib) -> void
     }
 
     // Release the previous player
+#if __APPLE__
     m_core_audio.reset();
+#endif
+    m_openal.reset();
 
     // Assign the player...
     m_library = lib;
@@ -126,7 +129,9 @@ auto audio::manager::tick() -> void
     // periodically check to see if the sound has finished playing.
     switch (m_library) {
         case library::core_audio:
+#if __APPLE__
             m_core_audio->check_completion();
+#endif
             break;
 
         case library::openal:
