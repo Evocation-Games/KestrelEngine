@@ -17,8 +17,6 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pacman -S --noconfirm mingw-w64-x86_64-cmake
-        pacman -S --noconfirm mingw-w64-x86_64-make
         pacman -S --noconfirm mingw-w64-x86_64-openal
         pacman -S --noconfirm mingw-w64-x86_64-mesa
         pacman -S --noconfirm mingw-w64-x86_64-glfw
