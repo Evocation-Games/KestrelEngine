@@ -1,4 +1,4 @@
 #!/bin/sh -l
 
-cmake -H. -Bbuild
-cmake --build build -- -j2
+cmake -G"MSYS Makefiles" -H. -Bbuild
+cmake -G"MSYS Makefiles" --build build -- -j2
