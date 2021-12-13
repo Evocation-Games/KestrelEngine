@@ -1,4 +1,8 @@
 #!/bin/sh -l
 
-cmake -G"MSYS Makefiles" -H. -Bbuild
-cmake -G"MSYS Makefiles" --build build -- -j2
+printenv
+which cmake
+
+
+cmake -H. -Bbuild
+cmake --build build -- -j2
