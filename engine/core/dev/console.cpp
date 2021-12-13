@@ -26,6 +26,12 @@ dev::console::console()
     : m_size({ 600, 300 }), m_dirty(true), m_visible(true)
 {
     m_history.emplace_back("Kestrel v0.5");
+
+    m_input.on_enter([&] (const std::string& input) {
+        m_history.emplace_back("&IN>" + input);
+        m_input.set_string_value("");
+        m_input.set_cursor_position(0);
+    });
 }
 
 // MARK: - Drawing Update
@@ -62,14 +68,20 @@ auto dev::console::update() -> void
 
     // Draw the output and history...
     for (auto it = m_history.rbegin(); it != m_history.rend() && y >= 0; ++it) {
-        if ((*it).substr(0, 3) == "***") {
+        auto line = *it;
+        if (line.substr(0, 3) == "***") {
+            line = line.substr(3);
             m_canvas->set_pen_color(graphics::color::red_color());
+        }
+        else if (line.substr(0, 4) == "&IN>") {
+            line = line.substr(4);
+            m_canvas->set_pen_color(graphics::color::white_color());
         }
         else {
             m_canvas->set_pen_color(graphics::color::grey_color());
         }
 
-        size = m_canvas->layout_text_in_bounds(*it, { m_size.width - 10, 20 });
+        size = m_canvas->layout_text_in_bounds(line, { m_size.width - 10, 20 });
         y -= size.height;
         m_canvas->draw_text({ 5, y });
     }

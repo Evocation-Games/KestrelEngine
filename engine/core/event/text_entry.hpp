@@ -22,6 +22,7 @@
 #define TEXT_ENTRY_HPP
 
 #include <array>
+#include <functional>
 #include "core/event/key.hpp"
 
 namespace event::control
@@ -32,9 +33,10 @@ namespace event::control
     public:
         struct key_mapping
         {
-            char base;
-            char shifted;
-            key_mapping(char base = 0, char shifted = 0) : base(base), shifted(shifted) {}
+            char base { 0 };
+            char shifted { 0 };
+            key_mapping() = default;
+            key_mapping(char base, char shifted) : base(base), shifted(shifted) {}
         };
 
         text_entry();
@@ -49,7 +51,12 @@ namespace event::control
         [[nodiscard]] auto cursor_position() const -> int;
         auto set_cursor_position(const int& position) -> void;
 
+        auto on_enter(std::function<auto(const std::string&)->void> callback) -> void;
+        auto on_escape(std::function<auto()->void> callback) -> void;
+
     private:
+        std::function<auto(const std::string&)->void> m_on_enter;
+        std::function<auto()->void> m_on_escape;
         std::array<key_mapping, 336> m_keymap;
         std::string m_value;
         bool m_alt { false };

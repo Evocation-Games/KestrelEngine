@@ -25,6 +25,9 @@
 event::control::text_entry::text_entry()
 {
     load_default_keymap();
+
+    m_on_enter = [] (const std::string& text) {};
+    m_on_escape = [] {};
 }
 
 // MARK: - Event Processing
@@ -55,6 +58,19 @@ auto event::control::text_entry::receive(const event::key &key) -> void
             m_super = key.is_pressed();
             return;
         }
+        case key::code::enter:
+        case key::code::kp_enter: {
+            if (key.is_released()) {
+                m_on_enter(m_value);
+            }
+            return;
+        }
+        case key::code::escape: {
+            if (key.is_released()) {
+                m_on_escape();
+            }
+            return;
+        }
         default: {
             break;
         }
@@ -66,10 +82,6 @@ auto event::control::text_entry::receive(const event::key &key) -> void
     }
 
     switch (key.code()) {
-        // Handle any special key cases...
-        case key::code::escape: {
-            return;
-        }
         case key::code::left: {
             if (m_cursor > 0) {
                 m_cursor--;
@@ -162,4 +174,16 @@ auto event::control::text_entry::load_default_keymap() -> void
     m_keymap[key::code::minus] = { '-', '_' };
     m_keymap[key::code::tab] = { '\t', '\t' };
     m_keymap[key::code::space] = { ' ', ' ' };
+}
+
+// MARK: - Callbacks
+
+auto event::control::text_entry::on_enter(std::function<auto(const std::string&)->void> callback) -> void
+{
+    m_on_enter = std::move(callback);
+}
+
+auto event::control::text_entry::on_escape(std::function<auto()->void> callback) -> void
+{
+    m_on_escape = std::move(callback);
 }
