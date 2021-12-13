@@ -16,10 +16,6 @@ jobs:
         shell: msys2 {0}
     steps:
     - uses: actions/checkout@v2
-    - run: |
-        git submodule init
-        git submodule update
-
     - uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.msys2.msystem }}
@@ -40,4 +36,7 @@ jobs:
       env:
         CC: ${{ matrix.compiler.CC }}
         CXX: ${{ matrix.compiler.CXX }}
-      run: ./.github/actions/build_msys2/entrypoint.sh
+      run: |
+        git submodule init
+        git submodule update
+        ./.github/actions/build_msys2/entrypoint.sh
