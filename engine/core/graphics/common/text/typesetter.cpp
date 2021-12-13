@@ -40,7 +40,7 @@ graphics::typesetter::typesetter(const std::string &text, const double& scale)
     m_text = convert.from_bytes(text);
 }
 
-// MARK: - Accessors
+// MARK: - Setters
 
 auto graphics::typesetter::set_margins(const math::size &margins) -> void
 {
@@ -70,9 +70,16 @@ auto graphics::typesetter::set_text(const std::string &text) -> void
     m_text = convert.from_bytes(text);
 }
 
+// MARK: - Accessors
+
 auto graphics::typesetter::get_bounding_size() const -> math::size
 {
     return m_min_size;
+}
+
+auto graphics::typesetter::font() const -> std::shared_ptr<graphics::font>
+{
+    return m_base_font;
 }
 
 // MARK: - Utilities

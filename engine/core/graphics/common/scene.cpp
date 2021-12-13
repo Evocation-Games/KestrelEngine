@@ -110,6 +110,13 @@ auto graphics::scene::add_key_event_block(const luabridge::LuaRef &block) -> voi
 
 auto graphics::scene::key_event(const event::key &event) -> void
 {
+    if (auto owner = get_owner().lock()) {
+        if (owner->console().is_visible()) {
+            owner->console().receive(event);
+            return;
+        }
+    }
+
     auto ref = event::key::lua_reference(new event::key(event));
     for (const auto& block : m_key_event_blocks) {
         block(ref);

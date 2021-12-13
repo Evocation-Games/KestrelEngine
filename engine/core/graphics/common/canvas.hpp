@@ -68,7 +68,8 @@ namespace graphics
 
         lua_api auto get_bounds() const -> math::rect;
 
-        lua_api auto set_font(const std::string& name, const int& size) ->void;
+        lua_api auto set_font(const std::string& name, const int& size) -> void;
+        [[nodiscard]] auto font() const -> std::shared_ptr<graphics::font>;
 
         lua_api auto clear() -> void;
 

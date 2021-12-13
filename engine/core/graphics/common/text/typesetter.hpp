@@ -75,6 +75,8 @@ namespace graphics
         lua_api auto set_font_size(const int& size) -> void;
         lua_api auto set_font_color(const graphics::color& color) -> void;
 
+        [[nodiscard]] auto font() const -> std::shared_ptr<graphics::font>;
+
         lua_api auto set_text(const std::string& text) -> void;
 
         lua_api auto get_bounding_size() const -> math::size;
