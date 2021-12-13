@@ -13,10 +13,12 @@ jobs:
       with:
         msystem: MINGW64
         update: true
-        install: git cmake make mingw-w64-x86_64-toolchain mingw-w64-x86_64-clang
+        install: git mingw-w64-x86_64-toolchain mingw-w64-x86_64-clang
 
     - name: Install dependencies
       run: |
+        pacman -S --noconfirm mingw-w64-x86_64-cmake
+        pacman -S --noconfirm mingw-w64-x86_64-make
         pacman -S --noconfirm mingw-w64-x86_64-openal
         pacman -S --noconfirm mingw-w64-x86_64-mesa
         pacman -S --noconfirm mingw-w64-x86_64-glfw
