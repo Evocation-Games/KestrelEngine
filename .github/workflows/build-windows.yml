@@ -19,20 +19,18 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.msys2.msystem }}
-        install: |
-          git
-          mingw-w64-${{ matrix.msys2.arch }}-toolchain
-          mingw-w64-${{ matrix.msys2.arch }}-clang
-          mingw-w64-${{ matrix.msys2.arch }}-cmake
-          mingw-w64-${{ matrix.msys2.arch }}-ninja
+        install: git mingw-w64-${{ matrix.msys2.arch }}-toolchain
 
     - name: Install dependencies
       run: |
-        pacman -S --noconfirm mingw-w64-x86_64-openal
-        pacman -S --noconfirm mingw-w64-x86_64-mesa
-        pacman -S --noconfirm mingw-w64-x86_64-glfw
-        pacman -S --noconfirm mingw-w64-x86_64-glew
-        pacman -S --noconfirm mingw-w64-x86_64-freetype
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-clang
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-cmake
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-ninja
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-openal
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-mesa
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-glfw
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-glew
+        pacman -S --noconfirm mingw-w64-${{ matrix.msys2.arch }}-freetype
 
     - name: Run build
       env:
