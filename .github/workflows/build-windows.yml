@@ -17,12 +17,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pacman -S mingw-w64-x86_64-cmake
-        pacman -S mingw-w64-x86_64-openal
-        pacman -S mingw-w64-x86_64-mesa
-        pacman -S mingw-w64-x86_64-glfw
-        pacman -S mingw-w64-x86_64-glew
-        pacman -S mingw-w64-x86_64-freetype
+        pacman -S --noconfirm mingw-w64-x86_64-cmake
+        pacman -S --noconfirm mingw-w64-x86_64-openal
+        pacman -S --noconfirm mingw-w64-x86_64-mesa
+        pacman -S --noconfirm mingw-w64-x86_64-glfw
+        pacman -S --noconfirm mingw-w64-x86_64-glew
+        pacman -S --noconfirm mingw-w64-x86_64-freetype
 
     - name: Run build
       run: ./.github/actions/build_msys2/entrypoint.sh
