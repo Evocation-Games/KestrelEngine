@@ -3,7 +3,14 @@ on: [push]
 jobs:
   build:
     name: Build on Windows
-    runs-on: windows-2019
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest]
+        msys2:
+          - { msystem: MINGW64, arch: x86_64 }
+        compiler:
+          - { compiler: LLVM, CC: clang, CXX: clang++ }
     defaults:
       run:
         shell: msys2 {0}
@@ -11,14 +18,16 @@ jobs:
     - uses: actions/checkout@v2
     - uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
-        update: true
-        install: git mingw-w64-x86_64-toolchain mingw-w64-x86_64-clang
+        msystem: ${{ matrix.msys2.msystem }}
+        install: |
+          git
+          mingw-w64-${{ matrix.msys2.arch }}-toolchain
+          mingw-w64-${{ matrix.msys2.arch }}-clang
+          mingw-w64-${{ matrix.msys2.arch }}-cmake
+          mingw-w64-${{ matrix.msys2.arch }}-ninja
 
     - name: Install dependencies
       run: |
-        pacman -S --noconfirm mingw-w64-x86_64-cmake
-        pacman -S --noconfirm mingw-w64-x86_64-make
         pacman -S --noconfirm mingw-w64-x86_64-openal
         pacman -S --noconfirm mingw-w64-x86_64-mesa
         pacman -S --noconfirm mingw-w64-x86_64-glfw
@@ -26,7 +35,7 @@ jobs:
         pacman -S --noconfirm mingw-w64-x86_64-freetype
 
     - name: Run build
-      run: ./.github/actions/build_msys2/entrypoint.sh
       env:
-        CC: clang
-        CXX: clang++
+        CC: ${{ matrix.compiler.CC }}
+        CXX: ${{ matrix.compiler.CXX }}
+      run: ./.github/actions/build_msys2/entrypoint.sh
