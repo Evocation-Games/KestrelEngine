@@ -16,7 +16,13 @@ jobs:
         install: git cmake make mingw-w64-x86_64-toolchain mingw-w64-x86_64-clang
 
     - name: Install dependencies
-      run: pacman -S cmake libopenal-dev libopengl-dev libglfw3-dev libglew libfreetype-dev
+      run: |
+        pacman -S mingw-w64-x86_64-cmake
+        pacman -S mingw-w64-x86_64-openal
+        pacman -S mingw-w64-x86_64-mesa
+        pacman -S mingw-w64-x86_64-glfw
+        pacman -S mingw-w64-x86_64-glew
+        pacman -S mingw-w64-x86_64-freetype
 
     - name: Run build
       run: ./.github/actions/build_msys2/entrypoint.sh
