@@ -21,6 +21,7 @@
 #if !defined(TEXT_ENTRY_HPP)
 #define TEXT_ENTRY_HPP
 
+#include <array>
 #include "core/event/key.hpp"
 
 namespace event::control
@@ -29,15 +30,32 @@ namespace event::control
     class text_entry
     {
     public:
-        text_entry() = default;
+        struct key_mapping
+        {
+            char base;
+            char shifted;
+            key_mapping(char base = 0, char shifted = 0) : base(base), shifted(shifted) {}
+        };
+
+        text_entry();
+
+        auto load_default_keymap() -> void;
 
         auto receive(const event::key& key) -> void;
 
         [[nodiscard]] auto string_value() const -> std::string;
         auto set_string_value(const std::string& value) -> void;
 
+        [[nodiscard]] auto cursor_position() const -> int;
+        auto set_cursor_position(const int& position) -> void;
+
     private:
+        std::array<key_mapping, 336> m_keymap;
         std::string m_value;
+        bool m_alt { false };
+        bool m_shift { false };
+        bool m_control { false };
+        bool m_super { false };
         int m_cursor { 0 };
     };
 

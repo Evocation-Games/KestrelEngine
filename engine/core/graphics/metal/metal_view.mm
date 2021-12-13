@@ -592,6 +592,17 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 
         // Special
         case kVK_Space:                 return event::key::code::space;
+        case kVK_ANSI_Period:           return event::key::code::period;
+        case kVK_ANSI_Comma:            return event::key::code::comma;
+        case kVK_ANSI_Semicolon:        return event::key::code::semi_colon;
+        case kVK_ANSI_Quote:            return event::key::code::apostrophe;
+        case kVK_ANSI_LeftBracket:      return event::key::code::left_bracket;
+        case kVK_ANSI_RightBracket:     return event::key::code::right_bracket;
+        case kVK_ANSI_Grave:            return event::key::code::grave_accent;
+        case kVK_ANSI_Backslash:        return event::key::code::backslash;
+        case kVK_ANSI_Slash:            return event::key::code::slash;
+        case kVK_ANSI_Minus:            return event::key::code::minus;
+        case kVK_ANSI_Equal:            return event::key::code::equal;
 
         // Unknown
         default:                        return event::key::code::unknown;

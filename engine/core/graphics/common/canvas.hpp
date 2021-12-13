@@ -83,6 +83,7 @@ namespace graphics
 
         lua_api auto layout_text(const std::string& text) -> math::size;
         lua_api auto layout_text_in_bounds(const std::string& text, const math::size& bounds) -> math::size;
+        lua_api auto character_point_in_text(const int& position) const -> math::point;
         lua_api auto draw_text(const math::point& point) -> void;
 
         lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;

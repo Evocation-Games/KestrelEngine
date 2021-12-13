@@ -305,6 +305,11 @@ auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math
     return m_typesetter.get_bounding_size() / m_scale;
 }
 
+auto graphics::canvas::character_point_in_text(const int &position) const -> math::point
+{
+    return m_typesetter.get_point_at_location(position);
+}
+
 auto graphics::canvas::draw_text(const math::point &point) -> void
 {
     auto inner_draw_text = [this] (const math::point& point) {

@@ -49,10 +49,16 @@ auto dev::console::update() -> void
 
     auto y = m_size.height - 5;
     // Draw user input...
-    auto size = m_canvas->layout_text_in_bounds("> " + m_input.string_value(), { m_size.width - 10, 20 });
-    y -= size.height;
+    m_canvas->set_pen_color(graphics::color::teal_color());
+    auto inset = m_canvas->layout_text_in_bounds("> ", { 50, 20 });
+    y -= inset.height;
     m_canvas->draw_text({ 5, y });
-    m_canvas->fill_rect({ 7 + size.width, y, 3, size.height });
+
+    auto size = m_canvas->layout_text_in_bounds(m_input.string_value(), { m_size.width - 10 - inset.width, 9999 });
+    const auto& cursor = m_canvas->character_point_in_text(m_input.cursor_position());
+    m_canvas->set_pen_color(graphics::color::white_color());
+    m_canvas->draw_text({ 5 + inset.width, y });
+    m_canvas->fill_rect({ 5 + inset.width + cursor.x, y + cursor.y, 2, size.height });
 
     // Draw the output and history...
     for (auto it = m_history.rbegin(); it != m_history.rend() && y >= 0; ++it) {
@@ -60,7 +66,7 @@ auto dev::console::update() -> void
             m_canvas->set_pen_color(graphics::color::red_color());
         }
         else {
-            m_canvas->set_pen_color(graphics::color::light_grey_color());
+            m_canvas->set_pen_color(graphics::color::grey_color());
         }
 
         size = m_canvas->layout_text_in_bounds(*it, { m_size.width - 10, 20 });

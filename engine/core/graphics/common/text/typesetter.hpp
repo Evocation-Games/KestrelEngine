@@ -42,6 +42,7 @@ namespace graphics
             bool italic;
             double x;
             double y;
+            double w;
         };
 
     private:
@@ -63,7 +64,7 @@ namespace graphics
         auto drop_buffer() -> void;
         auto newline() -> void;
         auto advance(const double& d, const bool& buffer = false) -> void;
-        auto place(const wchar_t& c, const bool& buffer = true) -> void;
+        auto place(const wchar_t& c, const bool& buffer = true, const double& cw = 0) -> void;
 
         static auto is_non_breaking(const wchar_t& c) -> bool;
 
@@ -80,6 +81,7 @@ namespace graphics
         lua_api auto set_text(const std::string& text) -> void;
 
         lua_api auto get_bounding_size() const -> math::size;
+        lua_api auto get_point_at_location(const int& location) const -> math::point;
 
         lua_api auto requires_layout() const -> bool;
 

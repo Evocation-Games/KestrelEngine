@@ -20,27 +20,67 @@
 
 #include "core/event/text_entry.hpp"
 
+// MARK: - Constructor
+
+event::control::text_entry::text_entry()
+{
+    load_default_keymap();
+}
+
 // MARK: - Event Processing
 
 auto event::control::text_entry::receive(const event::key &key) -> void
 {
     // TODO: Handle key repeats
 
+    // Update the internally tracked modifier states.
+    switch (key.code()) {
+        case key::code::left_alt:
+        case key::code::right_alt: {
+            m_alt = key.is_pressed();
+            return;
+        }
+        case key::code::left_control:
+        case key::code::right_control: {
+            m_control = key.is_pressed();
+            return;
+        }
+        case key::code::left_shift:
+        case key::code::right_shift: {
+            m_shift = key.is_pressed();
+            return;
+        }
+        case key::code::left_super:
+        case key::code::right_super: {
+            m_super = key.is_pressed();
+            return;
+        }
+        default: {
+            break;
+        }
+    }
+
+    // We don't want to deal with general key events, only pressed keys.
     if (!key.is_pressed()) {
         return;
     }
 
     switch (key.code()) {
-        case key::code::left_alt:
-        case key::code::left_control:
-        case key::code::left_shift:
-        case key::code::left_super:
-        case key::code::right_alt:
-        case key::code::right_control:
-        case key::code::right_shift:
-        case key::code::right_super:
+        // Handle any special key cases...
         case key::code::escape: {
             return;
+        }
+        case key::code::left: {
+            if (m_cursor > 0) {
+                m_cursor--;
+            }
+            break;
+        }
+        case key::code::right: {
+            if (m_cursor < m_value.size()) {
+                m_cursor++;
+            }
+            break;
         }
         case key::code::backspace: {
             if (m_cursor == 0) {
@@ -50,94 +90,15 @@ auto event::control::text_entry::receive(const event::key &key) -> void
             m_cursor--;
             break;
         }
-        case key::code::kp_1:
-        case key::code::num1: {
-            char c = static_cast<char>(key.has_shift() ? '!' : '1');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_2:
-        case key::code::num2: {
-            char c = static_cast<char>(key.has_shift() ? '@' : '2');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_3:
-        case key::code::num3: {
-            char c = static_cast<char>(key.has_shift() ? '#' : '3');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_4:
-        case key::code::num4: {
-            char c = static_cast<char>(key.has_shift() ? '$' : '4');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_5:
-        case key::code::num5: {
-            char c = static_cast<char>(key.has_shift() ? '%' : '5');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_6:
-        case key::code::num6: {
-            char c = static_cast<char>(key.has_shift() ? '^' : '6');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_7:
-        case key::code::num7: {
-            char c = static_cast<char>(key.has_shift() ? '&' : '7');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_8:
-        case key::code::num8: {
-            char c = static_cast<char>(key.has_shift() ? '*' : '8');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_9:
-        case key::code::num9: {
-            char c = static_cast<char>(key.has_shift() ? '!' : '9');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
-        case key::code::kp_0:
-        case key::code::num0: {
-            char c = static_cast<char>(key.has_shift() ? ')' : '0');
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
-            break;
-        }
+
+        // The general handler will default to the keymap.
         default: {
-            char c = static_cast<char>(key.code());
-            if (c >= 'A' && c <= 'Z') {
-                c = static_cast<char>(key.has_shift() ? : (c - 'A') + 'a');
+            const auto& mapping = m_keymap[key.code()];
+            char c[2] = { m_shift ? mapping.shifted : mapping.base, '\0' };
+            if (c[0] != '\0') {
+                m_value.insert(m_cursor, c);
+                m_cursor++;
             }
-            char insert[2] = { c, '\0' };
-            m_value.insert(m_cursor, insert);
-            m_cursor++;
             break;
         }
     }
@@ -153,4 +114,52 @@ auto event::control::text_entry::set_string_value(const std::string &value) -> v
 auto event::control::text_entry::string_value() const -> std::string
 {
     return m_value;
+}
+
+auto event::control::text_entry::cursor_position() const -> int
+{
+    return m_cursor;
+}
+
+auto event::control::text_entry::set_cursor_position(const int& position) -> void
+{
+    m_cursor = position;
+}
+
+// MARK: - Keymap
+
+auto event::control::text_entry::load_default_keymap() -> void
+{
+    for (int k = key::code::a; k <= key::code::z; ++k) {
+        m_keymap[k] = { static_cast<char>((k - 'A') + 'a'), static_cast<char>(k) };
+    }
+
+    m_keymap[key::code::num1] = { '1', '!' };
+    m_keymap[key::code::num2] = { '2', '@' };
+    m_keymap[key::code::num3] = { '3', '#' };
+    m_keymap[key::code::num4] = { '4', '$' };
+    m_keymap[key::code::num5] = { '5', '%' };
+    m_keymap[key::code::num6] = { '6', '^' };
+    m_keymap[key::code::num7] = { '7', '&' };
+    m_keymap[key::code::num8] = { '8', '*' };
+    m_keymap[key::code::num9] = { '9', '(' };
+    m_keymap[key::code::num0] = { '0', ')' };
+
+    for (int n = key::code::num0; n <= key::code::num9; ++n) {
+        m_keymap[key::code::kp_0 + (n - key::code::num0)] = m_keymap[n];
+    }
+
+    m_keymap[key::code::apostrophe] = { '\'', '"' };
+    m_keymap[key::code::semi_colon] = { ';', ':' };
+    m_keymap[key::code::backslash] = { '\\', '|' };
+    m_keymap[key::code::grave_accent] = { '`', '~' };
+    m_keymap[key::code::left_bracket] = { '[', '{' };
+    m_keymap[key::code::right_bracket] = { ']', '}' };
+    m_keymap[key::code::comma] = { ',', '<' };
+    m_keymap[key::code::period] = { '.', '>' };
+    m_keymap[key::code::slash] = { '/', '?' };
+    m_keymap[key::code::equal] = { '=', '+' };
+    m_keymap[key::code::minus] = { '-', '_' };
+    m_keymap[key::code::tab] = { '\t', '\t' };
+    m_keymap[key::code::space] = { ' ', ' ' };
 }
