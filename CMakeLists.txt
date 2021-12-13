@@ -72,31 +72,14 @@ add_custom_command(TARGET KestrelGameCore
 	DEPENDS ${kestrel_game_files}
 )
 
-# GLEW (Windows Only) ##########################################################
-if(WIN32)
-	set(GLEW_DIR ${CMAKE_SOURCE_DIR}/support/Windows/GLEW)
-	set(GLEW_LIBRARIES GLEW)
-	set(GLEW_INCLUDE_DIRS ${GLEW_DIR})
-
-	file(GLOB_RECURSE glew_sources
-		${GLEW_DIR}/*.c
-	)
-
-	add_library(GLEW ${glew_sources})
-	target_compile_definitions(GLEW PUBLIC -DGLEW_STATIC)
-	target_include_directories(GLEW PUBLIC ${GLEW_INCLUDE_DIRS})
-endif()
-
-# OPENAL #######################################################################
-find_package(OpenAL REQUIRED)
-
 # KESTREL ENGINE ###############################################################
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(OpenAL REQUIRED)
 
-if(LINUX)
+if(LINUX OR WIN32)
 	find_package(GLEW REQUIRED)
 endif()
 
