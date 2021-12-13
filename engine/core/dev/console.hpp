@@ -41,6 +41,7 @@ namespace dev
 
         auto on_command(std::function<auto(const std::string&)->void> callback) -> void;
 
+        auto write(const std::string& message) -> void;
         auto receive(const event::key& key) -> void;
         auto update() -> void;
 

@@ -113,6 +113,7 @@ public:
 
     auto prepare_lua_interface() -> void;
     auto issue_lua_command(const std::string& lua) -> void;
+    auto lua_out(const std::string& message, bool error = false) -> void;
 
     auto cache() -> std::shared_ptr<asset::cache>;
 

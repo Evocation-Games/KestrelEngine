@@ -131,6 +131,11 @@ auto dev::console::receive(const event::key &key) -> void
     m_input.receive(key);
 }
 
+auto dev::console::write(const std::string &message) -> void
+{
+    m_history.emplace_back(message);
+}
+
 // MARK: - Commands
 
 auto dev::console::on_command(std::function<auto(const std::string &)->void> callback) -> void

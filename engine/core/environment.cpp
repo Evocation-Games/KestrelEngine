@@ -419,6 +419,11 @@ auto environment::issue_lua_command(const std::string& lua) -> void
     script.execute();
 }
 
+auto environment::lua_out(const std::string& message, bool error) -> void
+{
+    m_game_window->console().write(message);
+}
+
 // MARK: - Accessors
 
 auto environment::window() -> std::shared_ptr<graphics::session_window>
