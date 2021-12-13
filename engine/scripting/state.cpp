@@ -63,6 +63,27 @@ scripting::lua::state::~state()
     lua_close(m_state);
 }
 
+// MARK: - Custom Print
+
+static int scripting_lua_state_print(lua_State *state)
+{
+    if (auto env = environment::active_environment().lock()) {
+        int nargs = lua_gettop(state);
+
+        for (int i = 1; i <= nargs; ++i) {
+            if (lua_isstring(state, i)) {
+                auto str = lua_tostring(state, i);
+                env->lua_out(str);
+            }
+            else {
+
+            }
+        }
+    }
+
+    return 0;
+}
+
 // MARK: - Lua
 
 auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<environment>& env) -> void
@@ -110,6 +131,9 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     util::lua_vector<asset::resource_descriptor::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
     util::lua_vector<std::string>::enroll_object_api_in_state("StringVector", shared_from_this());
+
+    luabridge::getGlobalNamespace(m_state)
+            .addFunction("print", scripting_lua_state_print);
 }
 
 
@@ -213,4 +237,3 @@ auto scripting::lua::state::global_namespace() const -> luabridge::Namespace
 {
     return luabridge::getGlobalNamespace(m_state);
 }
-

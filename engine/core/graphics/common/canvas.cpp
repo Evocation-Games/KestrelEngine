@@ -89,6 +89,11 @@ auto graphics::canvas::set_font(const std::string &name, const int &size) -> voi
     m_typesetter.set_font_size(size);
 }
 
+auto graphics::canvas::font() const -> std::shared_ptr<graphics::font>
+{
+    return m_typesetter.font();
+}
+
 auto graphics::canvas::get_bounds() const -> math::rect
 {
     return { math::point(0), m_size };
@@ -298,6 +303,11 @@ auto graphics::canvas::layout_text_in_bounds(const std::string &text, const math
     m_typesetter.set_text(text);
     m_typesetter.layout();
     return m_typesetter.get_bounding_size() / m_scale;
+}
+
+auto graphics::canvas::character_point_in_text(const int &position) const -> math::point
+{
+    return m_typesetter.get_point_at_location(position);
 }
 
 auto graphics::canvas::draw_text(const math::point &point) -> void

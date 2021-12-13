@@ -592,6 +592,30 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
 
         // Special
         case kVK_Space:                 return event::key::code::space;
+        case kVK_ANSI_Period:           return event::key::code::period;
+        case kVK_ANSI_Comma:            return event::key::code::comma;
+        case kVK_ANSI_Semicolon:        return event::key::code::semi_colon;
+        case kVK_ANSI_Quote:            return event::key::code::apostrophe;
+        case kVK_ANSI_LeftBracket:      return event::key::code::left_bracket;
+        case kVK_ANSI_RightBracket:     return event::key::code::right_bracket;
+        case kVK_ANSI_Grave:            return event::key::code::grave_accent;
+        case kVK_ANSI_Backslash:        return event::key::code::backslash;
+        case kVK_ANSI_Slash:            return event::key::code::slash;
+        case kVK_ANSI_Minus:            return event::key::code::minus;
+        case kVK_ANSI_Equal:            return event::key::code::equal;
+
+        case kVK_F1:                    return event::key::code::f1;
+        case kVK_F2:                    return event::key::code::f2;
+        case kVK_F3:                    return event::key::code::f3;
+        case kVK_F4:                    return event::key::code::f4;
+        case kVK_F5:                    return event::key::code::f5;
+        case kVK_F6:                    return event::key::code::f6;
+        case kVK_F7:                    return event::key::code::f7;
+        case kVK_F8:                    return event::key::code::f8;
+        case kVK_F9:                    return event::key::code::f9;
+        case kVK_F10:                    return event::key::code::f10;
+        case kVK_F11:                    return event::key::code::f11;
+        case kVK_F12:                    return event::key::code::f12;
 
         // Unknown
         default:                        return event::key::code::unknown;

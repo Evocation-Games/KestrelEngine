@@ -40,7 +40,7 @@ graphics::typesetter::typesetter(const std::string &text, const double& scale)
     m_text = convert.from_bytes(text);
 }
 
-// MARK: - Accessors
+// MARK: - Setters
 
 auto graphics::typesetter::set_margins(const math::size &margins) -> void
 {
@@ -70,9 +70,31 @@ auto graphics::typesetter::set_text(const std::string &text) -> void
     m_text = convert.from_bytes(text);
 }
 
+// MARK: - Accessors
+
 auto graphics::typesetter::get_bounding_size() const -> math::size
 {
     return m_min_size;
+}
+
+auto graphics::typesetter::font() const -> std::shared_ptr<graphics::font>
+{
+    return m_base_font;
+}
+
+auto graphics::typesetter::get_point_at_location(const int &location) const -> math::point
+{
+    if (m_layout.empty()) {
+        return { 0, 0 };
+    }
+    if (location >= m_layout.size()) {
+        const auto& c = m_layout.at(m_layout.size() - 1);
+        return { c.x + c.w, c.y };
+    }
+    else {
+        const auto& c = m_layout.at(location);
+        return { c.x, c.y };
+    }
 }
 
 // MARK: - Utilities
@@ -156,7 +178,7 @@ auto graphics::typesetter::layout() -> void
 
             // We still have space to place the glyph on the current line.
             else {
-                place(*i);
+                place(*i, true, glyph_advance);
                 advance(glyph_advance, true);
                 m_min_size.width = std::max(m_min_size.width, m_pos.x + m_buffer_width);
                 ++i;
@@ -176,7 +198,7 @@ auto graphics::typesetter::layout() -> void
             }
 
             // Add the character directly to the layout.
-            place(*c, true);
+            place(*c, true, glyph_advance);
             advance(glyph_advance, false);
             m_min_size.width = std::max(m_min_size.width, m_pos.x);
         }
@@ -265,12 +287,13 @@ auto graphics::typesetter::advance(const double& d, const bool& buffer) -> void
     }
 }
 
-auto graphics::typesetter::place(const wchar_t& c, const bool& in_buffer) -> void
+auto graphics::typesetter::place(const wchar_t& c, const bool& in_buffer, const double& cw) -> void
 {
     typesetter::character ch { 0 };
     ch.value = c;
     ch.x = std::round(m_pos.x + m_buffer_width);
     ch.y = std::round(m_pos.y);
+    ch.w = std::round(cw);
     if (in_buffer) {
         m_buffer.emplace_back(ch);
     }

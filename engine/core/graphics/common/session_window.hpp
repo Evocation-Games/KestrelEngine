@@ -27,6 +27,7 @@
 #include <vector>
 #include "core/environment.hpp"
 #include "math/size.hpp"
+#include "core/dev/console.hpp"
 
 namespace graphics
 {
@@ -57,6 +58,7 @@ namespace graphics
         std::vector<std::shared_ptr<graphics::scene>> m_scenes;
         std::shared_ptr<graphics::shader> m_sprite_shader;
         math::size m_size;
+        dev::console m_console;
 
     public:
         explicit session_window(std::shared_ptr<environment> env, const double& scale = 1.0);
@@ -83,6 +85,7 @@ namespace graphics
         virtual auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
         virtual auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>;
 
+        virtual auto console() -> dev::console&;
     };
 }
 

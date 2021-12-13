@@ -29,6 +29,10 @@ graphics::session_window::session_window(std::shared_ptr<environment> env, const
     : m_environment(env), m_scale(scale)
 {
     m_cache_purge_time = session_clock::now();
+
+    m_console.on_command([&, env] (const std::string& command) {
+        env->issue_lua_command(command);
+    });
 }
 
 // MARK: - Accessors
@@ -100,7 +104,7 @@ auto graphics::session_window::render() -> void
 
     auto base_scene = 0;
     for (auto i = m_scenes.size() - 1; i >= 0; --i) {
-        base_scene = i;
+        base_scene = static_cast<int>(i);
         if (!m_scenes[i]->get_passthrough_render()) {
             break;
         }
@@ -108,6 +112,11 @@ auto graphics::session_window::render() -> void
 
     for (auto i = base_scene; i < m_scenes.size(); ++i) {
         m_scenes[i]->render();
+    }
+
+    if (m_console.is_visible()) {
+        m_console.update();
+        m_console.entity()->draw();
     }
 }
 
@@ -151,4 +160,11 @@ auto graphics::session_window::create_texture(const math::size &size,
 auto graphics::session_window::create_texture(const math::size &size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>
 {
     throw std::runtime_error("This method needs to be implemented in a subclass.");
+}
+
+// MARK: - Console
+
+auto graphics::session_window::console() -> dev::console&
+{
+    return m_console;
 }

@@ -53,6 +53,12 @@ scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const a
     }
 }
 
+scripting::lua::script::script(const std::shared_ptr<lua::state> &state, const std::string& code)
+    : m_state(state), m_script(code), m_name("console.input"), m_id(-1)
+{
+
+}
+
 // MARK: - Destruction
 
 scripting::lua::script::~script()
