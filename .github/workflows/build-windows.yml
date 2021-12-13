@@ -6,7 +6,7 @@ jobs:
     runs-on: windows-2019
     defaults:
       run:
-        shell: msys2 {0}
+        shell: msys2 msys {0}
     steps:
     - uses: actions/checkout@v2
     - uses: msys2/setup-msys2@v2
@@ -25,7 +25,3 @@ jobs:
 
     - name: Run build
       run: ./.github/actions/build_msys2/entrypoint.sh
-      env:
-        CC: clang
-        CXX: clang++
-        MAKE: make
