@@ -79,7 +79,7 @@ find_package(glfw3 REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(OpenAL REQUIRED)
 
-if(LINUX OR WIN32)
+if(NOT APPLE)
 	find_package(GLEW REQUIRED)
 endif()
 
@@ -106,14 +106,15 @@ target_include_directories(Kestrel PUBLIC
 	"engine"
 )
 
+target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
+
 if(NOT APPLE)
 	target_include_directories(Kestrel PUBLIC
 		${GLEW_INCLUDE_DIRS}
 	)
-	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
+	target_link_libraries(Kestrel GLEW::GLEW)
 endif()
 
-target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 if(LINUX)
 	target_link_libraries(Kestrel "-lfontconfig" "-lpthread")
 	target_compile_options(Kestrel PUBLIC "-fpermissive")
