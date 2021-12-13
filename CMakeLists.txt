@@ -108,11 +108,16 @@ target_include_directories(Kestrel PUBLIC
 
 target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
 
-if(NOT APPLE)
+if(WIN32)
 	target_include_directories(Kestrel PUBLIC
 		${GLEW_INCLUDE_DIRS}
 	)
 	target_link_libraries(Kestrel GLEW::GLEW)
+elseif(LINUX)
+	target_include_directories(Kestrel PUBLIC
+		${GLEW_INCLUDE_DIRS}
+	)
+	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
 endif()
 
 if(LINUX)
