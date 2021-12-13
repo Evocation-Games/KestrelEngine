@@ -112,6 +112,7 @@ public:
     auto become_active_environment() -> void;
 
     auto prepare_lua_interface() -> void;
+    auto issue_lua_command(const std::string& lua) -> void;
 
     auto cache() -> std::shared_ptr<asset::cache>;
 

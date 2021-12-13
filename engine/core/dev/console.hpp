@@ -21,6 +21,7 @@
 #if !defined(CONSOLE_HPP)
 #define CONSOLE_HPP
 
+#include <functional>
 #include "core/graphics/common/canvas.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/event/text_entry.hpp"
@@ -38,12 +39,15 @@ namespace dev
         auto toggle_visibility() -> void;
         [[nodiscard]] auto is_visible() const -> bool;
 
+        auto on_command(std::function<auto(const std::string&)->void> callback) -> void;
+
         auto receive(const event::key& key) -> void;
         auto update() -> void;
 
         [[nodiscard]] auto entity() -> graphics::entity::lua_reference;
 
     private:
+        std::function<auto(const std::string&)->void> m_on_command;
         math::size m_size;
         std::unique_ptr<graphics::canvas> m_canvas;
         graphics::entity::lua_reference m_entity;

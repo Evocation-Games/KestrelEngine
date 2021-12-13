@@ -50,6 +50,7 @@ namespace scripting::lua
 
     public:
         script(const std::shared_ptr<lua::state>& state, const asset::resource_descriptor::lua_reference &ref);
+        script(const std::shared_ptr<lua::state>& state, const std::string& script);
         ~script();
 
         [[nodiscard]] auto id() const ->int64_t;

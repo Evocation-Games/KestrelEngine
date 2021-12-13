@@ -29,6 +29,10 @@ graphics::session_window::session_window(std::shared_ptr<environment> env, const
     : m_environment(env), m_scale(scale)
 {
     m_cache_purge_time = session_clock::now();
+
+    m_console.on_command([&, env] (const std::string& command) {
+        env->issue_lua_command(command);
+    });
 }
 
 // MARK: - Accessors
@@ -51,7 +55,6 @@ auto graphics::session_window::set_title(const std::string &title) -> void
 auto graphics::session_window::set_size(const math::size &size) -> void
 {
     m_size = size;
-    m_console.set_size(size);
 }
 
 auto graphics::session_window::get_size() const -> math::size

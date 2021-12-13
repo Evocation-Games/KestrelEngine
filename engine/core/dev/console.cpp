@@ -23,15 +23,18 @@
 // MARK: - Construction
 
 dev::console::console()
-    : m_size({ 600, 300 }), m_dirty(true), m_visible(true)
+    : m_size({ 600, 300 }), m_dirty(true), m_visible(false)
 {
     m_history.emplace_back("Kestrel v0.5");
 
     m_input.on_enter([&] (const std::string& input) {
         m_history.emplace_back("&IN>" + input);
+        m_on_command(input);
         m_input.set_string_value("");
         m_input.set_cursor_position(0);
     });
+
+    m_on_command = [] (const std::string&) {};
 }
 
 // MARK: - Drawing Update
@@ -126,4 +129,11 @@ auto dev::console::is_visible() const -> bool
 auto dev::console::receive(const event::key &key) -> void
 {
     m_input.receive(key);
+}
+
+// MARK: - Commands
+
+auto dev::console::on_command(std::function<auto(const std::string &)->void> callback) -> void
+{
+    m_on_command = std::move(callback);
 }

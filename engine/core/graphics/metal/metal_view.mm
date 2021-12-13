@@ -604,6 +604,19 @@ auto graphics::metal::view::destroy_texture(const int &handle) -> void
         case kVK_ANSI_Minus:            return event::key::code::minus;
         case kVK_ANSI_Equal:            return event::key::code::equal;
 
+        case kVK_F1:                    return event::key::code::f1;
+        case kVK_F2:                    return event::key::code::f2;
+        case kVK_F3:                    return event::key::code::f3;
+        case kVK_F4:                    return event::key::code::f4;
+        case kVK_F5:                    return event::key::code::f5;
+        case kVK_F6:                    return event::key::code::f6;
+        case kVK_F7:                    return event::key::code::f7;
+        case kVK_F8:                    return event::key::code::f8;
+        case kVK_F9:                    return event::key::code::f9;
+        case kVK_F10:                    return event::key::code::f10;
+        case kVK_F11:                    return event::key::code::f11;
+        case kVK_F12:                    return event::key::code::f12;
+
         // Unknown
         default:                        return event::key::code::unknown;
     }

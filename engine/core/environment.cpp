@@ -413,6 +413,11 @@ auto environment::gc_purge() -> void
     lua_gc(m_lua_runtime->internal_state(), LUA_GCCOLLECT, 0);
 }
 
+auto environment::issue_lua_command(const std::string& lua) -> void
+{
+    scripting::lua::script script(m_lua_runtime->shared_from_this(), lua);
+    script.execute();
+}
 
 // MARK: - Accessors
 

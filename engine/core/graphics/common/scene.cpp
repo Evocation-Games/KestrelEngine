@@ -111,6 +111,12 @@ auto graphics::scene::add_key_event_block(const luabridge::LuaRef &block) -> voi
 auto graphics::scene::key_event(const event::key &event) -> void
 {
     if (auto owner = get_owner().lock()) {
+        if (event.is_released() && event.code() == event::key::f1) {
+            owner->console().set_size({ owner->get_size().width, owner->get_size().height / 2.0 });
+            owner->console().toggle_visibility();
+            return;
+        }
+
         if (owner->console().is_visible()) {
             owner->console().receive(event);
             return;
