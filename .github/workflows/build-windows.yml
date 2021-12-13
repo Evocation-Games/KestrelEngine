@@ -15,3 +15,8 @@ jobs:
         update: true
         install: git cmake make mingw-w64-x86_64-toolchain mingw-w64-x86_64-clang
     - run: clang --version
+    - name: Run build
+      uses: ./.github/actions/build_msys2
+      env:
+        CC: clang
+        CXX: clang++
