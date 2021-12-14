@@ -14,7 +14,7 @@ cmake \
   -Bcmake-$1-arm-build-release
 cmake --build cmake-$1-arm-build-release -- -j2
 
-echo "Merging FreeType Libraries into single Universal Library"
+echo "Merging $3 Libraries into single Universal Library"
 mkdir -p vendor
 lipo -create cmake-$1-intel-build-release/$2.a cmake-$1-arm-build-release/$2.a \
      -output vendor/lib$1.a
