@@ -128,7 +128,6 @@ jobs:
           CC: ${{ matrix.env.CC }}
           CXX: ${{ matrix.env.CXX }}
         run: |
-          ls vendor
           ./.github/actions/build.sh
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2

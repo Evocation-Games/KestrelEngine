@@ -162,9 +162,8 @@ if (APPLE)
     install(FILES ${CMAKE_BUILD_DIR}/default.metallib
                   ${CMAKE_BUILD_DIR}/default.air
             DESTINATION ${PROJECT_INSTALL_DIR}/Kestrel.app/Contents/Resources)
-else(LINUX)
+elseif()
     install(TARGETS Kestrel
             RUNTIME_DEPENDENCIES ${OPENAL_LIBRARY}
             DESTINATION ${PROJECT_INSTALL_DIR})
-
 endif()
