@@ -23,7 +23,7 @@
 
 #include <memory>
 #include <string>
-#include "engine/core/audio/codec/audio_codec_descriptor.hpp"
+#include "core/audio/codec/audio_codec_descriptor.hpp"
 
 namespace audio
 {

@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Tom Hancocks
+# Copyright (c) 2021 Tom Hancocks
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,137 +19,135 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
-include(ExternalProject)
 
-project(Kestrel VERSION 0.1.0 LANGUAGES CXX C)
+########################################################################################################################
+## Kestrel Game Engine Project Configuration
+project(KestrelGameEngine LANGUAGES CXX C)
 
 set(KESTREL_NAME "Kestrel")
 
-# CONFIGURATION ################################################################
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 
-if (APPLE)
-	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+set(CMAKE_BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+set(CMAKE_BINARY_DIR ${CMAKE_BUILD_DIR})
+set(PROJECT_INSTALL_DIR ${CMAKE_SOURCE_DIR}/bin)
+set(PROJECT_SUBMODULE_DIR ${CMAKE_SOURCE_DIR}/submodules)
+set(PROJECT_VENDOR_DIR ${CMAKE_SOURCE_DIR}/vendor)
+
+if (UNIX AND NOT APPLE)
+    set(LINUX TRUE)
 endif()
 
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-set(PROJECT_SUBMODULES ${PROJECT_SOURCE_DIR}/submodules)
-set(PROJECT_VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
+########################################################################################################################
+## Lua
+add_library(Lua STATIC ${PROJECT_SUBMODULE_DIR}/lua/onelua.c)
+target_compile_definitions(Lua PUBLIC MAKE_LIB)
+target_include_directories(Lua PUBLIC ${PROJECT_SUBMODULE_DIR}/lua)
 
-if(UNIX AND NOT APPLE)
-	set(LINUX TRUE)
-endif()
+########################################################################################################################
+## Graphite
+add_subdirectory(${PROJECT_SUBMODULE_DIR}/graphite)
 
-# LUA ##########################################################################
-add_library(Lua STATIC "${PROJECT_SUBMODULES}/lua/onelua.c")
-target_compile_options(Lua PUBLIC "-DMAKE_LIB=1")
-target_include_directories(Lua PUBLIC "${PROJECT_SUBMODULES}/lua")
+########################################################################################################################
+## KDL
+add_subdirectory(${PROJECT_SUBMODULE_DIR}/kdl)
 
-# GRAPHITE #####################################################################
-file(GLOB_RECURSE graphite_sources
-	"${PROJECT_SUBMODULES}/graphite/libGraphite/*.cpp"
-)
-add_library(Graphite ${graphite_sources})
-target_include_directories(Graphite PUBLIC "${PROJECT_SUBMODULES}/graphite")
-
-# KDL ##########################################################################
-file(GLOB_RECURSE kdl_sources
-	"${PROJECT_SUBMODULES}/kdl/src/*.cpp"
-)
-add_executable(kdl ${kdl_sources})
-target_include_directories(kdl PUBLIC
-	"${PROJECT_SUBMODULES}/kdl/Submodules/Graphite"
-	"${PROJECT_SUBMODULES}/kdl/src"
-	"support/submodules/kdl"
-)
-target_link_libraries(kdl Graphite)
-
-# KESTREL ENGINE ###############################################################
+########################################################################################################################
+## Kestrel
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 
-if(NOT APPLE)
-	find_package(GLEW REQUIRED)
-endif()
+set(KESTREL_LIBS
+    Graphite Lua
+    ${OPENAL_LIBRARY} ${OPENGL_LIBRARY}
+    glfw freetype png
+    bz2 z
+)
+set(KESTREL_INC_DIRS
+    "${OPENGL_INCLUDE_DIRS}"
+    "${PROJECT_SUBMODULE_DIR}/freetype/include"
+    "${PROJECT_SUBMODULE_DIR}/glfw/include"
+    "${PROJECT_SUBMODULE_DIR}/glm"
+    "${PROJECT_SUBMODULE_DIR}/lua_bridge/Source"
+    "${PROJECT_SUBMODULE_DIR}/graphite"
+    "${PROJECT_SUBMODULE_DIR}"
+    "engine"
+)
 
 if (APPLE)
-	file(GLOB_RECURSE kestrel_sources
-		"engine/*.cpp"
-		"engine/*.mm"
-	)
-else()
-	file(GLOB_RECURSE kestrel_sources
-		"engine/*.cpp"
-	)
-endif()
+    set(KESTREL_EXE_TYPE MACOSX_BUNDLE)
+    file(GLOB_RECURSE KESTREL_SOURCES
+        "engine/*.cpp"
+        "engine/*.mm"
+    )
+    set(KESTREL_LIBS ${KESTREL_LIBS}
+        "-framework Cocoa"
+        "-framework MetalKit"
+        "-framework Metal"
+        "-framework CoreAudio"
+        "-framework AudioUnit"
+        "-framework AudioToolbox"
+        "-framework CoreFoundation"
+        "-framework AVFoundation"
+        "-framework IOKit"
+        objc
+    )
 
-add_executable(Kestrel ${kestrel_sources})
-target_include_directories(Kestrel PUBLIC
-	"${OPENGL_INCLUDE_DIRS}"
-	"${PROJECT_SUBMODULES}/freetype/include"
-	"${PROJECT_SUBMODULES}/glfw/include"
-	"${PROJECT_SUBMODULES}/glm"
-	"${PROJECT_SUBMODULES}/lua_bridge/Source"
-	"${PROJECT_SUBMODULES}/graphite"
-	"${PROJECT_SUBMODULES}"
-	"engine"
-)
-target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
-target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw freetype bz2 z png)
-
-if(WIN32)
-	target_include_directories(Kestrel PUBLIC
-		${GLEW_INCLUDE_DIRS}
-	)
-	target_link_libraries(Kestrel GLEW::GLEW)
 elseif(LINUX)
-	target_include_directories(Kestrel PUBLIC
-		${GLEW_INCLUDE_DIRS}
-	)
-	target_link_libraries(Kestrel ${GLEW_LIBRARIES} dl)
+    set(KESTREL_EXE_TYPE )
+    file(GLOB_RECURSE KESTREL_SOURCES
+        "engine/*.cpp"
+    )
+
+    find_package(GLEW REQUIRED)
+    set(KESTREL_LIBS ${KESTREL_LIBS} ${GLEW_LIBRARIES} dl fontconfig pthread)
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS})
+
+elseif(WIN32)
+    set(KESTREL_EXE_TYPE WIN32)
+    file(GLOB_RECURSE KESTREL_SOURCES
+        "engine/*.cpp"
+    )
+
+    find_package(GLEW REQUIRED)
+    set(KESTREL_LIBS ${KESTREL_LIBS} GLEW::GLEW)
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS})
+
 endif()
 
-if(LINUX)
-	target_link_libraries(Kestrel "-lfontconfig" "-lpthread")
-	target_compile_options(Kestrel PUBLIC "-fpermissive")
-elseif(APPLE)
-	target_link_libraries(Kestrel
-		"-framework Cocoa"
-		"-framework MetalKit"
-		"-framework Metal"
-		"-framework CoreAudio"
-		"-framework AudioUnit"
-		"-framework AudioToolbox"
-		"-framework CoreFoundation"
-		"-framework AVFoundation"
-		"-framework IOKit"
-		objc
-	)
-endif()
+add_executable(Kestrel ${KESTREL_EXE_TYPE} ${KESTREL_SOURCES})
+target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
+target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
+target_link_libraries(Kestrel ${KESTREL_LIBS})
 add_dependencies(Kestrel kdl)
 
-# MAC OS X APPLICATION BUNDLE ##################################################
-if(APPLE)
-	add_custom_command(TARGET Kestrel
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/macOS/Info.plist.in
-			-D DST=${CMAKE_BINARY_DIR}/Info.plist
-			-D KESTREL_NAME=${KESTREL_NAME}
-			-P ${CMAKE_SOURCE_DIR}/support/macOS/GenerateInfoPlist.cmake
-	)
+########################################################################################################################
+## Kestrel - Info Plist
+if (APPLE)
+    add_custom_target(generate-kestrel-info-plist
+    	${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/macOS/Info.plist.in
+    		             -D DST=${CMAKE_BINARY_DIR}/Info.plist
+    		             -D KESTREL_NAME=${KESTREL_NAME}
+    		             -P ${CMAKE_SOURCE_DIR}/support/macOS/GenerateInfoPlist.cmake
+    )
+    add_dependencies(Kestrel generate-kestrel-info-plist)
+endif()
 
-	add_custom_command(TARGET Kestrel
-		POST_BUILD
-        COMMAND rm -rf "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app"
-        COMMAND mkdir -p "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS"
-        COMMAND mkdir -p "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources"
-        COMMAND xcrun -sdk macosx metal -I "${CMAKE_SOURCE_DIR}/engine" -c "${CMAKE_SOURCE_DIR}/engine/core/graphics/metal/shader.metal" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.air"
-        COMMAND xcrun -sdk macosx metallib "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.air" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.metallib"
-        COMMAND cp "${CMAKE_BINARY_DIR}/Kestrel" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS/Kestrel"
-        COMMAND cp "${CMAKE_BINARY_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Info.plist"
-        DEPENDS KestrelScenario
-	)
-endif(APPLE)
+########################################################################################################################
+## Kestrel - Metal Dependencies
+if (APPLE)
+    add_custom_target(kestrel-metal-libs
+        xcrun -sdk macosx metal -I "${CMAKE_SOURCE_DIR}/engine" -c "${CMAKE_SOURCE_DIR}/engine/core/graphics/metal/shader.metal" -o ${CMAKE_BUILD_DIR}/default.air
+        COMMAND xcrun -sdk macosx metallib ${CMAKE_BUILD_DIR}/default.air -o ${CMAKE_BUILD_DIR}/default.metallib
+    )
+    add_dependencies(Kestrel kestrel-metal-libs)
+endif()
+
+########################################################################################################################
+## Installation
+
+install(TARGETS kdl DESTINATION ${PROJECT_INSTALL_DIR})
+install(TARGETS Kestrel DESTINATION ${PROJECT_INSTALL_DIR})

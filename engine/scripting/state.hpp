@@ -51,7 +51,7 @@ namespace scripting::lua
         std::shared_ptr<lua::stack> m_stack;
 
     public:
-        state();
+        state() = default;
         ~state();
 
         auto prepare_lua_environment(const std::shared_ptr<environment>& env) -> void;
