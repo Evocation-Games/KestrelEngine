@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if __x86_64__
+
 #include <stdexcept>
 #include <utility>
 #include "core/graphics/opengl/opengl_session_window.hpp"
@@ -302,3 +304,5 @@ auto graphics::opengl::session_window::translate_keycode(const int& keycode) -> 
         default:                            return event::key::code::unknown;
     }
 }
+
+#endif

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SHADER_HPP)
+#if !defined(KESTREL_OPENGL_SHADER_HPP) && __x86_64__
 #define KESTREL_OPENGL_SHADER_HPP
 
 #include <string>
@@ -26,7 +26,8 @@
 #include "core/graphics/common/shader.hpp"
 #include "core/graphics/opengl/opengl.hpp"
 
-namespace graphics { namespace opengl {
+namespace graphics::opengl
+{
 
     class shader: public graphics::shader
     {
@@ -50,6 +51,6 @@ namespace graphics { namespace opengl {
         auto set_mat4(const std::string& name, glm::mat4 &matrix, bool use_shader = false) -> void;
     };
 
-}};
+}
 
 #endif //KESTREL_OPENGL_SHADER_HPP

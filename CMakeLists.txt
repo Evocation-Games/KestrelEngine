@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+
 project(Kestrel VERSION 0.1.0 LANGUAGES CXX C)
 
 set(KESTREL_NAME "Kestrel")
@@ -26,6 +27,10 @@ set(KESTREL_NAME "Kestrel")
 # CONFIGURATION ################################################################
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
+
+if (APPLE)
+	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+endif()
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})

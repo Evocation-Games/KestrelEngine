@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if __x86_64__
+
 #include "core/graphics/opengl/opengl_sprite_renderer.hpp"
 
 #include <utility>
@@ -112,3 +114,5 @@ auto graphics::opengl::sprite_renderer::draw(const graphics::entity::lua_referen
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 }
+
+#endif

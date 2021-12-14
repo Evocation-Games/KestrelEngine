@@ -18,12 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SCENE_HPP)
+#if !defined(KESTREL_OPENGL_SCENE_HPP) && __x86_64__
 #define KESTREL_OPENGL_SCENE_HPP
 
 #include "core/graphics/common/scene.hpp"
 
-namespace graphics { namespace opengl {
+namespace graphics::opengl
+{
 
     class scene: public graphics::scene
     {
@@ -39,6 +40,6 @@ namespace graphics { namespace opengl {
 
     };
 
-}};
+}
 
 #endif //KESTREL_OPENGL_SCENE_HPP

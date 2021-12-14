@@ -67,7 +67,9 @@ private:
 #if __APPLE__
     auto launch_metal(const double& scale = 1.0) -> int;
 #endif
+#if __x86_64__
     auto launch_opengl(const double& scale = 1.0) -> int;
+#endif
     auto prepare_common() -> void;
     auto launch_common() -> int;
 

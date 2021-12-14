@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if __x86_64__
+
 #include <utility>
 #include <memory>
 #include "core/graphics/opengl/opengl_scene.hpp"
@@ -54,3 +56,5 @@ auto graphics::opengl::scene::draw_entity(const graphics::entity::lua_reference&
         }
     }
 }
+
+#endif

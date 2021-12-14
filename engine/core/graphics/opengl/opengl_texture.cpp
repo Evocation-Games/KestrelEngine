@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if __x86_64__
+
 #include "core/graphics/opengl/opengl_texture.hpp"
 
 #include <utility>
@@ -101,3 +103,5 @@ auto graphics::opengl::texture::bind() const -> void
         glBindTexture(GL_TEXTURE_2D, m_id);
     }
 }
+
+#endif
