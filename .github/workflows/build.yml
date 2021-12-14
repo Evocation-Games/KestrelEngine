@@ -15,8 +15,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Fetch Submodules
         run: |
-          git submodule init
-          git submodule update --recursive
+          git submodule update --init --recursive
       - name: Install Dependencies
         run: |
           sudo apt-get update -y -q
@@ -65,8 +64,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Fetch Submodules
         run: |
-          git submodule init
-          git submodule update --recursive
+          git submodule update --init --recursive
       - name: Building FreeType Universal Library
         run: |
           ./support/scripts/compile-library-macos.sh freetype libfreetype FreeType
@@ -115,8 +113,7 @@ jobs:
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
       - name: Fetch Submodules
         run: |
-          git submodule init
-          git submodule update --recursive
+          git submodule update --init --recursive
       - name: Building FreeType
         run: |
           ./support/scripts/compile-library.sh freetype libfreetype FreeType
