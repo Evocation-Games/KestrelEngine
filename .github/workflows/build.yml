@@ -16,7 +16,7 @@ jobs:
       - name: Fetch Submodules
         run: |
           git submodule init
-          git submodule update
+          git submodule update --recursive
       - name: Install Dependencies
         run: |
           sudo apt-get update -y -q
@@ -66,7 +66,7 @@ jobs:
       - name: Fetch Submodules
         run: |
           git submodule init
-          git submodule update
+          git submodule update --recursive
       - name: Building FreeType Universal Library
         run: |
           ./support/scripts/compile-library-macos.sh freetype libfreetype FreeType
@@ -116,7 +116,7 @@ jobs:
       - name: Fetch Submodules
         run: |
           git submodule init
-          git submodule update
+          git submodule update --recursive
       - name: Building FreeType
         run: |
           ./support/scripts/compile-library.sh freetype libfreetype FreeType
