@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+include(ExternalProject)
 
 project(Kestrel VERSION 0.1.0 LANGUAGES CXX C)
 
@@ -35,6 +36,7 @@ endif()
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(PROJECT_SUBMODULES ${PROJECT_SOURCE_DIR}/submodules)
+set(PROJECT_VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
 
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
@@ -64,24 +66,9 @@ target_include_directories(kdl PUBLIC
 )
 target_link_libraries(kdl Graphite)
 
-## GAME (BreakOut) #########################################################
-file(GLOB_RECURSE kestrel_game_files
-	"projects/KestrelDemo/*.kdl"
-	"projects/KestrelDemo/*.lua"
-)
-add_custom_target(KestrelGameCore ALL
-	DEPENDS kdl ${kestrel_game_files}
-)
-add_custom_command(TARGET KestrelGameCore
-	COMMAND ${CMAKE_BINARY_DIR}/kdl -o ${CMAKE_BINARY_DIR}/GameCore ${CMAKE_SOURCE_DIR}/projects/KestrelDemo/game.kdl
-	DEPENDS ${kestrel_game_files}
-)
-
 # KESTREL ENGINE ###############################################################
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(Freetype REQUIRED)
 find_package(OpenAL REQUIRED)
 
 if(NOT APPLE)
@@ -102,16 +89,16 @@ endif()
 add_executable(Kestrel ${kestrel_sources})
 target_include_directories(Kestrel PUBLIC
 	"${OPENGL_INCLUDE_DIRS}"
-	"${GLFW3_INCLUDE_DIRS}"
-	"${FREETYPE_INCLUDE_DIRS}"
+	"${PROJECT_SUBMODULES}/freetype/include"
+	"${PROJECT_SUBMODULES}/glfw/include"
 	"${PROJECT_SUBMODULES}/glm"
 	"${PROJECT_SUBMODULES}/lua_bridge/Source"
 	"${PROJECT_SUBMODULES}/graphite"
 	"${PROJECT_SUBMODULES}"
 	"engine"
 )
-
-target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw ${FREETYPE_LIBRARIES})
+target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
+target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw freetype)
 
 if(WIN32)
 	target_include_directories(Kestrel PUBLIC
@@ -138,10 +125,14 @@ elseif(APPLE)
 		"-framework AudioToolbox"
 		"-framework CoreFoundation"
 		"-framework AVFoundation"
+		"-framework IOKit"
 		objc
+		bz2
+		z
+		png
 	)
 endif()
-add_dependencies(Kestrel kdl KestrelGameCore)
+add_dependencies(Kestrel kdl)
 
 # MAC OS X APPLICATION BUNDLE ##################################################
 if(APPLE)
