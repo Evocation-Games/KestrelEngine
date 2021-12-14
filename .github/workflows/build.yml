@@ -1,4 +1,4 @@
-name: kdl CI
+name: Kestrel Game Engine CI
 
 on: [push]
 
