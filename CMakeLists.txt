@@ -170,7 +170,5 @@ if (APPLE)
                   ${CMAKE_BUILD_DIR}/default.air
             DESTINATION ${PROJECT_INSTALL_DIR}/Kestrel.app/Contents/Resources)
 else()
-    install(TARGETS Kestrel
-            RUNTIME_DEPENDENCIES ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw freetype
-            DESTINATION ${PROJECT_INSTALL_DIR})
+    install(TARGETS Kestrel DESTINATION ${PROJECT_INSTALL_DIR})
 endif()
