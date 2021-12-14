@@ -19,17 +19,17 @@ jobs:
           git submodule update
       - name: Install Dependencies
         run: |
-          apt-get update -y -q
-          apt-get install -y -q --no-install-recommends build-essential
-          apt-get install -y -q --no-install-recommends cmake
-          apt-get install -y -q --no-install-recommends clang++-10
-          apt-get install -y -q --no-install-recommends libopenal-dev
-          apt-get install -y -q --no-install-recommends libopengl-dev
-          apt-get install -y -q --no-install-recommends libglfw3-dev
-          apt-get install -y -q --no-install-recommends libglew-dev
-          apt-get install -y -q --no-install-recommends libasound2-dev
-          apt-get install -y -q --no-install-recommends libfreetype-dev
-          apt-get install -y -q --no-install-recommends libfontconfig-dev
+          sudo apt-get update -y -q
+          sudo apt-get install -y -q --no-install-recommends build-essential
+          sudo apt-get install -y -q --no-install-recommends cmake
+          sudo apt-get install -y -q --no-install-recommends clang++-10
+          sudo apt-get install -y -q --no-install-recommends libopenal-dev
+          sudo apt-get install -y -q --no-install-recommends libopengl-dev
+          sudo apt-get install -y -q --no-install-recommends libglfw3-dev
+          sudo apt-get install -y -q --no-install-recommends libglew-dev
+          sudo apt-get install -y -q --no-install-recommends libasound2-dev
+          sudo apt-get install -y -q --no-install-recommends libfreetype-dev
+          sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
       - name: Build
         env:
           CC: ${{ matrix.env.CC }}
