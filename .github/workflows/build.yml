@@ -1,0 +1,97 @@
+name: Kestrel Game Engine CI
+
+on: [push]
+
+jobs:
+  linux:
+    name: Build on Linux
+    strategy:
+      matrix:
+        env:
+          - { os: ubuntu-latest, compiler: LLVM, CC: clang, CXX: clang++ }
+    runs-on: ${{ matrix.env.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Fetch Submodules
+        run: |
+          git submodule init
+          git submodule update
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -y -q
+          sudo apt-get install -y -q --no-install-recommends build-essential
+          sudo apt-get install -y -q --no-install-recommends cmake
+          sudo apt-get install -y -q --no-install-recommends clang++-10
+          sudo apt-get install -y -q --no-install-recommends libopenal-dev
+          sudo apt-get install -y -q --no-install-recommends libopengl-dev
+          sudo apt-get install -y -q --no-install-recommends libglfw3-dev
+          sudo apt-get install -y -q --no-install-recommends libglew-dev
+          sudo apt-get install -y -q --no-install-recommends libasound2-dev
+          sudo apt-get install -y -q --no-install-recommends libfreetype-dev
+          sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
+      - name: Build
+        env:
+          CC: ${{ matrix.env.CC }}
+          CXX: ${{ matrix.env.CXX }}
+        run: |
+          ./.github/actions/build.sh
+
+  macOS:
+    name: Build on macOS
+    strategy:
+      matrix:
+        os: [ macos-10.15, macos-11 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          brew install cmake glfw freetype
+      - name: Fetch Submodules
+        run: |
+          git submodule init
+          git submodule update
+      - name: Build
+        run: |
+          ./.github/actions/build.sh
+
+  windows:
+    name: Build on Windows
+    strategy:
+      matrix:
+        env:
+          - { os: windows-latest, shell: msys2, msystem: MINGW64, arch: x86_64, compiler: LLVM, CC: clang, CXX: clang++ }
+    runs-on: ${{ matrix.env.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.env.shell }} {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup MinGW/MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.env.msystem }}
+          install: git mingw-w64-${{ matrix.env.arch }}-toolchain
+      - name: Install dependencies
+        run: |
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-clang
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-cmake
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-ninja
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-openal
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-mesa
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-freetype
+      - name: Fetch Submodules
+        run: |
+          git submodule init
+          git submodule update
+      - name: Build
+        env:
+          CC: ${{ matrix.env.CC }}
+          CXX: ${{ matrix.env.CXX }}
+        run: |
+          ./.github/actions/build.sh
