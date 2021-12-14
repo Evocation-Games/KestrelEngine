@@ -35,11 +35,12 @@ jobs:
       - name: Building GLFW
         run: |
           ./support/scripts/compile-library.sh glfw src/libglfw3 GLFW
-      - name: Build
+      - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
           CXX: ${{ matrix.env.CXX }}
         run: |
+          ls vendor
           ./.github/actions/build.sh
 
   macOS:
@@ -63,10 +64,11 @@ jobs:
           ./support/scripts/compile-library-macos.sh glfw src/libglfw3 GLFW
       - name: Building PNG Universal Library
         run: |
-          `cd submodules/png && git apply ../../support/libpng.macos.patch`
+          `cd submodules/png && git apply ../../support/patches/libpng.macos.patch`
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
-      - name: Build
+      - name: Build Kestrel Engine
         run: |
+          ls vendor
           ./.github/actions/build.sh
 
   windows:
@@ -106,9 +108,10 @@ jobs:
       - name: Building GLFW
         run: |
           ./support/scripts/compile-library.sh glfw src/libglfw3 GLFW
-      - name: Build
+      - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
           CXX: ${{ matrix.env.CXX }}
         run: |
+          ls vendor
           ./.github/actions/build.sh
