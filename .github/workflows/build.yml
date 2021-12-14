@@ -28,18 +28,10 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends libxi-dev
           sudo apt-get install -y -q --no-install-recommends libopenal-dev
           sudo apt-get install -y -q --no-install-recommends libopengl-dev
+          sudo apt-get install -y -q --no-install-recommends libglfw3-dev
           sudo apt-get install -y -q --no-install-recommends libglew-dev
-          sudo apt-get install -y -q --no-install-recommends libasound2-dev
+          sudo apt-get install -y -q --no-install-recommends libfreetype-dev
           sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
-      - name: Building FreeType
-        run: |
-          ./support/scripts/compile-library.sh freetype libfreetype FreeType
-      - name: Building GLFW
-        run: |
-          ./support/scripts/compile-library.sh glfw src/libglfw3 GLFW
-      - name: Building PNG
-        run: |
-          ./support/scripts/compile-library.sh png libpng16 PNG
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
@@ -111,18 +103,11 @@ jobs:
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-openal
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-mesa
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-freetype
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
-      - name: Building FreeType
-        run: |
-          ./support/scripts/compile-library.sh freetype libfreetype FreeType
-      - name: Building GLFW
-        run: |
-          ./support/scripts/compile-library.sh glfw src/libglfw3 GLFW
-      - name: Building PNG
-        run: |
-          ./support/scripts/compile-library.sh png libpng16 PNG
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}

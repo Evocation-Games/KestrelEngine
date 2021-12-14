@@ -62,14 +62,11 @@ find_package(OpenAL REQUIRED)
 
 set(KESTREL_LIBS
     Graphite Lua
-    ${OPENAL_LIBRARY} ${OPENGL_LIBRARY}
-    glfw freetype png
-    bz2 z
+    ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
+    png bz2 z
 )
 set(KESTREL_INC_DIRS
     "${OPENGL_INCLUDE_DIRS}"
-    "${PROJECT_SUBMODULE_DIR}/freetype/include"
-    "${PROJECT_SUBMODULE_DIR}/glfw/include"
     "${PROJECT_SUBMODULE_DIR}/glm"
     "${PROJECT_SUBMODULE_DIR}/lua_bridge/Source"
     "${PROJECT_SUBMODULE_DIR}/graphite"
@@ -94,6 +91,12 @@ if (APPLE)
         "-framework AVFoundation"
         "-framework IOKit"
         objc
+        glfw
+        freetype
+    )
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS}
+        "${PROJECT_SUBMODULE_DIR}/freetype/include"
+        "${PROJECT_SUBMODULE_DIR}/glfw/include"
     )
 
 elseif(LINUX)
@@ -103,8 +106,10 @@ elseif(LINUX)
     )
 
     find_package(GLEW REQUIRED)
-    set(KESTREL_LIBS ${KESTREL_LIBS} ${GLEW_LIBRARIES} dl fontconfig pthread)
-    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS})
+    find_package(glfw3 REQUIRED)
+    find_package(Freetype REQUIRED)
+    set(KESTREL_LIBS ${KESTREL_LIBS} ${GLEW_LIBRARIES} freetype glfw dl fontconfig pthread)
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
 
 elseif(WIN32)
     set(KESTREL_EXE_TYPE WIN32)
@@ -113,8 +118,10 @@ elseif(WIN32)
     )
 
     find_package(GLEW REQUIRED)
-    set(KESTREL_LIBS ${KESTREL_LIBS} GLEW::GLEW)
-    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS})
+    find_package(glfw3 REQUIRED)
+    find_package(Freetype REQUIRED)
+    set(KESTREL_LIBS ${KESTREL_LIBS} GLEW::GLEW freetype glfw)
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
 
 endif()
 
@@ -162,8 +169,8 @@ if (APPLE)
     install(FILES ${CMAKE_BUILD_DIR}/default.metallib
                   ${CMAKE_BUILD_DIR}/default.air
             DESTINATION ${PROJECT_INSTALL_DIR}/Kestrel.app/Contents/Resources)
-elseif()
+else()
     install(TARGETS Kestrel
-            RUNTIME_DEPENDENCIES ${OPENAL_LIBRARY}
+            RUNTIME_DEPENDENCIES ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} glfw freetype
             DESTINATION ${PROJECT_INSTALL_DIR})
 endif()
