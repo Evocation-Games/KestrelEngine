@@ -129,7 +129,7 @@ add_dependencies(Kestrel kdl)
 if (APPLE)
     add_custom_target(generate-kestrel-info-plist
     	${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/macOS/Info.plist.in
-    		             -D DST=${CMAKE_BINARY_DIR}/Info.plist
+    		             -D DST=${CMAKE_BUILD_DIR}/Info.plist
     		             -D KESTREL_NAME=${KESTREL_NAME}
     		             -P ${CMAKE_SOURCE_DIR}/support/macOS/GenerateInfoPlist.cmake
     )
@@ -149,5 +149,22 @@ endif()
 ########################################################################################################################
 ## Installation
 
-install(TARGETS kdl DESTINATION ${PROJECT_INSTALL_DIR})
-install(TARGETS Kestrel DESTINATION ${PROJECT_INSTALL_DIR})
+install(TARGETS kdl
+        DESTINATION ${PROJECT_INSTALL_DIR})
+
+if (APPLE)
+    install(TARGETS Kestrel
+            DESTINATION ${PROJECT_INSTALL_DIR})
+
+    install(FILES ${CMAKE_BUILD_DIR}/Info.plist
+            DESTINATION ${PROJECT_INSTALL_DIR}/Kestrel.app/Contents)
+
+    install(FILES ${CMAKE_BUILD_DIR}/default.metallib
+                  ${CMAKE_BUILD_DIR}/default.air
+            DESTINATION ${PROJECT_INSTALL_DIR}/Kestrel.app/Contents/Resources)
+else(LINUX)
+    install(TARGETS Kestrel
+            RUNTIME_DEPENDENCIES ${OPENAL_LIBRARY}
+            DESTINATION ${PROJECT_INSTALL_DIR})
+
+endif()
