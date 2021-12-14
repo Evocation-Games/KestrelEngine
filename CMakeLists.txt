@@ -98,7 +98,7 @@ target_include_directories(Kestrel PUBLIC
 	"engine"
 )
 target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
-target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw freetype)
+target_link_libraries(Kestrel Graphite Lua ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES} glfw freetype bz2 z png)
 
 if(WIN32)
 	target_include_directories(Kestrel PUBLIC
@@ -127,9 +127,6 @@ elseif(APPLE)
 		"-framework AVFoundation"
 		"-framework IOKit"
 		objc
-		bz2
-		z
-		png
 	)
 endif()
 add_dependencies(Kestrel kdl)
@@ -152,7 +149,6 @@ if(APPLE)
         COMMAND xcrun -sdk macosx metal -I "${CMAKE_SOURCE_DIR}/engine" -c "${CMAKE_SOURCE_DIR}/engine/core/graphics/metal/shader.metal" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.air"
         COMMAND xcrun -sdk macosx metallib "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.air" -o "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/default.metallib"
         COMMAND cp "${CMAKE_BINARY_DIR}/Kestrel" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/MacOS/Kestrel"
-        COMMAND cp "${CMAKE_BINARY_DIR}/GameCore.ndat" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Resources/GameCore.ndat"
         COMMAND cp "${CMAKE_BINARY_DIR}/Info.plist" "${CMAKE_BINARY_DIR}/${KESTREL_NAME}.app/Contents/Info.plist"
         DEPENDS KestrelScenario
 	)
