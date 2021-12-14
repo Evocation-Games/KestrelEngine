@@ -37,7 +37,6 @@ jobs:
           CC: ${{ matrix.env.CC }}
           CXX: ${{ matrix.env.CXX }}
         run: |
-          ls vendor
           ./.github/actions/build.sh
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
@@ -69,7 +68,6 @@ jobs:
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
       - name: Build Kestrel Engine
         run: |
-          ls vendor
           ./.github/actions/build.sh
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
