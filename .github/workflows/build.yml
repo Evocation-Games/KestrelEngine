@@ -25,6 +25,7 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends clang++-10
           sudo apt-get install -y -q --no-install-recommends libxrandr-dev
           sudo apt-get install -y -q --no-install-recommends libxinerama-dev
+          sudo apt-get install -y -q --no-install-recommends libxcursor-dev
           sudo apt-get install -y -q --no-install-recommends libopenal-dev
           sudo apt-get install -y -q --no-install-recommends libopengl-dev
           sudo apt-get install -y -q --no-install-recommends libglew-dev
