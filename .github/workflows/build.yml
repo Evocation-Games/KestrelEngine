@@ -23,6 +23,7 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends build-essential
           sudo apt-get install -y -q --no-install-recommends cmake
           sudo apt-get install -y -q --no-install-recommends clang++-10
+          sudo apt-get install -y -q --no-install-recommends libxrandr-dev
           sudo apt-get install -y -q --no-install-recommends libopenal-dev
           sudo apt-get install -y -q --no-install-recommends libopengl-dev
           sudo apt-get install -y -q --no-install-recommends libglew-dev
