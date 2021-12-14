@@ -48,6 +48,11 @@ jobs:
         run: |
           ls vendor
           ./.github/actions/build.sh
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: KestrelEngine-Ubuntu
+          path: ./bin
 
   macOS:
     name: Build on macOS
@@ -76,6 +81,11 @@ jobs:
         run: |
           ls vendor
           ./.github/actions/build.sh
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: KestrelEngine-macOS
+          path: ./bin
 
   windows:
     name: Build on Windows
@@ -123,3 +133,8 @@ jobs:
         run: |
           ls vendor
           ./.github/actions/build.sh
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: KestrelEngine-Windows
+          path: ./bin

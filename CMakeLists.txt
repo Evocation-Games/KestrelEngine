@@ -109,7 +109,7 @@ elseif(LINUX)
 	target_include_directories(Kestrel PUBLIC
 		${GLEW_INCLUDE_DIRS}
 	)
-	target_link_libraries(Kestrel ${GLEW_LIBRARIES})
+	target_link_libraries(Kestrel ${GLEW_LIBRARIES} dl)
 endif()
 
 if(LINUX)
