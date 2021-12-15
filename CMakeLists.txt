@@ -202,19 +202,26 @@ if (APPLE)
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
 
 elseif(LINUX)
+    set(KESTREL_RUNTIME_DEPENDENCIES
+            ${OPENGL_LIBRARIES}
+            ${OPENAL_LIBRARY}
+            ${GLEW_LIBRARY}
+            ${GLFW3_LIBRARY}
+            ${FREETYPE_LIBRARY}
+    )
+
+    set(APP_DIR ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
+    set(APP_BIN_DIR ${APP_DIR}/usr/bin)
+    set(APP_LIB_DIR ${APP_LIB_DIR}/usr/lib)
+
     install(TARGETS Kestrel
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir/usr/bin)
+            RUNTIME_DEPENDENCIES ${KESTREL_RUNTIME_DEPENDENCIES}
+            LIBRARY DESTINATION ${APP_LIB_DIR}
+            DESTINATION ${APP_BIN_DIR})
 
     install(FILES ${CMAKE_BUILD_DIR}/${KESTREL_NAME}.desktop
                   ${CMAKE_BUILD_DIR}/AppRun
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
-
-    install(PROGRAMS ${OPENGL_LIBRARIES}
-                     ${OPENAL_LIBRARY}
-                     ${GLEW_LIBRARY}
-                     ${GLFW3_LIBRARY}
-                     ${FREETYPE_LIBRARY}
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir/usr/lib)
+            DESTINATION ${APP_DIR})
 
 else()
     install(TARGETS Kestrel
