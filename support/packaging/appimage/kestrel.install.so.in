@@ -18,9 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-[Desktop Entry]
-Name=@KESTREL_NAME@
-Exec=@KESTREL_BIN_NAME@
-Icon=@KESTREL_ICON_NAME@
-Type=Application
-Categories=Game;
+LIB=$(realpath "${1}")
+NAME=$(basename "${1}")
+LIB_NAME=$(basename "${LIB}")
+
+echo "-- Install: @APP_LIB_DIR@/${NAME}"
+
+mkdir -p "@APP_LIB_DIR@"
+cp "${1}" "@APP_LIB_DIR@"
+cp "${LIB}" "@APP_LIB_DIR@"
+
+chmod +x "@APP_LIB_DIR@/${NAME}"
+chmod +x "@APP_LIB_DIR@/${LIB_NAME}"

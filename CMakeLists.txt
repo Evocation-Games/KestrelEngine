@@ -140,10 +140,31 @@ elseif(LINUX)
 endif()
 
 ########################################################################################################################
-## Kestrel - Info Plist
+## Kestrel - Icon
+add_custom_target(generate-kestrel-icon
+    cp "${CMAKE_SOURCE_DIR}/support/packaging/icon-1024.png" "${CMAKE_BUILD_DIR}/${KESTREL_ICON_NAME}.png"
+)
+add_dependencies(Kestrel generate-kestrel-icon)
+
+########################################################################################################################
+### Kestrel - Info Plist
 if (APPLE)
     add_custom_target(generate-kestrel-info-plist
     	${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/macOS/Info.plist.in
+    		             -D DST=${CMAKE_BUILD_DIR}/Info.plist
+    		             -D KESTREL_NAME=${KESTREL_NAME}
+                         -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
+                         -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
+    		             -P ${CMAKE_SOURCE_DIR}/support/macOS/GenerateInfoPlist.cmake
+    )
+    add_dependencies(Kestrel generate-kestrel-info-plist)
+endif()
+
+########################################################################################################################
+## Kestrel - Metal Dependencies
+if (APPLE)
+    add_custom_target(kestrel-metal-libs
+        xcrun -sdk macosx metal -I /support/macOS/Info.plist.in
     		             -D DST=${CMAKE_BUILD_DIR}/Info.plist
     		             -D KESTREL_NAME=${KESTREL_NAME}
                          -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
@@ -166,12 +187,19 @@ endif()
 ########################################################################################################################
 ## Kestrel - App Image Files
 if (LINUX)
+    set(APP_DIR ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
+    set(APP_BIN_DIR ${APP_DIR}/usr/bin)
+    set(APP_LIB_DIR ${APP_DIR}/usr/lib)
+
     add_custom_target(kestrel-app-image
         ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.desktop.in
             -D DST=${CMAKE_BUILD_DIR}/${KESTREL_NAME}.desktop
             -D KESTREL_NAME=${KESTREL_NAME}
             -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
             -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
+            -D APP_DIR=${APP_DIR}
+            -D APP_LIB_DIR=${APP_LIB_DIR}
+            -D APP_BIN_DIR=${APP_BIN_DIR}
             -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
 
         COMMAND
@@ -180,6 +208,20 @@ if (LINUX)
             -D KESTREL_NAME=${KESTREL_NAME}
             -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
             -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
+            -D APP_DIR=${APP_DIR}
+            -D APP_LIB_DIR=${APP_LIB_DIR}
+            -D APP_BIN_DIR=${APP_BIN_DIR}
+            -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
+
+        COMMAND
+        ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.install.so.in
+            -D DST=${CMAKE_BUILD_DIR}/install.so.sh
+            -D KESTREL_NAME=${KESTREL_NAME}
+            -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
+            -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
+            -D APP_DIR=${APP_DIR}
+            -D APP_LIB_DIR=${APP_LIB_DIR}
+            -D APP_BIN_DIR=${APP_BIN_DIR}
             -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
     )
     add_dependencies(Kestrel kestrel-app-image)
@@ -203,27 +245,34 @@ if (APPLE)
 
 elseif(LINUX)
     set(KESTREL_RUNTIME_DEPENDENCIES
-            ${OPENGL_LIBRARIES}
-            ${OPENAL_LIBRARY}
-            ${GLEW_LIBRARY}
-            ${GLFW3_LIBRARY}
-            ${FREETYPE_LIBRARY}
+        ${OPENGL_LIBRARIES}
+        ${OPENAL_LIBRARY}
+        ${GLEW_LIBRARY}
+        ${GLFW3_LIBRARY}
+        ${FREETYPE_LIBRARY}
     )
 
-    set(APP_DIR ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
-    set(APP_BIN_DIR ${APP_DIR}/usr/bin)
-    set(APP_LIB_DIR ${APP_LIB_DIR}/usr/lib)
-
     install(TARGETS Kestrel
-            RUNTIME_DEPENDENCIES ${KESTREL_RUNTIME_DEPENDENCIES}
-            LIBRARY DESTINATION ${APP_LIB_DIR}
             DESTINATION ${APP_BIN_DIR})
 
     install(FILES ${CMAKE_BUILD_DIR}/${KESTREL_NAME}.desktop
-                  ${CMAKE_BUILD_DIR}/AppRun
+                  ${CMAKE_BUILD_DIR}/${KESTREL_ICON_NAME}.png
             DESTINATION ${APP_DIR})
+
+    install(FILES ${CMAKE_BUILD_DIR}/AppRun
+            DESTINATION ${APP_DIR}
+            PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+
+    foreach(LIB ${KESTREL_RUNTIME_DEPENDENCIES})
+        install(CODE "execute_process(COMMAND sh ${CMAKE_BUILD_DIR}/install.so.sh ${LIB})")
+    endforeach()
+
+    install(CODE "execute_process(COMMAND ${CMAKE_BUILD_DIR}/appimagetool ${APP_DIR} ${PROJECT_INSTALL_DIR}/${KESTREL_NAME})")
 
 else()
     install(TARGETS Kestrel
             DESTINATION ${PROJECT_INSTALL_DIR})
 endif()
+
+
+
