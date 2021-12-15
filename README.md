@@ -1,9 +1,9 @@
-<img src="https://user-images.githubusercontent.com/681356/92330908-8530f800-f06a-11ea-842c-3ba3b6cc6ccd.png">
+<p align="center"><img src="https://raw.githubusercontent.com/EvocationGames/KestrelEngine/universal-binaries-macos/support/assets/KestrelLogoRepoHeader.png"></p>
 
-[![Kestrel Game Engine CI](https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg)](https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml) 
-<img src="https://img.shields.io/badge/version-v0.5_beta-blue.svg">
+<p align="center"><a href="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml"><img src="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg"></a> <img src="https://img.shields.io/badge/version-v0.5_beta-blue.svg">
 <img src="https://img.shields.io/badge/license-MIT-blue.svg">
 <a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
+</p>
 
 ---
 # Kestrel Game Engine
