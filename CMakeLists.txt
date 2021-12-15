@@ -209,8 +209,12 @@ elseif(LINUX)
                   ${CMAKE_BUILD_DIR}/AppRun
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
 
-    install(FILES ${OPENGL_LIBRARIES} ${OPENAL_LIBRARY} ${GLEW_LIBRARY} ${GLFW3_LIBRARY} ${FREETYPE_LIBRARY}
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir/usr/lib)
+    install(IMPORTED_RUNTIME_ARTIFACTS ${OPENGL_LIBRARIES}
+                                       ${OPENAL_LIBRARY}
+                                       ${GLEW_LIBRARY}
+                                       ${GLFW3_LIBRARY}
+                                       ${FREETYPE_LIBRARY}
+            LIBRARY DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir/usr/lib)
 
 else()
     install(TARGETS Kestrel
