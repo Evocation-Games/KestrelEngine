@@ -24,9 +24,11 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 ## Kestrel Game Engine Project Configuration
 project(KestrelGameEngine LANGUAGES CXX C)
 
-set(KESTREL_NAME "Kestrel")
-set(KESTREL_BIN_NAME "kestrel")
-set(KESTREL_ICON_NAME "kestrel_icon")
+set(KESTREL_NAME "Kestrel" CACHE STRING "Kestrel Package Name")
+set(KESTREL_BIN_NAME "kestrel" CACHE STRING "Kestrel Binary Name")
+set(KESTREL_ICON_NAME "kestrel_icon" CACHE STRING "Kestrel Packaged Icon Name")
+set(KESTREL_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Icon Path")
+set(KESTREL_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING "Kestrel Project Path")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -140,17 +142,17 @@ endif()
 
 ########################################################################################################################
 ## Kestrel - Example Project
-add_custom_target(Kestrel-ExampleProject
-    ${CMAKE_BUILD_DIR}/kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/projects/ExampleProject/example.kdlproj"
+add_custom_target(Kestrel-GameProject
+    ${CMAKE_BUILD_DIR}/kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/${KESTREL_PROJECT_PATH}"
     COMMAND mv "${CMAKE_BUILD_DIR}/GameCore.kdat" "${CMAKE_BUILD_DIR}/GameCore.ndat"
 )
-add_dependencies(Kestrel-ExampleProject kdl)
-add_dependencies(Kestrel Kestrel-ExampleProject)
+add_dependencies(Kestrel-GameProject kdl)
+add_dependencies(Kestrel Kestrel-GameProject)
 
 ########################################################################################################################
 ## Kestrel - Icon
 add_custom_target(generate-kestrel-icon
-    cp "${CMAKE_SOURCE_DIR}/support/packaging/icon-1024.png" "${CMAKE_BUILD_DIR}/${KESTREL_ICON_NAME}.png"
+    cp "${CMAKE_SOURCE_DIR}/${KESTREL_ICON_PATH}" "${CMAKE_BUILD_DIR}/${KESTREL_ICON_NAME}.png"
 )
 add_dependencies(Kestrel generate-kestrel-icon)
 
@@ -158,12 +160,12 @@ add_dependencies(Kestrel generate-kestrel-icon)
 ### Kestrel - Info Plist
 if (APPLE)
     add_custom_target(generate-kestrel-info-plist
-    	${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/macOS/Info.plist.in
+    	${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/macOS/Info.plist.in
     		             -D DST=${CMAKE_BUILD_DIR}/Info.plist
     		             -D KESTREL_NAME=${KESTREL_NAME}
                          -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
                          -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
-    		             -P ${CMAKE_SOURCE_DIR}/support/macOS/GenerateInfoPlist.cmake
+    		             -P ${CMAKE_SOURCE_DIR}/support/packaging/macOS/GenerateInfoPlist.cmake
     )
     add_dependencies(Kestrel generate-kestrel-info-plist)
 endif()

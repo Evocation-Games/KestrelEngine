@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Copyright (c) 2021 Tom Hancocks
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,26 +19,57 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-echo "Building Intel macOS $3 Library"
-cmake -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-  -DFT_DISABLE_BROTLI=TRUE \
-  -Hsubmodules/$1 \
-  -Bcmake-$1-intel-build-release
-cmake --build cmake-$1-intel-build-release -- -j2
+NAME="Kestrel"
+BIN_NAME ="kestrel"
+PROJECT="projects/ExampleProject/example.kdlproj"
+ICON="support/packaging/icon-1024.png"
+BUILD="Release"
+CLEAN="off"
+J=2
 
-echo "Building Apple Silicon macOS $3 Library"
-cmake \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_OSX_ARCHITECTURES=arm64 \
-  -DFT_DISABLE_BROTLI=TRUE \
-  -Hsubmodules/$1 \
-  -Bcmake-$1-arm-build-release
-cmake --build cmake-$1-arm-build-release -- -j2
+for ARG in "$@"; do
+  case $ARG in
+    --name=*)
+      NAME="${ARG#*=}"
+      shift
+      ;;
+    --bin-name=*)
+      BIN_NAME="${ARG#*=}"
+      shift
+      ;;
+    --project=*)
+      PROJECT="${ARG#*=}"
+      shift
+      ;;
+    --icon=*)
+      ICON="${ARG#*=}"
+      shift
+      ;;
+    --build=*)
+      BUILD="${ARG#*=}"
+      shift
+      ;;
+    --clean=*)
+      CLEAN="${ARG#*=}"
+      shift
+      ;;
+    -j=*)
+      J="${ARG#*=}"
+      shift
+      ;;
+  esac
+done
 
-echo "Merging $3 Libraries into single Universal Library"
-mkdir -p vendor
-lipo -create cmake-$1-intel-build-release/$2.a cmake-$1-arm-build-release/$2.a \
-     -output vendor/lib$1.a
+if [[ "$CLEAN" == "on" ]]; then
+  echo "Cleaning build artifacts"
+  rm -rf build bin
+fi
 
-rm -rf cmake-$1-arm-build-release cmake-$1-intel-build-release
+echo "Building Kestrel as '${NAME}'"
+cmake -DKESTREL_NAME="$NAME" \
+      -DKESTREL_BIN_NAME="$BIN_NAME" \
+      -DKESTREL_PROJECT_PATH="$PROJECT" \
+      -DKESTREL_ICON_PATH="$ICON" \
+      -DCMAKE_BUILD_TYPE="$BUILD" \
+      -H. -Bbuild
+cmake --build build -- -j$J
