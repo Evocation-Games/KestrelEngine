@@ -24,9 +24,9 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 ## Kestrel Game Engine Project Configuration
 project(KestrelGameEngine LANGUAGES CXX C)
 
-set(KESTREL_NAME "CosmicFrontier")
-set(KESTREL_BIN_NAME "cosmic_frontier")
-set(KESTREL_ICON_NAME "cficon")
+set(KESTREL_NAME "Kestrel")
+set(KESTREL_BIN_NAME "kestrel")
+set(KESTREL_ICON_NAME "kestrel_icon")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -168,7 +168,7 @@ endif()
 if (LINUX)
     add_custom_target(kestrel-app-image
         ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.desktop.in
-            -D DST=${CMAKE_BUILD_DIR}/${KESTREL_BIN_NAME}.desktop
+            -D DST=${CMAKE_BUILD_DIR}/${KESTREL_NAME}.desktop
             -D KESTREL_NAME=${KESTREL_NAME}
             -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
             -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
@@ -208,6 +208,9 @@ elseif(LINUX)
     install(FILES ${CMAKE_BUILD_DIR}/${KESTREL_NAME}.desktop
                   ${CMAKE_BUILD_DIR}/AppRun
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
+
+    install(FILES ${OPENGL_LIBRARIES}
+            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir/usr/lib)
 
 else()
     install(TARGETS Kestrel
