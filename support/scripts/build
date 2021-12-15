@@ -20,7 +20,7 @@
 # SOFTWARE.
 
 NAME="Kestrel"
-BIN_NAME ="kestrel"
+BIN_NAME="kestrel"
 PROJECT="projects/ExampleProject/example.kdlproj"
 ICON="support/packaging/icon-1024.png"
 BUILD="Release"

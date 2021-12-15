@@ -87,7 +87,21 @@ if [[ $OS =~ ^darwin ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 
-  install_package "wget"
+  if [[ ! -f "vendor/libfreetype.a" ]]; then
+    echo "Building universal libfreetype... "
+    support/scripts/compile-library-macos.sh freetype libfreetype FreeType
+  fi
+
+  if [[ ! -f "vendor/libglfw.a" ]]; then
+    echo "Building universal libglfw... "
+    support/scripts/compile-library-macos.sh glfw src/libglfw3 GLFW
+  fi
+
+  if [[ ! -f "vendor/libpng.a" ]]; then
+    echo "Building universal libpng... "
+    _=$(cd submodules/png && git apply ../../support/patches/libpng.macos.patch)
+    support/scripts/compile-library-macos.sh png libpng16 PNG
+  fi
 fi
 
 if ! CMAKE_PATH="$(type -p "cmake")" || [[ -z $CMAKE_PATH ]]; then
