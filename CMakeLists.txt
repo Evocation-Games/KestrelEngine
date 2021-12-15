@@ -131,13 +131,21 @@ add_executable(Kestrel ${KESTREL_EXE_TYPE} ${KESTREL_SOURCES})
 target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
 target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
 target_link_libraries(Kestrel ${KESTREL_LIBS})
-add_dependencies(Kestrel kdl)
 
 if (APPLE OR WIN32)
     set_target_properties(Kestrel PROPERTIES OUTPUT_NAME ${KESTREL_NAME})
 elseif(LINUX)
     set_target_properties(Kestrel PROPERTIES OUTPUT_NAME ${KESTREL_BIN_NAME})
 endif()
+
+########################################################################################################################
+## Kestrel - Example Project
+add_custom_target(Kestrel-ExampleProject
+    ${CMAKE_BUILD_DIR}/kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/projects/ExampleProject/example.kdlproj"
+    COMMAND mv "${CMAKE_BUILD_DIR}/GameCore.kdat" "${CMAKE_BUILD_DIR}/GameCore.ndat"
+)
+add_dependencies(Kestrel-ExampleProject kdl)
+add_dependencies(Kestrel Kestrel-ExampleProject)
 
 ########################################################################################################################
 ## Kestrel - Icon
@@ -151,20 +159,6 @@ add_dependencies(Kestrel generate-kestrel-icon)
 if (APPLE)
     add_custom_target(generate-kestrel-info-plist
     	${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/macOS/Info.plist.in
-    		             -D DST=${CMAKE_BUILD_DIR}/Info.plist
-    		             -D KESTREL_NAME=${KESTREL_NAME}
-                         -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
-                         -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
-    		             -P ${CMAKE_SOURCE_DIR}/support/macOS/GenerateInfoPlist.cmake
-    )
-    add_dependencies(Kestrel generate-kestrel-info-plist)
-endif()
-
-########################################################################################################################
-## Kestrel - Metal Dependencies
-if (APPLE)
-    add_custom_target(kestrel-metal-libs
-        xcrun -sdk macosx metal -I /support/macOS/Info.plist.in
     		             -D DST=${CMAKE_BUILD_DIR}/Info.plist
     		             -D KESTREL_NAME=${KESTREL_NAME}
                          -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
@@ -241,6 +235,7 @@ if (APPLE)
 
     install(FILES ${CMAKE_BUILD_DIR}/default.metallib
                   ${CMAKE_BUILD_DIR}/default.air
+                  ${CMAKE_BUILD_DIR}/GameCore.ndat
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
 
 elseif(LINUX)

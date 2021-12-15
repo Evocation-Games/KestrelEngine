@@ -1,4 +1,4 @@
--- Copyright (c) 2020 Tom Hancocks
+-- Copyright (c) 2020-2021 Tom Hancocks
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy
 -- of this software and associated documentation files (the "Software"), to deal
@@ -18,12 +18,26 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-print("Pong Demo Game")
+-- Fetch a random text resource that can be displayed in the window.
+local messages = {}
+Namespace.Example:typedResource('text'):matchingResources():each(function(textRef)
+    local data = Legacy.Macintosh.Data(textRef)
+    if not data.isValid then
+        return
+    end
+    messages[#messages + 1] = data:readCStr()
+end)
 
--- Setup the game window
-Kestrel.setGameWindowTitle("Pong")
-Kestrel.setGameWindowSize(1280, 800)
+-- Create a canvas and render a random message on to it.
+local message = messages[math.floor(math.random() * #messages) + 1]
+local messageCanvas = Canvas(Size(1280, 800))
+messageCanvas.penColor = Color.white()
+messageCanvas:setFont("Geneva", 15)
+messageCanvas:layoutTextInBounds(message, Size(1200, 800))
+messageCanvas:drawText(Point(40, 40))
+local messageEntity = messageCanvas:spawnEntity(Vec2(0, 0))
 
--- Create the a new game session
-local game = Kestrel.scene("MainGame", Resource.id(128))
-game:present()
+-- Setup a scene render block so that we can draw the entity.
+Scene.current():render(function()
+    messageEntity:draw()
+end)

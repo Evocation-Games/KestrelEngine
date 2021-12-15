@@ -132,7 +132,7 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 #if __APPLE__
 auto environment::launch_metal(const double& scale) -> int
 {
-    auto app = cocoa::application();;
+    auto app = cocoa::application();
     return app.run(m_options, [this, scale] () {
         this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this(), scale);
         this->m_game_window->set_title("Kestrel - Metal");

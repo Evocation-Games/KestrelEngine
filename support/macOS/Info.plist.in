@@ -3,7 +3,7 @@
 <plist version="1.0">
     <dict>
         <key>CFBundleExecutable</key>
-        <string>Kestrel</string>
+        <string>@KESTREL_BIN_NAME@</string>
         <key>CFBundleIdentifier</key>
         <string>com.tomhancocks.kestrel</string>
         <key>CFBundleInfoDictionaryVersion</key>
