@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=@KESTREL_NAME@
+Exec=@KESTREL_BIN_NAME@
+Icon=@KESTREL_ICON_NAME@
+Type=Application
+Categories=Game;

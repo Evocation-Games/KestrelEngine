@@ -1,0 +1,11 @@
+HERE="$(dirname "$(readlink -f "${0}")")"
+
+if [ -z ${APPDIR} ]; then
+    APPDIR=$(readlink -f "${0}"))
+fi
+
+KESTREL_NAME="@KESTREL_NAME@"
+KESTREL_BIN_NAME="@KESTREL_BIN_NAME@"
+
+export LD_LIBRARY_PATH=$(readlink -f "${HERE}/usr/lib"):${LD_LIBRARY_PATH}
+exec "${HERE}/usr/bin/${KESTREL_BIN_NAME}" "${@}"
