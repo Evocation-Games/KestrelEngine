@@ -18,3 +18,4 @@ cmake-*-release/
 *.bin
 build/
 vendor/
+support/packaging/appimage/appimagetool
