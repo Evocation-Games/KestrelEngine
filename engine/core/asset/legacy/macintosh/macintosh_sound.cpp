@@ -24,7 +24,7 @@
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 #include "core/audio/audio_manager.hpp"
-#include "engine/core/audio/codec/audio_codec_descriptor.hpp"
+#include "core/audio/codec/audio_codec_descriptor.hpp"
 #include "core/audio/codec/ima4.hpp"
 
 // MARK: - Constants

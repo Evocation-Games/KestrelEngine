@@ -32,29 +32,22 @@
 #include "math/rect.hpp"
 #include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
-#include "engine/core/asset/legacy/macintosh/picture.hpp"
-#include "engine/core/asset/legacy/macintosh/color_icon.hpp"
-#include "engine/core/asset/legacy/macintosh/macintosh_sound.hpp"
+#include "core/asset/legacy/macintosh/picture.hpp"
+#include "core/asset/legacy/macintosh/color_icon.hpp"
+#include "core/asset/legacy/macintosh/macintosh_sound.hpp"
 #include "core/asset/spritesheet.hpp"
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/asset/static_image.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/event/key.hpp"
-#include "engine/core/asset/legacy/spriteworld/sprite.hpp"
+#include "core/asset/legacy/spriteworld/sprite.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "util/lua_vector.hpp"
 #include "core/file/filesystem.hpp"
 #include "core/file/file.hpp"
 #include "core/file/directory.hpp"
 #include "core/audio/codec/mp3.hpp"
-
-// MARK: - Construction
-
-scripting::lua::state::state()
-{
-
-}
 
 // MARK: - Destruction
 

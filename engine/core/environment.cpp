@@ -132,7 +132,7 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 #if __APPLE__
 auto environment::launch_metal(const double& scale) -> int
 {
-    auto app = cocoa::application();;
+    auto app = cocoa::application();
     return app.run(m_options, [this, scale] () {
         this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this(), scale);
         this->m_game_window->set_title("Kestrel - Metal");
@@ -143,12 +143,14 @@ auto environment::launch_metal(const double& scale) -> int
 }
 #endif
 
+#if __x86_64__
 auto environment::launch_opengl(const double& scale) -> int
 {
     m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this(), scale);
     m_gl = gl_type::open_gl;
     return launch_common();
 }
+#endif
 
 auto environment::prepare_common() -> void
 {
@@ -220,8 +222,12 @@ auto environment::launch() -> int
 
 #endif
 
+#if __x86_64__
     audio::manager::shared_manager().set_library(audio_lib);
     return launch_opengl(scale);
+#else
+    throw std::runtime_error("Kestrel does not support OpenGL on Apple Silicon. Please remove the --opengl argument.");
+#endif
 }
 
 auto environment::become_active_environment() -> void

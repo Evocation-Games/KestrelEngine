@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP)
+#if !defined(KESTREL_OPENGL_SESSION_WINDOW_HPP) && __x86_64__
 #define KESTREL_OPENGL_SESSION_WINDOW_HPP
 
 #include <optional>
@@ -27,7 +27,8 @@
 #include "core/graphics/opengl/opengl_shader.hpp"
 #include "core/graphics/opengl/opengl_sprite_renderer.hpp"
 
-namespace graphics { namespace opengl {
+namespace graphics::opengl
+{
 
     class session_window: public graphics::session_window, public std::enable_shared_from_this<opengl::session_window>
     {
@@ -56,6 +57,6 @@ namespace graphics { namespace opengl {
         auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture> override;
     };
 
-}};
+}
 
 #endif //KESTREL_OPENGL_SESSION_WINDOW_HPP

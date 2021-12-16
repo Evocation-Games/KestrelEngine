@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_OPENGL_SPRITE_RENDERER_HPP)
+#if !defined(KESTREL_OPENGL_SPRITE_RENDERER_HPP) && __x86_64__
 #define KESTREL_OPENGL_SPRITE_RENDERER_HPP
 
 #include <memory>
@@ -26,7 +26,8 @@
 #include "core/graphics/opengl/opengl_shader.hpp"
 #include "core/graphics/common/entity.hpp"
 
-namespace graphics { namespace opengl {
+namespace graphics::opengl
+{
 
     class sprite_renderer
     {
@@ -42,6 +43,6 @@ namespace graphics { namespace opengl {
         auto draw(const graphics::entity::lua_reference& entity) const -> void;
     };
 
-};};
+}
 
 #endif //KESTREL_OPENGL_SPRITE_RENDERER_HPP

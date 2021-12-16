@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if __x86_64__
+
 #include <iostream>
 #include "core/graphics/opengl/opengl_shader.hpp"
 #include <libGraphite/rsrc/manager.hpp>
@@ -155,3 +157,5 @@ auto graphics::opengl::shader::set_mat4(const std::string& name, glm::mat4 &matr
     }
     glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, false, glm::value_ptr(matrix));
 }
+
+#endif
