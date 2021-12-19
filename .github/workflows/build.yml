@@ -85,7 +85,7 @@ jobs:
           KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD }}
           KESTREL_DISTRIBUTION_IDENTITY: ${{ secrets.KESTREL_DISTRIBUTION_IDENTITY }}
         run: |
-          echo KESTREL_DISTRIBUTION_CERTIFICATE | base64 --decode > certificate.p12
+          echo $KESTREL_DISTRIBUTION_CERTIFICATE | base64 --decode > certificate.p12
           security create-keychain -p $KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p $KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD build.keychain
