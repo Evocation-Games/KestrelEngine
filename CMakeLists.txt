@@ -243,6 +243,8 @@ elseif(LINUX)
         ${FREETYPE_LIBRARY}
     )
 
+    set(CMAKE_INSTALL_PREFIX "/usr")
+
     install(TARGETS Kestrel
             DESTINATION ${APP_BIN_DIR})
 
