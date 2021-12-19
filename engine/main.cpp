@@ -18,10 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include "core/environment.hpp"
 
 auto main(int argc, const char* argv[]) -> int
 {
+    for (auto i = 0; i < argc; ++i) {
+        std::cout << i << ": " << std::string(argv[i]) << std::endl;
+    }
     auto env = std::make_shared<environment>(argc, argv);
     return env->launch();
 }

@@ -320,12 +320,12 @@ auto environment::game_fonts_path() const -> std::string
 
 auto environment::kestrel_core_path() const -> std::string
 {
-    return "/usr/share/GameCore.ndat";
+    return "../share/GameCore.ndat";
 }
 
 auto environment::game_data_path() const -> std::string
 {
-    return "/usr/share/DataFiles";
+    return "../share/DataFiles";
 }
 
 auto environment::game_mods_path() const -> std::string
