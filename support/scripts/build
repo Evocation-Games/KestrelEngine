@@ -22,10 +22,13 @@
 NAME="Kestrel"
 BIN_NAME="kestrel"
 PROJECT="projects/ExampleProject/example.kdlproj"
+DATA_FILES=""
 ICON="support/packaging/icon-1024.png"
 BUILD="Release"
 CLEAN="off"
 J=2
+
+mkdir -p build/DataFiles
 
 for ARG in "$@"; do
   case $ARG in
@@ -39,6 +42,19 @@ for ARG in "$@"; do
       ;;
     --project=*)
       PROJECT="${ARG#*=}"
+      shift
+      ;;
+    --data-files=*)
+      DATA_FILES=${ARG#*=}
+
+      if [[ -d "$DATA_FILES" ]]; then
+        for FILE in "$DATA_FILES"/*; do
+          cp "$FILE" "build/DataFiles"
+        done
+      else
+          cp "$DATA_FILES" "build/DataFiles"
+      fi
+
       shift
       ;;
     --icon=*)
@@ -69,6 +85,7 @@ echo "Building Kestrel as '${NAME}'"
 cmake -DKESTREL_NAME="$NAME" \
       -DKESTREL_BIN_NAME="$BIN_NAME" \
       -DKESTREL_PROJECT_PATH="$PROJECT" \
+      -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
       -DKESTREL_ICON_PATH="$ICON" \
       -DCMAKE_BUILD_TYPE="$BUILD" \
       -H. -Bbuild

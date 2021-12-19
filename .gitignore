@@ -19,3 +19,5 @@ cmake-*-release/
 build/
 vendor/
 support/packaging/appimage/appimagetool
+result.kdat
+result.ndat
