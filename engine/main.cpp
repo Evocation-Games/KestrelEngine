@@ -21,10 +21,10 @@
 #include <iostream>
 #include "core/environment.hpp"
 
-auto main(int argc, const char* argv[]) -> int
+auto main(int argc, const char* argv[], char **envp) -> int
 {
-    for (auto i = 0; i < argc; ++i) {
-        std::cout << i << ": " << std::string(argv[i]) << std::endl;
+    for (char **env = envp; *env != 0; env++) {
+        std::cout << "env: " << std::string(*env) << std::endl;
     }
     auto env = std::make_shared<environment>(argc, argv);
     return env->launch();
