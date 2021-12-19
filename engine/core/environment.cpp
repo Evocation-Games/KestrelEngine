@@ -320,22 +320,22 @@ auto environment::game_fonts_path() const -> std::string
 
 auto environment::kestrel_core_path() const -> std::string
 {
-    return "GameCore.ndat";
+    return "/usr/share/GameCore.ndat";
 }
 
 auto environment::game_data_path() const -> std::string
 {
-    return "DataFiles";
+    return "/usr/share/DataFiles";
 }
 
 auto environment::game_mods_path() const -> std::string
 {
-    return "Mods";
+    return "/usr/share/Mods";
 }
 
 auto environment::game_fonts_path() const -> std::string
 {
-    return "Fonts";
+    return "/usr/share/Fonts";
 }
 
 #elif (defined(_WIN32) || defined(_WIN64))
