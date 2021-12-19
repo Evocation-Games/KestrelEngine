@@ -37,7 +37,9 @@ jobs:
         run: |
           mkdir -p build
           wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O build/appimagetool
-          chmod +x build/appimagetool
+          chmod a+x build/appimagetool
+          wget https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64 -O build/AppRun
+          chmod a+x build/AppRun
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}

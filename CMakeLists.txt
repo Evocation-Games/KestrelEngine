@@ -199,17 +199,6 @@ if (LINUX)
             -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
 
         COMMAND
-        ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.apprun.in
-            -D DST=${CMAKE_BUILD_DIR}/AppRun
-            -D KESTREL_NAME=${KESTREL_NAME}
-            -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
-            -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
-            -D APP_DIR=${APP_DIR}
-            -D APP_LIB_DIR=${APP_LIB_DIR}
-            -D APP_BIN_DIR=${APP_BIN_DIR}
-            -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
-
-        COMMAND
         ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.install.so.in
             -D DST=${CMAKE_BUILD_DIR}/install.so.sh
             -D KESTREL_NAME=${KESTREL_NAME}
