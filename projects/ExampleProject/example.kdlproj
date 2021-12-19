@@ -69,3 +69,13 @@ component "ExampleResources" {
         "KDL.txt" ("Resource::Message::KDL");
     };
 };
+
+` Shaders
+declare GLSLShader {
+    new (#0, "Sprite::Shader::Vertex") {
+        Script = import "../projects/ExampleProject/Shaders/OpenGL/Vertex.glsl";
+    };
+    new (#1, "Sprite::Shader::Fragment") {
+        Script = import "../projects/ExampleProject/Shaders/OpenGL/Fragment.glsl";
+    };  
+};
