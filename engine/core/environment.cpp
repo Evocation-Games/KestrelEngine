@@ -320,22 +320,38 @@ auto environment::game_fonts_path() const -> std::string
 
 auto environment::kestrel_core_path() const -> std::string
 {
-    return "../share/GameCore.ndat";
+    std::string path { "GameCore.ndat" };
+    if (const char *app_dir = std::getenv("APPDIR")) {
+        path = std::string(app_dir) + "/usr/share/" + path;
+    }
+    return path;
 }
 
 auto environment::game_data_path() const -> std::string
 {
-    return "../share/DataFiles";
+    std::string path { "DataFiles" };
+    if (const char *app_dir = std::getenv("APPDIR")) {
+        path = std::string(app_dir) + "/usr/share/" + path;
+    }
+    return path;
 }
 
 auto environment::game_mods_path() const -> std::string
 {
-    return "/usr/share/Mods";
+    std::string path { "Mods" };
+    if (const char *app_dir = std::getenv("APPDIR")) {
+        path = std::string(app_dir) + "/usr/share/" + path;
+    }
+    return path;
 }
 
 auto environment::game_fonts_path() const -> std::string
 {
-    return "/usr/share/Fonts";
+    std::string path { "Fonts" };
+    if (const char *app_dir = std::getenv("APPDIR")) {
+        path = std::string(app_dir) + "/usr/share/" + path;
+    }
+    return path;
 }
 
 #elif (defined(_WIN32) || defined(_WIN64))
