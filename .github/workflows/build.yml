@@ -79,6 +79,16 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
+      - name: Notarize Kestrel Engine
+        uses: devbotsxyz/xcode-notarize@v1
+        with:
+          product-path: ./bin/Kestrel.app
+          appstore-connect-username: ${{ secrets.NOTARIZATION_USERNAME }}
+          appstore-connect-password: ${{ secrets.NOTARIZATION_PASSWORD }}
+      - name: Staple Kestrel Engine
+        uses: devbotsxyz/xcode-staple@v1
+        with:
+          product-path: ./bin/Kestrel.app
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
