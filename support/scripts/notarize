@@ -70,6 +70,7 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$DISTRIBU
 
 # Code Signing
 echo "Code signing $APP_PATH"
+security find-identity -v
 /usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" $APP_PATH -v
 
 # Notarize
