@@ -76,7 +76,7 @@ security find-identity -v
 # Notarize
 echo "Notarizing $APP_PATH"
 ZIP_PATH="build/NotarizationPackage.zip"
-zip -r "$ZIP_PATH" "$APP_PATH" &> /dev/null
+ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
 if RESULT=$(xcrun altool --notarize-app --primary-bundle-id "$BUNDLE_ID" -u "$APPSTORECONNECT_USERNAME" -p "$APPSTORECONNECT_PASSWORD" -f "$ZIP_PATH"); then
   REQUEST_UUID=$(echo "$RESULT" | grep 'RequestUUID' | awk '{ print $3 }')
   echo "  -> request id: $REQUEST_UUID"
