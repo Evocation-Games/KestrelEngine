@@ -71,6 +71,7 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$DISTRIBU
 # Code Signing
 echo "Code signing $APP_PATH"
 security find-identity -v
+cat "$APP_PATH/Contents/Info.plist"
 /usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" "$APP_PATH" -v
 /usr/bin/codesign -vvv "$APP_PATH"
 
