@@ -91,7 +91,7 @@ jobs:
           security unlock-keychain -p "$KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
           security import certificate.p12 -k build.keychain -P "$KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
-          /usr/bin/codesign --force --options runtime --timestamp -s "$KESTREL_DISTRIBUTION_IDENTITY" ./bin/Kestrel.app -v
+          /usr/bin/codesign --force --deep --options runtime --timestamp -s "$KESTREL_DISTRIBUTION_IDENTITY" ./bin/Kestrel.app -v
       - name: Notarize Kestrel Engine
         uses: devbotsxyz/xcode-notarize@v1
         with:
