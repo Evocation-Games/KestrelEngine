@@ -37,7 +37,9 @@ jobs:
         run: |
           mkdir -p build
           wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O build/appimagetool
-          chmod +x build/appimagetool
+          chmod a+x build/appimagetool
+          wget https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64 -O build/AppRun
+          chmod a+x build/AppRun
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
@@ -77,6 +79,20 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
+      - name: Codesign & Notarize Kestrel Engine
+        env:
+          DISTRIBUTION_CERTIFICATE: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE }}
+          DISTRIBUTION_CERTIFICATE_PWD: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          DISTRIBUTION_IDENTITY: ${{ secrets.KESTREL_DISTRIBUTION_IDENTITY }}
+          APPSTORECONNECT_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+          APPSTORECONNECT_PWD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        run: |
+          support/scripts/notarize \
+            --identity="$DISTRIBUTION_IDENTITY" \
+            --cert="$DISTRIBUTION_CERTIFICATE" \
+            --cert-pwd="$DISTRIBUTION_CERTIFICATE_PWD" \
+            --user="$APPSTORECONNECT_USERNAME" \
+            --pwd="$APPSTORECONNECT_PWD"
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:

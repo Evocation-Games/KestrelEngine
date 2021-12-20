@@ -29,6 +29,7 @@ set(KESTREL_BIN_NAME "kestrel" CACHE STRING "Kestrel Binary Name")
 set(KESTREL_ICON_NAME "kestrel_icon" CACHE STRING "Kestrel Packaged Icon Name")
 set(KESTREL_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Icon Path")
 set(KESTREL_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING "Kestrel Project Path")
+set(KESTREL_DATA_FILES_PATH "build/DataFiles" CACHE STRING "Kestrel Data Files Path")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -186,21 +187,11 @@ if (LINUX)
     set(APP_DIR ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
     set(APP_BIN_DIR ${APP_DIR}/usr/bin)
     set(APP_LIB_DIR ${APP_DIR}/usr/lib)
+    set(APP_SHARE_DIR ${APP_DIR}/usr/share)
 
     add_custom_target(kestrel-app-image
         ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.desktop.in
             -D DST=${CMAKE_BUILD_DIR}/${KESTREL_NAME}.desktop
-            -D KESTREL_NAME=${KESTREL_NAME}
-            -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
-            -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
-            -D APP_DIR=${APP_DIR}
-            -D APP_LIB_DIR=${APP_LIB_DIR}
-            -D APP_BIN_DIR=${APP_BIN_DIR}
-            -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
-
-        COMMAND
-        ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.apprun.in
-            -D DST=${CMAKE_BUILD_DIR}/AppRun
             -D KESTREL_NAME=${KESTREL_NAME}
             -D KESTREL_BIN_NAME=${KESTREL_BIN_NAME}
             -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
@@ -229,15 +220,19 @@ install(TARGETS kdl
         DESTINATION ${PROJECT_INSTALL_DIR})
 
 if (APPLE)
+    set_target_properties(Kestrel PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_NAME}"
+    )
+
     install(TARGETS Kestrel
             DESTINATION ${PROJECT_INSTALL_DIR})
-
-    install(FILES ${CMAKE_BUILD_DIR}/Info.plist
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents)
 
     install(FILES ${CMAKE_BUILD_DIR}/default.metallib
                   ${CMAKE_BUILD_DIR}/default.air
                   ${CMAKE_BUILD_DIR}/GameCore.ndat
+            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
+
+    install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
 
 elseif(LINUX)
@@ -249,6 +244,8 @@ elseif(LINUX)
         ${FREETYPE_LIBRARY}
     )
 
+    set(CMAKE_INSTALL_PREFIX "/usr")
+
     install(TARGETS Kestrel
             DESTINATION ${APP_BIN_DIR})
 
@@ -259,6 +256,12 @@ elseif(LINUX)
     install(FILES ${CMAKE_BUILD_DIR}/AppRun
             DESTINATION ${APP_DIR}
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+
+    install(FILES ${CMAKE_BUILD_DIR}/GameCore.ndat
+            DESTINATION ${APP_SHARE_DIR})
+
+    install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
+            DESTINATION ${APP_SHARE_DIR})
 
     foreach(LIB ${KESTREL_RUNTIME_DEPENDENCIES})
         install(CODE "execute_process(COMMAND sh ${CMAKE_BUILD_DIR}/install.so.sh ${LIB})")
