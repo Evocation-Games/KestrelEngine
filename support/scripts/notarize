@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# Copyright (c) 2021 Tom Hancocks
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+APP_PATH="bin/Kestrel.app"
+DISTRIBUTION_IDENTITY=""
+DISTRIBUTION_CERTIFICATE=""
+DISTRIBUTION_CERTIFICATE_PASSWORD=""
+BUNDLE_ID="com.tomhancocks.kestrel"
+APPSTORECONNECT_USERNAME=""
+APPSTORECONNECT_PASSWORD=""
+
+mkdir -p build/DataFiles
+
+for ARG in "$@"; do
+  case $ARG in
+    --app=*)
+      APP_PATH="${ARG#*=}"
+      shift
+      ;;
+    --identity=*)
+      DISTRIBUTION_IDENTITY="${ARG#*=}"
+      shift
+      ;;
+    --cert=*)
+      DISTRIBUTION_CERTIFICATE="${ARG#*=}"
+      shift
+      ;;
+    --cert-password=*)
+      DISTRIBUTION_CERTIFICATE_PASSWORD=${ARG#*=}
+      shift
+      ;;
+    --user=*)
+      APPSTORECONNECT_USERNAME="${ARG#*=}"
+      shift
+      ;;
+    --password=*)
+      APPSTORECONNECT_PASSWORD="${ARG#*=}"
+      shift
+      ;;
+  esac
+done
+
+# Install certificates
+echo "Setup Certificate and Keychain"
+CERT_PATH="build/Certificate.p12"
+echo "$DISTRIBUTION_CERTIFICATE" | base64 --decode > $CERT_PATH
+security create-keychain -p "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
+security default-keychain -s build.keychain
+security unlock-keychain -p "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
+security import build/Certificate.p12 -k build.keychain -P "$DISTRIBUTION_CERTIFICATE_PASSWORD" -T codesign
+#security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
+
+# Code Signing
+echo "Code signing $APP_PATH"
+/usr/bin/codesign --force --deep --options runtime --timestamp -s "$KESTREL_DISTRIBUTION_IDENTITY" $APP_PATH -v
+
+# Notarize
+echo "Notarizing $APP_PATH"
+ZIP_PATH="build/NotarizationPackage.zip"
+zip -r "$ZIP_PATH" "$APP_PATH" &> /dev/null
+if RESULT=$(xcrun altool --notarize-app --primary-bundle-id "$BUNDLE_ID" -u "$APPSTORECONNECT_USERNAME" -p "$APPSTORECONNECT_PASSWORD" -f "$ZIP_PATH"); then
+  REQUEST_UUID=$(echo "$RESULT" | grep 'RequestUUID' | awk '{ print $3 }')
+  echo "  -> request id: $REQUEST_UUID"
+  sleep 15
+  while :; do
+    FULL_STATUS=$(xcrun altool --notarization-info "$REQUEST_UUID" --primary-bundle-id "$BUNDLE_ID" -u "$APPSTORECONNECT_USERNAME" -p "$APPSTORECONNECT_PASSWORD")
+    STATUS=$(echo "$FULL_STATUS" | grep 'Status\:' | awk '{ print $2 }')
+    if [[ "$STATUS" = "success" ]]; then
+      echo "  -> success!"
+      xcrun stapler staple "$APP_PATH"
+      xcrun stapler validate -v "$APP_PATH" &> /dev/null
+      break
+    elif [[ "$STATUS" = "in" ]]; then
+      echo "  -> in progress..."
+      sleep 15
+    else
+      echo "  -> failed..."
+      security delete-keychain build.keychain
+      rm "$ZIP_PATH" "$CERT_PATH"
+      exit 1
+    fi
+  done
+else
+  echo "There was an error submitting the notarization request."
+  exit 1
+fi
+
+# Clean up
+security delete-keychain build.keychain
+rm "$ZIP_PATH" "$CERT_PATH"
