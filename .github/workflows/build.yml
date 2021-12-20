@@ -87,7 +87,7 @@ jobs:
           APPSTORECONNECT_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
           APPSTORECONNECT_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
         run: |
-          support/scripts/notarize --identity="DISTRIBUTION_IDENTITY" --cert="$DISTRIBUTION_CERTIFICATE" --cert-password="$DISTRIBUTION_CERTIFICATE_PASSWORD" --user="$APPSTORECONNECT_USERNAME" --password="$APPSTORECONNECT_PASSWORD"
+          support/scripts/notarize --identity="$DISTRIBUTION_IDENTITY" --cert="$DISTRIBUTION_CERTIFICATE" --cert-password="$DISTRIBUTION_CERTIFICATE_PASSWORD" --user="$APPSTORECONNECT_USERNAME" --password="$APPSTORECONNECT_PASSWORD"
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
