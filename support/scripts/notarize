@@ -70,7 +70,7 @@ security import build/Certificate.p12 -k build.keychain -P "$DISTRIBUTION_CERTIF
 
 # Code Signing
 echo "Code signing $APP_PATH"
-/usr/bin/codesign --force --deep --options runtime --timestamp -s "$KESTREL_DISTRIBUTION_IDENTITY" $APP_PATH -v
+/usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" $APP_PATH -v
 
 # Notarize
 echo "Notarizing $APP_PATH"
