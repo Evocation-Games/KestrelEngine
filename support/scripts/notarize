@@ -70,7 +70,7 @@ security import "$CERT_PATH" -k build.keychain -P "$DISTRIBUTION_CERTIFICATE_PAS
 
 # Code Signing
 echo "Code signing $APP_PATH"
-/usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" $APP_PATH -v
+/usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" "$APP_PATH" -v
 
 # Notarize
 echo "Notarizing $APP_PATH"
