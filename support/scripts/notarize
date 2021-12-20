@@ -60,12 +60,12 @@ done
 
 # Install certificates
 echo "Setup Certificate and Keychain"
-CERT_PATH="build/cert.cer"
+CERT_PATH="build/Certificate.p12"
 echo "$DISTRIBUTION_CERTIFICATE" | base64 --decode > $CERT_PATH
 security create-keychain -p "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
 security default-keychain -s build.keychain
 security unlock-keychain -p "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
-security import "$CERT_PATH" -k build.keychain -T /usr/bin/codesign
+security import "$CERT_PATH" -k build.keychain -P "$DISTRIBUTION_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
 #security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
 
 # Code Signing
