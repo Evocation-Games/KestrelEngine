@@ -66,11 +66,11 @@ security create-keychain -p "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
 security default-keychain -s build.keychain
 security unlock-keychain -p "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
 security import "$CERT_PATH" -k build.keychain -P "$DISTRIBUTION_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
-#security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
+security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$DISTRIBUTION_CERTIFICATE_PASSWORD" build.keychain
 
 # Code Signing
 echo "Code signing $APP_PATH"
-/usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" "$APP_PATH" -v
+/usr/bin/codesign --force --deep --options runtime --timestamp -s "$DISTRIBUTION_IDENTITY" $APP_PATH -v
 
 # Notarize
 echo "Notarizing $APP_PATH"
