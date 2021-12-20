@@ -43,7 +43,7 @@ for ARG in "$@"; do
       DISTRIBUTION_CERTIFICATE="${ARG#*=}"
       shift
       ;;
-    --cert-password=*)
+    --cert-pwd=*)
       DISTRIBUTION_CERTIFICATE_PASSWORD=${ARG#*=}
       shift
       ;;
@@ -51,7 +51,7 @@ for ARG in "$@"; do
       APPSTORECONNECT_USERNAME="${ARG#*=}"
       shift
       ;;
-    --password=*)
+    --pwd=*)
       APPSTORECONNECT_PASSWORD="${ARG#*=}"
       shift
       ;;
