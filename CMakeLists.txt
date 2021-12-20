@@ -220,11 +220,12 @@ install(TARGETS kdl
         DESTINATION ${PROJECT_INSTALL_DIR})
 
 if (APPLE)
+    set_target_properties(Kestrel PROPERTIES
+        MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_NAME}"
+    )
+
     install(TARGETS Kestrel
             DESTINATION ${PROJECT_INSTALL_DIR})
-
-    install(FILES ${CMAKE_BUILD_DIR}/Info.plist
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents)
 
     install(FILES ${CMAKE_BUILD_DIR}/default.metallib
                   ${CMAKE_BUILD_DIR}/default.air
