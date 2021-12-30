@@ -19,11 +19,11 @@
 // SOFTWARE.
 
 #include <utility>
+#include <MetalKit/MetalKit.h>
 #include "core/graphics/metal/metal_session_window.h"
 #include "core/support/macos/cocoa/window.h"
 #include "core/graphics/metal/metal_scene.h"
 #include "core/graphics/metal/metal_texture.h"
-#include "core/graphics/metal/metal_view.h"
 
 // MARK: - Construction
 
@@ -53,7 +53,6 @@ auto graphics::metal::session_window::get_size() const -> math::size
 
 // MARK: - Rendering
 
-
 auto graphics::metal::session_window::draw_entity(const graphics::entity::lua_reference& entity) const -> void
 {
     m_view->draw_entity(entity);
@@ -65,7 +64,6 @@ auto graphics::metal::session_window::new_scene(const std::string& name, const s
 {
     return std::make_shared<graphics::metal::scene>(shared_from_this(), script, name);
 }
-
 
 // MARK: - Helpers
 
@@ -88,3 +86,15 @@ auto graphics::metal::session_window::create_texture(const math::size &size,
     return texture;
 }
 
+// MARK: - Metal Support
+
+auto graphics::metal::has_metal_support() -> bool
+{
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    if (@available(macOS 10.15, *)) {
+        return [device supportsFamily:MTLGPUFamilyMac2];
+    }
+    else {
+        return false;
+    }
+}

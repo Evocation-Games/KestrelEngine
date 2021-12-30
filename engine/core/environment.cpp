@@ -162,6 +162,19 @@ auto environment::prepare_common() -> void
     auto state = m_lua_runtime->shared_from_this();
     scripting::lua::script main_script(state, asset::resource_descriptor::identified(0));
     m_lua_runtime->run(main_script);
+
+    // Post the console about the environment.
+    switch (m_gl) {
+        case open_gl:
+            m_game_window->console().write("Graphics layer is OpenGL");
+            break;
+        case metal:
+            m_game_window->console().write("Graphics layer is Metal");
+            break;
+        default:
+            m_game_window->console().write("Graphics layer is unknown.");
+            break;
+    }
 }
 
 auto environment::launch_common() -> int
@@ -199,7 +212,7 @@ auto environment::launch() -> int
     // Check if we're being forced to open the game using OpenAL rather than CoreAudio
     audio_lib = audio::manager::library::core_audio;
     if (std::find(m_options.begin(), m_options.end(), "--openal") != m_options.end()) {
-        audio_lib= audio::manager::library::openal;
+        audio_lib = audio::manager::library::openal;
     }
 
     // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
@@ -209,8 +222,7 @@ auto environment::launch() -> int
     }
     else {
         // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
-        auto metal = true;
-        if (metal) {
+        if (graphics::metal::has_metal_support()) {
             audio::manager::shared_manager().set_library(audio_lib);
             return launch_metal(scale);
         }
@@ -417,7 +429,7 @@ auto environment::scale() -> double
 auto environment::load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script
 {
     if (auto env = $_active_environment.lock()) {
-        return scripting::lua::script(m_lua_runtime->shared_from_this(), ref);
+        return { m_lua_runtime->shared_from_this(), ref };
     }
     throw std::runtime_error("Missing environment");
 }
@@ -502,7 +514,7 @@ auto environment::create_scene(const std::string &name, const asset::resource_de
 {
     if (auto env = $_active_environment.lock()) {
         auto scene = env->m_game_window->new_scene(name, env->load_script(script));
-        return graphics::lua_scene_wrapper::lua_reference(new graphics::lua_scene_wrapper(scene));
+        return {new graphics::lua_scene_wrapper(scene)};
     }
     else {
         return nullptr;

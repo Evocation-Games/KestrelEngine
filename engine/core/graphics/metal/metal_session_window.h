@@ -34,6 +34,8 @@ namespace cocoa
 namespace graphics::metal
 {
 
+    auto has_metal_support() -> bool;
+
     class session_window: public graphics::session_window, public std::enable_shared_from_this<metal::session_window>
     {
     protected:
