@@ -20,6 +20,10 @@
 
 #include <utility>
 #include <MetalKit/MetalKit.h>
+#if defined(Nil)
+#   undef Nil
+#endif
+
 #include "core/graphics/metal/metal_session_window.h"
 #include "core/support/macos/cocoa/window.h"
 #include "core/graphics/metal/metal_scene.h"
