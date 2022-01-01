@@ -36,9 +36,10 @@ namespace cocoa
     public:
         explicit application();
 
-        auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
+        auto run(const std::vector<std::string>& args, const std::function<auto()->void>& main_fn) -> int;
 
         static auto bundle_path() -> std::string;
+        static auto application_support_path() -> std::string;
 
         static auto screen_scale_factor() -> double;
     };

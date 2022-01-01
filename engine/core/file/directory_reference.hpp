@@ -18,32 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_FILESYSTEM_HPP)
-#define KESTREL_FILESYSTEM_HPP
+#if !defined(KESTREL_DIRECTORY_REFERENCE_HPP)
+#define KESTREL_DIRECTORY_REFERENCE_HPP
 
-#include "core/file/file.hpp"
-#include "core/file/directory.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "util/lua_vector.hpp"
+#include "core/file/file_reference.hpp"
 
-namespace host
+namespace host::sandbox
 {
 
-    class filesystem: public scripting::lua::object
+    struct directory_reference: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<host::filesystem> lua_reference;
+        typedef luabridge::RefCountedPtr<directory_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     private:
+        std::string m_path;
 
     public:
-        filesystem();
+        explicit directory_reference(const std::string& path);
 
-        lua_api auto file(const std::string& path) const -> host::file::lua_reference;
-        lua_api auto directory(const std::string& path) const -> host::directory::lua_reference;
+        lua_api static auto get(const std::string& path) -> directory_reference::lua_reference;
+
+        lua_api static auto check_path_exists(const std::string& path) -> bool;
+        [[nodiscard]] lua_api auto exists() const -> bool;
+
+        [[nodiscard]] lua_api auto path() const -> std::string;
+        [[nodiscard]] lua_api auto name() const -> std::string;
+        [[nodiscard]] lua_api auto contents(bool include_dot_files) const -> util::lua_vector<file_reference::lua_reference>;
+        [[nodiscard]] lua_api auto file(const std::string& file) const -> file_reference::lua_reference;
+        [[nodiscard]] lua_api auto directory(const std::string& dir) const -> directory_reference::lua_reference;
     };
 
 }
 
-#endif //KESTREL_FILESYSTEM_HPP
+#endif //KESTREL_DIRECTORY_HPP

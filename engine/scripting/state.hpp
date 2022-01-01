@@ -29,6 +29,7 @@ extern "C" {
 
 #include <string>
 #include <memory>
+#include <functional>
 #include "LuaBridge/LuaBridge.h"
 #include "LuaBridge/RefCountedPtr.h"
 #include "LuaBridge/Vector.h"
@@ -38,14 +39,10 @@ class environment;
 
 namespace scripting::lua
 {
-
     class script;
 
     class state: public std::enable_shared_from_this<lua::state>
     {
-    public:
-        constexpr static const char *stub { "stub" };
-
     private:
         lua_State *m_state { nullptr };
         std::shared_ptr<lua::stack> m_stack;
@@ -62,6 +59,11 @@ namespace scripting::lua
         auto error_string() const -> std::string;
 
         auto global_namespace() const -> luabridge::Namespace;
+        auto kestrel_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
+        auto legacy_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
+        auto macintosh_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
+        auto resource_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
+        auto sandbox_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
 
         auto function(const std::string& name) const -> luabridge::LuaRef;
         auto function(const char *name) const -> luabridge::LuaRef;

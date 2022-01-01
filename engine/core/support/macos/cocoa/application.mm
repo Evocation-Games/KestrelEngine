@@ -34,7 +34,7 @@ cocoa::application::application()
 
 // MARK: - Setup
 
-auto cocoa::application::run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int
+auto cocoa::application::run(const std::vector<std::string>& args, const std::function<auto()->void>& main_fn) -> int
 {
     NSApplication *app = (__bridge NSApplication *)m_handle;
 
@@ -66,6 +66,14 @@ auto cocoa::application::run(const std::vector<std::string> args, std::function<
 auto cocoa::application::bundle_path() -> std::string
 {
     return cocoa::string::from([[NSBundle mainBundle] bundlePath]);
+}
+
+auto cocoa::application::application_support_path() -> std::string
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    // TODO: Make this directory customizable.
+    NSString *applicationSupportDirectory = [[paths firstObject] appendString:@"Kestrel"];
+    return cocoa::string::from(applicationSupportDirectory);
 }
 
 // MARK: - Screen

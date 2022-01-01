@@ -18,27 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/file/file.hpp"
+#include "core/file/file_reference.hpp"
 
 // MARK: - Lua
 
-auto host::file::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+auto host::sandbox::file_reference::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginNamespace("Host")
-            .beginClass<host::file>("File")
-                .addStaticFunction("exists", &host::file::exists)
-                .addProperty("name", &host::file::name)
-                .addProperty("path", &host::file::path)
-                .addProperty("basename", &host::file::basename)
-                .addProperty("extension", &host::file::extension)
-            .endClass()
+        .beginNamespace("Kestrel")
+            .beginNamespace("Sandbox")
+                .beginClass<host::sandbox::file_reference>("FileReference")
+                    .addStaticFunction("exists", &host::sandbox::file_reference::exists)
+                    .addProperty("name", &host::sandbox::file_reference::name)
+                    .addProperty("path", &host::sandbox::file_reference::path)
+                    .addProperty("basename", &host::sandbox::file_reference::basename)
+                    .addProperty("extension", &host::sandbox::file_reference::extension)
+                .endClass()
+            .endNamespace()
         .endNamespace();
 }
 
 // MARK: - Construction
 
-host::file::file(const std::string &path)
+host::sandbox::file_reference::file_reference(const std::string &path)
     : m_path(path)
 {
     assert(path[path.size() - 1] != '/');
@@ -46,18 +48,18 @@ host::file::file(const std::string &path)
 
 // MARK: - Accessors
 
-auto host::file::name() const -> std::string
+auto host::sandbox::file_reference::name() const -> std::string
 {
     auto pos = m_path.find_last_of('/');
     return m_path.substr(pos + 1);
 }
 
-auto host::file::path() const -> std::string
+auto host::sandbox::file_reference::path() const -> std::string
 {
     return m_path;
 }
 
-auto host::file::extension() const -> std::string
+auto host::sandbox::file_reference::extension() const -> std::string
 {
     auto name = this->name();
     auto pos = name.find_last_of('.');
@@ -69,7 +71,7 @@ auto host::file::extension() const -> std::string
     }
 }
 
-auto host::file::basename() const -> std::string
+auto host::sandbox::file_reference::basename() const -> std::string
 {
     auto name = this->name();
     auto pos = name.find_last_of('.');
@@ -83,7 +85,7 @@ auto host::file::basename() const -> std::string
 
 // MARK: - File Operations
 
-auto host::file::exists(const std::string &path) -> bool
+auto host::sandbox::file_reference::exists(const std::string &path) -> bool
 {
     return false;
 }

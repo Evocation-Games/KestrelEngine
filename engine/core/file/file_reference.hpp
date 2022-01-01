@@ -24,29 +24,29 @@
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
-namespace host
+namespace host::sandbox
 {
 
-    struct file: public scripting::lua::object
+    struct file_reference: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<host::file> lua_reference;
+        typedef luabridge::RefCountedPtr<host::sandbox::file_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     private:
         std::string m_path;
 
     public:
-        explicit file(const std::string& path);
+        explicit file_reference(const std::string& path);
 
         lua_api static auto exists(const std::string& path) -> bool;
 
         lua_api auto touch() -> void;
 
-        lua_api auto name() const -> std::string;
-        lua_api auto path() const -> std::string;
-        lua_api auto extension() const -> std::string;
-        lua_api auto basename() const -> std::string;
+        [[nodiscard]] lua_api auto name() const -> std::string;
+        [[nodiscard]] lua_api auto path() const -> std::string;
+        [[nodiscard]] lua_api auto extension() const -> std::string;
+        [[nodiscard]] lua_api auto basename() const -> std::string;
     };
 
 }

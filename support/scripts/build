@@ -28,7 +28,7 @@ BUILD="Release"
 CLEAN="off"
 J=2
 
-mkdir -p build/DataFiles
+mkdir -p build/Scenario
 
 for ARG in "$@"; do
   case $ARG in

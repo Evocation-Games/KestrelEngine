@@ -44,9 +44,9 @@
 #include "core/asset/legacy/spriteworld/sprite.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "util/lua_vector.hpp"
-#include "core/file/filesystem.hpp"
-#include "core/file/file.hpp"
-#include "core/file/directory.hpp"
+#include "core/file/files.hpp"
+#include "core/file/file_reference.hpp"
+#include "core/file/directory_reference.hpp"
 #include "core/audio/codec/mp3.hpp"
 
 // MARK: - Destruction
@@ -116,14 +116,15 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     event::key::enroll_object_apu_in_state(shared_from_this());
     event::mouse::enroll_object_apu_in_state(shared_from_this());
 
-    host::filesystem::enroll_object_api_in_state(shared_from_this());
-    host::file::enroll_object_api_in_state(shared_from_this());
-    host::directory::enroll_object_api_in_state(shared_from_this());
+    host::sandbox::file_reference::enroll_object_api_in_state(shared_from_this());
+    host::sandbox::directory_reference::enroll_object_api_in_state(shared_from_this());
+    host::sandbox::files::enroll_object_api_in_state(shared_from_this());
 
     audio::asset::mp3::enroll_object_api_in_state(shared_from_this());
 
     util::lua_vector<asset::resource_descriptor::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
     util::lua_vector<std::string>::enroll_object_api_in_state("StringVector", shared_from_this());
+    util::lua_vector<host::sandbox::file_reference::lua_reference>::enroll_object_api_in_state("DirectoryContentsVector", shared_from_this());
 
     luabridge::getGlobalNamespace(m_state)
             .addFunction("print", scripting_lua_state_print);
@@ -226,7 +227,45 @@ auto scripting::lua::state::run(const int64_t& id, const std::string& name, cons
     }
 }
 
+// MARK; - Namespaces
+
 auto scripting::lua::state::global_namespace() const -> luabridge::Namespace
 {
     return luabridge::getGlobalNamespace(m_state);
 }
+
+auto scripting::lua::state::kestrel_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
+{
+    auto ns = global_namespace().beginNamespace("Kestrel");
+    fn(ns);
+    ns.endNamespace();
+}
+
+auto scripting::lua::state::legacy_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
+{
+    auto ns = global_namespace().beginNamespace("Legacy");
+    fn(ns);
+    ns.endNamespace();
+}
+
+auto scripting::lua::state::macintosh_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
+{
+    auto ns = global_namespace().beginNamespace("Legacy").beginNamespace("Macintosh");
+    fn(ns);
+    ns.endNamespace().endNamespace();
+}
+
+auto scripting::lua::state::resource_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
+{
+    auto ns = global_namespace().beginNamespace("Legacy").beginNamespace("Macintosh").beginNamespace("Resource");
+    fn(ns);
+    ns.endNamespace().endNamespace().endNamespace();
+}
+
+auto scripting::lua::state::sandbox_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
+{
+    auto ns = global_namespace().beginNamespace("Kestrel").beginNamespace("Sandbox");
+    fn(ns);
+    ns.endNamespace().endNamespace();
+}
+
