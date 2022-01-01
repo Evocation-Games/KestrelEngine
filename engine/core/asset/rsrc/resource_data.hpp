@@ -54,12 +54,12 @@ namespace asset
         resource_data(const std::string& type, const int64_t& id);
         lua_api explicit resource_data(const asset::resource_descriptor::lua_reference& ref);
 
-        lua_api auto valid() const -> bool;
+        [[nodiscard]] lua_api auto valid() const -> bool;
 
-        lua_api auto id() const -> int64_t;
-        lua_api auto name() const -> std::string;
-        lua_api auto type() const -> std::string;
-        lua_api auto reference() const -> asset::resource_descriptor::lua_reference;
+        [[nodiscard]] lua_api auto id() const -> int64_t;
+        [[nodiscard]] lua_api auto name() const -> std::string;
+        [[nodiscard]] lua_api auto type() const -> std::string;
+        [[nodiscard]] lua_api auto reference() const -> asset::resource_descriptor::lua_reference;
 
         lua_api auto read_signed_byte() -> int8_t;
         lua_api auto read_signed_short() -> int16_t;
@@ -79,7 +79,7 @@ namespace asset
         lua_api auto read_macintosh_rect() -> math::rect;
         lua_api auto read_vector() -> math::vector;
 
-        lua_api auto read_color() -> graphics::color::lua_reference ;
+        lua_api auto read_color() -> graphics::color::lua_reference;
 
         lua_api auto read_resource_reference_wide_value() -> int64_t;
         lua_api auto read_resource_reference() -> asset::resource_descriptor::lua_reference;
