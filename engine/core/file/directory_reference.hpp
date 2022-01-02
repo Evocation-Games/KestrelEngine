@@ -46,11 +46,14 @@ namespace host::sandbox
         lua_api static auto check_path_exists(const std::string& path) -> bool;
         [[nodiscard]] lua_api auto exists() const -> bool;
 
+        [[nodiscard]] lua_api auto parent() const -> directory_reference::lua_reference;
         [[nodiscard]] lua_api auto path() const -> std::string;
         [[nodiscard]] lua_api auto name() const -> std::string;
         [[nodiscard]] lua_api auto contents(bool include_dot_files) const -> util::lua_vector<file_reference::lua_reference>;
         [[nodiscard]] lua_api auto file(const std::string& file) const -> file_reference::lua_reference;
         [[nodiscard]] lua_api auto directory(const std::string& dir) const -> directory_reference::lua_reference;
+
+        auto create_directory(bool intermediates = true) -> void;
     };
 
 }

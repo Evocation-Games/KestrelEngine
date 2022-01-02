@@ -72,7 +72,7 @@ auto cocoa::application::application_support_path() -> std::string
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
     // TODO: Make this directory customizable.
-    NSString *applicationSupportDirectory = [[paths firstObject] appendString:@"Kestrel"];
+    NSString *applicationSupportDirectory = [[paths firstObject] stringByAppendingPathComponent:@"Kestrel"];
     return cocoa::string::from(applicationSupportDirectory);
 }
 

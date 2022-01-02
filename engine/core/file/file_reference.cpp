@@ -18,7 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <sys/stat.h>
 #include "core/file/file_reference.hpp"
+#include "core/file/directory_reference.hpp"
 
 // MARK: - Lua
 
@@ -28,7 +30,7 @@ auto host::sandbox::file_reference::enroll_object_api_in_state(const std::shared
         .beginNamespace("Kestrel")
             .beginNamespace("Sandbox")
                 .beginClass<host::sandbox::file_reference>("FileReference")
-                    .addStaticFunction("exists", &host::sandbox::file_reference::exists)
+                    .addProperty("exists", &host::sandbox::file_reference::exists)
                     .addProperty("name", &host::sandbox::file_reference::name)
                     .addProperty("path", &host::sandbox::file_reference::path)
                     .addProperty("basename", &host::sandbox::file_reference::basename)
@@ -85,7 +87,21 @@ auto host::sandbox::file_reference::basename() const -> std::string
 
 // MARK: - File Operations
 
-auto host::sandbox::file_reference::exists(const std::string &path) -> bool
+auto host::sandbox::file_reference::exists() const -> bool
 {
-    return false;
+    struct stat s { 0 };
+    return (stat(m_path.c_str(), &s) == 0);
+}
+
+auto host::sandbox::file_reference::create_parent_directory() -> void
+{
+    // Make sure the parent directory exists...
+    auto parent_directory_path = m_path.substr(0, m_path.find_last_of('/'));
+    auto parent = directory_reference::lua_reference(new directory_reference(parent_directory_path));
+    parent->create_directory();
+}
+
+auto host::sandbox::file_reference::touch() -> void
+{
+    create_parent_directory();
 }

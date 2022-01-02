@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/asset/rsrc/resource_writer.hpp"
+#include "core/file/files.hpp"
 
 // MARK: - Lua
 
@@ -47,6 +48,7 @@ auto asset::resource_writer::enroll_object_api_in_state(const std::shared_ptr<sc
                         .addFunction("writeMacintoshRect", &resource_writer::write_macintosh_rect)
                         .addFunction("writeVector", &resource_writer::write_vector)
                         .addFunction("writeColor", &resource_writer::write_color)
+                        .addFunction("commit", &resource_writer::commit)
                     .endClass()
                 .endNamespace()
             .endNamespace()
@@ -160,5 +162,31 @@ auto asset::resource_writer::write_color(const graphics::color::lua_reference& v
 
 auto asset::resource_writer::commit() -> void
 {
+    // Construct a list of attributes for the resource.
+    std::map<std::string, std::string> attributes;
+    if (!m_namespace->is_global() && !m_namespace->is_universal()) {
+        attributes["namespace"] = m_namespace->primary_name();
+    }
 
+    // Find the appropriate file in the resource manager, and add the resource.
+    const auto& save_file = host::sandbox::files::shared_files().get_current_save_file();
+    if (!save_file.get()) {
+        return;
+    }
+    save_file->create_parent_directory();
+
+    for (auto& file : graphite::rsrc::manager::shared_manager().files()) {
+        if (file->path() == save_file->path()) {
+            // We've found the correct file in the resource manager, now write the resource to it.
+            file->add_resource(m_type, m_id, m_name, m_writer->data(), attributes);
+            return;
+        }
+    }
+
+    // No file was created, so we need to add one to the resource manager.
+    auto new_file = std::make_shared<graphite::rsrc::file>();
+    new_file->add_resource(m_type, m_id, m_name, m_writer->data(), attributes);
+    new_file->write(save_file->path(), graphite::rsrc::file::extended);
+
+    graphite::rsrc::manager::shared_manager().import_file(new_file);
 }

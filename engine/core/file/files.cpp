@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/file/files.hpp"
+#include <libGraphite/rsrc/manager.hpp>
 
 // MARK: - Lua
 
@@ -38,6 +39,7 @@ auto host::sandbox::files::enroll_object_api_in_state(const std::shared_ptr<scri
                     .addStaticProperty("modsDirectory", &host::sandbox::files::user_mods)
                     .addStaticProperty("currentSaveFile", &host::sandbox::files::current_save_file)
                     .addStaticFunction("setSaveFileName", &host::sandbox::files::set_save_file)
+                    .addStaticFunction("save", &host::sandbox::files::save)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -58,7 +60,17 @@ auto host::sandbox::files::get_current_save_file() const -> host::sandbox::file_
 
 auto host::sandbox::files::set_save_file_name(const std::string& name) -> void
 {
+    // If we have an existing save file then we need to remove it from the resource manager.
+    if (m_current_save_file.get()) {
+        graphite::rsrc::manager::shared_manager().unload_file(m_current_save_file->path());
+    }
+
+    // Setup the new file and attempt to load it if it exists.
     m_current_save_file = files::user_saves()->file(name);
+    if (m_current_save_file.get() && m_current_save_file->exists()) {
+        auto file = std::make_shared<graphite::rsrc::file>(m_current_save_file->path());
+        graphite::rsrc::manager::shared_manager().import_file(file);
+    }
 }
 
 // MARK: - Known Locations
@@ -178,4 +190,18 @@ auto host::sandbox::files::set_game_fonts_path(const std::string& path) -> void
 auto host::sandbox::files::set_game_mods_path(const std::string& path) -> void
 {
     m_game_mods = { new directory_reference(path) };
+}
+
+// MARK: - Saving
+
+auto host::sandbox::files::save() -> void
+{
+    if (current_save_file().get()) {
+        for (auto& file : graphite::rsrc::manager::shared_manager().files()) {
+            if (file->path() == current_save_file()->path()) {
+                file->write(file->path(), graphite::rsrc::file::extended);
+                return;
+            }
+        }
+    }
 }

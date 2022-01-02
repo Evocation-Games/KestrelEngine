@@ -23,6 +23,7 @@
 #include "core/environment.hpp"
 
 #include "core/asset/rsrc/resource_data.hpp"
+#include "core/asset/rsrc/resource_writer.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "math/angle.hpp"
@@ -93,6 +94,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::resource_descriptor::enroll_object_api_in_state(shared_from_this());
     asset::resource_namespace::enroll_object_api_in_state(shared_from_this());
     asset::resource_data::enroll_object_api_in_state(shared_from_this());
+    asset::resource_writer::enroll_object_api_in_state(shared_from_this());
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     asset::sprite::enroll_object_api_in_state(shared_from_this());
     asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());

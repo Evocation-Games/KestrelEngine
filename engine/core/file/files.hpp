@@ -73,6 +73,7 @@ namespace host::sandbox
         lua_api static auto current_save_file() -> host::sandbox::file_reference::lua_reference;
 
         lua_api static auto set_save_file(const std::string& name) -> void;
+        lua_api static auto save() -> void;
     };
 
 }

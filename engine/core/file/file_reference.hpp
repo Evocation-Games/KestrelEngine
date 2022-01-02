@@ -39,8 +39,9 @@ namespace host::sandbox
     public:
         explicit file_reference(const std::string& path);
 
-        lua_api static auto exists(const std::string& path) -> bool;
+        [[nodiscard]] lua_api auto exists() const -> bool;
 
+        lua_api auto create_parent_directory() -> void;
         lua_api auto touch() -> void;
 
         [[nodiscard]] lua_api auto name() const -> std::string;

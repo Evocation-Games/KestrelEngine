@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <dirent.h>
+#include <sys/stat.h>
 #include "core/file/directory_reference.hpp"
 
 // MARK: - Lua
@@ -58,6 +59,12 @@ auto host::sandbox::directory_reference::get(const std::string &path) -> host::s
 }
 
 // MARK: - Accessors
+
+auto host::sandbox::directory_reference::parent() const -> directory_reference::lua_reference
+{
+    auto path = m_path.substr(0, m_path.find_last_of('/') - 1);
+    return { new directory_reference(path) };
+}
 
 auto host::sandbox::directory_reference::path() const -> std::string
 {
@@ -124,4 +131,28 @@ auto host::sandbox::directory_reference::file(const std::string& file) const -> 
 auto host::sandbox::directory_reference::directory(const std::string &dir) const -> directory_reference::lua_reference
 {
     return { new directory_reference(m_path + "/" + dir) };
+}
+
+// MARK: - Directory Management
+
+auto host::sandbox::directory_reference::create_directory(bool intermediates) -> void
+{
+    if (exists()) {
+        return;
+    }
+
+    auto parent_directory_path = m_path.substr(0, m_path.find_last_of('/'));
+    auto parent = directory_reference::lua_reference(new directory_reference(parent_directory_path));
+    if (!parent->exists()) {
+        if (intermediates) {
+            parent->create_directory(intermediates);
+        }
+        else {
+            throw std::runtime_error("Could not create directory: " + m_path);
+        }
+    }
+
+    if (mkdir(m_path.c_str(), 0755)) {
+        throw std::runtime_error("Failed to create directory: " + m_path);
+    }
 }
