@@ -87,6 +87,13 @@ auto host::sandbox::file_reference::basename() const -> std::string
 
 // MARK: - File Operations
 
+auto host::sandbox::file_reference::is_directory() const -> bool
+{
+    struct stat s { 0 };
+    stat(m_path.c_str(), &s);
+    return S_ISREG(s.st_mode) == 0;
+}
+
 auto host::sandbox::file_reference::exists() const -> bool
 {
     struct stat s { 0 };

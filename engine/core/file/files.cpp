@@ -205,3 +205,56 @@ auto host::sandbox::files::save() -> void
         }
     }
 }
+
+// MARK: - Mod Discovery
+
+auto host::sandbox::files::discover_mods() -> void
+{
+    // Discover built-in game mods first.
+    const auto& game_mods = this->game_mods()->contents(false);
+    load_mods(game_mods, mod_reference::bundle_origin::game);
+
+    // Discover user mods.
+    const auto& user_mods = this->user_mods()->contents(false);
+    load_mods(user_mods, mod_reference::bundle_origin::user);
+}
+
+auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_reference> &mods, mod_reference::bundle_origin) -> void
+{
+    for (auto i = 0; i < mods.size(); ++i) {
+        const auto& file = mods.at(i);
+
+        if (file->is_directory() && file->extension() == "modpackage") {
+            // This should be a bundle/package mod. We will need to setup the mod reference, and then have it validated
+            // before including it.
+            mod_reference::lua_reference mod {
+                new mod_reference(file->path(), mod_reference::bundle_origin::user, mod_reference::bundle_type::package)
+            };
+
+            if (!mod->validate_as_modpackage()) {
+                continue;
+            }
+
+            mod->load_modpackage();
+            mod->configure_lua_api(mod);
+            m_mods.emplace_back(mod);
+        }
+        else if (file->extension() == "kdat" || file->extension() == "ndat" || file->extension() == "rez" || file->extension() == "rsrc") {
+            // This is a simple mod.
+            mod_reference::lua_reference mod {
+                new mod_reference(file->path(), mod_reference::bundle_origin::user, mod_reference::bundle_type::simple)
+            };
+
+            if (mod->validate_as_simplemod()) {
+                mod->load_simplemod();
+            }
+            else {
+                mod->construct_as_simplemod();
+            }
+
+            mod->configure_lua_api(mod);
+            m_mods.emplace_back(mod);
+        }
+
+    }
+}

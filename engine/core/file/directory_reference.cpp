@@ -98,6 +98,10 @@ auto host::sandbox::directory_reference::name() const -> std::string
 
 auto host::sandbox::directory_reference::contents(bool include_dot_files) const -> util::lua_vector<host::sandbox::file_reference::lua_reference>
 {
+    if (!exists()) {
+        return {};
+    }
+
     util::lua_vector<host::sandbox::file_reference::lua_reference> contents;
 
     DIR *dir;

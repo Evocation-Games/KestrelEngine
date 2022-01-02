@@ -48,6 +48,7 @@
 #include "core/file/files.hpp"
 #include "core/file/file_reference.hpp"
 #include "core/file/directory_reference.hpp"
+#include "core/file/mod_reference.hpp"
 #include "core/audio/codec/mp3.hpp"
 
 // MARK: - Destruction
@@ -120,6 +121,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     host::sandbox::file_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::directory_reference::enroll_object_api_in_state(shared_from_this());
+    host::sandbox::mod_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::files::enroll_object_api_in_state(shared_from_this());
 
     audio::asset::mp3::enroll_object_api_in_state(shared_from_this());
@@ -186,7 +188,12 @@ static const char *code_reader(lua_State *L, void *object, size_t *s)
 auto scripting::lua::state::run(const int64_t& id, const std::string& name, const lua::script &script) -> void
 {
     if (lua_load(m_state, code_reader, script.object(), name.c_str(), "b") != LUA_OK) {
-        throw std::runtime_error(error_string());
+        if (auto env = environment::active_environment().lock()) {
+            env->lua_out(error_string(), true);
+        }
+        else {
+            throw std::runtime_error(error_string());
+        }
     }
 
     if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
@@ -202,14 +209,24 @@ auto scripting::lua::state::run(const int64_t& id, const std::string& name, cons
             ++level;
         }
 
-        throw std::runtime_error(error_string);
+        if (auto env = environment::active_environment().lock()) {
+            env->lua_out(error_string, true);
+        }
+        else {
+            throw std::runtime_error(error_string);
+        }
     }
 }
 
 auto scripting::lua::state::run(const int64_t& id, const std::string& name, const std::string& script) -> void
 {
     if (luaL_loadstring(m_state, script.c_str()) != LUA_OK) {
-        throw std::runtime_error(error_string());
+        if (auto env = environment::active_environment().lock()) {
+            env->lua_out(error_string(), true);
+        }
+        else {
+            throw std::runtime_error(error_string());
+        }
     }
 
     if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
@@ -225,49 +242,18 @@ auto scripting::lua::state::run(const int64_t& id, const std::string& name, cons
             ++level;
         }
 
-        throw std::runtime_error(error_string);
+        if (auto env = environment::active_environment().lock()) {
+            env->lua_out(error_string, true);
+        }
+        else {
+            throw std::runtime_error(error_string);
+        }
     }
 }
 
-// MARK; - Namespaces
+// MARK: - Namespaces
 
 auto scripting::lua::state::global_namespace() const -> luabridge::Namespace
 {
     return luabridge::getGlobalNamespace(m_state);
 }
-
-auto scripting::lua::state::kestrel_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
-{
-    auto ns = global_namespace().beginNamespace("Kestrel");
-    fn(ns);
-    ns.endNamespace();
-}
-
-auto scripting::lua::state::legacy_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
-{
-    auto ns = global_namespace().beginNamespace("Legacy");
-    fn(ns);
-    ns.endNamespace();
-}
-
-auto scripting::lua::state::macintosh_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
-{
-    auto ns = global_namespace().beginNamespace("Legacy").beginNamespace("Macintosh");
-    fn(ns);
-    ns.endNamespace().endNamespace();
-}
-
-auto scripting::lua::state::resource_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
-{
-    auto ns = global_namespace().beginNamespace("Legacy").beginNamespace("Macintosh").beginNamespace("Resource");
-    fn(ns);
-    ns.endNamespace().endNamespace().endNamespace();
-}
-
-auto scripting::lua::state::sandbox_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void
-{
-    auto ns = global_namespace().beginNamespace("Kestrel").beginNamespace("Sandbox");
-    fn(ns);
-    ns.endNamespace().endNamespace();
-}
-

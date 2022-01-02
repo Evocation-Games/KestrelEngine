@@ -59,11 +59,6 @@ namespace scripting::lua
         auto error_string() const -> std::string;
 
         auto global_namespace() const -> luabridge::Namespace;
-        auto kestrel_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
-        auto legacy_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
-        auto macintosh_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
-        auto resource_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
-        auto sandbox_namespace(const std::function<auto(luabridge::Namespace& ns)->void>& fn) const -> void;
 
         auto function(const std::string& name) const -> luabridge::LuaRef;
         auto function(const char *name) const -> luabridge::LuaRef;

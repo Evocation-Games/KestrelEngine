@@ -21,8 +21,11 @@
 #if !defined(KESTREL_FILESYSTEM_HPP)
 #define KESTREL_FILESYSTEM_HPP
 
+#include <vector>
+#include <string>
 #include "core/file/file_reference.hpp"
 #include "core/file/directory_reference.hpp"
+#include "core/file/mod_reference.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
@@ -41,8 +44,11 @@ namespace host::sandbox
         host::sandbox::directory_reference::lua_reference m_game_data { nullptr };
         host::sandbox::directory_reference::lua_reference m_game_fonts { nullptr };
         host::sandbox::directory_reference::lua_reference m_game_mods { nullptr };
+        std::vector<host::sandbox::mod_reference::lua_reference> m_mods;
 
         files() = default;
+
+        auto load_mods(const util::lua_vector<file_reference::lua_reference>& mods, mod_reference::bundle_origin) -> void;
 
     public:
         files(const files&) = delete;
@@ -56,6 +62,8 @@ namespace host::sandbox
         auto set_game_data_path(const std::string& path) -> void;
         auto set_game_fonts_path(const std::string& path) -> void;
         auto set_game_mods_path(const std::string& path) -> void;
+
+        auto discover_mods() -> void;
 
         [[nodiscard]] auto get_current_save_file() const -> host::sandbox::file_reference::lua_reference;
         auto set_save_file_name(const std::string& name) -> void;

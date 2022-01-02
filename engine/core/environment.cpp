@@ -163,6 +163,9 @@ auto environment::prepare_common() -> void
             m_game_window->console().write("Graphics layer is unknown.");
             break;
     }
+
+    // Discover all mods available to the game and begin loading them in now.
+    host::sandbox::files::shared_files().discover_mods();
 }
 
 auto environment::launch_common() -> int
@@ -282,38 +285,38 @@ auto environment::load_game_data() -> void
             }
         }
     }
-
-    // Game Mods
-    auto game_mods_ref = host::sandbox::files::game_mods();
-    if (game_mods_ref.get() && game_mods_ref->exists()) {
-        const auto& files = game_mods_ref->contents(false);
-        for (auto i = 0; i < files.size(); ++i) {
-            const auto& file_ref = files.at(i);
-            if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
-                auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
-                graphite::rsrc::manager::shared_manager().import_file(file);
-            }
-            else if (file_ref->extension() == "mp3") {
-                m_audio_files.emplace_back(file_ref->path());
-            }
-        }
-    }
-
-    // User Mods
-    auto user_mods_ref = host::sandbox::files::user_mods();
-    if (user_mods_ref.get() && user_mods_ref->exists()) {
-        const auto& files = user_mods_ref->contents(false);
-        for (auto i = 0; i < files.size(); ++i) {
-            const auto& file_ref = files.at(i);
-            if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
-                auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
-                graphite::rsrc::manager::shared_manager().import_file(file);
-            }
-            else if (file_ref->extension() == "mp3") {
-                m_audio_files.emplace_back(file_ref->path());
-            }
-        }
-    }
+//
+//    // Game Mods
+//    auto game_mods_ref = host::sandbox::files::game_mods();
+//    if (game_mods_ref.get() && game_mods_ref->exists()) {
+//        const auto& files = game_mods_ref->contents(false);
+//        for (auto i = 0; i < files.size(); ++i) {
+//            const auto& file_ref = files.at(i);
+//            if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
+//                auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
+//                graphite::rsrc::manager::shared_manager().import_file(file);
+//            }
+//            else if (file_ref->extension() == "mp3") {
+//                m_audio_files.emplace_back(file_ref->path());
+//            }
+//        }
+//    }
+//
+//    // User Mods
+//    auto user_mods_ref = host::sandbox::files::user_mods();
+//    if (user_mods_ref.get() && user_mods_ref->exists()) {
+//        const auto& files = user_mods_ref->contents(false);
+//        for (auto i = 0; i < files.size(); ++i) {
+//            const auto& file_ref = files.at(i);
+//            if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
+//                auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
+//                graphite::rsrc::manager::shared_manager().import_file(file);
+//            }
+//            else if (file_ref->extension() == "mp3") {
+//                m_audio_files.emplace_back(file_ref->path());
+//            }
+//        }
+//    }
 }
 
 // MARK: - Lua Interface
@@ -378,7 +381,12 @@ auto environment::issue_lua_command(const std::string& lua) -> void
 
 auto environment::lua_out(const std::string& message, bool error) -> void
 {
-    m_game_window->console().write(message);
+    m_game_window->console().write((error ? "***" : "") + message);
+}
+
+auto environment::lua_runtime() -> std::shared_ptr<scripting::lua::state>
+{
+    return m_lua_runtime;
 }
 
 // MARK: - Accessors
