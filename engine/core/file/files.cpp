@@ -18,8 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/file/files.hpp"
+#include <stdexcept>
+#include <algorithm>
 #include <libGraphite/rsrc/manager.hpp>
+#include "core/file/files.hpp"
+#include "core/environment.hpp"
 
 // MARK: - Lua
 
@@ -40,6 +43,10 @@ auto host::sandbox::files::enroll_object_api_in_state(const std::shared_ptr<scri
                     .addStaticProperty("currentSaveFile", &host::sandbox::files::current_save_file)
                     .addStaticFunction("setSaveFileName", &host::sandbox::files::set_save_file)
                     .addStaticFunction("save", &host::sandbox::files::save)
+                    .addStaticFunction("preloadAllMods", &host::sandbox::files::preload_all_mods)
+                    .addStaticFunction("preloadUserMods", &host::sandbox::files::preload_user_mods)
+                    .addStaticFunction("preloadGameMods", &host::sandbox::files::preload_game_mods)
+                    .addStaticFunction("allMods", &host::sandbox::files::all_mods)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -208,19 +215,58 @@ auto host::sandbox::files::save() -> void
 
 // MARK: - Mod Discovery
 
-auto host::sandbox::files::discover_mods() -> void
+auto host::sandbox::files::mods() const -> util::lua_vector<mod_reference::lua_reference>
 {
-    // Discover built-in game mods first.
-    const auto& game_mods = this->game_mods()->contents(false);
-    load_mods(game_mods, mod_reference::bundle_origin::game);
+    return util::lua_vector(m_mods);
+}
+
+auto host::sandbox::files::internal_preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>
+{
+    internal_preload_game_mods();
+    internal_preload_user_mods();
+    return util::lua_vector(m_mods);
+}
+
+auto host::sandbox::files::internal_preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>
+{
+    if (m_user_mods_loaded) {
+        if (auto env = environment::active_environment().lock()) {
+            env->lua_out("Attempted to preload user mods, after they were already preloaded.", true);
+        }
+        return util::lua_vector(m_mods);
+    }
+    m_user_mods_loaded = true;
 
     // Discover user mods.
     const auto& user_mods = this->user_mods()->contents(false);
-    load_mods(user_mods, mod_reference::bundle_origin::user);
+    return load_mods(user_mods, mod_reference::bundle_origin::user);
 }
 
-auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_reference> &mods, mod_reference::bundle_origin) -> void
+
+auto host::sandbox::files::internal_preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>
 {
+    if (m_game_mods_loaded) {
+        if (auto env = environment::active_environment().lock()) {
+            env->lua_out("Attempted to preload game mods, after they were already preloaded.", true);
+        }
+        return util::lua_vector(m_mods);
+    }
+    m_game_mods_loaded = true;
+
+    // Discover game mods.
+    const auto& game_mods = this->game_mods()->contents(false);
+    return load_mods(game_mods, mod_reference::bundle_origin::game);
+}
+
+auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_reference> &mods, mod_reference::bundle_origin) -> util::lua_vector<mod_reference::lua_reference>
+{
+    util::lua_vector<mod_reference::lua_reference> loaded_mods;
+
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        throw std::runtime_error("Missing environment whilst discovering mods.");
+    }
+
     for (auto i = 0; i < mods.size(); ++i) {
         const auto& file = mods.at(i);
 
@@ -235,9 +281,8 @@ auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_
                 continue;
             }
 
-            mod->load_modpackage();
-            mod->configure_lua_api(mod);
-            m_mods.emplace_back(mod);
+            loaded_mods.emplace_back(mod);
+            mod->parse_modpackage();
         }
         else if (file->extension() == "kdat" || file->extension() == "ndat" || file->extension() == "rez" || file->extension() == "rsrc") {
             // This is a simple mod.
@@ -245,16 +290,49 @@ auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_
                 new mod_reference(file->path(), mod_reference::bundle_origin::user, mod_reference::bundle_type::simple)
             };
 
+            loaded_mods.emplace_back(mod);
             if (mod->validate_as_simplemod()) {
-                mod->load_simplemod();
+                mod->parse_simplemod();
             }
             else {
-                mod->construct_as_simplemod();
+                mod->construct_simplemod();
             }
-
-            mod->configure_lua_api(mod);
-            m_mods.emplace_back(mod);
         }
-
     }
+
+    // Construct a small namespace containing the mods.
+    for (auto i = 0; i < loaded_mods.size(); ++i) {
+        const auto& mod = loaded_mods.at(i);
+
+        env->lua_runtime()->global_namespace()
+            .beginNamespace("Kestrel")
+                .beginNamespace("Mods")
+                    .addProperty(mod->primary_namespace().c_str(), mod.get())
+                .endNamespace()
+            .endNamespace();
+
+        m_mods.emplace_back(mod);
+    }
+
+    return loaded_mods;
+}
+
+auto host::sandbox::files::preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>
+{
+    return shared_files().internal_preload_all_mods();
+}
+
+auto host::sandbox::files::preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>
+{
+    return shared_files().internal_preload_user_mods();
+}
+
+auto host::sandbox::files::preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>
+{
+    return shared_files().internal_preload_game_mods();
+}
+
+auto host::sandbox::files::all_mods() -> util::lua_vector<mod_reference::lua_reference>
+{
+    return shared_files().mods();
 }

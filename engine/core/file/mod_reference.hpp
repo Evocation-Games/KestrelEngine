@@ -21,6 +21,8 @@
 #if !defined(KESTREL_MOD_REFERENCE_HPP)
 #define KESTREL_MOD_REFERENCE_HPP
 
+#include <memory>
+#include <libGraphite/rsrc/file.hpp>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
@@ -44,6 +46,8 @@ namespace host::sandbox
         std::string m_path;
         bundle_type m_bundle;
         bundle_origin m_origin;
+        std::vector<std::shared_ptr<graphite::rsrc::file>> m_mod_files;
+        bool m_parsed { false };
         bool m_loaded { false };
         bool m_executed { false };
         bool m_is_active { true };
@@ -52,21 +56,26 @@ namespace host::sandbox
         explicit mod_reference(const std::string& path, bundle_origin origin = bundle_origin::game, bundle_type type = bundle_type::simple);
 
         [[nodiscard]] auto validate_as_modpackage() const -> bool;
-        auto load_modpackage() -> void;
-
         [[nodiscard]] auto validate_as_simplemod() const -> bool;
-        auto load_simplemod() -> void;
-        auto construct_as_simplemod() -> void;
+        auto parse_modpackage() -> void;
+        auto parse_simplemod() -> void;
+        auto construct_simplemod() -> void;
 
-        auto configure_lua_api(const lua_reference& self = nullptr) -> void;
+        [[nodiscard]] lua_api auto has_initial_script() const -> bool;
+        [[nodiscard]] lua_api auto user_provided() const -> bool;
+        [[nodiscard]] lua_api auto is_loaded() const -> bool;
+        [[nodiscard]] lua_api auto has_executed() const -> bool;
+        [[nodiscard]] lua_api auto name() const -> std::string;
+        [[nodiscard]] lua_api auto author() const -> std::string;
+        [[nodiscard]] lua_api auto version() const -> std::string;
+        [[nodiscard]] lua_api auto path() const -> std::string;
+        [[nodiscard]] lua_api auto primary_namespace() const -> std::string;
 
-        [[nodiscard]] auto has_initial_script() const -> bool;
-        [[nodiscard]] auto user_provided() const -> bool;
-        [[nodiscard]] auto has_executed() const -> bool;
-        [[nodiscard]] auto name() const -> std::string;
-        [[nodiscard]] auto author() const -> std::string;
-        [[nodiscard]] auto version() const -> std::string;
-        [[nodiscard]] auto path() const -> std::string;
+        auto load_resources() -> void;
+        auto execute() -> void;
+
+        lua_api auto lua_load_resources() -> void;
+        lua_api auto lua_execute() -> void;
 
     };
 }

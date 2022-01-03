@@ -28,6 +28,7 @@
 #include "core/file/mod_reference.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "util/lua_vector.hpp"
 
 namespace host::sandbox
 {
@@ -45,10 +46,12 @@ namespace host::sandbox
         host::sandbox::directory_reference::lua_reference m_game_fonts { nullptr };
         host::sandbox::directory_reference::lua_reference m_game_mods { nullptr };
         std::vector<host::sandbox::mod_reference::lua_reference> m_mods;
+        bool m_user_mods_loaded { false };
+        bool m_game_mods_loaded { false };
 
         files() = default;
 
-        auto load_mods(const util::lua_vector<file_reference::lua_reference>& mods, mod_reference::bundle_origin) -> void;
+        auto load_mods(const util::lua_vector<file_reference::lua_reference>& mods, mod_reference::bundle_origin) -> util::lua_vector<mod_reference::lua_reference>;
 
     public:
         files(const files&) = delete;
@@ -63,7 +66,10 @@ namespace host::sandbox
         auto set_game_fonts_path(const std::string& path) -> void;
         auto set_game_mods_path(const std::string& path) -> void;
 
-        auto discover_mods() -> void;
+        auto internal_preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        auto internal_preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        auto internal_preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto mods() const -> util::lua_vector<mod_reference::lua_reference>;
 
         [[nodiscard]] auto get_current_save_file() const -> host::sandbox::file_reference::lua_reference;
         auto set_save_file_name(const std::string& name) -> void;
@@ -82,6 +88,11 @@ namespace host::sandbox
 
         lua_api static auto set_save_file(const std::string& name) -> void;
         lua_api static auto save() -> void;
+
+        lua_api static auto preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        lua_api static auto preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        lua_api static auto preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        lua_api static auto all_mods() -> util::lua_vector<mod_reference::lua_reference>;
     };
 
 }
