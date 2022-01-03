@@ -53,6 +53,21 @@ scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const a
     }
 }
 
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const std::shared_ptr<graphite::rsrc::resource>& res)
+    : m_state(state)
+{
+    if (!res) {
+        throw std::runtime_error("No script specified.");
+        return;
+    }
+
+    m_name = res->name();
+    graphite::data::reader r(res->data());
+    m_script = "-- " + std::to_string(res->id()) + " - " + res->name() + "\n" + r.read_cstr();
+    m_id = res->id();
+    m_name = res->name();
+}
+
 scripting::lua::script::script(const std::shared_ptr<lua::state> &state, const std::string& code)
     : m_state(state), m_script(code), m_name("console.input"), m_id(-1)
 {
