@@ -43,6 +43,7 @@ namespace util
             luabridge::getGlobalNamespace(lua->internal_state())
                 .beginClass<util::lua_vector<T>>(name.c_str())
                     .addProperty("count", &util::lua_vector<T>::size)
+                    .addProperty("isEmpty", &util::lua_vector<T>::size)
                     .addFunction("at", &util::lua_vector<T>::lua_at)
                     .addFunction("each", &util::lua_vector<T>::each)
                 .endClass();
@@ -56,6 +57,11 @@ namespace util
             for (const auto& item : m_items) {
                 body(item);
             }
+        }
+
+        lua_api [[nodiscard]] auto empty() const -> bool
+        {
+            return size() == 0;
         }
 
         lua_api [[nodiscard]] auto size() const -> int

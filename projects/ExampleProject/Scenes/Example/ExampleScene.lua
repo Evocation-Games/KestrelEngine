@@ -21,7 +21,7 @@
 -- Fetch a random text resource that can be displayed in the window.
 local messages = {}
 Namespace.Example:typedResource('text'):matchingResources():each(function(textRef)
-    local data = Legacy.Macintosh.Data(textRef)
+    local data = Legacy.Macintosh.Resource.Reader(textRef)
     if not data.isValid then
         return
     end

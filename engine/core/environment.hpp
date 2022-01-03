@@ -35,7 +35,7 @@
 #include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/event/key.hpp"
 #include "core/event/mouse.hpp"
-#include "core/file/filesystem.hpp"
+#include "core/file/files.hpp"
 
 namespace graphics
 {
@@ -53,15 +53,10 @@ private:
     int m_status;
     std::vector<std::string> m_options;
     std::shared_ptr<graphics::session_window> m_game_window;
-    std::string m_kestrel_core_path;
-    std::string m_game_data_path;
-    std::string m_game_mods_path;
-    std::string m_game_fonts_path;
     util::lua_vector<std::string> m_audio_files;
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
-    host::filesystem::lua_reference m_filesystem { new host::filesystem() };
     environment::gl_type m_gl { gl_type::none };
 
 #if __APPLE__
@@ -73,15 +68,8 @@ private:
     auto prepare_common() -> void;
     auto launch_common() -> int;
 
-    auto kestrel_core_path() const -> std::string;
-    auto game_data_path() const -> std::string;
-    auto game_mods_path() const -> std::string;
-    auto game_fonts_path() const -> std::string;
-
-    auto load_kestrel_core() -> void;
+    static auto load_kestrel_core() -> void;
     auto load_game_data() -> void;
-    auto load_data_files(const std::string& path) -> void;
-    auto load_font_files(const std::string& path) -> void;
 
     auto load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script;
 
@@ -93,8 +81,6 @@ private:
     lua_api static auto create_scene(const std::string& name, const asset::resource_descriptor::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
 
     lua_api static auto scale() -> double;
-
-    lua_api static auto filesystem() -> host::filesystem::lua_reference;
 
     lua_api static auto platform() -> environment::platform_type;
     lua_api static auto platform_name() -> std::string;
@@ -116,6 +102,7 @@ public:
     auto prepare_lua_interface() -> void;
     auto issue_lua_command(const std::string& lua) -> void;
     auto lua_out(const std::string& message, bool error = false) -> void;
+    auto lua_runtime() -> std::shared_ptr<scripting::lua::state>;
 
     auto cache() -> std::shared_ptr<asset::cache>;
 

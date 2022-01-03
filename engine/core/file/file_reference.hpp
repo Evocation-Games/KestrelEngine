@@ -18,32 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_FILESYSTEM_HPP)
-#define KESTREL_FILESYSTEM_HPP
+#if !defined(KESTREL_FILE_HPP)
+#define KESTREL_FILE_HPP
 
-#include "core/file/file.hpp"
-#include "core/file/directory.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
-namespace host
+namespace host::sandbox
 {
 
-    class filesystem: public scripting::lua::object
+    struct file_reference: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<host::filesystem> lua_reference;
+        typedef luabridge::RefCountedPtr<host::sandbox::file_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     private:
+        std::string m_path;
 
     public:
-        filesystem();
+        explicit file_reference(const std::string& path);
 
-        lua_api auto file(const std::string& path) const -> host::file::lua_reference;
-        lua_api auto directory(const std::string& path) const -> host::directory::lua_reference;
+
+        lua_api auto create_parent_directory() -> void;
+        lua_api auto touch() -> void;
+
+        [[nodiscard]] lua_api auto exists() const -> bool;
+        [[nodiscard]] lua_api auto is_directory() const -> bool;
+        [[nodiscard]] lua_api auto name() const -> std::string;
+        [[nodiscard]] lua_api auto path() const -> std::string;
+        [[nodiscard]] lua_api auto extension() const -> std::string;
+        [[nodiscard]] lua_api auto basename() const -> std::string;
     };
 
 }
 
-#endif //KESTREL_FILESYSTEM_HPP
+#endif //KESTREL_FILE_HPP

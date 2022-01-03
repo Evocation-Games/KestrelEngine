@@ -29,6 +29,7 @@ extern "C" {
 
 #include <string>
 #include <memory>
+#include <functional>
 #include "LuaBridge/LuaBridge.h"
 #include "LuaBridge/RefCountedPtr.h"
 #include "LuaBridge/Vector.h"
@@ -38,14 +39,10 @@ class environment;
 
 namespace scripting::lua
 {
-
     class script;
 
     class state: public std::enable_shared_from_this<lua::state>
     {
-    public:
-        constexpr static const char *stub { "stub" };
-
     private:
         lua_State *m_state { nullptr };
         std::shared_ptr<lua::stack> m_stack;

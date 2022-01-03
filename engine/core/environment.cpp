@@ -65,49 +65,37 @@ environment::environment(int argc, const char **argv)
     if (std::find(m_options.begin(), m_options.end(), "--game") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--game") {
-                m_kestrel_core_path = m_options[++i];
+                host::sandbox::files::shared_files().set_game_core_path(m_options[++i]);
                 break;
             }
         }
-    }
-    else {
-        m_kestrel_core_path = kestrel_core_path();
     }
 
     if (std::find(m_options.begin(), m_options.end(), "--data") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--data") {
-                m_game_data_path = m_options[++i];
+                host::sandbox::files::shared_files().set_game_data_path(m_options[++i]);
                 break;
             }
         }
-    }
-    else {
-        m_game_data_path = game_data_path();
     }
 
     if (std::find(m_options.begin(), m_options.end(), "--mods") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--mods") {
-                m_game_mods_path = m_options[++i];
+                host::sandbox::files::shared_files().set_game_mods_path(m_options[++i]);
                 break;
             }
         }
-    }
-    else {
-        m_game_mods_path = game_mods_path();
     }
 
     if (std::find(m_options.begin(), m_options.end(), "--fonts") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--fonts") {
-                m_game_fonts_path = m_options[++i];
+                host::sandbox::files::shared_files().set_game_fonts_path(m_options[++i]);
                 break;
             }
         }
-    }
-    else {
-        m_game_fonts_path = game_fonts_path();
     }
 
     // Load all resource files.
@@ -251,146 +239,50 @@ auto environment::become_active_environment() -> void
 
 auto environment::load_kestrel_core() -> void
 {
-    auto file = std::make_shared<graphite::rsrc::file>(m_kestrel_core_path);
-    graphite::rsrc::manager::shared_manager().import_file(file);
+    auto file_ref = host::sandbox::files::game_core();
+    if (file_ref.get()) {
+        auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
+        graphite::rsrc::manager::shared_manager().import_file(file);
+    }
+    else {
+        throw std::runtime_error("Could not locate game core.");
+    }
 }
 
 auto environment::load_game_data() -> void
 {
-    load_font_files(m_game_fonts_path);
-    load_data_files(m_game_data_path);
-
-    // TODO: This should happen later so the mod list can be customised
-    load_data_files(m_game_mods_path);
-}
-
-auto environment::load_data_files(const std::string &path) -> void
-{
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir(path.c_str())) != nullptr) {
-        while ((ent = readdir(dir)) != nullptr) {
-            std::string file_path(path + "/");
-            file_path.append(ent->d_name);
-            if (ends_with(file_path, ".ndat") || ends_with(file_path, ".rez") || ends_with(file_path, ".kdat")) {
-                auto file = std::make_shared<graphite::rsrc::file>(file_path);
+    // Scenario Data
+    auto scenario_ref = host::sandbox::files::game_data();
+    if (scenario_ref.get()) {
+        const auto& files = scenario_ref->contents(false);
+        for (auto i = 0; i < files.size(); ++i) {
+            const auto& file_ref = files.at(i);
+            if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
+                auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
                 graphite::rsrc::manager::shared_manager().import_file(file);
             }
-            else if (ends_with(file_path, ".mp3")) {
-                m_audio_files.emplace_back(file_path);
+            else if (file_ref->extension() == "mp3") {
+                m_audio_files.emplace_back(file_ref->path());
             }
         }
-        closedir(dir);
     }
     else {
-        perror("Failed to load scenario files");
+        throw std::runtime_error("Could not locate game scenario & data");
     }
-}
 
-auto environment::load_font_files(const std::string &path) -> void
-{
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir(path.c_str())) != nullptr) {
-        while ((ent = readdir(dir)) != nullptr) {
-            std::string file_path(path + "/");
-            file_path.append(ent->d_name);
-            if (ends_with(file_path, ".ttf")) {
-                auto name = graphics::font::font_name_at_path(file_path);
-                m_custom_fonts[name] = file_path;
+    // Font Files
+    auto fonts_ref = host::sandbox::files::game_fonts();
+    if (fonts_ref.get() && fonts_ref->exists()) {
+        const auto& files = fonts_ref->contents(false);
+        for (auto i = 0; i < files.size(); ++i) {
+            const auto& file_ref = files.at(i);
+            if (file_ref->extension() == "ttf") {
+                auto name = graphics::font::font_name_at_path(file_ref->path());
+                m_custom_fonts[name] = file_ref->path();
             }
         }
-        closedir(dir);
     }
 }
-
-// MARK: - Platform Specifics
-
-#if __APPLE__
-
-auto environment::kestrel_core_path() const -> std::string
-{
-    return cocoa::application::bundle_path() + "/Contents/Resources/GameCore.ndat";
-}
-
-auto environment::game_data_path() const -> std::string
-{
-    return cocoa::application::bundle_path() + "/Contents/Resources/DataFiles";
-}
-
-auto environment::game_mods_path() const -> std::string
-{
-    return cocoa::application::bundle_path() + "/Contents/Resources/Mods";
-}
-
-auto environment::game_fonts_path() const -> std::string
-{
-    return cocoa::application::bundle_path() + "/Contents/Resources/Fonts";
-}
-
-#elif __linux__
-
-auto environment::kestrel_core_path() const -> std::string
-{
-    std::string path { "GameCore.ndat" };
-    if (const char *app_dir = std::getenv("APPDIR")) {
-        path = std::string(app_dir) + "/usr/share/" + path;
-    }
-    return path;
-}
-
-auto environment::game_data_path() const -> std::string
-{
-    std::string path { "DataFiles" };
-    if (const char *app_dir = std::getenv("APPDIR")) {
-        path = std::string(app_dir) + "/usr/share/" + path;
-    }
-    return path;
-}
-
-auto environment::game_mods_path() const -> std::string
-{
-    std::string path { "Mods" };
-    if (const char *app_dir = std::getenv("APPDIR")) {
-        path = std::string(app_dir) + "/usr/share/" + path;
-    }
-    return path;
-}
-
-auto environment::game_fonts_path() const -> std::string
-{
-    std::string path { "Fonts" };
-    if (const char *app_dir = std::getenv("APPDIR")) {
-        path = std::string(app_dir) + "/usr/share/" + path;
-    }
-    return path;
-}
-
-#elif (defined(_WIN32) || defined(_WIN64))
-
-auto environment::kestrel_core_path() const -> std::string
-{
-    return "GameCore.ndat";
-}
-
-auto environment::game_data_path() const -> std::string
-{
-    return "DataFiles";
-}
-
-auto environment::game_mods_path() const -> std::string
-{
-    return "Mods";
-}
-
-auto environment::game_fonts_path() const -> std::string
-{
-    return "Fonts";
-}
-
-#else
-#   error "Unknown Target Platform"
-#endif
 
 // MARK: - Lua Interface
 
@@ -403,7 +295,6 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("importScript", &environment::import_script)
             .addFunction("scene", &environment::create_scene)
             .addFunction("scaleFactor", &environment::scale)
-            .addProperty("fileSystem", &environment::filesystem)
             .addProperty("platform", &environment::platform)
             .addProperty("platformName", &environment::platform_name)
             .addProperty("graphicsLayerName", &environment::gl_name)
@@ -455,7 +346,12 @@ auto environment::issue_lua_command(const std::string& lua) -> void
 
 auto environment::lua_out(const std::string& message, bool error) -> void
 {
-    m_game_window->console().write(message);
+    m_game_window->console().write((error ? "***" : "") + message);
+}
+
+auto environment::lua_runtime() -> std::shared_ptr<scripting::lua::state>
+{
+    return m_lua_runtime;
 }
 
 // MARK: - Accessors
@@ -575,13 +471,6 @@ auto environment::bundled_font_named(const std::string &name) const -> std::opti
     else {
         return {};
     }
-}
-
-// MARK: - File System
-
-auto environment::filesystem() -> host::filesystem::lua_reference
-{
-    return $_active_environment.lock()->m_filesystem;
 }
 
 // MARK: - Host Platform

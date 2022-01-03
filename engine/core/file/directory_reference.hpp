@@ -18,37 +18,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_FILE_HPP)
-#define KESTREL_FILE_HPP
+#if !defined(KESTREL_DIRECTORY_REFERENCE_HPP)
+#define KESTREL_DIRECTORY_REFERENCE_HPP
 
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "util/lua_vector.hpp"
+#include "core/file/file_reference.hpp"
 
-namespace host
+namespace host::sandbox
 {
 
-    struct file: public scripting::lua::object
+    struct directory_reference: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<host::file> lua_reference;
+        typedef luabridge::RefCountedPtr<directory_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     private:
         std::string m_path;
 
     public:
-        explicit file(const std::string& path);
+        explicit directory_reference(const std::string& path);
 
-        lua_api static auto exists(const std::string& path) -> bool;
+        lua_api static auto get(const std::string& path) -> directory_reference::lua_reference;
 
-        lua_api auto touch() -> void;
+        lua_api static auto check_path_exists(const std::string& path) -> bool;
+        [[nodiscard]] lua_api auto exists() const -> bool;
 
-        lua_api auto name() const -> std::string;
-        lua_api auto path() const -> std::string;
-        lua_api auto extension() const -> std::string;
-        lua_api auto basename() const -> std::string;
+        [[nodiscard]] lua_api auto parent() const -> directory_reference::lua_reference;
+        [[nodiscard]] lua_api auto path() const -> std::string;
+        [[nodiscard]] lua_api auto name() const -> std::string;
+        [[nodiscard]] lua_api auto contents(bool include_dot_files) const -> util::lua_vector<file_reference::lua_reference>;
+        [[nodiscard]] lua_api auto file(const std::string& file) const -> file_reference::lua_reference;
+        [[nodiscard]] lua_api auto directory(const std::string& dir) const -> directory_reference::lua_reference;
+
+        auto create_directory(bool intermediates = true) -> void;
     };
 
 }
 
-#endif //KESTREL_FILE_HPP
+#endif //KESTREL_DIRECTORY_HPP

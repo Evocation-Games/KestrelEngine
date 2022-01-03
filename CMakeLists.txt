@@ -29,7 +29,7 @@ set(KESTREL_BIN_NAME "kestrel" CACHE STRING "Kestrel Binary Name")
 set(KESTREL_ICON_NAME "kestrel_icon" CACHE STRING "Kestrel Packaged Icon Name")
 set(KESTREL_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Icon Path")
 set(KESTREL_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING "Kestrel Project Path")
-set(KESTREL_DATA_FILES_PATH "build/DataFiles" CACHE STRING "Kestrel Data Files Path")
+set(KESTREL_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data Files Path")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -145,7 +145,6 @@ endif()
 ## Kestrel - Example Project
 add_custom_target(Kestrel-GameProject
     ${CMAKE_BUILD_DIR}/kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/${KESTREL_PROJECT_PATH}"
-    COMMAND mv "${CMAKE_BUILD_DIR}/GameCore.kdat" "${CMAKE_BUILD_DIR}/GameCore.ndat"
 )
 add_dependencies(Kestrel-GameProject kdl)
 add_dependencies(Kestrel Kestrel-GameProject)
@@ -229,11 +228,13 @@ if (APPLE)
 
     install(FILES ${CMAKE_BUILD_DIR}/default.metallib
                   ${CMAKE_BUILD_DIR}/default.air
-                  ${CMAKE_BUILD_DIR}/GameCore.ndat
+                  ${CMAKE_BUILD_DIR}/GameCore.kdat
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
 
-    install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
+    if (EXISTS ${KESTREL_DATA_FILES_PATH})
+        install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
+                DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
+    endif()
 
 elseif(LINUX)
     set(KESTREL_RUNTIME_DEPENDENCIES
@@ -257,11 +258,13 @@ elseif(LINUX)
             DESTINATION ${APP_DIR}
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 
-    install(FILES ${CMAKE_BUILD_DIR}/GameCore.ndat
+    install(FILES ${CMAKE_BUILD_DIR}/GameCore.kdat
             DESTINATION ${APP_SHARE_DIR})
 
-    install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
-            DESTINATION ${APP_SHARE_DIR})
+    if (EXISTS ${KESTREL_DATA_FILES_PATH})
+        install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
+                DESTINATION ${APP_SHARE_DIR})
+    endif()
 
     foreach(LIB ${KESTREL_RUNTIME_DEPENDENCIES})
         install(CODE "execute_process(COMMAND sh ${CMAKE_BUILD_DIR}/install.so.sh ${LIB})")
