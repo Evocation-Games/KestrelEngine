@@ -84,6 +84,12 @@ namespace renderer::metal
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
 
+        auto set_viewport_size(const math::size& viewport_size) -> void override;
+        auto viewport_size() const -> math::size override;
+
+        auto set_viewport_title(const std::string& title) -> void override;
+        auto viewport_title() const -> std::string override;
+
     private:
         auto configure_device() -> void;
         auto tick() -> void;

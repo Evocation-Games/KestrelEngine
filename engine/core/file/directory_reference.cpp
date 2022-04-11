@@ -156,7 +156,14 @@ auto host::sandbox::directory_reference::create_directory(bool intermediates) ->
         }
     }
 
+#if TARGET_WINDOWS
+    if (mkdir(m_path.c_str())) {
+        throw std::runtime_error("Failed to create directory: " + m_path);
+    }
+#else
     if (mkdir(m_path.c_str(), 0755)) {
         throw std::runtime_error("Failed to create directory: " + m_path);
     }
+#endif
+
 }

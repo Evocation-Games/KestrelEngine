@@ -61,6 +61,12 @@ namespace renderer::opengl
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
 
+        auto set_viewport_size(const math::size& viewport_size) -> void override;
+        [[nodiscard]] auto viewport_size() const -> math::size override;
+
+        auto set_viewport_title(const std::string& title) -> void override;
+        [[nodiscard]] auto viewport_title() const -> std::string override;
+
     private:
         auto configure_device() -> void {};
         auto tick() -> void;
@@ -101,6 +107,7 @@ namespace renderer::opengl
             GLint texture_samplers[constants::texture_slots] { 0 };
             std::unordered_map<util::uuid, std::shared_ptr<renderer::shader::program>> shader_programs;
             std::function<auto()->void> tick;
+            std::string title;
         } m_opengl;
 
         struct {

@@ -163,6 +163,34 @@ auto renderer::metal::context::tick() -> void
     m_display.tick();
 }
 
+// MARK: - Window Accessors
+
+auto renderer::metal::context::set_viewport_size(const math::size &viewport_size) -> void
+{
+    [m_window setFrame:NSMakeRect(0, 0, viewport_size.width, viewport_size.height) display:YES animate:NO];
+    [m_window center];
+
+    m_metal.viewport_width = static_cast<uint32_t>(viewport_size.width);
+    m_metal.viewport_height = static_cast<uint32_t>(viewport_size.height);
+}
+
+auto renderer::metal::context::viewport_size() const -> math::size
+{
+    return { m_metal.viewport_width, m_metal.viewport_height };
+}
+
+auto renderer::metal::context::set_viewport_title(const std::string &title) -> void
+{
+    [m_window setTitle:[NSString stringWithUTF8String:title.c_str()]];
+}
+
+auto renderer::metal::context::viewport_title() const -> std::string
+{
+    std::string title { [[m_window title] UTF8String] };
+    return title;
+}
+
+
 // MARK: - Shader Management
 
 auto renderer::metal::context::create_shader_library(const std::string &source) -> void

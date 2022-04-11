@@ -187,7 +187,8 @@ auto renderer::opengl::context::configure_window() -> void
 #endif
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-    m_screen.window = glfwCreateWindow(m_opengl.viewport_width, m_opengl.viewport_height, "Cosmic Frontier: Override", nullptr, nullptr);
+    m_opengl.title = "Kestrel [OpenGL]";
+    m_screen.window = glfwCreateWindow(m_opengl.viewport_width, m_opengl.viewport_height, m_opengl.title.c_str(), nullptr, nullptr);
     if (!m_screen.window) {
         // TODO: Handle...
         glfwTerminate();
@@ -214,6 +215,31 @@ auto renderer::opengl::context::window_resized(GLFWwindow *window, GLint width, 
     // TODO: Handle this better?
     glViewport(0, 0, width, height);
 }
+
+auto renderer::opengl::context::set_viewport_size(const math::size &viewport_size) -> void
+{
+    m_opengl.viewport_width = static_cast<uint32_t>(viewport_size.width);
+    m_opengl.viewport_height = static_cast<uint32_t>(viewport_size.height);
+
+    glfwSetWindowSize(m_screen.window, m_opengl.viewport_width, m_opengl.viewport_height);
+}
+
+auto renderer::opengl::context::viewport_size() const -> math::size
+{
+    return { m_opengl.viewport_width, m_opengl.viewport_height };
+}
+
+auto renderer::opengl::context::set_viewport_title(const std::string &title) -> void
+{
+    glfwSetWindowTitle(m_screen.window, title.c_str());
+    m_opengl.title = title;
+}
+
+auto renderer::opengl::context::viewport_title() const -> std::string
+{
+    return m_opengl.title;
+}
+
 
 // MARK: - Events
 

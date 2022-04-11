@@ -52,5 +52,11 @@ namespace renderer
         virtual auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> = 0;
 
         virtual auto set_tick_function(const std::function<auto()->void>& callback) -> void = 0;
+
+        virtual auto set_viewport_size(const math::size& viewport_size) -> void = 0;
+        virtual auto viewport_size() const -> math::size = 0;
+
+        virtual auto set_viewport_title(const std::string& title) -> void = 0;
+        virtual auto viewport_title() const -> std::string = 0;
     };
 }
