@@ -18,32 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_BASIC_IMAGE_HPP)
-#define KESTREL_BASIC_IMAGE_HPP
+#pragma once
 
 #include <string>
-#include "core/graphics/common/color.hpp"
-#include "core/graphics/common/spritesheet.hpp"
 #include "scripting/state.hpp"
+#include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/spritesheet.hpp"
 
 namespace asset
 {
 
     class basic_image
     {
-    protected:
-        int64_t m_id { INT64_MIN };
-        std::string m_name;
-        std::shared_ptr<graphics::spritesheet> m_sheet;
-
-        auto configure(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data) -> void;
-        auto configure(const int64_t& id, const std::string& name, std::shared_ptr<graphics::spritesheet> sheet) -> void;
-
     public:
         basic_image() = default;
         explicit basic_image(const math::size& size, const graphics::color& color = graphics::color::white_color());
-        basic_image(const int64_t& id, const std::string& name, const math::size& size, std::vector<uint32_t> data);
+        basic_image(int64_t id, const std::string& name, const math::size& size, const std::vector<uint32_t>& data);
         lua_api basic_image(const math::size& size, const graphics::color::lua_reference& color);
 
         [[nodiscard]] virtual auto id() const -> int64_t;
@@ -54,11 +45,17 @@ namespace asset
 
         lua_api virtual auto layout_sprites(const math::size& sprite_size) -> void;
 
-        [[nodiscard]] auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
+        [[nodiscard]] auto sprite_sheet() const -> std::shared_ptr<graphics::spritesheet>;
 
-        lua_api [[nodiscard]] virtual auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference;
+        lua_api [[nodiscard]] virtual auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity>;
+
+    protected:
+        int64_t m_id { INT64_MIN };
+        std::string m_name;
+        std::shared_ptr<graphics::spritesheet> m_sheet;
+
+        auto configure(int64_t id, const std::string& name, const math::size& size, const std::vector<uint32_t>& data) -> void;
+        auto configure(int64_t id, const std::string& name, const std::shared_ptr<graphics::spritesheet>& sheet) -> void;
     };
 
 }
-
-#endif //KESTREL_BASIC_IMAGE_HPP

@@ -27,18 +27,18 @@
 
 // MARK: - Lua
 
-auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+auto asset::legacy::macintosh::quickdraw::picture::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
-    luabridge::getGlobalNamespace(lua->internal_state())
+    lua->global_namespace()
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
-                .beginClass<asset::macintosh_picture>("Picture")
-                    .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::macintosh_picture::lua_reference>()
-                    .addStaticFunction("load", &asset::macintosh_picture::load)
-                    .addProperty("size", &asset::macintosh_picture::size)
-                    .addProperty("numberOfSprites", &asset::macintosh_picture::sprite_count)
-                    .addFunction("spawnEntity", &asset::macintosh_picture::spawn_entity)
-                    .addFunction("setSpriteSize", &asset::macintosh_picture::layout_sprites)
+                .beginClass<picture>("Picture")
+                    .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, lua_reference>()
+                    .addStaticFunction("load", &picture::load)
+                    .addProperty("size", &picture::size)
+                    .addProperty("numberOfSprites", &picture::sprite_count)
+                    .addFunction("spawnEntity", &picture::spawn_entity)
+                    .addFunction("setSpriteSize", &picture::layout_sprites)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -46,7 +46,7 @@ auto asset::macintosh_picture::enroll_object_api_in_state(const std::shared_ptr<
 
 // MARK: - Construction
 
-asset::macintosh_picture::macintosh_picture(const asset::resource_descriptor::lua_reference& ref)
+asset::legacy::macintosh::quickdraw::picture::picture(const asset::resource_descriptor::lua_reference& ref)
 {
     if (auto res = ref->with_type(type)->load().lock()) {
         graphite::qd::pict pict(res->data(), res->id(), res->name());
@@ -58,43 +58,43 @@ asset::macintosh_picture::macintosh_picture(const asset::resource_descriptor::lu
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::macintosh_picture::load(const asset::resource_descriptor::lua_reference& ref) -> macintosh_picture::lua_reference
+auto asset::legacy::macintosh::quickdraw::picture::load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(macintosh_picture::type, ref);
+        auto asset = env->cache()->fetch(picture::type, ref);
         if (asset.has_value()) {
-            return std::any_cast<asset::macintosh_picture::lua_reference>(asset.value());
+            return std::any_cast<lua_reference>(asset.value());
         }
     }
 
-    auto image = asset::macintosh_picture::lua_reference(new asset::macintosh_picture(ref));
+    auto image = lua_reference(new picture(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(macintosh_picture::type, ref, image);
+        env->cache()->add(picture::type, ref, image);
     }
     return image;
 }
 
 // MARK: - Accessors
 
-auto asset::macintosh_picture::size() const -> math::size
+auto asset::legacy::macintosh::quickdraw::picture::size() const -> math::size
 {
     return basic_image::size();
 }
 
-auto asset::macintosh_picture::sprite_count() const -> int
+auto asset::legacy::macintosh::quickdraw::picture::sprite_count() const -> int
 {
     return basic_image::sprite_count();
 }
 
 // MARK: - Sprites & Entities
 
-auto asset::macintosh_picture::layout_sprites(const math::size& sprite_size) -> void
+auto asset::legacy::macintosh::quickdraw::picture::layout_sprites(const math::size& sprite_size) -> void
 {
     asset::basic_image::layout_sprites(sprite_size);
 }
 
-auto asset::macintosh_picture::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
+auto asset::legacy::macintosh::quickdraw::picture::spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity>
 {
     return asset::basic_image::spawn_entity(position);
 }

@@ -60,13 +60,42 @@ add_subdirectory(${PROJECT_SUBMODULE_DIR}/graphite)
 add_subdirectory(${PROJECT_SUBMODULE_DIR}/kdl)
 
 ########################################################################################################################
+## ImGui
+set(ImGUI_SOURCES
+    "${PROJECT_SUBMODULE_DIR}/imgui/imgui.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/imgui_draw.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/imgui_tables.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/imgui_widgets.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/imgui_demo.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_glfw.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+)
+
+if (APPLE)
+    set(ImGUI_SOURCES ${ImGUI_SOURCES}
+        "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_osx.mm"
+        "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_metal.mm"
+    )
+endif()
+
+add_library(ImGUI STATIC ${ImGUI_SOURCES})
+target_include_directories(ImGUI PUBLIC
+    "${PROJECT_SUBMODULE_DIR}/imgui"
+    "${PROJECT_SUBMODULE_DIR}/glfw/include"
+)
+
+if (APPLE)
+    set_property(TARGET ImGUI APPEND_STRING PROPERTY COMPILE_FLAGS "-fobjc-arc")
+endif()
+
+########################################################################################################################
 ## Kestrel
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 
 set(KESTREL_LIBS
-    Graphite Lua
+    Graphite Lua ImGUI
     ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
     png bz2 z
 )
@@ -95,6 +124,8 @@ if (APPLE)
         "-framework CoreFoundation"
         "-framework AVFoundation"
         "-framework IOKit"
+        "-framework GameController"
+        "-framework Quartz"
         objc
         glfw
         freetype
@@ -171,16 +202,6 @@ if (APPLE)
 endif()
 
 ########################################################################################################################
-## Kestrel - Metal Dependencies
-if (APPLE)
-    add_custom_target(kestrel-metal-libs
-        xcrun -sdk macosx metal -I "${CMAKE_SOURCE_DIR}/engine" -c "${CMAKE_SOURCE_DIR}/engine/core/graphics/metal/shader.metal" -o ${CMAKE_BUILD_DIR}/default.air
-        COMMAND xcrun -sdk macosx metallib ${CMAKE_BUILD_DIR}/default.air -o ${CMAKE_BUILD_DIR}/default.metallib
-    )
-    add_dependencies(Kestrel kestrel-metal-libs)
-endif()
-
-########################################################################################################################
 ## Kestrel - App Image Files
 if (LINUX)
     set(APP_DIR ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.AppDir)
@@ -226,9 +247,7 @@ if (APPLE)
     install(TARGETS Kestrel
             DESTINATION ${PROJECT_INSTALL_DIR})
 
-    install(FILES ${CMAKE_BUILD_DIR}/default.metallib
-                  ${CMAKE_BUILD_DIR}/default.air
-                  ${CMAKE_BUILD_DIR}/GameCore.kdat
+    install(FILES ${CMAKE_BUILD_DIR}/GameCore.kdat
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
 
     if (EXISTS ${KESTREL_DATA_FILES_PATH})

@@ -18,14 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(CONSOLE_HPP)
-#define CONSOLE_HPP
+#pragma once
 
 #include <functional>
+#include "core/event/event.hpp"
+#include "core/event/text_entry.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "core/graphics/common/entity.hpp"
-#include "core/event/text_entry.hpp"
-#include "core/event/key.hpp"
 
 namespace dev
 {
@@ -42,22 +41,19 @@ namespace dev
         auto on_command(std::function<auto(const std::string&)->void> callback) -> void;
 
         auto write(const std::string& message) -> void;
-        auto receive(const event::key& key) -> void;
+        auto receive(const event& e) -> void;
         auto update() -> void;
 
-        [[nodiscard]] auto entity() -> graphics::entity::lua_reference;
+        [[nodiscard]] auto entity() -> std::shared_ptr<graphics::entity>;
 
     private:
         std::function<auto(const std::string&)->void> m_on_command;
         math::size m_size;
         std::unique_ptr<graphics::canvas> m_canvas;
-        graphics::entity::lua_reference m_entity;
+        std::shared_ptr<graphics::entity> m_entity;
         std::vector<std::string> m_history;
-        event::control::text_entry m_input;
+        text_entry_event m_input;
         bool m_dirty { true };
         bool m_visible { true };
     };
 }
-
-
-#endif //CONSOLE_HPP

@@ -18,39 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/asset/basic_image.hpp"
 #include "core/environment.hpp"
+#include "core/asset/basic_image.hpp"
+
+#include <utility>
+#include "renderer/common/renderer.hpp"
 
 // MARK: - Construction
 
 asset::basic_image::basic_image(const math::size& size, const graphics::color& color)
 {
     auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color.value());
-
-    // Generate a texture and then a spritesheet.
-    if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(size, data);
-        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
-    }
+    auto tex = renderer::create_texture(size, data);
+    m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
-asset::basic_image::basic_image(const int64_t& id, const std::string& name, const math::size &size, std::vector<uint32_t> data)
-    : m_id(id), m_name(name)
+asset::basic_image::basic_image(int64_t id, const std::string& name, const math::size &size, const std::vector<uint32_t>& data)
+    : m_id(id), m_name(std::move(name))
 {
-    // Generate a texture and then a spritesheet.
-    if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(size, std::move(data));
-        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
-    }
+    auto tex = renderer::create_texture(size, data);
+    m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
 asset::basic_image::basic_image(const math::size &size, const graphics::color::lua_reference &color)
 {
     auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color->value());
-    if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(size, std::move(data));
-        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
-    }
+    auto tex = renderer::create_texture(size, data);
+    m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
 // MARK: - Accessors
@@ -75,28 +69,23 @@ auto asset::basic_image::sprite_count() const -> int
     return m_sheet->sprite_count();
 }
 
-auto asset::basic_image::spritesheet() const -> std::shared_ptr<graphics::spritesheet>
+auto asset::basic_image::sprite_sheet() const -> std::shared_ptr<graphics::spritesheet>
 {
     return m_sheet;
 }
 
 // MARK: - Configuration
 
-auto asset::basic_image::configure(const int64_t &id, const std::string &name, const math::size &size,
-                             std::vector<uint32_t> data) -> void
+auto asset::basic_image::configure(int64_t id, const std::string& name, const math::size& size, const std::vector<uint32_t>& data) -> void
 {
     m_id = id;
     m_name = name;
 
-    // Generate a texture and then a spritesheet.
-    if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(size, std::move(data));
-        m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
-    }
+    auto tex = renderer::create_texture(size, data);
+    m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
-auto asset::basic_image::configure(const int64_t &id, const std::string &name,
-                                   std::shared_ptr<graphics::spritesheet> sheet) -> void
+auto asset::basic_image::configure(int64_t id, const std::string& name, const std::shared_ptr<graphics::spritesheet>& sheet) -> void
 {
     m_id = id;
     m_name = name;
@@ -111,12 +100,12 @@ auto asset::basic_image::layout_sprites(const math::size& sprite_size) -> void
 
 // MARK: - Entity
 
-auto asset::basic_image::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
+auto asset::basic_image::spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity>
 {
-    auto entity = graphics::entity::lua_reference(new graphics::entity(size()));
-    entity->position = position;
-    entity->name = m_name;
-    entity->id = m_id;
-    entity->set_spritesheet(spritesheet());
+    auto entity = std::make_shared<graphics::entity>(size());
+    entity->set_position(position);
+    entity->set_name(m_name);
+    entity->set_id(m_id);
+    entity->set_sprite_sheet(sprite_sheet());
     return entity;
 }

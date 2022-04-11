@@ -203,7 +203,12 @@ auto asset::resource_data::read_size() -> math::size
 
 auto asset::resource_data::read_rect() -> math::rect
 {
-    return { read_signed_short(), read_signed_short(), read_signed_short(), read_signed_short() };
+    return {
+        static_cast<double>(read_signed_short()),
+        static_cast<double>(read_signed_short()),
+        static_cast<double>(read_signed_short()),
+        static_cast<double>(read_signed_short())
+    };
 }
 
 auto asset::resource_data::read_macintosh_rect() -> math::rect

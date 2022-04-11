@@ -25,3 +25,6 @@
 [submodule "submodules/png"]
 	path = submodules/png
 	url = https://github.com/glennrp/libpng.git
+[submodule "submodules/imgui"]
+	path = submodules/imgui
+	url = https://github.com/ocornut/imgui

@@ -21,39 +21,39 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
-#include "core/graphics/common/canvas.hpp"
-#include "core/environment.hpp"
 #include "math/line.hpp"
-#include "core/graphics/common/session_window.hpp"
+#include "core/environment.hpp"
+#include "renderer/common/renderer.hpp"
+#include "core/graphics/common/canvas.hpp"
 
 // MARK: - Lua
 
 auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
-    luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<graphics::canvas>("Canvas")
-            .addConstructor<auto(*)(const math::size&)->void, graphics::canvas::lua_reference>()
-            .addProperty("penColor", &graphics::canvas::get_pen_color, &graphics::canvas::set_pen_color)
-            .addProperty("bounds", &graphics::canvas::get_bounds)
-            .addFunction("entity", &graphics::canvas::entity)
-            .addFunction("rebuildEntityTexture", &graphics::canvas::rebuild_texture)
-            .addFunction("drawRect", &graphics::canvas::draw_rect)
-            .addFunction("fillRect", &graphics::canvas::fill_rect)
-            .addFunction("drawLine", &graphics::canvas::draw_line)
-            .addFunction("drawCircle", &graphics::canvas::draw_circle)
-            .addFunction("fillCircle", &graphics::canvas::fill_circle)
-            .addFunction("setFont", &graphics::canvas::set_font)
-            .addFunction("layoutText", &graphics::canvas::layout_text)
-            .addFunction("layoutTextInBounds", &graphics::canvas::layout_text_in_bounds)
-            .addFunction("drawText", &graphics::canvas::draw_text)
-            .addFunction("drawMacintoshPicture", &graphics::canvas::draw_picture)
-            .addFunction("drawImage", &graphics::canvas::draw_image)
-            .addFunction("drawStaticImage", &graphics::canvas::draw_static_image)
-            .addFunction("drawColorIcon", &graphics::canvas::draw_color_icon)
-            .addFunction("spawnEntity", &graphics::canvas::spawn_entity)
-            .addFunction("clear", &graphics::canvas::clear)
-            .addFunction("applyMaskUsingCanvas", &graphics::canvas::apply_mask)
-            .addFunction("drawMask", &graphics::canvas::draw_mask)
+    lua->global_namespace()
+        .beginClass<canvas>("Canvas")
+            .addConstructor<auto(*)(const math::size&)->void, canvas::lua_reference>()
+            .addProperty("penColor", &canvas::get_pen_color, &canvas::set_pen_color)
+            .addProperty("bounds", &canvas::get_bounds)
+            .addFunction("entity", &canvas::entity)
+            .addFunction("rebuildEntityTexture", &canvas::rebuild_texture)
+            .addFunction("drawRect", &canvas::draw_rect)
+            .addFunction("fillRect", &canvas::fill_rect)
+            .addFunction("drawLine", &canvas::draw_line)
+            .addFunction("drawCircle", &canvas::draw_circle)
+            .addFunction("fillCircle", &canvas::fill_circle)
+            .addFunction("setFont", &canvas::set_font)
+            .addFunction("layoutText", &canvas::layout_text)
+            .addFunction("layoutTextInBounds", &canvas::layout_text_in_bounds)
+            .addFunction("drawText", &canvas::draw_text)
+            .addFunction("drawMacintoshPicture", &canvas::draw_picture)
+            .addFunction("drawImage", &canvas::draw_image)
+            .addFunction("drawStaticImage", &canvas::draw_static_image)
+            .addFunction("drawColorIcon", &canvas::draw_color_icon)
+            .addFunction("spawnEntity", &canvas::spawn_entity)
+            .addFunction("clear", &canvas::clear)
+            .addFunction("applyMaskUsingCanvas", &canvas::apply_mask)
+            .addFunction("drawMask", &canvas::draw_mask)
         .endClass();
 }
 
@@ -61,13 +61,12 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
 
 graphics::canvas::canvas(const math::size& size)
     : m_size(std::round(size.width), std::round(size.height)),
-      m_scale(environment::active_environment().lock()->window()->get_scale_factor()),
+      m_scale(renderer::scale_factor()),
       m_scaled_size(m_size * m_scale),
       m_rgba_buffer(m_scaled_size),
       m_pen_color(graphics::color::white_color()),
       m_typesetter("", m_scale)
 {
-
 }
 
 // MARK: - Accessors
@@ -103,44 +102,38 @@ auto graphics::canvas::get_bounds() const -> math::rect
 
 auto graphics::canvas::rebuild_texture() -> void
 {
-    if (m_entity.get() == nullptr) {
+    if (!m_entity) {
         return;
     }
 
-    if (auto env = environment::active_environment().lock()) {
-        // Rebuild the texture.
-        if (auto existing_texture = m_linked_tex.lock()) {
-            existing_texture->destroy();
-        }
-
-        auto tex = env->create_texture(m_scaled_size, raw());
-        m_entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
-        m_entity->set_render_size(m_size);
+    // Rebuild the texture.
+    if (auto existing_texture = m_linked_tex.lock()) {
+        existing_texture->destroy();
     }
+
+    auto tex = renderer::create_texture(m_scaled_size, raw());
+    m_entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
+    m_entity->set_render_size(m_size);
 }
 
-auto graphics::canvas::spawn_entity(const math::vector &position) -> graphics::entity::lua_reference
+auto graphics::canvas::spawn_entity(const math::point& position) -> std::shared_ptr<graphics::entity>
 {
     // Create a new bitmap of the text.
-    if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(m_scaled_size, raw());
+    auto tex = renderer::create_texture(m_scaled_size, raw());
 
-        auto entity = graphics::entity::lua_reference(new graphics::entity(m_size));
-        entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
-        entity->set_position(position);
-        entity->set_render_size(m_size);
+    m_entity = std::make_shared<graphics::entity>(m_size);
+    m_entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
+    m_entity->set_position(position);
+    m_entity->set_render_size(m_size);
 
-        return (m_entity = entity);
-    }
-
-    return nullptr;
+    return m_entity;
 }
 
-auto graphics::canvas::entity() -> graphics::entity::lua_reference
+auto graphics::canvas::entity() -> std::shared_ptr<graphics::entity>
 {
-    if (m_entity.get() == nullptr) {
+    if (!m_entity) {
         // Construct a new entity as we don't currently have one.
-        m_entity = spawn_entity({0, 0});
+        m_entity = spawn_entity({ 0, 0 });
     }
     else {
         rebuild_texture();
@@ -155,13 +148,21 @@ auto graphics::canvas::raw() const -> uint8_t *
     return m_rgba_buffer.data();
 }
 
-// MARK: - Indicies
-
 // MARK: - Drawing
 
 auto graphics::canvas::clear() -> void
 {
     m_rgba_buffer.clear(graphics::color::clear_color());
+}
+
+auto graphics::canvas::set_clipping_rect(const math::rect &r) -> void
+{
+    m_rgba_buffer.set_clipping_rect(r);
+}
+
+auto graphics::canvas::clear_clipping_rect() -> void
+{
+    m_rgba_buffer.clear_clipping_rect();
 }
 
 auto graphics::canvas::draw_rect(const math::rect &r) -> void
@@ -282,7 +283,7 @@ auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> voi
         for (int y = -static_cast<int>(r); y < r; ++y) {
             auto ww = static_cast<int>(std::sqrt((r * r) - (y * y)));
             auto ry = p.y + y;
-            m_rgba_buffer.fill_rect(m_pen_color, { p.x - ww, ry, ww << 1, 1 });
+            m_rgba_buffer.fill_rect(m_pen_color, { p.x - ww, ry, static_cast<double>(ww << 1), 1 });
         }
     };
     inner_fill_circle((p * m_scale).round(), std::round(r * m_scale));
@@ -357,7 +358,7 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
             return;
         }
 
-        auto raw_img_data = image->spritesheet()->texture()->data();
+        auto raw_img_data = image->sprite_sheet()->texture()->data();
         auto scaled_len = static_cast<uint32_t>(img_frame.size.width * img_frame.size.height);
         std::vector<uint32_t> scaled_img_data(scaled_len, 0);
 
@@ -411,9 +412,9 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
     inner_draw_image(image, (rect.origin * m_scale).round(), (rect.size * m_scale).round());
 }
 
-auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void
+auto graphics::canvas::draw_image(const asset::legacy::macintosh::quickdraw::picture::lua_reference& image, const math::point& point, const math::size& sz) -> void
 {
-    auto inner_draw_image = [this] (const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) {
+    auto inner_draw_image = [this] (const asset::legacy::macintosh::quickdraw::picture::lua_reference& image, const math::point& point, const math::size& sz) {
         math::rect bounds(math::point(0), m_scaled_size);
         math::rect img_bounds(math::point(0), image->size());
         math::rect img_frame(point, { std::round(sz.width), std::round(sz.height) });
@@ -422,7 +423,7 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
             return;
         }
 
-        auto raw_img_data = image->spritesheet()->texture()->data();
+        auto raw_img_data = image->sprite_sheet()->texture()->data();
         auto scaled_len = static_cast<uint32_t>(img_frame.size.width * img_frame.size.height);
         std::vector<uint32_t> scaled_img_data(scaled_len, 0);
 
@@ -473,16 +474,16 @@ auto graphics::canvas::draw_image(const asset::macintosh_picture::lua_reference&
     inner_draw_image(image, (point * m_scale).round(), (sz * m_scale).round());
 }
 
-auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void
+auto graphics::canvas::draw_picture_at_point(const asset::legacy::macintosh::quickdraw::picture::lua_reference &pict, const math::point &point) -> void
 {
-    auto inner_draw = [this] (const asset::macintosh_picture::lua_reference &pict, const math::point &point) {
+    auto inner_draw = [this] (const asset::legacy::macintosh::quickdraw::picture::lua_reference &pict, const math::point &point) {
         math::rect bounds(math::point(0), m_scaled_size);
         math::rect pict_bounds(point, pict->size());
         if (!pict_bounds.intersects(bounds)) {
             return;
         }
 
-        auto raw_pict_data = pict->spritesheet()->texture()->data();
+        auto raw_pict_data = pict->sprite_sheet()->texture()->data();
 
         auto bmp_line_start = std::max<int64_t>(0LL, static_cast<int64_t>(-point.x));
         auto bmp_line_len = static_cast<int64_t>(pict_bounds.size.width) - bmp_line_start;
@@ -509,7 +510,7 @@ auto graphics::canvas::draw_picture_at_point(const asset::macintosh_picture::lua
     inner_draw(pict, (point * m_scale).round());
 }
 
-auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_reference &pict, const math::rect &rect) -> void
+auto graphics::canvas::draw_picture(const asset::legacy::macintosh::quickdraw::picture::lua_reference &pict, const math::rect &rect) -> void
 {
     if (rect.size.width <= 0 || rect.size.height <= 0) {
         return;
@@ -518,16 +519,16 @@ auto graphics::canvas::draw_picture(const asset::macintosh_picture::lua_referenc
     draw_image(pict, rect.origin, rect.size);
 }
 
-auto graphics::canvas::draw_color_icon(const asset::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) -> void
+auto graphics::canvas::draw_color_icon(const asset::legacy::macintosh::quickdraw::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) -> void
 {
-    auto inner_draw = [this] (const asset::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) {
+    auto inner_draw = [this] (const asset::legacy::macintosh::quickdraw::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) {
         math::rect bounds(math::point(0), m_scaled_size);
         math::rect icon_bounds(point, icon->size());
         if (!icon_bounds.intersects(bounds)) {
             return;
         }
 
-        auto raw_icon_data = icon->spritesheet()->texture()->data();
+        auto raw_icon_data = icon->sprite_sheet()->texture()->data();
 
         auto bmp_line_start = std::max(static_cast<int64_t>(0LL), static_cast<int64_t>(-point.x));
         auto bmp_line_len = static_cast<int64_t>(icon_bounds.size.width) - bmp_line_start;
@@ -566,7 +567,7 @@ auto graphics::canvas::draw_mask(const luabridge::LuaRef &mask_function) -> void
 {
     // Construct a canvas that is equal in size to the current canvas for the mask to be drawn in
     // to.
-    auto mask = graphics::canvas::lua_reference(new graphics::canvas(m_size));
+    auto mask = lua_reference(new canvas(m_size));
     mask_function(mask);
     apply_mask(mask);
 }

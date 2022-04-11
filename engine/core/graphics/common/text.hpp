@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXT_HPP)
-#define KESTREL_TEXT_HPP
+#pragma once
 
 #include <memory>
 #include "math/point.hpp"
@@ -40,23 +39,21 @@ namespace graphics
         typedef luabridge::RefCountedPtr<graphics::text> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        std::string m_text;
-        int m_font_size;
-        std::string m_font_face;
-        graphics::color m_color { graphics::color::white_color() };
-
     public:
         lua_api text(std::string text, std::string font, int size, const graphics::color::lua_reference& color);
 
-        lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
+        lua_api auto spawn_entity(const math::point& position) -> std::shared_ptr<graphics::entity>;
 
         lua_api auto get_value() const -> std::string;
         lua_api auto get_font_size() const -> int;
         lua_api auto get_font() const -> std::string;
         lua_api auto get_color() const -> graphics::color::lua_reference;
+
+    private:
+        std::string m_text;
+        int m_font_size;
+        std::string m_font_face;
+        graphics::color m_color { graphics::color::white_color() };
     };
 
 }
-
-#endif //KESTREL_TEXT_HPP

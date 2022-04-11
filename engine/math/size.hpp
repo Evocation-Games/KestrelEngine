@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SIZE_HPP)
-#define KESTREL_SIZE_HPP
+#pragma once
 
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -39,16 +38,23 @@ namespace math
         double height;
 
         size();
-        size(const double& v);
+        explicit size(const double& v);
         lua_api size(const double& w, const double& h);
         size(const math::size& s);
 
-        lua_api auto operator+(const math::size& s) const -> math::size;
-        lua_api auto operator-(const math::size& s) const -> math::size;
-        lua_api auto operator*(const double& f) const -> math::size;
-        lua_api auto operator/(const double& f) const -> math::size;
+        auto operator+(const math::size& s) const -> math::size;
+        auto operator-(const math::size& s) const -> math::size;
+        auto operator*(const math::size& s) const -> math::size;
+        auto operator/(const math::size& s) const -> math::size;
+        auto operator*(double f) const -> math::size;
+        auto operator/(double f) const -> math::size;
         auto operator==(const math::size& s) const -> bool;
         auto operator!=(const math::size& s) const -> bool;
+
+        lua_api auto add(const math::size& s) const -> math::size;
+        lua_api auto subtract(const math::size& s) const -> math::size;
+        lua_api auto multiply(double f) const -> math::size;
+        lua_api auto divide(double f) const -> math::size;
 
         lua_api auto round() const -> math::size;
         lua_api auto floor() const -> math::size;
@@ -64,6 +70,3 @@ namespace math
     };
 
 };
-
-
-#endif //KESTREL_SIZE_HPP

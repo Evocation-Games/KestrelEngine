@@ -21,17 +21,19 @@
 #include <dirent.h>
 #include <utility>
 #include <libGraphite/rsrc/manager.hpp>
-#include "core/environment.hpp"
+#include "util/hint.hpp"
 #include "scripting/state.hpp"
-#include "core/graphics/opengl/opengl_session_window.hpp"
-#include "core/graphics/common/scene.hpp"
+#include "core/environment.hpp"
 #include "core/graphics/common/font.hpp"
 #include "core/audio/audio_manager.hpp"
+#include "renderer/common/renderer.hpp"
+#include "core/ui/session.hpp"
+#include "core/ui/scene.hpp"
+#include "core/ui/game_scene.hpp"
 
-#if __APPLE__
-#include "core/graphics/metal/metal_session_window.h"
-#include "core/support/macos/cocoa/application.h"
+#if TARGET_MACOS
 #include "core/support/macos/cocoa/font.h"
+#include "core/support/macos/cocoa/application.h"
 #endif
 
 static std::weak_ptr<environment> $_active_environment;
@@ -117,65 +119,60 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 
 // MARK: - Run Loop
 
-#if __APPLE__
+#if TARGET_MACOS
 auto environment::launch_metal(const double& scale) -> int
 {
-    auto app = cocoa::application();
-    return app.run(m_options, [this, scale] () {
-        this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this(), scale);
-        this->m_game_window->set_title("Kestrel - Metal");
-        this->m_game_window->set_size({ 800, 600 });
-        this->m_gl = gl_type::metal;
-        this->prepare_common();
+    renderer::initialize(renderer::api::metal, [&] {
+        prepare_common();
+        renderer::set_tick_function([&] {
+            tick();
+        });
     });
+    return 0;
 }
 #endif
 
-#if __x86_64__
 auto environment::launch_opengl(const double& scale) -> int
 {
-    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this(), scale);
-    m_gl = gl_type::open_gl;
-    return launch_common();
+    renderer::initialize(renderer::api::opengl, [&] {
+        prepare_common();
+        renderer::set_tick_function([&] {
+            tick();
+        });
+    });
+    return 0;
 }
-#endif
 
 auto environment::prepare_common() -> void
 {
+    // Setup a new game session.
+    m_game_session = std::make_shared<ui::session>();
+
     // Ensure Lua is fully configured and ready to go.
     become_active_environment();
     m_lua_runtime->prepare_lua_environment(shared_from_this());
 
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
-    auto state = m_lua_runtime->shared_from_this();
-    scripting::lua::script main_script(state, asset::resource_descriptor::identified(0));
-    m_lua_runtime->run(main_script);
-
-    // Post the console about the environment.
-    switch (m_gl) {
-        case open_gl:
-            m_game_window->console().write("Graphics layer is OpenGL");
-            break;
-        case metal:
-            m_game_window->console().write("Graphics layer is Metal");
-            break;
-        default:
-            m_game_window->console().write("Graphics layer is unknown.");
-            break;
-    }
+    m_game_session->present_scene({
+        new ui::game_scene(asset::resource_descriptor::identified(0))
+    });
 }
 
-auto environment::launch_common() -> int
+auto environment::tick() -> void
 {
-    prepare_common();
+    renderer::camera camera;
+    renderer::start_frame(camera);
 
-    // Enter the main run loop, keep calling tick on the session window until such time as it is no
-    // longer in existence or alive.
-    while (m_game_window && m_game_window->is_running()) {
-        m_game_window->tick();
+    auto session = this->session();
+    if (session) {
+        auto scene = session->current_scene();
+        if (scene.get()) {
+            scene->internal_scene()->update();
+            scene->internal_scene()->render();
+        }
     }
 
-    return m_status;
+    renderer::end_frame();
 }
 
 auto environment::launch() -> int
@@ -192,7 +189,7 @@ auto environment::launch() -> int
 
     audio::manager::library audio_lib = audio::manager::library::openal;
 
-#if __APPLE__
+#if TARGET_MACOS
     if (scale <= 0) {
         scale = cocoa::application::screen_scale_factor();
     }
@@ -210,7 +207,7 @@ auto environment::launch() -> int
     }
     else {
         // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
-        if (graphics::metal::has_metal_support()) {
+        if (renderer::supports_metal()) {
             audio::manager::shared_manager().set_library(audio_lib);
             return launch_metal(scale);
         }
@@ -222,12 +219,8 @@ auto environment::launch() -> int
 
 #endif
 
-#if __x86_64__
     audio::manager::shared_manager().set_library(audio_lib);
     return launch_opengl(scale);
-#else
-    throw std::runtime_error("Kestrel does not support OpenGL on Apple Silicon. Please remove the --opengl argument.");
-#endif
 }
 
 auto environment::become_active_environment() -> void
@@ -288,41 +281,33 @@ auto environment::load_game_data() -> void
 
 auto environment::prepare_lua_interface() -> void
 {
-    luabridge::getGlobalNamespace(m_lua_runtime->internal_state())
+    m_lua_runtime->global_namespace()
         .beginNamespace("Kestrel")
-            .addFunction("setGameWindowTitle", &environment::set_game_window_title)
-            .addFunction("setGameWindowSize", &environment::set_game_window_size)
-            .addFunction("importScript", &environment::import_script)
-            .addFunction("scene", &environment::create_scene)
-            .addFunction("scaleFactor", &environment::scale)
             .addProperty("platform", &environment::platform)
             .addProperty("platformName", &environment::platform_name)
             .addProperty("graphicsLayerName", &environment::gl_name)
             .addProperty("allAudioFiles", &environment::audio_files)
+            .addFunction("presentScene", &environment::present_scene)
+            .addFunction("setGameWindowTitle", &environment::set_game_window_title)
+            .addFunction("setGameWindowSize", &environment::set_game_window_size)
+            .addFunction("importScript", &environment::import_script)
+            .addFunction("scaleFactor", &environment::scale)
         .endNamespace();
 }
 
 auto environment::set_game_window_title(const std::string &title) -> void
 {
-    $_active_environment.lock()->m_game_window->set_title(title);
+    renderer::set_window_title(title);
 }
 
 auto environment::set_game_window_size(const double& width, const double& height) -> void
 {
-    $_active_environment.lock()->m_game_window->set_size({ width, height });
+    renderer::set_window_size({ width, height });
 }
 
 auto environment::scale() -> double
 {
-    return $_active_environment.lock()->m_game_window->get_scale_factor();
-}
-
-auto environment::load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script
-{
-    if (auto env = $_active_environment.lock()) {
-        return { m_lua_runtime->shared_from_this(), ref };
-    }
-    throw std::runtime_error("Missing environment");
+    return renderer::scale_factor();
 }
 
 auto environment::import_script(const asset::resource_descriptor::lua_reference& ref) -> void
@@ -346,7 +331,10 @@ auto environment::issue_lua_command(const std::string& lua) -> void
 
 auto environment::lua_out(const std::string& message, bool error) -> void
 {
-    m_game_window->console().write((error ? "***" : "") + message);
+    auto session = this->session();
+    if (session) {
+        session->console().write((error ? "***" : "") + message);
+    }
 }
 
 auto environment::lua_runtime() -> std::shared_ptr<scripting::lua::state>
@@ -356,9 +344,9 @@ auto environment::lua_runtime() -> std::shared_ptr<scripting::lua::state>
 
 // MARK: - Accessors
 
-auto environment::window() -> std::shared_ptr<graphics::session_window>
+auto environment::session() -> std::shared_ptr<ui::session>
 {
-    return m_game_window;
+    return m_game_session;
 }
 
 // MARK: - Audio
@@ -380,84 +368,35 @@ auto environment::audio_files() -> util::lua_vector<std::string>
 
 // MARK: - Graphics Layer Specific
 
-auto environment::create_texture(const math::size &size,
-                                 std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
-{
-    return m_game_window->create_texture(size, std::move(data));
-}
-
-auto environment::create_texture(const math::size &size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>
-{
-    return m_game_window->create_texture(size, data);
-}
-
-auto environment::current_scene() -> std::shared_ptr<graphics::scene>
-{
-    return m_game_window->current_scene();
-}
-
-auto environment::present_scene(std::shared_ptr<graphics::scene> scene) -> void
-{
-    m_game_window->present_scene(std::move(scene));
-}
-
-auto environment::pop_scene() -> void
-{
-    m_game_window->pop_scene();
-}
-
-auto environment::create_scene(const std::string &name, const asset::resource_descriptor::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
-{
-    if (auto env = $_active_environment.lock()) {
-        auto scene = env->m_game_window->new_scene(name, env->load_script(script));
-        return {new graphics::lua_scene_wrapper(scene)};
-    }
-    else {
-        return nullptr;
-    }
-}
-
 auto environment::gl_name() -> std::string
 {
+    return renderer::api_name();
+}
+
+// MARK: - Scene Management
+
+auto environment::present_scene(const ui::game_scene::lua_reference &scene) -> void
+{
     if (auto env = $_active_environment.lock()) {
-        switch (env->m_gl) {
-            case gl_type::open_gl:
-                return "OpenGL";
-            case gl_type::metal:
-                return "Metal";
-            default:
-                break;
+        auto session = env->session();
+        if (session) {
+            session->present_scene(scene);
         }
     }
-    return "Unknown";
 }
 
 // MARK: - Event Posting
 
-auto environment::post_key_event(const event::key &event) -> void
+auto environment::post_event(const event &e) -> void
 {
-#if __APPLE__
-    if ((event.code() == event::key::q) && (event.modifiers() & event::key::super)) {
-        exit(0);
+    auto session = this->session();
+    if (!session) {
+        return;
     }
-#elif __linux__
 
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#   if defined(_WIN64)
-
-#   endif
-#endif
-    auto scene = current_scene();
-    if (scene != nullptr) {
-        scene->key_event(event);
-    }
-}
-
-auto environment::post_mouse_event(const event::mouse &event) -> void
-{
-    auto scene = current_scene();
-    if (scene != nullptr) {
-        scene->mouse_event(event);
+    auto scene = session->current_scene();
+    if (scene.get()) {
+        scene->internal_scene()->receive_event(e);
     }
 }
 
@@ -475,7 +414,7 @@ auto environment::bundled_font_named(const std::string &name) const -> std::opti
 
 // MARK: - Host Platform
 
-#if __APPLE__
+#if TARGET_MACOS
 
 auto environment::platform() -> environment::platform_type
 {
@@ -487,7 +426,7 @@ auto environment::platform_name() -> std::string
     return "macOS";
 }
 
-#elif __linux__
+#elif TARGET_LINUX
 
 auto environment::platform() -> environment::platform_type
 {
@@ -499,7 +438,7 @@ auto environment::platform_name() -> std::string
     return "Linux";
 }
 
-#elif (_WIN32 || _WIN64)
+#elif TARGET_WINDOWS
 
 auto environment::platform() -> environment::platform_type
 {

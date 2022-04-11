@@ -22,34 +22,35 @@
 
 // MARK: - Construction
 
-graphics::texture::texture(const double& width, const double& height)
-    : m_size(width, height), m_data(width * height, 0xFFFFFFFF)
-{
-
-}
-
-graphics::texture::texture(const math::size& size)
-    : m_size(size), m_data(size.width * size.height, 0xFFFFFFFF)
-{
-
-}
-
 graphics::texture::texture(const double& width, const double& height, std::vector<uint32_t> data)
     : m_size(width, height), m_data(std::move(data))
 {
-
 }
 
 graphics::texture::texture(const math::size& sz, std::vector<uint32_t> data)
     : m_size(sz), m_data(std::move(data))
 {
-
 }
 
-graphics::texture::texture(const math::size &sz, const uint8_t *data)
+graphics::texture::texture(const math::size& sz, const uint8_t *data)
     : m_size(sz), m_raw_data(data)
 {
+}
 
+graphics::texture::texture(const math::size& sz, bool populate)
+    : m_size(sz)
+{
+    if (populate) {
+        m_data = decltype(m_data)(sz.width * sz.height, 0xFFFFFFFF);
+    }
+}
+
+graphics::texture::texture(const double& width, const double& height, bool populate)
+    : m_size(width, height)
+{
+    if (populate) {
+        m_data = decltype(m_data)(width * height, 0xFFFFFFFF);
+    }
 }
 
 // MARK: - Accessors
@@ -69,7 +70,7 @@ auto graphics::texture::raw_data_ptr() const -> const uint8_t *
     return m_raw_data;
 }
 
-auto graphics::texture::handle() const -> int
+auto graphics::texture::handle() const -> uint64_t
 {
     return 0;
 }

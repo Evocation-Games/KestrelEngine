@@ -18,41 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
+#include <type_traits>
 #include "math/size.hpp"
 
 namespace graphics
 {
-
     class texture: public std::enable_shared_from_this<graphics::texture>
     {
+    public:
+        texture(const double& width, const double& height, std::vector<uint32_t> data);
+        texture(const math::size& size, std::vector<uint32_t> data);
+        texture(const math::size& size, const uint8_t *data);
+        explicit texture(const math::size& size, bool populate = false);
+        texture(const double& width, const double& height, bool populate = false);
+
+        auto size() const -> math::size;
+        auto data() const -> std::vector<uint32_t>;
+        auto raw_data_ptr() const -> const uint8_t *;
+
+        virtual auto handle() const -> uint64_t;
+
+        virtual auto bind() const -> void;
+
+        virtual auto destroy() -> void;
+
     protected:
         math::size m_size;
         std::vector<uint32_t> m_data;
         const uint8_t *m_raw_data { nullptr };
 
-    public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-        texture(const math::size& size, const uint8_t *data);
-
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        auto raw_data_ptr() const -> const uint8_t *;
-        virtual auto handle() const -> int;
-
-        virtual auto bind() const -> void;
-
-        virtual auto destroy() -> void;
     };
-
 }
-
-
-#endif //KESTREL_TEXTURE_HPP

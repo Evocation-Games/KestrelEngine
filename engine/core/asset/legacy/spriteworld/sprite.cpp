@@ -27,18 +27,18 @@
 
 // MARK: - Lua
 
-auto asset::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+auto asset::legacy::spriteworld::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
-    luabridge::getGlobalNamespace(lua->internal_state())
+    lua->global_namespace()
         .beginNamespace("Legacy")
             .beginNamespace("SpriteWorld")
-                .beginClass<asset::sprite>("Sprite")
-                    .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::sprite::lua_reference>()
-                    .addStaticFunction("load", &asset::sprite::load)
-                    .addProperty("size", &asset::sprite::size)
-                    .addProperty("numberOfSprites", &asset::sprite::sprite_count)
-                    .addFunction("spawnEntity", &asset::sprite::spawn_entity)
-                    .addFunction("setSpriteSize", &asset::sprite::layout_sprites)
+                .beginClass<sprite>("Sprite")
+                    .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, lua_reference>()
+                    .addStaticFunction("load", &sprite::load)
+                    .addProperty("size", &sprite::size)
+                    .addProperty("numberOfSprites", &sprite::sprite_count)
+                    .addFunction("spawnEntity", &sprite::spawn_entity)
+                    .addFunction("setSpriteSize", &sprite::layout_sprites)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -46,7 +46,7 @@ auto asset::sprite::enroll_object_api_in_state(const std::shared_ptr<scripting::
 
 // MARK: - Construction
 
-asset::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
+asset::legacy::spriteworld::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
 {
     if (auto res = ref->with_type(type)->load().lock()) {
         graphite::qd::rle rle(res->data(), res->id(), res->name());
@@ -58,17 +58,17 @@ asset::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::sprite::load(const asset::resource_descriptor::lua_reference& ref) -> sprite::lua_reference
+auto asset::legacy::spriteworld::sprite::load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
         auto asset = env->cache()->fetch(sprite::type, ref);
         if (asset.has_value()) {
-            return std::any_cast<asset::sprite::lua_reference>(asset.value());
+            return std::any_cast<lua_reference>(asset.value());
         }
     }
 
-    auto image = asset::sprite::lua_reference(new asset::sprite(ref));
+    auto image = lua_reference(new sprite(ref));
     if (auto env = environment::active_environment().lock()) {
         env->cache()->add(sprite::type, ref, image);
     }
@@ -77,26 +77,26 @@ auto asset::sprite::load(const asset::resource_descriptor::lua_reference& ref) -
 
 // MARK: - Properties
 
-auto asset::sprite::size() const -> math::size
+auto asset::legacy::spriteworld::sprite::size() const -> math::size
 {
     return basic_image::size();
 }
 
-auto asset::sprite::sprite_count() const -> int
+auto asset::legacy::spriteworld::sprite::sprite_count() const -> int
 {
     return basic_image::sprite_count();
 }
 
 // MARK: - Layout
 
-auto asset::sprite::layout_sprites(const math::size& sprite_size) -> void
+auto asset::legacy::spriteworld::sprite::layout_sprites(const math::size& sprite_size) -> void
 {
     asset::basic_image::layout_sprites(sprite_size);
 }
 
 // MARK: - Entities
 
-auto asset::sprite::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
+auto asset::legacy::spriteworld::sprite::spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity>
 {
     return asset::basic_image::spawn_entity(position);
 }

@@ -18,38 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_MACINTOSH_PICTURE_HPP)
-#define KESTREL_MACINTOSH_PICTURE_HPP
+#pragma once
 
+#include "util/hint.hpp"
+#include "scripting/state.hpp"
 #include "core/asset/basic_image.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
-#include "scripting/state.hpp"
-#include "util/hint.hpp"
 
-namespace asset
+namespace asset::legacy::macintosh::quickdraw
 {
 
-    struct macintosh_picture: public asset::basic_image, public scripting::lua::object
+    struct picture: public asset::basic_image, public scripting::lua::object
     {
     public:
         constexpr static const char *type { "PICT" };
-        typedef luabridge::RefCountedPtr<asset::macintosh_picture> lua_reference;
+        typedef luabridge::RefCountedPtr<picture> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-
     public:
-        lua_api explicit macintosh_picture(const asset::resource_descriptor::lua_reference& ref);
-        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> macintosh_picture::lua_reference;
+        lua_api explicit picture(const asset::resource_descriptor::lua_reference& ref);
+        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> picture::lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
         lua_api auto layout_sprites(const math::size& sprite_size) -> void override;
 
-        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
     };
 
 };
-
-#endif //KESTREL_MACINTOSH_PICTURE_HPP

@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SPRITESHEET_ASSET_HPP)
-#define KESTREL_SPRITESHEET_ASSET_HPP
+#pragma once
 
 #include <memory>
 #include "scripting/state.hpp"
@@ -45,9 +44,7 @@ namespace asset
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
-        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
     };
 
 }
-
-#endif //KESTREL_SPRITESHEET_ASSET_HPP

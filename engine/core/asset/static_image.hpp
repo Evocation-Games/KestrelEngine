@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_STATIC_IMAGE_HPP)
-#define KESTREL_STATIC_IMAGE_HPP
+#pragma once
 
 #include <memory>
 #include "scripting/state.hpp"
@@ -35,25 +34,23 @@ namespace asset
     {
     public:
         constexpr static const char *type { "sïmg" };
-        typedef luabridge::RefCountedPtr<asset::static_image> lua_reference;
+        typedef luabridge::RefCountedPtr<static_image> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        static_image(const int64_t& id, const std::string& name, std::shared_ptr<graphics::spritesheet> sheet);
+        static_image(const int64_t& id, const std::string& name, const std::shared_ptr<graphics::spritesheet>& sheet);
 
         lua_api explicit static_image(const asset::resource_descriptor::lua_reference& ref);
-        lua_api static auto load_best(std::vector<asset::resource_descriptor::lua_reference> refs) -> static_image::lua_reference;
-        lua_api static auto using_pict(const asset::macintosh_picture::lua_reference& ref) -> static_image::lua_reference;
-        lua_api static auto using_cicn(const asset::color_icon::lua_reference& ref) -> static_image::lua_reference;
+        lua_api static auto load_best(const std::vector<asset::resource_descriptor::lua_reference>& refs) -> lua_reference;
+        lua_api static auto using_pict(const asset::legacy::macintosh::quickdraw::picture::lua_reference& ref) -> lua_reference;
+        lua_api static auto using_cicn(const asset::legacy::macintosh::quickdraw::color_icon::lua_reference& ref) -> lua_reference;
 
-        lua_api static auto preferred(const asset::resource_descriptor::lua_reference& ref) -> static_image::lua_reference;
+        lua_api static auto preferred(const asset::resource_descriptor::lua_reference& ref) -> lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
-        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
     };
 
 }
-
-#endif //KESTREL_STATIC_IMAGE_HPP

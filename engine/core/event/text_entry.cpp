@@ -22,7 +22,7 @@
 
 // MARK: - Constructor
 
-event::control::text_entry::text_entry()
+text_entry_event::text_entry_event()
 {
     load_default_keymap();
 
@@ -32,41 +32,41 @@ event::control::text_entry::text_entry()
 
 // MARK: - Event Processing
 
-auto event::control::text_entry::receive(const event::key &key) -> void
+auto text_entry_event::receive(const event& e) -> void
 {
     // TODO: Handle key repeats
 
     // Update the internally tracked modifier states.
-    switch (key.code()) {
-        case key::code::left_alt:
-        case key::code::right_alt: {
-            m_alt = key.is_pressed();
+    switch (e.key()) {
+        case hid::left_alt:
+        case hid::right_alt: {
+            m_alt = e.has(event::key_down);
             return;
         }
-        case key::code::left_control:
-        case key::code::right_control: {
-            m_control = key.is_pressed();
+        case hid::left_control:
+        case hid::right_control: {
+            m_control = e.has(event::key_down);
             return;
         }
-        case key::code::left_shift:
-        case key::code::right_shift: {
-            m_shift = key.is_pressed();
+        case hid::left_shift:
+        case hid::right_shift: {
+            m_shift = e.has(event::key_down);
             return;
         }
-        case key::code::left_super:
-        case key::code::right_super: {
-            m_super = key.is_pressed();
+        case hid::left_super:
+        case hid::right_super: {
+            m_super = e.has(event::key_down);
             return;
         }
-        case key::code::enter:
-        case key::code::kp_enter: {
-            if (key.is_released()) {
+        case hid::enter:
+        case hid::kp_enter: {
+            if (e.has(event::key_up)) {
                 m_on_enter(m_value);
             }
             return;
         }
-        case key::code::escape: {
-            if (key.is_released()) {
+        case hid::escape: {
+            if (e.has(event::key_up)) {
                 m_on_escape();
             }
             return;
@@ -77,24 +77,24 @@ auto event::control::text_entry::receive(const event::key &key) -> void
     }
 
     // We don't want to deal with general key events, only pressed keys.
-    if (!key.is_pressed()) {
+    if (!e.has(event::key_down)) {
         return;
     }
 
-    switch (key.code()) {
-        case key::code::left: {
+    switch (e.key()) {
+        case hid::left: {
             if (m_cursor > 0) {
                 m_cursor--;
             }
             break;
         }
-        case key::code::right: {
+        case  hid::right: {
             if (m_cursor < m_value.size()) {
                 m_cursor++;
             }
             break;
         }
-        case key::code::backspace: {
+        case hid::backspace: {
             if (m_cursor == 0) {
                 return;
             }
@@ -105,7 +105,7 @@ auto event::control::text_entry::receive(const event::key &key) -> void
 
         // The general handler will default to the keymap.
         default: {
-            const auto& mapping = m_keymap[key.code()];
+            const auto& mapping = m_keymap[e.character()];
             char c[2] = { m_shift ? mapping.shifted : mapping.base, '\0' };
             if (c[0] != '\0') {
                 m_value.insert(m_cursor, c);
@@ -118,72 +118,72 @@ auto event::control::text_entry::receive(const event::key &key) -> void
 
 // MARK: - Accessors
 
-auto event::control::text_entry::set_string_value(const std::string &value) -> void
+auto text_entry_event::set_string_value(const std::string &value) -> void
 {
     m_value = value;
 }
 
-auto event::control::text_entry::string_value() const -> std::string
+auto text_entry_event::string_value() const -> std::string
 {
     return m_value;
 }
 
-auto event::control::text_entry::cursor_position() const -> int
+auto text_entry_event::cursor_position() const -> int
 {
     return m_cursor;
 }
 
-auto event::control::text_entry::set_cursor_position(const int& position) -> void
+auto text_entry_event::set_cursor_position(const int& position) -> void
 {
     m_cursor = position;
 }
 
 // MARK: - Keymap
 
-auto event::control::text_entry::load_default_keymap() -> void
+auto text_entry_event::load_default_keymap() -> void
 {
-    for (int k = key::code::a; k <= key::code::z; ++k) {
+    for (int k = hid::a; k <= hid::z; ++k) {
         m_keymap[k] = { static_cast<char>((k - 'A') + 'a'), static_cast<char>(k) };
     }
 
-    m_keymap[key::code::num1] = { '1', '!' };
-    m_keymap[key::code::num2] = { '2', '@' };
-    m_keymap[key::code::num3] = { '3', '#' };
-    m_keymap[key::code::num4] = { '4', '$' };
-    m_keymap[key::code::num5] = { '5', '%' };
-    m_keymap[key::code::num6] = { '6', '^' };
-    m_keymap[key::code::num7] = { '7', '&' };
-    m_keymap[key::code::num8] = { '8', '*' };
-    m_keymap[key::code::num9] = { '9', '(' };
-    m_keymap[key::code::num0] = { '0', ')' };
+    m_keymap[hid::num1] = { '1', '!' };
+    m_keymap[hid::num2] = { '2', '@' };
+    m_keymap[hid::num3] = { '3', '#' };
+    m_keymap[hid::num4] = { '4', '$' };
+    m_keymap[hid::num5] = { '5', '%' };
+    m_keymap[hid::num6] = { '6', '^' };
+    m_keymap[hid::num7] = { '7', '&' };
+    m_keymap[hid::num8] = { '8', '*' };
+    m_keymap[hid::num9] = { '9', '(' };
+    m_keymap[hid::num0] = { '0', ')' };
 
-    for (int n = key::code::num0; n <= key::code::num9; ++n) {
-        m_keymap[key::code::kp_0 + (n - key::code::num0)] = m_keymap[n];
+    for (int n = hid::num0; n <= hid::num9; ++n) {
+        m_keymap[hid::kp_0 + (n - hid::num0)] = m_keymap[n];
     }
 
-    m_keymap[key::code::apostrophe] = { '\'', '"' };
-    m_keymap[key::code::semi_colon] = { ';', ':' };
-    m_keymap[key::code::backslash] = { '\\', '|' };
-    m_keymap[key::code::grave_accent] = { '`', '~' };
-    m_keymap[key::code::left_bracket] = { '[', '{' };
-    m_keymap[key::code::right_bracket] = { ']', '}' };
-    m_keymap[key::code::comma] = { ',', '<' };
-    m_keymap[key::code::period] = { '.', '>' };
-    m_keymap[key::code::slash] = { '/', '?' };
-    m_keymap[key::code::equal] = { '=', '+' };
-    m_keymap[key::code::minus] = { '-', '_' };
-    m_keymap[key::code::tab] = { '\t', '\t' };
-    m_keymap[key::code::space] = { ' ', ' ' };
+    m_keymap[hid::apostrophe] = { '\'', '"' };
+    m_keymap[hid::semi_colon] = { ';', ':' };
+    m_keymap[hid::backslash] = { '\\', '|' };
+    m_keymap[hid::grave_accent] = { '`', '~' };
+    m_keymap[hid::left_bracket] = { '[', '{' };
+    m_keymap[hid::right_bracket] = { ']', '}' };
+    m_keymap[hid::comma] = { ',', '<' };
+    m_keymap[hid::period] = { '.', '>' };
+    m_keymap[hid::slash] = { '/', '?' };
+    m_keymap[hid::equal] = { '=', '+' };
+    m_keymap[hid::minus] = { '-', '_' };
+    m_keymap[hid::tab] = { '\t', '\t' };
+    m_keymap[hid::space] = { ' ', ' ' };
 }
 
 // MARK: - Callbacks
 
-auto event::control::text_entry::on_enter(std::function<auto(const std::string&)->void> callback) -> void
+auto text_entry_event::on_enter(std::function<auto(const std::string&)->void> callback) -> void
 {
     m_on_enter = std::move(callback);
 }
 
-auto event::control::text_entry::on_escape(std::function<auto()->void> callback) -> void
+auto text_entry_event::on_escape(std::function<auto()->void> callback) -> void
 {
     m_on_escape = std::move(callback);
 }

@@ -18,94 +18,92 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_ENTITY_HPP)
-#define KESTREL_ENTITY_HPP
+#pragma once
 
 #include <memory>
-#include "math/point.hpp"
-#include "math/vector.hpp"
 #include "math/size.hpp"
+#include "math/point.hpp"
 #include "core/graphics/common/spritesheet.hpp"
-#include "util/hint.hpp"
-#include "scripting/state.hpp"
+
+class scene;
 
 namespace graphics
 {
-    class scene;
-
-    class entity: public std::enable_shared_from_this<graphics::entity>, public scripting::lua::object
+    class entity: public std::enable_shared_from_this<graphics::entity>
     {
     public:
-        typedef luabridge::RefCountedPtr<graphics::entity> lua_reference;
-        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
-
         enum blend : int { normal, light };
 
-        math::vector position;
-        math::size size;
-        math::size render_size;
-        int sprite_index { 0 };
-        blend m_blend { normal };
-        double m_alpha { 1.0 };
-        std::string name;
-        int64_t id;
+    public:
+        explicit entity(const math::size& size);
+        entity(const math::point& position, const math::size& size);
+
+        auto move_to_scene(const std::shared_ptr<class scene>& scene);
+        auto scene() const -> std::weak_ptr<class scene>;
+
+        [[nodiscard]] auto name() const -> std::string;
+        auto set_name(const std::string& name) -> void;
+
+        [[nodiscard]] auto id() const -> int64_t;
+        auto set_id(int64_t id) -> void;
+
+        auto set_sprite_sheet(const std::shared_ptr<graphics::spritesheet>& sheet, uint32_t sprite_index = 0) -> void;
+        [[nodiscard]] auto sprite_sheet() const -> std::shared_ptr<graphics::spritesheet>;
+        [[nodiscard]] auto texture() const -> std::shared_ptr<graphics::texture>;
+
+        [[nodiscard]] auto get_sprite_index() const -> uint32_t;
+        auto set_sprite_index(uint32_t index) -> void;
+
+        [[nodiscard]] auto get_position() const -> math::point;
+        auto set_position(const math::point& position) -> void;
+
+        [[nodiscard]] auto get_bounds() const -> math::rect;
+
+        [[nodiscard]] auto get_size() const -> math::size;
+        auto set_size(const math::size& sz) -> void;
+
+        [[nodiscard]] auto get_render_size() const -> math::size;
+        auto set_render_size(const math::size& sz) -> void;
+
+        auto set_clipping_area(const math::size& sz) -> void;
+        auto remove_clipping_area() -> void;
+        [[nodiscard]] auto has_clipping_area() const -> bool;
+        [[nodiscard]] auto clipping_area() const -> math::size;
+        [[nodiscard]] auto clipping_area_uv() const -> math::size;
+
+        auto set_clipping_offset(const math::point& p) -> void;
+        [[nodiscard]] auto clipping_offset() const -> math::point;
+        [[nodiscard]] auto clipping_offset_uv() const -> math::point;
+
+        [[nodiscard]] auto get_blend_lua() const -> int;
+        auto set_blend_lua(int blend) -> void;
+        [[nodiscard]] auto blend() const -> enum entity::blend;
+
+        [[nodiscard]] auto get_alpha() const -> double;
+        auto set_alpha(double alpha) -> void;
+
+        auto is_intersecting(const graphics::entity& subject) const -> bool;
+
+        auto draw() -> void;
 
     private:
-        std::shared_ptr<graphics::spritesheet> m_spritesheet;
-        std::weak_ptr<graphics::scene> m_scene;
-        bool m_has_texture_clip { false };
+        std::weak_ptr<class scene> m_scene;
 
+        int64_t m_id { INT64_MIN };
+        std::string m_name;
+        math::point m_position { 0 };
+        math::size m_size { 0 };
+        math::size m_render_size { 0 };
+        uint32_t m_sprite_index { 0 };
+        std::shared_ptr<graphics::spritesheet> m_sprite_sheet;
+        enum blend m_blend { normal };
+        double m_alpha { 1.0 };
+
+        bool m_has_texture_clip { false };
         math::size m_clipping_area { 0 };
         math::point m_clipping_offset { 0 };
         math::size m_clipping_area_uv { 0 };
         math::point m_clipping_offset_uv { 0 };
-
-    public:
-        explicit entity(const math::size& size);
-        entity(const math::vector& position, const math::size& size);
-
-        auto move_to_scene(std::weak_ptr<graphics::scene> scene);
-        auto scene() const -> std::weak_ptr<graphics::scene>;
-
-        auto set_spritesheet(std::shared_ptr<graphics::spritesheet> sheet, const int& sprite_index = 0) -> void;
-        auto spritesheet() const -> std::shared_ptr<graphics::spritesheet>;
-        auto texture() const -> std::shared_ptr<graphics::texture>;
-
-        lua_api auto get_sprite_index() const -> int;
-        lua_api auto set_sprite_index(const int& index) -> void;
-
-        lua_api auto get_position() const -> math::vector;
-        lua_api auto set_position(const math::vector& position) -> void;
-
-        lua_api auto get_bounds() const -> math::rect;
-
-        lua_api auto get_size() const -> math::size;
-        lua_api auto set_size(const math::size& sz) -> void;
-        lua_api auto get_render_size() const -> math::size;
-        lua_api auto set_render_size(const math::size& sz) -> void;
-
-        lua_api auto set_clipping_area(const math::size& sz) -> void;
-        lua_api auto remove_clipping_area() -> void;
-        lua_api auto has_clipping_area() const -> bool;
-        lua_api auto clipping_area() const -> math::size;
-        auto clipping_area_uv() const -> math::size;
-
-        lua_api auto set_clipping_offset(const math::point& p) -> void;
-        lua_api auto clipping_offset() const -> math::point;
-        auto clipping_offset_uv() const -> math::point;
-
-        lua_api auto get_blend_lua() const -> int;
-        lua_api auto set_blend_lua(const int& blend) -> void;
-        auto blend() const -> enum entity::blend;
-
-        lua_api auto get_alpha() const -> double;
-        lua_api auto set_alpha(const double& alpha) -> void;
-
-        lua_api auto is_intersecting(const graphics::entity::lua_reference& subject) const -> bool;
-
-        lua_api auto draw() -> void;
     };
 
 };
-
-#endif //KESTREL_ENTITY_HPP

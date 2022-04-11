@@ -18,30 +18,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_ENVIRONMENT_HPP)
-#define KESTREL_ENVIRONMENT_HPP
+#pragma once
 
 #include <memory>
 #include <string>
 #include <vector>
+#include <type_traits>
+#include "util/hint.hpp"
+#include "math/size.hpp"
+#include "util/lua_vector.hpp"
 #include "scripting/state.hpp"
 #include "scripting/script.hpp"
-#include "core/asset/rsrc/resource_descriptor.hpp"
-#include "util/hint.hpp"
-#include "util/lua_vector.hpp"
-#include "math/size.hpp"
-#include "core/graphics/common/texture.hpp"
-#include "core/asset/cache.hpp"
-#include "core/graphics/common/lua_scene_wrapper.hpp"
-#include "core/event/key.hpp"
-#include "core/event/mouse.hpp"
 #include "core/file/files.hpp"
-
-namespace graphics
-{
-    class session_window;
-    class scene;
-}
+#include "core/event/event.hpp"
+#include "core/asset/cache.hpp"
+#include "core/graphics/common/texture.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
+#include "core/ui/session.hpp"
+#include "core/ui/scene.hpp"
+#include "core/ui/game_scene.hpp"
+#include "renderer/common/context.hpp"
 
 class environment: public std::enable_shared_from_this<environment>
 {
@@ -49,47 +45,35 @@ public:
     enum platform_type { mac_os, unix_like, windows };
     enum gl_type { none, open_gl, metal };
 
-private:
-    int m_status;
-    std::vector<std::string> m_options;
-    std::shared_ptr<graphics::session_window> m_game_window;
-    util::lua_vector<std::string> m_audio_files;
-    std::shared_ptr<scripting::lua::state> m_lua_runtime;
-    std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
-    std::map<std::string, std::string> m_custom_fonts {};
-    environment::gl_type m_gl { gl_type::none };
-
-#if __APPLE__
+#if TARGET_MACOS
     auto launch_metal(const double& scale = 1.0) -> int;
 #endif
-#if __x86_64__
     auto launch_opengl(const double& scale = 1.0) -> int;
-#endif
+
     auto prepare_common() -> void;
-    auto launch_common() -> int;
+    auto tick() -> void;
 
     static auto load_kestrel_core() -> void;
     auto load_game_data() -> void;
 
     auto load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script;
 
-    auto all_audio_files() -> util::lua_vector<std::string>;
-
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
     lua_api static auto import_script(const asset::resource_descriptor::lua_reference& ref) -> void;
-    lua_api static auto create_scene(const std::string& name, const asset::resource_descriptor::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
+
+    lua_api static auto present_scene(const ui::game_scene::lua_reference& scene) -> void;
 
     lua_api static auto scale() -> double;
 
+    lua_api static auto gl_name() -> std::string;
     lua_api static auto platform() -> environment::platform_type;
     lua_api static auto platform_name() -> std::string;
-
-    lua_api static auto gl_name() -> std::string;
 
     lua_api static auto audio_files() -> util::lua_vector<std::string>;
     lua_api static auto play_audio_file(const std::string& file) -> void;
     lua_api static auto stop_audio_file() -> void;
+    auto all_audio_files() -> util::lua_vector<std::string>;
 
 public:
     environment(int argc, const char **argv);
@@ -108,18 +92,22 @@ public:
 
     auto gc_purge() -> void;
 
-    auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
-    auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>;
-    auto current_scene() -> std::shared_ptr<graphics::scene>;
-    auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
+    auto session() -> std::shared_ptr<ui::session>;
+    auto current_scene() -> std::shared_ptr<ui::scene>;
+    auto present_scene(std::shared_ptr<ui::scene>& scene) -> void;
     auto pop_scene() -> void;
 
-    auto post_key_event(const event::key& event) -> void;
-    auto post_mouse_event(const event::mouse& event) -> void;
-
-    auto window() -> std::shared_ptr<graphics::session_window>;
+    auto post_event(const event& event) -> void;
 
     auto bundled_font_named(const std::string& name) const -> std::optional<std::string>;
-};
 
-#endif //KESTREL_ENVIRONMENT_HPP
+private:
+    int m_status;
+    std::shared_ptr<ui::session> m_game_session;
+    std::shared_ptr<renderer::context> m_renderer_context;
+    std::vector<std::string> m_options;
+    util::lua_vector<std::string> m_audio_files;
+    std::shared_ptr<scripting::lua::state> m_lua_runtime;
+    std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
+    std::map<std::string, std::string> m_custom_fonts {};
+};

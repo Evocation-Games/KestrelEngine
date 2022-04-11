@@ -26,14 +26,14 @@
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
-namespace asset
+namespace asset::legacy::macintosh::quickdraw
 {
 
     struct color_icon: public asset::basic_image, public scripting::lua::object
     {
     public:
         constexpr static const char *type { "cicn" };
-        typedef luabridge::RefCountedPtr<asset::color_icon> lua_reference;
+        typedef luabridge::RefCountedPtr<color_icon> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         lua_api explicit color_icon(const asset::resource_descriptor::lua_reference& ref);
@@ -41,7 +41,7 @@ namespace asset
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
 
-        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
     };
 
 };

@@ -109,7 +109,7 @@ auto asset::spritesheet::sprite_count() const -> int
     return basic_image::sprite_count();
 }
 
-auto asset::spritesheet::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
+auto asset::spritesheet::spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity>
 {
     return asset::basic_image::spawn_entity(position);
 }

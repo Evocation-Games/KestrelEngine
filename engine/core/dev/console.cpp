@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include "core/dev/console.hpp"
 
 // MARK: - Construction
@@ -25,7 +26,7 @@
 dev::console::console()
     : m_size({ 600, 300 }), m_dirty(true), m_visible(false)
 {
-    m_history.emplace_back("Kestrel v0.5");
+    m_history.emplace_back("Kestrel v0.6");
 
     m_input.on_enter([&] (const std::string& input) {
         m_history.emplace_back("&IN>" + input);
@@ -104,7 +105,7 @@ auto dev::console::set_size(const math::size &sz) -> void
 
 // MARK: - Accessors
 
-auto dev::console::entity() -> graphics::entity::lua_reference
+auto dev::console::entity() -> std::shared_ptr<graphics::entity>
 {
     return m_entity;
 }
@@ -126,13 +127,16 @@ auto dev::console::is_visible() const -> bool
 
 // MARK: - Events
 
-auto dev::console::receive(const event::key &key) -> void
+auto dev::console::receive(const event& e) -> void
 {
-    m_input.receive(key);
+    m_input.receive(e);
 }
 
 auto dev::console::write(const std::string &message) -> void
 {
+#if DEBUG
+    std::cout << message << std::endl;
+#endif
     m_history.emplace_back(message);
 }
 

@@ -18,10 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RGBA_BUFFER_HPP)
-#define KESTREL_RGBA_BUFFER_HPP
+#pragma once
 
 #include <vector>
+#include <optional>
 #include "math/size.hpp"
 #include "math/point.hpp"
 #include "math/rect.hpp"
@@ -36,6 +36,7 @@ namespace graphics
         uint8_t *m_buffer { nullptr };
         uint64_t m_count { 0 };
         math::size m_size { 0 };
+        math::rect m_clipping_rect;
 
         struct components
         {
@@ -86,6 +87,9 @@ namespace graphics
         auto clear(const graphics::color& c) -> void;
         auto clear_rect(const graphics::color& c, const math::rect& r) -> void;
 
+        auto set_clipping_rect(const math::rect& r) -> void;
+        auto clear_clipping_rect() -> void;
+
         auto draw_pixel(const graphics::color& c, const math::point& p) -> void;
         auto fill_rect(const graphics::color& c, const math::rect& r) -> void;
 
@@ -96,5 +100,3 @@ namespace graphics
     };
 
 }
-
-#endif //KESTREL_RGBA_BUFFER_HPP

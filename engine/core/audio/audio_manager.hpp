@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(AUDIO_MANAGER_HPP)
-#define AUDIO_MANAGER_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -70,5 +69,3 @@ namespace audio
     };
 
 }
-
-#endif //AUDIO_MANAGER_HPP

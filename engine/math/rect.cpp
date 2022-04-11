@@ -26,21 +26,21 @@
 auto math::rect::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
-        .beginClass<math::rect>("Rect")
-            .addConstructor<auto(*)(const double&, const double&, const double&, const double&)->void, luabridge::RefCountedPtr<math::rect>>()
-            .addStaticFunction("macintoshRect", &math::rect::macintosh_rect)
-            .addProperty("area", &math::rect::area)
-            .addProperty("origin", &math::rect::get_origin, &math::rect::set_origin)
-            .addProperty("size", &math::rect::get_size, &math::rect::set_size)
-            .addProperty("x", &math::rect::get_x, &math::rect::set_x)
-            .addProperty("y", &math::rect::get_y, &math::rect::set_y)
-            .addProperty("width", &math::rect::get_width, &math::rect::set_width)
-            .addProperty("height", &math::rect::get_height, &math::rect::set_height)
-            .addFunction("containsPoint", &math::rect::contains_point)
-            .addFunction("intersects", &math::rect::intersects)
-            .addFunction("round", &math::rect::round)
-            .addFunction("floor", &math::rect::floor)
-            .addFunction("ceil", &math::rect::ceil)
+        .beginClass<rect>("Rect")
+            .addConstructor<auto(*)(double, double, double, double)->void, luabridge::RefCountedPtr<math::rect>>()
+            .addStaticFunction("macintoshRect", &rect::macintosh_rect)
+            .addProperty("area", &rect::area)
+            .addProperty("origin", &rect::get_origin, &rect::set_origin)
+            .addProperty("size", &rect::get_size, &rect::set_size)
+            .addProperty("x", &rect::get_x, &rect::set_x)
+            .addProperty("y", &rect::get_y, &rect::set_y)
+            .addProperty("width", &rect::get_width, &rect::set_width)
+            .addProperty("height", &rect::get_height, &rect::set_height)
+            .addFunction("containsPoint", &rect::contains_point)
+            .addFunction("intersects", &rect::intersects)
+            .addFunction("round", &rect::round)
+            .addFunction("floor", &rect::floor)
+            .addFunction("ceil", &rect::ceil)
         .endClass();
 }
 
@@ -58,7 +58,7 @@ math::rect::rect(const math::point& o, const math::size& s)
 
 }
 
-math::rect::rect(const double& x, const double& y, const double& w, const double& h)
+math::rect::rect(double x, double y, double w, double h)
     : origin(x, y), size(w, h)
 {
 
@@ -70,41 +70,41 @@ math::rect::rect(const math::rect& r)
 
 }
 
-auto math::rect::macintosh_rect(const double &top, const double &left, const double &bottom, const double &right) -> math::rect
+auto math::rect::macintosh_rect(double top, double left, double bottom, double right) -> math::rect
 {
-    return math::rect(left, top, right - left, bottom - top);
+    return { left, top, right - left, bottom - top };
 }
 
 // MARK: - Operators
 
 auto math::rect::operator+(const math::point& p) const -> math::rect
 {
-    return math::rect(origin + p, size);
+    return { origin + p, size };
 }
 
 auto math::rect::operator+(const math::size& s) const -> math::rect
 {
-    return math::rect(origin, size + s);
+    return { origin, size + s };
 }
 
 auto math::rect::operator-(const math::point& p) const -> math::rect
 {
-    return math::rect(origin - p, size);
+    return { origin - p, size };
 }
 
 auto math::rect::operator-(const math::size& s) const -> math::rect
 {
-    return math::rect(origin, size - s);
+    return { origin, size - s };
 }
 
-auto math::rect::operator*(const double& f) const -> math::rect
+auto math::rect::operator*(double f) const -> math::rect
 {
-    return math::rect(origin * f, size * f);
+    return { origin * f, size * f };
 }
 
-auto math::rect::operator/(const double& f) const -> math::rect
+auto math::rect::operator/(double f) const -> math::rect
 {
-    return math::rect(origin / f, size / f);
+    return { origin / f, size / f };
 }
 
 auto math::rect::operator==(const math::rect& r) const -> bool
@@ -188,7 +188,7 @@ auto math::rect::get_size() const -> math::size
     return size;
 }
 
-auto math::rect::set_x(const double& x) -> void
+auto math::rect::set_x(double x) -> void
 {
     origin.x = x;
 }
@@ -198,7 +198,12 @@ auto math::rect::get_x() const -> double
     return origin.x;
 }
 
-auto math::rect::set_y(const double& y) -> void
+auto math::rect::get_max_x() const -> double
+{
+    return origin.x + size.width;
+}
+
+auto math::rect::set_y(double y) -> void
 {
     origin.y = y;
 }
@@ -208,7 +213,12 @@ auto math::rect::get_y() const -> double
     return origin.y;
 }
 
-auto math::rect::set_width(const double& width) -> void
+auto math::rect::get_max_y() const -> double
+{
+    return origin.y + size.height;
+}
+
+auto math::rect::set_width(double width) -> void
 {
     size.width = width;
 }
@@ -218,7 +228,7 @@ auto math::rect::get_width() const -> double
     return size.width;
 }
 
-auto math::rect::set_height(const double& height) -> void
+auto math::rect::set_height(double height) -> void
 {
     size.height = height;
 }
@@ -226,4 +236,9 @@ auto math::rect::set_height(const double& height) -> void
 auto math::rect::get_height() const -> double
 {
     return size.height;
+}
+
+auto math::rect::inset(double amount) const -> math::rect
+{
+    return { origin.x + amount, origin.y + amount, size.width - (amount * 2), size.height - (amount * 2) };
 }

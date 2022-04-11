@@ -27,16 +27,16 @@
 
 // MARK: - Lua
 
-auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+auto asset::legacy::macintosh::quickdraw::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
-    luabridge::getGlobalNamespace(lua->internal_state())
+    lua->global_namespace()
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
-                .beginClass<asset::color_icon>("ColorIcon")
-                .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::color_icon::lua_reference>()
-                    .addStaticFunction("load", &asset::color_icon::load)
-                    .addProperty("size", &asset::color_icon::size)
-                    .addFunction("spawnEntity", &asset::color_icon::spawn_entity)
+                .beginClass<color_icon>("ColorIcon")
+                .addConstructor<auto(*)(const resource_descriptor::lua_reference&)->void, color_icon::lua_reference>()
+                    .addStaticFunction("load", &color_icon::load)
+                    .addProperty("size", &color_icon::size)
+                    .addFunction("spawnEntity", &color_icon::spawn_entity)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -44,7 +44,7 @@ auto asset::color_icon::enroll_object_api_in_state(const std::shared_ptr<scripti
 
 // MARK: - Construction
 
-asset::color_icon::color_icon(const asset::resource_descriptor::lua_reference &ref)
+asset::legacy::macintosh::quickdraw::color_icon::color_icon(const asset::resource_descriptor::lua_reference &ref)
 {
     if (auto res = ref->with_type(type)->load().lock()) {
         graphite::qd::cicn icon(res->data(), res->id(), res->name());
@@ -56,17 +56,17 @@ asset::color_icon::color_icon(const asset::resource_descriptor::lua_reference &r
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
 
-auto asset::color_icon::load(const asset::resource_descriptor::lua_reference &ref) -> color_icon::lua_reference
+auto asset::legacy::macintosh::quickdraw::color_icon::load(const asset::resource_descriptor::lua_reference &ref) -> color_icon::lua_reference
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
         auto asset = env->cache()->fetch(color_icon::type, ref);
         if (asset.has_value()) {
-            return std::any_cast<asset::color_icon::lua_reference>(asset.value());
+            return std::any_cast<color_icon::lua_reference>(asset.value());
         }
     }
 
-    auto icon = asset::color_icon::lua_reference(new asset::color_icon(ref));
+    auto icon = asset::legacy::macintosh::quickdraw::color_icon::lua_reference(new color_icon(ref));
     if (auto env = environment::active_environment().lock()) {
         env->cache()->add(color_icon::type, ref, icon);
     }
@@ -75,14 +75,14 @@ auto asset::color_icon::load(const asset::resource_descriptor::lua_reference &re
 
 // MARK: - Properties
 
-auto asset::color_icon::size() const -> math::size
+auto asset::legacy::macintosh::quickdraw::color_icon::size() const -> math::size
 {
     return basic_image::size();
 }
 
 // MARK: - Entities
 
-auto asset::color_icon::spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference
+auto asset::legacy::macintosh::quickdraw::color_icon::spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity>
 {
     return asset::basic_image::spawn_entity(position);
 }

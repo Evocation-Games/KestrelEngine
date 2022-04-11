@@ -18,15 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "core/environment.hpp"
+#include "renderer/common/renderer.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
-#include "core/environment.hpp"
 
 // MARK: - Lua
 
 auto graphics::text::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
-    luabridge::getGlobalNamespace(lua->internal_state())
+    lua->global_namespace()
         .beginClass<graphics::text>("Text")
             .addConstructor<auto(*)(std::string, std::string, int, graphics::color::lua_reference)->void, graphics::text::lua_reference>()
             .addProperty("fontSize", &text::get_font_size)
@@ -68,7 +69,7 @@ auto graphics::text::get_color() const -> graphics::color::lua_reference
 
 // MARK: - Entity
 
-auto graphics::text::spawn_entity(const math::vector &position) -> graphics::entity::lua_reference
+auto graphics::text::spawn_entity(const math::point &position) -> std::shared_ptr<graphics::entity>
 {
     // Create a typesetter to layout the text and generate a bitmap.
     graphics::typesetter ts(m_text);
@@ -84,15 +85,10 @@ auto graphics::text::spawn_entity(const math::vector &position) -> graphics::ent
         bmp.emplace_back(c.value());
     }
 
-    if (auto env = environment::active_environment().lock()) {
-        auto tex = env->create_texture(size, std::move(bmp));
+    auto tex = renderer::create_texture(size, std::move(bmp));
+    auto entity = std::make_shared<graphics::entity>(size);
+    entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(tex, size));
+    entity->set_position(position);
 
-        auto entity = graphics::entity::lua_reference(new graphics::entity(size));
-        entity->set_spritesheet(std::make_shared<graphics::spritesheet>(tex, size));
-        entity->set_position(position);
-
-        return entity;
-    }
-
-    return nullptr;
+    return entity;
 }

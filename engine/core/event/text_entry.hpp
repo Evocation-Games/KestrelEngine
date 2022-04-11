@@ -18,54 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(TEXT_ENTRY_HPP)
-#define TEXT_ENTRY_HPP
+#pragma once
 
 #include <array>
 #include <functional>
-#include "core/event/key.hpp"
+#include "core/event/event.hpp"
 
-namespace event::control
+class text_entry_event
 {
-
-    class text_entry
+public:
+    struct key_mapping
     {
-    public:
-        struct key_mapping
-        {
-            char base { 0 };
-            char shifted { 0 };
-            key_mapping() = default;
-            key_mapping(char base, char shifted) : base(base), shifted(shifted) {}
-        };
-
-        text_entry();
-
-        auto load_default_keymap() -> void;
-
-        auto receive(const event::key& key) -> void;
-
-        [[nodiscard]] auto string_value() const -> std::string;
-        auto set_string_value(const std::string& value) -> void;
-
-        [[nodiscard]] auto cursor_position() const -> int;
-        auto set_cursor_position(const int& position) -> void;
-
-        auto on_enter(std::function<auto(const std::string&)->void> callback) -> void;
-        auto on_escape(std::function<auto()->void> callback) -> void;
-
-    private:
-        std::function<auto(const std::string&)->void> m_on_enter;
-        std::function<auto()->void> m_on_escape;
-        std::array<key_mapping, 336> m_keymap;
-        std::string m_value;
-        bool m_alt { false };
-        bool m_shift { false };
-        bool m_control { false };
-        bool m_super { false };
-        int m_cursor { 0 };
+        char base { 0 };
+        char shifted { 0 };
+        key_mapping() = default;
+        key_mapping(char base, char shifted) : base(base), shifted(shifted) {}
     };
 
-}
+    text_entry_event();
 
-#endif //TEXT_ENTRY_HPP
+    auto load_default_keymap() -> void;
+
+    auto receive(const event& e) -> void;
+
+    [[nodiscard]] auto string_value() const -> std::string;
+    auto set_string_value(const std::string& value) -> void;
+
+    [[nodiscard]] auto cursor_position() const -> int;
+    auto set_cursor_position(const int& position) -> void;
+
+    auto on_enter(std::function<auto(const std::string&)->void> callback) -> void;
+    auto on_escape(std::function<auto()->void> callback) -> void;
+
+private:
+    std::function<auto(const std::string&)->void> m_on_enter;
+    std::function<auto()->void> m_on_escape;
+    std::array<key_mapping, 336> m_keymap;
+    std::string m_value;
+    bool m_alt { false };
+    bool m_shift { false };
+    bool m_control { false };
+    bool m_super { false };
+    int m_cursor { 0 };
+};

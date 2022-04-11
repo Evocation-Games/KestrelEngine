@@ -26,16 +26,16 @@
 
 auto math::point::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
-    luabridge::getGlobalNamespace(lua->internal_state())
+    lua->global_namespace()
         .beginClass<math::point>("Point")
             .addConstructor<auto(*)(const double&, const double&)->void, luabridge::RefCountedPtr<math::point>>()
             .addProperty("x", &math::point::get_x, &math::point::set_x)
             .addProperty("y", &math::point::get_y, &math::point::set_y)
             .addFunction("distanceTo", &math::point::distance_to)
-            .addFunction("subtract", &math::point::operator-)
-            .addFunction("add", &math::point::operator+)
-            .addFunction("multiply", &math::point::operator*)
-            .addFunction("divide", &math::point::operator/)
+            .addFunction("subtract", &math::point::subtract)
+            .addFunction("add", &math::point::add)
+            .addFunction("multiply", &math::point::multiply)
+            .addFunction("divide", &math::point::divide)
             .addFunction("toVector", &math::point::to_vector)
             .addFunction("round", &math::point::round)
             .addFunction("floor", &math::point::floor)
@@ -81,12 +81,22 @@ auto math::point::operator-(const math::point& p) const -> math::point
     return math::point(x - p.x, y - p.y);
 }
 
-auto math::point::operator*(const double& f) const -> math::point
+auto math::point::operator*(const math::point& p) const -> math::point
+{
+    return math::point(x * p.x, y * p.y);
+}
+
+auto math::point::operator/(const math::point& p) const -> math::point
+{
+    return math::point(x / p.x, y / p.y);
+}
+
+auto math::point::operator*(double f) const -> math::point
 {
     return math::point(x * f, y * f);
 }
 
-auto math::point::operator/(const double& f) const -> math::point
+auto math::point::operator/(double f) const -> math::point
 {
     return math::point(x / f, y / f);
 }
@@ -102,6 +112,27 @@ auto math::point::operator!=(const math::point& p) const -> bool
 }
 
 // MARK: - Operations
+
+
+auto math::point::add(const math::point& p) const -> math::point
+{
+    return operator+(p);
+}
+
+auto math::point::subtract(const math::point& p) const -> math::point
+{
+    return operator-(p);
+}
+
+auto math::point::multiply(double f) const -> math::point
+{
+    return operator*(f);
+}
+
+auto math::point::divide(double f) const -> math::point
+{
+    return operator/(f);
+}
 
 auto math::point::round() const -> math::point
 {

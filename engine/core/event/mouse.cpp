@@ -21,7 +21,7 @@
 #include "core/event/mouse.hpp"
 
 // MARK: - Lua
-
+/*
 auto event::mouse::enroll_object_apu_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     luabridge::getGlobalNamespace(lua->internal_state())
@@ -86,3 +86,4 @@ auto event::mouse::get_pressed() const -> bool
 {
     return m_action == event::mouse::pressed;
 }
+*/

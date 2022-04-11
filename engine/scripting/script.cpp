@@ -105,7 +105,7 @@ auto scripting::lua::script::execute() const -> void
     if (m_script.empty()) {
         return;
     }
-    
+
     if (auto state = m_state.lock()) {
         state->run(*this);
     }

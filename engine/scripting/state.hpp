@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_STATE_HPP)
-#define KESTREL_STATE_HPP
+#pragma once
 
 extern "C" {
 #include "lua/lua.h"
@@ -74,6 +73,10 @@ namespace scripting::lua
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void {};
     };
 
-}
+    template<typename T>
+    static inline auto ref_isa(const luabridge::LuaRef& ref) -> bool
+    {
+        return (ref.isUserdata() && ref.template isInstance<T>());
+    }
 
-#endif //KESTREL_STATE_HPP
+}

@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/asset/rsrc/namespace.hpp"
+#include "core/environment.hpp"
 #include <LuaBridge/Vector.h>
 #include <libGraphite/rsrc/manager.hpp>
 
@@ -46,6 +47,8 @@ auto asset::resource_namespace::enroll_object_api_in_state(const std::shared_ptr
             .addFunction("identifiedNamedResource", &resource_namespace::identified_named_resource)
             .addFunction("typedNamedResource", &resource_namespace::typed_named_resource)
             .addFunction("typedIdentifiedNamedResource", &resource_namespace::typed_identified_named_resource)
+            .addFunction("scene", &resource_namespace::scene)
+            .addFunction("pushScene", &resource_namespace::push_scene)
         .endClass();
 }
 
@@ -253,4 +256,28 @@ auto asset::resource_namespace::typed_identified_named_resource(const std::strin
         r->namespaces.emplace_back(ns.primary_name());
     });
     return r;
+}
+
+// MARK: - Scene
+
+auto asset::resource_namespace::scene() const -> ui::game_scene::lua_reference
+{
+    return ui::game_scene::lua_reference {
+        new ui::game_scene(typed_identified_resource("LuaS", 1000))
+    };
+}
+
+auto asset::resource_namespace::push_scene() const -> void
+{
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        return;
+    }
+
+    auto session = env->session();
+    if (!session) {
+        return;
+    }
+
+    session->present_scene(scene());
 }

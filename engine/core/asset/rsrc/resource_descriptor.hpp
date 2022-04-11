@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RESOURCE_DESCRIPTOR_HPP)
-#define KESTREL_RESOURCE_DESCRIPTOR_HPP
+#pragma once
 
 #include <libGraphite/rsrc/manager.hpp>
 #include "util/hint.hpp"
@@ -52,6 +51,8 @@ namespace asset
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
         explicit resource_descriptor() = default;
+        resource_descriptor(resource_descriptor&) = default;
+        resource_descriptor(const resource_descriptor&) = default;
 
         lua_api static auto identified(int64_t id) -> lua_reference;
         lua_api static auto typed(const std::string& type) -> lua_reference;
@@ -114,5 +115,3 @@ namespace asset
     };
 
 }
-
-#endif //KESTREL_RESOURCE_DESCRIPTOR_HPP

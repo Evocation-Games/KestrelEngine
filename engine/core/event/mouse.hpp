@@ -24,39 +24,39 @@
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 #include "math/point.hpp"
-
-namespace event
-{
-
-    struct mouse: public scripting::lua::object
-    {
-    public:
-        typedef luabridge::RefCountedPtr<event::mouse> lua_reference;
-        static auto enroll_object_apu_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void;
-
-        enum action : int { released, pressed, moved };
-        enum button : int { none = -1, left = 0, right = 2, middle = 3 };
-
-    private:
-        math::point m_point;
-        mouse::action m_action;
-        mouse::button m_button;
-
-    public:
-        mouse(const enum mouse::action& action, const enum mouse::button& button);
-        mouse(const math::point& point, const enum mouse::action& action, const enum mouse::button& button);
-        mouse(const int& x, const int& y, const enum mouse::action& action, const enum mouse::button& button);
-
-        lua_api auto get_point() const -> math::point;
-        lua_api auto get_action() const -> int;
-        lua_api auto get_button() const -> int;
-
-        lua_api auto get_moved() const -> bool;
-        lua_api auto get_released() const -> bool;
-        lua_api auto get_pressed() const -> bool;
-    };
-
-}
+//
+//namespace event
+//{
+//
+//    struct mouse: public scripting::lua::object
+//    {
+//    public:
+//        typedef luabridge::RefCountedPtr<event::mouse> lua_reference;
+//        static auto enroll_object_apu_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void;
+//
+//        enum action : int { released, pressed, moved };
+//        enum button : int { none = -1, left = 0, right = 2, middle = 3 };
+//
+//    private:
+//        math::point m_point;
+//        mouse::action m_action;
+//        mouse::button m_button;
+//
+//    public:
+//        mouse(const enum mouse::action& action, const enum mouse::button& button);
+//        mouse(const math::point& point, const enum mouse::action& action, const enum mouse::button& button);
+//        mouse(const int& x, const int& y, const enum mouse::action& action, const enum mouse::button& button);
+//
+//        lua_api auto get_point() const -> math::point;
+//        lua_api auto get_action() const -> int;
+//        lua_api auto get_button() const -> int;
+//
+//        lua_api auto get_moved() const -> bool;
+//        lua_api auto get_released() const -> bool;
+//        lua_api auto get_pressed() const -> bool;
+//    };
+//
+//}
 
 
 #endif //KESTREL_MOUSE_HPP

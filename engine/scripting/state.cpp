@@ -35,13 +35,11 @@
 #include "core/graphics/common/color.hpp"
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/legacy/macintosh/color_icon.hpp"
-#include "core/asset/legacy/macintosh/macintosh_sound.hpp"
+#include "core/asset/legacy/macintosh/sound.hpp"
 #include "core/asset/spritesheet.hpp"
-#include "core/graphics/common/lua_scene_wrapper.hpp"
 #include "core/asset/static_image.hpp"
-#include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/text.hpp"
-#include "core/event/key.hpp"
+#include "core/event/event.hpp"
 #include "core/asset/legacy/spriteworld/sprite.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "util/lua_vector.hpp"
@@ -50,6 +48,14 @@
 #include "core/file/directory_reference.hpp"
 #include "core/file/mod_reference.hpp"
 #include "core/audio/codec/mp3.hpp"
+#include "core/ui/game_scene.hpp"
+#include "core/ui/layout/positioning_frame.hpp"
+#include "core/ui/widgets/label_widget.hpp"
+#include "core/ui/widgets/text_widget.hpp"
+#include "core/ui/widgets/custom_widget.hpp"
+#include "core/ui/widgets/image_widget.hpp"
+#include "core/ui/widgets/button_widget.hpp"
+#include "core/ui/stencils/button_stencil.hpp"
 
 // MARK: - Destruction
 
@@ -97,10 +103,10 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::resource_data::enroll_object_api_in_state(shared_from_this());
     asset::resource_writer::enroll_object_api_in_state(shared_from_this());
     asset::spritesheet::enroll_object_api_in_state(shared_from_this());
-    asset::sprite::enroll_object_api_in_state(shared_from_this());
-    asset::macintosh_picture::enroll_object_api_in_state(shared_from_this());
-    asset::macintosh_sound::enroll_object_api_in_state(shared_from_this());
-    asset::color_icon::enroll_object_api_in_state(shared_from_this());
+    asset::legacy::spriteworld::sprite::enroll_object_api_in_state(shared_from_this());
+    asset::legacy::macintosh::quickdraw::picture::enroll_object_api_in_state(shared_from_this());
+    asset::legacy::macintosh::quickdraw::color_icon::enroll_object_api_in_state(shared_from_this());
+    asset::legacy::macintosh::quicktime::sound::enroll_object_api_in_state(shared_from_this());
     asset::static_image::enroll_object_api_in_state(shared_from_this());
 
     math::angle::enroll_object_api_in_state(shared_from_this());
@@ -110,14 +116,21 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     math::rect::enroll_object_api_in_state(shared_from_this());
     math::vector::enroll_object_api_in_state(shared_from_this());
 
-    graphics::lua_scene_wrapper::enroll_object_api_in_state(shared_from_this());
     graphics::color::enroll_object_api_in_state(shared_from_this());
-    graphics::entity::enroll_object_api_in_state(shared_from_this());
     graphics::text::enroll_object_api_in_state(shared_from_this());
     graphics::canvas::enroll_object_api_in_state(shared_from_this());
 
-    event::key::enroll_object_apu_in_state(shared_from_this());
-    event::mouse::enroll_object_apu_in_state(shared_from_this());
+    ui::game_scene::enroll_object_api_in_state(shared_from_this());
+    ui::scene_entity::enroll_object_api_in_state(shared_from_this());
+    ui::layout::positioning_frame::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::label_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::text_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::custom_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::image_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::button_widget::enroll_object_api_in_state(shared_from_this());
+    ui::stencils::button_stencil::enroll_object_api_in_state(shared_from_this());
+
+    event::enroll_object_api_in_state(shared_from_this());
 
     host::sandbox::file_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::directory_reference::enroll_object_api_in_state(shared_from_this());

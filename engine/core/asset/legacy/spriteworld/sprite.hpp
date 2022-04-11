@@ -18,36 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SPRITE_HPP)
-#define KESTREL_SPRITE_HPP
+#pragma once
 
 #include "core/asset/basic_image.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
-namespace asset
+namespace asset::legacy::spriteworld
 {
 
     struct sprite: public asset::basic_image, public scripting::lua::object
     {
     public:
         constexpr static const char *type { "rlëD" };
-        typedef luabridge::RefCountedPtr<asset::sprite> lua_reference;
+        typedef luabridge::RefCountedPtr<sprite> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
         lua_api explicit sprite(const asset::resource_descriptor::lua_reference& ref);
-        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> sprite::lua_reference;
+        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference;
 
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
         lua_api auto layout_sprites(const math::size& sprite_size) -> void override;
 
-        lua_api [[nodiscard]] auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
     };
 
 };
-
-#endif //KESTREL_SPRITE_HPP
