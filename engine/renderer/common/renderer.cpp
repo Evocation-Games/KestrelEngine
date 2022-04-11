@@ -37,17 +37,8 @@ auto renderer::initialize(enum renderer::api api, const std::function<auto()->vo
     s_renderer_api.api = api;
 
     switch (api) {
-        case api::opengl: {
-            s_renderer_api.context = new opengl::context([] {});
-            s_renderer_api.drawing_buffer = new draw_buffer(opengl::constants::max_quads * 6, opengl::constants::texture_slots);
-
-            auto shader = s_renderer_api.context->shader_program("basic");
-            s_renderer_api.drawing_buffer->set_shader(shader);
-
-            callback();
-            break;
-        }
         case api::metal: {
+#if TARGET_MACOS
             metal::context::start_application([&, callback] (metal::context *context) {
                 s_renderer_api.context = context;
                 s_renderer_api.drawing_buffer = new draw_buffer(metal::constants::max_quads * 6, metal::constants::texture_slots);
@@ -57,6 +48,17 @@ auto renderer::initialize(enum renderer::api api, const std::function<auto()->vo
 
                 callback();
             });
+            break;
+#endif
+        }
+        case api::opengl: {
+            s_renderer_api.context = new opengl::context([] {});
+            s_renderer_api.drawing_buffer = new draw_buffer(opengl::constants::max_quads * 6, opengl::constants::texture_slots);
+
+            auto shader = s_renderer_api.context->shader_program("basic");
+            s_renderer_api.drawing_buffer->set_shader(shader);
+
+            callback();
             break;
         }
         default: {
