@@ -153,7 +153,8 @@ auto renderer::opengl::context::detect_display_configuration() -> void
     m_screen.monitor = glfwGetPrimaryMonitor();
 
 #if !TARGET_MACOS
-    float x_scale, float y_scale;
+    float x_scale = 1;
+    float y_scale = 1;
     glfwGetMonitorContentScale(m_screen.monitor, &x_scale, &y_scale);
     if (x_scale > 1 || y_scale > 1) {
         m_screen.dpi_factor = x_scale;

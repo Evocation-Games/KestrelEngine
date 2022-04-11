@@ -21,9 +21,10 @@
 #pragma once
 
 #include "util/hint.hpp"
-#include "renderer/metal/constants.h"
 
 #if TARGET_MACOS
+
+#include "renderer/metal/constants.h"
 
 #include <array>
 #include <unordered_map>
