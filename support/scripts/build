@@ -28,6 +28,8 @@ BUILD="Release"
 CLEAN="off"
 J=2
 
+cat .gitmodules
+
 mkdir -p build/Scenario
 
 for ARG in "$@"; do
