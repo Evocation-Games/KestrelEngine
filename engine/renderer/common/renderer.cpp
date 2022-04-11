@@ -118,22 +118,22 @@ auto renderer::scale_factor() -> float
 
 auto renderer::set_window_title(const std::string &title) -> void
 {
-
+    s_renderer_api.context->set_viewport_title(title);
 }
 
 auto renderer::set_window_size(const math::size &size) -> void
 {
-
+    s_renderer_api.context->set_viewport_size(size);
 }
 
 auto renderer::window_title() -> std::string
 {
-    return "";
+    return s_renderer_api.context->viewport_title();
 }
 
 auto renderer::window_size() -> math::size
 {
-    return {};
+    return s_renderer_api.context->viewport_size();
 }
 
 // MARK: - Draw Calls
