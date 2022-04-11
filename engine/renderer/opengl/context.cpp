@@ -527,7 +527,7 @@ auto renderer::opengl::context::set_tick_function(const std::function<auto()->vo
 
 auto renderer::opengl::context::tick() -> void
 {
-
+    m_opengl.tick();
 }
 
 // MARK: - Key Mappings

@@ -83,16 +83,16 @@ namespace renderer::metal
         auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
+        auto tick() -> void override;
 
         auto set_viewport_size(const math::size& viewport_size) -> void override;
-        auto viewport_size() const -> math::size override;
+        [[nodiscard]] auto viewport_size() const -> math::size override;
 
         auto set_viewport_title(const std::string& title) -> void override;
-        auto viewport_title() const -> std::string override;
+        [[nodiscard]] auto viewport_title() const -> std::string override;
 
     private:
         auto configure_device() -> void;
-        auto tick() -> void;
 
     private:
         NSWindow *m_window { nullptr };

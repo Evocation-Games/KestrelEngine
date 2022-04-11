@@ -339,7 +339,7 @@ auto renderer::metal::context::create_texture(uint64_t handle, const math::size 
 
 auto renderer::metal::context::create_texture(const std::vector<uint32_t> &data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    return std::make_shared<metal::texture>(size, data);
+    return create_texture(const_cast<void *>(reinterpret_cast<const void *>(&data[0])), size);
 }
 
 auto renderer::metal::context::create_texture(void *data, const math::size &size) -> std::shared_ptr<graphics::texture>

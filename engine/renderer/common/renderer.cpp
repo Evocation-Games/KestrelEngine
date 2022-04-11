@@ -59,6 +59,10 @@ auto renderer::initialize(enum renderer::api api, const std::function<auto()->vo
             s_renderer_api.drawing_buffer->set_shader(shader);
 
             callback();
+
+            while (true) {
+                s_renderer_api.context->tick();
+            }
             break;
         }
         default: {

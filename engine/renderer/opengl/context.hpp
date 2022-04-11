@@ -60,6 +60,7 @@ namespace renderer::opengl
         auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
+        auto tick() -> void override;
 
         auto set_viewport_size(const math::size& viewport_size) -> void override;
         [[nodiscard]] auto viewport_size() const -> math::size override;
@@ -69,7 +70,6 @@ namespace renderer::opengl
 
     private:
         auto configure_device() -> void {};
-        auto tick() -> void;
 
         auto link_api() -> void;
 
