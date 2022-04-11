@@ -167,6 +167,7 @@ auto environment::tick() -> void
     if (session) {
         auto scene = session->current_scene();
         if (scene.get()) {
+            rtc::clock::global().tick();
             scene->internal_scene()->update();
             scene->internal_scene()->render();
         }

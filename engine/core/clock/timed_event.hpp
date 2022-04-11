@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TIMED_EVENT_HPP)
-#define KESTREL_TIMED_EVENT_HPP
+#pragma once
 
 #include <functional>
 #include "core/clock/clock.hpp"
@@ -43,12 +42,10 @@ namespace rtc
         timed_event(const rtc::clock::time& after, const luabridge::LuaRef& callback);
         timed_event(const double& period, const luabridge::LuaRef& callback, const bool& repeats = false);
 
-        auto dead() const -> bool;
-        auto should_fire() const -> bool;
+        [[nodiscard]] auto dead() const -> bool;
+        [[nodiscard]] auto should_fire() const -> bool;
 
         auto fire() -> void;
     };
 
 }
-
-#endif //KESTREL_TIMED_EVENT_HPP

@@ -25,13 +25,11 @@
 rtc::timed_event::timed_event(const clock::time &after, const luabridge::LuaRef &callback)
     : m_period(rtc::clock::global().until(after).count()), m_callback(callback)
 {
-
 }
 
 rtc::timed_event::timed_event(const double &period, const luabridge::LuaRef &callback, const bool &repeats)
     : m_period(period), m_trigger(repeats ? trigger::repeats : trigger::after_duration), m_callback(callback)
 {
-    
 }
 
 // MARK: - Accessors

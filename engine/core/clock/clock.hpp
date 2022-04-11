@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_CLOCK_HPP)
-#define KESTREL_CLOCK_HPP
+#pragma once
 
 #include <chrono>
 
@@ -54,12 +53,10 @@ namespace rtc
 
         auto tick() -> void;
 
-        auto current() const -> time;
+        [[nodiscard]] auto current() const -> time;
 
-        auto since(time t) const -> duration;
-        auto until(time t) const -> duration;
+        [[nodiscard]] auto since(time t) const -> duration;
+        [[nodiscard]] auto until(time t) const -> duration;
     };
 
 };
-
-#endif //KESTREL_CLOCK_HPP
