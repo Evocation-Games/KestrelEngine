@@ -125,6 +125,8 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         if (m_key_event_block.state() && m_key_event_block.isFunction()) {
             m_key_event_block(event::lua_reference( new event(e) ));
         }
+
+        m_responder_chain.send_event(e);
     });
 
     m_backing_scene->add_render_block([&] {

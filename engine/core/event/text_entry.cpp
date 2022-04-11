@@ -37,81 +37,83 @@ auto text_entry_event::receive(const event& e) -> void
     // TODO: Handle key repeats
 
     // Update the internally tracked modifier states.
-    switch (e.key()) {
-        case hid::left_alt:
-        case hid::right_alt: {
-            m_alt = e.has(event::key_down);
-            return;
-        }
-        case hid::left_control:
-        case hid::right_control: {
-            m_control = e.has(event::key_down);
-            return;
-        }
-        case hid::left_shift:
-        case hid::right_shift: {
-            m_shift = e.has(event::key_down);
-            return;
-        }
-        case hid::left_super:
-        case hid::right_super: {
-            m_super = e.has(event::key_down);
-            return;
-        }
-        case hid::enter:
-        case hid::kp_enter: {
-            if (e.has(event::key_up)) {
-                m_on_enter(m_value);
-            }
-            return;
-        }
-        case hid::escape: {
-            if (e.has(event::key_up)) {
-                m_on_escape();
-            }
-            return;
-        }
-        default: {
-            break;
-        }
-    }
-
-    // We don't want to deal with general key events, only pressed keys.
-    if (!e.has(event::key_down)) {
-        return;
-    }
-
-    switch (e.key()) {
-        case hid::left: {
-            if (m_cursor > 0) {
-                m_cursor--;
-            }
-            break;
-        }
-        case  hid::right: {
-            if (m_cursor < m_value.size()) {
-                m_cursor++;
-            }
-            break;
-        }
-        case hid::backspace: {
-            if (m_cursor == 0) {
+    if (e.is_key_event()) {
+        switch (e.key()) {
+            case hid::left_alt:
+            case hid::right_alt: {
+                m_alt = e.has(event::key_down);
                 return;
             }
-            m_value.erase(m_cursor - 1, 1);
-            m_cursor--;
-            break;
+            case hid::left_control:
+            case hid::right_control: {
+                m_control = e.has(event::key_down);
+                return;
+            }
+            case hid::left_shift:
+            case hid::right_shift: {
+                m_shift = e.has(event::key_down);
+                return;
+            }
+            case hid::left_super:
+            case hid::right_super: {
+                m_super = e.has(event::key_down);
+                return;
+            }
+            case hid::enter:
+            case hid::kp_enter: {
+                if (e.has(event::key_up)) {
+                    m_on_enter(m_value);
+                }
+                return;
+            }
+            case hid::escape: {
+                if (e.has(event::key_up)) {
+                    m_on_escape();
+                }
+                return;
+            }
+            default: {
+                break;
+            }
         }
 
-        // The general handler will default to the keymap.
-        default: {
-            const auto& mapping = m_keymap[e.character()];
-            char c[2] = { m_shift ? mapping.shifted : mapping.base, '\0' };
-            if (c[0] != '\0') {
-                m_value.insert(m_cursor, c);
-                m_cursor++;
+        // We don't want to deal with general key events, only pressed keys.
+        if (!e.has(event::key_down)) {
+            return;
+        }
+
+        switch (e.key()) {
+            case hid::left: {
+                if (m_cursor > 0) {
+                    m_cursor--;
+                }
+                break;
             }
-            break;
+            case  hid::right: {
+                if (m_cursor < m_value.size()) {
+                    m_cursor++;
+                }
+                break;
+            }
+            case hid::backspace: {
+                if (m_cursor == 0) {
+                    return;
+                }
+                m_value.erase(m_cursor - 1, 1);
+                m_cursor--;
+                break;
+            }
+
+            // The general handler will default to the keymap.
+            default: {
+                const auto& mapping = m_keymap[e.character()];
+                char c[2] = { m_shift ? mapping.shifted : mapping.base, '\0' };
+                if (c[0] != '\0') {
+                    m_value.insert(m_cursor, c);
+                    m_cursor++;
+                }
+                break;
+            }
         }
     }
 }
@@ -144,6 +146,7 @@ auto text_entry_event::load_default_keymap() -> void
 {
     for (int k = hid::a; k <= hid::z; ++k) {
         m_keymap[k] = { static_cast<char>((k - 'A') + 'a'), static_cast<char>(k) };
+        m_keymap[m_keymap[k].base] = m_keymap[k];
     }
 
     m_keymap[hid::num1] = { '1', '!' };
