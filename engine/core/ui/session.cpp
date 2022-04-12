@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include "core/ui/session.hpp"
+#include "core/ui/scene.hpp"
+#include "core/ui/game_scene.hpp"
 #include "renderer/common/renderer.hpp"
 
 // MARK: - Construction
@@ -72,4 +74,40 @@ auto ui::session::set_size(const math::size &size) -> void
 auto ui::session::size() const -> math::size
 {
     return renderer::window_size();
+}
+
+// MARK: - Updates / Events
+
+auto ui::session::tick() -> void
+{
+    auto scene = this->current_scene();
+    if (scene.get()) {
+        scene->internal_scene()->update();
+        scene->internal_scene()->render();
+    }
+
+    if (m_console.is_visible()) {
+        m_console.update();
+        m_console.entity()->draw();
+    }
+}
+
+auto ui::session::receive_event(const event &e) -> void
+{
+    if (e.is_key_event()) {
+        if (e.is_released() && e.key() == hid::f1) {
+            m_console.set_size({ size().width, size().height / 2 });
+            m_console.toggle_visibility();
+            return;
+        }
+        if (m_console.is_visible()) {
+            m_console.receive(e);
+            return;
+        }
+    }
+
+    auto scene = this->current_scene();
+    if (scene.get()) {
+        scene->internal_scene()->receive_event(e);
+    }
 }

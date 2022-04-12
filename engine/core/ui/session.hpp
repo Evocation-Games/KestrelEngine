@@ -55,6 +55,7 @@ namespace ui
         [[nodiscard]] auto size() const -> math::size;
 
         auto tick() -> void;
+        auto receive_event(const event& e) -> void;
 
         auto console() -> dev::console& { return m_console; }
 

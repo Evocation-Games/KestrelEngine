@@ -165,12 +165,8 @@ auto environment::tick() -> void
 
     auto session = this->session();
     if (session) {
-        auto scene = session->current_scene();
-        if (scene.get()) {
-            rtc::clock::global().tick();
-            scene->internal_scene()->update();
-            scene->internal_scene()->render();
-        }
+        rtc::clock::global().tick();
+        session->tick();
     }
 
     renderer::end_frame();
@@ -395,10 +391,7 @@ auto environment::post_event(const event &e) -> void
         return;
     }
 
-    auto scene = session->current_scene();
-    if (scene.get()) {
-        scene->internal_scene()->receive_event(e);
-    }
+    session->receive_event(e);
 }
 
 // MARK: - Bundled Resources
