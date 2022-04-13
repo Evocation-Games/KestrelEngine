@@ -254,21 +254,22 @@ auto renderer::opengl::context::character_typed_event(GLFWwindow *window, unsign
 auto renderer::opengl::context::key_event(GLFWwindow *window, int code, int scancode, int action, int mods) -> void
 {
     auto key = map_keycode(code);
+    auto modifier_flags = static_cast<uint32_t>(map_modifiers(mods));
     auto env = environment::active_environment().lock();
 
     switch (action) {
         case GLFW_PRESS: {
-            auto e = event::key(event::key_down, key);
+            auto e = event::key(static_cast<enum event::type>(event::key_down | modifier_flags), key);
             env->post_event(e);
             break;
         }
         case GLFW_RELEASE: {
-            auto e = event::key(event::key_up, key);
+            auto e = event::key(static_cast<enum event::type>(event::key_up | modifier_flags), key);
             env->post_event(e);
             break;
         }
         case GLFW_REPEAT: {
-            auto e = event::key(event::key_repeat, key);
+            auto e = event::key(static_cast<enum event::type>(event::key_repeat | modifier_flags), key);
             env->post_event(e);
             break;
         }
@@ -597,10 +598,64 @@ auto renderer::opengl::context::map_keycode(int scancode) -> hid::key
         case GLFW_KEY_9:
         case GLFW_KEY_KP_9:                 return hid::key::kp_9;
 
+        // Function Keys
+        case GLFW_KEY_F1:                   return hid::key::f1;
+        case GLFW_KEY_F2:                   return hid::key::f2;
+        case GLFW_KEY_F3:                   return hid::key::f3;
+        case GLFW_KEY_F4:                   return hid::key::f4;
+        case GLFW_KEY_F5:                   return hid::key::f5;
+        case GLFW_KEY_F6:                   return hid::key::f6;
+        case GLFW_KEY_F7:                   return hid::key::f7;
+        case GLFW_KEY_F8:                   return hid::key::f8;
+        case GLFW_KEY_F9:                   return hid::key::f9;
+        case GLFW_KEY_F10:                  return hid::key::f10;
+        case GLFW_KEY_F11:                  return hid::key::f11;
+        case GLFW_KEY_F12:                  return hid::key::f12;
+
         // Misc
         case GLFW_KEY_SPACE:                return hid::key::space;
+        case GLFW_KEY_LEFT_BRACKET:         return hid::key::left_bracket;
+        case GLFW_KEY_RIGHT_BRACKET:        return hid::key::right_bracket;
+        case GLFW_KEY_APOSTROPHE:           return hid::key::apostrophe;
+        case GLFW_KEY_PERIOD:               return hid::key::period;
+        case GLFW_KEY_COMMA:                return hid::key::comma;
+        case GLFW_KEY_MINUS:                return hid::key::minus;
+        case GLFW_KEY_EQUAL:                return hid::key::equal;
+
+        // Modifiers
+        case GLFW_KEY_LEFT_SHIFT:           return hid::key::left_shift;
+        case GLFW_KEY_RIGHT_SHIFT:          return hid::key::right_shift;
+        case GLFW_KEY_LEFT_ALT:             return hid::key::left_alt;
+        case GLFW_KEY_RIGHT_ALT:            return hid::key::right_alt;
+        case GLFW_KEY_LEFT_CONTROL:         return hid::key::left_control;
+        case GLFW_KEY_RIGHT_CONTROL:        return hid::key::right_control;
+        case GLFW_KEY_LEFT_SUPER:           return hid::key::left_super;
+        case GLFW_KEY_RIGHT_SUPER:          return hid::key::right_super;
 
         // Unknown
         default:                            return hid::key::unknown;
     }
+}
+
+auto renderer::opengl::context::map_modifiers(int modifiers) -> enum event::type
+{
+    uint32_t modifier_flags = 0;
+
+    if (modifiers & GLFW_MOD_SHIFT) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_shift_modifier);
+    }
+    else if (modifiers & GLFW_MOD_ALT) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_alt_modifier);
+    }
+    else if (modifiers & GLFW_MOD_CAPS_LOCK) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_caps_lock_modifier);
+    }
+    else if (modifiers & GLFW_MOD_CONTROL) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_control_modifier);
+    }
+    else if (modifiers & GLFW_MOD_SUPER) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_super_modifier);
+    }
+
+    return static_cast<enum event::type>(modifier_flags);
 }

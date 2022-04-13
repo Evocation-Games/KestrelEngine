@@ -29,7 +29,7 @@
 struct event : public scripting::lua::object
 {
 public:
-    enum type : uint16_t
+    enum type : uint32_t
     {
         none = 0,
 
@@ -50,11 +50,15 @@ public:
         key_down = 1 << 12,
         key_up = 1 << 13,
         key_repeat = 1 << 14,
-        key_typed = 1 << 15
-    };
+        key_typed = 1 << 15,
 
-    enum state : int { off, pressed, held, released };
-    enum modifier : char { shift = 0x01, control = 0x02, alt = 0x04, super = 0x08, caps = 0x10, num = 0x20 };
+        // Key Modifiers
+        has_caps_lock_modifier = 1 << 16,
+        has_shift_modifier = 1 << 17,
+        has_control_modifier = 1 << 18,
+        has_alt_modifier = 1 << 19,
+        has_super_modifier = 1 << 20,
+    };
 
 public:
     typedef luabridge::RefCountedPtr<event> lua_reference;
@@ -65,7 +69,7 @@ public:
     event(const event&) = default;
 
     static auto mouse(enum type type, const math::point& point) -> event;
-    static auto key(enum type type, hid::key key, unsigned int c = '\0') -> event;
+    static auto key(enum type type, enum hid::key key, unsigned int c = '\0') -> event;
 
     [[nodiscard]] lua_api inline auto has(enum type type) const -> bool { return (m_type & type) != 0; }
     [[nodiscard]] lua_api inline auto type() const -> enum type { return m_type; };
@@ -83,8 +87,6 @@ public:
 public:
     // Old Key Event Style
     [[nodiscard]] lua_api auto code() const -> int;
-    [[nodiscard]] auto modifiers() const -> enum modifier;
-    [[nodiscard]] auto state() const -> enum state;
     [[nodiscard]] lua_api auto scancode() const -> int;
 
     [[nodiscard]] lua_api auto has_shift() const -> bool;

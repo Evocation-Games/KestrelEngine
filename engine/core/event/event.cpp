@@ -227,16 +227,6 @@ auto event::code() const -> int
     return static_cast<int>(m_key);
 }
 
-auto event::modifiers() const -> enum modifier
-{
-    return static_cast<enum modifier>(0);
-}
-
-auto event::state() const -> enum state
-{
-    return state::off;
-}
-
 auto event::scancode() const -> int
 {
     return 0;

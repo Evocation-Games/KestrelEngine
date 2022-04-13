@@ -177,9 +177,11 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
         return;
     }
 
+    auto flags = [self translateKeyModifiersForEvent:e];
+
     if (down && is_typed([e characters])) {
         auto new_event = event::key(
-            static_cast<enum event::type>(event::type::key_down | event::type::key_typed),
+            static_cast<enum event::type>(event::type::key_down | event::type::key_typed | static_cast<uint32_t>(flags)),
             [self translateKeycodeForEvent:e],
             [[e characters] characterAtIndex:0]
         );
@@ -187,7 +189,7 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
     }
     else if (down) {
         auto new_event = event::key(
-            static_cast<enum event::type>(event::type::key_down),
+            static_cast<enum event::type>(event::type::key_down | static_cast<uint32_t>(flags)),
             [self translateKeycodeForEvent:e],
             [[e characters] characterAtIndex:0]
         );
@@ -195,7 +197,7 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
     }
     else {
         auto new_event = event::key(
-            event::type::key_up,
+            static_cast<enum event::type>(event::type::key_up | static_cast<uint32_t>(flags)),
             [self translateKeycodeForEvent:e],
             [[e characters] characterAtIndex:0]
         );
@@ -375,9 +377,42 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
         case kVK_F11:                   return hid::key::f11;
         case kVK_F12:                   return hid::key::f12;
 
+        // Modifiers
+        case kVK_Command:               return hid::key::left_super;
+        case kVK_RightCommand:          return hid::key::right_super;
+        case kVK_Control:               return hid::key::left_control;
+        case kVK_RightControl:          return hid::key::right_control;
+        case kVK_Option:                return hid::key::left_alt;
+        case kVK_RightOption:           return hid::key::right_alt;
+        case kVK_Shift:                 return hid::key::left_shift;
+        case kVK_RightShift:            return hid::key::right_shift;
+
         // Unknown
         default:                        return hid::key::unknown;
     }
+}
+
+- (enum event::type)translateKeyModifiersForEvent:(NSEvent *)event
+{
+    uint32_t modifier_flags = 0;
+
+    if ([event modifierFlags] & NSEventModifierFlagShift) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_shift_modifier);
+    }
+    else if ([event modifierFlags] & NSEventModifierFlagOption) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_alt_modifier);
+    }
+    else if ([event modifierFlags] & NSEventModifierFlagCapsLock) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_caps_lock_modifier);
+    }
+    else if ([event modifierFlags] & NSEventModifierFlagControl) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_control_modifier);
+    }
+    else if ([event modifierFlags] & NSEventModifierFlagCommand) {
+        modifier_flags |= static_cast<uint32_t>(event::type::has_super_modifier);
+    }
+
+    return static_cast<enum event::type>(modifier_flags);
 }
 
 @end

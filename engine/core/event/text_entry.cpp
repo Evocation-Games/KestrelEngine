@@ -34,31 +34,8 @@ text_entry_event::text_entry_event()
 
 auto text_entry_event::receive(const event& e) -> void
 {
-    // TODO: Handle key repeats
-
-    // Update the internally tracked modifier states.
     if (e.is_key_event()) {
         switch (e.key()) {
-            case hid::left_alt:
-            case hid::right_alt: {
-                m_alt = e.has(event::key_down);
-                return;
-            }
-            case hid::left_control:
-            case hid::right_control: {
-                m_control = e.has(event::key_down);
-                return;
-            }
-            case hid::left_shift:
-            case hid::right_shift: {
-                m_shift = e.has(event::key_down);
-                return;
-            }
-            case hid::left_super:
-            case hid::right_super: {
-                m_super = e.has(event::key_down);
-                return;
-            }
             case hid::enter:
             case hid::kp_enter: {
                 if (e.has(event::key_up)) {
@@ -106,8 +83,8 @@ auto text_entry_event::receive(const event& e) -> void
 
             // The general handler will default to the keymap.
             default: {
-                const auto& mapping = m_keymap[e.character()];
-                char c[2] = { m_shift ? mapping.shifted : mapping.base, '\0' };
+                const auto& mapping = m_keymap[static_cast<int>(e.key())];
+                char c[2] = { e.has(event::type::has_shift_modifier) ? mapping.shifted : mapping.base, '\0' };
                 if (c[0] != '\0') {
                     m_value.insert(m_cursor, c);
                     m_cursor++;
@@ -177,6 +154,9 @@ auto text_entry_event::load_default_keymap() -> void
     m_keymap[hid::minus] = { '-', '_' };
     m_keymap[hid::tab] = { '\t', '\t' };
     m_keymap[hid::space] = { ' ', ' ' };
+    m_keymap[hid::apostrophe] = { '\'', '"' };
+    m_keymap[hid::left_bracket] = { '[', '{' };
+    m_keymap[hid::right_bracket] = { ']', '}' };
 }
 
 // MARK: - Callbacks
