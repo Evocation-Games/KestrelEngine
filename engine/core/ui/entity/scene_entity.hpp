@@ -49,8 +49,8 @@ namespace ui
         [[nodiscard]] lua_api auto size() const -> math::size;
         [[nodiscard]] lua_api auto half_size() const -> math::size;
         [[nodiscard]] lua_api auto render_size() const -> math::size;
-        [[nodiscard]] lua_api auto frame_count() const -> uint32_t;
-        [[nodiscard]] lua_api auto current_frame() const -> uint32_t;
+        [[nodiscard]] lua_api auto frame_count() const -> int32_t;
+        [[nodiscard]] lua_api auto current_frame() const -> int32_t;
         [[nodiscard]] lua_api auto advances_to_next_frame_on_draw() const -> bool;
         [[nodiscard]] lua_api auto animation_loops() const -> bool;
         [[nodiscard]] lua_api auto alpha() const -> double;
@@ -64,7 +64,7 @@ namespace ui
         lua_api auto set_centered(bool v) -> void;
         lua_api auto set_size(const math::size& v) -> void;
         lua_api auto set_render_size(const math::size& v) -> void;
-        lua_api auto set_current_frame(uint32_t v) -> void;
+        lua_api auto set_current_frame(int32_t v) -> void;
         lua_api auto set_advances_to_next_frame_on_draw(bool v) -> void;
         lua_api auto set_animation_loops(bool v) -> void;
         lua_api auto set_alpha(double v) -> void;
@@ -77,7 +77,7 @@ namespace ui
         lua_api auto add_child_entity(const lua_reference& child) -> void;
         lua_api auto each_child(const luabridge::LuaRef& body) const -> void;
 
-        lua_api auto configure_animation_frames(uint32_t frame_count) -> void;
+        lua_api auto configure_animation_frames(int32_t frame_count) -> void;
         lua_api auto next_frame() -> void;
         lua_api auto on_animation_start(const luabridge::LuaRef& callback) -> void;
         lua_api auto on_animation_finish(const luabridge::LuaRef& callback) -> void;
@@ -100,8 +100,8 @@ namespace ui
         std::shared_ptr<graphics::entity> m_entity;
         bool m_centered { false };
         math::point m_position { 0 };
-        uint32_t m_frame_count { 1 };
-        uint32_t m_frame { 0 };
+        int32_t m_frame_count { 1 };
+        int32_t m_frame { 0 };
         bool m_next_frame_on_draw { false };
         bool m_loops { false };
         bool m_mouse_over { false };

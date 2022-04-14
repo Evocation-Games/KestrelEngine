@@ -96,9 +96,13 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         )
     };
 
-    m_backing_scene->add_mouse_event_block([&] (const event& e) {
+    m_backing_scene->add_mouse_event_block([&, this] (const event& e) {
         if (!m_user_input || !e.is_mouse_event()) {
             return;
+        }
+
+        if (e.has(event::type::lmb_down)) {
+            std::cout << "test" << std::endl;
         }
 
         auto point = e.location();
@@ -115,7 +119,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         }
     });
 
-    m_backing_scene->add_key_event_block([&] (const event& e) {
+    m_backing_scene->add_key_event_block([&, this] (const event& e) {
         if (!m_user_input || !e.is_key_event()) {
             return;
         }
@@ -129,8 +133,10 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         m_responder_chain.send_event(e);
     });
 
-    m_backing_scene->add_render_block([&] {
-        for (const auto& entity : m_entities) {
+    m_backing_scene->add_render_block([&, this] {
+        const auto& entities = this->m_entities;
+        for (auto i = 0; i < entities.size(); ++i) {
+            const auto& entity = entities[i];
             entity->set_draw_position(m_positioning_frame->position_for_entity(*entity.get()));
             entity->layout();
             entity->draw();
@@ -143,7 +149,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         }
     });
 
-    m_backing_scene->add_update_block([&] {
+    m_backing_scene->add_update_block([&, this] {
         if (m_update_block.state() && m_update_block.isFunction()) {
             m_update_block();
         }

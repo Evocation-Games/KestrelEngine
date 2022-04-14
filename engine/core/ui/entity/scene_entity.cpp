@@ -181,12 +181,12 @@ auto ui::scene_entity::render_size() const -> math::size
     return m_entity->get_render_size();
 }
 
-auto ui::scene_entity::frame_count() const -> uint32_t
+auto ui::scene_entity::frame_count() const -> int32_t
 {
     return m_frame_count;
 }
 
-auto ui::scene_entity::current_frame() const -> uint32_t
+auto ui::scene_entity::current_frame() const -> int32_t
 {
     return m_frame;
 }
@@ -259,7 +259,7 @@ auto ui::scene_entity::set_render_size(const math::size& v) -> void
     m_entity->set_render_size(v);
 }
 
-auto ui::scene_entity::set_current_frame(uint32_t v) -> void
+auto ui::scene_entity::set_current_frame(int32_t v) -> void
 {
     if (v >= 0 && v < m_frame_count) {
         m_entity->set_sprite_index(static_cast<int>(v));
@@ -314,7 +314,7 @@ auto ui::scene_entity::each_child(const luabridge::LuaRef& body) const -> void
 
 // MARK: - Animation Management
 
-auto ui::scene_entity::configure_animation_frames(uint32_t frame_count) -> void
+auto ui::scene_entity::configure_animation_frames(int32_t frame_count) -> void
 {
     m_frame_count = frame_count;
 }
@@ -452,7 +452,8 @@ auto ui::scene_entity::send_event(const event& e) -> void
 
 auto ui::scene_entity::hit_test(const math::point& p) const -> bool
 {
-    return m_entity->get_bounds().contains_point(p);
+    math::rect frame { math::point(0), m_entity->get_size() };
+    return frame.contains_point(p);
 }
 
 // MARK: - Entity
