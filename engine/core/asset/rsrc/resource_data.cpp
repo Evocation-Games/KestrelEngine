@@ -51,7 +51,6 @@ auto asset::resource_data::enroll_object_api_in_state(const std::shared_ptr<scri
                         .addFunction("readSize", &resource_data::read_size)
                         .addFunction("readRect", &resource_data::read_rect)
                         .addFunction("readMacintoshRect", &resource_data::read_macintosh_rect)
-                        .addFunction("readVector", &resource_data::read_vector)
                         .addFunction("readColor", &resource_data::read_color)
                         .addFunction("readResourceReference", &resource_data::read_resource_reference)
                         .addFunction("readTypedResourceReference", &resource_data::read_typed_resource_reference)
@@ -66,7 +65,7 @@ auto asset::resource_data::enroll_object_api_in_state(const std::shared_ptr<scri
 
 // MARK: - Construction
 
-asset::resource_data::resource_data(const std::string &type, const int64_t &id)
+asset::resource_data::resource_data(const std::string &type, int64_t id)
     : m_reader(nullptr)
 {
     if (auto res = graphite::rsrc::manager::shared_manager().find(type, id).lock()) {
@@ -186,14 +185,14 @@ auto asset::resource_data::read_cstr() -> std::string
     return m_reader->read_cstr();
 }
 
-auto asset::resource_data::read_cstr_width(const int& width) -> std::string
+auto asset::resource_data::read_cstr_width(int width) -> std::string
 {
     return m_reader->read_cstr(width);
 }
 
 auto asset::resource_data::read_point() -> math::point
 {
-    return { read_signed_short(), read_signed_short() };
+    return { static_cast<double>(read_signed_short()), static_cast<double>(read_signed_short()) };
 }
 
 auto asset::resource_data::read_size() -> math::size
@@ -214,11 +213,6 @@ auto asset::resource_data::read_rect() -> math::rect
 auto asset::resource_data::read_macintosh_rect() -> math::rect
 {
     return math::rect::macintosh_rect(read_signed_short(), read_signed_short(), read_signed_short(), read_signed_short());
-}
-
-auto asset::resource_data::read_vector() -> math::vector
-{
-    return { read_signed_short(), read_signed_short() };
 }
 
 auto asset::resource_data::read_color() -> graphics::color::lua_reference
@@ -252,7 +246,7 @@ auto asset::resource_data::switch_on_resource_reference(const luabridge::LuaRef 
     body(value, resource_namespace::universal());
 }
 
-auto asset::resource_data::skip(const int &delta) -> void
+auto asset::resource_data::skip(int delta) -> void
 {
     m_reader->move(delta);
 }

@@ -24,10 +24,10 @@
 #include <vector>
 #include <variant>
 #include "util/hint.hpp"
-#include "util/lua_vector.hpp"
-#include "scripting/state.hpp"
 #include "math/size.hpp"
 #include "math/point.hpp"
+#include "util/lua_vector.hpp"
+#include "scripting/state.hpp"
 #include "core/event/event.hpp"
 #include "core/graphics/common/entity.hpp"
 

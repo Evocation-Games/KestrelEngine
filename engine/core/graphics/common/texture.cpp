@@ -70,6 +70,16 @@ auto graphics::texture::raw_data_ptr() const -> const uint8_t *
     return m_raw_data;
 }
 
+auto graphics::texture::set_data(const std::vector<uint32_t> &data) -> void
+{
+    m_data = data;
+}
+
+auto graphics::texture::set_raw_data_ptr(const uint8_t *ptr) -> void
+{
+    m_raw_data = ptr;
+}
+
 auto graphics::texture::handle() const -> uint64_t
 {
     return 0;

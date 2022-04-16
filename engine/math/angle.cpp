@@ -21,7 +21,7 @@
 #include <cmath>
 #include "math/angle.hpp"
 #include "math/angular_difference.hpp"
-#include "math/vector.hpp"
+#include "math/point.hpp"
 
 // MARK: - Trigonometric Tables
 
@@ -256,7 +256,7 @@ auto math::angle::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<math::angle>("Angle")
-            .addConstructor<auto(*)(const double&)->void, luabridge::RefCountedPtr<math::angle>>()
+            .addConstructor<auto(*)(double)->void, luabridge::RefCountedPtr<math::angle>>()
             .addProperty("degrees", &math::angle::degrees)
             .addProperty("radians", &math::angle::radians)
             .addFunction("sin", &math::angle::sin)
@@ -276,7 +276,7 @@ auto math::angle::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
 
 // MARK: - Constructors
 
-math::angle::angle(const double& theta)
+math::angle::angle(double theta)
     : m_theta(theta)
 {
     normalize();
@@ -302,23 +302,23 @@ auto math::angle::radians() const -> double
 
 // MARK: - Trig
 
-auto math::angle::sin(const double& magnitude) const -> double
+auto math::angle::sin(double magnitude) const -> double
 {
     return std::sin(radians()) * magnitude;
 }
 
-auto math::angle::cos(const double& magnitude) const -> double
+auto math::angle::cos(double magnitude) const -> double
 {
     return std::cos(radians()) * magnitude;
 }
 
-auto math::angle::fsin(const double& magnitude) const -> double
+auto math::angle::fsin(double magnitude) const -> double
 {
     auto i = abs(static_cast<int>(std::floor(m_theta + 0.5))) % 360;
     return trig_table_sin[i] * magnitude;
 }
 
-auto math::angle::fcos(const double& magnitude) const -> double
+auto math::angle::fcos(double magnitude) const -> double
 {
     auto i = abs(static_cast<int>(std::floor(m_theta + 0.5))) % 360;
     return trig_table_cos[i] * magnitude;
@@ -359,9 +359,9 @@ auto math::angle::subtract_angular_difference(const math::angular_difference &a)
 
 // MARK: - Operations
 
-auto math::angle::vector(const double& magnitude) const -> math::vector
+auto math::angle::vector(double magnitude) const -> math::point
 {
-    return math::vector(cos(magnitude), sin(magnitude));
+    return { cos(magnitude), sin(magnitude) };
 }
 
 auto math::angle::opposite() const -> math::angle

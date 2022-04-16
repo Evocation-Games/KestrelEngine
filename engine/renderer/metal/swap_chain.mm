@@ -20,7 +20,6 @@
 
 #include "renderer/metal/swap_chain.h"
 #include "renderer/metal/constants.h"
-#include "renderer/common/vertex.hpp"
 #include "renderer/common/draw_buffer.hpp"
 
 // MARK: - Construction
@@ -36,7 +35,6 @@ renderer::metal::swap_chain::swap_chain()
 
 renderer::metal::swap_chain::~swap_chain()
 {
-
 }
 
 // MARK: - Frame Lifecycle
@@ -67,6 +65,10 @@ auto renderer::metal::swap_chain::start(id<CAMetalDrawable> drawable, id<MTLComm
     [m_command_encoder setVertexBuffer:m_buffer
                                      offset:0
                                     atIndex:constants::vertex_input_index::vertices];
+
+    m_buffer_ptr = reinterpret_cast<uint8_t *>(m_buffer.contents);
+    m_buffer_offset = 0;
+    m_buffer_next_vertex = 0;
 }
 
 auto renderer::metal::swap_chain::finalize(const std::function<auto() -> void>& callback) -> void
@@ -90,7 +92,8 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
     id<MTLRenderPipelineState> state = reinterpret_cast<id<MTLRenderPipelineState>>(shader->get<void *>());
     [m_command_encoder setRenderPipelineState:state];
 
-    memcpy(m_buffer.contents, buffer->data(), buffer->data_size());
+    memcpy(m_buffer_ptr, buffer->data(), buffer->data_size());
+//    [m_buffer didModifyRange:NSMakeRange(m_buffer_offset, buffer->data_size())];
 
     [m_command_encoder setVertexBytes:&m_viewport_size
                                length:sizeof(m_viewport_size)
@@ -102,7 +105,10 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
         [m_command_encoder setFragmentTexture:texture atIndex:i];
     }
 
-    [m_command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:buffer->count()];
+    [m_command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:m_buffer_next_vertex vertexCount:buffer->count()];
+    m_buffer_ptr += buffer->data_size();
+    m_buffer_offset += buffer->data_size();
+    m_buffer_next_vertex += buffer->count();
 }
 
 // MARK: - ImGUI

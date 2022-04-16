@@ -27,6 +27,7 @@
 #include "core/ui/widgets/custom_widget.hpp"
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/button_widget.hpp"
+#include "core/asset/rsrc/namespace.hpp"
 
 // MARK: - Lua
 
@@ -59,6 +60,7 @@ auto ui::game_scene::enroll_object_api_in_state(const std::shared_ptr<scripting:
             .addFunction("keyDown", &game_scene::is_key_down)
             .addFunction("keyReleased", &game_scene::is_key_released)
             .addFunction("addWidget", &game_scene::add_widget)
+            .addFunction("importSupportingScripts", &game_scene::import_supporting_scripts)
         .endClass();
 }
 
@@ -101,10 +103,6 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
             return;
         }
 
-        if (e.has(event::type::lmb_down)) {
-            std::cout << "test" << std::endl;
-        }
-
         auto point = e.location();
         auto local_point = m_positioning_frame->convert_point(point);
 
@@ -124,7 +122,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
             return;
         }
 
-        m_key_states[e.key()] = { new event(e) };
+        m_key_states[static_cast<int>(e.key())] = { new event(e) };
 
         if (m_key_event_block.state() && m_key_event_block.isFunction()) {
             m_key_event_block(event::lua_reference( new event(e) ));
@@ -427,4 +425,33 @@ auto ui::game_scene::is_key_released(int k) const -> bool
 {
     const auto& key = this->key(k);
     return (key->is_released());
+}
+
+// MARK: - Script Importing
+
+static std::vector<std::string> s_imported_namespaces;
+
+auto ui::game_scene::import_supporting_scripts(const luabridge::LuaRef& ref) -> void
+{
+    if (!scripting::lua::ref_isa<asset::resource_namespace>(ref)) {
+        return;
+    }
+    auto ns = ref.cast<asset::resource_namespace::lua_reference>();
+
+    if (std::find(s_imported_namespaces.begin(), s_imported_namespaces.end(), ns->primary_name()) != s_imported_namespaces.end()) {
+        return;
+    }
+
+    if (auto env = environment::active_environment().lock()) {
+        auto scripts = ns->typed_resource("LuaS")->matching_resources();
+        for (auto i = 0; i < scripts.size(); ++i) {
+            auto script = scripts.at(i);
+            if (script->id == 1000) {
+                continue;
+            }
+            env->import_script(script);
+        }
+    }
+
+    s_imported_namespaces.emplace_back(ns->primary_name());
 }

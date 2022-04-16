@@ -26,9 +26,7 @@
 namespace math
 {
 
-#if !defined(KESTREL_VECTOR_HPP)
-    struct vector;
-#endif
+    struct angle;
 
     /**
      * Represents a 2D point.
@@ -38,12 +36,12 @@ namespace math
     public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        double x;
-        double y;
+        double x { 0 };
+        double y { 0 };
 
-        point();
-        explicit point(const double& v);
-        lua_api point(const double& x, const double& y);
+        point() = default;
+        explicit point(double v);
+        lua_api point(double x, double y);
         point(const math::point& p);
 
         auto operator+(const math::point& p) const -> math::point;
@@ -67,14 +65,16 @@ namespace math
         [[nodiscard]] lua_api auto ceil() const -> math::point;
 
         [[nodiscard]] lua_api auto distance_to(const math::point& p) const -> double;
+        [[nodiscard]] lua_api auto magnitude() const -> double;
 
-        lua_api auto set_x(const double& x) -> void;
+        [[nodiscard]] lua_api auto angle() const -> math::angle;
+        [[nodiscard]] lua_api auto angle_to(const math::point& p) const -> math::angle;
+
+        lua_api auto set_x(double x) -> void;
         [[nodiscard]] lua_api auto get_x() const -> double;
 
-        lua_api auto set_y(const double& y) -> void;
+        lua_api auto set_y(double y) -> void;
         [[nodiscard]] lua_api auto get_y() const -> double;
-
-        [[nodiscard]] lua_api auto to_vector() const -> math::vector;
     };
 
 }

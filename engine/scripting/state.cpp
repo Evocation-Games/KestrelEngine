@@ -31,7 +31,6 @@
 #include "math/point.hpp"
 #include "math/size.hpp"
 #include "math/rect.hpp"
-#include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/legacy/macintosh/color_icon.hpp"
@@ -114,7 +113,6 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     math::point::enroll_object_api_in_state(shared_from_this());
     math::size::enroll_object_api_in_state(shared_from_this());
     math::rect::enroll_object_api_in_state(shared_from_this());
-    math::vector::enroll_object_api_in_state(shared_from_this());
 
     graphics::color::enroll_object_api_in_state(shared_from_this());
     graphics::text::enroll_object_api_in_state(shared_from_this());

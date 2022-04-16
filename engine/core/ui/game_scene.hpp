@@ -83,6 +83,8 @@ namespace ui
         [[nodiscard]] lua_api auto is_key_down(int k) const -> bool;
         [[nodiscard]] lua_api auto is_key_released(int k) const -> bool;
 
+        lua_api auto import_supporting_scripts(const luabridge::LuaRef& ns) -> void;
+
     private:
         std::string m_name;
         asset::resource_descriptor::lua_reference m_script_descriptor;

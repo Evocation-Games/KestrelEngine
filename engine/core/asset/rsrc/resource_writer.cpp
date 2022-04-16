@@ -46,7 +46,6 @@ auto asset::resource_writer::enroll_object_api_in_state(const std::shared_ptr<sc
                         .addFunction("writeSize", &resource_writer::write_size)
                         .addFunction("writeRect", &resource_writer::write_rect)
                         .addFunction("writeMacintoshRect", &resource_writer::write_macintosh_rect)
-                        .addFunction("writeVector", &resource_writer::write_vector)
                         .addFunction("writeColor", &resource_writer::write_color)
                         .addFunction("commit", &resource_writer::commit)
                     .endClass()
@@ -146,13 +145,6 @@ auto asset::resource_writer::write_macintosh_rect(const math::rect& v) -> void
     write_signed_short(static_cast<int16_t>(v.size.height + v.origin.y));
     write_signed_short(static_cast<int16_t>(v.size.width + v.origin.x));
 }
-
-auto asset::resource_writer::write_vector(const math::vector& v) -> void
-{
-    write_signed_short(static_cast<int16_t>(v.x));
-    write_signed_short(static_cast<int16_t>(v.y));
-}
-
 auto asset::resource_writer::write_color(const graphics::color::lua_reference& v) -> void
 {
     write_long(v->value());

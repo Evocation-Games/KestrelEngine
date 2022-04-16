@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RESOURCE_DATA_HPP)
-#define KESTREL_RESOURCE_DATA_HPP
+#pragma once
 
 #include <string>
 #include <optional>
@@ -31,7 +30,6 @@
 #include "math/point.hpp"
 #include "math/size.hpp"
 #include "math/rect.hpp"
-#include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
 
 namespace asset
@@ -43,15 +41,8 @@ namespace asset
         typedef luabridge::RefCountedPtr<asset::resource_data> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        int64_t m_id;
-        std::string m_name;
-        std::string m_type;
-        std::shared_ptr<graphite::data::reader> m_reader;
-        std::string m_namespace;
-
     public:
-        resource_data(const std::string& type, const int64_t& id);
+        resource_data(const std::string& type, int64_t id);
         lua_api explicit resource_data(const asset::resource_descriptor::lua_reference& ref);
 
         [[nodiscard]] lua_api auto valid() const -> bool;
@@ -71,13 +62,12 @@ namespace asset
         lua_api auto read_quad() -> uint64_t;
         lua_api auto read_pstr() -> std::string;
         lua_api auto read_cstr() -> std::string;
-        lua_api auto read_cstr_width(const int& width) -> std::string;
+        lua_api auto read_cstr_width(int width) -> std::string;
 
         lua_api auto read_point() -> math::point;
         lua_api auto read_size() -> math::size;
         lua_api auto read_rect() -> math::rect;
         lua_api auto read_macintosh_rect() -> math::rect;
-        lua_api auto read_vector() -> math::vector;
 
         lua_api auto read_color() -> graphics::color::lua_reference;
 
@@ -86,9 +76,15 @@ namespace asset
         lua_api auto read_typed_resource_reference(const std::string& type) -> asset::resource_descriptor::lua_reference;
         lua_api auto switch_on_resource_reference(const luabridge::LuaRef& body) const -> void;
 
-        lua_api auto skip(const int& delta) -> void;
+        lua_api auto skip(int delta) -> void;
+
+    private:
+        int64_t m_id;
+        std::string m_name;
+        std::string m_type;
+        std::shared_ptr<graphite::data::reader> m_reader;
+        std::string m_namespace;
+
     };
 
 }
-
-#endif //KESTREL_RESOURCE_DATA_HPP

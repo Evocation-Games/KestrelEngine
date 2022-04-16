@@ -57,7 +57,15 @@ auto renderer::opengl::swap_chain::draw(const draw_buffer *buffer) -> void
     auto shader_id = shader->get<GLuint>();
 
     glUseProgram(shader_id);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    switch (buffer->blend()) {
+        case blending::normal:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        case blending::light:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+    }
 
     auto textures_location = glGetUniformLocation(shader_id, "u_textures");
     glUniform1iv(textures_location, m_slot_count, m_textures);

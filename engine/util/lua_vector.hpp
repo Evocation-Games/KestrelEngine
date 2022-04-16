@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_LUA_VECTOR_HPP)
-#define KESTREL_LUA_VECTOR_HPP
+#pragma once
 
 #include <vector>
 #include "scripting/state.hpp"
@@ -43,7 +42,7 @@ namespace util
             luabridge::getGlobalNamespace(lua->internal_state())
                 .beginClass<util::lua_vector<T>>(name.c_str())
                     .addProperty("count", &util::lua_vector<T>::size)
-                    .addProperty("isEmpty", &util::lua_vector<T>::size)
+                    .addProperty("isEmpty", &util::lua_vector<T>::empty)
                     .addFunction("at", &util::lua_vector<T>::lua_at)
                     .addFunction("each", &util::lua_vector<T>::each)
                 .endClass();
@@ -97,5 +96,3 @@ namespace util
     };
 
 }
-
-#endif //KESTREL_LUA_VECTOR_HPP

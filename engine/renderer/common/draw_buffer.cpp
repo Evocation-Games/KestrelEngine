@@ -49,6 +49,7 @@ auto renderer::draw_buffer::clear() -> void
 
     m_texture_count = 0;
     m_count = 0;
+    m_blend = blending::normal;
 }
 
 auto renderer::draw_buffer::can_accept_texture(const std::shared_ptr<graphics::texture> &texture) const -> bool

@@ -201,7 +201,7 @@ auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq, c
     auto set_pixel = [this] (const long& x, const long& y, const double& intensity) {
         m_rgba_buffer.draw_pixel(
             m_pen_color.with_alpha(std::max(0, std::min(255, static_cast<int>(255.0 * (1.0 - intensity))))),
-            {static_cast<int>(x), static_cast<int>(y)}
+            { static_cast<double>(x), static_cast<double>(y) }
         );
     };
 
@@ -248,14 +248,14 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
         double err = 0;
 
         while (x >= y) {
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + x, static_cast<int>(p.y) + y});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + y, static_cast<int>(p.y) + x});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - y, static_cast<int>(p.y) + x});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - x, static_cast<int>(p.y) + y});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - x, static_cast<int>(p.y) - y});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) - y, static_cast<int>(p.y) - x});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + y, static_cast<int>(p.y) - x});
-            m_rgba_buffer.draw_pixel(m_pen_color, {static_cast<int>(p.x) + x, static_cast<int>(p.y) - y});
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) + x, static_cast<double>(p.y) + y });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) + y, static_cast<double>(p.y) + x });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) - y, static_cast<double>(p.y) + x });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) - x, static_cast<double>(p.y) + y });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) - x, static_cast<double>(p.y) - y });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) - y, static_cast<double>(p.y) - x });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) + y, static_cast<double>(p.y) - x });
+            m_rgba_buffer.draw_pixel(m_pen_color, { static_cast<double>(p.x) + x, static_cast<double>(p.y) - y });
 
             if (err <= 0) {
                 y += 1;

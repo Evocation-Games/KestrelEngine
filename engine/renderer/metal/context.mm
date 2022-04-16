@@ -64,6 +64,7 @@ auto renderer::metal::context::start_application(const std::function<auto(metal:
         context->configure_device();
         context->create_shader_library(s_default_metal_shader_code);
         context->add_shader_program("basic", "vertex_shader", "fragment_shader");
+        context->add_shader_program("light", "vertex_shader", "fragment_shader");
 
         callback(context);
     });
@@ -233,12 +234,23 @@ auto renderer::metal::context::add_shader_program(const std::string &name, const
     pipeline.fragmentFunction = fragment_function;
     pipeline.colorAttachments[0].pixelFormat = m_output_layer.pixelFormat;
     pipeline.colorAttachments[0].blendingEnabled = YES;
-    pipeline.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-    pipeline.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    pipeline.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-    pipeline.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-    pipeline.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    pipeline.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+
+    if (name == "light") {
+        pipeline.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipeline.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        pipeline.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        pipeline.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        pipeline.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+        pipeline.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    }
+    else {
+        pipeline.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipeline.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        pipeline.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        pipeline.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        pipeline.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        pipeline.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    }
 
     NSError *error;
     id<MTLRenderPipelineState> pipelineState = [[m_metal.device newRenderPipelineStateWithDescriptor:pipeline error:&error] retain];
@@ -339,7 +351,9 @@ auto renderer::metal::context::create_texture(uint64_t handle, const math::size 
 
 auto renderer::metal::context::create_texture(const std::vector<uint32_t> &data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    return create_texture(const_cast<void *>(reinterpret_cast<const void *>(&data[0])), size);
+    auto texture = create_texture(const_cast<void *>(reinterpret_cast<const void *>(&data[0])), size);
+    texture->set_data(data);
+    return texture;
 }
 
 auto renderer::metal::context::create_texture(void *data, const math::size &size) -> std::shared_ptr<graphics::texture>
@@ -358,7 +372,9 @@ auto renderer::metal::context::create_texture(void *data, const math::size &size
     NSUInteger bytes_per_row = texture.width << 2;
     [texture replaceRegion:region mipmapLevel:0 withBytes:data bytesPerRow:bytes_per_row];
 
-    return create_texture(reinterpret_cast<uint64_t>(texture), size);
+    auto out = create_texture(reinterpret_cast<uint64_t>(texture), size);
+    out->set_raw_data_ptr(reinterpret_cast<const uint8_t *>(data));
+    return out;
 }
 
 // MARK: - Tick Function

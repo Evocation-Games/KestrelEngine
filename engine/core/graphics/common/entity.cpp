@@ -183,7 +183,7 @@ auto graphics::entity::clipping_offset_uv() const -> math::point
     return m_clipping_offset_uv;
 }
 
-auto graphics::entity::blend() const -> enum entity::blend
+auto graphics::entity::blend() const -> enum renderer::blending
 {
     return m_blend;
 }
@@ -195,7 +195,7 @@ auto graphics::entity::get_blend_lua() const -> int
 
 auto graphics::entity::set_blend_lua(int blend) -> void
 {
-    m_blend = static_cast<enum entity::blend>(blend);
+    m_blend = static_cast<enum renderer::blending>(blend);
 }
 
 auto graphics::entity::get_alpha() const -> double

@@ -22,7 +22,6 @@
 
 #include <memory>
 #include "math/point.hpp"
-#include "math/vector.hpp"
 #include "math/size.hpp"
 #include "core/graphics/common/entity.hpp"
 #include "util/hint.hpp"

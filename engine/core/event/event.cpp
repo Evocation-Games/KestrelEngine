@@ -266,12 +266,12 @@ auto event::has_super() const -> bool
 
 auto event::is_pressed() const -> bool
 {
-    return has(event::lmb_down) | has(event::mmb_down) | has(event::rmb_down);
+    return has(event::lmb_down) | has(event::mmb_down) | has(event::rmb_down) | has(event::key_down);
 }
 
 auto event::is_released() const -> bool
 {
-    return has(event::lmb_up) | has(event::mmb_up) | has(event::rmb_up);
+    return has(event::lmb_up) | has(event::mmb_up) | has(event::rmb_up) | has(event::key_up);
 }
 
 auto event::is_held() const -> bool

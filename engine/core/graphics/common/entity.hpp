@@ -24,6 +24,7 @@
 #include "math/size.hpp"
 #include "math/point.hpp"
 #include "core/graphics/common/spritesheet.hpp"
+#include "renderer/common/blending.hpp"
 
 class scene;
 
@@ -31,9 +32,6 @@ namespace graphics
 {
     class entity: public std::enable_shared_from_this<graphics::entity>
     {
-    public:
-        enum blend : int { normal, light };
-
     public:
         explicit entity(const math::size& size);
         entity(const math::point& position, const math::size& size);
@@ -77,7 +75,7 @@ namespace graphics
 
         [[nodiscard]] auto get_blend_lua() const -> int;
         auto set_blend_lua(int blend) -> void;
-        [[nodiscard]] auto blend() const -> enum entity::blend;
+        [[nodiscard]] auto blend() const -> enum renderer::blending;
 
         [[nodiscard]] auto get_alpha() const -> double;
         auto set_alpha(double alpha) -> void;
@@ -96,7 +94,7 @@ namespace graphics
         math::size m_render_size { 0 };
         uint32_t m_sprite_index { 0 };
         std::shared_ptr<graphics::spritesheet> m_sprite_sheet;
-        enum blend m_blend { normal };
+        enum renderer::blending m_blend { renderer::blending::normal };
         double m_alpha { 1.0 };
 
         bool m_has_texture_clip { false };

@@ -80,6 +80,18 @@ auto ui::session::size() const -> math::size
 
 auto ui::session::tick() -> void
 {
+    auto base_scene = 0;
+    for (auto i = m_scenes.size() - 1; i >= 0; --i) {
+        base_scene = static_cast<int>(i);
+        if (!m_scenes[i]->passthrough_render()) {
+            break;
+        }
+    }
+
+    for (auto i = base_scene; i < m_scenes.size() - 1; ++i) {
+        m_scenes[i]->internal_scene()->render();
+    }
+
     auto scene = this->current_scene();
     if (scene.get()) {
         scene->internal_scene()->update();

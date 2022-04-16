@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "math/vector.hpp"
 #include "math/point.hpp"
 #include "math/size.hpp"
 #include "math/rect.hpp"
@@ -29,6 +28,7 @@
 #include "renderer/common/camera.hpp"
 #include "renderer/common/shader.hpp"
 #include "renderer/common/vertex.hpp"
+#include "renderer/common/blending.hpp"
 
 namespace renderer
 {
@@ -50,6 +50,9 @@ namespace renderer
         auto set_shader(const std::shared_ptr<shader::program>& shader) -> void { m_shader = shader; }
         [[nodiscard]] inline auto shader() const -> std::shared_ptr<shader::program> { return m_shader; }
 
+        auto set_blend(enum renderer::blending mode) -> void { m_blend = mode; }
+        [[nodiscard]] auto blend() const -> enum renderer::blending { return m_blend; };
+
         [[nodiscard]] auto can_accept_texture(const std::shared_ptr<graphics::texture>& texture) const -> bool;
         auto push_texture(const std::shared_ptr<graphics::texture>& texture) -> float;
         auto push_vertex(const math::point& point, const math::point& tex_coord, float alpha, float texture) -> void;
@@ -63,6 +66,7 @@ namespace renderer
     private:
         renderer::camera m_camera;
         std::shared_ptr<shader::program> m_shader;
+        enum renderer::blending m_blend { renderer::blending::normal };
 
         std::shared_ptr<graphics::texture> *m_texture_slots { nullptr };
         std::shared_ptr<graphics::texture> *m_next_empty_texture_slot { nullptr };
@@ -74,5 +78,6 @@ namespace renderer
 
         std::size_t m_max { 0 };
         std::size_t m_count { 0 };
+
     };
 }

@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RESOURCE_WRITER_HPP)
-#define KESTREL_RESOURCE_WRITER_HPP
+#pragma once
 
 #include <string>
 #include <memory>
@@ -31,7 +30,6 @@
 #include "math/point.hpp"
 #include "math/size.hpp"
 #include "math/rect.hpp"
-#include "math/vector.hpp"
 #include "core/graphics/common/color.hpp"
 
 namespace asset
@@ -68,13 +66,9 @@ namespace asset
         lua_api auto write_size(const math::size& v) -> void;
         lua_api auto write_rect(const math::rect& v) -> void;
         lua_api auto write_macintosh_rect(const math::rect& v) -> void;
-        lua_api auto write_vector(const math::vector& v) -> void;
 
         lua_api auto write_color(const graphics::color::lua_reference& v) -> void;
 
         lua_api auto commit() -> void;
     };
 }
-
-
-#endif //ENGINE_CORE_ASSET_RSRC_RESOURCE_WRITER_HPP

@@ -145,6 +145,8 @@ auto renderer::window_size() -> math::size
 auto renderer::start_frame(struct camera &camera) -> void
 {
     s_renderer_api.drawing_buffer->set_camera(camera);
+    s_renderer_api.drawing_buffer->set_shader(s_renderer_api.context->shader_program("basic"));
+    s_renderer_api.drawing_buffer->set_blend(blending::normal);
     s_renderer_api.context->start_frame();
 }
 
@@ -159,6 +161,7 @@ auto renderer::flush_frame() -> void
     if (!s_renderer_api.drawing_buffer->is_empty()) {
         s_renderer_api.context->draw(s_renderer_api.drawing_buffer);
         s_renderer_api.drawing_buffer->clear();
+        s_renderer_api.drawing_buffer->set_shader(s_renderer_api.context->shader_program("basic"));
     }
 }
 
@@ -166,6 +169,24 @@ auto renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, cons
                          const math::rect &tex_coords, enum blending mode, float alpha, float scale) -> void
 {
     auto buffer = s_renderer_api.drawing_buffer;
+
+    if (buffer->blend() != mode && !buffer->is_empty()) {
+        flush_frame();
+    }
+    buffer->set_blend(mode);
+
+#if TARGET_MACOS
+    if (api() == api::metal) {
+        switch (mode) {
+            case blending::normal:
+                buffer->set_shader(s_renderer_api.context->shader_program("basic"));
+                break;
+            case blending::light:
+                buffer->set_shader(s_renderer_api.context->shader_program("light"));
+                break;
+        }
+    }
+#endif
 
     if (!buffer->can_accept_texture(texture)) {
         flush_frame();

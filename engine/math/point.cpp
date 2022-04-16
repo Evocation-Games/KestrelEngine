@@ -20,7 +20,7 @@
 
 #include <cmath>
 #include "math/point.hpp"
-#include "math/vector.hpp"
+#include "math/angle.hpp"
 
 // MARK: - Lua
 
@@ -31,74 +31,67 @@ auto math::point::enroll_object_api_in_state(const std::shared_ptr<scripting::lu
             .addConstructor<auto(*)(const double&, const double&)->void, luabridge::RefCountedPtr<math::point>>()
             .addProperty("x", &math::point::get_x, &math::point::set_x)
             .addProperty("y", &math::point::get_y, &math::point::set_y)
+            .addProperty("angle", &math::point::angle)
+            .addProperty("magnitude", &math::point::magnitude)
             .addFunction("distanceTo", &math::point::distance_to)
             .addFunction("subtract", &math::point::subtract)
             .addFunction("add", &math::point::add)
             .addFunction("multiply", &math::point::multiply)
             .addFunction("divide", &math::point::divide)
-            .addFunction("toVector", &math::point::to_vector)
             .addFunction("round", &math::point::round)
             .addFunction("floor", &math::point::floor)
             .addFunction("ceil", &math::point::ceil)
+            .addFunction("angleTo", &math::point::angle_to)
         .endClass();
 }
 
 // MARK: - Construction
 
-math::point::point()
-    : x(0), y(0)
-{
-
-};
-
-math::point::point(const double& v)
+math::point::point(double v)
     : x(v), y(v)
 {
+}
 
-};
-
-math::point::point(const double& x, const double& y)
+math::point::point(double x, double y)
     : x(x), y(y)
 {
-
-};
+}
 
 math::point::point(const math::point& p)
     : x(p.x), y(p.y)
 {
-
-};
+}
 
 // MARK: - Operators
 
 auto math::point::operator+(const math::point& p) const -> math::point
 {
-    return math::point(x + p.x, y + p.y);
+    return { x + p.x, y + p.y };
 }
 
 auto math::point::operator-(const math::point& p) const -> math::point
 {
-    return math::point(x - p.x, y - p.y);
+    return { x - p.x, y - p.y };
 }
 
 auto math::point::operator*(const math::point& p) const -> math::point
 {
-    return math::point(x * p.x, y * p.y);
+    return { x * p.x, y * p.y };
 }
 
 auto math::point::operator/(const math::point& p) const -> math::point
 {
-    return math::point(x / p.x, y / p.y);
+    return { x / p.x, y / p.y };
 }
 
 auto math::point::operator*(double f) const -> math::point
 {
-    return math::point(x * f, y * f);
+    return { x * f, y * f };
 }
 
 auto math::point::operator/(double f) const -> math::point
 {
-    return math::point(x / f, y / f);
+    return { x / f, y / f };
 }
 
 auto math::point::operator==(const math::point& p) const -> bool
@@ -156,11 +149,25 @@ auto math::point::distance_to(const math::point& p) const -> double
     return std::sqrt((dx * dx) + (dy * dy));
 }
 
+auto math::point::angle() const -> math::angle
+{
+    return math::angle((std::atan2(y, x) * 180.0) / M_PI);
+}
+
+auto math::point::angle_to(const math::point& v) const -> math::angle
+{
+    return math::angle((std::atan2(v.y - y, v.x - x) * 180.0) / M_PI);
+}
+
+auto math::point::magnitude() const -> double
+{
+    return std::sqrt(std::fabs(std::pow(x, 2)) + std::fabs(std::pow(y, 2)));
+}
 // MARK: - Lua Accessors
 
-auto math::point::set_x(const double& x) -> void
+auto math::point::set_x(double v) -> void
 {
-    this->x = x;
+    this->x = v;
 }
 
 auto math::point::get_x() const -> double
@@ -168,17 +175,12 @@ auto math::point::get_x() const -> double
     return x;
 }
 
-auto math::point::set_y(const double& y) -> void
+auto math::point::set_y(double v) -> void
 {
-    this->y = y;
+    this->y = v;
 }
 
 auto math::point::get_y() const -> double
 {
     return y;
-}
-
-auto math::point::to_vector() const -> math::vector
-{
-    return math::vector(x, y);
 }

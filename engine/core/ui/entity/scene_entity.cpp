@@ -26,70 +26,75 @@
 #include "core/asset/legacy/spriteworld/sprite.hpp"
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/legacy/macintosh/color_icon.hpp"
+#include "renderer/common/blending.hpp"
 
 // MARK: - Lua
+
+static auto blend_mode_light() -> int
+{
+    return static_cast<int>(renderer::blending::light);
+}
+
+static auto blend_mode_normal() -> int
+{
+    return static_cast<int>(renderer::blending::normal);
+}
 
 auto ui::scene_entity::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     lua->global_namespace()
         .beginNamespace("BlendMode")
-            .addProperty("Normal", [] (const auto L) {
-                return static_cast<int>(graphics::entity::blend::normal);
-            })
-            .addProperty("Light", [] (const auto L) {
-                return static_cast<int>(graphics::entity::blend::light);
-            })
+            .addProperty("Normal", &blend_mode_normal)
+            .addProperty("Light", &blend_mode_light)
         .endNamespace()
-//        .beginNamespace("UI")
-            .beginClass<ui::scene_entity>("SceneEntity")
-                .addConstructor<auto(*)(const luabridge::LuaRef&)->void, lua_reference>()
-                .addProperty("position", &scene_entity::position, &scene_entity::set_position)
-                .addProperty("drawPosition", &scene_entity::draw_position, &scene_entity::set_draw_position)
-                .addProperty("size", &scene_entity::size, &scene_entity::set_size)
-                .addProperty("halfSize", &scene_entity::half_size)
-                .addProperty("renderSize", &scene_entity::render_size, &scene_entity::set_render_size)
-                .addProperty("frameCount", &scene_entity::frame_count)
-                .addProperty("frame", &scene_entity::current_frame, &scene_entity::set_current_frame) // TODO: Deprecate this variant.
-                .addProperty("currentFrame", &scene_entity::current_frame, &scene_entity::set_current_frame)
-                .addProperty("nextFrameOnDraw", &scene_entity::advances_to_next_frame_on_draw, &scene_entity::set_advances_to_next_frame_on_draw)
-                .addProperty("loops", &scene_entity::animation_loops, &scene_entity::set_animation_loops)
-                .addProperty("centered", &scene_entity::centered, &scene_entity::set_centered)
-                .addProperty("alpha", &scene_entity::alpha, &scene_entity::set_alpha)
-                .addProperty("blend", &scene_entity::blend_mode, &scene_entity::set_blend_mode)
-                .addProperty("clippingArea", &scene_entity::clipping_area, &scene_entity::set_clipping_area)
-                .addProperty("clippingOffset", &scene_entity::clipping_offset, &scene_entity::set_clipping_offset)
-                .addProperty("children", &scene_entity::children)
-                .addFunction("setSprite", &scene_entity::set_sprite)
-                .addFunction("addChildEntity", &scene_entity::add_child_entity)
-                .addFunction("eachChild", &scene_entity::each_child)
-                .addFunction("configureAnimation", &scene_entity::configure_animation_frames)
-                .addFunction("nextFrame", &scene_entity::next_frame)
-                .addFunction("onAnimationStart", &scene_entity::on_animation_start)
-                .addFunction("onAnimationFinish", &scene_entity::on_animation_finish)
-                .addFunction("layout", &scene_entity::layout)
-                .addFunction("onLayout", &scene_entity::on_layout)
-                .addFunction("draw", &scene_entity::draw)
-                .addFunction("onMouseEnter", &scene_entity::on_mouse_enter)
-                .addFunction("onMouseExit", &scene_entity::on_mouse_exit)
-                .addFunction("onMouseDown", &scene_entity::on_mouse_down)
-                .addFunction("onMouseRelease", &scene_entity::on_mouse_release)
-                .addFunction("onMouseDrag", &scene_entity::on_mouse_drag)
-                .addFunction("sendEvent", &scene_entity::send_event)
-                .addFunction("hitTest", &scene_entity::hit_test)
-            .endClass();
-//        .endNamespace();
+        .beginClass<ui::scene_entity>("SceneEntity")
+            .addConstructor<auto(*)(const luabridge::LuaRef&)->void, lua_reference>()
+            .addProperty("position", &scene_entity::position, &scene_entity::set_position)
+            .addProperty("drawPosition", &scene_entity::draw_position, &scene_entity::set_draw_position)
+            .addProperty("size", &scene_entity::size, &scene_entity::set_size)
+            .addProperty("halfSize", &scene_entity::half_size)
+            .addProperty("renderSize", &scene_entity::render_size, &scene_entity::set_render_size)
+            .addProperty("frameCount", &scene_entity::frame_count)
+            .addProperty("frame", &scene_entity::current_frame, &scene_entity::set_current_frame) // TODO: Deprecate this variant.
+            .addProperty("currentFrame", &scene_entity::current_frame, &scene_entity::set_current_frame)
+            .addProperty("nextFrameOnDraw", &scene_entity::advances_to_next_frame_on_draw, &scene_entity::set_advances_to_next_frame_on_draw)
+            .addProperty("loops", &scene_entity::animation_loops, &scene_entity::set_animation_loops)
+            .addProperty("centered", &scene_entity::centered, &scene_entity::set_centered)
+            .addProperty("alpha", &scene_entity::alpha, &scene_entity::set_alpha)
+            .addProperty("blend", &scene_entity::blend_mode, &scene_entity::set_blend_mode)
+            .addProperty("clippingArea", &scene_entity::clipping_area, &scene_entity::set_clipping_area)
+            .addProperty("clippingOffset", &scene_entity::clipping_offset, &scene_entity::set_clipping_offset)
+            .addProperty("children", &scene_entity::children)
+            .addFunction("setSprite", &scene_entity::set_sprite)
+            .addFunction("addChildEntity", &scene_entity::add_child_entity)
+            .addFunction("eachChild", &scene_entity::each_child)
+            .addFunction("configureAnimation", &scene_entity::configure_animation_frames)
+            .addFunction("nextFrame", &scene_entity::next_frame)
+            .addFunction("onAnimationStart", &scene_entity::on_animation_start)
+            .addFunction("onAnimationFinish", &scene_entity::on_animation_finish)
+            .addFunction("layout", &scene_entity::layout)
+            .addFunction("onLayout", &scene_entity::on_layout)
+            .addFunction("draw", &scene_entity::draw)
+            .addFunction("onMouseEnter", &scene_entity::on_mouse_enter)
+            .addFunction("onMouseExit", &scene_entity::on_mouse_exit)
+            .addFunction("onMouseDown", &scene_entity::on_mouse_down)
+            .addFunction("onMouseRelease", &scene_entity::on_mouse_release)
+            .addFunction("onMouseDrag", &scene_entity::on_mouse_drag)
+            .addFunction("sendEvent", &scene_entity::send_event)
+            .addFunction("hitTest", &scene_entity::hit_test)
+        .endClass();
 }
 
 // MARK: - Construction
 
 ui::scene_entity::scene_entity(const std::shared_ptr<graphics::entity>& entity)
-    : m_entity(entity), m_position({ 0 }), m_frame(0)
+    : m_entity(entity), m_position(0), m_frame(0)
 {
 
 }
 
 ui::scene_entity::scene_entity(const luabridge::LuaRef& entity_provider)
-    : m_entity(spawn_entity(entity_provider)), m_position({ 0 }), m_frame(0)
+    : m_entity(spawn_entity(entity_provider)), m_position(0), m_frame(0)
 {
 
 }

@@ -184,5 +184,5 @@ auto ui::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) con
 
     math::rect tex_coords { uv_x, uv_y, uv_w, uv_h };
 
-    renderer::draw_quad(entity->texture(), frame, tex_coords, renderer::blending::normal, static_cast<float>(entity->get_alpha()), 1.0);
+    renderer::draw_quad(entity->texture(), frame, tex_coords, entity->blend(), static_cast<float>(entity->get_alpha()), 1.0);
 }

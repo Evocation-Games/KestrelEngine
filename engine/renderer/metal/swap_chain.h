@@ -54,6 +54,9 @@ namespace renderer::metal
         id<MTLTexture> m_texture { nullptr };
         id<MTLDevice> m_device { nullptr };
         id<MTLBuffer> m_buffer { nullptr };
+        uint8_t *m_buffer_ptr { nullptr };
+        std::size_t m_buffer_offset { 0 };
+        std::size_t m_buffer_next_vertex { 0 };
         id<MTLCommandQueue> m_command_queue { nullptr };
         id<MTLRenderCommandEncoder> m_command_encoder { nullptr };
         id<MTLCommandBuffer> m_command_buffer { nullptr };

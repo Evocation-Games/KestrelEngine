@@ -40,6 +40,9 @@ namespace graphics
         auto data() const -> std::vector<uint32_t>;
         auto raw_data_ptr() const -> const uint8_t *;
 
+        auto set_data(const std::vector<uint32_t>& data) -> void;
+        auto set_raw_data_ptr(const uint8_t *ptr) -> void;
+
         virtual auto handle() const -> uint64_t;
 
         virtual auto bind() const -> void;
