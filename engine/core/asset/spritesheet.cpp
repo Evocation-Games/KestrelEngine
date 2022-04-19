@@ -31,7 +31,7 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
 {
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginClass<asset::spritesheet>("SpriteSheet")
-        .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::spritesheet::lua_reference>()
+            .addConstructor<auto(*)(const asset::resource_descriptor::lua_reference&)->void, asset::spritesheet::lua_reference>()
             .addStaticFunction("load", &asset::spritesheet::load)
             .addProperty("size", &asset::spritesheet::size)
             .addProperty("numberOfSprites", &asset::spritesheet::sprite_count)

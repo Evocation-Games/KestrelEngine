@@ -37,7 +37,9 @@
 #include "core/ui/session.hpp"
 #include "core/ui/scene.hpp"
 #include "core/ui/game_scene.hpp"
+#include "core/ui/imgui/dockspace.hpp"
 #include "renderer/common/context.hpp"
+#include <imgui/imgui.h>
 
 class environment: public std::enable_shared_from_this<environment>
 {
@@ -73,6 +75,10 @@ public:
     lua_api static auto audio_files() -> util::lua_vector<std::string>;
     lua_api static auto play_audio_file(const std::string& file) -> void;
     lua_api static auto stop_audio_file() -> void;
+
+    lua_api static auto start_imgui_environment() -> void;
+    inline auto imgui_dockspace() -> ui::imgui::dockspace& { return m_imgui.dockspace; }
+
     auto all_audio_files() -> util::lua_vector<std::string>;
 
 public:
@@ -110,4 +116,10 @@ private:
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
+
+    struct {
+        bool enabled { false };
+        bool ready { false };
+        ui::imgui::dockspace dockspace;
+    } m_imgui;
 };

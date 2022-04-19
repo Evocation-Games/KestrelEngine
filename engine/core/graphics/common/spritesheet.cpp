@@ -80,7 +80,7 @@ auto graphics::spritesheet::texture() const -> std::shared_ptr<graphics::texture
 
 auto graphics::spritesheet::sprite_count() const -> int
 {
-    return 0;
+    return m_sprites.size();
 }
 
 auto graphics::spritesheet::at(const int& n) const -> spritesheet::sprite

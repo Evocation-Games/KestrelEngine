@@ -23,6 +23,8 @@
 #include "renderer/common/draw_buffer.hpp"
 #include "renderer/opengl/context.hpp"
 #include "renderer/metal/context.h"
+#include <imgui/imgui.h>
+#include "core/ui/imgui/label.hpp"
 
 // MARK: - API
 
@@ -30,6 +32,7 @@ static struct {
     renderer::context *context { nullptr };
     enum renderer::api api { renderer::api::none };
     struct renderer::draw_buffer *drawing_buffer { nullptr };
+    bool imgui { false };
 } s_renderer_api;
 
 auto renderer::initialize(enum renderer::api api, const std::function<auto()->void> &callback) -> void
@@ -142,12 +145,12 @@ auto renderer::window_size() -> math::size
 
 // MARK: - Draw Calls
 
-auto renderer::start_frame(struct camera &camera) -> void
+auto renderer::start_frame(struct camera &camera, bool imgui) -> void
 {
     s_renderer_api.drawing_buffer->set_camera(camera);
     s_renderer_api.drawing_buffer->set_shader(s_renderer_api.context->shader_program("basic"));
     s_renderer_api.drawing_buffer->set_blend(blending::normal);
-    s_renderer_api.context->start_frame();
+    s_renderer_api.context->start_frame(nullptr, imgui);
 }
 
 auto renderer::end_frame() -> void
@@ -236,4 +239,27 @@ auto renderer::create_texture(const math::size& size, const uint8_t *data) -> st
 auto renderer::set_tick_function(const std::function<auto() -> void> &callback) -> void
 {
     s_renderer_api.context->set_tick_function(callback);
+}
+
+// MARK: - ImGui
+
+auto renderer::enable_imgui() -> void
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    ImGui::StyleColorsDark();
+
+    ui::imgui::label::configure_fonts();
+
+    s_renderer_api.imgui = true;
+    s_renderer_api.context->enable_imgui();
+}
+
+auto renderer::disable_imgui() -> void
+{
+    s_renderer_api.context->disable_imgui();
+    s_renderer_api.imgui = false;
 }

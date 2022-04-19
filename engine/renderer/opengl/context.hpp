@@ -102,8 +102,8 @@ namespace renderer::opengl
         struct {
             GLuint vao { 0 };
             GLuint vbo { 0 };
-            uint32_t viewport_width { 1280 };
-            uint32_t viewport_height { 720 };
+            uint32_t viewport_width { 1440 };
+            uint32_t viewport_height { 900 };
             glm::mat4 projection;
             GLint texture_samplers[constants::texture_slots] { 0 };
             std::unordered_map<util::uuid, std::shared_ptr<renderer::shader::program>> shader_programs;

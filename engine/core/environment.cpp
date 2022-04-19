@@ -161,7 +161,7 @@ auto environment::prepare_common() -> void
 auto environment::tick() -> void
 {
     renderer::camera camera;
-    renderer::start_frame(camera);
+    renderer::start_frame(camera, m_imgui.enabled && m_imgui.ready);
 
     auto session = this->session();
     if (session) {
@@ -169,7 +169,15 @@ auto environment::tick() -> void
         session->tick();
     }
 
+    if (m_imgui.enabled && m_imgui.ready) {
+        m_imgui.dockspace.draw();
+    }
+
     renderer::end_frame();
+
+    if (m_imgui.enabled) {
+        m_imgui.ready = true;
+    }
 }
 
 auto environment::launch() -> int
@@ -289,6 +297,7 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("setGameWindowSize", &environment::set_game_window_size)
             .addFunction("importScript", &environment::import_script)
             .addFunction("scaleFactor", &environment::scale)
+            .addFunction("startImGuiEnvironment", &environment::start_imgui_environment)
         .endNamespace();
 }
 
@@ -305,6 +314,14 @@ auto environment::set_game_window_size(const double& width, const double& height
 auto environment::scale() -> double
 {
     return renderer::scale_factor();
+}
+
+auto environment::start_imgui_environment() -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        renderer::enable_imgui();
+        env->m_imgui.enabled = true;
+    }
 }
 
 auto environment::import_script(const asset::resource_descriptor::lua_reference& ref) -> void
@@ -386,6 +403,11 @@ auto environment::present_scene(const ui::game_scene::lua_reference &scene) -> v
 
 auto environment::post_event(const event &e) -> void
 {
+    if (m_imgui.enabled) {
+        m_imgui.dockspace.receive_event(e);
+        return;
+    }
+
     auto session = this->session();
     if (!session) {
         return;

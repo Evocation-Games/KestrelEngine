@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SPRITESHEET_HPP)
-#define KESTREL_SPRITESHEET_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -48,14 +47,6 @@ namespace graphics
 
         };
 
-    private:
-        std::shared_ptr<graphics::texture> m_backing_texture;
-        std::vector<spritesheet::sprite> m_sprites;
-        math::size m_sprite_base_size;
-        bool m_flipped { false };
-
-        auto layout_sprites(bool flipped) -> void;
-
     public:
         spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height);
         spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size);
@@ -69,8 +60,14 @@ namespace graphics
 
         auto layout_sprites(const math::size& sprite_size, bool flipped = false) -> void;
         auto layout_sprites(const std::vector<math::rect>& sprite_frames, bool flipped = false) -> void;
+
+    private:
+        std::shared_ptr<graphics::texture> m_backing_texture;
+        std::vector<spritesheet::sprite> m_sprites;
+        math::size m_sprite_base_size;
+        bool m_flipped { false };
+
+        auto layout_sprites(bool flipped) -> void;
     };
 
 }
-
-#endif //KESTREL_SPRITESHEET_HPP

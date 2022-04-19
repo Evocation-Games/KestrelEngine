@@ -55,6 +55,19 @@
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/button_widget.hpp"
 #include "core/ui/stencils/button_stencil.hpp"
+#include "core/ui/imgui/window.hpp"
+#include "core/ui/imgui/label.hpp"
+#include "core/ui/imgui/button.hpp"
+#include "core/ui/imgui/textfield.hpp"
+#include "core/ui/imgui/image.hpp"
+#include "core/ui/imgui/slider.hpp"
+#include "core/ui/imgui/same_line.hpp"
+#include "core/ui/imgui/dockspace.hpp"
+#include "core/ui/imgui/combo.hpp"
+#include "core/ui/imgui/tabbar.hpp"
+#include "core/ui/imgui/checkbox.hpp"
+#include "core/ui/imgui/table.hpp"
+#include "core/ui/imgui/box.hpp"
 
 // MARK: - Destruction
 
@@ -127,6 +140,20 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::widgets::image_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::button_widget::enroll_object_api_in_state(shared_from_this());
     ui::stencils::button_stencil::enroll_object_api_in_state(shared_from_this());
+
+    ui::imgui::window::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::label::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::button::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::textfield::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::image::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::slider::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::same_line::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::dockspace::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::combo::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::tabbar::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::checkbox::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::table::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::box::enroll_object_api_in_state(shared_from_this());
 
     event::enroll_object_api_in_state(shared_from_this());
 

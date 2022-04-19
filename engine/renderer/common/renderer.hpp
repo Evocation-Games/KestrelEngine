@@ -55,7 +55,7 @@ namespace renderer
     auto enable_imgui() -> void;
     auto disable_imgui() -> void;
 
-    auto start_frame(struct camera& camera) -> void;
+    auto start_frame(struct camera& camera, bool imgui = false) -> void;
     auto end_frame() -> void;
     auto flush_frame() -> void;
 

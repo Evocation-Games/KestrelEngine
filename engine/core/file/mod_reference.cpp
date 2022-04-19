@@ -226,6 +226,8 @@ auto host::sandbox::mod_reference::construct_simplemod() -> void
     m_author = "Unknown Author";
     m_primary_namespace = m_name;
     m_parsed = true;
+
+    m_mod_files.emplace_back(std::make_shared<graphite::rsrc::file>(m_path));
 }
 
 // MARK: - Load & Execution

@@ -52,6 +52,9 @@ asset::legacy::spriteworld::sprite::sprite(const asset::resource_descriptor::lua
         graphite::qd::rle rle(res->data(), res->id(), res->name());
         if (auto surface = rle.surface().lock()) {
             configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
+
+            auto frame_size = rle.frame_rect(0).size();
+            layout_sprites({ frame_size.width(), frame_size.height() });
             return;
         }
     }

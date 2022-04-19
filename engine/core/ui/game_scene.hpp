@@ -56,6 +56,8 @@ namespace ui
 
         auto internal_scene() -> std::shared_ptr<ui::scene>;
 
+        lua_api auto start_imgui_environment() -> void;
+
         [[nodiscard]] lua_api auto is_current() const -> bool;
         [[nodiscard]] lua_api auto name() const -> std::string;
         [[nodiscard]] lua_api auto center_point() const -> math::point;
@@ -99,6 +101,7 @@ namespace ui
         luabridge::LuaRef m_key_event_block { nullptr };
         luabridge::LuaRef m_mouse_event_block { nullptr };
         responder_chain m_responder_chain;
+        bool m_imgui { false };
 
         auto draw_widgets() const -> void;
     };

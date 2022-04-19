@@ -66,7 +66,6 @@ renderer::opengl::context::context(const std::function<auto() -> void> &callback
 
 renderer::opengl::context::~context()
 {
-
 }
 
 // MARK: - ImGUI
@@ -74,8 +73,8 @@ renderer::opengl::context::~context()
 auto renderer::opengl::context::enable_imgui() -> void
 {
     const char *glsl_version = "#version 330";
-    m_imgui.enabled = ImGui_ImplGlfw_InitForOpenGL(m_screen.window, false)
-                   && ImGui_ImplOpenGL3_Init(glsl_version);
+    ImGui_ImplGlfw_InitForOpenGL(m_screen.window, false)
+        && ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
 auto renderer::opengl::context::disable_imgui() -> void
