@@ -20,7 +20,7 @@
 
 #include "core/ui/imgui/container.hpp"
 
-#include "core/ui/imgui/window.hpp"
+#include "core/ui/imgui/separator.hpp"
 #include "core/ui/imgui/label.hpp"
 #include "core/ui/imgui/button.hpp"
 #include "core/ui/imgui/textfield.hpp"
@@ -77,6 +77,9 @@ auto ui::imgui::widget_container::draw() -> void
         }
         else if (scripting::lua::ref_isa<box>(widget)) {
             widget.cast<box::lua_reference>()->draw();
+        }
+        else if (scripting::lua::ref_isa<separator>(widget)) {
+            widget.cast<separator::lua_reference>()->draw();
         }
     }
 }

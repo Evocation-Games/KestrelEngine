@@ -18,10 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_FILESYSTEM_HPP)
-#define KESTREL_FILESYSTEM_HPP
+#pragma once
 
 #include <vector>
+#include <array>
 #include <string>
 #include "core/file/file_reference.hpp"
 #include "core/file/directory_reference.hpp"
@@ -39,19 +39,10 @@ namespace host::sandbox
         typedef luabridge::RefCountedPtr<host::sandbox::files> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        host::sandbox::file_reference::lua_reference m_current_save_file { nullptr };
-        host::sandbox::file_reference::lua_reference m_game_core { nullptr };
-        host::sandbox::directory_reference::lua_reference m_game_data { nullptr };
-        host::sandbox::directory_reference::lua_reference m_game_fonts { nullptr };
-        host::sandbox::directory_reference::lua_reference m_game_mods { nullptr };
-        std::vector<host::sandbox::mod_reference::lua_reference> m_mods;
-        bool m_user_mods_loaded { false };
-        bool m_game_mods_loaded { false };
-
-        files() = default;
-
-        auto load_mods(const util::lua_vector<file_reference::lua_reference>& mods, mod_reference::bundle_origin) -> util::lua_vector<mod_reference::lua_reference>;
+        enum class path_type
+        {
+            core, fonts, scenario, current_scenario, mods, data, saves
+        };
 
     public:
         files(const files&) = delete;
@@ -61,15 +52,22 @@ namespace host::sandbox
 
         static auto shared_files() -> files&;
 
-        auto set_game_core_path(const std::string& path) -> void;
-        auto set_game_data_path(const std::string& path) -> void;
-        auto set_game_fonts_path(const std::string& path) -> void;
-        auto set_game_mods_path(const std::string& path) -> void;
+        auto set_game_path(const std::string& path, enum path_type type) -> void;
+        [[nodiscard]] auto game_path(enum path_type type) const -> std::string;
+        [[nodiscard]] auto game_file(enum path_type type) const -> file_reference::lua_reference;
 
-        auto internal_preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>;
-        auto internal_preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>;
-        auto internal_preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        auto set_user_path(const std::string& path, enum path_type type) -> void;
+        [[nodiscard]] auto user_path(enum path_type type) const -> std::string;
+        [[nodiscard]] auto user_file(enum path_type type) const -> file_reference::lua_reference;
+
+        [[nodiscard]] auto game_packages(enum path_type type, bool load = false) const -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto user_packages(enum path_type type, bool load = false) const -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto all_packages(enum path_type type, bool load = false) const -> util::lua_vector<mod_reference::lua_reference>;
+
+        [[nodiscard]] auto scenario_data_files() -> util::lua_vector<file_reference::lua_reference>;
+
         [[nodiscard]] auto mods() const -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto scenarios() const -> util::lua_vector<mod_reference::lua_reference>;
 
         [[nodiscard]] auto get_current_save_file() const -> host::sandbox::file_reference::lua_reference;
         auto set_save_file_name(const std::string& name) -> void;
@@ -77,7 +75,12 @@ namespace host::sandbox
         lua_api static auto game() -> host::sandbox::directory_reference::lua_reference;
         lua_api static auto user() -> host::sandbox::directory_reference::lua_reference;
 
+        lua_api static auto active_scenario() -> mod_reference::lua_reference;
+        lua_api static auto scenario_data() -> host::sandbox::directory_reference::lua_reference;
+        lua_api static auto set_active_scenario(mod_reference::lua_reference scenario) -> void;
+
         lua_api static auto game_core() -> host::sandbox::file_reference::lua_reference;
+        lua_api static auto game_scenarios() -> host::sandbox::directory_reference::lua_reference;
         lua_api static auto game_data() -> host::sandbox::directory_reference::lua_reference;
         lua_api static auto game_fonts() -> host::sandbox::directory_reference::lua_reference;
         lua_api static auto game_mods() -> host::sandbox::directory_reference::lua_reference;
@@ -89,12 +92,26 @@ namespace host::sandbox
         lua_api static auto set_save_file(const std::string& name) -> void;
         lua_api static auto save() -> void;
 
-        lua_api static auto preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>;
-        lua_api static auto preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>;
-        lua_api static auto preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>;
-        lua_api static auto all_mods() -> util::lua_vector<mod_reference::lua_reference>;
+        lua_api static auto all_scenarios() -> util::lua_vector<mod_reference::lua_reference>;
+        lua_api static auto all_scenario_mods(const mod_reference::lua_reference& scenario) -> util::lua_vector<mod_reference::lua_reference>;
+        lua_api static auto all_active_scenario_mods() -> util::lua_vector<mod_reference::lua_reference>;
+
+
+    private:
+        std::array<std::string, 7> m_game_paths;
+        std::array<std::string, 7> m_user_paths;
+
+        host::sandbox::file_reference::lua_reference m_current_save_file { nullptr };
+        host::sandbox::mod_reference::lua_reference m_active_scenario { nullptr };
+
+        host::sandbox::directory_reference::lua_reference m_active_scenario_dir { nullptr };
+
+        files();
+
+        [[nodiscard]] auto packages(const directory_reference::lua_reference& directory, mod_reference::bundle_origin origin) const -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto mods(const directory_reference::lua_reference& directory, mod_reference::bundle_origin origin) const -> util::lua_vector<mod_reference::lua_reference>;
+
+        auto load_mods(const util::lua_vector<file_reference::lua_reference>& mods, mod_reference::bundle_origin) -> util::lua_vector<mod_reference::lua_reference>;
     };
 
 }
-
-#endif //KESTREL_FILESYSTEM_HPP

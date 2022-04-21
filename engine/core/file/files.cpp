@@ -36,23 +36,39 @@ auto host::sandbox::files::enroll_object_api_in_state(const std::shared_ptr<scri
                     .addStaticProperty("__gameDir", &host::sandbox::files::game)
                     .addStaticProperty("__gameCore", &host::sandbox::files::game_core)
                     .addStaticProperty("gameDataDirectory", &host::sandbox::files::game_data)
+                    .addStaticProperty("gameScenariosDirectory", &host::sandbox::files::game_scenarios)
                     .addStaticProperty("gameFontsDirectory", &host::sandbox::files::game_fonts)
                     .addStaticProperty("gameModsDirectory", &host::sandbox::files::game_mods)
                     .addStaticProperty("savesDirectory", &host::sandbox::files::user_saves)
                     .addStaticProperty("modsDirectory", &host::sandbox::files::user_mods)
+                    .addStaticProperty("activeScenario", &host::sandbox::files::active_scenario)
+                    .addStaticProperty("activeScenarioDirectory", &host::sandbox::files::scenario_data)
                     .addStaticProperty("currentSaveFile", &host::sandbox::files::current_save_file)
                     .addStaticFunction("setSaveFileName", &host::sandbox::files::set_save_file)
                     .addStaticFunction("save", &host::sandbox::files::save)
-                    .addStaticFunction("preloadAllMods", &host::sandbox::files::preload_all_mods)
-                    .addStaticFunction("preloadUserMods", &host::sandbox::files::preload_user_mods)
-                    .addStaticFunction("preloadGameMods", &host::sandbox::files::preload_game_mods)
-                    .addStaticFunction("allMods", &host::sandbox::files::all_mods)
+                    .addStaticFunction("allScenarioMods", &host::sandbox::files::all_scenario_mods)
+                    .addStaticFunction("allActiveScenarioMods", &host::sandbox::files::all_active_scenario_mods)
+                    .addStaticFunction("allScenarios", &host::sandbox::files::all_scenarios)
+                    .addStaticFunction("setActiveScenario", &host::sandbox::files::set_active_scenario)
                 .endClass()
             .endNamespace()
         .endNamespace();
 }
 
 // MARK: - Construction
+
+host::sandbox::files::files()
+{
+    // Game Directories
+    set_game_path(game()->file("GameCore.kdat")->path(), path_type::core);
+    set_game_path(game()->directory("Scenario")->path(), path_type::scenario);
+    set_game_path(game()->directory("Mods")->path(), path_type::mods);
+    set_game_path(game()->directory("Fonts")->path(), path_type::fonts);
+
+    // User Directories
+    set_user_path(user()->directory("Mods")->path(), path_type::mods);
+    set_user_path(user()->directory("Saves")->path(), path_type::saves);
+}
 
 auto host::sandbox::files::shared_files() -> host::sandbox::files&
 {
@@ -78,6 +94,29 @@ auto host::sandbox::files::set_save_file_name(const std::string& name) -> void
         auto file = std::make_shared<graphite::rsrc::file>(m_current_save_file->path());
         graphite::rsrc::manager::shared_manager().import_file(file);
     }
+}
+
+// MARK: - Active Scenario
+
+auto host::sandbox::files::active_scenario() -> mod_reference::lua_reference
+{
+    return shared_files().m_active_scenario;
+}
+
+auto host::sandbox::files::set_active_scenario(mod_reference::lua_reference scenario) -> void
+{
+    shared_files().m_active_scenario = scenario;
+    shared_files().m_active_scenario_dir = { new directory_reference(scenario->path()) };
+}
+
+auto host::sandbox::files::scenario_data() -> host::sandbox::directory_reference::lua_reference
+{
+    return shared_files().m_active_scenario_dir;
+}
+
+auto host::sandbox::files::scenario_data_files() -> util::lua_vector<file_reference::lua_reference>
+{
+    return scenario_data()->contents(false);
 }
 
 // MARK: - Known Locations
@@ -125,47 +164,82 @@ auto host::sandbox::files::user() -> host::sandbox::directory_reference::lua_ref
 
 #endif
 
+auto host::sandbox::files::set_game_path(const std::string &path, enum path_type type) -> void
+{
+    m_game_paths[static_cast<int>(type)] = path;
+}
+
+auto host::sandbox::files::game_path(enum path_type type) const -> std::string
+{
+    return m_game_paths[static_cast<int>(type)];
+}
+
+auto host::sandbox::files::game_file(enum path_type type) const -> file_reference::lua_reference
+{
+    return { new file_reference(game_path(type)) };
+}
+
+auto host::sandbox::files::set_user_path(const std::string &path, enum path_type type) -> void
+{
+    m_user_paths[static_cast<int>(type)] = path;
+}
+
+auto host::sandbox::files::user_path(enum path_type type) const -> std::string
+{
+    return m_user_paths[static_cast<int>(type)];
+}
+
+auto host::sandbox::files::user_file(enum path_type type) const -> file_reference::lua_reference
+{
+    return { new file_reference(user_path(type)) };
+}
+
 auto host::sandbox::files::game_core() -> host::sandbox::file_reference::lua_reference
 {
-    if (shared_files().m_game_core.get()) {
-        return shared_files().m_game_core;
-    }
-    return game()->file("GameCore.kdat");
+    return shared_files().game_file(path_type::core);
+}
+
+auto host::sandbox::files::game_scenarios() -> host::sandbox::directory_reference::lua_reference
+{
+    return directory_reference::lua_reference {
+        new directory_reference(shared_files().game_path(path_type::scenario))
+    };
 }
 
 auto host::sandbox::files::game_data() -> host::sandbox::directory_reference::lua_reference
 {
-    if (shared_files().m_game_data.get()) {
-        return shared_files().m_game_data;
-    }
-    return game()->directory("Scenario");
+    return scenario_data();
 }
 
 auto host::sandbox::files::game_fonts() -> host::sandbox::directory_reference::lua_reference
 {
-    if (shared_files().m_game_fonts.get()) {
-        return shared_files().m_game_fonts;
-    }
-    return game()->directory("Fonts");
+    return directory_reference::lua_reference {
+        new directory_reference(shared_files().game_path(path_type::fonts))
+    };
 }
 
 auto host::sandbox::files::game_mods() -> host::sandbox::directory_reference::lua_reference
 {
-    if (shared_files().m_game_mods.get()) {
-        return shared_files().m_game_mods;
-    }
-    return game()->directory("Mods");
+    return directory_reference::lua_reference {
+        new directory_reference(shared_files().game_path(path_type::mods))
+    };
 }
 
 auto host::sandbox::files::user_mods() -> host::sandbox::directory_reference::lua_reference
 {
-    return user()->directory("Mods");
+    return directory_reference::lua_reference {
+        new directory_reference(shared_files().user_path(path_type::mods))
+    };
 }
 
 auto host::sandbox::files::user_saves() -> host::sandbox::directory_reference::lua_reference
 {
-    return user()->directory("Saves");
+    return directory_reference::lua_reference {
+        new directory_reference(shared_files().user_path(path_type::saves))
+    };
 }
+
+// MARK: - Saving / Saves
 
 auto host::sandbox::files::current_save_file() -> host::sandbox::file_reference::lua_reference
 {
@@ -176,30 +250,6 @@ auto host::sandbox::files::set_save_file(const std::string& name) -> void
 {
     return shared_files().set_save_file_name(name);
 }
-
-// MARK: - Overrides
-
-auto host::sandbox::files::set_game_core_path(const std::string& path) -> void
-{
-    m_game_core = { new file_reference(path) };
-}
-
-auto host::sandbox::files::set_game_data_path(const std::string& path) -> void
-{
-    m_game_data = { new directory_reference(path) };
-}
-
-auto host::sandbox::files::set_game_fonts_path(const std::string& path) -> void
-{
-    m_game_fonts = { new directory_reference(path) };
-}
-
-auto host::sandbox::files::set_game_mods_path(const std::string& path) -> void
-{
-    m_game_mods = { new directory_reference(path) };
-}
-
-// MARK: - Saving
 
 auto host::sandbox::files::save() -> void
 {
@@ -215,82 +265,63 @@ auto host::sandbox::files::save() -> void
 
 // MARK: - Mod Discovery
 
-auto host::sandbox::files::mods() const -> util::lua_vector<mod_reference::lua_reference>
+auto host::sandbox::files::packages(const directory_reference::lua_reference& directory, mod_reference::bundle_origin origin) const -> util::lua_vector<mod_reference::lua_reference>
 {
-    return util::lua_vector(m_mods);
-}
-
-auto host::sandbox::files::internal_preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>
-{
-    internal_preload_game_mods();
-    internal_preload_user_mods();
-    return util::lua_vector(m_mods);
-}
-
-auto host::sandbox::files::internal_preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>
-{
-    if (m_user_mods_loaded) {
-        if (auto env = environment::active_environment().lock()) {
-            env->lua_out("Attempted to preload user mods, after they were already preloaded.", true);
-        }
-        return util::lua_vector(m_mods);
-    }
-    m_user_mods_loaded = true;
-
-    // Discover user mods.
-    const auto& user_mods = this->user_mods()->contents(false);
-    return load_mods(user_mods, mod_reference::bundle_origin::user);
-}
-
-
-auto host::sandbox::files::internal_preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>
-{
-    if (m_game_mods_loaded) {
-        if (auto env = environment::active_environment().lock()) {
-            env->lua_out("Attempted to preload game mods, after they were already preloaded.", true);
-        }
-        return util::lua_vector(m_mods);
-    }
-    m_game_mods_loaded = true;
-
-    // Discover game mods.
-    const auto& game_mods = this->game_mods()->contents(false);
-    return load_mods(game_mods, mod_reference::bundle_origin::game);
-}
-
-auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_reference> &mods, mod_reference::bundle_origin) -> util::lua_vector<mod_reference::lua_reference>
-{
-    util::lua_vector<mod_reference::lua_reference> loaded_mods;
+    util::lua_vector<mod_reference::lua_reference> packages;
 
     auto env = environment::active_environment().lock();
     if (!env) {
-        throw std::runtime_error("Missing environment whilst discovering mods.");
+        throw std::runtime_error("Missing environment whilst finding packages.");
     }
 
-    for (auto i = 0; i < mods.size(); ++i) {
-        const auto& file = mods.at(i);
+    if (!directory.get()) {
+        return {};
+    }
 
-        if (file->is_directory() && file->extension() == "modpackage") {
-            // This should be a bundle/package mod. We will need to setup the mod reference, and then have it validated
-            // before including it.
-            mod_reference::lua_reference mod {
-                new mod_reference(file->path(), mod_reference::bundle_origin::user, mod_reference::bundle_type::package)
+    auto contents = directory->contents(false);
+    for (auto i = 0; i < contents.size(); ++i) {
+        const auto& file = contents.at(i);
+
+        if (file->is_directory() && (file->extension() == "modpackage" || file->extension() == "scenario")) {
+            mod_reference::lua_reference package {
+                new mod_reference(file->path(), origin, mod_reference::bundle_type::package)
             };
 
-            if (!mod->validate_as_modpackage()) {
+            if (!package->validate_as_modpackage()) {
                 continue;
             }
 
-            loaded_mods.emplace_back(mod);
-            mod->parse_modpackage();
+            packages.emplace_back(package);
+            package->parse_modpackage();
         }
-        else if (file->extension() == "kdat" || file->extension() == "ndat" || file->extension() == "rez" || file->extension() == "rsrc") {
-            // This is a simple mod.
+    }
+
+    return packages;
+}
+
+auto host::sandbox::files::mods(const directory_reference::lua_reference& directory, mod_reference::bundle_origin origin) const -> util::lua_vector<mod_reference::lua_reference>
+{
+    util::lua_vector<mod_reference::lua_reference> mods;
+
+    auto packages = this->packages(directory, origin);
+    for (auto i = 0; i < packages.size(); ++i) {
+        const auto& package = packages.at(i);
+        if (package->is_scenario()) {
+            continue;
+        }
+        mods.emplace_back(package);
+    }
+
+    const auto& contents = directory->contents(false);
+    for (auto i = 0; i < contents.size(); ++i) {
+        const auto& file = contents.at(i);
+
+        if (file->extension() == "kdat" || file->extension() == "ndat" || file->extension() == "rez" || file->extension() == "rsrc") {
             mod_reference::lua_reference mod {
-                new mod_reference(file->path(), mod_reference::bundle_origin::user, mod_reference::bundle_type::simple)
+                new mod_reference(file->path(), origin, mod_reference::bundle_type::simple)
             };
 
-            loaded_mods.emplace_back(mod);
+            mods.emplace_back(mod);
             if (mod->validate_as_simplemod()) {
                 mod->parse_simplemod();
             }
@@ -300,39 +331,150 @@ auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_
         }
     }
 
-    // Construct a small namespace containing the mods.
-    for (auto i = 0; i < loaded_mods.size(); ++i) {
-        const auto& mod = loaded_mods.at(i);
+    return mods;
+}
 
-        env->lua_runtime()->global_namespace()
-            .beginNamespace("Kestrel")
-                .beginNamespace("Mods")
-                    .addProperty(mod->primary_namespace().c_str(), mod.get())
-                .endNamespace()
-            .endNamespace();
+auto host::sandbox::files::game_packages(enum path_type type, bool load) const -> util::lua_vector<mod_reference::lua_reference>
+{
+    return packages(directory_reference::get(game_path(type)), mod_reference::bundle_origin::game);
+}
 
-        m_mods.emplace_back(mod);
+auto host::sandbox::files::user_packages(enum path_type type, bool load) const -> util::lua_vector<mod_reference::lua_reference>
+{
+    return packages(directory_reference::get(user_path(type)), mod_reference::bundle_origin::user);
+}
+
+auto host::sandbox::files::all_packages(enum path_type type, bool load) const -> util::lua_vector<mod_reference::lua_reference>
+{
+    util::lua_vector<mod_reference::lua_reference> result;
+    result.append(game_packages(type, load));
+    result.append(user_packages(type, load));
+    return result;
+}
+
+
+auto host::sandbox::files::mods() const -> util::lua_vector<mod_reference::lua_reference>
+{
+    util::lua_vector<mod_reference::lua_reference> result;
+    result.append(mods(game_mods(), mod_reference::bundle_origin::game));
+    result.append(mods(user_mods(), mod_reference::bundle_origin::user));
+    return result;
+}
+
+auto host::sandbox::files::scenarios() const -> util::lua_vector<mod_reference::lua_reference>
+{
+    util::lua_vector<mod_reference::lua_reference> result;
+
+    auto scenario_packages = all_packages(path_type::scenario);
+    auto mod_packages = all_packages(path_type::mods);
+
+    for (auto i = 0; i < scenario_packages.size(); ++i) {
+        const auto& package = scenario_packages.at(i);
+        if (package->is_scenario()) {
+            result.emplace_back(package);
+        }
     }
 
-    return loaded_mods;
+    for (auto i = 0; i < mod_packages.size(); ++i) {
+        const auto& package = mod_packages.at(i);
+        if (package->is_scenario()) {
+            result.emplace_back(package);
+        }
+    }
+
+    return result;
 }
 
-auto host::sandbox::files::preload_all_mods() -> util::lua_vector<mod_reference::lua_reference>
+auto host::sandbox::files::all_scenarios() -> util::lua_vector<mod_reference::lua_reference>
 {
-    return shared_files().internal_preload_all_mods();
+    return shared_files().scenarios();
 }
 
-auto host::sandbox::files::preload_user_mods() -> util::lua_vector<mod_reference::lua_reference>
+auto host::sandbox::files::all_active_scenario_mods() -> util::lua_vector<mod_reference::lua_reference>
 {
-    return shared_files().internal_preload_user_mods();
+    return all_scenario_mods(active_scenario());
 }
 
-auto host::sandbox::files::preload_game_mods() -> util::lua_vector<mod_reference::lua_reference>
+auto host::sandbox::files::all_scenario_mods(const mod_reference::lua_reference& scenario) -> util::lua_vector<mod_reference::lua_reference>
 {
-    return shared_files().internal_preload_game_mods();
+    if (!scenario.get()) {
+        return {};
+    }
+
+    auto package_id = scenario->package_id();
+
+    util::lua_vector<mod_reference::lua_reference> scenario_mods;
+    auto mods = shared_files().mods();
+
+    for (auto i = 0; i < mods.size(); ++i) {
+        const auto& mod = mods.at(i);
+        if (mod->scenario_id() == package_id) {
+            scenario_mods.emplace_back(mod);
+        }
+    }
+
+    return scenario_mods;
 }
 
-auto host::sandbox::files::all_mods() -> util::lua_vector<mod_reference::lua_reference>
-{
-    return shared_files().mods();
-}
+//auto host::sandbox::files::load_mods(const util::lua_vector<file_reference::lua_reference> &mods, mod_reference::bundle_origin origin) -> util::lua_vector<mod_reference::lua_reference>
+//{
+//    util::lua_vector<mod_reference::lua_reference> loaded_mods;
+//
+//    auto env = environment::active_environment().lock();
+//    if (!env) {
+//        throw std::runtime_error("Missing environment whilst discovering mods.");
+//    }
+//
+//    for (auto i = 0; i < mods.size(); ++i) {
+//        const auto& file = mods.at(i);
+//
+//        if (file->is_directory() && (file->extension() == "modpackage" || file->extension() == "scenario")) {
+//            // This should be a bundle/package mod. We will need to setup the mod reference, and then have it validated
+//            // before including it.
+//            mod_reference::lua_reference mod {
+//                new mod_reference(file->path(), origin, mod_reference::bundle_type::package)
+//            };
+//
+//            if (!mod->validate_as_modpackage()) {
+//                continue;
+//            }
+//
+//            loaded_mods.emplace_back(mod);
+//            mod->parse_modpackage();
+//        }
+//        else if (file->extension() == "kdat" || file->extension() == "ndat" || file->extension() == "rez" || file->extension() == "rsrc") {
+//            // This is a simple mod.
+//            mod_reference::lua_reference mod {
+//                new mod_reference(file->path(), mod_reference::bundle_origin::user, mod_reference::bundle_type::simple)
+//            };
+//
+//            loaded_mods.emplace_back(mod);
+//            if (mod->validate_as_simplemod()) {
+//                mod->parse_simplemod();
+//            }
+//            else {
+//                mod->construct_simplemod();
+//            }
+//        }
+//    }
+//
+//    // Construct a small namespace containing the mods.
+//    for (auto i = 0; i < loaded_mods.size(); ++i) {
+//        const auto& mod = loaded_mods.at(i);
+//
+//        if (!mod->is_scenario()) {
+//            continue;
+//        }
+//
+//        env->lua_runtime()->global_namespace()
+//            .beginNamespace("Kestrel")
+//                .beginNamespace("Mods")
+//                    .addProperty(mod->primary_namespace().c_str(), mod.get())
+//                .endNamespace()
+//            .endNamespace();
+//
+//        m_mods.emplace_back(mod);
+//    }
+//
+//    return loaded_mods;
+//}

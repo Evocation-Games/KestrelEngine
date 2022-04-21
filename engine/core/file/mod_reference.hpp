@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_MOD_REFERENCE_HPP)
-#define KESTREL_MOD_REFERENCE_HPP
+#pragma once
 
 #include <memory>
 #include <libGraphite/rsrc/file.hpp>
@@ -36,21 +35,6 @@ namespace host::sandbox
 
         typedef luabridge::RefCountedPtr<host::sandbox::mod_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
-
-    private:
-        std::string m_name;
-        std::string m_version;
-        std::string m_author;
-        std::string m_primary_namespace;
-        int64_t m_lua_entry_script;
-        std::string m_path;
-        bundle_type m_bundle;
-        bundle_origin m_origin;
-        std::vector<std::shared_ptr<graphite::rsrc::file>> m_mod_files;
-        bool m_parsed { false };
-        bool m_loaded { false };
-        bool m_executed { false };
-        bool m_is_active { true };
 
     public:
         explicit mod_reference(const std::string& path, bundle_origin origin = bundle_origin::game, bundle_type type = bundle_type::simple);
@@ -70,6 +54,14 @@ namespace host::sandbox
         [[nodiscard]] lua_api auto version() const -> std::string;
         [[nodiscard]] lua_api auto path() const -> std::string;
         [[nodiscard]] lua_api auto primary_namespace() const -> std::string;
+        [[nodiscard]] lua_api auto description() const -> std::string;
+        [[nodiscard]] lua_api auto category() const -> std::string;
+        [[nodiscard]] lua_api auto package_id() const -> std::string;
+        [[nodiscard]] lua_api auto scenario_id() const -> std::string;
+        [[nodiscard]] lua_api auto is_scenario() const -> bool;
+        [[nodiscard]] lua_api auto enabled() const -> bool;
+
+        lua_api auto set_enabled(bool f) -> void;
 
         auto load_resources() -> void;
         auto execute() -> void;
@@ -77,7 +69,25 @@ namespace host::sandbox
         lua_api auto lua_load_resources() -> void;
         lua_api auto lua_execute() -> void;
 
+    private:
+        std::string m_name;
+        std::string m_version;
+        std::string m_author;
+        std::string m_primary_namespace;
+        std::string m_description;
+        std::string m_category;
+        std::string m_package_id;
+        std::string m_scenario_id;
+        int64_t m_lua_entry_script { INT64_MIN };
+        std::string m_path;
+        bundle_type m_bundle;
+        bundle_origin m_origin;
+        std::vector<std::shared_ptr<graphite::rsrc::file>> m_mod_files;
+        bool m_enabled { false };
+        bool m_parsed { false };
+        bool m_loaded { false };
+        bool m_executed { false };
+        bool m_is_active { true };
+
     };
 }
-
-#endif //ENGINE_CORE_FILE_MOD_REFERENCE_HPP

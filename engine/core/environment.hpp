@@ -56,9 +56,7 @@ public:
     auto tick() -> void;
 
     static auto load_kestrel_core() -> void;
-    auto load_game_data() -> void;
-
-    auto load_script(const asset::resource_descriptor::lua_reference &ref) -> scripting::lua::script;
+    lua_api static auto load_game_data() -> void;
 
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
@@ -77,6 +75,7 @@ public:
     lua_api static auto stop_audio_file() -> void;
 
     lua_api static auto start_imgui_environment() -> void;
+    lua_api static auto end_imgui_environment(const luabridge::LuaRef& callback) -> void;
     inline auto imgui_dockspace() -> ui::imgui::dockspace& { return m_imgui.dockspace; }
 
     auto all_audio_files() -> util::lua_vector<std::string>;
@@ -99,10 +98,6 @@ public:
     auto gc_purge() -> void;
 
     auto session() -> std::shared_ptr<ui::session>;
-    auto current_scene() -> std::shared_ptr<ui::scene>;
-    auto present_scene(std::shared_ptr<ui::scene>& scene) -> void;
-    auto pop_scene() -> void;
-
     auto post_event(const event& event) -> void;
 
     auto bundled_font_named(const std::string& name) const -> std::optional<std::string>;
@@ -121,5 +116,6 @@ private:
         bool enabled { false };
         bool ready { false };
         ui::imgui::dockspace dockspace;
+        luabridge::LuaRef imgui_unload_action { nullptr };
     } m_imgui;
 };

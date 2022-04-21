@@ -38,9 +38,16 @@ auto host::sandbox::mod_reference::enroll_object_api_in_state(const std::shared_
                     .addProperty("version", &mod_reference::version)
                     .addProperty("author", &mod_reference::author)
                     .addProperty("path", &mod_reference::path)
+                    .addProperty("primaryNamespace", &mod_reference::primary_namespace)
                     .addProperty("userProvided", &mod_reference::user_provided)
                     .addProperty("isLoaded", &mod_reference::is_loaded)
                     .addProperty("hasExecuted", &mod_reference::has_executed)
+                    .addProperty("description", &mod_reference::description)
+                    .addProperty("enabled", &mod_reference::enabled, &mod_reference::set_enabled)
+                    .addProperty("category",  &mod_reference::category)
+                    .addProperty("isScenario", &mod_reference::is_scenario)
+                    .addProperty("packageID", &mod_reference::package_id)
+                    .addProperty("scenarioID", &mod_reference::scenario_id)
                     .addFunction("loadResources", &mod_reference::lua_load_resources)
                     .addFunction("execute", &mod_reference::lua_execute)
                 .endClass()
@@ -53,7 +60,6 @@ auto host::sandbox::mod_reference::enroll_object_api_in_state(const std::shared_
 host::sandbox::mod_reference::mod_reference(const std::string &path, bundle_origin origin, bundle_type type)
     : m_path(path), m_origin(origin), m_bundle(type), m_is_active(true)
 {
-
 }
 
 // MARK: - Accessors
@@ -88,6 +94,11 @@ auto host::sandbox::mod_reference::primary_namespace() const -> std::string
     return m_primary_namespace;
 }
 
+auto host::sandbox::mod_reference::description() const -> std::string
+{
+    return m_description;
+}
+
 auto host::sandbox::mod_reference::user_provided() const -> bool
 {
     return m_origin == bundle_origin::user;
@@ -101,6 +112,36 @@ auto host::sandbox::mod_reference::has_executed() const -> bool
 auto host::sandbox::mod_reference::is_loaded() const -> bool
 {
     return m_loaded;
+}
+
+auto host::sandbox::mod_reference::category() const -> std::string
+{
+    return m_category;
+}
+
+auto host::sandbox::mod_reference::package_id() const -> std::string
+{
+    return m_package_id;
+}
+
+auto host::sandbox::mod_reference::scenario_id() const -> std::string
+{
+    return m_scenario_id;
+}
+
+auto host::sandbox::mod_reference::is_scenario() const -> bool
+{
+    return m_category == "scenario";
+}
+
+auto host::sandbox::mod_reference::enabled() const -> bool
+{
+    return m_enabled;
+}
+
+auto host::sandbox::mod_reference::set_enabled(bool f) -> void
+{
+    m_enabled = f;
 }
 
 // MARK: - Mod Package
@@ -170,6 +211,10 @@ auto host::sandbox::mod_reference::parse_modpackage() -> void
     m_author = kmod_reader->read_cstr();
     m_primary_namespace = kmod_reader->read_cstr();
     m_lua_entry_script = kmod_reader->read_signed_quad();
+    m_description = kmod_reader->read_cstr();
+    m_category = kmod_reader->read_cstr();
+    m_package_id = kmod_reader->read_cstr();
+    m_scenario_id = kmod_reader->read_cstr();
     m_parsed = true;
 }
 
@@ -212,6 +257,7 @@ auto host::sandbox::mod_reference::parse_simplemod() -> void
     m_author = kmod_reader->read_cstr();
     m_primary_namespace = kmod_reader->read_cstr();
     m_lua_entry_script = kmod_reader->read_signed_quad();
+    m_description = kmod_reader->read_cstr();
     m_parsed = true;
 }
 
@@ -226,6 +272,10 @@ auto host::sandbox::mod_reference::construct_simplemod() -> void
     m_author = "Unknown Author";
     m_primary_namespace = m_name;
     m_parsed = true;
+    m_description = "No Description";
+    m_category = "plugin";
+    m_scenario_id = "";
+    m_package_id = "";
 
     m_mod_files.emplace_back(std::make_shared<graphite::rsrc::file>(m_path));
 }
@@ -249,6 +299,10 @@ auto host::sandbox::mod_reference::lua_load_resources() -> void
 
 auto host::sandbox::mod_reference::load_resources() -> void
 {
+    if (m_enabled) {
+        return;
+    }
+
     if (!m_is_active) {
         if (auto env = environment::active_environment().lock()) {
             env->lua_out("The mod '" + m_name + "' is not active, so it can not be loaded.", true);
@@ -293,8 +347,11 @@ auto host::sandbox::mod_reference::execute() -> void
         return;
     }
 
-    if (!m_is_active) {
+    if (m_enabled) {
+        return;
+    }
 
+    if (!m_is_active) {
         env->lua_out("The mod '" + m_name + "' is not active, so it can not be executed.", true);
         return;
     }

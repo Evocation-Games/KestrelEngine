@@ -18,45 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/ui/imgui/checkbox.hpp"
+#include "core/ui/imgui/separator.hpp"
 
 // MARK: - Lua
 
-auto ui::imgui::checkbox::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+auto ui::imgui::separator::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     lua->global_namespace()
         .beginNamespace("ImGui")
-            .beginClass<checkbox>("Checkbox")
-                .addConstructor<auto(*)(const std::string&, bool)->void, lua_reference>()
-                .addProperty("label", &checkbox::label, &checkbox::set_label)
-                .addProperty("value", &checkbox::value, &checkbox::set_value)
-                .addFunction("onValueChanged", &checkbox::on_value_changed)
+            .beginClass<separator>("Separator")
+                .addConstructor<auto(*)()->void, lua_reference>()
             .endClass()
         .endNamespace();
 }
 
-// MARK: - Construction
-
-ui::imgui::checkbox::checkbox(const std::string& label, bool value)
-    : widget(), m_label(label), m_value(value)
-{
-}
-
-// MARK: - Accessors
-
-auto ui::imgui::checkbox::on_value_changed(luabridge::LuaRef callback) -> void
-{
-    m_value_changed = callback;
-}
-
 // MARK: - Drawing
 
-auto ui::imgui::checkbox::draw() -> void
+auto ui::imgui::separator::draw() -> void
 {
-    auto previous = m_value;
-    ImGui::Checkbox(identified_label().c_str(), &m_value);
-
-    if (m_value != previous && m_value_changed.state() && m_value_changed.isFunction()) {
-        m_value_changed();
-    }
+    ImGui::Separator();
 }

@@ -67,16 +67,16 @@ environment::environment(int argc, const char **argv)
     if (std::find(m_options.begin(), m_options.end(), "--game") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--game") {
-                host::sandbox::files::shared_files().set_game_core_path(m_options[++i]);
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::core);
                 break;
             }
         }
     }
 
-    if (std::find(m_options.begin(), m_options.end(), "--data") != m_options.end()) {
+    if (std::find(m_options.begin(), m_options.end(), "--scenarios") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
-            if (m_options[i] == "--data") {
-                host::sandbox::files::shared_files().set_game_data_path(m_options[++i]);
+            if (m_options[i] == "--scenarios") {
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::scenario);
                 break;
             }
         }
@@ -85,7 +85,7 @@ environment::environment(int argc, const char **argv)
     if (std::find(m_options.begin(), m_options.end(), "--mods") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--mods") {
-                host::sandbox::files::shared_files().set_game_mods_path(m_options[++i]);
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::mods);
                 break;
             }
         }
@@ -94,7 +94,7 @@ environment::environment(int argc, const char **argv)
     if (std::find(m_options.begin(), m_options.end(), "--fonts") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--fonts") {
-                host::sandbox::files::shared_files().set_game_fonts_path(m_options[++i]);
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::fonts);
                 break;
             }
         }
@@ -102,7 +102,7 @@ environment::environment(int argc, const char **argv)
 
     // Load all resource files.
     load_kestrel_core();
-    load_game_data();
+//    load_game_data();
 }
 
 auto environment::active_environment() -> std::weak_ptr<environment>
@@ -175,8 +175,17 @@ auto environment::tick() -> void
 
     renderer::end_frame();
 
-    if (m_imgui.enabled) {
+    if (m_imgui.enabled && !m_imgui.ready) {
         m_imgui.ready = true;
+        renderer::enable_imgui();
+    }
+    else if (m_imgui.ready && !m_imgui.enabled) {
+        m_imgui.ready = false;
+        renderer::disable_imgui();
+
+        if (m_imgui.imgui_unload_action.state() && m_imgui.imgui_unload_action.isFunction()) {
+            m_imgui.imgui_unload_action();
+        }
     }
 }
 
@@ -249,6 +258,11 @@ auto environment::load_kestrel_core() -> void
 
 auto environment::load_game_data() -> void
 {
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        return;
+    }
+
     // Scenario Data
     auto scenario_ref = host::sandbox::files::game_data();
     if (scenario_ref.get()) {
@@ -260,7 +274,7 @@ auto environment::load_game_data() -> void
                 graphite::rsrc::manager::shared_manager().import_file(file);
             }
             else if (file_ref->extension() == "mp3") {
-                m_audio_files.emplace_back(file_ref->path());
+                env->m_audio_files.emplace_back(file_ref->path());
             }
         }
     }
@@ -276,7 +290,7 @@ auto environment::load_game_data() -> void
             const auto& file_ref = files.at(i);
             if (file_ref->extension() == "ttf") {
                 auto name = graphics::font::font_name_at_path(file_ref->path());
-                m_custom_fonts[name] = file_ref->path();
+                env->m_custom_fonts[name] = file_ref->path();
             }
         }
     }
@@ -297,7 +311,9 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("setGameWindowSize", &environment::set_game_window_size)
             .addFunction("importScript", &environment::import_script)
             .addFunction("scaleFactor", &environment::scale)
-            .addFunction("startImGuiEnvironment", &environment::start_imgui_environment)
+            .addFunction("loadImGui", &environment::start_imgui_environment)
+            .addFunction("unloadImGui", &environment::end_imgui_environment)
+            .addFunction("loadScenarioData", &environment::load_game_data)
         .endNamespace();
 }
 
@@ -319,8 +335,15 @@ auto environment::scale() -> double
 auto environment::start_imgui_environment() -> void
 {
     if (auto env = $_active_environment.lock()) {
-        renderer::enable_imgui();
         env->m_imgui.enabled = true;
+    }
+}
+
+auto environment::end_imgui_environment(const luabridge::LuaRef& callback) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        env->m_imgui.enabled = false;
+        env->m_imgui.imgui_unload_action = callback;
     }
 }
 
@@ -403,7 +426,7 @@ auto environment::present_scene(const ui::game_scene::lua_reference &scene) -> v
 
 auto environment::post_event(const event &e) -> void
 {
-    if (m_imgui.enabled) {
+    if (m_imgui.enabled && m_imgui.ready) {
         m_imgui.dockspace.receive_event(e);
         return;
     }

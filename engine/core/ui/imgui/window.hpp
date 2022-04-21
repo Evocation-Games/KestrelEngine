@@ -24,6 +24,7 @@
 #include <vector>
 #include <imgui/imgui.h>
 #include "math/size.hpp"
+#include "math/point.hpp"
 #include "core/ui/imgui/widget.hpp"
 #include "core/ui/imgui/container.hpp"
 #include "scripting/state.hpp"
@@ -42,6 +43,7 @@ namespace ui::imgui
         lua_api auto show() -> void;
         lua_api auto hide() -> void;
         lua_api auto close() -> void;
+        lua_api auto center() -> void;
 
         [[nodiscard]] inline auto is_closed() const -> bool { return m_closed; }
 
@@ -59,7 +61,9 @@ namespace ui::imgui
     private:
         std::string m_title;
         math::size m_size;
-        bool m_dirty { true };
+        math::point m_position;
+        bool m_dirty_size { true };
+        bool m_dirty_position { false };
         bool m_shown { true };
         bool m_closed { false };
         widget_container m_contents;

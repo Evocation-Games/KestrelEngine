@@ -49,6 +49,7 @@ auto ui::imgui::label::enroll_object_api_in_state(const std::shared_ptr<scriptin
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
                 .addProperty("text", &label::text, &label::set_text)
                 .addProperty("largeFont", &label::is_large_font, &label::set_large_font)
+                .addProperty("wrapping", &label::wrapping, &label::set_wrapping)
             .endClass()
         .endNamespace();
 }
@@ -65,6 +66,13 @@ ui::imgui::label::label(const std::string &text)
 auto ui::imgui::label::draw() -> void
 {
     ImGui::PushFont(m_large_font ? s_large_font : s_normal_font);
-    ImGui::Text("%s", m_text.c_str());
+
+    if (m_wraps) {
+        ImGui::TextWrapped("%s", m_text.c_str());
+    }
+    else {
+        ImGui::Text("%s", m_text.c_str());
+    }
+
     ImGui::PopFont();
 }

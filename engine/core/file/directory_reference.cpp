@@ -106,7 +106,7 @@ auto host::sandbox::directory_reference::contents(bool include_dot_files) const 
 
     DIR *dir;
     struct dirent *ent;
-    std::cout << m_path << std::endl;
+
     if ((dir = opendir(m_path.c_str())) != nullptr) {
         while ((ent = readdir(dir)) != nullptr) {
             std::string name(ent->d_name);

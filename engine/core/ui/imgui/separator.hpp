@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <string>
 #include <imgui/imgui.h>
 #include "core/ui/imgui/widget.hpp"
 #include "scripting/state.hpp"
@@ -28,32 +27,16 @@
 
 namespace ui::imgui
 {
-    class label : public widget, public scripting::lua::object
-    {
-    public:
-        typedef luabridge::RefCountedPtr<label> lua_reference;
-        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
+    class separator : public widget, public scripting::lua::object
+   {
+   public:
+       typedef luabridge::RefCountedPtr<separator> lua_reference;
+       static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    public:
-        static auto configure_fonts() -> void;
+   public:
+       lua_api separator() = default;
 
-        lua_api explicit label(const std::string& text);
+       auto draw() -> void override;
 
-        [[nodiscard]] lua_api auto text() const -> std::string { return m_text; }
-        lua_api auto set_text(const std::string& text) -> void { m_text = text; }
-
-        [[nodiscard]] lua_api auto is_large_font() const -> bool { return m_large_font; }
-        lua_api auto set_large_font(bool f) -> void { m_large_font = f; }
-
-        [[nodiscard]] lua_api auto wrapping() const -> bool { return m_wraps; }
-        lua_api auto set_wrapping(bool f) -> void { m_wraps = f; }
-
-        auto draw() -> void override;
-
-    private:
-        bool m_large_font { false };
-        bool m_wraps { false };
-        std::string m_text;
-
-    };
+   };
 }

@@ -49,9 +49,13 @@ namespace ui::imgui
 
             lua_api auto add_widget(luabridge::LuaRef widget) -> void;
 
+            lua_api auto on_selected(luabridge::LuaRef callback) -> void;
+            auto selected() -> void;
+
             auto draw() -> void override;
 
         private:
+            luabridge::LuaRef m_on_selected { nullptr };
             widget_container m_contents;
 
         };

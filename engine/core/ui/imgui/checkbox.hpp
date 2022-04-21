@@ -44,10 +44,13 @@ namespace ui::imgui
         [[nodiscard]] lua_api auto value() const -> bool { return m_value; }
         lua_api auto set_value(bool value) -> void { m_value = value; }
 
+        lua_api auto on_value_changed(luabridge::LuaRef callback) -> void;
+
         auto draw() -> void override;
 
     private:
         std::string m_label;
         bool m_value;
+        luabridge::LuaRef m_value_changed { nullptr };
     };
 }

@@ -36,6 +36,7 @@ auto ui::imgui::window::enroll_object_api_in_state(const std::shared_ptr<scripti
                 .addFunction("hide", &window::hide)
                 .addFunction("close", &window::close)
                 .addFunction("addWidget", &window::add_widget)
+                .addFunction("center", &window::center)
             .endClass()
         .endNamespace();
 }
@@ -72,6 +73,15 @@ auto ui::imgui::window::close() -> void
     m_closed = true;
 }
 
+auto ui::imgui::window::center() -> void
+{
+    if (auto env = environment::active_environment().lock()) {
+        auto session_size = env->session()->size();
+        m_position = math::point((session_size.width - m_size.width) / 2.f, (session_size.height - m_size.height) / 2.f);
+        m_dirty_position = true;
+    }
+}
+
 // MARK: - Accessors
 
 auto ui::imgui::window::title() const -> std::string
@@ -92,7 +102,7 @@ auto ui::imgui::window::size() const -> math::size
 auto ui::imgui::window::set_size(const math::size &size) -> void
 {
     m_size = size;
-    m_dirty = true;
+    m_dirty_size = true;
 }
 
 // MARK: - Drawing
@@ -103,9 +113,14 @@ auto ui::imgui::window::draw() -> void
         return;
     }
 
-    if (m_dirty) {
+    if (m_dirty_size) {
         ImGui::SetNextWindowSize(ImVec2(m_size.width, m_size.height));
-        m_dirty = false;
+        m_dirty_size = false;
+    }
+
+    if (m_dirty_position) {
+        ImGui::SetNextWindowPos(ImVec2(m_position.x, m_position.y));
+        m_dirty_position = false;
     }
 
     if (!ImGui::Begin(identified_title().c_str(), &m_shown)) {

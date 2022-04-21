@@ -46,6 +46,7 @@ auto ui::imgui::table::cell::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addConstructor<auto(*)()->void, lua_reference>()
                 .addStaticFunction("Text", &cell::text)
                 .addFunction("addWidget", &cell::add_widget)
+                .addFunction("onSelected", &cell::on_selected)
             .endClass()
         .endNamespace();
 }
@@ -100,6 +101,18 @@ auto ui::imgui::table::cell::add_widget(luabridge::LuaRef widget) -> void
     m_contents.add_widget(widget);
 }
 
+auto ui::imgui::table::cell::on_selected(luabridge::LuaRef callback) -> void
+{
+    m_on_selected = callback;
+}
+
+auto ui::imgui::table::cell::selected() -> void
+{
+    if (m_on_selected.state() && m_on_selected.isFunction()) {
+        m_on_selected();
+    }
+}
+
 // MARK: - Drawing
 
 auto ui::imgui::table::draw() -> void
@@ -132,6 +145,7 @@ auto ui::imgui::table::draw() -> void
                 ImGui::SameLine();
                 if (ImGui::Selectable(cell->identifier_string(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
                     m_selected_row = i + 1;
+                    cell->selected();
                 }
             }
         }

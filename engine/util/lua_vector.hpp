@@ -88,6 +88,11 @@ namespace util
             m_items.emplace_back(r);
         }
 
+        auto append(const lua_vector<T>& v) -> void
+        {
+            m_items.insert(m_items.end(), v.m_items.begin(), v.m_items.end());
+        }
+
         auto sort(std::function<auto(const T&, const T&)->bool> fn) -> void
         {
             std::sort(m_items.begin(), m_items.end(), fn);

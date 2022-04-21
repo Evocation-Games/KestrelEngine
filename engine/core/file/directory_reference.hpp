@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_DIRECTORY_REFERENCE_HPP)
-#define KESTREL_DIRECTORY_REFERENCE_HPP
+#pragma once
 
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -35,10 +34,8 @@ namespace host::sandbox
         typedef luabridge::RefCountedPtr<directory_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        std::string m_path;
-
     public:
+        directory_reference() = default;
         explicit directory_reference(const std::string& path);
 
         lua_api static auto get(const std::string& path) -> directory_reference::lua_reference;
@@ -54,8 +51,9 @@ namespace host::sandbox
         [[nodiscard]] lua_api auto directory(const std::string& dir) const -> directory_reference::lua_reference;
 
         auto create_directory(bool intermediates = true) -> void;
+
+    private:
+        std::string m_path;
     };
 
 }
-
-#endif //KESTREL_DIRECTORY_HPP

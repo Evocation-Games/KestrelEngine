@@ -29,7 +29,7 @@ auto ui::imgui::tabbar::enroll_object_api_in_state(const std::shared_ptr<scripti
             .beginClass<tabbar>("TabBar")
                 .addConstructor<auto(*)(luabridge::LuaRef)->void, lua_reference>()
                 .addProperty("tabs", &tabbar::tabs, &tabbar::set_tabs)
-                .addProperty("selectedTabs", &tabbar::selected_tab, &tabbar::set_selected_tab)
+                .addProperty("selectedTab", &tabbar::selected_tab, &tabbar::set_selected_tab)
                 .addFunction("setAction", &tabbar::set_action)
             .endClass()
         .endNamespace();
@@ -66,17 +66,20 @@ ui::imgui::tabbar::item::item(const std::string &title)
 
 auto ui::imgui::tabbar::draw() -> void
 {
-    if (ImGui::BeginTabBar(identifier_string(), ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_TabListPopupButton)) {
+    if (ImGui::BeginTabBar(identifier_string(), ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_TabListPopupButton | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
         auto tab_count = m_tabs.length();
         for (auto i = 1; i <= tab_count; ++i) {
             const char *name = "<undefined>";
-            bool open = (m_selected = i);
-
             if (scripting::lua::ref_isa<tabbar::item>(m_tabs[i])) {
                 name = m_tabs[i].cast<tabbar::item::lua_reference>()->title().c_str();
             }
 
-            if (ImGui::BeginTabItem(name, &open, ImGuiTabItemFlags_None)) {
+            if (ImGui::BeginTabItem(name)) {
+                if (m_selected != i && m_action.state() && m_action.isFunction()) {
+                    m_action();
+                }
+                m_selected = i;
+
                 m_tabs[i].cast<tabbar::item::lua_reference>()->draw();
                 ImGui::EndTabItem();
             }
