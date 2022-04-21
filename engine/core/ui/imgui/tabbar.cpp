@@ -71,7 +71,7 @@ auto ui::imgui::tabbar::draw() -> void
         for (auto i = 1; i <= tab_count; ++i) {
             const char *name = "<undefined>";
             if (scripting::lua::ref_isa<tabbar::item>(m_tabs[i])) {
-                name = m_tabs[i].cast<tabbar::item::lua_reference>()->title().c_str();
+                name = m_tabs[i].cast<tabbar::item::lua_reference>()->title_ref().c_str();
             }
 
             if (ImGui::BeginTabItem(name)) {

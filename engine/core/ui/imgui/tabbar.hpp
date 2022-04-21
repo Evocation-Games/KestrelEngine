@@ -44,8 +44,10 @@ namespace ui::imgui
         public:
             lua_api explicit item(const std::string& title);
 
+            [[nodiscard]] auto title_ref() const -> const std::string& { return m_title; }
             [[nodiscard]] lua_api auto title() const -> std::string { return m_title; }
             lua_api auto set_title(const std::string& title) -> void { m_title = title; }
+
 
             auto add_widget(luabridge::LuaRef widget) -> void;
 

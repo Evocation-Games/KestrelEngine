@@ -39,8 +39,10 @@ namespace ui::imgui
 
         auto draw() -> void;
 
-        auto add_window(window *window) -> void;
+        auto add_window(const window::lua_reference& window) -> void;
         auto receive_event(const event& e) -> void;
+
+        auto erase() -> void;
 
         static auto start_dockspace() -> void;
         static auto end_dockspace() -> void;
@@ -53,7 +55,7 @@ namespace ui::imgui
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
             ImGuiWindowFlags_NoNavFocus
         };
-        std::vector<window *> m_windows;
+        std::vector<window::lua_reference> m_windows;
 
     private:
         auto map_key(hid::key k) -> ImGuiKey;

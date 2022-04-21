@@ -28,7 +28,7 @@
 
 namespace ui::imgui
 {
-    class checkbox : public widget, public scripting::lua::state
+    class checkbox : public widget, public scripting::lua::object
     {
     public:
        typedef luabridge::RefCountedPtr<checkbox> lua_reference;
@@ -36,6 +36,7 @@ namespace ui::imgui
 
     public:
         lua_api checkbox(const std::string& label, bool value);
+        ~checkbox() = default;
 
         [[nodiscard]] lua_api auto label() const -> std::string { return m_label; }
         [[nodiscard]] lua_api auto identified_label() const -> std::string { return m_label + identifier_string(); }

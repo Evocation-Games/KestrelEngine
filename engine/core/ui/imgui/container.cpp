@@ -44,7 +44,7 @@ auto ui::imgui::widget_container::add_widget(luabridge::LuaRef widget) -> void
 
 auto ui::imgui::widget_container::draw() -> void
 {
-    for (auto widget : m_contents) {
+    for (const auto& widget : m_contents) {
         if (scripting::lua::ref_isa<label>(widget)) {
             widget.cast<label::lua_reference>()->draw();
         }

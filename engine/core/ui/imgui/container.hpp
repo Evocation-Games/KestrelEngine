@@ -33,6 +33,8 @@ namespace ui::imgui
     public:
         widget_container() = default;
 
+        ~widget_container() = default;
+
         lua_api auto add_widget(luabridge::LuaRef widget) -> void;
 
         auto draw() -> void override;

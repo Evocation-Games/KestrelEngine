@@ -102,7 +102,6 @@ environment::environment(int argc, const char **argv)
 
     // Load all resource files.
     load_kestrel_core();
-//    load_game_data();
 }
 
 auto environment::active_environment() -> std::weak_ptr<environment>
@@ -181,6 +180,7 @@ auto environment::tick() -> void
     }
     else if (m_imgui.ready && !m_imgui.enabled) {
         m_imgui.ready = false;
+        m_imgui.dockspace.erase();
         renderer::disable_imgui();
 
         if (m_imgui.imgui_unload_action.state() && m_imgui.imgui_unload_action.isFunction()) {

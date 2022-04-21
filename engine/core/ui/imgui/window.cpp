@@ -29,7 +29,8 @@ auto ui::imgui::window::enroll_object_api_in_state(const std::shared_ptr<scripti
     lua->global_namespace()
         .beginNamespace("ImGui")
             .beginClass<window>("Window")
-                .addConstructor<auto(*)(const std::string&, const math::size&)->void, lua_reference>()
+//                .addConstructor<auto(*)(const std::string&, const math::size&)->void, lua_reference>()
+                .addStaticFunction("create", &window::create)
                 .addProperty("title", &window::title, &window::set_title)
                 .addProperty("size", &window::size, &window::set_size)
                 .addFunction("show", &window::show)
@@ -46,21 +47,24 @@ auto ui::imgui::window::enroll_object_api_in_state(const std::shared_ptr<scripti
 ui::imgui::window::window(const std::string& title, const math::size& size)
     : m_title(title), m_size(size), m_shown(false)
 {
+}
 
+auto ui::imgui::window::create(const std::string &title, const math::size &size) -> lua_reference
+{
+    lua_reference ref { new window(title, size) };
+
+    if (auto env = environment::active_environment().lock()) {
+        env->imgui_dockspace().add_window(ref);
+    }
+
+    return ref;
 }
 
 // MARK: -
 
 auto ui::imgui::window::show() -> void
 {
-    if (m_shown) {
-        return;
-    }
-
-    if (auto env = environment::active_environment().lock()) {
-        m_shown = true;
-        env->imgui_dockspace().add_window(this);
-    }
+    m_shown = true;
 }
 
 auto ui::imgui::window::hide() -> void

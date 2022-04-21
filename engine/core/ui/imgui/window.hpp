@@ -25,9 +25,10 @@
 #include <imgui/imgui.h>
 #include "math/size.hpp"
 #include "math/point.hpp"
-#include "core/ui/imgui/widget.hpp"
-#include "core/ui/imgui/container.hpp"
 #include "scripting/state.hpp"
+#include "core/ui/imgui/widget.hpp"
+#include "core/ui/imgui/window.hpp"
+#include "core/ui/imgui/container.hpp"
 
 namespace ui::imgui
 {
@@ -39,6 +40,9 @@ namespace ui::imgui
 
     public:
         lua_api window(const std::string& title, const math::size& size);
+        ~window() = default;
+
+        lua_api static auto create(const std::string& title, const math::size& size) -> lua_reference;
 
         lua_api auto show() -> void;
         lua_api auto hide() -> void;

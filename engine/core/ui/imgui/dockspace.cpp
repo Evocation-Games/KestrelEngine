@@ -56,10 +56,10 @@ auto ui::imgui::dockspace::draw() -> void
             window->draw();
         }
 
-        static bool demo = true;
-        if (demo) {
-            ImGui::ShowDemoWindow(&demo);
-        }
+//        static bool demo = true;
+//        if (demo) {
+//            ImGui::ShowDemoWindow(&demo);
+//        }
 
         ImGui::End();
     }
@@ -82,9 +82,18 @@ auto ui::imgui::dockspace::end_dockspace() -> void
     s_dockspace_enabled = false;
 }
 
-auto ui::imgui::dockspace::add_window(window *window) -> void
+auto ui::imgui::dockspace::add_window(const window::lua_reference& window) -> void
 {
     m_windows.emplace_back(window);
+}
+
+auto ui::imgui::dockspace::erase() -> void
+{
+    for (int i = static_cast<int>(m_windows.size()) - 1; i >= 0; --i) {
+        auto& window = m_windows[i];
+        window.reset();
+    }
+    m_windows.empty();
 }
 
 // MARK: - Events
