@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/ui/imgui/dockspace.hpp"
+#include <cmath>
 
 static bool s_dockspace_enabled = false;
 
