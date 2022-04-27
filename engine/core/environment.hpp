@@ -61,6 +61,7 @@ public:
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
     lua_api static auto import_script(const asset::resource_descriptor::lua_reference& ref) -> void;
+    lua_api static auto run_script(const std::string& script) -> void;
 
     lua_api static auto present_scene(const ui::game_scene::lua_reference& scene) -> void;
 
@@ -74,7 +75,7 @@ public:
     lua_api static auto play_audio_file(const std::string& file) -> void;
     lua_api static auto stop_audio_file() -> void;
 
-    lua_api static auto start_imgui_environment() -> void;
+    lua_api static auto start_imgui_environment(const luabridge::LuaRef& callback) -> void;
     lua_api static auto end_imgui_environment(const luabridge::LuaRef& callback) -> void;
     inline auto imgui_dockspace() -> ui::imgui::dockspace& { return m_imgui.dockspace; }
 
@@ -111,11 +112,13 @@ private:
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
+    float m_current_estimated_fps { 0.f };
 
     struct {
         bool enabled { false };
         bool ready { false };
         ui::imgui::dockspace dockspace;
+        luabridge::LuaRef imgui_load_action { nullptr };
         luabridge::LuaRef imgui_unload_action { nullptr };
     } m_imgui;
 };

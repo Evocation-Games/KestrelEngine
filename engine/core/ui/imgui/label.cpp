@@ -22,21 +22,26 @@
 
 // MARK: - Fonts
 
-static ImFont *s_normal_font = nullptr;
-static ImFont *s_large_font = nullptr;
+static ImFont **s_fonts = nullptr;
 
 auto ui::imgui::label::configure_fonts() -> void
 {
+    s_fonts = reinterpret_cast<ImFont**>(calloc(24, sizeof(ImFont*)));
+
     ImGuiIO &io = ImGui::GetIO();
     ImFontConfig config;
-    config.SizePixels = 13;
     config.OversampleH = config.OversampleV = 1;
     config.PixelSnapH = true;
 
-    s_normal_font = io.Fonts->AddFontDefault(&config);
+    for (auto size = 9; size <= 24; ++size) {
+        config.OversampleH = config.OversampleV = 1;
+        config.PixelSnapH = true;
+        config.SizePixels = size;
 
-    config.SizePixels = 18;
-    s_large_font = io.Fonts->AddFontDefault(&config);
+        s_fonts[size] = io.Fonts->AddFontDefault(&config);
+    }
+
+    io.FontDefault = s_fonts[13];
 }
 
 // MARK: - Lua
@@ -47,9 +52,12 @@ auto ui::imgui::label::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginNamespace("ImGui")
             .beginClass<label>("Text")
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
+                .addProperty("position", &label::position, &label::set_position)
+                .addProperty("size", &label::size, &label::set_size)
                 .addProperty("text", &label::text, &label::set_text)
                 .addProperty("largeFont", &label::is_large_font, &label::set_large_font)
                 .addProperty("wrapping", &label::wrapping, &label::set_wrapping)
+                .addProperty("textSize", &label::text_size, &label::set_text_size)
             .endClass()
         .endNamespace();
 }
@@ -65,7 +73,15 @@ ui::imgui::label::label(const std::string &text)
 
 auto ui::imgui::label::draw() -> void
 {
-    ImGui::PushFont(m_large_font ? s_large_font : s_normal_font);
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
+
+    ImGui::PushFont(s_fonts[m_font_size]);
 
     if (m_wraps) {
         ImGui::TextWrapped("%s", m_text.c_str());

@@ -151,7 +151,18 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         if (m_update_block.state() && m_update_block.isFunction()) {
             m_update_block();
         }
+
         m_backing_scene->check_timed_events();
+
+        // Remove any of the "up" states.
+        for (auto it = m_key_states.begin(); it != m_key_states.end();) {
+            if (it->second->is_key_event() && it->second->is_released()) {
+                it = m_key_states.erase(it);
+            }
+            else {
+                it++;
+            }
+        }
     });
 
 }

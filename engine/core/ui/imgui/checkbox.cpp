@@ -28,6 +28,8 @@ auto ui::imgui::checkbox::enroll_object_api_in_state(const std::shared_ptr<scrip
         .beginNamespace("ImGui")
             .beginClass<checkbox>("Checkbox")
                 .addConstructor<auto(*)(const std::string&, bool)->void, lua_reference>()
+                .addProperty("position", &checkbox::position, &checkbox::set_position)
+                .addProperty("size", &checkbox::size, &checkbox::set_size)
                 .addProperty("label", &checkbox::label, &checkbox::set_label)
                 .addProperty("value", &checkbox::value, &checkbox::set_value)
                 .addFunction("onValueChanged", &checkbox::on_value_changed)
@@ -53,6 +55,14 @@ auto ui::imgui::checkbox::on_value_changed(luabridge::LuaRef callback) -> void
 
 auto ui::imgui::checkbox::draw() -> void
 {
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
+
     auto previous = m_value;
     ImGui::Checkbox(identified_label().c_str(), &m_value);
 

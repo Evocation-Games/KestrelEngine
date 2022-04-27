@@ -42,16 +42,25 @@ namespace ui::imgui
         [[nodiscard]] lua_api auto text() const -> std::string { return m_text; }
         lua_api auto set_text(const std::string& text) -> void { m_text = text; }
 
-        [[nodiscard]] lua_api auto is_large_font() const -> bool { return m_large_font; }
-        lua_api auto set_large_font(bool f) -> void { m_large_font = f; }
+        [[nodiscard]] lua_api auto is_large_font() const -> bool { return m_font_size > 13; }
+        lua_api auto set_large_font(bool f) -> void { m_font_size = f ? 18 : 13; }
 
         [[nodiscard]] lua_api auto wrapping() const -> bool { return m_wraps; }
         lua_api auto set_wrapping(bool f) -> void { m_wraps = f; }
 
+        [[nodiscard]] lua_api auto text_size() const -> uint32_t { return m_font_size; }
+        lua_api auto set_text_size(uint32_t size) -> void { m_font_size = size; }
+
+        [[nodiscard]] lua_api auto position() const -> math::point override { return widget::position(); }
+        lua_api auto set_position(const math::point &position) -> void override { widget::set_position(position); }
+
+        [[nodiscard]] lua_api auto size() const -> math::size override { return widget::size(); }
+        lua_api auto set_size(const math::size &size) -> void override { widget::set_size(size); }
+
         auto draw() -> void override;
 
     private:
-        bool m_large_font { false };
+        uint32_t m_font_size { 13 };
         bool m_wraps { false };
         std::string m_text;
 

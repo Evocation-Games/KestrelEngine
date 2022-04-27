@@ -28,6 +28,8 @@ auto ui::imgui::tabbar::enroll_object_api_in_state(const std::shared_ptr<scripti
         .beginNamespace("ImGui")
             .beginClass<tabbar>("TabBar")
                 .addConstructor<auto(*)(luabridge::LuaRef)->void, lua_reference>()
+                .addProperty("position", &tabbar::position, &tabbar::set_position)
+                .addProperty("size", &tabbar::size, &tabbar::set_size)
                 .addProperty("tabs", &tabbar::tabs, &tabbar::set_tabs)
                 .addProperty("selectedTab", &tabbar::selected_tab, &tabbar::set_selected_tab)
                 .addFunction("setAction", &tabbar::set_action)
@@ -66,6 +68,14 @@ ui::imgui::tabbar::item::item(const std::string &title)
 
 auto ui::imgui::tabbar::draw() -> void
 {
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
+
     if (ImGui::BeginTabBar(identifier_string(), ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_TabListPopupButton | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
         auto tab_count = m_tabs.length();
         for (auto i = 1; i <= tab_count; ++i) {

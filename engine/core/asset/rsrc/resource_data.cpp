@@ -36,6 +36,7 @@ auto asset::resource_data::enroll_object_api_in_state(const std::shared_ptr<scri
                         .addProperty("id", &resource_data::id)
                         .addProperty("name", &resource_data::name)
                         .addProperty("reference", &resource_data::reference)
+                        .addProperty("bytesAvailable", &resource_data::bytes_available)
                         .addFunction("readByte", &resource_data::read_byte)
                         .addFunction("readShort", &resource_data::read_short)
                         .addFunction("readLong", &resource_data::read_long)
@@ -131,6 +132,11 @@ auto asset::resource_data::reference() const -> asset::resource_descriptor::lua_
     else {
         return resource_namespace(m_namespace).typed_identified_resource(type(), id());
     }
+}
+
+auto asset::resource_data::bytes_available() const -> bool
+{
+    return !m_reader->eof();
 }
 
 // MARK: - Data Reading

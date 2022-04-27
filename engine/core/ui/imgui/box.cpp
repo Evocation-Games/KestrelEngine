@@ -28,6 +28,8 @@ auto ui::imgui::box::enroll_object_api_in_state(const std::shared_ptr<scripting:
         .beginNamespace("ImGui")
             .beginClass<box>("Box")
                 .addConstructor<auto(*)()->void, lua_reference>()
+                .addProperty("position", &box::position, &box::set_position)
+                .addProperty("size", &box::size, &box::set_size)
                 .addFunction("addWidget", &box::add_widget)
             .endClass()
         .endNamespace();
@@ -45,6 +47,15 @@ auto ui::imgui::box::add_widget(luabridge::LuaRef widget) -> void
 auto ui::imgui::box::draw() -> void
 {
     auto size = ImGui::GetContentRegionAvail();
+
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        size = { static_cast<float>(this->size().width), static_cast<float>(this->size().height) };
+    }
+
     ImGui::BeginChild(identifier_string(), size, true, ImGuiWindowFlags_None);
 
     m_contents.draw();

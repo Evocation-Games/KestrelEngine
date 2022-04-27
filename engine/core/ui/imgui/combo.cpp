@@ -28,6 +28,8 @@ auto ui::imgui::combo::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginNamespace("ImGui")
             .beginClass<combo>("Combo")
                 .addConstructor<auto(*)(luabridge::LuaRef)->void, lua_reference>()
+                .addProperty("position", &combo::position, &combo::set_position)
+                .addProperty("size", &combo::size, &combo::set_size)
                 .addProperty("items", &combo::items, &combo::set_items)
                 .addProperty("selectedItem", &combo::selected_item, &combo::set_selected_item)
                 .addFunction("setAction", &combo::set_action)
@@ -56,6 +58,14 @@ auto ui::imgui::combo::draw() -> void
 
     if (m_items[m_selected].isString()) {
         preview = m_items[m_selected].tostring().c_str();
+    }
+
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
     }
 
     if (ImGui::BeginCombo(identifier_string(), preview, ImGuiComboFlags_None)) {

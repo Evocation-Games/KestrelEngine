@@ -69,6 +69,7 @@
 #include "core/ui/imgui/table.hpp"
 #include "core/ui/imgui/box.hpp"
 #include "core/ui/imgui/separator.hpp"
+#include "core/ui/imgui/style.hpp"
 
 // MARK: - Destruction
 
@@ -156,6 +157,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::imgui::table::enroll_object_api_in_state(shared_from_this());
     ui::imgui::box::enroll_object_api_in_state(shared_from_this());
     ui::imgui::separator::enroll_object_api_in_state(shared_from_this());
+
+    ui::imgui::style::enroll_api_in_lua_state(shared_from_this());
 
     event::enroll_object_api_in_state(shared_from_this());
 

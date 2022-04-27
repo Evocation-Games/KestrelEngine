@@ -28,6 +28,8 @@ auto ui::imgui::button::enroll_object_api_in_state(const std::shared_ptr<scripti
         .beginNamespace("ImGui")
             .beginClass<button>("Button")
                 .addConstructor<auto(*)(const std::string&, luabridge::LuaRef)->void, lua_reference>()
+                .addProperty("position", &button::position, &button::set_position)
+                .addProperty("size", &button::size, &button::set_size)
                 .addProperty("label", &button::label, &button::set_label)
                 .addFunction("setAction", &button::set_action)
             .endClass()
@@ -45,6 +47,14 @@ ui::imgui::button::button(const std::string& label, luabridge::LuaRef action)
 
 auto ui::imgui::button::draw() -> void
 {
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
+
     if (ImGui::Button(m_label.c_str())) {
         if (m_action.isFunction()) {
             m_action();

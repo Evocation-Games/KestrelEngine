@@ -32,6 +32,8 @@ auto ui::imgui::image::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginNamespace("ImGui")
             .beginClass<image>("Image")
                 .addConstructor<auto(*)(luabridge::LuaRef)->void, lua_reference>()
+                .addProperty("position", &image::position, &image::set_position)
+                .addProperty("size", &image::size, &image::set_size)
                 .addProperty("frame", &image::frame, &image::set_frame)
                 .addProperty("frameCount", &image::frame_count)
             .endClass()
@@ -62,6 +64,14 @@ auto ui::imgui::image::draw() -> void
 {
     auto texture = m_spritesheet->texture();
     auto sprite = m_spritesheet->at(m_frame);
+
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
 
     ImTextureID texture_id = reinterpret_cast<void *>(texture->handle());
     ImGui::Image(texture_id, ImVec2(m_spritesheet->sprite_size().width, m_spritesheet->sprite_size().height),

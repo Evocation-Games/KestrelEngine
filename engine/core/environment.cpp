@@ -157,8 +157,11 @@ auto environment::prepare_common() -> void
     });
 }
 
+static uint64_t s_throttle = 0;
+
 auto environment::tick() -> void
 {
+    auto frame_start_time = rtc::clock::global().current();
     renderer::camera camera;
     renderer::start_frame(camera, m_imgui.enabled && m_imgui.ready);
 
@@ -174,9 +177,18 @@ auto environment::tick() -> void
 
     renderer::end_frame();
 
+    auto frame_duration = rtc::clock::global().since(frame_start_time);
+    if (s_throttle++ % 30 == 0) {
+        m_current_estimated_fps = 1.f / frame_duration.count();
+    }
+
     if (m_imgui.enabled && !m_imgui.ready) {
         m_imgui.ready = true;
         renderer::enable_imgui();
+
+        if (m_imgui.imgui_load_action.state() && m_imgui.imgui_load_action.isFunction()) {
+            m_imgui.imgui_load_action();
+        }
     }
     else if (m_imgui.ready && !m_imgui.enabled) {
         m_imgui.ready = false;
@@ -310,6 +322,7 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("setGameWindowTitle", &environment::set_game_window_title)
             .addFunction("setGameWindowSize", &environment::set_game_window_size)
             .addFunction("importScript", &environment::import_script)
+            .addFunction("runScript", &environment::run_script)
             .addFunction("scaleFactor", &environment::scale)
             .addFunction("loadImGui", &environment::start_imgui_environment)
             .addFunction("unloadImGui", &environment::end_imgui_environment)
@@ -332,10 +345,11 @@ auto environment::scale() -> double
     return renderer::scale_factor();
 }
 
-auto environment::start_imgui_environment() -> void
+auto environment::start_imgui_environment(const luabridge::LuaRef& callback) -> void
 {
     if (auto env = $_active_environment.lock()) {
         env->m_imgui.enabled = true;
+        env->m_imgui.imgui_load_action = callback;
     }
 }
 
@@ -351,6 +365,14 @@ auto environment::import_script(const asset::resource_descriptor::lua_reference&
 {
     if (auto env = $_active_environment.lock()) {
         scripting::lua::script script(env->m_lua_runtime->shared_from_this(), ref);
+        env->m_lua_runtime->run(script);
+    }
+}
+
+auto environment::run_script(const std::string &script_string) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        scripting::lua::script script(env->m_lua_runtime->shared_from_this(), script_string);
         env->m_lua_runtime->run(script);
     }
 }

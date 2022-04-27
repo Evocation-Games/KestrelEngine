@@ -42,6 +42,12 @@ namespace ui::imgui
 
         lua_api auto set_action(luabridge::LuaRef action) -> void { m_action = action; }
 
+        auto position() const -> math::point override { return widget::position(); }
+        auto set_position(const math::point &position) -> void override { widget::set_position(position); }
+
+        auto size() const -> math::size override { return widget::size(); }
+        auto set_size(const math::size &size) -> void override { widget::set_size(size); }
+
         auto draw() -> void override;
 
     private:

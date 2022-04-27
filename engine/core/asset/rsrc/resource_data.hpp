@@ -52,6 +52,8 @@ namespace asset
         [[nodiscard]] lua_api auto type() const -> std::string;
         [[nodiscard]] lua_api auto reference() const -> asset::resource_descriptor::lua_reference;
 
+        [[nodiscard]] lua_api auto bytes_available() const -> bool;
+
         lua_api auto read_signed_byte() -> int8_t;
         lua_api auto read_signed_short() -> int16_t;
         lua_api auto read_signed_long() -> int32_t;

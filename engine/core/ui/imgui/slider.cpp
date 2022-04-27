@@ -28,6 +28,8 @@ auto ui::imgui::slider::enroll_object_api_in_state(const std::shared_ptr<scripti
         .beginNamespace("ImGui")
             .beginClass<slider>("Slider")
                 .addConstructor<auto(*)(int32_t, int32_t, int32_t)->void, lua_reference>()
+                .addProperty("position", &slider::position, &slider::set_position)
+                .addProperty("size", &slider::size, &slider::set_size)
                 .addProperty("minimumValue", &slider::minimum, &slider::set_minimum)
                 .addProperty("maximumValue", &slider::maximum, &slider::set_maximum)
                 .addProperty("value", &slider::value, &slider::set_value)
@@ -47,6 +49,14 @@ ui::imgui::slider::slider(int32_t value, int32_t min, int32_t max)
 
 auto ui::imgui::slider::draw() -> void
 {
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
+
     if (ImGui::SliderInt(identifier_string(), &m_value, m_min, m_max, "%d", ImGuiSliderFlags_None)) {
         if (!m_changed.isNil() && m_changed.isFunction()) {
             m_changed();

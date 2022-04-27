@@ -28,6 +28,8 @@ auto ui::imgui::textfield::enroll_object_api_in_state(const std::shared_ptr<scri
         .beginNamespace("ImGui")
             .beginClass<textfield>("TextField")
                 .addConstructor<auto(*)(std::size_t, const std::string&)->void, lua_reference>()
+                .addProperty("position", &textfield::position, &textfield::set_position)
+                .addProperty("size", &textfield::size, &textfield::set_size)
             .endClass()
         .endNamespace();
 }
@@ -52,5 +54,13 @@ ui::imgui::textfield::~textfield()
 
 auto ui::imgui::textfield::draw() -> void
 {
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
+    }
+
     ImGui::InputText(identifier_string(), m_buffer, m_buffer_size);
 }

@@ -22,7 +22,10 @@
 
 #include <string>
 #include "util/uuid.hpp"
+#include "util/hint.hpp"
 #include <imgui/imgui.h>
+#include "math/point.hpp"
+#include "math/size.hpp"
 
 namespace ui::imgui
 {
@@ -35,12 +38,51 @@ namespace ui::imgui
             m_id_string = "##" + std::to_string(m_id);
         }
 
-        [[nodiscard]] inline auto identifier_string() const -> const char * { return m_id_string.c_str(); }
+        [[nodiscard]] inline auto identifier_string() const -> const char *
+        {
+            return m_id_string.c_str();
+        }
+
+        [[nodiscard]] lua_api virtual auto position() const -> math::point
+        {
+            return m_position;
+        }
+
+        lua_api virtual auto set_position(const math::point& position) -> void
+        {
+            m_position = position;
+            m_has_position = true;
+        }
+
+        auto has_position() const -> bool
+        {
+            return m_has_position;
+        }
+
+        [[nodiscard]] lua_api virtual auto size() const -> math::size
+        {
+            return m_size;
+        }
+
+        lua_api virtual auto set_size(const math::size& size) -> void
+        {
+            m_size = size;
+            m_has_size = true;
+        }
+
+        auto has_size() const -> bool
+        {
+            return m_has_size;
+        }
 
         virtual auto draw() -> void = 0;
 
     private:
         ImGuiID m_id;
         std::string m_id_string;
+        math::point m_position;
+        math::size m_size;
+        bool m_has_position { false };
+        bool m_has_size { false };
     };
 }

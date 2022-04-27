@@ -57,10 +57,10 @@ auto ui::imgui::dockspace::draw() -> void
             window->draw();
         }
 
-//        static bool demo = true;
-//        if (demo) {
-//            ImGui::ShowDemoWindow(&demo);
-//        }
+        static bool demo = true;
+        if (demo) {
+            ImGui::ShowDemoWindow(&demo);
+        }
 
         ImGui::End();
     }
@@ -94,7 +94,7 @@ auto ui::imgui::dockspace::erase() -> void
         auto& window = m_windows[i];
         window.reset();
     }
-    m_windows.empty();
+    m_windows.clear();
 }
 
 // MARK: - Events

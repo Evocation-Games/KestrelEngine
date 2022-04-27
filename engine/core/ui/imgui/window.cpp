@@ -29,10 +29,12 @@ auto ui::imgui::window::enroll_object_api_in_state(const std::shared_ptr<scripti
     lua->global_namespace()
         .beginNamespace("ImGui")
             .beginClass<window>("Window")
-//                .addConstructor<auto(*)(const std::string&, const math::size&)->void, lua_reference>()
                 .addStaticFunction("create", &window::create)
                 .addProperty("title", &window::title, &window::set_title)
                 .addProperty("size", &window::size, &window::set_size)
+                .addProperty("isClosed", &window::is_closed)
+                .addProperty("hasClosedButton", &window::has_close_button, &window::set_has_close_button)
+                .addProperty("resizable", &window::is_resizable, &window::set_resizable)
                 .addFunction("show", &window::show)
                 .addFunction("hide", &window::hide)
                 .addFunction("close", &window::close)
@@ -127,7 +129,21 @@ auto ui::imgui::window::draw() -> void
         m_dirty_position = false;
     }
 
-    if (!ImGui::Begin(identified_title().c_str(), &m_shown)) {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+    if (m_title.empty()) {
+        flags |= ImGuiWindowFlags_NoTitleBar;
+    }
+
+    if (!m_resizable) {
+        flags |= ImGuiWindowFlags_NoResize;
+    }
+
+    auto close = &m_shown;
+    if (!m_has_close_button) {
+        close = nullptr;
+    }
+
+    if (!ImGui::Begin(identified_title().c_str(), close, flags)) {
         ImGui::End();
 
         return;

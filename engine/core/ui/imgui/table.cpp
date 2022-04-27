@@ -30,6 +30,8 @@ auto ui::imgui::table::enroll_object_api_in_state(const std::shared_ptr<scriptin
         .beginNamespace("ImGui")
             .beginClass<table>("Table")
                 .addConstructor<auto(*)(float)->void, lua_reference>()
+                .addProperty("position", &table::position, &table::set_position)
+                .addProperty("size", &table::size, &table::set_size)
                 .addProperty("header", &table::header, &table::set_header)
                 .addFunction("addRow", &table::add_row)
             .endClass()
@@ -121,6 +123,14 @@ auto ui::imgui::table::draw() -> void
 
     if (m_width > 0) {
         size.x *= m_width;
+    }
+
+    if (has_position()) {
+        ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
+    }
+
+    if (has_size()) {
+        ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
     }
 
     if (ImGui::BeginTable(identifier_string(), 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollY, size)) {

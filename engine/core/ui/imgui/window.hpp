@@ -39,7 +39,7 @@ namespace ui::imgui
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        lua_api window(const std::string& title, const math::size& size);
+        window(const std::string& title, const math::size& size);
         ~window() = default;
 
         lua_api static auto create(const std::string& title, const math::size& size) -> lua_reference;
@@ -49,14 +49,19 @@ namespace ui::imgui
         lua_api auto close() -> void;
         lua_api auto center() -> void;
 
-        [[nodiscard]] inline auto is_closed() const -> bool { return m_closed; }
+        [[nodiscard]] lua_api inline auto is_closed() const -> bool { return m_closed; }
+        [[nodiscard]] lua_api inline auto has_close_button() const -> bool { return m_has_close_button; }
+        lua_api auto set_has_close_button(bool f) -> void { m_has_close_button = f; }
+
+        [[nodiscard]] lua_api inline auto is_resizable() const -> bool { return m_resizable; }
+        lua_api auto set_resizable(bool f) -> void { m_resizable = f; }
 
         [[nodiscard]] lua_api auto title() const -> std::string;
         [[nodiscard]] auto identified_title() const -> std::string { return m_title + identifier_string(); }
         lua_api auto set_title(const std::string& title) -> void;
 
-        [[nodiscard]] lua_api auto size() const -> math::size;
-        lua_api auto set_size(const math::size& size) -> void;
+        [[nodiscard]] lua_api auto size() const -> math::size override;
+        lua_api auto set_size(const math::size& size) -> void override;
 
         auto draw() -> void override;
 
@@ -70,6 +75,8 @@ namespace ui::imgui
         bool m_dirty_position { false };
         bool m_shown { true };
         bool m_closed { false };
+        bool m_has_close_button { true };
+        bool m_resizable { true };
         widget_container m_contents;
     };
 }

@@ -122,7 +122,11 @@ auto audio::core_audio::player::stop(const audio::playback_session_ref &ref) -> 
     const auto& session = audio::player<playback_session_info>::playback_session(ref);
     if (session != nullptr) {
         if (session->item->is_file_item()) {
-
+            if (m_player) {
+                [m_player pause];
+                [m_player release];
+                m_player = nullptr;
+            }
         }
         else {
             AudioQueueStop(session->info.queue, true);
