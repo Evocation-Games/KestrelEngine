@@ -23,22 +23,26 @@
 // MARK: - Fonts
 
 static ImFont **s_fonts = nullptr;
+static ImFontConfig **s_font_config = nullptr;
 
 auto ui::imgui::label::configure_fonts() -> void
 {
-    s_fonts = reinterpret_cast<ImFont**>(calloc(24, sizeof(ImFont*)));
-
     ImGuiIO &io = ImGui::GetIO();
-    ImFontConfig config;
-    config.OversampleH = config.OversampleV = 1;
-    config.PixelSnapH = true;
 
-    for (auto size = 9; size <= 24; ++size) {
-        config.OversampleH = config.OversampleV = 1;
-        config.PixelSnapH = true;
-        config.SizePixels = size;
+    s_fonts = reinterpret_cast<ImFont**>(calloc(24, sizeof(ImFont*)));
+    s_font_config = reinterpret_cast<ImFontConfig**>(calloc(24, sizeof(ImFontConfig*)));
 
-        s_fonts[size] = io.Fonts->AddFontDefault(&config);
+    ImFontConfig base_config;
+
+    for (auto size = 9; size <= 23; ++size) {
+        s_font_config[size] = reinterpret_cast<ImFontConfig *>(calloc(1, sizeof(ImFontConfig)));
+        memcpy(s_font_config[size], &base_config, sizeof(ImFontConfig));
+
+        s_font_config[size]->OversampleH = s_font_config[size]->OversampleV = 1;
+        s_font_config[size]->PixelSnapH = true;
+        s_font_config[size]->SizePixels = size;
+
+        s_fonts[size] = io.Fonts->AddFontDefault(s_font_config[size]);
     }
 
     io.FontDefault = s_fonts[13];

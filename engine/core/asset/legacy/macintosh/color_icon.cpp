@@ -33,7 +33,7 @@ auto asset::legacy::macintosh::quickdraw::color_icon::enroll_object_api_in_state
         .beginNamespace("Legacy")
             .beginNamespace("Macintosh")
                 .beginClass<color_icon>("ColorIcon")
-                .addConstructor<auto(*)(const resource_descriptor::lua_reference&)->void, color_icon::lua_reference>()
+                    .addConstructor<auto(*)(const resource_descriptor::lua_reference&)->void, color_icon::lua_reference>()
                     .addStaticFunction("load", &color_icon::load)
                     .addProperty("size", &color_icon::size)
                     .addFunction("spawnEntity", &color_icon::spawn_entity)

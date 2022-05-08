@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2022 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,18 @@
 
 #pragma once
 
-#include "core/asset/basic_image.hpp"
-#include "core/asset/rsrc/resource_descriptor.hpp"
-#include "scripting/state.hpp"
-#include "util/hint.hpp"
-
-namespace asset::legacy::macintosh::quickdraw
-{
-
-    struct color_icon: public asset::basic_image, public scripting::lua::object
-    {
-    public:
-        constexpr static const char *type { "cicn" };
-        typedef luabridge::RefCountedPtr<color_icon> lua_reference;
-        static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
-
-        lua_api explicit color_icon(const asset::resource_descriptor::lua_reference& ref);
-        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> color_icon::lua_reference;
-
-        lua_api [[nodiscard]] auto size() const -> math::size override;
-
-        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
-    };
-
-};
+#include "core/ui/imgui/box.hpp"
+#include "core/ui/imgui/button.hpp"
+#include "core/ui/imgui/checkbox.hpp"
+#include "core/ui/imgui/combo.hpp"
+#include "core/ui/imgui/dockspace.hpp"
+#include "core/ui/imgui/image.hpp"
+#include "core/ui/imgui/label.hpp"
+#include "core/ui/imgui/same_line.hpp"
+#include "core/ui/imgui/separator.hpp"
+#include "core/ui/imgui/slider.hpp"
+#include "core/ui/imgui/tabbar.hpp"
+#include "core/ui/imgui/table.hpp"
+#include "core/ui/imgui/textfield.hpp"
+#include "core/ui/imgui/window.hpp"
+#include "core/ui/imgui/style.hpp"

@@ -75,7 +75,8 @@ public:
     lua_api static auto play_audio_file(const std::string& file) -> void;
     lua_api static auto stop_audio_file() -> void;
 
-    lua_api static auto start_imgui_environment(const luabridge::LuaRef& callback) -> void;
+    lua_api static auto start_imgui_environment() -> void;
+    lua_api static auto start_imgui_environment_callback(const luabridge::LuaRef& callback) -> void;
     lua_api static auto end_imgui_environment(const luabridge::LuaRef& callback) -> void;
     inline auto imgui_dockspace() -> ui::imgui::dockspace& { return m_imgui.dockspace; }
 

@@ -30,6 +30,8 @@
 #include "scripting/state.hpp"
 #include "core/event/event.hpp"
 #include "core/graphics/common/entity.hpp"
+#include "core/graphics/common/canvas.hpp"
+#include "core/asset/static_image.hpp"
 
 namespace ui
 {
@@ -42,6 +44,8 @@ namespace ui
     public:
         explicit scene_entity(const std::shared_ptr<graphics::entity>& entity);
         explicit scene_entity(const luabridge::LuaRef& entity_provider);
+        explicit scene_entity(const asset::static_image::lua_reference& image);
+        explicit scene_entity(const graphics::canvas::lua_reference& canvas);
 
         [[nodiscard]] lua_api auto position() const -> math::point;
         [[nodiscard]] lua_api auto draw_position() const -> math::point;
@@ -120,6 +124,8 @@ namespace ui
         luabridge::LuaRef m_on_mouse_drag { nullptr };
 
         static auto spawn_entity(const luabridge::LuaRef& entity_provider) -> std::shared_ptr<graphics::entity>;
+        static auto spawn_entity(const asset::static_image::lua_reference& image) -> std::shared_ptr<graphics::entity>;
+        static auto spawn_entity(const graphics::canvas::lua_reference& canvas) -> std::shared_ptr<graphics::entity>;
 
     };
 }

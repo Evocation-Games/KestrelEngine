@@ -54,10 +54,10 @@ auto ui::imgui::combo::draw() -> void
     }
 
     auto count = m_items.length();
-    const char *preview = nullptr;
+    std::string preview;
 
     if (m_items[m_selected].isString()) {
-        preview = m_items[m_selected].tostring().c_str();
+        preview = m_items[m_selected].tostring();
     }
 
     if (has_position()) {
@@ -68,7 +68,7 @@ auto ui::imgui::combo::draw() -> void
         ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
     }
 
-    if (ImGui::BeginCombo(identifier_string(), preview, ImGuiComboFlags_None)) {
+    if (ImGui::BeginCombo(identifier_string(), preview.c_str(), ImGuiComboFlags_None)) {
         for (auto i = 1; i <= count; ++i) {
             bool is_selected = (m_selected == i);
 

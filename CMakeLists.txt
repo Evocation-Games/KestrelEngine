@@ -175,7 +175,7 @@ endif()
 ########################################################################################################################
 ## Kestrel - Example Project
 add_custom_target(Kestrel-GameProject
-    ${CMAKE_BUILD_DIR}/kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/${KESTREL_PROJECT_PATH}"
+    ${CMAKE_BUILD_DIR}/kdl -f extended -o /kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/${KESTREL_PROJECT_PATH}"
 )
 add_dependencies(Kestrel-GameProject kdl)
 add_dependencies(Kestrel Kestrel-GameProject)

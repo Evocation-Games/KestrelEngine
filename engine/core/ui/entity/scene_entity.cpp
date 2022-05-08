@@ -99,6 +99,18 @@ ui::scene_entity::scene_entity(const luabridge::LuaRef& entity_provider)
 
 }
 
+ui::scene_entity::scene_entity(const asset::static_image::lua_reference &image)
+    : m_entity(spawn_entity(image)), m_position(0), m_frame(0)
+{
+
+}
+
+ui::scene_entity::scene_entity(const graphics::canvas::lua_reference &canvas)
+    : m_entity(spawn_entity(canvas)), m_position(), m_frame(0)
+{
+
+}
+
 // MARK: - Entity Spawning
 
 template<class T>
@@ -137,6 +149,22 @@ auto ui::scene_entity::spawn_entity(const luabridge::LuaRef& entity_provider) ->
         }
     }
     return nullptr;
+}
+
+auto ui::scene_entity::spawn_entity(const asset::static_image::lua_reference &image) -> std::shared_ptr<graphics::entity>
+{
+    if (image.get()) {
+        return image->spawn_entity({ 0, 0 });
+    }
+    return {};
+}
+
+auto ui::scene_entity::spawn_entity(const graphics::canvas::lua_reference &canvas) -> std::shared_ptr<graphics::entity>
+{
+    if (canvas.get()) {
+        return canvas->spawn_entity({ 0, 0 });
+    }
+    return {};
 }
 
 auto ui::scene_entity::set_sprite(const luabridge::LuaRef& sprite) -> void

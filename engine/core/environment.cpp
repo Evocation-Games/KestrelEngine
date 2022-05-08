@@ -324,7 +324,7 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("importScript", &environment::import_script)
             .addFunction("runScript", &environment::run_script)
             .addFunction("scaleFactor", &environment::scale)
-            .addFunction("loadImGui", &environment::start_imgui_environment)
+            .addFunction("loadImGui", &environment::start_imgui_environment_callback)
             .addFunction("unloadImGui", &environment::end_imgui_environment)
             .addFunction("loadScenarioData", &environment::load_game_data)
         .endNamespace();
@@ -345,11 +345,23 @@ auto environment::scale() -> double
     return renderer::scale_factor();
 }
 
-auto environment::start_imgui_environment(const luabridge::LuaRef& callback) -> void
+auto environment::start_imgui_environment() -> void
 {
     if (auto env = $_active_environment.lock()) {
         env->m_imgui.enabled = true;
-        env->m_imgui.imgui_load_action = callback;
+    }
+}
+
+auto environment::start_imgui_environment_callback(const luabridge::LuaRef& callback) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        env->m_imgui.enabled = true;
+        if (callback.state()) {
+            env->m_imgui.imgui_load_action = callback;
+        }
+        else {
+            env->m_imgui.imgui_load_action = { env->m_lua_runtime->internal_state(), nullptr };
+        }
     }
 }
 

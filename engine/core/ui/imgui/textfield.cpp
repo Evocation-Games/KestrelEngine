@@ -40,6 +40,7 @@ ui::imgui::textfield::textfield(std::size_t buffer_size, const std::string &text
     : m_buffer_size(buffer_size)
 {
     m_buffer = new char[buffer_size + 1];
+    memset(m_buffer, 0, buffer_size + 1);
     memcpy(m_buffer, text.c_str(), std::min(text.size(), buffer_size));
 }
 
