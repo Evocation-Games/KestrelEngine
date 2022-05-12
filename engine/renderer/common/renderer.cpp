@@ -18,13 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <imgui/imgui.h>
 #include "renderer/common/context.hpp"
 #include "renderer/common/renderer.hpp"
 #include "renderer/common/draw_buffer.hpp"
 #include "renderer/opengl/context.hpp"
 #include "renderer/metal/context.h"
-#include <imgui/imgui.h>
-#include "core/ui/imgui/label.hpp"
+#include "core/ui/imgui/imgui.hpp"
 
 // MARK: - API
 
@@ -252,7 +252,7 @@ auto renderer::enable_imgui() -> void
 
     ImGui::StyleColorsDark();
 
-    ui::imgui::label::configure_fonts();
+    ui::font::manager::shared_manager().load_all_fonts_for_imgui();
 
     s_renderer_api.imgui = true;
     s_renderer_api.context->enable_imgui();
@@ -262,4 +262,6 @@ auto renderer::disable_imgui() -> void
 {
     s_renderer_api.context->disable_imgui();
     s_renderer_api.imgui = false;
+
+    ui::font::manager::shared_manager().unload_all_imgui_fonts();
 }

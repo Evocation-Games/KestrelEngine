@@ -48,7 +48,16 @@ static inline auto init_freetype() -> void
     }
 }
 
-graphics::font::font(const std::string& name)
+graphics::font::font(const std::string &path, float size)
+    : m_path(path)
+{
+    init_freetype();
+    if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
+        throw std::logic_error("Failed to load font face.");
+    }
+}
+
+graphics::font::font(const std::string& name, bool load_font)
 {
 #if __APPLE__
     m_path = cocoa::font::path_for(name);
@@ -58,10 +67,12 @@ graphics::font::font(const std::string& name)
     m_path = "C:/Windows/Fonts/Arial.ttf";
 #endif
 
-    init_freetype();
+    if (load_font) {
+        init_freetype();
 
-    if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
-        throw std::logic_error("Failed to load font face.");
+        if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
+            throw std::logic_error("Failed to load font face.");
+        }
     }
 }
 
@@ -91,6 +102,11 @@ graphics::font::~font()
 auto graphics::font::face() const -> FT_Face
 {
     return m_face;
+}
+
+auto graphics::font::path() const -> std::string
+{
+    return m_path;
 }
 
 // MARK: - Metrics

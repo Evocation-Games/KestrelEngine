@@ -26,6 +26,7 @@
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 #include "core/graphics/common/spritesheet.hpp"
+#include "core/ui/font/manager.hpp"
 
 namespace ui::imgui
 {
@@ -52,11 +53,17 @@ namespace ui::imgui
         auto size() const -> math::size override { return widget::size(); }
         auto set_size(const math::size &size) -> void override { widget::set_size(size); }
 
+        [[nodiscard]] auto font() const -> font::reference::lua_reference { return m_font; }
+        auto set_font(const font::reference::lua_reference& font) -> void { m_font = font; }
+
         auto draw() -> void override;
 
     private:
-        luabridge::LuaRef m_action;
-        luabridge::LuaRef m_items;
+        luabridge::LuaRef m_action { nullptr };
+        luabridge::LuaRef m_items { nullptr };
         uint32_t m_selected { 1 };
+        font::reference::lua_reference m_font { nullptr };
+
+        auto internal_draw() -> void;
     };
 }

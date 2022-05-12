@@ -107,6 +107,7 @@ auto renderer::opengl::swap_chain::finalize_imgui() -> void
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::EndFrame();
 }
 
 // MARK: - Projection

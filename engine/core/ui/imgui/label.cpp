@@ -19,34 +19,7 @@
 // SOFTWARE.
 
 #include "core/ui/imgui/label.hpp"
-
-// MARK: - Fonts
-
-static ImFont **s_fonts = nullptr;
-static ImFontConfig **s_font_config = nullptr;
-
-auto ui::imgui::label::configure_fonts() -> void
-{
-    ImGuiIO &io = ImGui::GetIO();
-
-    s_fonts = reinterpret_cast<ImFont**>(calloc(24, sizeof(ImFont*)));
-    s_font_config = reinterpret_cast<ImFontConfig**>(calloc(24, sizeof(ImFontConfig*)));
-
-    ImFontConfig base_config;
-
-    for (auto size = 9; size <= 23; ++size) {
-        s_font_config[size] = reinterpret_cast<ImFontConfig *>(calloc(1, sizeof(ImFontConfig)));
-        memcpy(s_font_config[size], &base_config, sizeof(ImFontConfig));
-
-        s_font_config[size]->OversampleH = s_font_config[size]->OversampleV = 1;
-        s_font_config[size]->PixelSnapH = true;
-        s_font_config[size]->SizePixels = size;
-
-        s_fonts[size] = io.Fonts->AddFontDefault(s_font_config[size]);
-    }
-
-    io.FontDefault = s_fonts[13];
-}
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Lua
 
@@ -59,7 +32,7 @@ auto ui::imgui::label::enroll_object_api_in_state(const std::shared_ptr<scriptin
                 .addProperty("position", &label::position, &label::set_position)
                 .addProperty("size", &label::size, &label::set_size)
                 .addProperty("text", &label::text, &label::set_text)
-                .addProperty("largeFont", &label::is_large_font, &label::set_large_font)
+                .addProperty("font", &label::font, &label::set_font)
                 .addProperty("wrapping", &label::wrapping, &label::set_wrapping)
                 .addProperty("textSize", &label::text_size, &label::set_text_size)
             .endClass()
@@ -75,7 +48,7 @@ ui::imgui::label::label(const std::string &text)
 
 // MARK: - Drawing
 
-auto ui::imgui::label::draw() -> void
+auto ui::imgui::label::internal_draw() -> void
 {
     if (has_position()) {
         ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
@@ -85,14 +58,20 @@ auto ui::imgui::label::draw() -> void
         ImGui::SetNextItemWidth(static_cast<float>(this->size().width));
     }
 
-    ImGui::PushFont(s_fonts[m_font_size]);
-
     if (m_wraps) {
         ImGui::TextWrapped("%s", m_text.c_str());
     }
     else {
         ImGui::Text("%s", m_text.c_str());
     }
+}
 
-    ImGui::PopFont();
+auto ui::imgui::label::draw() -> void
+{
+    if (m_font.get()) {
+        m_font->push([&] { internal_draw(); });
+    }
+    else {
+        internal_draw();
+    }
 }

@@ -69,6 +69,7 @@ set(ImGUI_SOURCES
     "${PROJECT_SUBMODULE_DIR}/imgui/imgui_demo.cpp"
     "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_glfw.cpp"
     "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+    "${PROJECT_SUBMODULE_DIR}/imgui/misc/freetype/imgui_freetype.cpp"
 )
 
 if (APPLE)
@@ -76,12 +77,19 @@ if (APPLE)
         "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_osx.mm"
         "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_metal.mm"
     )
+
+    set(ImGUI_FREETYPE_INCLUDES "${PROJECT_SUBMODULE_DIR}/freetype/include")
+else()
+    find_package(Freetype REQUIRED)
+    set(ImGUI_FREETYPE_INCLUDES ${FREETYPE_INCLUDE_DIRS})
 endif()
 
 add_library(ImGUI STATIC ${ImGUI_SOURCES})
+target_compile_definitions(ImGUI PUBLIC -DIMGUI_ENABLE_FREETYPE)
 target_include_directories(ImGUI PUBLIC
     "${PROJECT_SUBMODULE_DIR}/imgui"
     "${PROJECT_SUBMODULE_DIR}/glfw/include"
+    ${ImGUI_FREETYPE_INCLUDES}
 )
 
 if (APPLE)
@@ -165,6 +173,7 @@ add_executable(Kestrel ${KESTREL_EXE_TYPE} ${KESTREL_SOURCES})
 target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
 target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
 target_link_libraries(Kestrel ${KESTREL_LIBS})
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
 if (APPLE OR WIN32)
     set_target_properties(Kestrel PROPERTIES OUTPUT_NAME ${KESTREL_NAME})

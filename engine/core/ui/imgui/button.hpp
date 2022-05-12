@@ -22,12 +22,14 @@
 
 #include <string>
 #include <imgui/imgui.h>
-#include "core/ui/imgui/widget.hpp"
-#include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "scripting/state.hpp"
+#include "core/ui/font/manager.hpp"
+#include "core/ui/imgui/widget.hpp"
 
 namespace ui::imgui
 {
+
     class button : public widget, public scripting::lua::object
     {
     public:
@@ -42,16 +44,22 @@ namespace ui::imgui
 
         lua_api auto set_action(luabridge::LuaRef action) -> void { m_action = action; }
 
-        auto position() const -> math::point override { return widget::position(); }
+        [[nodiscard]] auto position() const -> math::point override { return widget::position(); }
         auto set_position(const math::point &position) -> void override { widget::set_position(position); }
 
-        auto size() const -> math::size override { return widget::size(); }
+        [[nodiscard]] auto size() const -> math::size override { return widget::size(); }
         auto set_size(const math::size &size) -> void override { widget::set_size(size); }
+
+        [[nodiscard]] auto font() const -> font::reference::lua_reference { return m_font; }
+        auto set_font(const font::reference::lua_reference& font) -> void { m_font = font; }
 
         auto draw() -> void override;
 
     private:
         std::string m_label;
-        luabridge::LuaRef m_action;
+        luabridge::LuaRef m_action { nullptr };
+        font::reference::lua_reference m_font { nullptr };
+
+        auto internal_draw() -> void;
     };
 }

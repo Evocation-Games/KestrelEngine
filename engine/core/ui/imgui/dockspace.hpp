@@ -59,6 +59,7 @@ namespace ui::imgui
 
     private:
         auto map_key(hid::key k) -> ImGuiKey;
+        auto internal_draw() -> void;
 
     };
 }

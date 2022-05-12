@@ -47,7 +47,7 @@ ui::imgui::combo::combo(luabridge::LuaRef items)
 
 // MARK: - Drawing
 
-auto ui::imgui::combo::draw() -> void
+auto ui::imgui::combo::internal_draw() -> void
 {
     if (!m_items.isTable()) {
         return;
@@ -93,5 +93,15 @@ auto ui::imgui::combo::draw() -> void
         }
 
         ImGui::EndCombo();
+    }
+}
+
+auto ui::imgui::combo::draw() -> void
+{
+    if (m_font.get()) {
+        m_font->push([&] { internal_draw(); });
+    }
+    else {
+        internal_draw();
     }
 }

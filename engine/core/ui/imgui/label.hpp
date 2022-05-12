@@ -22,9 +22,10 @@
 
 #include <string>
 #include <imgui/imgui.h>
+#include "util/hint.hpp"
 #include "core/ui/imgui/widget.hpp"
 #include "scripting/state.hpp"
-#include "util/hint.hpp"
+#include "core/ui/font/manager.hpp"
 
 namespace ui::imgui
 {
@@ -35,15 +36,13 @@ namespace ui::imgui
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        static auto configure_fonts() -> void;
-
         lua_api explicit label(const std::string& text);
 
         [[nodiscard]] lua_api auto text() const -> std::string { return m_text; }
         lua_api auto set_text(const std::string& text) -> void { m_text = text; }
 
-        [[nodiscard]] lua_api auto is_large_font() const -> bool { return m_font_size > 13; }
-        lua_api auto set_large_font(bool f) -> void { m_font_size = f ? 18 : 13; }
+        [[nodiscard]] lua_api auto is_large_font() const -> bool { return m_font_size > 15; }
+        lua_api auto set_large_font(bool f) -> void { m_font_size = f ? 20 : 15; }
 
         [[nodiscard]] lua_api auto wrapping() const -> bool { return m_wraps; }
         lua_api auto set_wrapping(bool f) -> void { m_wraps = f; }
@@ -57,12 +56,17 @@ namespace ui::imgui
         [[nodiscard]] lua_api auto size() const -> math::size override { return widget::size(); }
         lua_api auto set_size(const math::size &size) -> void override { widget::set_size(size); }
 
+        [[nodiscard]] auto font() const -> font::reference::lua_reference { return m_font; }
+        auto set_font(const font::reference::lua_reference& font) -> void { m_font = font; }
+
         auto draw() -> void override;
 
     private:
-        uint32_t m_font_size { 13 };
+        uint32_t m_font_size { 15 };
         bool m_wraps { false };
         std::string m_text;
+        font::reference::lua_reference m_font { nullptr };
 
+        auto internal_draw() -> void;
     };
 }

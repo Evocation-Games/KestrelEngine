@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/ui/imgui/dockspace.hpp"
+#include "core/ui/font/manager.hpp"
 #include <cmath>
 
 static bool s_dockspace_enabled = false;
@@ -36,7 +37,7 @@ auto ui::imgui::dockspace::enroll_object_api_in_state(const std::shared_ptr<scri
 
 // MARK: - Drawing
 
-auto ui::imgui::dockspace::draw() -> void
+auto ui::imgui::dockspace::internal_draw() -> void
 {
     if (s_dockspace_enabled) {
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -68,6 +69,17 @@ auto ui::imgui::dockspace::draw() -> void
         for (auto window : m_windows) {
             window->draw();
         }
+    }
+}
+
+auto ui::imgui::dockspace::draw() -> void
+{
+    auto default_font = font::manager::shared_manager().default_font();
+    if (default_font.get()) {
+        default_font->push([&] { internal_draw(); });
+    }
+    else {
+        internal_draw();
     }
 }
 

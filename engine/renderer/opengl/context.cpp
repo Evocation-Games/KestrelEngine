@@ -379,8 +379,9 @@ auto renderer::opengl::context::finalize_frame(const std::function<auto() -> voi
         m_imgui.enabled = false;
     }
 
-    render_pass->finalize([] {
+    render_pass->finalize([callback] {
         glfwPollEvents();
+        callback();
     });
 
     m_swap.ptr = nullptr;

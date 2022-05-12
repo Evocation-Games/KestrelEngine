@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/ui/imgui/button.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Lua
 
@@ -45,7 +46,7 @@ ui::imgui::button::button(const std::string& label, luabridge::LuaRef action)
 
 // MARK: - Drawing
 
-auto ui::imgui::button::draw() -> void
+auto ui::imgui::button::internal_draw() -> void
 {
     if (has_position()) {
         ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
@@ -59,5 +60,15 @@ auto ui::imgui::button::draw() -> void
         if (m_action.isFunction()) {
             m_action();
         }
+    }
+}
+
+auto ui::imgui::button::draw() -> void
+{
+    if (m_font.get()) {
+        m_font->push([&] { internal_draw(); });
+    }
+    else {
+        internal_draw();
     }
 }

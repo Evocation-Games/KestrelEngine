@@ -62,6 +62,7 @@
 #include "core/ui/control_definition.hpp"
 #include "core/ui/dialog/dialog_configuration.hpp"
 #include "core/ui/dialog/dialog.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Destruction
 
@@ -140,6 +141,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::stencils::button_stencil::enroll_object_api_in_state(shared_from_this());
     ui::dialog_configuration::enroll_object_api_in_state(shared_from_this());
     ui::dialog::enroll_object_api_in_state(shared_from_this());
+    ui::font::manager::enroll_object_api_in_state(shared_from_this());
+    ui::font::reference::enroll_object_api_in_state(shared_from_this());
 
     ui::imgui::window::enroll_object_api_in_state(shared_from_this());
     ui::imgui::label::enroll_object_api_in_state(shared_from_this());

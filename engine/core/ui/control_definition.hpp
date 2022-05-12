@@ -138,7 +138,7 @@ namespace ui
         [[nodiscard]] lua_api auto column_headings() const -> util::lua_vector<std::string> { return m_column_headings; }
         lua_api auto set_column_headings(const util::lua_vector<std::string>& headings) -> void { m_column_headings = headings; }
 
-        [[nodiscard]] lua_api auto set_columns(const luabridge::LuaRef& widths, const luabridge::LuaRef& headings) -> void;
+        lua_api auto set_columns(const luabridge::LuaRef& widths, const luabridge::LuaRef& headings) -> void;
 
         [[nodiscard]] lua_api auto borders() const -> bool { return m_borders; }
         lua_api auto set_borders(bool f) -> void { m_borders = f; }
