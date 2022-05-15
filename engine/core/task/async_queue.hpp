@@ -20,50 +20,28 @@
 
 #pragma once
 
-#include <vector>
-#include <imgui/imgui.h>
-#include "core/ui/imgui/window.hpp"
-#include "core/ui/imgui/diagnostics.hpp"
-#include "core/event/event.hpp"
+#include <thread>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
-namespace ui::imgui
+namespace task
 {
-    class dockspace : public scripting::lua::object
+
+    class async_queue
     {
     public:
+        typedef luabridge::RefCountedPtr<async_queue> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        dockspace();
+        lua_api async_queue() = default;
 
-        auto draw() -> void;
-
-        auto add_window(const window::lua_reference& window) -> void;
-        auto receive_event(const event& e) -> void;
-
-        auto erase() -> void;
-
-        static auto start_dockspace() -> void;
-        static auto end_dockspace() -> void;
+        lua_api auto enqueue_task(const luabridge::LuaRef& task) -> void;
 
     private:
-        bool m_open { true };
-        ImGuiDockNodeFlags m_flags { ImGuiDockNodeFlags_None };
-        ImGuiWindowFlags m_window_flags {
-            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-            ImGuiWindowFlags_NoNavFocus
-        };
-        std::vector<window::lua_reference> m_windows;
-        diagnostics::lua_reference m_diagnostics;
-
-    private:
-        auto map_key(hid::key k) -> ImGuiKey;
-        auto internal_draw() -> void;
+        std::vector<luabridge::LuaRef> m_tasks;
 
     };
-}
 
+}
 

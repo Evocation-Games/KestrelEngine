@@ -21,6 +21,8 @@
 #include "renderer/metal/swap_chain.h"
 #include "renderer/metal/constants.h"
 #include "renderer/common/draw_buffer.hpp"
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_metal.h>
 
 // MARK: - Construction
 
@@ -45,6 +47,8 @@ auto renderer::metal::swap_chain::start(id<CAMetalDrawable> drawable, id<MTLComm
     m_texture = drawable.texture;
     m_command_buffer = command_buffer;
     m_viewport_size = vector2(width, height);
+    m_viewport_width = width;
+    m_viewport_height = height;
 
     MTLViewport viewport;
     viewport.originX = 0.0;
@@ -115,12 +119,21 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
 
 auto renderer::metal::swap_chain::start_imgui() -> void
 {
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize.x = m_viewport_width;
+    io.DisplaySize.y = m_viewport_height;
+    io.DisplayFramebufferScale = ImVec2(1.f, 1.f);
+    io.DeltaTime = 1.0 / 50.0;
 
+    ImGui_ImplMetal_NewFrame(m_pass_descriptor);
+    ImGui::NewFrame();
 }
 
 auto renderer::metal::swap_chain::finalize_imgui() -> void
 {
-
+    ImGui::Render();
+    ImGui_ImplMetal_RenderDrawData(ImGui::GetDrawData(), m_command_buffer, m_command_encoder);
+    ImGui::EndFrame();
 }
 
 // MARK: -

@@ -59,6 +59,14 @@ namespace renderer
     auto end_frame() -> void;
     auto flush_frame() -> void;
 
+    auto last_frame_time() -> float;
+    auto time_since_last_frame() -> float;
+    auto frame_render_required() -> bool;
+    auto set_target_framerate(uint32_t rate) -> void;
+    auto target_framerate() -> uint32_t;
+    auto target_frame_time() -> float;
+    auto approx_framerate() -> uint32_t;
+
     auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture>;
     auto create_texture(const math::size& size, const std::vector<uint32_t>& data) -> std::shared_ptr<graphics::texture>;
     auto create_texture(const math::size& size, const uint8_t *data) -> std::shared_ptr<graphics::texture>;

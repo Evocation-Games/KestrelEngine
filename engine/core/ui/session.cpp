@@ -27,7 +27,7 @@
 
 ui::session::session()
 {
-    m_cache_purge_time = session_clock::now();
+    m_cache.purge_time = session_clock::now();
 }
 
 // MARK: - Scene Management
@@ -78,29 +78,37 @@ auto ui::session::size() const -> math::size
 
 // MARK: - Updates / Events
 
-auto ui::session::tick() -> void
+auto ui::session::tick(bool render, bool update) -> void
 {
-    auto base_scene = 0;
-    for (auto i = m_scenes.size() - 1; i >= 0; --i) {
-        base_scene = static_cast<int>(i);
-        if (!m_scenes[i]->passthrough_render()) {
-            break;
-        }
-    }
-
-    for (auto i = base_scene; i < m_scenes.size() - 1; ++i) {
-        m_scenes[i]->internal_scene()->render();
-    }
-
     auto scene = this->current_scene();
-    if (scene.get()) {
+
+    if (update && scene.get()) {
+        m_update.last_time = rtc::clock::global().since(m_update.start_time).count();
+        m_update.start_time = rtc::clock::global().current();
         scene->internal_scene()->update();
-        scene->internal_scene()->render();
     }
 
-    if (m_console.is_visible()) {
-        m_console.update();
-        m_console.entity()->draw();
+    if (render) {
+        auto base_scene = 0;
+        for (auto i = m_scenes.size() - 1; i >= 0; --i) {
+            base_scene = static_cast<int>(i);
+            if (!m_scenes[i]->passthrough_render()) {
+                break;
+            }
+        }
+
+        for (auto i = base_scene; i < m_scenes.size() - 1; ++i) {
+            m_scenes[i]->internal_scene()->render();
+        }
+
+        if (scene.get()) {
+            scene->internal_scene()->render();
+        }
+
+        if (m_console.console.is_visible()) {
+            m_console.console.update();
+            m_console.console.entity()->draw();
+        }
     }
 }
 
@@ -108,12 +116,12 @@ auto ui::session::receive_event(const event &e) -> void
 {
     if (e.is_key_event()) {
         if (e.is_released() && e.key() == hid::f1) {
-            m_console.set_size({ size().width, size().height / 2 });
-            m_console.toggle_visibility();
+            m_console.console.set_size({ size().width, size().height / 2 });
+            m_console.console.toggle_visibility();
             return;
         }
-        if (m_console.is_visible()) {
-            m_console.receive(e);
+        if (m_console.console.is_visible()) {
+            m_console.console.receive(e);
             return;
         }
     }

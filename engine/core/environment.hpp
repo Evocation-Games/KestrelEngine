@@ -113,7 +113,7 @@ private:
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
-    float m_current_estimated_fps { 0.f };
+
 
     struct {
         bool enabled { false };

@@ -63,6 +63,8 @@
 #include "core/ui/dialog/dialog_configuration.hpp"
 #include "core/ui/dialog/dialog.hpp"
 #include "core/ui/font/manager.hpp"
+#include "renderer/common/lua_api.hpp"
+#include "core/task/async_queue.hpp"
 
 // MARK: - Destruction
 
@@ -170,13 +172,17 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     audio::asset::mp3::enroll_object_api_in_state(shared_from_this());
 
+    renderer::lua::api::enroll_namespace_api_in_state(shared_from_this());
+
+    task::async_queue::enroll_object_api_in_state(shared_from_this());
+
     util::lua_vector<asset::resource_descriptor::lua_reference>::enroll_object_api_in_state("ResourceSet", shared_from_this());
     util::lua_vector<std::string>::enroll_object_api_in_state("StringVector", shared_from_this());
     util::lua_vector<host::sandbox::file_reference::lua_reference>::enroll_object_api_in_state("DirectoryContentsVector", shared_from_this());
     util::lua_vector<host::sandbox::mod_reference::lua_reference>::enroll_object_api_in_state("ModList", shared_from_this());
 
     luabridge::getGlobalNamespace(m_state)
-            .addFunction("print", scripting_lua_state_print);
+        .addFunction("print", scripting_lua_state_print);
 }
 
 

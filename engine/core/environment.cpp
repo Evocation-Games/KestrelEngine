@@ -162,24 +162,26 @@ static uint64_t s_throttle = 0;
 auto environment::tick() -> void
 {
     auto frame_start_time = rtc::clock::global().current();
-    renderer::camera camera;
-    renderer::start_frame(camera, m_imgui.enabled && m_imgui.ready);
+    auto render_required = renderer::frame_render_required();
 
     auto session = this->session();
+
+    if (render_required) {
+        renderer::camera camera;
+        renderer::start_frame(camera, m_imgui.enabled && m_imgui.ready);
+    }
+
     if (session) {
         rtc::clock::global().tick();
-        session->tick();
+        session->tick(render_required);
     }
 
-    if (m_imgui.enabled && m_imgui.ready) {
-        m_imgui.dockspace.draw();
-    }
+    if (render_required) {
+        if (m_imgui.enabled && m_imgui.ready) {
+            m_imgui.dockspace.draw();
+        }
 
-    renderer::end_frame();
-
-    auto frame_duration = rtc::clock::global().since(frame_start_time);
-    if (s_throttle++ % 30 == 0) {
-        m_current_estimated_fps = 1.f / frame_duration.count();
+        renderer::end_frame();
     }
 
     if (m_imgui.enabled && !m_imgui.ready) {

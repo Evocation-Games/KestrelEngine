@@ -54,18 +54,34 @@ namespace ui
         auto set_size(const math::size& size) -> void;
         [[nodiscard]] auto size() const -> math::size;
 
-        auto tick() -> void;
+        auto tick(bool render = true, bool update = true) -> void;
         auto receive_event(const event& e) -> void;
 
-        auto console() -> dev::console& { return m_console; }
+        auto console() -> dev::console& { return m_console.console; }
+
+        [[nodiscard]] inline auto last_update_period() const -> float { return m_update.last_time; }
 
     private:
         bool m_alive { true };
-        double m_time { 0.0 };
-        time_point m_current_time;
-        time_point m_cache_purge_time;
+
+        struct {
+            time_point m_current_time;
+        } m_time;
+
+        struct {
+            float last_time { 0.f };
+            rtc::clock::time start_time;
+        } m_update;
+
+        struct {
+            dev::console console;
+        } m_console;
+
+        struct {
+            time_point purge_time;
+        } m_cache;
+
         std::vector<game_scene::lua_reference> m_scenes;
-        dev::console m_console;
     };
 
 }

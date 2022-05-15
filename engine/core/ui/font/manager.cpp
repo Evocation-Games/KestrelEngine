@@ -61,6 +61,7 @@ auto ui::font::manager::load_all_fonts_for_imgui() -> void
     for (auto it : m_fonts) {
         it.second->load_for_imgui();
     }
+    ImGui::GetIO().Fonts->Build();
 }
 
 auto ui::font::manager::unload_all_imgui_fonts() -> void

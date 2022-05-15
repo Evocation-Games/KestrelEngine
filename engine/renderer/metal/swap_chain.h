@@ -49,6 +49,8 @@ namespace renderer::metal
     private:
         MTLRenderPassDescriptor *m_pass_descriptor { nullptr };
         vector_uint2 m_viewport_size;
+        uint32_t m_viewport_width { 0 };
+        uint32_t m_viewport_height { 0 };
         std::shared_ptr<graphics::texture> m_texture_ref;
         id<CAMetalDrawable> m_drawable { nullptr };
         id<MTLTexture> m_texture { nullptr };

@@ -35,6 +35,13 @@ auto ui::imgui::dockspace::enroll_object_api_in_state(const std::shared_ptr<scri
         .endNamespace();
 }
 
+// MARK: - Construction
+
+ui::imgui::dockspace::dockspace()
+{
+    m_diagnostics = diagnostics::lua_reference { new diagnostics() };
+}
+
 // MARK: - Drawing
 
 auto ui::imgui::dockspace::internal_draw() -> void
@@ -70,6 +77,8 @@ auto ui::imgui::dockspace::internal_draw() -> void
             window->draw();
         }
     }
+
+    m_diagnostics->draw();
 }
 
 auto ui::imgui::dockspace::draw() -> void

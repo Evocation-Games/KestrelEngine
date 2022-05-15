@@ -130,7 +130,7 @@ auto renderer::metal::context::configure_device() -> void
         exit(1);
     }
 
-    CGDirectDisplayID viewDisplayID = (CGDirectDisplayID)[m_window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
+    auto viewDisplayID = (CGDirectDisplayID)[m_window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
     r = CVDisplayLinkSetCurrentCGDisplay(m_display.link_out, viewDisplayID);
     if (r != kCVReturnSuccess) {
         exit(1);
@@ -151,7 +151,7 @@ static auto dispatch_display_render_request(
     CVOptionFlags *flagsOut,
     void *displayLinkContext
 ) -> CVReturn {
-    dispatch_source_t source = (__bridge dispatch_source_t)displayLinkContext;
+    auto source = (__bridge dispatch_source_t)displayLinkContext;
     dispatch_source_merge_data(source, 1);
     return kCVReturnSuccess;
 }
@@ -307,6 +307,7 @@ auto renderer::metal::context::start_frame(const render_pass *pass, bool imgui) 
     if (imgui) {
         active_pass->start_imgui();
     }
+
     m_imgui.enabled = imgui;
 }
 
@@ -319,8 +320,9 @@ auto renderer::metal::context::finalize_frame(const std::function<auto() -> void
         m_imgui.enabled = false;
     }
 
-    render_pass->finalize([&] {
+    render_pass->finalize([&, callback] {
         dispatch_semaphore_signal(m_swap.sema);
+        callback();
     });
 
     m_swap.ptr = nullptr;

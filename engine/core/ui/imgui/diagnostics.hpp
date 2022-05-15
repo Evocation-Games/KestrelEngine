@@ -20,50 +20,35 @@
 
 #pragma once
 
-#include <vector>
 #include <imgui/imgui.h>
+#include "core/ui/imgui/label.hpp"
 #include "core/ui/imgui/window.hpp"
-#include "core/ui/imgui/diagnostics.hpp"
-#include "core/event/event.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
 namespace ui::imgui
 {
-    class dockspace : public scripting::lua::object
+    class diagnostics : public widget, public scripting::lua::object
     {
     public:
+        typedef luabridge::RefCountedPtr<diagnostics> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        dockspace();
+        lua_api diagnostics();
 
-        auto draw() -> void;
-
-        auto add_window(const window::lua_reference& window) -> void;
-        auto receive_event(const event& e) -> void;
-
-        auto erase() -> void;
-
-        static auto start_dockspace() -> void;
-        static auto end_dockspace() -> void;
+        auto draw() -> void override;
 
     private:
-        bool m_open { true };
-        ImGuiDockNodeFlags m_flags { ImGuiDockNodeFlags_None };
-        ImGuiWindowFlags m_window_flags {
-            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-            ImGuiWindowFlags_NoNavFocus
-        };
-        std::vector<window::lua_reference> m_windows;
-        diagnostics::lua_reference m_diagnostics;
+        uint32_t m_throttle { 0 };
+        bool m_constructed { false };
+        window m_window { "Diagnostics", {200, 100} };
+        label::lua_reference m_frame_duration { new label("0") };
+        label::lua_reference m_update_duration { new label("0") };
+        label::lua_reference m_approx_fps { new label("0") };
+        label::lua_reference m_target_fps { new label("0") };
+        label::lua_reference m_driver { new label("OpenGL") };
 
-    private:
-        auto map_key(hid::key k) -> ImGuiKey;
-        auto internal_draw() -> void;
-
+        auto construct_contents() -> void;
     };
 }
-
-

@@ -25,6 +25,7 @@
 #include "renderer/opengl/context.hpp"
 #include "renderer/metal/context.h"
 #include "core/ui/imgui/imgui.hpp"
+#include "core/clock/clock.hpp"
 
 // MARK: - API
 
@@ -33,15 +34,25 @@ static struct {
     enum renderer::api api { renderer::api::none };
     struct renderer::draw_buffer *drawing_buffer { nullptr };
     bool imgui { false };
+    float last_frame_time { 0.f };
+    float maximum_frame_time { 0.f };
+    uint32_t target_framerate { 0 };
+    rtc::clock::time frame_start_time;
 } s_renderer_api;
 
 auto renderer::initialize(enum renderer::api api, const std::function<auto()->void> &callback) -> void
 {
     s_renderer_api.api = api;
 
+    if (s_renderer_api.target_framerate > 0) {
+        s_renderer_api.maximum_frame_time = (1.f / s_renderer_api.target_framerate);
+        s_renderer_api.last_frame_time = s_renderer_api.maximum_frame_time;
+    }
+
     switch (api) {
         case api::metal: {
 #if TARGET_MACOS
+            s_renderer_api.api = renderer::api::metal;
             metal::context::start_application([&, callback] (metal::context *context) {
                 s_renderer_api.context = context;
                 s_renderer_api.drawing_buffer = new draw_buffer(metal::constants::max_quads * 6, metal::constants::texture_slots);
@@ -55,6 +66,7 @@ auto renderer::initialize(enum renderer::api api, const std::function<auto()->vo
 #endif
         }
         case api::opengl: {
+            s_renderer_api.api = renderer::api::opengl;
             s_renderer_api.context = new opengl::context([] {});
             s_renderer_api.drawing_buffer = new draw_buffer(opengl::constants::max_quads * 6, opengl::constants::texture_slots);
 
@@ -143,10 +155,41 @@ auto renderer::window_size() -> math::size
     return s_renderer_api.context->viewport_size();
 }
 
+auto renderer::frame_render_required() -> bool
+{
+    if (s_renderer_api.target_framerate == 0) {
+        return true;
+    }
+    return time_since_last_frame() >= s_renderer_api.maximum_frame_time;
+}
+
+auto renderer::set_target_framerate(uint32_t rate) -> void
+{
+    s_renderer_api.target_framerate = rate;
+    s_renderer_api.maximum_frame_time = (1.f / rate);
+}
+
+auto renderer::target_framerate() -> uint32_t
+{
+    return s_renderer_api.target_framerate;
+}
+
+auto renderer::target_frame_time() -> float
+{
+    return s_renderer_api.maximum_frame_time;
+}
+
+auto renderer::approx_framerate() -> uint32_t
+{
+    return (1.f / s_renderer_api.last_frame_time);
+}
+
 // MARK: - Draw Calls
 
 auto renderer::start_frame(struct camera &camera, bool imgui) -> void
 {
+    s_renderer_api.frame_start_time = rtc::clock::global().current();
+
     s_renderer_api.drawing_buffer->set_camera(camera);
     s_renderer_api.drawing_buffer->set_shader(s_renderer_api.context->shader_program("basic"));
     s_renderer_api.drawing_buffer->set_blend(blending::normal);
@@ -156,7 +199,10 @@ auto renderer::start_frame(struct camera &camera, bool imgui) -> void
 auto renderer::end_frame() -> void
 {
     flush_frame();
-    s_renderer_api.context->finalize_frame([] {});
+    s_renderer_api.context->finalize_frame([] {
+        auto duration = rtc::clock::global().since(s_renderer_api.frame_start_time);
+        s_renderer_api.last_frame_time = duration.count();
+    });
 }
 
 auto renderer::flush_frame() -> void
@@ -264,4 +310,16 @@ auto renderer::disable_imgui() -> void
     s_renderer_api.imgui = false;
 
     ui::font::manager::shared_manager().unload_all_imgui_fonts();
+}
+
+// MARK: - Frame Timings
+
+auto renderer::last_frame_time() -> float
+{
+    return s_renderer_api.last_frame_time;
+}
+
+auto renderer::time_since_last_frame() -> float
+{
+    return rtc::clock::global().since(s_renderer_api.frame_start_time).count();
 }

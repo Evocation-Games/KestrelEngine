@@ -145,7 +145,6 @@ auto ui::imgui::window::draw() -> void
 
     if (!ImGui::Begin(identified_title().c_str(), close, flags)) {
         ImGui::End();
-
         return;
     }
 
