@@ -33,10 +33,10 @@ namespace renderer::metal
     class texture : public graphics::texture
     {
     public:
-        texture(const double& width, const double& height);
+        texture(uint32_t width, uint32_t height);
         explicit texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
+        texture(uint32_t width, uint32_t height, const graphite::data::block& data);
+        texture(const math::size& size, const graphite::data::block& data);
         texture(const math::size& size, const uint8_t *data);
         texture(const void *handle, const math::size& sz);
 

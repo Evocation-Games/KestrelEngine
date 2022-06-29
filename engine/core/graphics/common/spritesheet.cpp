@@ -59,14 +59,14 @@ auto graphics::spritesheet::sprite::size() const -> math::size
 
 // MARK: - Spritesheet Construction
 
-graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height)
-    : m_backing_texture(std::move(tex)), m_sprite_base_size(sprite_width, sprite_height)
+graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, uint32_t sprite_width, uint32_t sprite_height)
+    : m_backing_texture(tex), m_sprite_base_size(sprite_width, sprite_height)
 {
     layout_sprites(false);
 }
 
 graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size)
-    : m_backing_texture(std::move(tex)), m_sprite_base_size(sprite_size)
+    : m_backing_texture(tex), m_sprite_base_size(sprite_size)
 {
     layout_sprites(false);
 }
@@ -78,7 +78,7 @@ auto graphics::spritesheet::texture() const -> std::shared_ptr<graphics::texture
     return m_backing_texture;
 }
 
-auto graphics::spritesheet::sprite_count() const -> int
+auto graphics::spritesheet::sprite_count() const -> std::size_t
 {
     return m_sprites.size();
 }

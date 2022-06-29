@@ -45,7 +45,7 @@ namespace asset
         std::string m_name;
         std::string m_type;
         resource_namespace::lua_reference m_namespace { nullptr };
-        std::shared_ptr<graphite::data::writer> m_writer;
+        graphite::data::writer m_writer;
 
     public:
         resource_writer(const std::string& type, int64_t id, const std::string& name, const resource_namespace::lua_reference& ns);

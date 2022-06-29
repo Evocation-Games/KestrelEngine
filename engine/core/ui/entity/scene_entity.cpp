@@ -27,6 +27,7 @@
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/legacy/macintosh/color_icon.hpp"
 #include "renderer/common/blending.hpp"
+#include "renderer/common/renderer.hpp"
 
 // MARK: - Lua
 
@@ -65,6 +66,7 @@ auto ui::scene_entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("clippingArea", &scene_entity::clipping_area, &scene_entity::set_clipping_area)
             .addProperty("clippingOffset", &scene_entity::clipping_offset, &scene_entity::set_clipping_offset)
             .addProperty("children", &scene_entity::children)
+            .addProperty("animator", &scene_entity::animator, &scene_entity::set_animator)
             .addFunction("setSprite", &scene_entity::set_sprite)
             .addFunction("addChildEntity", &scene_entity::add_child_entity)
             .addFunction("eachChild", &scene_entity::each_child)
@@ -259,6 +261,11 @@ auto ui::scene_entity::children() const -> util::lua_vector<lua_reference>
     return m_children;
 }
 
+auto ui::scene_entity::animator() const -> renderer::animator::lua_reference
+{
+    return m_animator;
+}
+
 // MARK: - Setters
 
 auto ui::scene_entity::set_position(const math::point& v) -> void
@@ -330,6 +337,11 @@ auto ui::scene_entity::set_clipping_offset(const math::point& v) -> void
     m_entity->set_clipping_offset(v);
 }
 
+auto ui::scene_entity::set_animator(const renderer::animator::lua_reference &animator) -> void
+{
+    m_animator = animator;
+}
+
 // MARK: - Child Entity Management
 
 auto ui::scene_entity::add_child_entity(const lua_reference& child) -> void
@@ -354,26 +366,40 @@ auto ui::scene_entity::configure_animation_frames(int32_t frame_count) -> void
 
 auto ui::scene_entity::next_frame() -> void
 {
-    if (m_frame_count == 0) {
+    if (m_frame_count == 0 || m_animator.get()) {
         return;
     }
 
-    if (m_frame > m_frame_count && !m_finished) {
+    constrain_frame(m_frame + 1);
+}
+
+auto ui::scene_entity::constrain_frame(int32_t frame) -> void
+{
+    if (frame > m_frame_count && !m_finished) {
         if (m_loops) {
             set_current_frame(0);
+
+            if (m_animator.get()) {
+                m_animator->reset();
+            }
+
             return;
         }
         else if (m_on_animation_finish.state() && m_on_animation_finish.isFunction()) {
             m_on_animation_finish();
         }
         m_finished = true;
+
+        if (m_animator.get()) {
+            m_animator->pause();
+        }
     }
     else if (!m_finished) {
-        if (m_frame == 0 && !m_started && m_on_animation_start.state() && m_on_animation_start.isFunction()) {
+        if (frame == 0 && !m_started && m_on_animation_start.state() && m_on_animation_start.isFunction()) {
             m_started = true;
             m_on_animation_start();
         }
-        set_current_frame(current_frame() + 1);
+        set_current_frame(frame);
     }
 }
 
@@ -392,7 +418,7 @@ auto ui::scene_entity::on_animation_finish(const luabridge::LuaRef& callback) ->
 auto ui::scene_entity::layout() -> void
 {
     if (m_on_layout.state() && m_on_layout.isFunction()) {
-        m_on_layout();
+        m_on_layout(this);
     }
 }
 
@@ -407,9 +433,14 @@ auto ui::scene_entity::draw() -> void
         return;
     }
 
+    if (m_animator.get()) {
+        m_animator->advance(renderer::last_frame_time());
+        constrain_frame(m_animator->frame());
+    }
+
     m_entity->draw();
 
-    if (m_next_frame_on_draw) {
+    if (m_next_frame_on_draw && !m_animator.get()) {
         next_frame();
     }
 

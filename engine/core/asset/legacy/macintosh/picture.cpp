@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/quickdraw/pict.hpp>
+#include <libGraphite/quickdraw/format/pict.hpp>
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
@@ -48,12 +48,11 @@ auto asset::legacy::macintosh::quickdraw::picture::enroll_object_api_in_state(co
 
 asset::legacy::macintosh::quickdraw::picture::picture(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (auto res = ref->with_type(type)->load().lock()) {
-        graphite::qd::pict pict(res->data(), res->id(), res->name());
-        if (auto surface = pict.image_surface().lock()) {
-            configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-            return;
-        }
+    if (auto resource = ref->with_type(type)->load()) {
+        graphite::quickdraw::pict pict(resource->data(), resource->id(), resource->name());
+        const auto& surface = pict.surface();
+        configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+        return;
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }

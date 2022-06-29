@@ -54,8 +54,8 @@ auto asset::legacy::macintosh::toolbox::dialog::enroll_object_api_in_state(const
 asset::legacy::macintosh::toolbox::dialog::dialog(const asset::resource_descriptor::lua_reference& ref)
 {
     // TODO: This should be moved to libGraphite
-    if (auto res = ref->with_type(type)->load().lock()) {
-        graphite::data::reader reader { res->data() };
+    if (auto resource = ref->with_type(type)->load()) {
+        graphite::data::reader reader(&resource->data());
 
         m_bounds = math::rect::macintosh_rect(
             static_cast<double>(reader.read_signed_short()),

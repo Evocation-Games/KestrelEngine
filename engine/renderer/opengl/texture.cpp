@@ -23,7 +23,7 @@
 
 // MARK: - Construction
 
-renderer::opengl::texture::texture(const double& width, const double& height)
+renderer::opengl::texture::texture(uint32_t width, uint32_t height)
     : graphics::texture(width, height, true)
 {
 }
@@ -33,12 +33,12 @@ renderer::opengl::texture::texture(const math::size& size)
 {
 }
 
-renderer::opengl::texture::texture(const double& width, const double& height, std::vector<uint32_t> data)
+renderer::opengl::texture::texture(uint32_t width, uint32_t height, const graphite::data::block& data)
     : graphics::texture(width, height, data)
 {
 }
 
-renderer::opengl::texture::texture(const math::size& sz, std::vector<uint32_t> data)
+renderer::opengl::texture::texture(const math::size& sz, const graphite::data::block& data)
     : graphics::texture(sz, data)
 {
 }

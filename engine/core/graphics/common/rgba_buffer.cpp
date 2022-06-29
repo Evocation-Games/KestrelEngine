@@ -359,6 +359,70 @@ auto graphics::rgba_buffer::apply_run(const std::vector<graphics::color> &cv, co
 #endif
 }
 
+
+auto graphics::rgba_buffer::apply_run(const graphite::data::block& cv, uint64_t start, uint64_t line) -> void
+{
+    if (line < m_clipping_rect.get_y() || line >= m_clipping_rect.get_max_y()) {
+        return;
+    }
+
+    auto ptr = reinterpret_cast<uint32_t *>(m_buffer) + (line * static_cast<uint64_t>(m_size.width)) + start;
+    auto len = cv.size() >> 2; // We're looking at bytes, not colors, so divide by 4 to account for the components
+    len = (len > m_clipping_rect.get_width()) ? m_clipping_rect.get_width() : len;
+
+    union simd_value v {};
+
+#if __x86_64__
+    uint32_t n = 0;
+    uint64_t i = 0;
+    while (n < len) {
+
+        if ((reinterpret_cast<uint64_t>(ptr) & 0xF) || (len - n) < 4) {
+            *ptr = blend_func_i(*ptr, cv.get<uint32_t>(i));
+            i += 4;
+            ++ptr;
+            ++n;
+        }
+        else {
+            v.f[0] = cv.get<uint32_t>(i); i += 4;
+            v.f[1] = cv.get<uint32_t>(i); i += 4;
+            v.f[2] = cv.get<uint32_t>(i); i += 4;
+            v.f[3] = cv.get<uint32_t>(i); i += 4;
+
+            *reinterpret_cast<__int128 *>(ptr) = blend_func({ .wide = *reinterpret_cast<__int128*>(ptr) }, v).wide;
+            ptr += 4;
+            n += 4;
+        }
+
+    }
+#elif __arm64__
+    uint32_t n = 0;
+    uint32_t i = 0;
+    while (n < len) {
+        if ((reinterpret_cast<uint64_t>(ptr) & 0x7) || (len - n) < 2) {
+            *ptr = blend_func_i(*ptr, cv.get<uint32_t>(i));
+            i += 4;
+            ++ptr;
+            ++n;
+        }
+        else {
+            v.f[0] = cv.get<uint32_t>(i);
+            i += 4;
+            v.f[1] = cv.get<uint32_t>(i);
+            i += 4;
+            *reinterpret_cast<uint64_t*>(ptr) = blend_func({ .wide = *reinterpret_cast<uint64_t*>(ptr) }, v).wide;
+            ptr += 2;
+            n += 2;
+        }
+    }
+#else
+    // Fallback on a default naive implementation.
+    for (auto x = start; x < end; ++x) {
+        *ptr++ = cv.get<uint32_t>(i); i += 4;
+    }
+#endif
+}
+
 // MARK: - Masking
 
 auto graphics::rgba_buffer::apply_mask(const graphics::rgba_buffer &buffer) -> void

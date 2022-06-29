@@ -25,6 +25,7 @@
 #include "core/environment.hpp"
 #include "renderer/common/renderer.hpp"
 #include "core/graphics/common/canvas.hpp"
+#include <libGraphite/data/writer.hpp>
 
 // MARK: - Lua
 
@@ -358,9 +359,11 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
             return;
         }
 
-        auto raw_img_data = image->sprite_sheet()->texture()->data();
+        auto img_data = image->sprite_sheet()->texture()->data();
         auto scaled_len = static_cast<uint32_t>(img_frame.size.width * img_frame.size.height);
-        std::vector<uint32_t> scaled_img_data(scaled_len, 0);
+
+        graphite::data::block scaled_data(scaled_len * 4);
+        scaled_data.set(static_cast<uint32_t>(0), scaled_data.size());
 
         // Perform some initial calculations in order to determine how the scaling should be performed
         auto x_scale = img_frame.size.width / img_bounds.size.width;
@@ -372,14 +375,17 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
                 break;
             }
 
-            auto src_offset = (ry * img_bounds.size.width);
-            auto dst_offset = (y * img_frame.size.width);
+            auto src_offset = static_cast<uint32_t>(ry * img_bounds.size.width);
+            auto dst_offset = static_cast<uint32_t>(y * img_frame.size.width);
             for (auto x = 0; x < img_frame.size.width; ++x) {
                 auto rx = static_cast<uint32_t>(std::floor(x / x_scale));
                 if (rx >= img_bounds.size.width) {
                     break;
                 }
-                scaled_img_data[dst_offset + x] = raw_img_data.at(src_offset + rx);
+
+                auto color = img_data.get<uint32_t>((src_offset + rx) * 4);
+                scaled_data.set(color, 4, (dst_offset + x) * 4);
+//                scaled_data.set(static_cast<uint32_t>(0xff00ffff), 4, (dst_offset + x) * 4);
             }
         }
 
@@ -398,11 +404,7 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
             }
 
             auto bmp_line_offset = static_cast<int64_t>(y * img_frame.size.width);
-
-            auto vstart = scaled_img_data.cbegin() + bmp_line_offset + bmp_line_start;
-            auto vend = vstart + bmp_line_len + 1;
-            std::vector<graphics::color> cv { vstart, vend };
-
+            auto cv = scaled_data.slice((bmp_line_offset + bmp_line_start) * 4, bmp_line_len * 4);
             m_rgba_buffer.apply_run(cv, start, dy);
         }
     };
@@ -423,9 +425,11 @@ auto graphics::canvas::draw_image(const asset::legacy::macintosh::quickdraw::pic
             return;
         }
 
-        auto raw_img_data = image->sprite_sheet()->texture()->data();
+        auto img_data = image->sprite_sheet()->texture()->data();
         auto scaled_len = static_cast<uint32_t>(img_frame.size.width * img_frame.size.height);
-        std::vector<uint32_t> scaled_img_data(scaled_len, 0);
+
+        graphite::data::block scaled_data(scaled_len * 4);
+        scaled_data.set(static_cast<uint32_t>(0), scaled_data.size());
 
         // Perform some initial calculations in order to determine how the scaling should be performed
         auto x_scale = img_frame.size.width / img_bounds.size.width;
@@ -437,14 +441,14 @@ auto graphics::canvas::draw_image(const asset::legacy::macintosh::quickdraw::pic
                 break;
             }
 
-            auto src_offset = (ry * img_bounds.size.width);
-            auto dst_offset = (y * img_frame.size.width);
+            auto src_offset = static_cast<uint32_t>(ry * img_bounds.size.width) * 4;
+            auto dst_offset = static_cast<uint32_t>(y * img_frame.size.width) * 4;
             for (auto x = 0; x < img_frame.size.width; ++x) {
                 auto rx = static_cast<uint32_t>(std::floor(x / x_scale));
                 if (rx >= img_bounds.size.width) {
                     break;
                 }
-                scaled_img_data[dst_offset + x] = raw_img_data.at(src_offset + rx);
+                scaled_data.set(img_data.get<uint32_t>(src_offset), 4, dst_offset);
             }
         }
 
@@ -463,11 +467,7 @@ auto graphics::canvas::draw_image(const asset::legacy::macintosh::quickdraw::pic
             }
 
             auto bmp_line_offset = static_cast<int64_t>(y * img_frame.size.width);
-
-            auto vstart = scaled_img_data.cbegin() + bmp_line_offset + bmp_line_start;
-            auto vend = vstart + bmp_line_len + 1;
-            std::vector<graphics::color> cv { vstart, vend };
-
+            auto cv = scaled_data.slice((bmp_line_offset + bmp_line_start) * 4, bmp_line_len * 4);
             m_rgba_buffer.apply_run(cv, start, dy);
         }
     };
@@ -499,11 +499,7 @@ auto graphics::canvas::draw_picture_at_point(const asset::legacy::macintosh::qui
             }
 
             auto bmp_line_offset = static_cast<int64_t>(y * pict_bounds.size.width);
-
-            auto vstart = raw_pict_data.cbegin() + bmp_line_offset + bmp_line_start;
-            auto vend = vstart + bmp_line_len;
-            std::vector<graphics::color> cv { vstart, vend };
-
+            auto cv = raw_pict_data.slice((bmp_line_offset + bmp_line_start) * 4, bmp_line_len * 4);
             m_rgba_buffer.apply_run(cv, start, dy);
         }
     };
@@ -544,10 +540,7 @@ auto graphics::canvas::draw_color_icon(const asset::legacy::macintosh::quickdraw
             }
 
             auto bmp_line_offset = static_cast<int64_t>(y * icon_bounds.size.width);
-
-            auto vstart = raw_icon_data.cbegin() + bmp_line_offset + bmp_line_start;
-            auto vend = vstart + bmp_line_len;
-            std::vector<graphics::color> cv { vstart, vend };
+            auto cv = raw_icon_data.slice((bmp_line_offset + bmp_line_start) * 4, bmp_line_len * 4);
 
             m_rgba_buffer.apply_run(cv, start, dy);
         }

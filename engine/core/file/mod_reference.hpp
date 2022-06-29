@@ -82,7 +82,7 @@ namespace host::sandbox
         std::string m_path;
         bundle_type m_bundle;
         bundle_origin m_origin;
-        std::vector<std::shared_ptr<graphite::rsrc::file>> m_mod_files;
+        std::vector<graphite::rsrc::file *> m_mod_files;
         bool m_enabled { false };
         bool m_parsed { false };
         bool m_loaded { false };

@@ -423,30 +423,31 @@ auto asset::resource_descriptor::best_resource() -> lua_reference
     }
 }
 
-auto asset::resource_descriptor::load() -> std::weak_ptr<graphite::rsrc::resource>
+auto asset::resource_descriptor::load() -> const graphite::rsrc::resource *
 {
     // TODO: Determine the best way of doing this check.
     if (!valid()) {
-        return {};
+        return nullptr;
     }
 
     // We need to be able to assume that we have a valid resource descriptor at this point so that
     // we can just directly load it without conditions.
 
     if (m_resolved_resources.size() == 0) {
-        std::map<std::string, std::string> attributes {};
+        std::vector<graphite::rsrc::attribute> attributes;
         resource_namespace ns(namespaces.at(0));
         if (!(ns.is_universal() || ns.is_global())) {
-            attributes["namespace"] = ns.primary_name();
+            attributes.emplace_back(graphite::rsrc::attribute("namespace", ns.primary_name()));
         }
+
         return graphite::rsrc::manager::shared_manager().find(type, id, attributes);
     }
     else {
         auto best = m_resolved_resources.at(0);
-        std::map<std::string, std::string> attributes {};
+        std::vector<graphite::rsrc::attribute> attributes;
         resource_namespace ns(best->namespaces.at(0));
         if (!(ns.is_universal() || ns.is_global())) {
-            attributes["namespace"] = ns.primary_name();
+            attributes.emplace_back(graphite::rsrc::attribute("namespace", ns.primary_name()));
         }
         return graphite::rsrc::manager::shared_manager().find(best->type, best->id, attributes);
     }
@@ -500,21 +501,24 @@ auto asset::resource_descriptor::resolve_identified() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::universal()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<struct graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                if (r->id() == id) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                if (resource->id() == id) {
+                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
                 }
             }
         }
@@ -528,15 +532,18 @@ auto asset::resource_descriptor::resolve_typed() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::universal()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
@@ -544,8 +551,8 @@ auto asset::resource_descriptor::resolve_typed() -> void
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
             }
         }
     }
@@ -558,21 +565,24 @@ auto asset::resource_descriptor::resolve_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::universal()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                if (r->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                if (resource->name() == name) {
+                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
                 }
             }
         }
@@ -586,15 +596,18 @@ auto asset::resource_descriptor::resolve_typed_identified() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::global()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
@@ -602,9 +615,9 @@ auto asset::resource_descriptor::resolve_typed_identified() -> void
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                if (r->id() == id) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                if (resource->id() == id) {
+                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
                 }
             }
         }
@@ -618,21 +631,24 @@ auto asset::resource_descriptor::resolve_identified_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::universal()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                if (r->id() == id && r->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                if (resource->id() == id && resource->name() == name) {
+                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
                 }
             }
         }
@@ -646,15 +662,18 @@ auto asset::resource_descriptor::resolve_typed_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::universal()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
@@ -662,9 +681,9 @@ auto asset::resource_descriptor::resolve_typed_named() -> void
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                if (r->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                if (resource->name() == name) {
+                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
                 }
             }
         }
@@ -678,15 +697,18 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& f : rm.files()) {
-        for (const auto& t : f->types()) {
-            std::string t_namespace = resource_namespace::global()->primary_name();
+    for (const auto& file : rm.file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+
+            std::string type_namespace = resource_namespace::global()->primary_name();
             const auto& attributes = t->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                t_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                type_namespace = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(t_namespace)) {
+            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
                 continue;
             }
 
@@ -694,9 +716,9 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
                 continue;
             }
 
-            for (const auto& r : t->resources()) {
-                if (r->id() == id && r->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(t_namespace, t->code(), r->id(), r->name()));
+            for (const auto& resource : *t) {
+                if (resource->id() == id && resource->name() == name) {
+                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
                 }
             }
         }

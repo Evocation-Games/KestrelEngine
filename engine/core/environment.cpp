@@ -262,7 +262,7 @@ auto environment::load_kestrel_core() -> void
 {
     auto file_ref = host::sandbox::files::game_core();
     if (file_ref.get()) {
-        auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
+        auto file = new graphite::rsrc::file(file_ref->path());
         graphite::rsrc::manager::shared_manager().import_file(file);
     }
     else {
@@ -284,7 +284,7 @@ auto environment::load_game_data() -> void
         for (auto i = 0; i < files.size(); ++i) {
             const auto& file_ref = files.at(i);
             if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
-                auto file = std::make_shared<graphite::rsrc::file>(file_ref->path());
+                auto file = new graphite::rsrc::file(file_ref->path());
                 graphite::rsrc::manager::shared_manager().import_file(file);
             }
             else if (file_ref->extension() == "mp3") {

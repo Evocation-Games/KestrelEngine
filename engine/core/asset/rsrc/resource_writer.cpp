@@ -59,64 +59,63 @@ auto asset::resource_writer::enroll_object_api_in_state(const std::shared_ptr<sc
 asset::resource_writer::resource_writer(const std::string& type, int64_t id, const std::string& name, const resource_namespace::lua_reference& ns)
     : m_type(type), m_id(id), m_name(name), m_namespace(ns)
 {
-    m_writer = std::make_shared<graphite::data::writer>();
 }
 
 // MARK: - Writing
 
 auto asset::resource_writer::write_signed_byte(int8_t v) -> void
 {
-    m_writer->write_signed_byte(v);
+    m_writer.write_signed_byte(v);
 }
 
 auto asset::resource_writer::write_signed_short(int16_t v) -> void
 {
-    m_writer->write_signed_short(v);
+    m_writer.write_signed_short(v);
 }
 
 auto asset::resource_writer::write_signed_long(int32_t v) -> void
 {
-    m_writer->write_signed_long(v);
+    m_writer.write_signed_long(v);
 }
 
 auto asset::resource_writer::write_signed_quad(int64_t v) -> void
 {
-    m_writer->write_signed_quad(v);
+    m_writer.write_signed_quad(v);
 }
 
 auto asset::resource_writer::write_byte(uint8_t v) -> void
 {
-    m_writer->write_byte(v);
+    m_writer.write_byte(v);
 }
 
 auto asset::resource_writer::write_short(uint16_t v) -> void
 {
-    m_writer->write_short(v);
+    m_writer.write_short(v);
 }
 
 auto asset::resource_writer::write_long(uint32_t v) -> void
 {
-    m_writer->write_long(v);
+    m_writer.write_long(v);
 }
 
 auto asset::resource_writer::write_quad(uint64_t v) -> void
 {
-    m_writer->write_quad(v);
+    m_writer.write_quad(v);
 }
 
 auto asset::resource_writer::write_pstr(const std::string& v) -> void
 {
-    m_writer->write_pstr(v);
+    m_writer.write_pstr(v);
 }
 
 auto asset::resource_writer::write_cstr(const std::string& v) -> void
 {
-    m_writer->write_cstr(v);
+    m_writer.write_cstr(v);
 }
 
 auto asset::resource_writer::write_cstr_width(const int& width, const std::string& v) -> void
 {
-    m_writer->write_cstr(v, width);
+    m_writer.write_cstr(v, width);
 }
 
 
@@ -155,7 +154,7 @@ auto asset::resource_writer::write_color(const graphics::color::lua_reference& v
 auto asset::resource_writer::commit() -> void
 {
     // Construct a list of attributes for the resource.
-    std::map<std::string, std::string> attributes;
+    std::unordered_map<std::string, std::string> attributes;
     if (!m_namespace->is_global() && !m_namespace->is_universal()) {
         attributes["namespace"] = m_namespace->primary_name();
     }
@@ -167,18 +166,18 @@ auto asset::resource_writer::commit() -> void
     }
     save_file->create_parent_directory();
 
-    for (auto& file : graphite::rsrc::manager::shared_manager().files()) {
+    for (auto& file : graphite::rsrc::manager::shared_manager().file_references()) {
         if (file->path() == save_file->path()) {
             // We've found the correct file in the resource manager, now write the resource to it.
-            file->add_resource(m_type, m_id, m_name, m_writer->data(), attributes);
+            file->add_resource(m_type, m_id, m_name, *m_writer.data(), attributes);
             return;
         }
     }
 
     // No file was created, so we need to add one to the resource manager.
-    auto new_file = std::make_shared<graphite::rsrc::file>();
-    new_file->add_resource(m_type, m_id, m_name, m_writer->data(), attributes);
-    new_file->write(save_file->path(), graphite::rsrc::file::extended);
+    auto new_file = new graphite::rsrc::file();
+    new_file->add_resource(m_type, m_id, m_name, *m_writer.data(), attributes);
+    new_file->write(save_file->path(), graphite::rsrc::file::format::extended);
 
     graphite::rsrc::manager::shared_manager().import_file(new_file);
 }

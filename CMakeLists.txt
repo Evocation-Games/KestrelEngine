@@ -31,9 +31,9 @@ set(KESTREL_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Ic
 set(KESTREL_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING "Kestrel Project Path")
 set(KESTREL_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data Files Path")
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
 set(CMAKE_BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_BINARY_DIR ${CMAKE_BUILD_DIR})

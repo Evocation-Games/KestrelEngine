@@ -24,24 +24,23 @@
 #include <vector>
 #include <type_traits>
 #include "math/size.hpp"
+#include <libGraphite/data/data.hpp>
 
 namespace graphics
 {
     class texture: public std::enable_shared_from_this<graphics::texture>
     {
     public:
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-        texture(const math::size& size, const uint8_t *data);
+        texture(uint32_t width, uint32_t height, const graphite::data::block& data);
+        texture(const math::size& size, const graphite::data::block& data);
+        texture(uint32_t width, uint32_t height, bool populate = false);
         explicit texture(const math::size& size, bool populate = false);
-        texture(const double& width, const double& height, bool populate = false);
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        auto raw_data_ptr() const -> const uint8_t *;
+        [[nodiscard]] auto size() const -> math::size;
+        [[nodiscard]] auto data() const -> const graphite::data::block&;
+        [[nodiscard]] auto raw_data_ptr() const -> const void *;
 
-        auto set_data(const std::vector<uint32_t>& data) -> void;
-        auto set_raw_data_ptr(const uint8_t *ptr) -> void;
+        auto set_data(const graphite::data::block& data) -> void;
 
         virtual auto handle() const -> uint64_t;
 
@@ -51,8 +50,7 @@ namespace graphics
 
     protected:
         math::size m_size;
-        std::vector<uint32_t> m_data;
-        const uint8_t *m_raw_data { nullptr };
+        graphite::data::block m_data;
 
     };
 }

@@ -33,39 +33,39 @@ scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const a
         throw std::runtime_error("No script id specified.");
     }
 
-    if (auto s = ref->with_type(type)->load().lock()) {
-        m_name = s->name();
-        m_id = s->id();
-        graphite::data::reader r(s->data());
+    if (auto script = ref->with_type(type)->load()) {
+        m_name = script->name();
+        m_id = script->id();
+        graphite::data::reader reader(&script->data());
         m_object = new script_object();
-        m_object->len = r.size();
-        m_object->data = r.read_bytes(static_cast<int64_t>(m_object->len)).data();
+        m_object->len = reader.size();
+        m_object->data = reader.read_bytes(static_cast<int64_t>(m_object->len)).data();
     }
-    else if (auto s = ref->with_type(script_type)->load().lock()) {
-        m_name = s->name();
-        graphite::data::reader r(s->data());
-        m_script = "-- " + ref->description() + "\n" + r.read_cstr();
-        m_id = s->id();
-        m_name = s->name();
+    else if (auto script = ref->with_type(script_type)->load()) {
+        m_name = script->name();
+        graphite::data::reader reader(&script->data());
+        m_script = "-- " + ref->description() + "\n" + reader.read_cstr();
+        m_id = script->id();
+        m_name = script->name();
     }
     else {
         throw std::logic_error("Could not find/load lua script resource #" + std::to_string(ref->id));
     }
 }
 
-scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const std::shared_ptr<graphite::rsrc::resource>& res)
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const graphite::rsrc::resource *resource)
     : m_state(state)
 {
-    if (!res) {
+    if (!resource) {
         throw std::runtime_error("No script specified.");
         return;
     }
 
-    m_name = res->name();
-    graphite::data::reader r(res->data());
-    m_script = "-- " + std::to_string(res->id()) + " - " + res->name() + "\n" + r.read_cstr();
-    m_id = res->id();
-    m_name = res->name();
+    m_name = resource->name();
+    graphite::data::reader reader(&resource->data());
+    m_script = "-- " + std::to_string(resource->id()) + " - " + resource->name() + "\n" + reader.read_cstr();
+    m_id = resource->id();
+    m_name = resource->name();
 }
 
 scripting::lua::script::script(const std::shared_ptr<lua::state> &state, const std::string& code)

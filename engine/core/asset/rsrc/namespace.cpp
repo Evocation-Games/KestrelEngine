@@ -68,12 +68,12 @@ asset::resource_namespace::resource_namespace(const std::vector<std::string>& na
 
 auto asset::resource_namespace::global() -> asset::resource_namespace::lua_reference
 {
-    return {new resource_namespace(global_name)};
+    return { new resource_namespace(global_name) };
 }
 
 auto asset::resource_namespace::universal() -> asset::resource_namespace::lua_reference
 {
-    return (new resource_namespace(universal_name));
+    return { new resource_namespace(universal_name) };
 }
 
 // MARK: - Accessors
@@ -109,10 +109,13 @@ auto asset::resource_namespace::contains_resources() const -> bool
         return true;
     }
 
-    for (const auto& file : graphite::rsrc::manager::shared_manager().files()) {
-        for (const auto& type : file->types()) {
+    for (const auto& file : graphite::rsrc::manager::shared_manager().file_references()) {
+        for (const auto& type_hash : file->types()) {
+            const auto& type = file->type(type_hash);
             const auto& attributes = type->attributes();
-            if (attributes.find("namespace") != attributes.end() && has_name(attributes.at("namespace"))) {
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+
+            if (it != attributes.end() && has_name(it->second.name())) {
                 return true;
             }
             else if (has_name(global_name)) {

@@ -24,7 +24,7 @@
 
 // MARK: - Construction
 
-renderer::metal::texture::texture(const double& width, const double& height)
+renderer::metal::texture::texture(uint32_t width, uint32_t height)
     : graphics::texture(width, height, true)
 {
 }
@@ -34,12 +34,12 @@ renderer::metal::texture::texture(const math::size& size)
 {
 }
 
-renderer::metal::texture::texture(const double& width, const double& height, std::vector<uint32_t> data)
+renderer::metal::texture::texture(uint32_t width, uint32_t height, const graphite::data::block& data)
     : graphics::texture(width, height, data)
 {
 }
 
-renderer::metal::texture::texture(const math::size& sz, std::vector<uint32_t> data)
+renderer::metal::texture::texture(const math::size& sz, const graphite::data::block& data)
     : graphics::texture(sz, data)
 {
 }

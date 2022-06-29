@@ -39,21 +39,21 @@ namespace graphics
         public:
             sprite(const double& x, const double& y, const double& width, const double& height);
             sprite(const math::point& origin, const math::size& size);
-            sprite(const math::rect& frame);
+            explicit sprite(const math::rect& frame);
 
-            auto frame() const -> math::rect;
-            auto point() const -> math::point;
-            auto size() const -> math::size;
+            [[nodiscard]] auto frame() const -> math::rect;
+            [[nodiscard]] auto point() const -> math::point;
+            [[nodiscard]] auto size() const -> math::size;
 
         };
 
     public:
-        spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height);
+        spritesheet(std::shared_ptr<graphics::texture> tex, uint32_t sprite_width, uint32_t sprite_height);
         spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size);
 
         auto texture() const -> std::shared_ptr<graphics::texture>;
 
-        auto sprite_count() const -> int;
+        auto sprite_count() const -> std::size_t;
         auto at(const int& n) const -> spritesheet::sprite;
         auto sprite_size() const -> math::size;
         auto flipped() const -> bool;

@@ -67,8 +67,8 @@ auto audio::ima4::decode(const audio::codec_descriptor& descriptor, graphite::da
         uint8_t nibble = 0;
         int32_t diff = 0;
 
-        for (uint32_t i = 0; i < packet->size(); ++i) {
-            uint8_t data = packet->at(i);
+        for (uint32_t i = 0; i < packet.size(); ++i) {
+            uint8_t data = packet.get<std::uint8_t>(i);
 
             nibble = data & 0xF;
             step_index = (int8_t)std::min(88, std::max(0, step_index + ima4_index_table[(unsigned)nibble]));

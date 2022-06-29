@@ -28,6 +28,7 @@
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/button_widget.hpp"
 #include "core/asset/rsrc/namespace.hpp"
+#include "renderer/common/renderer.hpp"
 
 // MARK: - Lua
 
@@ -195,6 +196,8 @@ auto ui::game_scene::push() -> void
     if (!session) {
         return;
     }
+
+    session->console().write("Presenting Scene: " + name());
     session->present_scene({ this });
 }
 
@@ -206,6 +209,7 @@ auto ui::game_scene::can_push() const -> bool
 auto ui::game_scene::start() const -> void
 {
     m_backing_scene->start();
+    renderer::resync_clock();
 }
 
 auto ui::game_scene::pop() const -> void

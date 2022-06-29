@@ -22,6 +22,7 @@
 #include "renderer/common/renderer.hpp"
 #include "core/graphics/common/text.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
+#include <libGraphite/data/writer.hpp>
 
 // MARK: - Lua
 
@@ -79,13 +80,14 @@ auto graphics::text::spawn_entity(const math::point &position) -> std::shared_pt
     ts.layout();
 
     auto size = ts.get_bounding_size();
-    std::vector<uint32_t> bmp;
-    bmp.reserve(static_cast<int>(size.width * size.height));
+
+    graphite::data::block bmp_data(size.width * size.height * 4);
+    graphite::data::writer bmp(&bmp_data);
     for (const auto& c : ts.render()) {
-        bmp.emplace_back(c.value());
+        bmp.write_long(c.value());
     }
 
-    auto tex = renderer::create_texture(size, std::move(bmp));
+    auto tex = renderer::create_texture(size, *bmp.data());
     auto entity = std::make_shared<graphics::entity>(size);
     entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(tex, size));
     entity->set_position(position);

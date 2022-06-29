@@ -28,13 +28,14 @@
 
 asset::basic_image::basic_image(const math::size& size, const graphics::color& color)
 {
-    auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color.value());
+    graphite::data::block data(size.area());
+    data.set(color.value(), data.size());
     auto tex = renderer::create_texture(size, data);
     m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
-asset::basic_image::basic_image(int64_t id, const std::string& name, const math::size &size, const std::vector<uint32_t>& data)
-    : m_id(id), m_name(std::move(name))
+asset::basic_image::basic_image(int64_t id, const std::string& name, const math::size &size, const graphite::data::block& data)
+    : m_id(id), m_name(name)
 {
     auto tex = renderer::create_texture(size, data);
     m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
@@ -42,7 +43,9 @@ asset::basic_image::basic_image(int64_t id, const std::string& name, const math:
 
 asset::basic_image::basic_image(const math::size &size, const graphics::color::lua_reference &color)
 {
-    auto data = std::vector<uint32_t>(static_cast<int>(size.area()), color->value());
+    graphite::data::block data(size.area());
+    data.set(color->value(), data.size());
+
     auto tex = renderer::create_texture(size, data);
     m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
@@ -76,12 +79,13 @@ auto asset::basic_image::sprite_sheet() const -> std::shared_ptr<graphics::sprit
 
 // MARK: - Configuration
 
-auto asset::basic_image::configure(int64_t id, const std::string& name, const math::size& size, const std::vector<uint32_t>& data) -> void
+auto asset::basic_image::configure(int64_t id, const std::string &name, const math::size &size, const graphite::data::block &data) -> void
 {
     m_id = id;
     m_name = name;
 
-    auto tex = renderer::create_texture(size, data);
+    auto tex = renderer::create_texture(size, data.get<std::uint8_t *>());
+    tex->set_data(data);
     m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
@@ -109,3 +113,4 @@ auto asset::basic_image::spawn_entity(const math::point& position) const -> std:
     entity->set_sprite_sheet(sprite_sheet());
     return entity;
 }
+

@@ -45,7 +45,7 @@ namespace asset::legacy::macintosh::quicktime
     private:
         std::shared_ptr<audio::player_item> m_item {};
         uint64_t m_item_reference { 0 };
-        auto parse(const std::shared_ptr<graphite::data::data>& data) -> bool;
+        auto parse(const graphite::data::block& data) -> bool;
     };
 
 };

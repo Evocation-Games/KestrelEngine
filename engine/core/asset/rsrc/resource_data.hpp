@@ -76,7 +76,7 @@ namespace asset
         lua_api auto read_resource_reference_wide_value() -> int64_t;
         lua_api auto read_resource_reference() -> asset::resource_descriptor::lua_reference;
         lua_api auto read_typed_resource_reference(const std::string& type) -> asset::resource_descriptor::lua_reference;
-        lua_api auto switch_on_resource_reference(const luabridge::LuaRef& body) const -> void;
+        lua_api auto switch_on_resource_reference(const luabridge::LuaRef& body) -> void;
 
         lua_api auto skip(int delta) -> void;
 
@@ -84,7 +84,7 @@ namespace asset
         int64_t m_id;
         std::string m_name;
         std::string m_type;
-        std::shared_ptr<graphite::data::reader> m_reader;
+        graphite::data::reader m_reader;
         std::string m_namespace;
 
     };

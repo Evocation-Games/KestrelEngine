@@ -20,8 +20,8 @@
 
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
-#include <libGraphite/quickdraw/pict.hpp>
-#include <libGraphite/quickdraw/cicn.hpp>
+#include <libGraphite/quickdraw/format/pict.hpp>
+#include <libGraphite/quickdraw/format/cicn.hpp>
 #include "core/asset/static_image.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
@@ -61,29 +61,28 @@ asset::static_image::static_image(const resource_descriptor::lua_reference &ref)
     auto descriptor = ref->with_type(ref->has_type() ? ref->type : static_image::type);
 
     // Attempt to load the resource data in preparation for determining the correct decoding procedure.
-    if (auto res = descriptor->load().lock()) {
+    if (auto resource = descriptor->load()) {
         if (ref->type == legacy::macintosh::quickdraw::picture::type) {
-            graphite::qd::pict pict(res->data(), res->id(), res->name());
-            if (auto surface = pict.image_surface().lock()) {
-                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                return;
-            }
+            graphite::quickdraw::pict pict(resource->data(), resource->id(), resource->name());
+            const auto& surface = pict.surface();
+            configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            return;
         }
         else if (ref->type == legacy::macintosh::quickdraw::color_icon::type) {
-            graphite::qd::cicn cicn(res->data(), res->id(), res->name());
-            if (auto surface = cicn.surface().lock()) {
-                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                return;
-            }
+            graphite::quickdraw::cicn cicn(resource->data(), resource->id(), resource->name());
+            const auto& surface = cicn.surface();
+            configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            return;
         }
         else if (ref->type == static_image::type) {
-            graphite::data::reader reader(res->data(), graphite::data::msb);
+            graphite::data::reader reader(&resource->data());
+            reader.change_byte_order(graphite::data::byte_order::msb);
             auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(reader.size()));
             tga tga(tga_raw_data);
-            if (auto surface = tga.surface().lock()) {
-                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                return;
-            }
+
+            const auto& surface = tga.surface();
+            configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            return;
         }
     }
 

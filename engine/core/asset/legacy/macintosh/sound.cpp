@@ -180,7 +180,7 @@ auto asset::legacy::macintosh::quicktime::sound::enroll_object_api_in_state(cons
 
 asset::legacy::macintosh::quicktime::sound::sound(const resource_descriptor::lua_reference& ref)
 {
-    if (auto res = ref->with_type(type)->load().lock()) {
+    if (auto res = ref->with_type(type)->load()) {
         parse(res->data());
         return;
     }
@@ -235,10 +235,10 @@ auto asset::legacy::macintosh::quicktime::sound::stop() -> void
 
 // MARK: - Sound Resource Parsing
 
-auto asset::legacy::macintosh::quicktime::sound::parse(const std::shared_ptr<graphite::data::data> &data) -> bool
+auto asset::legacy::macintosh::quicktime::sound::parse(const graphite::data::block &data) -> bool
 {
     audio::codec_descriptor descriptor;
-    graphite::data::reader r(data);
+    graphite::data::reader r(&data);
     auto sound_format = r.read_signed_short();
 
     if (sound_format == first_sound_format) {

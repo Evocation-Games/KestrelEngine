@@ -43,7 +43,7 @@ auto asset::spritesheet::enroll_object_api_in_state(const std::shared_ptr<script
 
 asset::spritesheet::spritesheet(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (auto res = ref->with_type(type)->load().lock()) {
+    if (auto resource = ref->with_type(type)->load()) {
         // The format of the SpriteSheet resource is as follows:
         //
         //  uint16_t    format_version      = 1
@@ -54,7 +54,8 @@ asset::spritesheet::spritesheet(const asset::resource_descriptor::lua_reference&
         //      uint16_t    height
         //  uint32_t    tga_size
         //  uint8_t...  tga
-        graphite::data::reader reader(res->data(), graphite::data::msb);
+        graphite::data::reader reader(&resource->data());
+        reader.change_byte_order(graphite::data::byte_order::msb);
 
         if (reader.read_short() == 1) {
             // Read the initial meta data
@@ -72,11 +73,11 @@ asset::spritesheet::spritesheet(const asset::resource_descriptor::lua_reference&
             auto tga_size = reader.read_long();
             auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(tga_size));
             asset::tga tga(tga_raw_data);
-            if (auto surface = tga.surface().lock()) {
-                configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
-                m_sheet->layout_sprites(sprite_frames, true);
-                return;
-            }
+
+            const auto& surface = tga.surface();
+            configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            m_sheet->layout_sprites(sprite_frames, true);
+            return;
         }
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");

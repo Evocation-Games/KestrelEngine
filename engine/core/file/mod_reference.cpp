@@ -162,8 +162,8 @@ auto host::sandbox::mod_reference::validate_as_modpackage() const -> bool
     }
 
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto package_rsrc = std::make_shared<graphite::rsrc::file>(package_rsrc_ref->path());
-    auto kmod = package_rsrc->find("kmöd", 128, {}).lock();
+    auto package_rsrc = new graphite::rsrc::file(package_rsrc_ref->path());
+    auto kmod = package_rsrc->find("kmöd", 128);
     if (!kmod) {
         return false;
     }
@@ -195,8 +195,8 @@ auto host::sandbox::mod_reference::parse_modpackage() -> void
     }
 
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto package_rsrc = std::make_shared<graphite::rsrc::file>(package_rsrc_ref->path());
-    auto kmod = package_rsrc->find("kmöd", 128, {}).lock();
+    auto package_rsrc = new graphite::rsrc::file(package_rsrc_ref->path());
+    auto kmod = package_rsrc->find("kmöd", 128);
     if (!kmod) {
         m_is_active = false;
         return;
@@ -205,16 +205,16 @@ auto host::sandbox::mod_reference::parse_modpackage() -> void
     // Load the mod meta data...
     m_mod_files.emplace_back(package_rsrc);
 
-    auto kmod_reader = std::make_shared<graphite::data::reader>(kmod->data());
-    m_name = kmod_reader->read_cstr();
-    m_version = kmod_reader->read_cstr(0x040);
-    m_author = kmod_reader->read_cstr();
-    m_primary_namespace = kmod_reader->read_cstr();
-    m_lua_entry_script = kmod_reader->read_signed_quad();
-    m_description = kmod_reader->read_cstr();
-    m_category = kmod_reader->read_cstr();
-    m_package_id = kmod_reader->read_cstr();
-    m_scenario_id = kmod_reader->read_cstr();
+    graphite::data::reader kmod_reader(&kmod->data());
+    m_name = kmod_reader.read_cstr();
+    m_version = kmod_reader.read_cstr(0x040);
+    m_author = kmod_reader.read_cstr();
+    m_primary_namespace = kmod_reader.read_cstr();
+    m_lua_entry_script = kmod_reader.read_signed_quad();
+    m_description = kmod_reader.read_cstr();
+    m_category = kmod_reader.read_cstr();
+    m_package_id = kmod_reader.read_cstr();
+    m_scenario_id = kmod_reader.read_cstr();
     m_parsed = true;
 }
 
@@ -224,8 +224,8 @@ auto host::sandbox::mod_reference::parse_modpackage() -> void
 auto host::sandbox::mod_reference::validate_as_simplemod() const -> bool
 {
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto rsrc = std::make_shared<graphite::rsrc::file>(m_path);
-    auto kmod = rsrc->find("kmöd", 128, {}).lock();
+    graphite::rsrc::file rsrc(m_path);
+    auto kmod = rsrc.find("kmöd", 128);
     if (!kmod) {
         return false;
     }
@@ -241,8 +241,8 @@ auto host::sandbox::mod_reference::parse_simplemod() -> void
     }
 
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto rsrc = std::make_shared<graphite::rsrc::file>(m_path);
-    auto kmod = rsrc->find("kmöd", 128, {}).lock();
+    auto rsrc = new graphite::rsrc::file(m_path);
+    auto kmod = rsrc->find("kmöd", 128);
     if (!kmod) {
         m_is_active = false;
         return;
@@ -251,13 +251,13 @@ auto host::sandbox::mod_reference::parse_simplemod() -> void
     // Load the mod meta data...
     m_mod_files.emplace_back(rsrc);
 
-    auto kmod_reader = std::make_shared<graphite::data::reader>(kmod->data());
-    m_name = kmod_reader->read_cstr();
-    m_version = kmod_reader->read_cstr(0x040);
-    m_author = kmod_reader->read_cstr();
-    m_primary_namespace = kmod_reader->read_cstr();
-    m_lua_entry_script = kmod_reader->read_signed_quad();
-    m_description = kmod_reader->read_cstr();
+    graphite::data::reader kmod_reader(&kmod->data());
+    m_name = kmod_reader.read_cstr();
+    m_version = kmod_reader.read_cstr(0x040);
+    m_author = kmod_reader.read_cstr();
+    m_primary_namespace = kmod_reader.read_cstr();
+    m_lua_entry_script = kmod_reader.read_signed_quad();
+    m_description = kmod_reader.read_cstr();
     m_parsed = true;
 }
 
@@ -277,7 +277,8 @@ auto host::sandbox::mod_reference::construct_simplemod() -> void
     m_scenario_id = "";
     m_package_id = "";
 
-    m_mod_files.emplace_back(std::make_shared<graphite::rsrc::file>(m_path));
+    auto file = new graphite::rsrc::file(m_path);
+    m_mod_files.emplace_back(file);
 }
 
 // MARK: - Load & Execution
@@ -368,12 +369,16 @@ auto host::sandbox::mod_reference::execute() -> void
 
     // Try and find the initial script that was requested.
     const auto& file = m_mod_files.at(0);
-    if (const auto& ref = file->find("LuaS", m_lua_entry_script, { std::make_pair("namespace", m_primary_namespace) }).lock()) {
-        scripting::lua::script script { env->lua_runtime(), ref };
+    std::unordered_map<std::string, std::string> namespace_attributes({
+        std::pair("namespace", m_primary_namespace)
+    });
+
+    if (auto script_resource = file->find("LuaS", m_lua_entry_script, namespace_attributes)) {
+        scripting::lua::script script(env->lua_runtime(), script_resource);
         script.execute();
     }
-    else if (const auto& ref = file->find("LuaS", m_lua_entry_script, {}).lock()) {
-        scripting::lua::script script { env->lua_runtime(), ref };
+    else if (auto script_resource = file->find("LuaS", m_lua_entry_script)) {
+        scripting::lua::script script(env->lua_runtime(), script_resource);
         script.execute();
     }
     else {

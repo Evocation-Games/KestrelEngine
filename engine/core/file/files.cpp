@@ -91,7 +91,7 @@ auto host::sandbox::files::set_save_file_name(const std::string& name) -> void
     // Setup the new file and attempt to load it if it exists.
     m_current_save_file = files::user_saves()->file(name);
     if (m_current_save_file.get() && m_current_save_file->exists()) {
-        auto file = std::make_shared<graphite::rsrc::file>(m_current_save_file->path());
+        auto file = new graphite::rsrc::file(m_current_save_file->path());
         graphite::rsrc::manager::shared_manager().import_file(file);
     }
 }
@@ -254,9 +254,9 @@ auto host::sandbox::files::set_save_file(const std::string& name) -> void
 auto host::sandbox::files::save() -> void
 {
     if (current_save_file().get()) {
-        for (auto& file : graphite::rsrc::manager::shared_manager().files()) {
+        for (auto& file : graphite::rsrc::manager::shared_manager().file_references()) {
             if (file->path() == current_save_file()->path()) {
-                file->write(file->path(), graphite::rsrc::file::extended);
+                file->write(file->path(), graphite::rsrc::file::format::extended);
                 return;
             }
         }

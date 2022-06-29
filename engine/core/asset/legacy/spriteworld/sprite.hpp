@@ -24,6 +24,7 @@
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include <libGraphite/quickdraw/support/surface.hpp>
 
 namespace asset::legacy::spriteworld
 {
@@ -45,6 +46,9 @@ namespace asset::legacy::spriteworld
         lua_api auto layout_sprites(const math::size& sprite_size) -> void override;
 
         lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
+
+    private:
+        graphite::quickdraw::surface m_surface;
     };
 
 };

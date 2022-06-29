@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <unordered_map>
 #include "core/asset/rsrc/resource_data.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include <libGraphite/rsrc/manager.hpp>
@@ -69,16 +70,17 @@ auto asset::resource_data::enroll_object_api_in_state(const std::shared_ptr<scri
 asset::resource_data::resource_data(const std::string &type, int64_t id)
     : m_reader(nullptr)
 {
-    if (auto res = graphite::rsrc::manager::shared_manager().find(type, id).lock()) {
+    if (auto res = graphite::rsrc::manager::shared_manager().find(type, id)) {
         m_type = type;
         m_id = id;
         m_name = res->name();
-        m_reader = std::make_shared<graphite::data::reader>(res->data());
+        m_reader = graphite::data::reader(&res->data());
 
-        if (const auto& type = res->type().lock()) {
+        if (const auto& type = res->type()) {
             const auto& attributes = type->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                m_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                m_namespace = it->second.string_value();
             }
         }
     }
@@ -87,16 +89,17 @@ asset::resource_data::resource_data(const std::string &type, int64_t id)
 asset::resource_data::resource_data(const asset::resource_descriptor::lua_reference& ref)
     : m_reader(nullptr)
 {
-    if (auto res = ref->load().lock()) {
-        m_type = res->type_code();
-        m_id = res->id();
-        m_name = res->name();
-        m_reader = std::make_shared<graphite::data::reader>(res->data());
+    if (auto resource = ref->load()) {
+        m_type = resource->type_code();
+        m_id = resource->id();
+        m_name = resource->name();
+        m_reader = graphite::data::reader(&resource->data());
 
-        if (const auto& type = res->type().lock()) {
+        if (const auto& type = resource->type()) {
             const auto& attributes = type->attributes();
-            if (attributes.find("namespace") != attributes.end()) {
-                m_namespace = attributes.at("namespace");
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name("namespace"));
+            if (it != attributes.end()) {
+                m_namespace = it->second.string_value();
             }
         }
     }
@@ -106,7 +109,7 @@ asset::resource_data::resource_data(const asset::resource_descriptor::lua_refere
 
 auto asset::resource_data::valid() const -> bool
 {
-    return (m_reader != nullptr);
+    return (m_reader.data() != nullptr);
 }
 
 auto asset::resource_data::id() const -> int64_t
@@ -136,64 +139,64 @@ auto asset::resource_data::reference() const -> asset::resource_descriptor::lua_
 
 auto asset::resource_data::bytes_available() const -> bool
 {
-    return !m_reader->eof();
+    return !m_reader.eof();
 }
 
 // MARK: - Data Reading
 
 auto asset::resource_data::read_signed_byte() -> int8_t
 {
-    return m_reader->read_signed_byte();
+    return m_reader.read_signed_byte();
 }
 
 auto asset::resource_data::read_signed_short() -> int16_t
 {
-    return m_reader->read_signed_short();
+    return m_reader.read_signed_short();
 }
 
 auto asset::resource_data::read_signed_long() -> int32_t
 {
-    return m_reader->read_signed_long();
+    return m_reader.read_signed_long();
 }
 
 auto asset::resource_data::read_signed_quad() -> int64_t
 {
-    return m_reader->read_signed_quad();
+    return m_reader.read_signed_quad();
 }
 
 auto asset::resource_data::read_byte() -> uint8_t
 {
-    return m_reader->read_byte();
+    return m_reader.read_byte();
 }
 
 auto asset::resource_data::read_short() -> uint16_t
 {
-    return m_reader->read_short();
+    return m_reader.read_short();
 }
 
 auto asset::resource_data::read_long() -> uint32_t
 {
-    return m_reader->read_long();
+    return m_reader.read_long();
 }
 
 auto asset::resource_data::read_quad() -> uint64_t
 {
-    return m_reader->read_quad();
+    return m_reader.read_quad();
 }
 
 auto asset::resource_data::read_pstr() -> std::string
 {
-    return m_reader->read_pstr();
+    return m_reader.read_pstr();
 }
 
 auto asset::resource_data::read_cstr() -> std::string
 {
-    return m_reader->read_cstr();
+    return m_reader.read_cstr();
 }
 
 auto asset::resource_data::read_cstr_width(int width) -> std::string
 {
-    return m_reader->read_cstr(width);
+    return m_reader.read_cstr(width);
 }
 
 auto asset::resource_data::read_point() -> math::point
@@ -242,10 +245,10 @@ auto asset::resource_data::read_resource_reference_wide_value() -> int64_t
     return static_cast<int64_t>(read_signed_short());
 }
 
-auto asset::resource_data::switch_on_resource_reference(const luabridge::LuaRef &body) const -> void
+auto asset::resource_data::switch_on_resource_reference(const luabridge::LuaRef &body) -> void
 {
     // TODO: Handle extended format.
-    auto value = m_reader->read_signed_short(0, graphite::data::reader::peek);
+    auto value = m_reader.read_signed_short(0, graphite::data::reader::mode::peek);
 
     // TODO: Logic to determine what the namespace is
 
@@ -254,5 +257,5 @@ auto asset::resource_data::switch_on_resource_reference(const luabridge::LuaRef 
 
 auto asset::resource_data::skip(int delta) -> void
 {
-    m_reader->move(delta);
+    m_reader.move(delta);
 }

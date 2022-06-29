@@ -90,14 +90,14 @@ namespace asset
         lua_api auto matching_resources() -> util::lua_vector<lua_reference>;
         lua_api auto best_resource() -> lua_reference;
 
-        lua_api auto when_id(int64_t id) const -> bool;
-        lua_api auto when_not_id(int64_t id) const -> bool;
-        lua_api auto when_less_than_id(int64_t id) const -> bool;
-        lua_api auto when_greater_than_id(int64_t id) const -> bool;
-        lua_api auto when_id_in_range(int64_t lower_id, int64_t upper_id) const -> bool;
-        lua_api auto when_id_not_in_range(int64_t lower_id, int64_t upper_id) const -> bool;
+        lua_api [[nodiscard]] auto when_id(int64_t id) const -> bool;
+        lua_api [[nodiscard]] auto when_not_id(int64_t id) const -> bool;
+        lua_api [[nodiscard]] auto when_less_than_id(int64_t id) const -> bool;
+        lua_api [[nodiscard]] auto when_greater_than_id(int64_t id) const -> bool;
+        lua_api [[nodiscard]] auto when_id_in_range(int64_t lower_id, int64_t upper_id) const -> bool;
+        lua_api [[nodiscard]] auto when_id_not_in_range(int64_t lower_id, int64_t upper_id) const -> bool;
 
-        auto load() -> std::weak_ptr<graphite::rsrc::resource>;
+        auto load() -> const graphite::rsrc::resource *;
 
     private:
         enum variant m_variant { variant::identified };

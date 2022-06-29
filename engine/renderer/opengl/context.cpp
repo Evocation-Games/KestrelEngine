@@ -498,9 +498,9 @@ auto renderer::opengl::context::create_texture(uint64_t handle, const math::size
     return std::make_shared<opengl::texture>(handle, size);
 }
 
-auto renderer::opengl::context::create_texture(const std::vector<uint32_t> &data, const math::size &size) -> std::shared_ptr<graphics::texture>
+auto renderer::opengl::context::create_texture(const graphite::data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    auto texture =  create_texture(const_cast<void *>(reinterpret_cast<const void *>(&data[0])), size);
+    auto texture = create_texture(data.get<void *>(), size);
     texture->set_data(data);
     return texture;
 }
@@ -518,9 +518,7 @@ auto renderer::opengl::context::create_texture(void *data, const math::size &siz
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    auto out = create_texture(static_cast<uint64_t>(texture), size);
-    out->set_raw_data_ptr(reinterpret_cast<const uint8_t *>(data));
-    return out;
+    return create_texture(static_cast<uint64_t>(texture), size);
 }
 
 // MARK: - Tick Function

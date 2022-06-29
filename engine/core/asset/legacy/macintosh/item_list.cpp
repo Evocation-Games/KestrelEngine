@@ -53,8 +53,8 @@ auto asset::legacy::macintosh::toolbox::item_list::enroll_object_api_in_state(co
 asset::legacy::macintosh::toolbox::item_list::item_list(const asset::resource_descriptor::lua_reference &ref)
 {
     // TODO: This should be moved to libGraphite
-    if (auto res = ref->with_type(type)->load().lock()) {
-        graphite::data::reader reader { res->data() };
+    if (auto resource = ref->with_type(type)->load()) {
+        graphite::data::reader reader(&resource->data());
 
         m_item_count = reader.read_short();
 

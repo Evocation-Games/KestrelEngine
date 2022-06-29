@@ -38,6 +38,8 @@
 
 #include "imgui/backends/imgui_impl_metal.h"
 
+#include <mach/mach_time.h>
+
 // MARK: - Forward Definitions
 
 static auto dispatch_display_render_request(
@@ -114,7 +116,23 @@ auto renderer::metal::context::configure_device() -> void
     m_display.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(m_display.source, ^(){
         @autoreleasepool {
+            uint64_t startTime = 0;
+            uint64_t endTime = 0;
+            uint64_t elapsedTime = 0;
+            uint64_t elapsedTimeNano = 0;
+
+            mach_timebase_info_data_t timeBaseInfo;
+            mach_timebase_info(&timeBaseInfo);
+
+            startTime = mach_absolute_time();
+
             tick();
+
+            endTime = mach_absolute_time();
+
+            elapsedTime = endTime - startTime;
+            elapsedTimeNano = elapsedTime * timeBaseInfo.numer / timeBaseInfo.denom;
+
         }
     });
     dispatch_resume(m_display.source);
@@ -351,9 +369,9 @@ auto renderer::metal::context::create_texture(uint64_t handle, const math::size 
     return std::make_shared<metal::texture>(ptr, size);
 }
 
-auto renderer::metal::context::create_texture(const std::vector<uint32_t> &data, const math::size &size) -> std::shared_ptr<graphics::texture>
+auto renderer::metal::context::create_texture(const graphite::data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    auto texture = create_texture(const_cast<void *>(reinterpret_cast<const void *>(&data[0])), size);
+    auto texture = create_texture(data.get<void *>(), size);
     texture->set_data(data);
     return texture;
 }
@@ -374,9 +392,7 @@ auto renderer::metal::context::create_texture(void *data, const math::size &size
     NSUInteger bytes_per_row = texture.width << 2;
     [texture replaceRegion:region mipmapLevel:0 withBytes:data bytesPerRow:bytes_per_row];
 
-    auto out = create_texture(reinterpret_cast<uint64_t>(texture), size);
-    out->set_raw_data_ptr(reinterpret_cast<const uint8_t *>(data));
-    return out;
+    return create_texture(reinterpret_cast<uint64_t>(texture), size);
 }
 
 // MARK: - Tick Function

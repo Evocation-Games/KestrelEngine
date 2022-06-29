@@ -36,8 +36,10 @@ static struct {
     bool imgui { false };
     float last_frame_time { 0.f };
     float maximum_frame_time { 0.f };
-    uint32_t target_framerate { 0 };
-    rtc::clock::time frame_start_time;
+    uint32_t target_framerate { 60 };
+    rtc::clock::time frame_start_time { rtc::clock::global().current() };
+    float time_since_last_frame { 0.f };
+    bool first_frame { true };
 } s_renderer_api;
 
 auto renderer::initialize(enum renderer::api api, const std::function<auto()->void> &callback) -> void
@@ -157,7 +159,8 @@ auto renderer::window_size() -> math::size
 
 auto renderer::frame_render_required() -> bool
 {
-    if (s_renderer_api.target_framerate == 0) {
+    if (s_renderer_api.target_framerate == 0 || s_renderer_api.first_frame) {
+        s_renderer_api.first_frame = false;
         return true;
     }
     return time_since_last_frame() >= s_renderer_api.maximum_frame_time;
@@ -184,10 +187,17 @@ auto renderer::approx_framerate() -> uint32_t
     return (1.f / s_renderer_api.last_frame_time);
 }
 
+auto renderer::resync_clock() -> void
+{
+    s_renderer_api.last_frame_time = s_renderer_api.maximum_frame_time;
+    s_renderer_api.frame_start_time = rtc::clock::global().current();
+}
+
 // MARK: - Draw Calls
 
 auto renderer::start_frame(struct camera &camera, bool imgui) -> void
 {
+    s_renderer_api.last_frame_time = rtc::clock::global().since(s_renderer_api.frame_start_time).count();
     s_renderer_api.frame_start_time = rtc::clock::global().current();
 
     s_renderer_api.drawing_buffer->set_camera(camera);
@@ -270,7 +280,7 @@ auto renderer::create_texture(uint64_t handle, const math::size &size) -> std::s
     return s_renderer_api.context->create_texture(handle, size);
 }
 
-auto renderer::create_texture(const math::size& size, const std::vector<uint32_t>& data) -> std::shared_ptr<graphics::texture>
+auto renderer::create_texture(const math::size& size, const graphite::data::block& data) -> std::shared_ptr<graphics::texture>
 {
     return s_renderer_api.context->create_texture(data, size);
 }

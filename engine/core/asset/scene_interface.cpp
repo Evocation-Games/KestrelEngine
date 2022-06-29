@@ -47,8 +47,8 @@ auto asset::scene_interface::enroll_object_api_in_state(const std::shared_ptr<sc
 
 asset::scene_interface::scene_interface(const asset::resource_descriptor::lua_reference &ref)
 {
-    if (auto res = ref->with_type(type)->load().lock()) {
-        graphite::data::reader reader { res->data() };
+    if (auto resource = ref->with_type(type)->load()) {
+        graphite::data::reader reader(&resource->data());
 
         m_flags = static_cast<enum flags>(reader.read_short());
         m_name = reader.read_pstr();

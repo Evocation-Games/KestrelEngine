@@ -64,6 +64,7 @@
 #include "core/ui/dialog/dialog.hpp"
 #include "core/ui/font/manager.hpp"
 #include "renderer/common/lua_api.hpp"
+#include "renderer/common/animator.hpp"
 #include "core/task/async_queue.hpp"
 
 // MARK: - Destruction
@@ -173,6 +174,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     audio::asset::mp3::enroll_object_api_in_state(shared_from_this());
 
     renderer::lua::api::enroll_namespace_api_in_state(shared_from_this());
+    renderer::animator::enroll_object_api_in_state(shared_from_this());
 
     task::async_queue::enroll_object_api_in_state(shared_from_this());
 

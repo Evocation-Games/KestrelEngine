@@ -64,10 +64,10 @@ ui::dialog_configuration::dialog_configuration(const luabridge::LuaRef &layout)
 
         // If there is no type, then determine the best type in the following order: scïn, DLOG/DITL
         if (!descriptor->has_type()) {
-            if (graphite::rsrc::manager::shared_manager().find(asset::scene_interface::type, descriptor->id).lock()) {
+            if (graphite::rsrc::manager::shared_manager().find(asset::scene_interface::type, descriptor->id)) {
                 descriptor = descriptor->with_type(asset::scene_interface::type);
             }
-            else if (graphite::rsrc::manager::shared_manager().find(asset::legacy::macintosh::toolbox::dialog::type, descriptor->id).lock()) {
+            else if (graphite::rsrc::manager::shared_manager().find(asset::legacy::macintosh::toolbox::dialog::type, descriptor->id)) {
                 descriptor = descriptor->with_type(asset::legacy::macintosh::toolbox::dialog::type);
             }
             else {

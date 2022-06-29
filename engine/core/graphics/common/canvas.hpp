@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_CANVAS_HPP)
-#define KESTREL_CANVAS_HPP
+#pragma once
 
 #include <type_traits>
 #include <memory>
@@ -105,4 +104,3 @@ namespace graphics
 
 }
 
-#endif //KESTREL_CANVAS_HPP

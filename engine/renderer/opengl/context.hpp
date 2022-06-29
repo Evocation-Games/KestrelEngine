@@ -31,6 +31,7 @@
 #include "renderer/common/shader.hpp"
 #include "renderer/common/context.hpp"
 #include "renderer/common/render_pass.hpp"
+#include <libGraphite/data/data.hpp>
 
 namespace renderer::opengl
 {
@@ -56,7 +57,7 @@ namespace renderer::opengl
         auto create_framebuffer(const math::size& size) -> renderer::framebuffer * override;
 
         auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture> override;
-        auto create_texture(const std::vector<uint32_t>& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
+        auto create_texture(const graphite::data::block& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
         auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;

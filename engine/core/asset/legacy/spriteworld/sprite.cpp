@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/quickdraw/rle.hpp>
+#include <libGraphite/quickdraw/format/rle.hpp>
 #include "sprite.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
@@ -48,15 +48,15 @@ auto asset::legacy::spriteworld::sprite::enroll_object_api_in_state(const std::s
 
 asset::legacy::spriteworld::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (auto res = ref->with_type(type)->load().lock()) {
-        graphite::qd::rle rle(res->data(), res->id(), res->name());
-        if (auto surface = rle.surface().lock()) {
-            configure(res->id(), res->name(), math::size(surface->size().width(), surface->size().height()), surface->raw());
+    if (auto resource = ref->with_type(type)->load()) {
+        graphite::quickdraw::rle rle(resource->data(), resource->id(), resource->name());
+        m_surface = std::move(rle.surface());
+        configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
 
-            auto frame_size = rle.frame_rect(0).size();
-            layout_sprites({ frame_size.width(), frame_size.height() });
-            return;
-        }
+        auto frame_size = rle.frame_rect(0).size;
+        layout_sprites({ frame_size.width, frame_size.height });
+
+        return;
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }

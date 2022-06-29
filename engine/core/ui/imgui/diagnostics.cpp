@@ -62,21 +62,7 @@ auto ui::imgui::diagnostics::construct_contents() -> void
     m_window.add_widget({ state, driver_label });
     m_window.add_widget({ state, same_line::lua_reference(new same_line()) });
     m_window.add_widget({state, m_driver});
-
-    switch (renderer::api()) {
-        case renderer::api::metal: {
-            m_driver->set_text("Metal");
-            break;
-        }
-        case renderer::api::opengl: {
-            m_driver->set_text("OpenGL");
-            break;
-        }
-        default: {
-            m_driver->set_text("Unknown");
-            break;
-        }
-    }
+    m_driver->set_text(renderer::api_name());
 
     label::lua_reference last_frame_duration_label { new label("Last Frame Duration:") };
     m_window.add_widget({ state, last_frame_duration_label });

@@ -21,6 +21,7 @@
 #pragma once
 
 #include <string>
+#include <libGraphite/data/data.hpp>
 #include "scripting/state.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
@@ -34,7 +35,7 @@ namespace asset
     public:
         basic_image() = default;
         explicit basic_image(const math::size& size, const graphics::color& color = graphics::color::white_color());
-        basic_image(int64_t id, const std::string& name, const math::size& size, const std::vector<uint32_t>& data);
+        basic_image(int64_t id, const std::string& name, const math::size& size, const graphite::data::block& data);
         lua_api basic_image(const math::size& size, const graphics::color::lua_reference& color);
 
         [[nodiscard]] virtual auto id() const -> int64_t;
@@ -54,7 +55,7 @@ namespace asset
         std::string m_name;
         std::shared_ptr<graphics::spritesheet> m_sheet;
 
-        auto configure(int64_t id, const std::string& name, const math::size& size, const std::vector<uint32_t>& data) -> void;
+        auto configure(int64_t id, const std::string& name, const math::size& size, const graphite::data::block& data) -> void;
         auto configure(int64_t id, const std::string& name, const std::shared_ptr<graphics::spritesheet>& sheet) -> void;
     };
 

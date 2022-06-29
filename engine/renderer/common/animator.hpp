@@ -20,35 +20,53 @@
 
 #pragma once
 
-#include <imgui/imgui.h>
-#include "core/ui/imgui/label.hpp"
-#include "core/ui/imgui/window.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
-namespace ui::imgui
+static uint32_t s_animator_id = 1;
+
+namespace renderer
 {
-    class diagnostics : public widget, public scripting::lua::object
+    class animator : public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<diagnostics> lua_reference;
+        typedef luabridge::RefCountedPtr<animator> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        lua_api diagnostics();
+        animator() = default;
 
-        auto draw() -> void override;
+        static auto entity_frame_animator(double duration, double delay, uint32_t frame_count, uint32_t start_frame) -> lua_reference;
+
+        lua_api auto start() -> void;
+        lua_api auto pause() -> void;
+        lua_api auto reset() -> void;
+
+        lua_api auto advance(double delta) -> void;
+        lua_api auto set_time(double time) -> void;
+        lua_api auto set_frame(uint32_t frame) -> void;
+
+        lua_api auto set_custom_calculation(const luabridge::LuaRef& calculation) -> void;
+
+        [[nodiscard]] lua_api auto time() const -> double;
+        [[nodiscard]] lua_api auto frame() const -> uint32_t;
+        [[nodiscard]] lua_api auto delay() const -> double;
 
     private:
-        uint32_t m_throttle { 0 };
-        bool m_constructed { false };
-        window m_window { "Diagnostics", {250, 150} };
-        label::lua_reference m_frame_duration { new label("0") };
-        label::lua_reference m_update_duration { new label("0") };
-        label::lua_reference m_approx_fps { new label("0") };
-        label::lua_reference m_target_fps { new label("0") };
-        label::lua_reference m_driver { new label("OpenGL") };
+        uint32_t m_id { s_animator_id++ };
 
-        auto construct_contents() -> void;
+        bool m_paused { false };
+        uint32_t m_start_frame { 0 };
+        uint32_t m_frame_count { 0 };
+
+        double m_time { 0 };
+        double m_total_duration { 0 };
+        double m_delay { 0 };
+
+        uint32_t m_frame { 0 };
+
+        luabridge::LuaRef m_custom_calculation { nullptr };
+
+        auto calculate_frame() -> void;
     };
 }

@@ -18,11 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TGA_HPP)
-#define KESTREL_TGA_HPP
+#pragma once
 
 #include <vector>
-#include <libGraphite/quickdraw/internal/surface.hpp>
+#include <libGraphite/quickdraw/support/surface.hpp>
 #include <libGraphite/data/data.hpp>
 
 namespace asset
@@ -56,23 +55,21 @@ namespace asset
             uint8_t a;
         };
 
+    public:
+        explicit tga(const std::string& path);
+        explicit tga(const std::shared_ptr<std::vector<char>>& data);
+        explicit tga(graphite::quickdraw::surface& surface);
+
+        [[nodiscard]] auto surface() const -> const graphite::quickdraw::surface&;
+        auto data() -> std::vector<char>;
+
     private:
-        std::shared_ptr<graphite::qd::surface> m_surface;
+        graphite::quickdraw::surface m_surface;
 
         auto decode(graphite::data::reader& reader) -> bool;
         auto merge_bytes(const int& position, const std::vector<char>& bytes, const int& offset, const int& size) -> void;
 
         auto encode(graphite::data::writer& writer) -> void;
-
-    public:
-        explicit tga(const std::string& path);
-        explicit tga(const std::shared_ptr<std::vector<char>>& data);
-        explicit tga(std::shared_ptr<graphite::qd::surface> surface);
-
-        auto surface() -> std::weak_ptr<graphite::qd::surface>;
-        auto data() -> std::vector<char>;
     };
 
 }
-
-#endif //KESTREL_TGA_HPP

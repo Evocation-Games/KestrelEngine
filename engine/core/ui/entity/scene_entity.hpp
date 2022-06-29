@@ -32,6 +32,7 @@
 #include "core/graphics/common/entity.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "core/asset/static_image.hpp"
+#include "renderer/common/animator.hpp"
 
 namespace ui
 {
@@ -62,6 +63,7 @@ namespace ui
         [[nodiscard]] lua_api auto clipping_area() const -> math::size;
         [[nodiscard]] lua_api auto clipping_offset() const -> math::point;
         [[nodiscard]] lua_api auto children() const -> util::lua_vector<lua_reference>;
+        [[nodiscard]] lua_api auto animator() const -> renderer::animator::lua_reference;
 
         lua_api auto set_position(const math::point& v) -> void;
         lua_api auto set_draw_position(const math::point& v) -> void;
@@ -75,6 +77,7 @@ namespace ui
         lua_api auto set_blend_mode(int v) -> void;
         lua_api auto set_clipping_area(const math::size& v) -> void;
         lua_api auto set_clipping_offset(const math::point& v) -> void;
+        lua_api auto set_animator(const renderer::animator::lua_reference& animator) -> void;
 
         lua_api auto set_sprite(const luabridge::LuaRef& sprite) -> void;
 
@@ -122,11 +125,13 @@ namespace ui
         luabridge::LuaRef m_on_mouse_down { nullptr };
         luabridge::LuaRef m_on_mouse_release { nullptr };
         luabridge::LuaRef m_on_mouse_drag { nullptr };
+        renderer::animator::lua_reference m_animator { nullptr };
 
         static auto spawn_entity(const luabridge::LuaRef& entity_provider) -> std::shared_ptr<graphics::entity>;
         static auto spawn_entity(const asset::static_image::lua_reference& image) -> std::shared_ptr<graphics::entity>;
         static auto spawn_entity(const graphics::canvas::lua_reference& canvas) -> std::shared_ptr<graphics::entity>;
 
+        auto constrain_frame(int32_t frame) -> void;
     };
 }
 

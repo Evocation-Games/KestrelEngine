@@ -26,6 +26,7 @@
 #include "math/point.hpp"
 #include "math/rect.hpp"
 #include "core/graphics/common/color.hpp"
+#include <libGraphite/data/data.hpp>
 
 namespace graphics
 {
@@ -95,6 +96,7 @@ namespace graphics
 
         auto apply_run(const graphics::color& c, const uint64_t& start, const uint64_t& end, const uint64_t& line) -> void;
         auto apply_run(const std::vector<graphics::color>& cv, const uint64_t& start, const uint64_t& line) -> void;
+        auto apply_run(const graphite::data::block& cv, uint64_t start, uint64_t line) -> void;
 
         auto apply_mask(const rgba_buffer& buffer) -> void;
     };
