@@ -25,6 +25,11 @@
 #include "core/environment.hpp"
 #include "core/ui/imgui/imgui.hpp"
 
+#include "core/ui/widgets/button_widget.hpp"
+#include "core/ui/widgets/label_widget.hpp"
+#include "core/ui/widgets/image_widget.hpp"
+#include "core/ui/widgets/textarea_widget.hpp"
+
 // MARK: - Enumeration Types
 
 static auto s_control_definition_none = static_cast<uint32_t>(ui::control_definition::type::none);
@@ -94,6 +99,8 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addProperty("contentSize", &control_definition::content_size, &control_definition::set_content_size)
                 .addProperty("gridSize", &control_definition::grid_size, &control_definition::set_grid_size)
                 .addProperty("borders", &control_definition::borders, &control_definition::set_borders)
+                .addProperty("canScrollUp", &control_definition::can_scroll_up)
+                .addProperty("canScrollDown", &control_definition::can_scroll_down)
 
                 // General
                 .addProperty("disabled", &control_definition::disabled, &control_definition::set_disabled)
@@ -111,6 +118,7 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
 
                 // Images
                 .addProperty("image", &control_definition::image, &control_definition::set_image)
+                .addProperty("icon", &control_definition::image, &control_definition::set_image)
                 .addProperty("sprite", &control_definition::image, &control_definition::set_image)
 
                 // Action
@@ -135,6 +143,7 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("setTextFont", &control_definition::set_text_font_and_size)
                 .addFunction("setAlignment", &control_definition::set_alignment)
                 .addFunction("setImage", &control_definition::set_image)
+                .addFunction("setIcon", &control_definition::set_image)
                 .addFunction("setSprite", &control_definition::set_image)
                 .addFunction("setFrameSize", &control_definition::set_frame_size)
                 .addFunction("setContentOffset", &control_definition::set_content_offset)
@@ -149,6 +158,9 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("setBorders", &control_definition::set_borders)
                 .addFunction("setRender", &control_definition::set_render)
                 .addFunction("setActionScript", &control_definition::set_action)
+                .addFunction("setContinuous", &control_definition::set_continuous)
+                .addFunction("scrollUp", &control_definition::scroll_up)
+                .addFunction("scrollDown", &control_definition::scroll_down)
             .endClass()
         .endNamespace();
 }
@@ -179,7 +191,66 @@ auto ui::control_definition::construct(uint32_t mode) -> void
 
 auto ui::control_definition::construct_scene_entity() -> void
 {
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        return;
+    }
+    auto state = env->lua_runtime()->internal_state();
 
+    switch (m_type) {
+        case type::button: {
+            widgets::button_widget::lua_reference button(new widgets::button_widget(m_string_value));
+            button->set_frame(m_frame);
+            button->set_continuous_action(m_continuous);
+
+            if (m_image.state()) {
+                button->set_icon(m_image);
+            }
+
+            if (m_action.state()) {
+                button->set_action(m_action);
+            }
+
+            button->draw();
+            m_widget = luabridge::LuaRef(state, button);
+            m_entity = scene_entity::lua_reference(new scene_entity(button->entity()));
+            m_entity->internal_entity()->set_position(m_frame.origin);
+            m_entity->set_position(m_frame.origin);
+            break;
+        }
+        case type::label: {
+            widgets::label_widget::lua_reference label(new widgets::label_widget(m_string_value));
+            label->set_frame(m_frame);
+            m_widget = luabridge::LuaRef(state, label);
+            m_entity = scene_entity::lua_reference(new scene_entity(label->entity()));
+            break;
+        }
+        case type::image: {
+            widgets::image_widget::lua_reference image(new widgets::image_widget(m_image));
+            image->set_frame(m_frame);
+            m_widget = luabridge::LuaRef(state, image);
+            m_entity = scene_entity::lua_reference(new scene_entity(image->entity()));
+            break;
+        }
+        case type::text_area: {
+            widgets::textarea_widget::lua_reference text(new widgets::textarea_widget(m_body_text));
+            text->set_frame(m_frame);
+            text->set_font(m_font_name);
+            text->set_font_size(static_cast<int16_t>(m_font_size));
+            text->set_color(m_text_color);
+            text->set_scroll_offset(static_cast<int16_t>(m_content_offset.y));
+            text->draw();
+            m_widget = luabridge::LuaRef(state, text);
+            m_entity = scene_entity::lua_reference(new scene_entity(text->entity()));
+            m_entity->internal_entity()->set_position(m_frame.origin);
+            m_entity->set_position(m_frame.origin);
+
+            m_can_scroll_up = text->can_scroll_up();
+            m_can_scroll_down = text->can_scroll_down();
+
+            break;
+        }
+    }
 }
 
 auto ui::control_definition::construct_imgui_control() -> void
@@ -192,7 +263,7 @@ auto ui::control_definition::construct_imgui_control() -> void
 
     switch (m_type) {
         case type::button: {
-            imgui::button::lua_reference button { new imgui::button(m_string_value, { state }) };
+            imgui::button::lua_reference button(new imgui::button(m_string_value, { state }));
             if (m_absolute_frame) {
                 button->set_position(m_frame.origin);
                 button->set_size(m_frame.size);
@@ -292,7 +363,20 @@ auto ui::control_definition::construct_imgui_control() -> void
 
 auto ui::control_definition::update() -> void
 {
+    if (scripting::lua::ref_isa<widgets::textarea_widget>(m_widget)) {
+        auto text = m_widget.cast<widgets::textarea_widget::lua_reference>();
+        text->set_text(m_body_text);
+        text->set_scroll_offset(static_cast<int32_t>(m_content_offset.y));
+        text->draw();
 
+        m_can_scroll_up = text->can_scroll_up();
+        m_can_scroll_down = text->can_scroll_down();
+    }
+    else if (scripting::lua::ref_isa<widgets::button_widget>(m_widget)) {
+        auto button = m_widget.cast<widgets::button_widget::lua_reference>();
+        button->set_disabled(m_disabled);
+        button->draw();
+    }
 }
 
 // MARK: - Helper Functions
@@ -311,4 +395,26 @@ auto ui::control_definition::set_text_font_and_size(const std::string &font, uin
 auto ui::control_definition::set_body_description(const luabridge::LuaRef &base_reference, int64_t id_offset) -> void
 {
 
+}
+
+auto ui::control_definition::scroll_up() -> void
+{
+    m_content_offset.y -= 2;
+    update();
+}
+
+auto ui::control_definition::scroll_down() -> void
+{
+    m_content_offset.y += 2;
+    update();
+}
+
+auto ui::control_definition::can_scroll_up() const -> bool
+{
+    return m_can_scroll_up;
+}
+
+auto ui::control_definition::can_scroll_down() const -> bool
+{
+    return m_can_scroll_down;
 }

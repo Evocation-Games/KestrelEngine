@@ -44,6 +44,10 @@ namespace ui::widgets
         typedef luabridge::RefCountedPtr<button_widget> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
+        static auto set_global_normal_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
+        static auto set_global_pressed_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
+        static auto set_global_disabled_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
+
     public:
         explicit button_widget(const std::string& label);
 
@@ -61,6 +65,7 @@ namespace ui::widgets
         [[nodiscard]] lua_api auto label_color() const -> graphics::color::lua_reference;
         [[nodiscard]] lua_api auto label_pressed_color() const -> graphics::color::lua_reference;
         [[nodiscard]] lua_api auto label_disabled_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto icon() const -> asset::static_image::lua_reference;
         [[nodiscard]] lua_api auto action_body() const -> luabridge::LuaRef;
         [[nodiscard]] lua_api auto mouse_enter_body() const -> luabridge::LuaRef;
         [[nodiscard]] lua_api auto mouse_exit_body() const -> luabridge::LuaRef;
@@ -77,12 +82,14 @@ namespace ui::widgets
         auto set_label_color(const graphics::color::lua_reference& color) -> void;
         auto set_label_pressed_color(const graphics::color::lua_reference& color) -> void;
         auto set_label_disabled_color(const graphics::color::lua_reference& color) -> void;
+        auto set_icon(const luabridge::LuaRef& info) -> void;
         auto set_action(const luabridge::LuaRef& body) -> void;
         auto set_mouse_enter(const luabridge::LuaRef& body) -> void;
         auto set_mouse_exit(const luabridge::LuaRef& body) -> void;
         auto set_user_info(const luabridge::LuaRef& info) -> void;
         auto set_frame(const math::rect& r) -> void;
         auto set_disabled(bool disabled) -> void;
+        auto set_continuous_action(bool continuous) -> void;
 
         auto receive_event(const event& e) -> bool override;
         auto mouse_down() -> void;
@@ -98,11 +105,13 @@ namespace ui::widgets
         bool m_pressed { false };
         bool m_disabled { false };
         bool m_inside { false };
+        bool m_continuous { false };
         graphics::color m_label_normal { graphics::color(255, 255) };
         graphics::color m_label_pressed { graphics::color(100, 255) };
         graphics::color m_label_disabled { graphics::color(200, 255) };
         std::shared_ptr<graphics::canvas> m_canvas;
         std::shared_ptr<scene_entity> m_entity;
+        asset::static_image::lua_reference m_icon { nullptr };
         luabridge::LuaRef m_action { nullptr };
         luabridge::LuaRef m_mouse_enter { nullptr };
         luabridge::LuaRef m_mouse_exit { nullptr };
@@ -112,6 +121,8 @@ namespace ui::widgets
         stencils::button_stencil::lua_reference m_pressed_stencil;
 
         auto redraw_entity() -> void;
+
+        auto bind_internal_events() -> void;
     };
 }
 

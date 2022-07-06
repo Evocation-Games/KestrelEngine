@@ -94,6 +94,11 @@ auto ui::widgets::image_widget::resize(bool reload) -> void
             auto entity = m_image_ref.cast<asset::legacy::macintosh::quickdraw::color_icon::lua_reference>()->spawn_entity({ 0, 0 });
             m_entity = std::make_shared<scene_entity>(entity);
         }
+        else if (scripting::lua::ref_isa<asset::resource_descriptor>(m_image_ref)) {
+            auto descriptor = m_image_ref.cast<asset::resource_descriptor::lua_reference>();
+            asset::static_image img(descriptor);
+            m_entity = std::make_shared<scene_entity>(img.spawn_entity({0, 0}));
+        }
         else {
             // TODO: Handle unrecognised image format...
             m_entity = nullptr;

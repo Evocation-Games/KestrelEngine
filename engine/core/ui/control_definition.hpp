@@ -112,7 +112,7 @@ namespace ui
         lua_api auto set_image(const luabridge::LuaRef& image) -> void { m_image = image; }
 
         [[nodiscard]] lua_api auto content_offset() const -> math::point { return m_content_offset; }
-        lua_api auto set_content_offset(const math::point& content_offset) -> void { m_content_offset = content_offset; }
+        lua_api auto set_content_offset(const math::point& content_offset) -> void { m_content_offset = content_offset; update(); }
 
         [[nodiscard]] lua_api auto content_size() const -> math::size { return m_content_size; }
         lua_api auto set_content_size(const math::size& content_size) -> void { m_content_size = content_size; }
@@ -130,7 +130,10 @@ namespace ui
         lua_api auto set_column_spacing(float spacing) -> void { m_column_spacings = spacing; }
 
         [[nodiscard]] lua_api auto disabled() const -> bool { return m_disabled; }
-        lua_api auto set_disabled(bool f) -> void { m_disabled = f; }
+        lua_api auto set_disabled(bool f) -> void { m_disabled = f; update(); }
+
+        [[nodiscard]] lua_api auto continuous() const -> bool { return m_continuous; }
+        lua_api auto set_continuous(bool f) -> void { m_continuous = f; }
 
         [[nodiscard]] lua_api auto column_widths() const -> util::lua_vector<float> { return m_column_widths; }
         lua_api auto set_column_widths(const util::lua_vector<float>& widths) -> void { m_column_widths = widths; }
@@ -153,11 +156,18 @@ namespace ui
 
         lua_api auto update() -> void;
 
+        lua_api auto scroll_up() -> void;
+        lua_api auto scroll_down() -> void;
+
+        [[nodiscard]] lua_api auto can_scroll_up() const -> bool;
+        [[nodiscard]] lua_api auto can_scroll_down() const -> bool;
+
     private:
         enum type m_type { type::none };
         math::rect m_frame;
         scene_entity::lua_reference m_entity { nullptr };
         luabridge::LuaRef m_control { nullptr };
+        luabridge::LuaRef m_widget { nullptr };
         std::string m_string_value;
         std::string m_body_text;
         std::string m_font_name { "Geneva" };
@@ -169,11 +179,14 @@ namespace ui
         graphics::color::lua_reference m_secondary_text_color { new graphics::color(255, 255) };
         math::point m_content_offset;
         math::size m_content_size;
+        bool m_can_scroll_up { false };
+        bool m_can_scroll_down { false };
         math::size m_grid_size;
         uint32_t m_item_count { 0 };
         int32_t m_selected_index { 1 };
         float m_column_spacings { 0 };
         bool m_disabled { false };
+        bool m_continuous { false };
         util::lua_vector<float> m_column_widths;
         util::lua_vector<std::string> m_column_headings;
         bool m_borders { false };

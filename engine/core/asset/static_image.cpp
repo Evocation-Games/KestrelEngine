@@ -23,6 +23,7 @@
 #include <libGraphite/quickdraw/format/pict.hpp>
 #include <libGraphite/quickdraw/format/cicn.hpp>
 #include "core/asset/static_image.hpp"
+#include "core/asset/spritesheet.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 #include "core/asset/tga.hpp"
@@ -50,6 +51,11 @@ asset::static_image::static_image(const int64_t& id, const std::string& name, co
     configure(id, name, sheet);
 }
 
+asset::static_image::static_image(const math::size &size, const graphics::color::lua_reference &color)
+    : asset::basic_image(size, color)
+{
+}
+
 asset::static_image::static_image(const resource_descriptor::lua_reference &ref)
 {
     if (!ref->has_id()) {
@@ -58,23 +64,41 @@ asset::static_image::static_image(const resource_descriptor::lua_reference &ref)
 
     // Build a descriptor and ensure it has a type. If no type has been supplied in the reference, then
     // use the static image type.
-    auto descriptor = ref->with_type(ref->has_type() ? ref->type : static_image::type);
+    auto descriptor = ref;
+    if (!ref->has_type()) {
+        std::vector<graphite::rsrc::attribute> attributes;
+        if (ref->is_namespaced()) {
+            if (!ref->namespaces.front().empty()) {
+                attributes.emplace_back(graphite::rsrc::attribute("namespace", ref->namespaces.front()));
+            }
+        }
+
+        if (graphite::rsrc::manager::shared_manager().find(static_image::type, descriptor->id, attributes)) {
+            descriptor = descriptor->with_type(static_image::type);
+        }
+        else if (graphite::rsrc::manager::shared_manager().find(legacy::macintosh::quickdraw::picture::type, descriptor->id, attributes)) {
+            descriptor = descriptor->with_type(legacy::macintosh::quickdraw::picture::type);
+        }
+        else if (graphite::rsrc::manager::shared_manager().find(legacy::macintosh::quickdraw::color_icon::type, descriptor->id, attributes)) {
+            descriptor = descriptor->with_type(legacy::macintosh::quickdraw::color_icon::type);
+        }
+    }
 
     // Attempt to load the resource data in preparation for determining the correct decoding procedure.
     if (auto resource = descriptor->load()) {
-        if (ref->type == legacy::macintosh::quickdraw::picture::type) {
+        if (descriptor->type == legacy::macintosh::quickdraw::picture::type) {
             graphite::quickdraw::pict pict(resource->data(), resource->id(), resource->name());
             const auto& surface = pict.surface();
             configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
             return;
         }
-        else if (ref->type == legacy::macintosh::quickdraw::color_icon::type) {
+        else if (descriptor->type == legacy::macintosh::quickdraw::color_icon::type) {
             graphite::quickdraw::cicn cicn(resource->data(), resource->id(), resource->name());
             const auto& surface = cicn.surface();
             configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
             return;
         }
-        else if (ref->type == static_image::type) {
+        else if (descriptor->type == static_image::type) {
             graphite::data::reader reader(&resource->data());
             reader.change_byte_order(graphite::data::byte_order::msb);
             auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(reader.size()));
@@ -86,7 +110,7 @@ asset::static_image::static_image(const resource_descriptor::lua_reference &ref)
         }
     }
 
-    throw std::logic_error("Bad resource reference encountered in StaticImage: Unable to load resource: " + ref->type + " #" + std::to_string(ref->id));
+    throw std::logic_error("Bad resource reference encountered in StaticImage: Unable to load resource: " + descriptor->type + " #" + std::to_string(descriptor->id));
 }
 
 auto asset::static_image::load_best(const std::vector<resource_descriptor::lua_reference>& refs) -> lua_reference
@@ -187,6 +211,34 @@ auto asset::static_image::preferred(const resource_descriptor::lua_reference &re
     return nullptr;
 }
 
+auto asset::static_image::from(const luabridge::LuaRef &ref) -> lua_reference
+{
+    if (scripting::lua::ref_isa<asset::static_image>(ref)) {
+        return ref.cast<asset::static_image::lua_reference>();
+    }
+    else if (scripting::lua::ref_isa<asset::legacy::macintosh::quickdraw::picture>(ref)) {
+        const auto& pict = ref.cast<asset::legacy::macintosh::quickdraw::picture::lua_reference>();
+        return asset::static_image::using_pict(pict);
+    }
+    else if (scripting::lua::ref_isa<asset::legacy::macintosh::quickdraw::color_icon>(ref)) {
+        const auto& cicn = ref.cast<asset::legacy::macintosh::quickdraw::color_icon::lua_reference>();
+        return asset::static_image::using_cicn(cicn);
+    }
+    else if (scripting::lua::ref_isa<asset::resource_descriptor>(ref)) {
+        auto descriptor = ref.cast<asset::resource_descriptor::lua_reference>();
+
+        // TODO: Refactor this to remove the exception here...
+        try {
+            return { new asset::static_image(descriptor) };
+        }
+        catch (const std::exception& exception) {
+            return nullptr;
+        }
+    }
+    else {
+        return nullptr;
+    }
+}
 
 // MARK: - Accessors
 

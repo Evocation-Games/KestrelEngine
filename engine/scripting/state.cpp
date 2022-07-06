@@ -57,6 +57,7 @@
 #include "core/ui/widgets/custom_widget.hpp"
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/button_widget.hpp"
+#include "core/ui/widgets/textarea_widget.hpp"
 #include "core/ui/stencils/button_stencil.hpp"
 #include "core/ui/imgui/imgui.hpp"
 #include "core/ui/control_definition.hpp"
@@ -141,6 +142,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::widgets::custom_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::image_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::button_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::textarea_widget::enroll_object_api_in_state(shared_from_this());
     ui::stencils::button_stencil::enroll_object_api_in_state(shared_from_this());
     ui::dialog_configuration::enroll_object_api_in_state(shared_from_this());
     ui::dialog::enroll_object_api_in_state(shared_from_this());

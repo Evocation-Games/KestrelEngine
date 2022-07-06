@@ -73,6 +73,15 @@ environment::environment(int argc, const char **argv)
         }
     }
 
+    if (std::find(m_options.begin(), m_options.end(), "--support") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--support") {
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::support);
+                break;
+            }
+        }
+    }
+
     if (std::find(m_options.begin(), m_options.end(), "--scenarios") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--scenarios") {
@@ -267,6 +276,12 @@ auto environment::load_kestrel_core() -> void
     }
     else {
         throw std::runtime_error("Could not locate game core.");
+    }
+
+    auto support_ref = host::sandbox::files::game_support();
+    if (support_ref.get()) {
+        auto file = new graphite::rsrc::file(support_ref->path());
+        graphite::rsrc::manager::shared_manager().import_file(file);
     }
 }
 

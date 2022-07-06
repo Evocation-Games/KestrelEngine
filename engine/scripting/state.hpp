@@ -76,7 +76,7 @@ namespace scripting::lua
     template<typename T>
     static inline auto ref_isa(const luabridge::LuaRef& ref) -> bool
     {
-        return (ref.isUserdata() && ref.template isInstance<T>());
+        return (ref.state() && ref.isUserdata() && ref.template isInstance<T>());
     }
 
 }

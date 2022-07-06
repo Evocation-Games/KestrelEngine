@@ -41,7 +41,7 @@ namespace host::sandbox
 
         enum class path_type
         {
-            core, fonts, scenario, current_scenario, mods, data, saves
+            core, fonts, scenario, current_scenario, mods, data, saves, support
         };
 
     public:
@@ -80,6 +80,7 @@ namespace host::sandbox
         lua_api static auto set_active_scenario(mod_reference::lua_reference scenario) -> void;
 
         lua_api static auto game_core() -> host::sandbox::file_reference::lua_reference;
+        lua_api static auto game_support() -> host::sandbox::file_reference::lua_reference;
         lua_api static auto game_scenarios() -> host::sandbox::directory_reference::lua_reference;
         lua_api static auto game_data() -> host::sandbox::directory_reference::lua_reference;
         lua_api static auto game_fonts() -> host::sandbox::directory_reference::lua_reference;
@@ -98,8 +99,8 @@ namespace host::sandbox
 
 
     private:
-        std::array<std::string, 7> m_game_paths;
-        std::array<std::string, 7> m_user_paths;
+        std::array<std::string, 8> m_game_paths;
+        std::array<std::string, 8> m_user_paths;
 
         host::sandbox::file_reference::lua_reference m_current_save_file { nullptr };
         host::sandbox::mod_reference::lua_reference m_active_scenario { nullptr };

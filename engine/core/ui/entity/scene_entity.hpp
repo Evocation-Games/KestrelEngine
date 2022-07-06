@@ -47,6 +47,7 @@ namespace ui
         explicit scene_entity(const luabridge::LuaRef& entity_provider);
         explicit scene_entity(const asset::static_image::lua_reference& image);
         explicit scene_entity(const graphics::canvas::lua_reference& canvas);
+        explicit scene_entity(const std::shared_ptr<scene_entity>& entity);
 
         [[nodiscard]] lua_api auto position() const -> math::point;
         [[nodiscard]] lua_api auto draw_position() const -> math::point;
@@ -78,6 +79,7 @@ namespace ui
         lua_api auto set_clipping_area(const math::size& v) -> void;
         lua_api auto set_clipping_offset(const math::point& v) -> void;
         lua_api auto set_animator(const renderer::animator::lua_reference& animator) -> void;
+        lua_api auto set_continuous_mouse_down_action(bool continuous) -> void;
 
         lua_api auto set_sprite(const luabridge::LuaRef& sprite) -> void;
 
@@ -101,6 +103,12 @@ namespace ui
         lua_api auto send_event(const event& e) -> void;
         [[nodiscard]] lua_api auto hit_test(const math::point& p) const -> bool;
 
+        auto on_mouse_enter_internal(const std::function<auto(const event&)->void>& callback) -> void;
+        auto on_mouse_exit_internal(const std::function<auto(const event&)->void>& callback) -> void;
+        auto on_mouse_down_internal(const std::function<auto(const event&)->void>& callback) -> void;
+        auto on_mouse_release_internal(const std::function<auto(const event&)->void>& callback) -> void;
+        auto on_mouse_drag_internal(const std::function<auto(const event&)->void>& callback) -> void;
+
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<graphics::entity>;
 
     private:
@@ -116,6 +124,8 @@ namespace ui
         bool m_pressed { false };
         bool m_started { false };
         bool m_finished { false };
+        bool m_continuous_mouse_down_action { false };
+        event m_mouse_down_event;
         util::lua_vector<lua_reference> m_children;
         luabridge::LuaRef m_on_animation_finish { nullptr };
         luabridge::LuaRef m_on_animation_start { nullptr };
@@ -126,6 +136,11 @@ namespace ui
         luabridge::LuaRef m_on_mouse_release { nullptr };
         luabridge::LuaRef m_on_mouse_drag { nullptr };
         renderer::animator::lua_reference m_animator { nullptr };
+        std::function<auto(const event&)->void> m_on_mouse_enter_internal { nullptr };
+        std::function<auto(const event&)->void> m_on_mouse_exit_internal { nullptr };
+        std::function<auto(const event&)->void> m_on_mouse_down_internal { nullptr };
+        std::function<auto(const event&)->void> m_on_mouse_release_internal { nullptr };
+        std::function<auto(const event&)->void> m_on_mouse_drag_internal { nullptr };
 
         static auto spawn_entity(const luabridge::LuaRef& entity_provider) -> std::shared_ptr<graphics::entity>;
         static auto spawn_entity(const asset::static_image::lua_reference& image) -> std::shared_ptr<graphics::entity>;

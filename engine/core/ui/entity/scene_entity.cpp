@@ -113,6 +113,54 @@ ui::scene_entity::scene_entity(const graphics::canvas::lua_reference &canvas)
 
 }
 
+ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& entity)
+    : m_entity(entity->m_entity),
+      m_centered(entity->m_centered),
+      m_position(entity->m_position),
+      m_frame_count(entity->m_frame_count),
+      m_frame(entity->m_frame),
+      m_next_frame_on_draw(entity->m_next_frame_on_draw),
+      m_loops(entity->m_loops),
+      m_mouse_over(entity->m_mouse_over),
+      m_mouse_dragged(entity->m_mouse_dragged),
+      m_pressed(entity->m_pressed),
+      m_started(entity->m_started),
+      m_finished(entity->m_finished),
+      m_children(entity->m_children),
+      m_animator(entity->m_animator),
+      m_on_mouse_down_internal(entity->m_on_mouse_down_internal),
+      m_on_mouse_release_internal(entity->m_on_mouse_release_internal),
+      m_on_mouse_drag_internal(entity->m_on_mouse_drag_internal),
+      m_on_mouse_enter_internal(entity->m_on_mouse_enter_internal),
+      m_on_mouse_exit_internal(entity->m_on_mouse_exit_internal),
+      m_continuous_mouse_down_action(entity->m_continuous_mouse_down_action)
+{
+    if (entity->m_on_animation_start.state() && entity->m_on_animation_start.isFunction()) {
+        m_on_animation_start = entity->m_on_animation_start;
+    }
+    if (entity->m_on_animation_finish.state() && entity->m_on_animation_finish.isFunction()) {
+        m_on_animation_finish = entity->m_on_animation_finish;
+    }
+    if (entity->m_on_layout.state() && entity->m_on_layout.isFunction()) {
+        m_on_layout = entity->m_on_layout;
+    }
+    if (entity->m_on_mouse_enter.state() && entity->m_on_mouse_enter.isFunction()) {
+        m_on_mouse_enter = entity->m_on_mouse_enter;
+    }
+    if (entity->m_on_mouse_exit.state() && entity->m_on_mouse_exit.isFunction()) {
+        m_on_mouse_exit = entity->m_on_mouse_exit;
+    }
+    if (entity->m_on_mouse_down.state() && entity->m_on_mouse_down.isFunction()) {
+        m_on_mouse_down = entity->m_on_mouse_down;
+    }
+    if (entity->m_on_mouse_release.state() && entity->m_on_mouse_release.isFunction()) {
+        m_on_mouse_release = entity->m_on_mouse_release;
+    }
+    if (entity->m_on_mouse_drag.state() && entity->m_on_mouse_drag.isFunction()) {
+        m_on_mouse_drag = entity->m_on_mouse_drag;
+    }
+}
+
 // MARK: - Entity Spawning
 
 template<class T>
@@ -342,6 +390,11 @@ auto ui::scene_entity::set_animator(const renderer::animator::lua_reference &ani
     m_animator = animator;
 }
 
+auto ui::scene_entity::set_continuous_mouse_down_action(bool continuous) -> void
+{
+    m_continuous_mouse_down_action = continuous;
+}
+
 // MARK: - Child Entity Management
 
 auto ui::scene_entity::add_child_entity(const lua_reference& child) -> void
@@ -433,6 +486,15 @@ auto ui::scene_entity::draw() -> void
         return;
     }
 
+    if (m_pressed && m_continuous_mouse_down_action) {
+        if (m_on_mouse_down.state() && m_on_mouse_down.isFunction()) {
+            m_on_mouse_down(event::lua_reference(new event(m_mouse_down_event)));
+        }
+        if (m_on_mouse_down_internal) {
+            m_on_mouse_down_internal(m_mouse_down_event);
+        }
+    }
+
     if (m_animator.get()) {
         m_animator->advance(renderer::last_frame_time());
         constrain_frame(m_animator->frame());
@@ -476,6 +538,32 @@ auto ui::scene_entity::on_mouse_drag(const luabridge::LuaRef& callback) -> void
     m_on_mouse_drag = callback;
 }
 
+auto ui::scene_entity::on_mouse_enter_internal(const std::function<auto(const event&)->void>& callback) -> void
+{
+    m_on_mouse_enter_internal = callback;
+}
+
+auto ui::scene_entity::on_mouse_exit_internal(const std::function<auto(const event&)->void>& callback) -> void
+{
+    m_on_mouse_exit_internal = callback;
+}
+
+auto ui::scene_entity::on_mouse_down_internal(const std::function<auto(const event&)->void>& callback) -> void
+{
+    m_on_mouse_down_internal = callback;
+}
+
+auto ui::scene_entity::on_mouse_release_internal(const std::function<auto(const event&)->void>& callback) -> void
+{
+    m_on_mouse_release_internal = callback;
+}
+
+auto ui::scene_entity::on_mouse_drag_internal(const std::function<auto(const event&)->void>& callback) -> void
+{
+    m_on_mouse_drag_internal = callback;
+}
+
+
 auto ui::scene_entity::send_event(const event& e) -> void
 {
     if (e.is_mouse_event()) {
@@ -486,18 +574,32 @@ auto ui::scene_entity::send_event(const event& e) -> void
             if (m_on_mouse_enter.state() && m_on_mouse_enter.isFunction()) {
                 m_on_mouse_enter(event::lua_reference { new event(e) });
             }
+
+            if (m_on_mouse_enter_internal) {
+                m_on_mouse_enter_internal(e);
+            }
         }
         else if (m_mouse_over && !hit_test(point)) {
             m_mouse_over = false;
             if (m_on_mouse_exit.state() && m_on_mouse_exit.isFunction()) {
                 m_on_mouse_exit(event::lua_reference { new event(e) });
             }
+
+            if (m_on_mouse_exit_internal) {
+                m_on_mouse_exit_internal(e);
+            }
         }
 
         if (m_mouse_over && e.is_pressed() && !m_pressed) {
             m_pressed = true;
+            m_mouse_down_event = e;
+
             if (m_on_mouse_down.state() && m_on_mouse_down.isFunction()) {
                 m_on_mouse_down(event::lua_reference { new event(e) });
+            }
+
+            if (m_on_mouse_down_internal) {
+                m_on_mouse_down_internal(e);
             }
         }
         else if (e.is_released() && m_pressed) {
@@ -505,11 +607,18 @@ auto ui::scene_entity::send_event(const event& e) -> void
             if (m_on_mouse_release.state() && m_on_mouse_release.isFunction()) {
                 m_on_mouse_release(event::lua_reference { new event(e) });
             }
+
+            if (m_on_mouse_release_internal) {
+                m_on_mouse_release_internal(e);
+            }
         }
 
         if (m_on_mouse_drag.state() && m_on_mouse_drag.isFunction() && e.is_pressed() && e.has_moved()) {
             m_on_mouse_drag(event::lua_reference { new event(e) });
             m_mouse_dragged = true;
+            if (m_on_mouse_drag_internal) {
+                m_on_mouse_drag_internal(e);
+            }
         }
     }
 }

@@ -54,26 +54,6 @@ auto ui::stencils::button_stencil::enroll_object_api_in_state(const std::shared_
         .endNamespace();
 }
 
-// MARK: - Static Image Construction
-
-auto ui::stencils::button_stencil::make_static_image(const luabridge::LuaRef &image) -> asset::static_image::lua_reference
-{
-    if (scripting::lua::ref_isa<asset::static_image>(image)) {
-        return image.cast<asset::static_image::lua_reference>();
-    }
-    else if (scripting::lua::ref_isa<asset::legacy::macintosh::quickdraw::picture>(image)) {
-        const auto& pict = image.cast<asset::legacy::macintosh::quickdraw::picture::lua_reference>();
-        return asset::static_image::using_pict(pict);
-    }
-    else if (scripting::lua::ref_isa<asset::legacy::macintosh::quickdraw::color_icon>(image)) {
-        const auto& cicn = image.cast<asset::legacy::macintosh::quickdraw::color_icon::lua_reference>();
-        return asset::static_image::using_cicn(cicn);
-    }
-    else {
-        return nullptr;
-    }
-}
-
 // MARK: - Construction
 
 ui::stencils::button_stencil::button_stencil(drawing_style style)
@@ -85,7 +65,7 @@ ui::stencils::button_stencil::button_stencil(drawing_style style)
 auto ui::stencils::button_stencil::simple(const luabridge::LuaRef &image) -> lua_reference
 {
     lua_reference ref { new button_stencil(drawing_style::simple) };
-    ref->m_center = make_static_image(image);
+    ref->m_center = asset::static_image::from(image);
     return ref;
 }
 
@@ -93,9 +73,9 @@ auto ui::stencils::button_stencil::stretch(const luabridge::LuaRef &left, const 
                                            const luabridge::LuaRef &right) -> lua_reference
 {
     lua_reference ref { new button_stencil(drawing_style::stretch) };
-    ref->m_left = make_static_image(left);
-    ref->m_center = make_static_image(center);
-    ref->m_right = make_static_image(right);
+    ref->m_left = asset::static_image::from(left);
+    ref->m_center = asset::static_image::from(center);
+    ref->m_right = asset::static_image::from(right);
     return ref;
 }
 
@@ -107,7 +87,7 @@ auto ui::stencils::button_stencil::apply_simple_mask(const luabridge::LuaRef &im
         // TODO: Error
         return;
     }
-    m_mask_center = make_static_image(image);
+    m_mask_center = asset::static_image::from(image);
 }
 
 auto ui::stencils::button_stencil::apply_stretch_mask(const luabridge::LuaRef &left, const luabridge::LuaRef &center,
@@ -117,9 +97,9 @@ auto ui::stencils::button_stencil::apply_stretch_mask(const luabridge::LuaRef &l
         // TODO: Error
         return;
     }
-    m_mask_left = make_static_image(left);
-    m_mask_center = make_static_image(center);
-    m_mask_right = make_static_image(right);
+    m_mask_left = asset::static_image::from(left);
+    m_mask_center = asset::static_image::from(center);
+    m_mask_right = asset::static_image::from(right);
 }
 
 // MARK: - Drawing
@@ -181,7 +161,10 @@ auto ui::stencils::button_stencil::draw(const std::shared_ptr<graphics::canvas> 
                     m_right->size()
                 ));
 
-                graphics::canvas::lua_reference mask { new graphics::canvas(canvas->get_bounds().size) };
+                graphics::canvas::lua_reference mask(new graphics::canvas(canvas->get_bounds().size));
+                mask->set_pen_color(graphics::color::black_color());
+                mask->fill_rect({{0, 0}, canvas->get_bounds().size});
+
                 if (m_mask_left.get()) {
                     mask->draw_static_image(m_mask_left, math::rect(
                         math::point(0, (canvas->get_bounds().get_height() - m_mask_left->size().height) / 2.0),
@@ -218,6 +201,14 @@ auto ui::stencils::button_stencil::draw(const std::shared_ptr<graphics::canvas> 
             auto origin_size = (canvas->get_bounds().size - size) / 2.0;
             auto origin = math::point(origin_size.width, origin_size.height);
             canvas->draw_text(origin);
+        }
+
+        if (info->icon.get()) {
+            math::point origin(
+                (canvas->get_bounds().size.width - info->icon->size().width) / 2,
+                (canvas->get_bounds().size.height - info->icon->size().height) / 2
+            );
+            canvas->draw_static_image(info->icon, { origin.floor(), info->icon->size() });
         }
     }
 

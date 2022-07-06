@@ -96,8 +96,12 @@ auto ui::dialog::load_contents(dialog_configuration *config) -> void
     else if (scripting::lua::ref_isa<asset::legacy::macintosh::toolbox::dialog>(layout)) {
         auto dialog = layout.cast<asset::legacy::macintosh::toolbox::dialog::lua_reference>();
 
-        asset::resource_descriptor::lua_reference ditl_ref { new asset::resource_descriptor() };
-        ditl_ref = ditl_ref->with_id(dialog->proc_id());
+        if (target_size.width == 0 && target_size.height == 0) {
+            target_size = dialog->bounds().size;
+        }
+
+        asset::resource_descriptor::lua_reference ditl_ref(new asset::resource_descriptor());
+        ditl_ref = ditl_ref->with_id(dialog->interface_list());
 
         m_item_list = { new asset::legacy::macintosh::toolbox::item_list(ditl_ref) };
         m_name = dialog->title();
@@ -127,8 +131,8 @@ auto ui::dialog::load_contents(dialog_configuration *config) -> void
                 bottom = target_size.get_height() - diff;
             }
             else if ((anchor & control_definition::anchor::bottom) == control_definition::anchor::bottom) {
-                auto top_diff = m_frame.get_height() - bottom;
-                auto bottom_diff = m_frame.get_height() - top;
+                auto top_diff = m_frame.get_height() - top;
+                auto bottom_diff = m_frame.get_height() - bottom;
                 top = target_size.height - top_diff;
                 bottom = target_size.height - bottom_diff;
             }
@@ -150,6 +154,11 @@ auto ui::dialog::load_contents(dialog_configuration *config) -> void
             };
             m_control_definitions.emplace(std::pair(name, definition));
         }
+    }
+
+    // Finally identify the scene that we're being created within.
+    if (auto env = environment::active_environment().lock()) {
+        m_owner_scene = env->session()->current_scene();
     }
 }
 
@@ -174,7 +183,7 @@ auto ui::dialog::present() -> void
 
 auto ui::dialog::present_in_scene(const ui::game_scene::lua_reference &scene) -> void
 {
-    m_owner_scene = scene;
+    add_to_scene(scene);
     present();
 }
 
@@ -247,9 +256,9 @@ auto ui::dialog::present_scene(const ui::game_scene::lua_reference& scene) -> vo
     for (const auto& definition : m_control_definitions) {
         if (definition.second->frame().intersects(m_frame)) {
             definition.second->construct(static_cast<uint32_t>(control_definition::mode::scene));
-            auto control = definition.second->control();
-            if (control.state()) {
-                definition.second->set_entity_index(m_owner_scene->add_entity(control));
+            auto entity = definition.second->entity();
+            if (entity.get()) {
+                definition.second->set_entity_index(m_owner_scene->add_entity(entity));
             }
         }
     }
@@ -328,9 +337,8 @@ auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef 
     if (configure.state() && configure.isFunction()) {
         configure(element);
 
+        element->update();
         if (element->entity_index() == UINT32_MAX) {
-            element->update();
-
             if (element->has_control()) {
                 // TODO: Determine what to do for an ImGui Control
             }
@@ -338,6 +346,7 @@ auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef 
                 m_owner_scene->replace_entity(element->entity_index(), element->entity());
             }
         }
+
     }
 }
 

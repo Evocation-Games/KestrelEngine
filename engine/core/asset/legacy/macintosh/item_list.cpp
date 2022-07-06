@@ -58,7 +58,7 @@ asset::legacy::macintosh::toolbox::item_list::item_list(const asset::resource_de
 
         m_item_count = reader.read_short();
 
-        for (auto i = 0; i < m_item_count; ++i) {
+        for (auto i = 0; i <= m_item_count; ++i) {
             reader.move(4);
 
             struct item item;

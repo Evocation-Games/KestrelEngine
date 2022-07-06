@@ -236,9 +236,9 @@ auto ui::dialog_configuration::defined_elements() const -> std::vector<std::stri
 
 auto ui::dialog_configuration::build(const luabridge::LuaRef &configure_callback) -> ui::dialog::lua_reference
 {
-    ui::dialog::lua_reference dialog { new ui::dialog(this) };
+    m_dialog = ui::dialog::lua_reference(new ui::dialog(this));
     if (configure_callback.state() && configure_callback.isFunction()) {
-        configure_callback(dialog);
+        configure_callback(m_dialog);
     }
-    return dialog;
+    return m_dialog;
 }

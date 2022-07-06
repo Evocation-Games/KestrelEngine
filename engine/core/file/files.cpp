@@ -61,6 +61,7 @@ host::sandbox::files::files()
 {
     // Game Directories
     set_game_path(game()->file("GameCore.kdat")->path(), path_type::core);
+    set_game_path(game()->file("Support.kdat")->path(), path_type::support);
     set_game_path(game()->directory("Scenario")->path(), path_type::scenario);
     set_game_path(game()->directory("Mods")->path(), path_type::mods);
     set_game_path(game()->directory("Fonts")->path(), path_type::fonts);
@@ -197,6 +198,11 @@ auto host::sandbox::files::user_file(enum path_type type) const -> file_referenc
 auto host::sandbox::files::game_core() -> host::sandbox::file_reference::lua_reference
 {
     return shared_files().game_file(path_type::core);
+}
+
+auto host::sandbox::files::game_support() -> host::sandbox::file_reference::lua_reference
+{
+    return shared_files().game_file(path_type::support);
 }
 
 auto host::sandbox::files::game_scenarios() -> host::sandbox::directory_reference::lua_reference

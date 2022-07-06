@@ -73,11 +73,12 @@ namespace ui
         struct element_definition
         {
             std::vector<uint32_t> index;
-            enum control_definition::type type;
-            enum control_definition::anchor anchor;
+            enum control_definition::type type { 0 };
+            enum control_definition::anchor anchor { 0 };
         };
 
     private:
+        ui::dialog::lua_reference m_dialog { nullptr };
         std::unordered_map<std::string, element_definition> m_elements;
         math::size m_size;
         luabridge::LuaRef m_layout_ref { nullptr };

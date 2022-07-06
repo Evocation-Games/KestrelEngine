@@ -21,6 +21,30 @@
 #include "core/ui/widgets/button_widget.hpp"
 #include "core/ui/entity/scene_entity.hpp"
 
+// MARK: - Global Button Stencils
+
+static struct
+{
+    ui::stencils::button_stencil::lua_reference normal { nullptr };
+    ui::stencils::button_stencil::lua_reference disabled { nullptr };
+    ui::stencils::button_stencil::lua_reference pressed { nullptr };
+} s_global_stencils;
+
+auto ui::widgets::button_widget::set_global_normal_stencil(const stencils::button_stencil::lua_reference& stencil) -> void
+{
+    s_global_stencils.normal = stencil;
+}
+
+auto ui::widgets::button_widget::set_global_pressed_stencil(const stencils::button_stencil::lua_reference& stencil) -> void
+{
+    s_global_stencils.pressed = stencil;
+}
+
+auto ui::widgets::button_widget::set_global_disabled_stencil(const stencils::button_stencil::lua_reference& stencil) -> void
+{
+    s_global_stencils.disabled = stencil;
+}
+
 // MARK: - Lua
 
 auto ui::widgets::button_widget::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
@@ -28,6 +52,9 @@ auto ui::widgets::button_widget::enroll_object_api_in_state(const std::shared_pt
     lua->global_namespace()
         .beginNamespace("Widget")
             .beginClass<button_widget>("Button")
+                .addStaticFunction("setGlobalNormalStencil", &button_widget::set_global_normal_stencil)
+                .addStaticFunction("setGlobalPressedStencil", &button_widget::set_global_pressed_stencil)
+                .addStaticFunction("setGlobalDisabledStencil", &button_widget::set_global_disabled_stencil)
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
                 .addProperty("normalStencil", &button_widget::normal_stencil, &button_widget::set_normal_stencil)
                 .addProperty("pressedStencil", &button_widget::pressed_stencil, &button_widget::set_pressed_stencil)
@@ -58,8 +85,17 @@ ui::widgets::button_widget::button_widget(const std::string &label)
 {
     graphics::typesetter ts { label };
     ts.layout();
-    m_canvas = std::make_shared<graphics::canvas>(ts.get_bounding_size());
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+
+    if (ts.get_bounding_size().width == 0 || ts.get_bounding_size().height == 0) {
+        m_canvas = std::make_shared<graphics::canvas>(math::size(10, 10));
+        m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+    }
+    else {
+        m_canvas = std::make_shared<graphics::canvas>(ts.get_bounding_size());
+        m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+    }
+
+    bind_internal_events();
 }
 
 // MARK: - Accessors
@@ -122,6 +158,11 @@ auto ui::widgets::button_widget::label_pressed_color() const -> graphics::color:
 auto ui::widgets::button_widget::label_disabled_color() const -> graphics::color::lua_reference
 {
     return { new graphics::color(m_label_disabled) };
+}
+
+auto ui::widgets::button_widget::icon() const -> asset::static_image::lua_reference
+{
+    return m_icon;
 }
 
 auto ui::widgets::button_widget::action_body() const -> luabridge::LuaRef
@@ -192,6 +233,12 @@ auto ui::widgets::button_widget::set_label_disabled_color(const graphics::color:
     m_dirty = true;
 }
 
+auto ui::widgets::button_widget::set_icon(const luabridge::LuaRef& icon) -> void
+{
+    m_icon = asset::static_image::from(icon);
+    m_dirty = true;
+}
+
 auto ui::widgets::button_widget::set_action(const luabridge::LuaRef& body) -> void
 {
     m_action = body;
@@ -221,6 +268,7 @@ auto ui::widgets::button_widget::set_frame(const math::rect &r) -> void
     m_canvas = std::make_shared<graphics::canvas>(r.size);
     m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(r.origin));
     redraw_entity();
+    bind_internal_events();
 }
 
 auto ui::widgets::button_widget::set_normal_stencil(const stencils::button_stencil::lua_reference &stencil) -> void
@@ -244,6 +292,48 @@ auto ui::widgets::button_widget::set_disabled_stencil(const stencils::button_ste
 auto ui::widgets::button_widget::set_disabled(bool disabled) -> void
 {
     m_disabled = disabled;
+    m_dirty = true;
+}
+
+auto ui::widgets::button_widget::set_continuous_action(bool continuous) -> void
+{
+    m_continuous = continuous;
+    m_entity->set_continuous_mouse_down_action(continuous);
+}
+
+// MARK: - Internal Events
+
+auto ui::widgets::button_widget::bind_internal_events() -> void
+{
+    m_entity->on_mouse_down_internal([&] (const event& e) {
+        if (m_disabled) {
+            return;
+        }
+
+        m_pressed = true;
+        redraw_entity();
+
+        if (m_action.state() && m_action.isFunction() && m_continuous) {
+            m_action();
+        }
+    });
+
+    m_entity->on_mouse_drag_internal([&] (const event& e) {
+
+    });
+
+    m_entity->on_mouse_release_internal([&] (const event& e) {
+        if (m_disabled) {
+            return;
+        }
+
+        m_pressed = false;
+        redraw_entity();
+
+        if (m_action.state() && m_action.isFunction() && !m_continuous) {
+            m_action();
+        }
+    });
 }
 
 // MARK: - Drawing
@@ -262,18 +352,31 @@ auto ui::widgets::button_widget::redraw_entity() -> void
     info->font = font();
     info->font_size = font_size();
     info->text = label();
+    info->icon = m_icon;
 
     if (m_disabled && m_disabled_stencil.get()) {
         info->text_color = { new graphics::color(m_label_disabled) };
         m_disabled_stencil->draw(m_canvas, info);
     }
+    else if (m_disabled && s_global_stencils.disabled.get()) {
+        info->text_color = { new graphics::color(m_label_disabled) };
+        s_global_stencils.disabled->draw(m_canvas, info);
+    }
     else if ((m_pressed && !m_disabled) && m_pressed_stencil.get()) {
         info->text_color = { new graphics::color(m_label_pressed) };
         m_pressed_stencil->draw(m_canvas, info);
     }
+    else if ((m_pressed && !m_disabled) && s_global_stencils.pressed.get()) {
+        info->text_color = { new graphics::color(m_label_pressed) };
+        s_global_stencils.pressed->draw(m_canvas, info);
+    }
     else if (m_normal_stencil.get()) {
         info->text_color = { new graphics::color(m_label_normal) };
         m_normal_stencil->draw(m_canvas, info);
+    }
+    else if (s_global_stencils.normal.get()) {
+        info->text_color = { new graphics::color(m_label_normal) };
+        s_global_stencils.normal->draw(m_canvas, info);
     }
 
     m_dirty = false;

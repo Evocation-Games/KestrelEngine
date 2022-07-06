@@ -385,13 +385,12 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
 
                 auto color = img_data.get<uint32_t>((src_offset + rx) * 4);
                 scaled_data.set(color, 4, (dst_offset + x) * 4);
-//                scaled_data.set(static_cast<uint32_t>(0xff00ffff), 4, (dst_offset + x) * 4);
             }
         }
 
         // Drawing
         auto bmp_line_start = std::max<int64_t>(0LL, static_cast<int64_t>(-point.x));
-        auto bmp_line_len = static_cast<int64_t>(img_frame.size.width) - bmp_line_start - 1;
+        auto bmp_line_len = static_cast<int64_t>(img_frame.size.width) - bmp_line_start;
         auto start = std::max<int64_t>(0LL, static_cast<int64_t>(point.x));
 
         for (auto y = 0; y < img_frame.size.height; ++y) {

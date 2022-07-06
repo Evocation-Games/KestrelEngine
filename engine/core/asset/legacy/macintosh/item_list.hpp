@@ -63,7 +63,7 @@ namespace asset::legacy::macintosh::toolbox
         lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference;
 
         [[nodiscard]] lua_api auto item_count() const -> uint16_t { return m_item_count; }
-        [[nodiscard]] lua_api auto at(uint16_t idx) const -> const item& { return m_items[idx]; }
+        [[nodiscard]] lua_api auto at(uint16_t idx) const -> const item& { return m_items[idx - 1]; }
 
     private:
         uint16_t m_item_count { 0 };

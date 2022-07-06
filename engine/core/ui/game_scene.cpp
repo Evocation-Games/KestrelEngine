@@ -107,7 +107,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         auto point = e.location();
         auto local_point = m_positioning_frame->convert_point(point);
 
-        for (const auto& entity : m_entities) {
+        for (auto entity : m_entities) {
             entity->send_event(event::mouse(e.type(), local_point - entity->position()));
         }
 
@@ -345,7 +345,7 @@ auto ui::game_scene::add_entity(const scene_entity::lua_reference& entity) -> in
 {
     auto index = m_entities.size();
     m_entities.emplace_back(entity);
-    return index;
+    return static_cast<int32_t>(index);
 }
 
 auto ui::game_scene::replace_entity(int32_t index, const scene_entity::lua_reference& entity) -> void

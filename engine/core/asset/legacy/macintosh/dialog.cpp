@@ -65,8 +65,8 @@ asset::legacy::macintosh::toolbox::dialog::dialog(const asset::resource_descript
         );
 
         m_proc_id = reader.read_signed_short();
-        m_visible = reader.read_byte() != 0;
-        m_go_away = reader.read_byte() != 0;
+        m_visible = reader.read_short() != 0;
+        m_go_away = reader.read_short() != 0;
         m_ref_con = reader.read_signed_long();
         m_interface_list = reader.read_signed_short();
         m_title = reader.read_pstr();
@@ -76,6 +76,7 @@ asset::legacy::macintosh::toolbox::dialog::dialog(const asset::resource_descript
         }
 
         m_auto_position = reader.read_short();
+        return;
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }

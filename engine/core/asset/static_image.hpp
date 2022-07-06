@@ -39,6 +39,9 @@ namespace asset
 
     public:
         static_image(const int64_t& id, const std::string& name, const std::shared_ptr<graphics::spritesheet>& sheet);
+        static_image(const math::size& size, const graphics::color::lua_reference& color);
+
+        static auto from(const luabridge::LuaRef& ref) -> lua_reference;
 
         lua_api explicit static_image(const asset::resource_descriptor::lua_reference& ref);
         lua_api static auto load_best(const std::vector<asset::resource_descriptor::lua_reference>& refs) -> lua_reference;

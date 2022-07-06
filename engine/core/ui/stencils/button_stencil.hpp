@@ -54,6 +54,7 @@ namespace ui::stencils
             asset::static_image::lua_reference mask_left { nullptr };
             asset::static_image::lua_reference mask_center { nullptr };
             asset::static_image::lua_reference mask_right { nullptr };
+            asset::static_image::lua_reference icon { nullptr };
         };
 
     public:
@@ -76,8 +77,6 @@ namespace ui::stencils
         asset::static_image::lua_reference m_mask_center { nullptr };
         asset::static_image::lua_reference m_mask_right { nullptr };
         luabridge::LuaRef m_drawing_function { nullptr };
-
-        static auto make_static_image(const luabridge::LuaRef& image) -> asset::static_image::lua_reference;
 
     };
 }
