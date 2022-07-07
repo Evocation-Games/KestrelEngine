@@ -21,6 +21,8 @@
 #include "renderer/metal/swap_chain.h"
 #include "renderer/metal/constants.h"
 #include "renderer/common/draw_buffer.hpp"
+#include "renderer/metal/texture.h"
+#include "renderer/metal/shader.h"
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_metal.h>
 
@@ -88,12 +90,14 @@ auto renderer::metal::swap_chain::finalize(const std::function<auto() -> void>& 
     }];
 
     [m_command_buffer commit];
+
+    m_pass_descriptor = nil;
 }
 
 auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
 {
-    auto shader = buffer->shader();
-    id<MTLRenderPipelineState> state = reinterpret_cast<id<MTLRenderPipelineState>>(shader->get<void *>());
+    auto shader = reinterpret_cast<metal::shader::program *>(buffer->shader().get());
+    auto state = shader->get_state();
     [m_command_encoder setRenderPipelineState:state];
 
     memcpy(m_buffer_ptr, buffer->data(), buffer->data_size());
@@ -105,7 +109,8 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
 
     std::size_t slots = buffer->texture_slots();
     for (uint32_t i = 0; i < slots; ++i) {
-        auto texture = reinterpret_cast<id<MTLTexture>>(buffer->texture(i)->handle());
+        auto texture_container = reinterpret_cast<renderer::metal::texture *>(buffer->texture(i).get());
+        auto texture = texture_container->handle_ptr();
         [m_command_encoder setFragmentTexture:texture atIndex:i];
     }
 
@@ -120,8 +125,8 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
 auto renderer::metal::swap_chain::start_imgui() -> void
 {
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize.x = m_viewport_width;
-    io.DisplaySize.y = m_viewport_height;
+    io.DisplaySize.x = static_cast<float>(m_viewport_width);
+    io.DisplaySize.y = static_cast<float>(m_viewport_height);
     io.DisplayFramebufferScale = ImVec2(1.f, 1.f);
     io.DeltaTime = 1.0 / 50.0;
 

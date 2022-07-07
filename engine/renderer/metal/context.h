@@ -39,6 +39,7 @@
 #   define MTLDeviceRef                     id<MTLDevice>
 #   define MTLLibraryRef                    id<MTLLibrary>
 #   define MTLCommandQueueRef               id<MTLCommandQueue>
+#   define MTLTextureRef                    id<MTLTexture>
 #else
 #   define NSWindow                         void
 #   define CAMetalLayer                     void
@@ -48,6 +49,7 @@
 #   define dispatch_semaphore_t             void *
 #   define dispatch_source_t                void *
 #   define CVDisplayLinkRef                 void *
+#   define MTLTextureRef                    uint64_t
 #   define MTLCreateSystemDefaultDevice()   nullptr
 #   define dispatch_semaphore_create(...)   nullptr
 #endif
@@ -60,6 +62,7 @@ namespace renderer::metal
         static auto start_application(const std::function<auto(metal::context *)->void>& callback) -> void;
         static auto supports_metal() -> bool;
 
+        context() = default;
         explicit context(const std::function<auto()->void>& callback);
         ~context();
 
@@ -68,8 +71,8 @@ namespace renderer::metal
         [[nodiscard]] inline auto is_imgui_enabled() const -> bool override { return m_imgui.enabled; }
 
         auto create_shader_library(const std::string& source) -> void override;
-        auto add_shader_program(const std::string& name, const std::string& vertex_function_name, const std::string& fragment_function_name) -> std::shared_ptr<shader::program> override;
-        auto shader_program(const std::string& name) -> std::shared_ptr<shader::program> override;
+        auto add_shader_program(const std::string& name, const std::string& vertex_function_name, const std::string& fragment_function_name) -> std::shared_ptr<renderer::shader::program> override;
+        auto shader_program(const std::string& name) -> std::shared_ptr<renderer::shader::program> override;
 
         auto start_frame(const render_pass *pass = nullptr, bool imgui = false) -> void override;
         auto finalize_frame(const std::function<auto() -> void>& callback) -> void override;
@@ -78,9 +81,13 @@ namespace renderer::metal
 
         auto create_framebuffer(const math::size& size) -> renderer::framebuffer * override;
 
-        auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture> override;
         auto create_texture(const graphite::data::block& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
         auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
+
+#if __OBJC__ || __OBJC2__
+        auto create_texture(MTLTextureRef texture, const math::size& size) -> std::shared_ptr<graphics::texture>;
+#endif
+        auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture> override { return nullptr; };
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
         auto tick() -> void override;
@@ -102,7 +109,7 @@ namespace renderer::metal
             MTLDeviceRef device { MTLCreateSystemDefaultDevice() };
             MTLLibraryRef library { nullptr };
             MTLCommandQueueRef command_queue { nullptr };
-            std::unordered_map<util::uuid, std::shared_ptr<shader::program>> shader_programs;
+            std::unordered_map<util::uuid, std::shared_ptr<renderer::shader::program>> shader_programs;
             uint32_t viewport_width { 1280 };
             uint32_t viewport_height { 720 };
         } m_metal;

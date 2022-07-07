@@ -38,6 +38,8 @@ namespace asset
         basic_image(int64_t id, const std::string& name, const math::size& size, const graphite::data::block& data);
         lua_api basic_image(const math::size& size, const graphics::color::lua_reference& color);
 
+        ~basic_image();
+
         [[nodiscard]] virtual auto id() const -> int64_t;
         [[nodiscard]] virtual auto name() const -> std::string;
 

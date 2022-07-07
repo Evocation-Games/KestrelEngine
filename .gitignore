@@ -10,10 +10,9 @@
 
 # Build
 bin/
-cmake-build-debug/
-cmake-build-release/
 cmake-*-debug/
 cmake-*-release/
+cmake-*-asan/
 *.o
 *.bin
 build/

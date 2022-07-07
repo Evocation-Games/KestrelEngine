@@ -35,8 +35,12 @@
 namespace renderer
 {
 
+    class context;
+
     auto initialize(enum api api, const std::function<auto()->void>& callback) -> void;
     auto deinitialize() -> void;
+
+    auto current_context() -> renderer::context *;
 
     auto api() -> enum api;
     auto api_name() -> std::string;

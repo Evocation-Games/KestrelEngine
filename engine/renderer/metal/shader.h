@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Tom Hancocks
+// Copyright (c) 2022 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,18 +18,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "core/support/macos/cocoa/view.h"
-#include "core/support/macos/cocoa/cocoa_utils.h"
+#pragma once
 
-// MARK: - Construction
+#include "renderer/common/shader.hpp"
+#include <MetalKit/MetalKit.h>
 
-cocoa::view::view()
+#if __APPLE__
+
+namespace renderer::metal::shader
 {
-    NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0)];
-    cocoa::object::set(view);
+    struct program : public renderer::shader::program
+    {
+    public:
+        program() = default;
+        explicit program(id<MTLRenderPipelineState> state) : m_state(state) {};
+        program(const program& program) = default;
+
+        [[nodiscard]] inline auto get_state() const -> id<MTLRenderPipelineState> { return m_state; }
+
+    private:
+        id<MTLRenderPipelineState> m_state;
+    };
 }
 
-cocoa::view::view(void *handle)
-{
-    cocoa::object::set(handle);
-}
+#endif
+

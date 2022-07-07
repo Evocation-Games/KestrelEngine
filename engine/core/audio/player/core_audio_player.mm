@@ -124,7 +124,6 @@ auto audio::core_audio::player::stop(const audio::playback_session_ref &ref) -> 
         if (session->item->is_file_item()) {
             if (m_player) {
                 [m_player pause];
-                [m_player release];
                 m_player = nullptr;
             }
         }

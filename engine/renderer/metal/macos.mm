@@ -58,14 +58,14 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
         NSApplication *app = NSApplication.sharedApplication;
         app.activationPolicy = NSApplicationActivationPolicyRegular;
 
-        NSMenu *menubar = [[NSMenu new] autorelease];
-        NSMenuItem *appMenuItem = [[NSMenuItem new] autorelease];
+        NSMenu *menubar = [NSMenu new];
+        NSMenuItem *appMenuItem = [NSMenuItem new];
         [menubar addItem:appMenuItem];
         [app setMainMenu:menubar];
-        NSMenu *appMenu = [[NSMenu new] autorelease];
+        NSMenu *appMenu = [NSMenu new];
         NSString *appName = [[NSProcessInfo processInfo] processName];
         NSString *quitTitle = [@"Quit " stringByAppendingString:appName];
-        NSMenuItem *quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
+        NSMenuItem *quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle action:@selector(terminate:) keyEquivalent:@"q"];
         [appMenu addItem:quitMenuItem];
         [appMenuItem setSubmenu:appMenu];
 

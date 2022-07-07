@@ -38,14 +38,15 @@ namespace renderer::metal
         texture(uint32_t width, uint32_t height, const graphite::data::block& data);
         texture(const math::size& size, const graphite::data::block& data);
         texture(const math::size& size, const uint8_t *data);
-        texture(const void *handle, const math::size& sz);
+        texture(id<MTLTexture> texture, const math::size& sz);
 
         ~texture();
 
         auto handle() const -> uint64_t override;
+        auto handle_ptr() const -> id<MTLTexture>;
 
     private:
-        uint64_t m_handle { 0 };
+        id<MTLTexture> m_handle { 0 };
     };
 }
 

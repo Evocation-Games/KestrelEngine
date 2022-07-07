@@ -71,6 +71,14 @@ graphics::spritesheet::spritesheet(std::shared_ptr<graphics::texture> tex, const
     layout_sprites(false);
 }
 
+// MARK: - Spritesheet Destruction
+
+graphics::spritesheet::~spritesheet()
+{
+    m_backing_texture = nullptr;
+    m_sprites.clear();
+}
+
 // MARK: - Spritesheet Accessors
 
 auto graphics::spritesheet::texture() const -> std::shared_ptr<graphics::texture>

@@ -34,6 +34,7 @@
 #include "renderer/metal/framebuffer.h"
 #include "renderer/metal/swap_chain.h"
 #include "renderer/metal/texture.h"
+#include "renderer/metal/shader.h"
 #include "util/uuid.hpp"
 
 #include "imgui/backends/imgui_impl_metal.h"
@@ -56,7 +57,7 @@ static auto dispatch_display_render_request(
 auto renderer::metal::context::start_application(const std::function<auto(metal::context *)->void> &callback) -> void
 {
     cocoa::start_application([&, callback] (KestrelApplication *app) {
-        auto context = new renderer::metal::context([] {});
+        auto context = new metal::context();
 
         context->m_window = [app createWindowWithTitle:@"Cosmic Frontier: Override" withSize: {
             static_cast<float>(context->m_metal.viewport_width),
@@ -115,25 +116,7 @@ auto renderer::metal::context::configure_device() -> void
 
     m_display.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(m_display.source, ^(){
-        @autoreleasepool {
-            uint64_t startTime = 0;
-            uint64_t endTime = 0;
-            uint64_t elapsedTime = 0;
-            uint64_t elapsedTimeNano = 0;
-
-            mach_timebase_info_data_t timeBaseInfo;
-            mach_timebase_info(&timeBaseInfo);
-
-            startTime = mach_absolute_time();
-
-            tick();
-
-            endTime = mach_absolute_time();
-
-            elapsedTime = endTime - startTime;
-            elapsedTimeNano = elapsedTime * timeBaseInfo.numer / timeBaseInfo.denom;
-
-        }
+        tick();
     });
     dispatch_resume(m_display.source);
 
@@ -220,7 +203,7 @@ auto renderer::metal::context::create_shader_library(const std::string &source) 
     NSString *sourceString = [NSString stringWithUTF8String:source.c_str()];
     [m_metal.device newLibraryWithSource:sourceString options:nullptr completionHandler:^(id<MTLLibrary> lib, NSError *err) {
         if (lib && !err) {
-            m_metal.library = [lib retain];
+            m_metal.library = lib;
         }
         else {
             // TODO: Handle errors gracefully
@@ -229,10 +212,9 @@ auto renderer::metal::context::create_shader_library(const std::string &source) 
     }];
 
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-    dispatch_release(group);
 }
 
-auto renderer::metal::context::add_shader_program(const std::string &name, const std::string &vertex_function_name, const std::string &fragment_function_name) -> std::shared_ptr<shader::program>
+auto renderer::metal::context::add_shader_program(const std::string &name, const std::string &vertex_function_name, const std::string &fragment_function_name) -> std::shared_ptr<renderer::shader::program>
 {
     id<MTLFunction> vertex_function = [m_metal.library newFunctionWithName:[NSString stringWithUTF8String:vertex_function_name.c_str()]];
     id<MTLFunction> fragment_function = [m_metal.library newFunctionWithName:[NSString stringWithUTF8String:fragment_function_name.c_str()]];
@@ -271,16 +253,16 @@ auto renderer::metal::context::add_shader_program(const std::string &name, const
     }
 
     NSError *error;
-    id<MTLRenderPipelineState> pipelineState = [[m_metal.device newRenderPipelineStateWithDescriptor:pipeline error:&error] retain];
+    id<MTLRenderPipelineState> pipelineState = [m_metal.device newRenderPipelineStateWithDescriptor:pipeline error:&error];
 
     util::uuid id { name };
-    auto program = std::make_shared<shader::program>(pipelineState);
+    auto program = std::make_shared<metal::shader::program>(pipelineState);
     m_metal.shader_programs.insert(std::pair(id, program));
 
     return shader_program(name);
 }
 
-auto renderer::metal::context::shader_program(const std::string &name) -> std::shared_ptr<shader::program>
+auto renderer::metal::context::shader_program(const std::string &name) -> std::shared_ptr<renderer::shader::program>
 {
     util::uuid id { name };
     auto it = m_metal.shader_programs.find(id);
@@ -363,10 +345,10 @@ auto renderer::metal::context::create_framebuffer(const math::size &size) -> ren
 
 // MARK: - Textures
 
-auto renderer::metal::context::create_texture(uint64_t handle, const math::size &size) -> std::shared_ptr<graphics::texture>
+auto renderer::metal::context::create_texture(MTLTextureRef handle, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    auto ptr = const_cast<const void *>(reinterpret_cast<void *>(handle));
-    return std::make_shared<metal::texture>(ptr, size);
+    auto tex = std::make_shared<metal::texture>(handle, size);
+    return std::static_pointer_cast<graphics::texture>(tex);
 }
 
 auto renderer::metal::context::create_texture(const graphite::data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
@@ -378,13 +360,13 @@ auto renderer::metal::context::create_texture(const graphite::data::block& data,
 
 auto renderer::metal::context::create_texture(void *data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    MTLTextureDescriptor *texture_descriptor = [[[MTLTextureDescriptor alloc] init] autorelease];
+    MTLTextureDescriptor *texture_descriptor = [MTLTextureDescriptor new];
     texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
     texture_descriptor.mipmapLevelCount = 1;
     texture_descriptor.width = static_cast<NSUInteger>(size.width);
     texture_descriptor.height = static_cast<NSUInteger>(size.height);
 
-    id<MTLTexture> texture = [[m_metal.device newTextureWithDescriptor:texture_descriptor] retain];
+    id<MTLTexture> texture = [m_metal.device newTextureWithDescriptor:texture_descriptor];
     MTLRegion region = MTLRegionMake2D(0, 0, texture_descriptor.width, texture_descriptor.height);
     region.origin.z = 0;
     region.size.depth = 1;
@@ -392,7 +374,7 @@ auto renderer::metal::context::create_texture(void *data, const math::size &size
     NSUInteger bytes_per_row = texture.width << 2;
     [texture replaceRegion:region mipmapLevel:0 withBytes:data bytesPerRow:bytes_per_row];
 
-    return create_texture(reinterpret_cast<uint64_t>(texture), size);
+    return create_texture(texture, size);
 }
 
 // MARK: - Tick Function
@@ -401,3 +383,4 @@ auto renderer::metal::context::set_tick_function(const std::function<auto()->voi
 {
     m_display.tick = callback;
 }
+

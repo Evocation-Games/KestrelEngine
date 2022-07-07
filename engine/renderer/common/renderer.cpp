@@ -91,6 +91,11 @@ auto renderer::initialize(enum renderer::api api, const std::function<auto()->vo
 
 // MARK: - Accessors
 
+auto renderer::current_context() -> renderer::context *
+{
+    return s_renderer_api.context;
+}
+
 auto renderer::api() -> enum api
 {
     return s_renderer_api.api;

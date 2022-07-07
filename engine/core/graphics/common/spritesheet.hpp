@@ -51,6 +51,8 @@ namespace graphics
         spritesheet(std::shared_ptr<graphics::texture> tex, uint32_t sprite_width, uint32_t sprite_height);
         spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size);
 
+        ~spritesheet();
+
         auto texture() const -> std::shared_ptr<graphics::texture>;
 
         auto sprite_count() const -> std::size_t;

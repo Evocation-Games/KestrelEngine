@@ -49,20 +49,27 @@ renderer::metal::texture::texture(const math::size& sz, const uint8_t *data)
 {
 }
 
-renderer::metal::texture::texture(const void *handle, const math::size& sz)
-    : graphics::texture(sz, false), m_handle(reinterpret_cast<uint64_t>(const_cast<void *>(handle)))
+renderer::metal::texture::texture(id<MTLTexture> texture, const math::size& sz)
+    : graphics::texture(sz, false), m_handle(texture)
 {
+
 }
 
 // MARK: - Destruction
 
 renderer::metal::texture::~texture()
 {
+    m_handle = nil;
 }
 
 // MARK: - Accessors
 
 auto renderer::metal::texture::handle() const -> uint64_t
+{
+    return 0;
+}
+
+auto renderer::metal::texture::handle_ptr() const -> id<MTLTexture>
 {
     return m_handle;
 }

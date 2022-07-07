@@ -23,6 +23,9 @@
 #include "renderer/metal/constants.h"
 #include "renderer/common/draw_buffer.hpp"
 #include "renderer/common/renderer.hpp"
+#include "renderer/metal/texture.h"
+#include "renderer/metal/shader.h"
+#include "renderer/metal/context.h"
 
 // MARK: - Construction
 
@@ -45,7 +48,8 @@ renderer::metal::framebuffer::~framebuffer()
 auto renderer::metal::framebuffer::texture() -> std::shared_ptr<graphics::texture>
 {
     if (!m_texture_ref && !m_texture) {
-        m_texture_ref = renderer::create_texture(reinterpret_cast<uint64_t>(m_texture), { m_width, m_height });
+        auto ctx = reinterpret_cast<metal::context *>(renderer::current_context());
+        m_texture_ref = ctx->create_texture(m_texture, { m_width, m_height });
     }
     return m_texture_ref;
 }
@@ -111,8 +115,8 @@ auto renderer::metal::framebuffer::finalize(const std::function<auto() -> void> 
 
 auto renderer::metal::framebuffer::draw(const draw_buffer *buffer) -> void
 {
-    auto shader = buffer->shader();
-    id<MTLRenderPipelineState> state = reinterpret_cast<id<MTLRenderPipelineState>>(shader->get<void *>());
+    auto shader = reinterpret_cast<metal::shader::program *>(buffer->shader().get());
+    auto state = shader->get_state();
     [m_command_encoder setRenderPipelineState:state];
 
     memcpy(m_buffer.contents, buffer->data(), buffer->data_size());
@@ -123,7 +127,8 @@ auto renderer::metal::framebuffer::draw(const draw_buffer *buffer) -> void
 
     std::size_t slots = buffer->texture_slots();
     for (uint32_t i = 0; i < slots; ++i) {
-        auto texture = reinterpret_cast<id<MTLTexture>>(buffer->texture(i)->handle());
+        auto texture_container = reinterpret_cast<renderer::metal::texture *>(buffer->texture(i).get());
+        auto texture = texture_container->handle_ptr();
         [m_command_encoder setFragmentTexture:texture atIndex:i];
     }
 

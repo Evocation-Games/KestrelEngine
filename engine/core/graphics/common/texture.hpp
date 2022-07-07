@@ -36,6 +36,8 @@ namespace graphics
         texture(uint32_t width, uint32_t height, bool populate = false);
         explicit texture(const math::size& size, bool populate = false);
 
+        ~texture() = default;
+
         [[nodiscard]] auto size() const -> math::size;
         [[nodiscard]] auto data() const -> const graphite::data::block&;
         [[nodiscard]] auto raw_data_ptr() const -> const void *;

@@ -50,6 +50,13 @@ asset::basic_image::basic_image(const math::size &size, const graphics::color::l
     m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }
 
+// MARK: - Destruction
+
+asset::basic_image::~basic_image()
+{
+    m_sheet = nullptr;
+}
+
 // MARK: - Accessors
 
 auto asset::basic_image::id() const -> int64_t
