@@ -280,19 +280,9 @@ auto renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, cons
 
 // MARK: - Textures
 
-auto renderer::create_texture(uint64_t handle, const math::size &size) -> std::shared_ptr<graphics::texture>
-{
-    return s_renderer_api.context->create_texture(handle, size);
-}
-
 auto renderer::create_texture(const math::size& size, const graphite::data::block& data) -> std::shared_ptr<graphics::texture>
 {
     return s_renderer_api.context->create_texture(data, size);
-}
-
-auto renderer::create_texture(const math::size& size, const uint8_t *data) -> std::shared_ptr<graphics::texture>
-{
-    return s_renderer_api.context->create_texture(reinterpret_cast<void *>(const_cast<uint8_t *>(data)), size);
 }
 
 // MARK: - Tick Function

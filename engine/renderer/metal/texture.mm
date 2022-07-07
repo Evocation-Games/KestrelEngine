@@ -18,9 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #include <utility>
 #include "renderer/metal/texture.h"
+#include "renderer/metal/context.h"
+#include "renderer/common/renderer.hpp"
+
+static uint32_t s_texture_id = 0;
 
 // MARK: - Construction
 
@@ -64,6 +67,22 @@ renderer::metal::texture::~texture()
 
 // MARK: - Accessors
 
+auto renderer::metal::texture::set_data(const graphite::data::block &data) -> void
+{
+    graphics::texture::set_data(data);
+
+    // If we're already uploaded, then adjust the contents of the texture?
+    if (uploaded()) {
+//        std::cout << "updating texture #" << m_id << std::endl;
+        MTLRegion region = MTLRegionMake2D(0, 0, m_descriptor.width, m_descriptor.height);
+        region.origin.z = 0;
+        region.size.depth = 1;
+
+        NSUInteger bytes_per_row = m_handle.width << 2;
+        [m_handle replaceRegion:region mipmapLevel:0 withBytes:m_data.get<void *>() bytesPerRow:bytes_per_row];
+    }
+}
+
 auto renderer::metal::texture::handle() const -> uint64_t
 {
     return 0;
@@ -72,4 +91,37 @@ auto renderer::metal::texture::handle() const -> uint64_t
 auto renderer::metal::texture::handle_ptr() const -> id<MTLTexture>
 {
     return m_handle;
+}
+
+// MARK: - Upload
+
+auto renderer::metal::texture::upload_to_gpu() -> void
+{
+    m_id = s_texture_id++;
+
+    auto ctx = reinterpret_cast<metal::context *>(renderer::current_context());
+    auto device = ctx->device();
+
+    m_descriptor = [MTLTextureDescriptor new];
+    m_descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+    m_descriptor.mipmapLevelCount = 1;
+    m_descriptor.width = static_cast<NSUInteger>(m_size.width);
+    m_descriptor.height = static_cast<NSUInteger>(m_size.height);
+
+    m_handle = [device newTextureWithDescriptor:m_descriptor];
+    MTLRegion region = MTLRegionMake2D(0, 0, m_descriptor.width, m_descriptor.height);
+    region.origin.z = 0;
+    region.size.depth = 1;
+
+    NSUInteger bytes_per_row = m_handle.width << 2;
+    [m_handle replaceRegion:region mipmapLevel:0 withBytes:m_data.get<void *>() bytesPerRow:bytes_per_row];
+
+//    std::cout << "uploading texture #" << m_id << std::endl;
+    graphics::texture::upload_to_gpu();
+}
+
+auto renderer::metal::texture::destroy() -> void
+{
+    m_handle = nullptr;
+    m_descriptor = nullptr;
 }

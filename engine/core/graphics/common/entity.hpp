@@ -36,6 +36,8 @@ namespace graphics
         explicit entity(const math::size& size);
         entity(const math::point& position, const math::size& size);
 
+        ~entity();
+
         auto move_to_scene(const std::shared_ptr<class scene>& scene);
         auto scene() const -> std::weak_ptr<class scene>;
 

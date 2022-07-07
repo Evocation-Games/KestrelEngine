@@ -48,8 +48,8 @@ renderer::metal::framebuffer::~framebuffer()
 auto renderer::metal::framebuffer::texture() -> std::shared_ptr<graphics::texture>
 {
     if (!m_texture_ref && !m_texture) {
-        auto ctx = reinterpret_cast<metal::context *>(renderer::current_context());
-        m_texture_ref = ctx->create_texture(m_texture, { m_width, m_height });
+        auto tex = std::make_shared<metal::texture>(m_texture, math::size(m_width, m_height));
+        m_texture_ref = std::static_pointer_cast<graphics::texture>(tex);
     }
     return m_texture_ref;
 }

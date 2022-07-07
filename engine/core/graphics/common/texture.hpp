@@ -42,15 +42,15 @@ namespace graphics
         [[nodiscard]] auto data() const -> const graphite::data::block&;
         [[nodiscard]] auto raw_data_ptr() const -> const void *;
 
-        auto set_data(const graphite::data::block& data) -> void;
-
+        virtual auto set_data(const graphite::data::block& data) -> void;
         virtual auto handle() const -> uint64_t;
-
-        virtual auto bind() const -> void;
-
         virtual auto destroy() -> void;
 
+        virtual auto upload_to_gpu() -> void;
+        [[nodiscard]] virtual auto uploaded() const -> bool;
+
     protected:
+        bool m_uploaded { false };
         math::size m_size;
         graphite::data::block m_data;
 

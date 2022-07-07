@@ -345,36 +345,10 @@ auto renderer::metal::context::create_framebuffer(const math::size &size) -> ren
 
 // MARK: - Textures
 
-auto renderer::metal::context::create_texture(MTLTextureRef handle, const math::size &size) -> std::shared_ptr<graphics::texture>
-{
-    auto tex = std::make_shared<metal::texture>(handle, size);
-    return std::static_pointer_cast<graphics::texture>(tex);
-}
-
 auto renderer::metal::context::create_texture(const graphite::data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    auto texture = create_texture(data.get<void *>(), size);
-    texture->set_data(data);
-    return texture;
-}
-
-auto renderer::metal::context::create_texture(void *data, const math::size &size) -> std::shared_ptr<graphics::texture>
-{
-    MTLTextureDescriptor *texture_descriptor = [MTLTextureDescriptor new];
-    texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
-    texture_descriptor.mipmapLevelCount = 1;
-    texture_descriptor.width = static_cast<NSUInteger>(size.width);
-    texture_descriptor.height = static_cast<NSUInteger>(size.height);
-
-    id<MTLTexture> texture = [m_metal.device newTextureWithDescriptor:texture_descriptor];
-    MTLRegion region = MTLRegionMake2D(0, 0, texture_descriptor.width, texture_descriptor.height);
-    region.origin.z = 0;
-    region.size.depth = 1;
-
-    NSUInteger bytes_per_row = texture.width << 2;
-    [texture replaceRegion:region mipmapLevel:0 withBytes:data bytesPerRow:bytes_per_row];
-
-    return create_texture(texture, size);
+    auto tex = std::make_shared<metal::texture>(size, data);
+    return std::static_pointer_cast<graphics::texture>(tex);
 }
 
 // MARK: - Tick Function

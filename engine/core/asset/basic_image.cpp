@@ -91,7 +91,7 @@ auto asset::basic_image::configure(int64_t id, const std::string &name, const ma
     m_id = id;
     m_name = name;
 
-    auto tex = renderer::create_texture(size, data.get<std::uint8_t *>());
+    auto tex = renderer::create_texture(size, data);
     tex->set_data(data);
     m_sheet = std::make_shared<graphics::spritesheet>(tex, size);
 }

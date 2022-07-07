@@ -18,11 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <memory>
 #include "renderer/opengl/framebuffer.hpp"
 #include "renderer/opengl/constants.hpp"
 #include "renderer/common/vertex.hpp"
 #include "renderer/common/draw_buffer.hpp"
 #include "renderer/common/renderer.hpp"
+#include "renderer/opengl/texture.hpp"
 #include "core/environment.hpp"
 
 // MARK: - Construction
@@ -137,7 +139,8 @@ auto renderer::opengl::framebuffer::draw(const draw_buffer *buffer) -> void
 auto renderer::opengl::framebuffer::texture() -> std::shared_ptr<graphics::texture>
 {
     if (!m_texture_ref && m_texture > 0) {
-        m_texture_ref = renderer::create_texture(m_texture, { m_width, m_height });
+        auto tex = std::make_shared<opengl::texture>(m_texture, math::size(m_width, m_height));
+        m_texture_ref = std::static_pointer_cast<graphics::texture>(tex);
     }
     return m_texture_ref;
 }

@@ -81,13 +81,18 @@ auto graphics::texture::handle() const -> uint64_t
 
 // MARK: - Base Implementations
 
-auto graphics::texture::bind() const -> void
+auto graphics::texture::destroy() -> void
 {
     // Empty Implementation
 }
 
-auto graphics::texture::destroy() -> void
+auto graphics::texture::upload_to_gpu() -> void
 {
+    m_uploaded = true;
+}
 
+auto graphics::texture::uploaded() const -> bool
+{
+    return m_uploaded;
 }
 

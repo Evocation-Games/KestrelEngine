@@ -55,10 +55,7 @@ namespace renderer::opengl
         auto draw(const draw_buffer *buffer) -> void override;
 
         auto create_framebuffer(const math::size& size) -> renderer::framebuffer * override;
-
-        auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture> override;
         auto create_texture(const graphite::data::block& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
-        auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
         auto tick() -> void override;

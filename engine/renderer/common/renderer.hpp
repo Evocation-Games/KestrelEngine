@@ -72,9 +72,7 @@ namespace renderer
     auto approx_framerate() -> uint32_t;
     auto resync_clock() -> void;
 
-    auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture>;
     auto create_texture(const math::size& size, const graphite::data::block& data) -> std::shared_ptr<graphics::texture>;
-    auto create_texture(const math::size& size, const uint8_t *data) -> std::shared_ptr<graphics::texture>;
 
     auto draw_quad(const std::shared_ptr<graphics::texture>& texture,
                    const math::rect& frame,

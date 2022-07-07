@@ -493,32 +493,10 @@ auto renderer::opengl::context::create_framebuffer(const math::size &size) -> re
 
 // MARK: - Textures
 
-auto renderer::opengl::context::create_texture(uint64_t handle, const math::size &size) -> std::shared_ptr<graphics::texture>
-{
-    return std::make_shared<opengl::texture>(handle, size);
-}
-
 auto renderer::opengl::context::create_texture(const graphite::data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
-    auto texture = create_texture(data.get<void *>(), size);
-    texture->set_data(data);
-    return texture;
-}
-
-auto renderer::opengl::context::create_texture(void *data, const math::size &size) -> std::shared_ptr<graphics::texture>
-{
-    GLuint texture { 0 };
-    glGenTextures(1, &texture);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(size.width), static_cast<GLsizei>(size.height), 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    return create_texture(static_cast<uint64_t>(texture), size);
+    auto tex = std::make_shared<opengl::texture>(size, data);
+    return std::static_pointer_cast<graphics::texture>(tex);
 }
 
 // MARK: - Tick Function

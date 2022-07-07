@@ -37,6 +37,13 @@ graphics::entity::entity(const math::point& position, const math::size &size)
 
 }
 
+// MARK: - Destruction
+
+graphics::entity::~entity()
+{
+    m_sprite_sheet = nullptr;
+}
+
 // MARK: - Accessors
 
 auto graphics::entity::move_to_scene(const std::shared_ptr<class scene>& scene)

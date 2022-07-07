@@ -79,6 +79,10 @@ auto renderer::draw_buffer::push_texture(const std::shared_ptr<graphics::texture
         }
     }
 
+    if (!texture->uploaded()) {
+        texture->upload_to_gpu();
+    }
+
     *m_next_empty_texture_slot = texture;
     m_next_empty_texture_slot++;
 

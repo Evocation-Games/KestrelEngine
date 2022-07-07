@@ -48,6 +48,10 @@ namespace graphics
 
     public:
         lua_api explicit canvas(const math::size& size);
+        ~canvas();
+
+        lua_api auto get_name() const -> std::string;
+        lua_api auto set_name(const std::string& name) -> void;
 
         lua_api auto get_pen_color() const -> graphics::color;
         lua_api auto set_pen_color(const graphics::color& color) -> void;
@@ -89,16 +93,18 @@ namespace graphics
 
     private:
         double m_scale { 2.0 };
+        std::string m_name;
         math::size m_size;
         math::size m_scaled_size;
         graphics::rgba_buffer m_rgba_buffer;
         graphics::color m_pen_color;
         std::shared_ptr<graphics::entity> m_entity { nullptr };
         graphics::typesetter m_typesetter;
-        std::weak_ptr<texture> m_linked_tex;
+        std::shared_ptr<texture> m_linked_tex;
         std::optional<math::rect> m_clipping_rect;
 
         auto raw() const -> uint8_t *;
+        auto data() const -> graphite::data::block;
         auto draw_picture_at_point(const asset::legacy::macintosh::quickdraw::picture::lua_reference& pict, const math::point &point) -> void;
     };
 

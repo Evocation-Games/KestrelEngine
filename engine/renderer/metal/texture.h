@@ -42,11 +42,19 @@ namespace renderer::metal
 
         ~texture();
 
+        auto set_data(const graphite::data::block& data) -> void override;
+
         auto handle() const -> uint64_t override;
         auto handle_ptr() const -> id<MTLTexture>;
 
+        auto upload_to_gpu() -> void override;
+
+        auto destroy() -> void override;
+
     private:
+        uint32_t m_id { 0 };
         id<MTLTexture> m_handle { 0 };
+        MTLTextureDescriptor *m_descriptor { nullptr };
     };
 }
 

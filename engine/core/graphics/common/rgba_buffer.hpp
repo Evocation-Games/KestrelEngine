@@ -84,6 +84,7 @@ namespace graphics
         [[nodiscard]] auto color(const math::point& p) const -> graphics::color;
 
         [[nodiscard]] auto data() const -> uint8_t *;
+        [[nodiscard]] auto data_block() const -> graphite::data::block;
 
         auto clear(const graphics::color& c) -> void;
         auto clear_rect(const graphics::color& c, const math::rect& r) -> void;

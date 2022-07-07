@@ -57,7 +57,9 @@ renderer::opengl::texture::texture(GLuint handle, const math::size& sz)
 
 renderer::opengl::texture::~texture()
 {
-    glDeleteTextures(1, &m_id);
+    if (uploaded()) {
+        glDeleteTextures(1, &m_id);
+    }
 }
 
 // MARK: - Accessors
@@ -65,4 +67,21 @@ renderer::opengl::texture::~texture()
 auto renderer::opengl::texture::handle() const -> uint64_t
 {
     return static_cast<uint64_t>(m_id);
+}
+
+// MARK: - Upload
+
+auto renderer::opengl::texture::upload_to_gpu() -> void
+{
+    glGenTextures(1, &m_id);
+
+    glBindTexture(GL_TEXTURE_2D, m_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(m_size.width), static_cast<GLsizei>(m_size.height), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_data.get<void *>());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    graphics::texture::upload_to_gpu();
 }

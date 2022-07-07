@@ -66,6 +66,8 @@ namespace renderer::metal
         explicit context(const std::function<auto()->void>& callback);
         ~context();
 
+        [[nodiscard]] inline auto device() const -> MTLDeviceRef { return m_metal.device; };
+
         auto enable_imgui() -> void override;
         auto disable_imgui() -> void override;
         [[nodiscard]] inline auto is_imgui_enabled() const -> bool override { return m_imgui.enabled; }
@@ -80,14 +82,7 @@ namespace renderer::metal
         auto draw(const draw_buffer *buffer) -> void override;
 
         auto create_framebuffer(const math::size& size) -> renderer::framebuffer * override;
-
         auto create_texture(const graphite::data::block& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
-        auto create_texture(void *data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
-
-#if __OBJC__ || __OBJC2__
-        auto create_texture(MTLTextureRef texture, const math::size& size) -> std::shared_ptr<graphics::texture>;
-#endif
-        auto create_texture(uint64_t handle, const math::size& size) -> std::shared_ptr<graphics::texture> override { return nullptr; };
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
         auto tick() -> void override;

@@ -36,6 +36,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addConstructor<auto(*)(const math::size&)->void, canvas::lua_reference>()
             .addProperty("penColor", &canvas::get_pen_color, &canvas::set_pen_color)
             .addProperty("bounds", &canvas::get_bounds)
+            .addProperty("name", &canvas::get_name, &canvas::set_name)
             .addFunction("entity", &canvas::entity)
             .addFunction("rebuildEntityTexture", &canvas::rebuild_texture)
             .addFunction("drawRect", &canvas::draw_rect)
@@ -68,9 +69,20 @@ graphics::canvas::canvas(const math::size& size)
       m_pen_color(graphics::color::white_color()),
       m_typesetter("", m_scale)
 {
+
 }
 
 // MARK: - Accessors
+
+auto graphics::canvas::get_name() const -> std::string
+{
+    return m_name;
+}
+
+auto graphics::canvas::set_name(const std::string &name) -> void
+{
+    m_name = name;
+}
 
 auto graphics::canvas::get_pen_color() const -> graphics::color
 {
@@ -99,6 +111,14 @@ auto graphics::canvas::get_bounds() const -> math::rect
     return { math::point(0), m_size };
 }
 
+// MARK: - Destruction
+
+graphics::canvas::~canvas()
+{
+    m_linked_tex = nullptr;
+    m_entity = nullptr;
+}
+
 // MARK: - Entity
 
 auto graphics::canvas::rebuild_texture() -> void
@@ -108,22 +128,18 @@ auto graphics::canvas::rebuild_texture() -> void
     }
 
     // Rebuild the texture.
-    if (auto existing_texture = m_linked_tex.lock()) {
-        existing_texture->destroy();
+    if (m_linked_tex) {
+        m_linked_tex->set_data(data());
     }
-
-    auto tex = renderer::create_texture(m_scaled_size, raw());
-    m_entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
-    m_entity->set_render_size(m_size);
 }
 
 auto graphics::canvas::spawn_entity(const math::point& position) -> std::shared_ptr<graphics::entity>
 {
     // Create a new bitmap of the text.
-    auto tex = renderer::create_texture(m_scaled_size, raw());
+    m_linked_tex = renderer::create_texture(m_scaled_size, data());
 
     m_entity = std::make_shared<graphics::entity>(m_size);
-    m_entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(tex, m_scaled_size));
+    m_entity->set_sprite_sheet(std::make_shared<graphics::spritesheet>(m_linked_tex, m_scaled_size));
     m_entity->set_position(position);
     m_entity->set_render_size(m_size);
 
@@ -147,6 +163,11 @@ auto graphics::canvas::entity() -> std::shared_ptr<graphics::entity>
 auto graphics::canvas::raw() const -> uint8_t *
 {
     return m_rgba_buffer.data();
+}
+
+auto graphics::canvas::data() const -> graphite::data::block
+{
+    return std::move(m_rgba_buffer.data_block());
 }
 
 // MARK: - Drawing

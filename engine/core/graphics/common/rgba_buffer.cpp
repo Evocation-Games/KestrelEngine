@@ -89,6 +89,11 @@ auto graphics::rgba_buffer::data() const -> uint8_t *
     return m_buffer;
 }
 
+auto graphics::rgba_buffer::data_block() const -> graphite::data::block
+{
+    return std::move(graphite::data::block(m_buffer, m_count, false, graphite::data::native_byte_order()));
+}
+
 // MARK: - Look Up
 
 auto graphics::rgba_buffer::corrected(const uint64_t &i) -> uint64_t

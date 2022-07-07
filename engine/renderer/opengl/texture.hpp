@@ -41,6 +41,8 @@ namespace renderer::opengl
 
         auto handle() const -> uint64_t override;
 
+        auto upload_to_gpu() -> void override;
+
     private:
         GLuint m_id { 0 };
         GLuint m_internal_format { GL_RGBA };
