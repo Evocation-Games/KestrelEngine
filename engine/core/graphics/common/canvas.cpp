@@ -93,12 +93,14 @@ auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
 {
     m_pen_color = color;
     m_typesetter.set_font_color(color);
+    m_dirty = true;
 }
 
 auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
 {
     m_typesetter.set_font(name);
     m_typesetter.set_font_size(size);
+    m_dirty = true;
 }
 
 auto graphics::canvas::font() const -> std::shared_ptr<graphics::font>
@@ -123,7 +125,7 @@ graphics::canvas::~canvas()
 
 auto graphics::canvas::rebuild_texture() -> void
 {
-    if (!m_entity) {
+    if (!m_entity || !m_dirty) {
         return;
     }
 
@@ -131,6 +133,7 @@ auto graphics::canvas::rebuild_texture() -> void
     if (m_linked_tex) {
         m_linked_tex->set_data(data());
     }
+    m_dirty = false;
 }
 
 auto graphics::canvas::spawn_entity(const math::point& position) -> std::shared_ptr<graphics::entity>
@@ -175,6 +178,7 @@ auto graphics::canvas::data() const -> graphite::data::block
 auto graphics::canvas::clear() -> void
 {
     m_rgba_buffer.clear(graphics::color::clear_color());
+    m_dirty = true;
 }
 
 auto graphics::canvas::set_clipping_rect(const math::rect &r) -> void
@@ -193,11 +197,13 @@ auto graphics::canvas::draw_rect(const math::rect &r) -> void
     draw_line(r.origin, { r.origin.x, r.origin.y + r.size.height }, 1);
     draw_line({ r.origin.x + r.size.width, r.origin.y }, { r.origin.x + r.size.width, r.origin.y + r.size.height }, 1);
     draw_line({ r.origin.x, r.origin.y + r.size.height }, { r.origin.x + r.size.width, r.origin.y + r.size.height }, 1);
+    m_dirty = true;
 }
 
 auto graphics::canvas::fill_rect(const math::rect &r) -> void
 {
     m_rgba_buffer.fill_rect(m_pen_color, (r * m_scale).round());
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq, const double& thickness) -> void
@@ -254,6 +260,8 @@ auto graphics::canvas::draw_line(const math::point &pp, const math::point &qq, c
             y0 += sy;
         }
     }
+
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> void
@@ -291,6 +299,7 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
     };
 
     inner_draw_circle((p * m_scale).round(), std::round(r * m_scale));
+    m_dirty = true;
 }
 
 auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> void
@@ -309,6 +318,7 @@ auto graphics::canvas::fill_circle(const math::point &p, const double &r) -> voi
         }
     };
     inner_fill_circle((p * m_scale).round(), std::round(r * m_scale));
+    m_dirty = true;
 }
 
 // MARK: - Text
@@ -366,6 +376,7 @@ auto graphics::canvas::draw_text(const math::point &point) -> void
         m_typesetter.reset();
     };
     inner_draw_text((point * m_scale).round());
+    m_dirty = true;
 }
 
 
@@ -432,6 +443,7 @@ auto graphics::canvas::draw_static_image(const asset::static_image::lua_referenc
         return;
     }
     inner_draw_image(image, (rect.origin * m_scale).round(), (rect.size * m_scale).round());
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_image(const asset::legacy::macintosh::quickdraw::picture::lua_reference& image, const math::point& point, const math::size& sz) -> void
@@ -492,6 +504,7 @@ auto graphics::canvas::draw_image(const asset::legacy::macintosh::quickdraw::pic
         }
     };
     inner_draw_image(image, (point * m_scale).round(), (sz * m_scale).round());
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_picture_at_point(const asset::legacy::macintosh::quickdraw::picture::lua_reference &pict, const math::point &point) -> void
@@ -524,6 +537,7 @@ auto graphics::canvas::draw_picture_at_point(const asset::legacy::macintosh::qui
         }
     };
     inner_draw(pict, (point * m_scale).round());
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_picture(const asset::legacy::macintosh::quickdraw::picture::lua_reference &pict, const math::rect &rect) -> void
@@ -533,6 +547,7 @@ auto graphics::canvas::draw_picture(const asset::legacy::macintosh::quickdraw::p
     }
 
     draw_image(pict, rect.origin, rect.size);
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_color_icon(const asset::legacy::macintosh::quickdraw::color_icon::lua_reference &icon, const math::point &point, const math::size &sz) -> void
@@ -566,6 +581,7 @@ auto graphics::canvas::draw_color_icon(const asset::legacy::macintosh::quickdraw
         }
     };
     inner_draw(icon, (point * m_scale).round(), (sz * m_scale).round());
+    m_dirty = true;
 }
 
 
@@ -574,6 +590,7 @@ auto graphics::canvas::draw_color_icon(const asset::legacy::macintosh::quickdraw
 auto graphics::canvas::apply_mask(const graphics::canvas::lua_reference &c) -> void
 {
     m_rgba_buffer.apply_mask(c->m_rgba_buffer);
+    m_dirty = true;
 }
 
 auto graphics::canvas::draw_mask(const luabridge::LuaRef &mask_function) -> void
@@ -583,4 +600,5 @@ auto graphics::canvas::draw_mask(const luabridge::LuaRef &mask_function) -> void
     auto mask = lua_reference(new canvas(m_size));
     mask_function(mask);
     apply_mask(mask);
+    m_dirty = true;
 }

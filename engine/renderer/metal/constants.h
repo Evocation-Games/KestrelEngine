@@ -25,7 +25,7 @@
 namespace renderer::metal::constants
 {
     constexpr std::size_t max_quads { 10'000 };
-    constexpr std::size_t texture_slots { 32 };
+    constexpr std::size_t texture_slots { 8 };
     constexpr std::size_t swap_count { 3 };
 
     typedef enum

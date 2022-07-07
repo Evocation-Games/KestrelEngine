@@ -44,6 +44,7 @@ namespace ui::widgets
 
     public:
         explicit lua_api textarea_widget(const std::string& text);
+        textarea_widget(const math::rect& frame, const std::string& text);
 
         auto draw() -> void;
 

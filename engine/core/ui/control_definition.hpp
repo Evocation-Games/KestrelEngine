@@ -87,9 +87,7 @@ namespace ui
         lua_api auto set_string_value(const std::string& title) -> void { m_string_value = title; }
 
         [[nodiscard]] lua_api auto body_text_value() const -> std::string { return m_body_text; }
-        lua_api auto set_body_text_value(const std::string& body_text) -> void { m_body_text = body_text; }
-
-        lua_api auto set_body_description(const luabridge::LuaRef& base_reference, int64_t id_offset) -> void;
+        lua_api auto set_body_text_value(const std::string& body_text) -> void { m_body_text = body_text; update(); }
 
         [[nodiscard]] lua_api auto text_color() const -> graphics::color::lua_reference { return m_text_color; }
         lua_api auto set_text_color(const graphics::color::lua_reference& color) -> void { m_text_color = color; }

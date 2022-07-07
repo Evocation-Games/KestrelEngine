@@ -57,6 +57,17 @@ ui::widgets::textarea_widget::textarea_widget(const std::string &text)
     m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
 }
 
+ui::widgets::textarea_widget::textarea_widget(const math::rect &frame, const std::string &text)
+    : m_text(text)
+{
+    graphics::typesetter ts(text);
+    ts.set_margins(frame.size.round());
+    ts.layout();
+
+    m_canvas = std::make_unique<graphics::canvas>(math::size(frame.size.width, std::max(frame.size.height, ts.get_bounding_size().height)));
+    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(frame.origin));
+}
+
 // MARK: - Accessors
 
 

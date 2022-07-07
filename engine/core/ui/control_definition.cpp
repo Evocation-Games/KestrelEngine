@@ -135,7 +135,6 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("useImGuiFlowLayout", &control_definition::disable_absolute_frame)
                 .addFunction("setTitle", &control_definition::set_string_value)
                 .addFunction("setBodyText", &control_definition::set_body_text_value)
-                .addFunction("setBodyDescription", &control_definition::set_body_description)
                 .addFunction("setAction", &control_definition::set_action)
                 .addFunction("setColumnSpacings", &control_definition::set_column_spacing)
                 .addFunction("setTextColor", &control_definition::set_text_color)
@@ -241,7 +240,7 @@ auto ui::control_definition::construct_scene_entity() -> void
             break;
         }
         case type::text_area: {
-            widgets::textarea_widget::lua_reference text(new widgets::textarea_widget(m_body_text));
+            widgets::textarea_widget::lua_reference text(new widgets::textarea_widget(m_frame, m_body_text));
             text->set_frame(m_frame);
             text->set_font(m_font_name);
             text->set_font_size(static_cast<int16_t>(m_font_size));
@@ -398,11 +397,6 @@ auto ui::control_definition::set_text_font_and_size(const std::string &font, uin
 {
     set_text_font(font);
     set_text_size(size);
-}
-
-auto ui::control_definition::set_body_description(const luabridge::LuaRef &base_reference, int64_t id_offset) -> void
-{
-
 }
 
 auto ui::control_definition::scroll_up() -> void

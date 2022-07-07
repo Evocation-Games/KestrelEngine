@@ -92,6 +92,7 @@ namespace graphics
         lua_api auto rebuild_texture() -> void;
 
     private:
+        bool m_dirty { true };
         double m_scale { 2.0 };
         std::string m_name;
         math::size m_size;
