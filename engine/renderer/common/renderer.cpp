@@ -331,5 +331,6 @@ auto renderer::last_frame_time() -> float
 
 auto renderer::time_since_last_frame() -> float
 {
+    rtc::clock::global().tick();
     return rtc::clock::global().since(s_renderer_api.frame_start_time).count();
 }

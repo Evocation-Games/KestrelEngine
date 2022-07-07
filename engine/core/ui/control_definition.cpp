@@ -221,8 +221,14 @@ auto ui::control_definition::construct_scene_entity() -> void
         case type::label: {
             widgets::label_widget::lua_reference label(new widgets::label_widget(m_string_value));
             label->set_frame(m_frame);
+            label->set_font(m_font_name);
+            label->set_font_size(static_cast<int16_t>(m_font_size));
+            label->set_color(m_text_color);
+            label->draw();
             m_widget = luabridge::LuaRef(state, label);
             m_entity = scene_entity::lua_reference(new scene_entity(label->entity()));
+            m_entity->internal_entity()->set_position(m_frame.origin);
+            m_entity->set_position(m_frame.origin);
             break;
         }
         case type::image: {
@@ -230,6 +236,8 @@ auto ui::control_definition::construct_scene_entity() -> void
             image->set_frame(m_frame);
             m_widget = luabridge::LuaRef(state, image);
             m_entity = scene_entity::lua_reference(new scene_entity(image->entity()));
+            m_entity->internal_entity()->set_position(m_frame.origin);
+            m_entity->set_position(m_frame.origin);
             break;
         }
         case type::text_area: {
@@ -263,7 +271,7 @@ auto ui::control_definition::construct_imgui_control() -> void
 
     switch (m_type) {
         case type::button: {
-            imgui::button::lua_reference button(new imgui::button(m_string_value, { state }));
+            imgui::button::lua_reference button(new imgui::button(m_string_value, m_action));
             if (m_absolute_frame) {
                 button->set_position(m_frame.origin);
                 button->set_size(m_frame.size);

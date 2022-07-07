@@ -254,7 +254,7 @@ auto ui::dialog::present_scene(const ui::game_scene::lua_reference& scene) -> vo
     }
 
     for (const auto& definition : m_control_definitions) {
-        if (definition.second->frame().intersects(m_frame)) {
+        if (definition.second->access_flag() && definition.second->frame().intersects(m_frame)) {
             definition.second->construct(static_cast<uint32_t>(control_definition::mode::scene));
             auto entity = definition.second->entity();
             if (entity.get()) {
@@ -334,11 +334,13 @@ auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef 
     }
 
     auto element = it->second;
+    element->set_access_flag(true);
+
     if (configure.state() && configure.isFunction()) {
         configure(element);
 
-        element->update();
         if (element->entity_index() == UINT32_MAX) {
+            element->update();
             if (element->has_control()) {
                 // TODO: Determine what to do for an ImGui Control
             }
@@ -346,11 +348,21 @@ auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef 
                 m_owner_scene->replace_entity(element->entity_index(), element->entity());
             }
         }
+        else if (element->entity().get()) {
+            element->update();
+        }
 
     }
 }
 
 auto ui::dialog::close() -> void
 {
+    if (m_imgui.window.get()) {
+        m_imgui.window->close();
+
+        if (auto env = environment::active_environment().lock()) {
+            env->end_imgui_environment({ env->lua_runtime()->internal_state() });
+        }
+    }
     ui::game_scene::back();
 }

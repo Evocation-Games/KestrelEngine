@@ -78,6 +78,7 @@ namespace ui::widgets
 
     private:
         bool m_dirty { true };
+        int16_t m_min_height { 0 };
         std::string m_text;
         std::string m_font_face { "Geneva" };
         int16_t m_font_size { 12 };

@@ -69,6 +69,9 @@ namespace ui
 
         lua_api auto construct(uint32_t mode) -> void;
 
+        auto set_access_flag(bool access) -> void { m_accessed = access; };
+        [[nodiscard]] auto access_flag() const -> bool { return m_accessed; };
+
         [[nodiscard]] lua_api auto type() const -> enum type { return m_type; }
 
         [[nodiscard]] lua_api auto frame() const -> math::rect { return m_frame; }
@@ -102,8 +105,8 @@ namespace ui
 
         lua_api auto set_text_font_and_size(const std::string& font, uint32_t size) -> void;
 
-        [[nodiscard]] lua_api auto alignment() const -> uint8_t { return m_font_size; }
-        lua_api auto set_alignment(uint8_t size) -> void { m_font_size = size; }
+        [[nodiscard]] lua_api auto alignment() const -> uint8_t { return static_cast<uint8_t>(m_alignment); }
+        lua_api auto set_alignment(uint8_t size) -> void { m_alignment = static_cast<enum alignment>(size); }
 
         [[nodiscard]] lua_api auto action() const -> luabridge::LuaRef { return m_action; }
         lua_api auto set_action(const luabridge::LuaRef& action) -> void { m_action = action; }
@@ -163,6 +166,7 @@ namespace ui
         [[nodiscard]] lua_api auto can_scroll_down() const -> bool;
 
     private:
+        bool m_accessed { false };
         enum type m_type { type::none };
         math::rect m_frame;
         scene_entity::lua_reference m_entity { nullptr };

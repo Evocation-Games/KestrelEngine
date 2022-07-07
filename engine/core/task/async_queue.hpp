@@ -34,12 +34,27 @@ namespace task
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        lua_api async_queue() = default;
+        async_queue() = default;
 
-        lua_api auto enqueue_task(const luabridge::LuaRef& task) -> void;
+        lua_api auto enqueue_task(const std::string& name, const luabridge::LuaRef& task) -> void;
+
+        [[nodiscard]] lua_api auto has_tasks_available() const -> bool;
+        [[nodiscard]] lua_api auto tasks_remaining() const -> std::size_t;
+
+        auto execute_tasks() -> void;
+        auto execute_next_task() -> void;
+
+        [[nodiscard]] lua_api auto paused() const -> bool;
+        lua_api auto set_paused(bool paused) -> void;
 
     private:
-        std::vector<luabridge::LuaRef> m_tasks;
+        struct task {
+            std::string name;
+            luabridge::LuaRef block;
+        };
+
+        bool m_paused { false };
+        std::vector<task> m_tasks;
 
     };
 

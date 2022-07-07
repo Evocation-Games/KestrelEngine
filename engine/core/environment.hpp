@@ -38,6 +38,7 @@
 #include "core/ui/scene.hpp"
 #include "core/ui/game_scene.hpp"
 #include "core/ui/imgui/dockspace.hpp"
+#include "core/task/async_queue.hpp"
 #include "renderer/common/context.hpp"
 #include <imgui/imgui.h>
 
@@ -82,6 +83,10 @@ public:
 
     auto all_audio_files() -> util::lua_vector<std::string>;
 
+    lua_api static auto enqueue_task(const std::string& name, const luabridge::LuaRef& task) -> void;
+    [[nodiscard]] static auto tasks_remaining() -> std::size_t;
+    [[nodiscard]] static auto has_tasks() -> bool;
+
 public:
     environment(int argc, const char **argv);
 
@@ -113,7 +118,7 @@ private:
     std::shared_ptr<scripting::lua::state> m_lua_runtime;
     std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
     std::map<std::string, std::string> m_custom_fonts {};
-
+    task::async_queue m_async_task_queue;
 
     struct {
         bool enabled { false };

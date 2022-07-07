@@ -30,6 +30,7 @@
 #include "core/ui/session.hpp"
 #include "core/ui/scene.hpp"
 #include "core/ui/game_scene.hpp"
+#include "core/task/async_queue.hpp"
 
 #if TARGET_MACOS
 #include "core/support/macos/cocoa/font.h"
@@ -210,6 +211,8 @@ auto environment::tick() -> void
             m_imgui.imgui_unload_action();
         }
     }
+
+    m_async_task_queue.execute_tasks();
 }
 
 auto environment::launch() -> int
@@ -335,6 +338,8 @@ auto environment::prepare_lua_interface() -> void
             .addProperty("platformName", &environment::platform_name)
             .addProperty("graphicsLayerName", &environment::gl_name)
             .addProperty("allAudioFiles", &environment::audio_files)
+            .addProperty("tasksRemaining", &environment::tasks_remaining)
+            .addProperty("hasTasks", &environment::has_tasks)
             .addFunction("presentScene", &environment::present_scene)
             .addFunction("setGameWindowTitle", &environment::set_game_window_title)
             .addFunction("setGameWindowSize", &environment::set_game_window_size)
@@ -344,6 +349,7 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("loadImGui", &environment::start_imgui_environment_callback)
             .addFunction("unloadImGui", &environment::end_imgui_environment)
             .addFunction("loadScenarioData", &environment::load_game_data)
+            .addFunction("enqueueTask", &environment::enqueue_task)
         .endNamespace();
 }
 
@@ -428,6 +434,29 @@ auto environment::lua_out(const std::string& message, bool error) -> void
 auto environment::lua_runtime() -> std::shared_ptr<scripting::lua::state>
 {
     return m_lua_runtime;
+}
+
+auto environment::enqueue_task(const std::string& name, const luabridge::LuaRef &task) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        env->m_async_task_queue.enqueue_task(name, task);
+    }
+}
+
+auto environment::tasks_remaining() -> std::size_t
+{
+    if (auto env = $_active_environment.lock()) {
+        return env->m_async_task_queue.tasks_remaining();
+    }
+    return 0;
+}
+
+auto environment::has_tasks() -> bool
+{
+    if (auto env = $_active_environment.lock()) {
+        return env->m_async_task_queue.has_tasks_available();
+    }
+    return false;
 }
 
 // MARK: - Accessors

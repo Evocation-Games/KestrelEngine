@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <cmath>
 #include "core/ui/widgets/label_widget.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/ui/entity/scene_entity.hpp"
@@ -55,8 +56,11 @@ ui::widgets::label_widget::label_widget(const std::string &text)
     // TODO: We need to get the current scale here so the size is estimated correctly!
     graphics::typesetter ts { text };
     ts.layout();
+
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
     m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({0, 0}));
+
+    m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
 // MARK: - Accessors
@@ -148,12 +152,20 @@ auto ui::widgets::label_widget::set_font(const std::string& v) -> void
 {
     m_font_face = v;
     m_dirty = true;
+
+    graphics::typesetter ts { m_text };
+    ts.layout();
+    m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
 auto ui::widgets::label_widget::set_font_size(int16_t v) -> void
 {
     m_font_size = v;
     m_dirty = true;
+
+    graphics::typesetter ts { m_text };
+    ts.layout();
+    m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
 auto ui::widgets::label_widget::set_lua_safe_font_size(int v) -> void
@@ -195,7 +207,7 @@ auto ui::widgets::label_widget::set_size(const math::size& v) -> void
 auto ui::widgets::label_widget::set_frame(const math::rect& v) -> void
 {
     set_position(v.origin);
-    set_size(v.size);
+    set_size({ v.size.width, std::max(m_min_height, static_cast<int16_t>(v.size.height)) });
 }
 
 auto ui::widgets::label_widget::set_vertical_alignment(enum vertical_alignment v) -> void
