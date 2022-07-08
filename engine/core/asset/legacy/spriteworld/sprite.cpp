@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/quickdraw/format/rle.hpp>
+#include <libGraphite/spriteworld/rle.hpp>
 #include "sprite.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
@@ -49,7 +49,7 @@ auto asset::legacy::spriteworld::sprite::enroll_object_api_in_state(const std::s
 asset::legacy::spriteworld::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
 {
     if (auto resource = ref->with_type(type)->load()) {
-        graphite::quickdraw::rle rle(resource->data(), resource->id(), resource->name());
+        graphite::spriteworld::rle rle(resource->data(), resource->id(), resource->name());
         m_surface = std::move(rle.surface());
         configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
 
