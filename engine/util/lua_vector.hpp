@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_LUA_VECTOR_HPP)
-#define KESTREL_LUA_VECTOR_HPP
+#pragma once
 
 #include <vector>
 #include "scripting/state.hpp"
@@ -43,21 +42,40 @@ namespace util
             luabridge::getGlobalNamespace(lua->internal_state())
                 .beginClass<util::lua_vector<T>>(name.c_str())
                     .addProperty("count", &util::lua_vector<T>::size)
-                    .addFunction("at", &util::lua_vector<T>::at)
+                    .addProperty("isEmpty", &util::lua_vector<T>::empty)
+                    .addFunction("at", &util::lua_vector<T>::lua_at)
+                    .addFunction("each", &util::lua_vector<T>::each)
                 .endClass();
         }
 
         lua_vector() = default;
         explicit lua_vector(const std::vector<T>& v) : m_items(v) {}
 
+        lua_api auto each(const luabridge::LuaRef& body) const -> void
+        {
+            for (const auto& item : m_items) {
+                body(item);
+            }
+        }
+
+        lua_api [[nodiscard]] auto empty() const -> bool
+        {
+            return size() == 0;
+        }
+
         lua_api [[nodiscard]] auto size() const -> int
         {
             return m_items.size();
         }
 
-        lua_api auto at(const int& i) const -> T
+        lua_api auto lua_at(const int& i) const -> T
         {
-            return m_items.at(i - 1);
+            return at(i - 1);
+        }
+
+        auto at(const int& i) const -> T
+        {
+            return m_items.at(i);
         }
 
         auto reserve(const int& count) -> void
@@ -70,6 +88,11 @@ namespace util
             m_items.emplace_back(r);
         }
 
+        auto append(const lua_vector<T>& v) -> void
+        {
+            m_items.insert(m_items.end(), v.m_items.begin(), v.m_items.end());
+        }
+
         auto sort(std::function<auto(const T&, const T&)->bool> fn) -> void
         {
             std::sort(m_items.begin(), m_items.end(), fn);
@@ -78,5 +101,3 @@ namespace util
     };
 
 }
-
-#endif //KESTREL_LUA_VECTOR_HPP

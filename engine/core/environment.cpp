@@ -19,18 +19,22 @@
 // SOFTWARE.
 
 #include <dirent.h>
-#include <iostream>
-#include "core/environment.hpp"
-#include "core/graphics/opengl/opengl_session_window.hpp"
-#include <libGraphite/rsrc/manager.hpp>
 #include <utility>
+#include <libGraphite/rsrc/manager.hpp>
+#include "util/hint.hpp"
 #include "scripting/state.hpp"
-#include "core/graphics/common/scene.hpp"
+#include "core/environment.hpp"
+#include "core/graphics/common/font.hpp"
+#include "core/audio/audio_manager.hpp"
+#include "renderer/common/renderer.hpp"
+#include "core/ui/session.hpp"
+#include "core/ui/scene.hpp"
+#include "core/ui/game_scene.hpp"
+#include "core/task/async_queue.hpp"
 
-#if __APPLE__
-#include "core/graphics/metal/metal_session_window.h"
-#include "core/support/macos/cocoa/application.h"
+#if TARGET_MACOS
 #include "core/support/macos/cocoa/font.h"
+#include "core/support/macos/cocoa/application.h"
 #endif
 
 static std::weak_ptr<environment> $_active_environment;
@@ -50,6 +54,7 @@ static auto ends_with(const std::string& string, const std::string& ending) -> b
 // MARK: - Construction
 
 environment::environment(int argc, const char **argv)
+    : m_status(0)
 {
     for (auto i = 1; i < argc; ++i) {
         m_options.emplace_back(std::string(argv[i]));
@@ -63,30 +68,50 @@ environment::environment(int argc, const char **argv)
     if (std::find(m_options.begin(), m_options.end(), "--game") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
             if (m_options[i] == "--game") {
-                m_kestrel_core_path = m_options[++i];
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::core);
                 break;
             }
         }
-    }
-    else {
-        m_kestrel_core_path = kestrel_core_path();
     }
 
-    if (std::find(m_options.begin(), m_options.end(), "--data") != m_options.end()) {
+    if (std::find(m_options.begin(), m_options.end(), "--support") != m_options.end()) {
         for (auto i = 0; i < m_options.size(); ++i) {
-            if (m_options[i] == "--data") {
-                m_game_data_path = m_options[++i];
+            if (m_options[i] == "--support") {
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::support);
                 break;
             }
         }
     }
-    else {
-        m_game_data_path = game_data_path();
+
+    if (std::find(m_options.begin(), m_options.end(), "--scenarios") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--scenarios") {
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::scenario);
+                break;
+            }
+        }
+    }
+
+    if (std::find(m_options.begin(), m_options.end(), "--mods") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--mods") {
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::mods);
+                break;
+            }
+        }
+    }
+
+    if (std::find(m_options.begin(), m_options.end(), "--fonts") != m_options.end()) {
+        for (auto i = 0; i < m_options.size(); ++i) {
+            if (m_options[i] == "--fonts") {
+                host::sandbox::files::shared_files().set_game_path(m_options[++i], host::sandbox::files::path_type::fonts);
+                break;
+            }
+        }
     }
 
     // Load all resource files.
     load_kestrel_core();
-    load_game_data();
 }
 
 auto environment::active_environment() -> std::weak_ptr<environment>
@@ -103,47 +128,91 @@ auto environment::cache() -> std::shared_ptr<asset::cache>
 
 // MARK: - Run Loop
 
-#if __APPLE__
+#if TARGET_MACOS
 auto environment::launch_metal(const double& scale) -> int
 {
-    auto app = cocoa::application();
-    return app.run(m_options, [this, scale] () {
-        this->m_game_window = std::make_shared<graphics::metal::session_window>(this->shared_from_this(), scale);
-        this->m_game_window->set_title("Kestrel - Metal");
-        this->m_game_window->set_size({ 800, 600 });
-        this->prepare_common();
+    renderer::initialize(renderer::api::metal, [&] {
+        prepare_common();
+        renderer::set_tick_function([&] {
+            tick();
+        });
     });
+    return 0;
 }
 #endif
 
 auto environment::launch_opengl(const double& scale) -> int
 {
-    m_game_window = std::make_shared<graphics::opengl::session_window>(shared_from_this());
-    return launch_common();
+    renderer::initialize(renderer::api::opengl, [&] {
+        prepare_common();
+        renderer::set_tick_function([&] {
+            tick();
+        });
+    });
+    return 0;
 }
 
 auto environment::prepare_common() -> void
 {
+    // Setup a new game session.
+    m_game_session = std::make_shared<ui::session>();
+
     // Ensure Lua is fully configured and ready to go.
     become_active_environment();
     m_lua_runtime->prepare_lua_environment(shared_from_this());
 
     // Locate and execute script #0 to enter the game itself, and then enter a run loop.
-    auto main_script = m_lua_runtime->load_script(0);
-    m_lua_runtime->run(main_script);
+    m_game_session->present_scene({
+        new ui::game_scene(asset::resource_descriptor::identified(0))
+    });
 }
 
-auto environment::launch_common() -> int
-{
-    prepare_common();
+static uint64_t s_throttle = 0;
 
-    // Enter the main run loop, keep calling tick on the session window until such time as it is no
-    // longer in existence or alive.
-    while (m_game_window && m_game_window->is_running()) {
-        m_game_window->tick();
+auto environment::tick() -> void
+{
+    auto frame_start_time = rtc::clock::global().current();
+    auto render_required = renderer::frame_render_required();
+
+    auto session = this->session();
+
+    if (render_required) {
+        renderer::camera camera;
+        renderer::start_frame(camera, m_imgui.enabled && m_imgui.ready);
     }
 
-    return m_status;
+    if (session) {
+        rtc::clock::global().tick();
+        session->tick(render_required);
+    }
+
+    if (render_required) {
+        if (m_imgui.enabled && m_imgui.ready) {
+            m_imgui.dockspace.draw();
+        }
+
+        renderer::end_frame();
+    }
+
+    if (m_imgui.enabled && !m_imgui.ready) {
+        m_imgui.ready = true;
+        renderer::enable_imgui();
+
+        if (m_imgui.imgui_load_action.state() && m_imgui.imgui_load_action.isFunction()) {
+            m_imgui.imgui_load_action();
+        }
+    }
+    else if (m_imgui.ready && !m_imgui.enabled) {
+        m_imgui.ready = false;
+        m_imgui.dockspace.erase();
+        renderer::disable_imgui();
+
+        if (m_imgui.imgui_unload_action.state() && m_imgui.imgui_unload_action.isFunction()) {
+            m_imgui.imgui_unload_action();
+        }
+    }
+
+    m_async_task_queue.execute_tasks();
 }
 
 auto environment::launch() -> int
@@ -158,9 +227,17 @@ auto environment::launch() -> int
         }
     }
 
-#if __APPLE__
+    audio::manager::library audio_lib = audio::manager::library::openal;
+
+#if TARGET_MACOS
     if (scale <= 0) {
         scale = cocoa::application::screen_scale_factor();
+    }
+
+    // Check if we're being forced to open the game using OpenAL rather than CoreAudio
+    audio_lib = audio::manager::library::core_audio;
+    if (std::find(m_options.begin(), m_options.end(), "--openal") != m_options.end()) {
+        audio_lib = audio::manager::library::openal;
     }
 
     // Check if we're being forced to open the game in a certain graphics mode. If we are then we can ignore the
@@ -170,8 +247,8 @@ auto environment::launch() -> int
     }
     else {
         // We are going to try for Metal, but if the computer is not able to then we will default to OpenGL.
-        auto metal = true;
-        if (metal) {
+        if (renderer::supports_metal()) {
+            audio::manager::shared_manager().set_library(audio_lib);
             return launch_metal(scale);
         }
     }
@@ -179,8 +256,10 @@ auto environment::launch() -> int
     if (scale <= 0) {
         scale = 1.0;
     }
+
 #endif
 
+    audio::manager::shared_manager().set_library(audio_lib);
     return launch_opengl(scale);
 }
 
@@ -193,139 +272,143 @@ auto environment::become_active_environment() -> void
 
 auto environment::load_kestrel_core() -> void
 {
-    auto file = std::make_shared<graphite::rsrc::file>(m_kestrel_core_path);
-    graphite::rsrc::manager::shared_manager().import_file(file);
+    auto file_ref = host::sandbox::files::game_core();
+    if (file_ref.get()) {
+        auto file = new graphite::rsrc::file(file_ref->path());
+        graphite::rsrc::manager::shared_manager().import_file(file);
+    }
+    else {
+        throw std::runtime_error("Could not locate game core.");
+    }
+
+    auto support_ref = host::sandbox::files::game_support();
+    if (support_ref.get()) {
+        auto file = new graphite::rsrc::file(support_ref->path());
+        graphite::rsrc::manager::shared_manager().import_file(file);
+    }
 }
 
 auto environment::load_game_data() -> void
 {
-    load_data_files(m_game_data_path);
-}
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        return;
+    }
 
-auto environment::load_data_files(const std::string &path) -> void
-{
-    DIR *dir;
-    struct dirent *ent;
-    if ((dir = opendir(path.c_str())) != nullptr) {
-        while ((ent = readdir(dir)) != nullptr) {
-            std::string file_path(path + "/");
-            file_path.append(ent->d_name);
-            if (ends_with(file_path, ".ndat") || ends_with(file_path, ".rez") || ends_with(file_path, ".kdat")) {
-                auto file = std::make_shared<graphite::rsrc::file>(file_path);
+    // Scenario Data
+    auto scenario_ref = host::sandbox::files::game_data();
+    if (scenario_ref.get()) {
+        const auto& files = scenario_ref->contents(false);
+        for (auto i = 0; i < files.size(); ++i) {
+            const auto& file_ref = files.at(i);
+            if (file_ref->extension() == "ndat" || file_ref->extension() == "kdat" || file_ref->extension() == "rez" || file_ref->extension() == "rsrc") {
+                auto file = new graphite::rsrc::file(file_ref->path());
                 graphite::rsrc::manager::shared_manager().import_file(file);
             }
+            else if (file_ref->extension() == "mp3") {
+                env->m_audio_files.emplace_back(file_ref->path());
+            }
         }
-        closedir(dir);
     }
     else {
-        perror("Failed to load scenario files");
+        throw std::runtime_error("Could not locate game scenario & data");
+    }
+
+    // Font Files
+    auto fonts_ref = host::sandbox::files::game_fonts();
+    if (fonts_ref.get() && fonts_ref->exists()) {
+        const auto& files = fonts_ref->contents(false);
+        for (auto i = 0; i < files.size(); ++i) {
+            const auto& file_ref = files.at(i);
+            if (file_ref->extension() == "ttf") {
+                auto name = graphics::font::font_name_at_path(file_ref->path());
+                env->m_custom_fonts[name] = file_ref->path();
+            }
+        }
     }
 }
-
-// MARK: - Platform Specifics
-
-#if __APPLE__
-
-auto environment::kestrel_core_path() const -> std::string
-{
-    return cocoa::application::bundle_path() + "/Contents/Resources/GameCore.ndat";
-}
-
-auto environment::game_data_path() const -> std::string
-{
-    return cocoa::application::bundle_path() + "/Contents/Resources/DataFiles";
-}
-
-#elif __linux__
-
-auto environment::kestrel_core_path() const -> std::string
-{
-    return "GameCore.ndat";
-}
-
-auto environment::game_data_path() const -> std::string
-{
-    return "DataFiles";
-}
-
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#   if defined(_WIN64)
-
-auto environment::kestrel_core_path() const -> std::string
-{
-    return "GameCore.ndat";
-}
-
-auto environment::game_data_path() const -> std::string
-{
-    return "DataFiles";
-}
-
-#   else
-#       error "32-bit Windows is not supported."
-#   endif
-#else
-#   error "Unknown Target Platform"
-#endif
 
 // MARK: - Lua Interface
 
 auto environment::prepare_lua_interface() -> void
 {
-    luabridge::getGlobalNamespace(m_lua_runtime->internal_state())
-        .beginClass<environment>("Kestrel")
-            .addStaticFunction("setGameWindowTitle", &environment::set_game_window_title)
-            .addStaticFunction("setGameWindowSize", &environment::set_game_window_size)
-            .addStaticFunction("importScript", &environment::import_script)
-            .addStaticFunction("scene", &environment::create_scene)
-            .addStaticFunction("scaleFactor", &environment::scale)
-        .endClass();
+    m_lua_runtime->global_namespace()
+        .beginNamespace("Kestrel")
+            .addProperty("platform", &environment::platform)
+            .addProperty("platformName", &environment::platform_name)
+            .addProperty("graphicsLayerName", &environment::gl_name)
+            .addProperty("allAudioFiles", &environment::audio_files)
+            .addProperty("tasksRemaining", &environment::tasks_remaining)
+            .addProperty("hasTasks", &environment::has_tasks)
+            .addFunction("presentScene", &environment::present_scene)
+            .addFunction("setGameWindowTitle", &environment::set_game_window_title)
+            .addFunction("setGameWindowSize", &environment::set_game_window_size)
+            .addFunction("importScript", &environment::import_script)
+            .addFunction("runScript", &environment::run_script)
+            .addFunction("scaleFactor", &environment::scale)
+            .addFunction("loadImGui", &environment::start_imgui_environment_callback)
+            .addFunction("unloadImGui", &environment::end_imgui_environment)
+            .addFunction("loadScenarioData", &environment::load_game_data)
+            .addFunction("enqueueTask", &environment::enqueue_task)
+        .endNamespace();
 }
 
 auto environment::set_game_window_title(const std::string &title) -> void
 {
-    $_active_environment.lock()->m_game_window->set_title(title);
+    renderer::set_window_title(title);
 }
 
 auto environment::set_game_window_size(const double& width, const double& height) -> void
 {
-    $_active_environment.lock()->m_game_window->set_size({ width, height });
+    renderer::set_window_size({ width, height });
 }
 
 auto environment::scale() -> double
 {
-    return $_active_environment.lock()->m_game_window->get_scale_factor();
+    return renderer::scale_factor();
 }
 
-auto environment::load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script
+auto environment::start_imgui_environment() -> void
 {
     if (auto env = $_active_environment.lock()) {
-        if (ref->id().has_value()) {
-            return env->m_lua_runtime->load_script(ref->id().value());
-        }
-        else if (ref->name().has_value()) {
-            throw std::logic_error("Unable to load script.");
+        env->m_imgui.enabled = true;
+    }
+}
+
+auto environment::start_imgui_environment_callback(const luabridge::LuaRef& callback) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        env->m_imgui.enabled = true;
+        if (callback.state()) {
+            env->m_imgui.imgui_load_action = callback;
         }
         else {
-            throw std::logic_error("Unable to load script.");
+            env->m_imgui.imgui_load_action = { env->m_lua_runtime->internal_state(), nullptr };
         }
     }
-    throw std::runtime_error("Missing environment");
 }
 
-auto environment::import_script(const asset::resource_reference::lua_reference& ref) -> void
+auto environment::end_imgui_environment(const luabridge::LuaRef& callback) -> void
 {
     if (auto env = $_active_environment.lock()) {
-        if (ref->id().has_value()) {
-            auto scpt = env->m_lua_runtime->load_script(ref->id().value());
-            env->m_lua_runtime->run(scpt);
-        }
-        else if (ref->name().has_value()) {
+        env->m_imgui.enabled = false;
+        env->m_imgui.imgui_unload_action = callback;
+    }
+}
 
-        }
-        else {
+auto environment::import_script(const asset::resource_descriptor::lua_reference& ref) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        scripting::lua::script script(env->m_lua_runtime->shared_from_this(), ref);
+        env->m_lua_runtime->run(script);
+    }
+}
 
-        }
+auto environment::run_script(const std::string &script_string) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        scripting::lua::script script(env->m_lua_runtime->shared_from_this(), script_string);
+        env->m_lua_runtime->run(script);
     }
 }
 
@@ -334,80 +417,156 @@ auto environment::gc_purge() -> void
     lua_gc(m_lua_runtime->internal_state(), LUA_GCCOLLECT, 0);
 }
 
+auto environment::issue_lua_command(const std::string& lua) -> void
+{
+    scripting::lua::script script(m_lua_runtime->shared_from_this(), lua);
+    script.execute();
+}
+
+auto environment::lua_out(const std::string& message, bool error) -> void
+{
+    auto session = this->session();
+    if (session) {
+        session->console().write((error ? "***" : "") + message);
+    }
+}
+
+auto environment::lua_runtime() -> std::shared_ptr<scripting::lua::state>
+{
+    return m_lua_runtime;
+}
+
+auto environment::enqueue_task(const std::string& name, const luabridge::LuaRef &task) -> void
+{
+    if (auto env = $_active_environment.lock()) {
+        env->m_async_task_queue.enqueue_task(name, task);
+    }
+}
+
+auto environment::tasks_remaining() -> std::size_t
+{
+    if (auto env = $_active_environment.lock()) {
+        return env->m_async_task_queue.tasks_remaining();
+    }
+    return 0;
+}
+
+auto environment::has_tasks() -> bool
+{
+    if (auto env = $_active_environment.lock()) {
+        return env->m_async_task_queue.has_tasks_available();
+    }
+    return false;
+}
 
 // MARK: - Accessors
 
-auto environment::window() -> std::shared_ptr<graphics::session_window>
+auto environment::session() -> std::shared_ptr<ui::session>
 {
-    return m_game_window;
+    return m_game_session;
 }
 
+// MARK: - Audio
+
+auto environment::all_audio_files() -> util::lua_vector<std::string>
+{
+    return m_audio_files;
+}
+
+auto environment::audio_files() -> util::lua_vector<std::string>
+{
+    if (auto env = active_environment().lock()) {
+        return env->all_audio_files();
+    }
+    else {
+        return {};
+    }
+}
 
 // MARK: - Graphics Layer Specific
 
-auto environment::create_texture(const math::size &size,
-                                 std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>
+auto environment::gl_name() -> std::string
 {
-    return m_game_window->create_texture(size, std::move(data));
+    return renderer::api_name();
 }
 
-auto environment::create_texture(const math::size &size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>
-{
-    return m_game_window->create_texture(size, data);
-}
+// MARK: - Scene Management
 
-auto environment::current_scene() -> std::shared_ptr<graphics::scene>
-{
-    return m_game_window->current_scene();
-}
-
-auto environment::present_scene(std::shared_ptr<graphics::scene> scene) -> void
-{
-    m_game_window->present_scene(std::move(scene));
-}
-
-auto environment::pop_scene() -> void
-{
-    m_game_window->pop_scene();
-}
-
-auto environment::create_scene(const std::string &name,
-                               const asset::resource_reference::lua_reference &script) -> graphics::lua_scene_wrapper::lua_reference
+auto environment::present_scene(const ui::game_scene::lua_reference &scene) -> void
 {
     if (auto env = $_active_environment.lock()) {
-        auto scene = env->m_game_window->new_scene(name, env->load_script(script));
-        return graphics::lua_scene_wrapper::lua_reference(new graphics::lua_scene_wrapper(scene));
-    }
-    else {
-        return nullptr;
+        auto session = env->session();
+        if (session) {
+            session->present_scene(scene);
+        }
     }
 }
 
 // MARK: - Event Posting
 
-auto environment::post_key_event(const event::key &event) -> void
+auto environment::post_event(const event &e) -> void
 {
-#if __APPLE__
-    if ((event.code() == event::key::q) && (event.modifiers() & event::key::super)) {
-        exit(0);
+    if (m_imgui.enabled && m_imgui.ready) {
+        m_imgui.dockspace.receive_event(e);
+        return;
     }
-#elif __linux__
 
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-#   if defined(_WIN64)
+    auto session = this->session();
+    if (!session) {
+        return;
+    }
 
-#   endif
+    session->receive_event(e);
+}
+
+// MARK: - Bundled Resources
+
+auto environment::bundled_font_named(const std::string &name) const -> std::optional<std::string>
+{
+    if (m_custom_fonts.find(name) != m_custom_fonts.end()) {
+        return m_custom_fonts.at(name);
+    }
+    else {
+        return {};
+    }
+}
+
+// MARK: - Host Platform
+
+#if TARGET_MACOS
+
+auto environment::platform() -> environment::platform_type
+{
+    return platform_type::mac_os;
+}
+
+auto environment::platform_name() -> std::string
+{
+    return "macOS";
+}
+
+#elif TARGET_LINUX
+
+auto environment::platform() -> environment::platform_type
+{
+    return platform_type::unix_like;
+}
+
+auto environment::platform_name() -> std::string
+{
+    return "Linux";
+}
+
+#elif TARGET_WINDOWS
+
+auto environment::platform() -> environment::platform_type
+{
+    return platform_type::windows;
+}
+
+auto environment::platform_name() -> std::string
+{
+    return "Windows";
+}
+
 #endif
-    auto scene = current_scene();
-    if (scene != nullptr) {
-        scene->key_event(event);
-    }
-}
-
-auto environment::post_mouse_event(const event::mouse &event) -> void
-{
-    auto scene = current_scene();
-    if (scene != nullptr) {
-        scene->mouse_event(event);
-    }
-}

@@ -1,0 +1,144 @@
+name: Kestrel Game Engine CI
+
+on: [push]
+
+jobs:
+  linux:
+    name: Build on Linux
+    strategy:
+      matrix:
+        env:
+          - { os: ubuntu-latest, compiler: LLVM, CC: clang, CXX: clang++ }
+    runs-on: ${{ matrix.env.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Fetch Submodules
+        run: |
+          git submodule update --init --recursive
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -y -q
+          sudo apt-get install -y -q --no-install-recommends build-essential
+          sudo apt-get install -y -q --no-install-recommends cmake
+          sudo apt-get install -y -q --no-install-recommends wget
+          sudo apt-get install -y -q --no-install-recommends clang++-10
+          sudo apt-get install -y -q --no-install-recommends libxrandr-dev
+          sudo apt-get install -y -q --no-install-recommends libxinerama-dev
+          sudo apt-get install -y -q --no-install-recommends libxcursor-dev
+          sudo apt-get install -y -q --no-install-recommends libxi-dev
+          sudo apt-get install -y -q --no-install-recommends libopenal-dev
+          sudo apt-get install -y -q --no-install-recommends libopengl-dev
+          sudo apt-get install -y -q --no-install-recommends libglfw3-dev
+          sudo apt-get install -y -q --no-install-recommends libglew-dev
+          sudo apt-get install -y -q --no-install-recommends libfreetype-dev
+          sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
+      - name: Download AppImageTool
+        run: |
+          mkdir -p build
+          wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O build/appimagetool
+          chmod a+x build/appimagetool
+          wget https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64 -O build/AppRun
+          chmod a+x build/AppRun
+      - name: Build Kestrel Engine
+        env:
+          CC: ${{ matrix.env.CC }}
+          CXX: ${{ matrix.env.CXX }}
+        run: |
+          support/scripts/build
+          support/scripts/install
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: KestrelEngine-Ubuntu
+          path: ./bin
+
+  macOS:
+    name: Build on macOS
+    strategy:
+      matrix:
+        os: [ macos-11, macos-12 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Fetch Submodules
+        run: |
+          git submodule update --init --recursive
+      - name: Building FreeType Universal Library
+        run: |
+          ./support/scripts/compile-library-macos.sh freetype libfreetype FreeType
+      - name: Building GLFW Universal Library
+        run: |
+          ./support/scripts/compile-library-macos.sh glfw src/libglfw3 GLFW
+      - name: Building PNG Universal Library
+        run: |
+          `cd submodules/png && git apply ../../support/patches/libpng.macos.patch`
+          ./support/scripts/compile-library-macos.sh png libpng16 PNG
+      - name: Build Kestrel Engine
+        run: |
+          support/scripts/build
+          support/scripts/install
+      - name: Codesign & Notarize Kestrel Engine
+        env:
+          DISTRIBUTION_CERTIFICATE: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE }}
+          DISTRIBUTION_CERTIFICATE_PWD: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          DISTRIBUTION_IDENTITY: ${{ secrets.KESTREL_DISTRIBUTION_IDENTITY }}
+          APPSTORECONNECT_USERNAME: ${{ secrets.NOTARIZATION_USERNAME }}
+          APPSTORECONNECT_PWD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        run: |
+          support/scripts/notarize \
+            --identity="$DISTRIBUTION_IDENTITY" \
+            --cert="$DISTRIBUTION_CERTIFICATE" \
+            --cert-pwd="$DISTRIBUTION_CERTIFICATE_PWD" \
+            --user="$APPSTORECONNECT_USERNAME" \
+            --pwd="$APPSTORECONNECT_PWD"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: KestrelEngine-macOS
+          path: ./bin
+
+  windows:
+    name: Build on Windows
+    strategy:
+      matrix:
+        env:
+          - { os: windows-latest, shell: msys2, msystem: MINGW64, arch: x86_64, compiler: LLVM, CC: clang, CXX: clang++ }
+    runs-on: ${{ matrix.env.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.env.shell }} {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup MinGW/MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.env.msystem }}
+          install: git mingw-w64-${{ matrix.env.arch }}-toolchain
+      - name: Install dependencies
+        run: |
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-clang
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-cmake
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-ninja
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-openal
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-mesa
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-freetype
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
+      - name: Fetch Submodules
+        run: |
+          git submodule update --init --recursive
+      - name: Build Kestrel Engine
+        env:
+          CC: ${{ matrix.env.CC }}
+          CXX: ${{ matrix.env.CXX }}
+        run: |
+          support/scripts/build
+          support/scripts/install
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: KestrelEngine-Windows
+          path: ./bin

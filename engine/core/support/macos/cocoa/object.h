@@ -18,32 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_OBJECT_H)
-#define KESTREL_OBJECT_H
+#pragma once
+
+#if __APPLE__
 #include <type_traits>
 
 namespace cocoa
 {
-    class object
+    template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
+    struct object
     {
-    protected:
-        void *m_handle;
+        auto get() const -> T { return m_handle; }
+        auto set(T value) -> void { m_handle = value; }
 
-        template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
-        auto set(const T& value) -> void
-        {
-            m_handle = reinterpret_cast<void *>(value);
-        }
-
-    public:
-
-        template<typename T, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
-        auto get() const -> T
-        {
-            return reinterpret_cast<T>(m_handle);
-        }
-
+    private:
+        T m_handle { nullptr };
     };
 }
 
-#endif //KESTREL_OBJECT_H
+#endif

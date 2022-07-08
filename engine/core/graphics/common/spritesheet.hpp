@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SPRITESHEET_HPP)
-#define KESTREL_SPRITESHEET_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -40,35 +39,37 @@ namespace graphics
         public:
             sprite(const double& x, const double& y, const double& width, const double& height);
             sprite(const math::point& origin, const math::size& size);
-            sprite(const math::rect& frame);
+            explicit sprite(const math::rect& frame);
 
-            auto frame() const -> math::rect;
-            auto point() const -> math::point;
-            auto size() const -> math::size;
+            [[nodiscard]] auto frame() const -> math::rect;
+            [[nodiscard]] auto point() const -> math::point;
+            [[nodiscard]] auto size() const -> math::size;
 
         };
+
+    public:
+        spritesheet(std::shared_ptr<graphics::texture> tex, uint32_t sprite_width, uint32_t sprite_height);
+        spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size);
+
+        ~spritesheet();
+
+        auto texture() const -> std::shared_ptr<graphics::texture>;
+
+        auto sprite_count() const -> std::size_t;
+        auto at(const int& n) const -> spritesheet::sprite;
+        auto sprite_size() const -> math::size;
+        auto flipped() const -> bool;
+
+        auto layout_sprites(const math::size& sprite_size, bool flipped = false) -> void;
+        auto layout_sprites(const std::vector<math::rect>& sprite_frames, bool flipped = false) -> void;
 
     private:
         std::shared_ptr<graphics::texture> m_backing_texture;
         std::vector<spritesheet::sprite> m_sprites;
         math::size m_sprite_base_size;
+        bool m_flipped { false };
 
-        auto layout_sprites() -> void;
-
-    public:
-        spritesheet(std::shared_ptr<graphics::texture> tex, const double& sprite_width, const double& sprite_height);
-        spritesheet(std::shared_ptr<graphics::texture> tex, const math::size& sprite_size);
-
-        auto texture() const -> std::shared_ptr<graphics::texture>;
-
-        auto sprite_count() const -> int;
-        auto at(const int& n) const -> spritesheet::sprite;
-        auto sprite_size() const -> math::size;
-
-        auto layout_sprites(const math::size& sprite_size) -> void;
-        auto layout_sprites(const std::vector<math::rect>& sprite_frames) -> void;
+        auto layout_sprites(bool flipped) -> void;
     };
 
 }
-
-#endif //KESTREL_SPRITESHEET_HPP

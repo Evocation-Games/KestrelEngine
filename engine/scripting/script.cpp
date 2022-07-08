@@ -19,22 +19,66 @@
 // SOFTWARE.
 
 #include "scripting/script.hpp"
+#include "core/asset/rsrc/namespace.hpp"
+#include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
 
 // MARK: - Construction
 
-scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const int64_t& id)
-    : m_state(state), m_id(id)
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const asset::resource_descriptor::lua_reference &ref)
+    : m_state(state)
 {
-    if (auto s = graphite::rsrc::manager::shared_manager().find(type, id).lock()) {
-        m_name = s->name();
-        graphite::data::reader r(s->data());
-        m_script = r.read_cstr();
+    if (!ref->has_id()) {
+        throw std::runtime_error("No script id specified.");
+    }
+
+    if (auto script = ref->with_type(type)->load()) {
+        m_name = script->name();
+        m_id = script->id();
+        graphite::data::reader reader(&script->data());
+        m_object = new script_object();
+        m_object->len = reader.size();
+        m_object->data = reader.read_bytes(static_cast<int64_t>(m_object->len)).data();
+    }
+    else if (auto script = ref->with_type(script_type)->load()) {
+        m_name = script->name();
+        graphite::data::reader reader(&script->data());
+        m_script = "-- " + ref->description() + "\n" + reader.read_cstr();
+        m_id = script->id();
+        m_name = script->name();
     }
     else {
-        throw std::logic_error("Could not find/load lua script resource #" + std::to_string(id));
+        throw std::logic_error("Could not find/load lua script resource #" + std::to_string(ref->id));
     }
+}
+
+scripting::lua::script::script(const std::shared_ptr<lua::state>& state, const graphite::rsrc::resource *resource)
+    : m_state(state)
+{
+    if (!resource) {
+        throw std::runtime_error("No script specified.");
+        return;
+    }
+
+    m_name = resource->name();
+    graphite::data::reader reader(&resource->data());
+    m_script = "-- " + std::to_string(resource->id()) + " - " + resource->name() + "\n" + reader.read_cstr();
+    m_id = resource->id();
+    m_name = resource->name();
+}
+
+scripting::lua::script::script(const std::shared_ptr<lua::state> &state, const std::string& code)
+    : m_state(state), m_script(code), m_name("console.input"), m_id(-1)
+{
+
+}
+
+// MARK: - Destruction
+
+scripting::lua::script::~script()
+{
+    delete m_object;
 }
 
 // MARK: - Accessor
@@ -44,6 +88,16 @@ auto scripting::lua::script::code() const -> std::string
     return m_script;
 }
 
+auto scripting::lua::script::object() const -> void *
+{
+    return (m_object != nullptr) ? m_object : nullptr;
+}
+
+auto scripting::lua::script::object_size() const -> size_t
+{
+    return (m_object != nullptr) ? m_object->len : 0;
+}
+
 // MARK: - Execution
 
 auto scripting::lua::script::execute() const -> void
@@ -51,7 +105,7 @@ auto scripting::lua::script::execute() const -> void
     if (m_script.empty()) {
         return;
     }
-    
+
     if (auto state = m_state.lock()) {
         state->run(*this);
     }
@@ -65,4 +119,9 @@ auto scripting::lua::script::id() const -> int64_t
 auto scripting::lua::script::name() const -> std::string
 {
     return m_name;
+}
+
+auto scripting::lua::script::is_object() const -> bool
+{
+    return (m_object != nullptr);
 }

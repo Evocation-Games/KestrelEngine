@@ -18,16 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_FONT_HPP)
-#define KESTREL_FONT_HPP
+#pragma once
 
 #include <memory>
 #include <string>
 #include <vector>
 #include <tuple>
-#include <freetype2/ft2build.h>
+
+#include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
+#include FT_ADVANCES_H
 #include "math/size.hpp"
 #include "math/point.hpp"
 #include "core/graphics/common/color.hpp"
@@ -42,16 +43,17 @@ namespace graphics
         FT_Face m_face;
 
     public:
-        explicit font(const std::string& name = "");
+        explicit font(const std::string& path, float size);
+        explicit font(const std::string& name = "", bool load_font = true);
         ~font();
 
-        auto face() const -> FT_Face;
+        [[nodiscard]] auto face() const -> FT_Face;
+        [[nodiscard]] auto path() const -> std::string;
 
-        auto calculate_glyph_width(const FT_UInt& glyph_index, const FT_UInt& previous_glyph_index, math::size *kerning) const -> double;
-        auto line_height() const -> double;
+        [[nodiscard]] auto calculate_glyph_width(const FT_UInt& glyph_index, const FT_UInt& previous_glyph_index, math::size *kerning) const -> double;
+        [[nodiscard]] auto line_height() const -> double;
+
+        static auto font_name_at_path(const std::string& path) -> std::string;
     };
 
 }
-
-
-#endif //KESTREL_FONT_HPP

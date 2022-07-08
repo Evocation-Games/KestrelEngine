@@ -22,34 +22,34 @@
 
 // MARK: - Construction
 
-graphics::texture::texture(const double& width, const double& height)
-    : m_size(width, height), m_data(width * height, 0xFFFFFFFF)
+graphics::texture::texture(uint32_t width, uint32_t height, const graphite::data::block &data)
+    : m_data(data),
+      m_size(width, height)
 {
-
 }
 
-graphics::texture::texture(const math::size& size)
-    : m_size(size), m_data(size.width * size.height, 0xFFFFFFFF)
+graphics::texture::texture(const math::size &size, const graphite::data::block &data)
+    : m_data(data),
+      m_size(size)
 {
-
 }
 
-graphics::texture::texture(const double& width, const double& height, std::vector<uint32_t> data)
-    : m_size(width, height), m_data(std::move(data))
+graphics::texture::texture(uint32_t width, uint32_t height, bool populate)
+    : m_data(width * height * 4),
+      m_size(width, height)
 {
-
+    if (populate) {
+        m_data.set(static_cast<uint32_t>(0xFFFF00FF), m_data.size());
+    }
 }
 
-graphics::texture::texture(const math::size& sz, std::vector<uint32_t> data)
-    : m_size(sz), m_data(std::move(data))
+graphics::texture::texture(const math::size &size, bool populate)
+    : m_data(size.width * size.height * 4),
+      m_size(size)
 {
-
-}
-
-graphics::texture::texture(const math::size &sz, const uint8_t *data)
-    : m_size(sz), m_raw_data(data)
-{
-
+    if (populate) {
+        m_data.set(static_cast<uint32_t>(0xFFFF00FF), m_data.size());
+    }
 }
 
 // MARK: - Accessors
@@ -59,30 +59,40 @@ auto graphics::texture::size() const -> math::size
     return m_size;
 }
 
-auto graphics::texture::data() const -> std::vector<uint32_t>
+auto graphics::texture::data() const -> const graphite::data::block&
 {
     return m_data;
 }
 
-auto graphics::texture::raw_data_ptr() const -> const uint8_t *
+auto graphics::texture::raw_data_ptr() const -> const void *
 {
-    return m_raw_data;
+    return m_data.get<void *>();
 }
 
-auto graphics::texture::handle() const -> int
+auto graphics::texture::set_data(const graphite::data::block& data) -> void
+{
+    m_data = data;
+}
+
+auto graphics::texture::handle() const -> uint64_t
 {
     return 0;
 }
 
 // MARK: - Base Implementations
 
-auto graphics::texture::bind() const -> void
+auto graphics::texture::destroy() -> void
 {
     // Empty Implementation
 }
 
-auto graphics::texture::destroy() -> void
+auto graphics::texture::upload_to_gpu() -> void
 {
+    m_uploaded = true;
+}
 
+auto graphics::texture::uploaded() const -> bool
+{
+    return m_uploaded;
 }
 

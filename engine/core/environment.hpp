@@ -18,62 +18,74 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_ENVIRONMENT_HPP)
-#define KESTREL_ENVIRONMENT_HPP
+#pragma once
 
 #include <memory>
 #include <string>
 #include <vector>
-#include "scripting/state.hpp"
-#include "scripting/script.hpp"
-#include "core/asset/resource_reference.hpp"
+#include <type_traits>
 #include "util/hint.hpp"
 #include "math/size.hpp"
-#include "core/graphics/common/texture.hpp"
+#include "util/lua_vector.hpp"
+#include "scripting/state.hpp"
+#include "scripting/script.hpp"
+#include "core/file/files.hpp"
+#include "core/event/event.hpp"
 #include "core/asset/cache.hpp"
-#include "core/graphics/common/lua_scene_wrapper.hpp"
-#include "core/event/key.hpp"
-#include "core/event/mouse.hpp"
-
-namespace graphics
-{
-    class session_window;
-    class scene;
-}
+#include "core/graphics/common/texture.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
+#include "core/ui/session.hpp"
+#include "core/ui/scene.hpp"
+#include "core/ui/game_scene.hpp"
+#include "core/ui/imgui/dockspace.hpp"
+#include "core/task/async_queue.hpp"
+#include "renderer/common/context.hpp"
+#include <imgui/imgui.h>
 
 class environment: public std::enable_shared_from_this<environment>
 {
-private:
-    int m_status;
-    std::vector<std::string> m_options;
-    std::shared_ptr<graphics::session_window> m_game_window;
-    std::string m_kestrel_core_path;
-    std::string m_game_data_path;
-    std::shared_ptr<scripting::lua::state> m_lua_runtime;
-    std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
+public:
+    enum platform_type { mac_os, unix_like, windows };
+    enum gl_type { none, open_gl, metal };
 
-#if __APPLE__
+#if TARGET_MACOS
     auto launch_metal(const double& scale = 1.0) -> int;
 #endif
     auto launch_opengl(const double& scale = 1.0) -> int;
+
     auto prepare_common() -> void;
-    auto launch_common() -> int;
+    auto tick() -> void;
 
-    auto kestrel_core_path() const -> std::string;
-    auto game_data_path() const -> std::string;
-
-    auto load_kestrel_core() -> void;
-    auto load_game_data() -> void;
-    auto load_data_files(const std::string& path) -> void;
-
-    auto load_script(const asset::resource_reference::lua_reference &ref) -> scripting::lua::script;
+    static auto load_kestrel_core() -> void;
+    lua_api static auto load_game_data() -> void;
 
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
-    lua_api static auto import_script(const asset::resource_reference::lua_reference& ref) -> void;
-    lua_api static auto create_scene(const std::string& name, const asset::resource_reference::lua_reference& script) -> graphics::lua_scene_wrapper::lua_reference;
+    lua_api static auto import_script(const asset::resource_descriptor::lua_reference& ref) -> void;
+    lua_api static auto run_script(const std::string& script) -> void;
+
+    lua_api static auto present_scene(const ui::game_scene::lua_reference& scene) -> void;
 
     lua_api static auto scale() -> double;
+
+    lua_api static auto gl_name() -> std::string;
+    lua_api static auto platform() -> environment::platform_type;
+    lua_api static auto platform_name() -> std::string;
+
+    lua_api static auto audio_files() -> util::lua_vector<std::string>;
+    lua_api static auto play_audio_file(const std::string& file) -> void;
+    lua_api static auto stop_audio_file() -> void;
+
+    lua_api static auto start_imgui_environment() -> void;
+    lua_api static auto start_imgui_environment_callback(const luabridge::LuaRef& callback) -> void;
+    lua_api static auto end_imgui_environment(const luabridge::LuaRef& callback) -> void;
+    inline auto imgui_dockspace() -> ui::imgui::dockspace& { return m_imgui.dockspace; }
+
+    auto all_audio_files() -> util::lua_vector<std::string>;
+
+    lua_api static auto enqueue_task(const std::string& name, const luabridge::LuaRef& task) -> void;
+    [[nodiscard]] static auto tasks_remaining() -> std::size_t;
+    [[nodiscard]] static auto has_tasks() -> bool;
 
 public:
     environment(int argc, const char **argv);
@@ -84,21 +96,35 @@ public:
     auto become_active_environment() -> void;
 
     auto prepare_lua_interface() -> void;
+    auto issue_lua_command(const std::string& lua) -> void;
+    auto lua_out(const std::string& message, bool error = false) -> void;
+    auto lua_runtime() -> std::shared_ptr<scripting::lua::state>;
 
     auto cache() -> std::shared_ptr<asset::cache>;
 
     auto gc_purge() -> void;
 
-    auto create_texture(const math::size& size, std::vector<uint32_t> data) const -> std::shared_ptr<graphics::texture>;
-    auto create_texture(const math::size& size, const uint8_t *data) const -> std::shared_ptr<graphics::texture>;
-    auto current_scene() -> std::shared_ptr<graphics::scene>;
-    auto present_scene(std::shared_ptr<graphics::scene> scene) -> void;
-    auto pop_scene() -> void;
+    auto session() -> std::shared_ptr<ui::session>;
+    auto post_event(const event& event) -> void;
 
-    auto post_key_event(const event::key& event) -> void;
-    auto post_mouse_event(const event::mouse& event) -> void;
+    auto bundled_font_named(const std::string& name) const -> std::optional<std::string>;
 
-    auto window() -> std::shared_ptr<graphics::session_window>;
+private:
+    int m_status;
+    std::shared_ptr<ui::session> m_game_session;
+    std::shared_ptr<renderer::context> m_renderer_context;
+    std::vector<std::string> m_options;
+    util::lua_vector<std::string> m_audio_files;
+    std::shared_ptr<scripting::lua::state> m_lua_runtime;
+    std::shared_ptr<asset::cache> m_cache { std::make_shared<asset::cache>() };
+    std::map<std::string, std::string> m_custom_fonts {};
+    task::async_queue m_async_task_queue;
+
+    struct {
+        bool enabled { false };
+        bool ready { false };
+        ui::imgui::dockspace dockspace;
+        luabridge::LuaRef imgui_load_action { nullptr };
+        luabridge::LuaRef imgui_unload_action { nullptr };
+    } m_imgui;
 };
-
-#endif //KESTREL_ENVIRONMENT_HPP

@@ -1,94 +1,90 @@
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/681356/92330908-8530f800-f06a-11ea-842c-3ba3b6cc6ccd.png">
+<p align="center"><img src="https://raw.githubusercontent.com/EvocationGames/KestrelEngine/version-0.5/support/assets/KestrelLogoRepoHeader.png"></p>
+
+<p align="center"><a href="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml"><img src="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg"></a> <img src="https://img.shields.io/badge/version-v0.6_beta-blue.svg">
+<img src="https://img.shields.io/badge/license-MIT-blue.svg">
+<a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
 </p>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-v0.0.1_alpha-red.svg">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg">
-  <a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
-</p>
+---
+# Kestrel Game Engine
+Welcome to Kestrel! This project has the aim of developing a modern, cross platform game engine that can be used to recreate and remaster Classic Macintosh era games. It does this providing a number of APIs and facilities for reading and handling old formats from the classic era.
 
-Welcome to the _Kestrel Game Engine_, a project that is centered around and focused on producing a cross-platform game engine for recreating and remastering sprite-based _Classic Macintosh_ games. Kestrel is being used by the upcoming _Cosmic Frontier: Override_ to deliver a remastered version of _Escape Velocity: Override_.
+Kestrel is being used by the upcomming _Cosmic Frontier: Override_, a remastering of the classic _Escape Velocity: Override_.
 
-Kestrel is intended to be a fully moddable and extensible game engine that is focused on rebuilding and remastering Classic Macintosh games. In order to acheive this, rather than forcing all aspects of the game to be rebuilt and re-encoded in modern ways, Kestrel aims to emulate/reproduce some of the technologies that were employed by those old games such as Resource Files / Forks and QuickDraw.
+Games in the Kestrel game engine are developed entirely within _Lua_, with all game assets and scripts being assembled into resource files. This can actually use either modernized formats, the old classic formats, or even a mix of the two. There will be more information about developing games for Kestrel in a future guide.
 
-## Building the Engine
-To build the Kestrel engine you will need the following tools and dependencies installed on your system.
+Currently Kestrel is reimplementing a number of technologies from the classic era, including; ResourceForks (mostly complete), QuickDraw (partial) and QuickTime (Sound Resource). Additional technologies will be introduced in the future and the existing ones will be fleshed out further.
 
-- Clang (macOS)
-- GCC (Linux)
-- CMake
-- OpenGL
-- glfw3
-- GLEW (Linux Only)
-- FreeType 2
+Kestrel currently supports the following systems, though more are planned in the future.
 
-Other dependancies such as KDL, Graphite, Lua and LuaBridge are included as submodules and as such you do not need to worry about them.
+- macOS 
+	- Intel 64-bit (x86_64)
+	- Apple Silicon (arm64)
+- Linux 
+	- Intel 64-bit (x86_64)
+- Windows 
+	- Intel 64-bit (x86_64)
 
-Once you have all of the required dependancies installed, run the following two commands from the project root directory.
+## Why?
+This question gets asked a lot. Why not just completely use modern technologies. Why bother to deal with old technologies at all?
 
-```sh
-$ cmake -H. -Bbuild
-$ cmake --build build -- -j2
-```
+Kestrel's early development has been for the most part guided by the requirements of Cosmic Frontier. One of the goals with the project is that it should retain compatibility with old plug-ins _Escape Velocity_ plug-ins. This necessitates being able to handle the old formats in some capacity. The other factor is the natural way in which resource files allow for plug-ins to effortless replace existing resources.
 
-This will work through all of the build tasks and place the result in the directory `./bin`. Depending on what your host OS is, will depend on what result you get. At current Kestrel has not been setup to use a cross compiler, and thus you will need to compile Kestrel on each of the platforms you wish to target separately.
+Of course it has added challenges, not least of all in the fact that the technologies are decades out of date, deprecated and/or gone. Hence why this project has reimplemented so many of them.
 
-After the build has finished you'll be left with the following artefacts in the `./bin` directory:
+## Building Kestrel
+It should be relatively straightforward to get started with building Kestrel for yourself. However if you are on Windows, then please refer to the _Building Kestrel on Windows_ section, as you will need to setup MinGW/MSYS2 first.
 
-| macOS                  | Linux                | Windows |
-|------------------------|----------------------|---------|
-| Kestrel.app            | Kestrel (ELF Binary) |         |
-| Kestrel (MachO Binary) | kdl                  |         |
-| kdl                    | GameCore.ndat        |         |
-| GameCore.ndat          |                      |         |
-| Info.plist             |                      |         |
-
-## Creating a new Project
-If you wish to start creating a new game project using Kestrel, then run the following command from the Kestrel project root directory, replacing "Awesome Game" with the new of your new game project.
+There are a few main requirements for building Kestrel; tooling, dependencies, etc. The first is `git` which we will need to clone the repository. Make sure you are in a location that you are happy to clone into
 
 ```sh
-$ support/scripts/new-project.sh "Awesome Game"
+$ git clone --recurse-submodules https://github.com/EvocationGames/KestrelEngine.git
 ```
 
-This will create a blank game project in the directory `./projects/AwesomeGame/`.
-
-## Building a Game
-The process of building a game – not development of the game, just the build process – is done using KDL. If you have already followed the process for building the engine, then you'll already have KDL built in your `./bin` directory. Alternatively you can download copies/installers of KDL from the [KDL repository](https://github.com/tjhancocks/kdl.git).
-
-For the remainder of this section we'll assume that your game is located at `./projects/AwesomeGame/` and that you have followed the recommended/standard project structure, and that you are using the KDL version that was built in the previous section.
-
-To build and package the game data files, from the root directory of the project you can run the following command.
+Once you have cloned the repository you can run the `setup` script to make sure you have everything installed and configured in your environment. To do this simply do
 
 ```sh
-$ bin/kdl -o bin/GameCore projects/awesome-game/game.kdl
+$ cd KestrelEngine
+$ support/scripts/setup
 ```
 
-During this process, KDL will handle the majority of the heavy lifting with finding any depenancies and assembling all resources into the game data file.
+The setup script will make sure that you have any tooling installed that is required to build the Kestrel engine, as well as explain the purpose of anything that needs your authentication to install.
 
-The next steps depend on what platform you are targetting.
-
-### macOS
-On macOS the `GameCore.ndat` file is expected to be bundled inside the application bundle. You can copy it to the expected location by running the following command.
+Once the setup script has finished configuring your environment, and given you the go ahead to proceed, you can build the project. To build the project, all you need to do is:
 
 ```sh
-$ cp bin/GameCore.ndat bin/Kestrel.app/Contents/Resources/GameCore.ndat
+$ support/scripts/build
+$ support/scripts/install
 ```
 
-Launching Kestrel.app will now load your game.
+There are two phases to this.
 
-### Linux
-On Linux the `GameCore.ndat` file is expected to be in the same directory as the main Kestrel executable, which in this case it already is.
+1. `build`: This does the bulk of the work. It prepares the build scripts and compiles all of the engine components. Everything is placed in the `./build` directory.
+2. `install`: This will assemble the project into something that you can distribute to others, taking all of the components that were produced in the `build` phase. The results are placed in the `./bin` directory.
 
-### Additional Data Files
-You may wish to split some of the additional game assets and resources in to seperate data files in order to better manage the project. Each of these files are expected to live in a `DataFiles` directory, located in the following positions:
+#### Configuring Kestrel Builds
+It is likely that you will want to customise the Kestrel build. This will be common and indeed required for those that are building their own game with Kestrel.
 
-On macOS the `DataFiles` directory is located at `Kestrel.app/Contents/Resources/DataFiles`.
+There are a number of options that you can pass to the `build` script to customize the resulting build.
 
-On Linux the `DataFiles` directory is the same directory as the main Kestrel executable.
+```sh
+$ support/scripts/build --name="My Awesome Game" 
+                        --bin-name="game" 
+                        --project="path/to/kdlproj"
+                        --icon="path/to/icon"
+                        --build=Debug
+                        --clean=on
+```
 
-Kestrel will load the `GameCore.ndat` prior to loading the additional data files.
+It is generally recommended that you perform a clean of the build (`--clean=on`) if you are changing any of these options.
 
+## Building Kestrel on Windows
+In order to build Kestrel on Windows, you will need to use MinGW/MSYS2. Once you have that environment installed, you will be able to proceed with the steps above largely unhindered.
+
+Once you have access to the MinGW/MSYS2 environment shell, you'll be able to return to the _Building Kestrel_ section as normal.
+
+## Developing Games for Kestrel
+_This section is to be completed_
 
 ## Contributing
 Contributions to Kestrel are welcome and appreciated. This is a big project, and will ultimately take the collective efforts of the community.
@@ -101,19 +97,7 @@ What type of contributions are being looked for? Anything on the list below is w
 - Bug fixes & patches.
 - Working on any issues/features.
 
-For more details on how you might go about contributing to the project, please checkout the _Contributing_ document.
-
-## Platform Completion / Features
-The matrix below gives a very brief and high level overview of what aspects of the engine have been worked upon and what current state they are in. This does not give an intricate overview of the features supported by the engine.
-
-| Feature | macOS                                                                         | Linux                                                                | Windows                                                                |
-|---------|-------------------------------------------------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|
-| Clang   | ![Clang](https://img.shields.io/badge/Clang-Supported-good.svg)               | ![Clang](https://img.shields.io/badge/Clang-Unknown-grey.svg)        | ![Clang](https://img.shields.io/badge/Clang-Not_Supported-black.svg)   |
-| GCC     | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)              | ![GCC](https://img.shields.io/badge/GCC-Supported-good.svg)          | ![GCC](https://img.shields.io/badge/GCC-Not_Supported-black.svg)       |
-| MSVC    | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)            | ![MSVC](https://img.shields.io/badge/MSVC-Not_Supported-black.svg)   | ![MSVC](https://img.shields.io/badge/MSVC-In_Progress-yellow.svg)     |
-| OpenGL  | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)             | ![OpenGL](https://img.shields.io/badge/OpenGL-Supported-good.svg)    | ![OpenGL](https://img.shields.io/badge/OpenGL-In_Progress-yellow.svg) |
-| Metal   | ![Metal](https://img.shields.io/badge/Metal-Supported-good.svg)           | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg) | ![Metal](https://img.shields.io/badge/Metal-Not_Supported-black.svg)   |
-| Audio   | ![CoreAudio](https://img.shields.io/badge/Core_Audio-Not_Implemented-red.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg) | ![LibUnknown](https://img.shields.io/badge/Library_Unknown-grey.svg)   |
+For more details on how you might go about contributing to the project, please checkout the Contributing document.
 
 ## License
-The Kestrel Game Engine is distributed under the MIT License.
+Kestrel is distributed under the [MIT License]().

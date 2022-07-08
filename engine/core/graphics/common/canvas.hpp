@@ -18,24 +18,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_CANVAS_HPP)
-#define KESTREL_CANVAS_HPP
+#pragma once
 
 #include <type_traits>
 #include <memory>
 #include <vector>
 #include <optional>
 #include "util/hint.hpp"
-#include "scripting/state.hpp"
 #include "math/rect.hpp"
 #include "math/line.hpp"
+#include "scripting/state.hpp"
+#include "core/asset/static_image.hpp"
+#include "core/graphics/common/font.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/entity.hpp"
-#include "core/graphics/common/font.hpp"
-#include "core/asset/macintosh_picture.hpp"
-#include "core/asset/color_icon.hpp"
-#include "core/graphics/common/text/typesetter.hpp"
 #include "core/graphics/common/rgba_buffer.hpp"
+#include "core/asset/legacy/macintosh/picture.hpp"
+#include "core/graphics/common/text/typesetter.hpp"
+#include "core/asset/legacy/macintosh/color_icon.hpp"
 
 namespace graphics
 {
@@ -46,36 +46,27 @@ namespace graphics
         typedef luabridge::RefCountedPtr<graphics::canvas> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        double m_scale { 1.0 };
-        math::size m_size;
-        math::size m_scaled_size;
-        graphics::rgba_buffer m_rgba_buffer;
-        graphics::color m_pen_color;
-        graphics::entity::lua_reference m_entity { nullptr };
-        graphics::typesetter m_typesetter;
-        math::line m_left;
-        math::line m_top;
-        math::line m_right;
-        math::line m_bottom;
-        std::weak_ptr<graphics::texture> m_linked_tex;
-
-        auto raw() const -> uint8_t *;
-        auto draw_picture_at_point(const asset::macintosh_picture::lua_reference &pict, const math::point &point) -> void;
-
     public:
         lua_api explicit canvas(const math::size& size);
+        ~canvas();
+
+        lua_api auto get_name() const -> std::string;
+        lua_api auto set_name(const std::string& name) -> void;
 
         lua_api auto get_pen_color() const -> graphics::color;
         lua_api auto set_pen_color(const graphics::color& color) -> void;
 
         lua_api auto get_bounds() const -> math::rect;
 
-        lua_api auto set_font(const std::string& name, const int& size) ->void;
+        lua_api auto set_font(const std::string& name, const int& size) -> void;
+        [[nodiscard]] auto font() const -> std::shared_ptr<graphics::font>;
 
         lua_api auto clear() -> void;
 
-        lua_api auto draw_line(const math::point& p, const math::point& q) -> void;
+        lua_api auto set_clipping_rect(const math::rect& r) -> void;
+        lua_api auto clear_clipping_rect() -> void;
+
+        lua_api auto draw_line(const math::point& p, const math::point& q, const double& thickness) -> void;
 
         lua_api auto draw_rect(const math::rect& r) -> void;
         lua_api auto fill_rect(const math::rect& r) -> void;
@@ -85,20 +76,38 @@ namespace graphics
 
         lua_api auto layout_text(const std::string& text) -> math::size;
         lua_api auto layout_text_in_bounds(const std::string& text, const math::size& bounds) -> math::size;
+        lua_api auto character_point_in_text(const int& position) const -> math::point;
         lua_api auto draw_text(const math::point& point) -> void;
 
-        lua_api auto draw_picture(const asset::macintosh_picture::lua_reference& pict, const math::rect& rect) -> void;
-        lua_api auto draw_image(const asset::macintosh_picture::lua_reference& image, const math::point& point, const math::size& sz) -> void;
-        lua_api auto draw_color_icon(const asset::color_icon::lua_reference& image, const math::point& point, const math::size& sz) -> void;
+        lua_api auto draw_picture(const asset::legacy::macintosh::quickdraw::picture::lua_reference& pict, const math::rect& rect) -> void;
+        lua_api auto draw_image(const asset::legacy::macintosh::quickdraw::picture::lua_reference& image, const math::point& point, const math::size& sz) -> void;
+        lua_api auto draw_color_icon(const asset::legacy::macintosh::quickdraw::color_icon::lua_reference& image, const math::point& point, const math::size& sz) -> void;
+        lua_api auto draw_static_image(const asset::static_image::lua_reference& image, const math::rect& rect) -> void;
 
         lua_api auto apply_mask(const graphics::canvas::lua_reference& c) -> void;
         lua_api auto draw_mask(const luabridge::LuaRef& mask_function) -> void;
 
-        lua_api auto spawn_entity(const math::vector& position) -> graphics::entity::lua_reference;
-        lua_api auto entity() -> graphics::entity::lua_reference;
+        lua_api auto spawn_entity(const math::point& position) ->std::shared_ptr<graphics::entity>;
+        lua_api auto entity() -> std::shared_ptr<graphics::entity>;
         lua_api auto rebuild_texture() -> void;
+
+    private:
+        bool m_dirty { true };
+        double m_scale { 2.0 };
+        std::string m_name;
+        math::size m_size;
+        math::size m_scaled_size;
+        graphics::rgba_buffer m_rgba_buffer;
+        graphics::color m_pen_color;
+        std::shared_ptr<graphics::entity> m_entity { nullptr };
+        graphics::typesetter m_typesetter;
+        std::shared_ptr<texture> m_linked_tex;
+        std::optional<math::rect> m_clipping_rect;
+
+        auto raw() const -> uint8_t *;
+        auto data() const -> graphite::data::block;
+        auto draw_picture_at_point(const asset::legacy::macintosh::quickdraw::picture::lua_reference& pict, const math::point &point) -> void;
     };
 
 }
 
-#endif //KESTREL_CANVAS_HPP

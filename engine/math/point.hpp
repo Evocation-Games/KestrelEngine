@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_POINT_HPP)
-#define KESTREL_POINT_HPP
+#pragma once
 
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -27,9 +26,7 @@
 namespace math
 {
 
-#if !defined(KESTREL_VECTOR_HPP)
-    struct vector;
-#endif
+    struct angle;
 
     /**
      * Represents a 2D point.
@@ -39,36 +36,45 @@ namespace math
     public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        double x;
-        double y;
+        double x { 0 };
+        double y { 0 };
 
-        point();
-        explicit point(const double& v);
-        lua_api point(const double& x, const double& y);
+        point() = default;
+        explicit point(double v);
+        lua_api point(double x, double y);
         point(const math::point& p);
 
-        lua_api auto operator+(const math::point& p) const -> math::point;
-        lua_api auto operator-(const math::point& p) const -> math::point;
-        lua_api auto operator*(const double& f) const -> math::point;
-        lua_api auto operator/(const double& f) const -> math::point;
+        auto operator+(const math::point& p) const -> math::point;
+        auto operator-(const math::point& p) const -> math::point;
+        auto operator*(const math::point& p) const -> math::point;
+        auto operator/(const math::point& p) const -> math::point;
+
+        auto operator*(double f) const -> math::point;
+        auto operator/(double f) const -> math::point;
+
         auto operator==(const math::point& p) const -> bool;
         auto operator!=(const math::point& p) const -> bool;
 
-        lua_api auto round() const -> math::point;
-        lua_api auto floor() const -> math::point;
-        lua_api auto ceil() const -> math::point;
+        [[nodiscard]] lua_api auto add(const math::point& p) const -> math::point;
+        [[nodiscard]] lua_api auto subtract(const math::point& p) const -> math::point;
+        [[nodiscard]] lua_api auto multiply(double f) const -> math::point;
+        [[nodiscard]] lua_api auto divide(double f) const -> math::point;
 
-        lua_api auto distance_to(const math::point& p) const -> double;
+        [[nodiscard]] lua_api auto round() const -> math::point;
+        [[nodiscard]] lua_api auto floor() const -> math::point;
+        [[nodiscard]] lua_api auto ceil() const -> math::point;
 
-        lua_api auto set_x(const double& x) -> void;
-        lua_api auto get_x() const -> double;
+        [[nodiscard]] lua_api auto distance_to(const math::point& p) const -> double;
+        [[nodiscard]] lua_api auto magnitude() const -> double;
 
-        lua_api auto set_y(const double& y) -> void;
-        lua_api auto get_y() const -> double;
+        [[nodiscard]] lua_api auto angle() const -> math::angle;
+        [[nodiscard]] lua_api auto angle_to(const math::point& p) const -> math::angle;
 
-        lua_api auto to_vector() const -> math::vector;
+        lua_api auto set_x(double x) -> void;
+        [[nodiscard]] lua_api auto get_x() const -> double;
+
+        lua_api auto set_y(double y) -> void;
+        [[nodiscard]] lua_api auto get_y() const -> double;
     };
 
-};
-
-#endif //KESTREL_POINT_HPP
+}

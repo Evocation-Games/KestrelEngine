@@ -13,3 +13,18 @@
 [submodule "submodules/glm"]
 	path = submodules/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "submodules/minimp3"]
+	path = submodules/minimp3
+	url = https://github.com/lieff/minimp3
+[submodule "submodules/freetype"]
+	path = submodules/freetype
+	url = https://github.com/freetype/freetype.git
+[submodule "submodules/glfw"]
+	path = submodules/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "submodules/png"]
+	path = submodules/png
+	url = https://github.com/glennrp/libpng.git
+[submodule "submodules/imgui"]
+	path = submodules/imgui
+	url = https://github.com/ocornut/imgui

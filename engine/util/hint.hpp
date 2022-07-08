@@ -21,3 +21,20 @@
 #if !defined(lua_api)
 #   define lua_api
 #endif
+
+#if __APPLE__
+#   define TARGET_MACOS 1
+#   if __arm64__
+#       define TARGET_MACOS_M1 1
+#   else
+#       define TARGET_MACOS_INTEL 1
+#   endif
+#endif
+
+#if __linux__
+#   define TARGET_LINUX 1
+#endif
+
+#if (_WIN32 || _WIN64)
+#   define TARGET_WINDOWS 1
+#endif

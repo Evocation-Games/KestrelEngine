@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_STATE_HPP)
-#define KESTREL_STATE_HPP
+#pragma once
 
 extern "C" {
 #include "lua/lua.h"
@@ -29,27 +28,26 @@ extern "C" {
 
 #include <string>
 #include <memory>
+#include <functional>
 #include "LuaBridge/LuaBridge.h"
 #include "LuaBridge/RefCountedPtr.h"
+#include "LuaBridge/Vector.h"
 #include "scripting/stack.hpp"
 
 class environment;
 
-namespace scripting { namespace lua {
-
+namespace scripting::lua
+{
     class script;
 
     class state: public std::enable_shared_from_this<lua::state>
     {
-    public:
-        constexpr static const char *stub { "stub" };
-
     private:
         lua_State *m_state { nullptr };
         std::shared_ptr<lua::stack> m_stack;
 
     public:
-        state();
+        state() = default;
         ~state();
 
         auto prepare_lua_environment(const std::shared_ptr<environment>& env) -> void;
@@ -59,19 +57,26 @@ namespace scripting { namespace lua {
         auto internal_state() const -> lua_State*;
         auto error_string() const -> std::string;
 
+        auto global_namespace() const -> luabridge::Namespace;
+
         auto function(const std::string& name) const -> luabridge::LuaRef;
         auto function(const char *name) const -> luabridge::LuaRef;
 
-        auto load_script(const int64_t& id) -> lua::script;
         auto run(const lua::script& script) -> void;
         auto run(const int64_t& id, const std::string& name,const std::string& script) -> void;
+        auto run(const int64_t& id, const std::string& name, const lua::script &script) -> void;
     };
 
     class object
     {
+    public:
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void {};
     };
 
-}};
+    template<typename T>
+    static inline auto ref_isa(const luabridge::LuaRef& ref) -> bool
+    {
+        return (ref.state() && ref.isUserdata() && ref.template isInstance<T>());
+    }
 
-#endif //KESTREL_STATE_HPP
+}

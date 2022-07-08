@@ -18,41 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_TEXTURE_HPP)
-#define KESTREL_TEXTURE_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
+#include <type_traits>
 #include "math/size.hpp"
+#include <libGraphite/data/data.hpp>
 
 namespace graphics
 {
-
     class texture: public std::enable_shared_from_this<graphics::texture>
     {
-    protected:
-        math::size m_size;
-        std::vector<uint32_t> m_data;
-        const uint8_t *m_raw_data { nullptr };
-
     public:
-        texture(const double& width, const double& height);
-        texture(const math::size& size);
-        texture(const double& width, const double& height, std::vector<uint32_t> data);
-        texture(const math::size& size, std::vector<uint32_t> data);
-        texture(const math::size& size, const uint8_t *data);
+        texture(uint32_t width, uint32_t height, const graphite::data::block& data);
+        texture(const math::size& size, const graphite::data::block& data);
+        texture(uint32_t width, uint32_t height, bool populate = false);
+        explicit texture(const math::size& size, bool populate = false);
 
-        auto size() const -> math::size;
-        auto data() const -> std::vector<uint32_t>;
-        auto raw_data_ptr() const -> const uint8_t *;
-        virtual auto handle() const -> int;
+        ~texture() = default;
 
-        virtual auto bind() const -> void;
+        [[nodiscard]] auto size() const -> math::size;
+        [[nodiscard]] auto data() const -> const graphite::data::block&;
+        [[nodiscard]] auto raw_data_ptr() const -> const void *;
 
+        virtual auto set_data(const graphite::data::block& data) -> void;
+        virtual auto handle() const -> uint64_t;
         virtual auto destroy() -> void;
+
+        virtual auto upload_to_gpu() -> void;
+        [[nodiscard]] virtual auto uploaded() const -> bool;
+
+    protected:
+        bool m_uploaded { false };
+        math::size m_size;
+        graphite::data::block m_data;
+
     };
-
 }
-
-
-#endif //KESTREL_TEXTURE_HPP

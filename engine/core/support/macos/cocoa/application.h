@@ -18,31 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if __APPLE__ && !defined(KESTREL_APPLICATION_H)
-#define KESTREL_APPLICATION_H
+#pragma once
 
-#include <memory>
-#include <vector>
-#include <functional>
+#if __APPLE__
+#include <string>
 
-namespace cocoa
+namespace cocoa::application
 {
-
-    class application: public std::enable_shared_from_this<cocoa::application>
-    {
-    private:
-        void *m_handle { nullptr };
-
-    public:
-        explicit application();
-
-        auto run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int;
-
-        static auto bundle_path() -> std::string;
-
-        static auto screen_scale_factor() -> double;
-    };
-
+    auto bundle_path() -> std::string;
+    auto application_support_path() -> std::string;
+    auto screen_scale_factor() -> double;
 }
 
-#endif //KESTREL_APPLICATION_H
+#endif

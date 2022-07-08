@@ -18,14 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RGBA_BUFFER_HPP)
-#define KESTREL_RGBA_BUFFER_HPP
+#pragma once
 
 #include <vector>
+#include <optional>
 #include "math/size.hpp"
 #include "math/point.hpp"
 #include "math/rect.hpp"
 #include "core/graphics/common/color.hpp"
+#include <libGraphite/data/data.hpp>
 
 namespace graphics
 {
@@ -36,6 +37,7 @@ namespace graphics
         uint8_t *m_buffer { nullptr };
         uint64_t m_count { 0 };
         math::size m_size { 0 };
+        math::rect m_clipping_rect;
 
         struct components
         {
@@ -82,19 +84,22 @@ namespace graphics
         [[nodiscard]] auto color(const math::point& p) const -> graphics::color;
 
         [[nodiscard]] auto data() const -> uint8_t *;
+        [[nodiscard]] auto data_block() const -> graphite::data::block;
 
         auto clear(const graphics::color& c) -> void;
         auto clear_rect(const graphics::color& c, const math::rect& r) -> void;
+
+        auto set_clipping_rect(const math::rect& r) -> void;
+        auto clear_clipping_rect() -> void;
 
         auto draw_pixel(const graphics::color& c, const math::point& p) -> void;
         auto fill_rect(const graphics::color& c, const math::rect& r) -> void;
 
         auto apply_run(const graphics::color& c, const uint64_t& start, const uint64_t& end, const uint64_t& line) -> void;
         auto apply_run(const std::vector<graphics::color>& cv, const uint64_t& start, const uint64_t& line) -> void;
+        auto apply_run(const graphite::data::block& cv, uint64_t start, uint64_t line) -> void;
 
         auto apply_mask(const rgba_buffer& buffer) -> void;
     };
 
 }
-
-#endif //KESTREL_RGBA_BUFFER_HPP

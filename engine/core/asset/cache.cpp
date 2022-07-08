@@ -22,13 +22,13 @@
 
 // MARK: - Helpers
 
-static inline auto make_hash(const std::string& type, const asset::resource_reference::lua_reference& ref) -> std::size_t
+static inline auto make_hash(const std::string& type, const asset::resource_descriptor::lua_reference& ref) -> std::size_t
 {
-    if (ref->id().has_value()) {
-        return std::hash<std::string>{}("type=" + type + ":id=" + std::to_string(ref->id().value()));
+    if (ref->has_id()) {
+        return std::hash<std::string>{}("type=" + type + ":id=" + std::to_string(ref->id));
     }
-    else if (ref->name().has_value()) {
-        return std::hash<std::string>{}("type=" + type + ":name=" + ref->name().value());
+    else if (ref->has_name()) {
+        return std::hash<std::string>{}("type=" + type + ":name=" + ref->name);
     }
     else {
         return std::hash<std::string>{}("type=" + type);
@@ -37,14 +37,14 @@ static inline auto make_hash(const std::string& type, const asset::resource_refe
 
 // MARK: - Caching Functions
 
-auto asset::cache::add(const std::string &type, const asset::resource_reference::lua_reference &ref,
+auto asset::cache::add(const std::string &type, const asset::resource_descriptor::lua_reference &ref,
                        const std::any &asset) -> void
 {
     m_assets[make_hash(type, ref)] = std::make_tuple(asset, rtc::clock::global().current());
 }
 
 auto asset::cache::fetch(const std::string &type,
-                         const asset::resource_reference::lua_reference &ref) -> std::optional<std::any>
+                         const asset::resource_descriptor::lua_reference &ref) -> std::optional<std::any>
 {
     auto k = make_hash(type, ref);
     if (m_assets.find(k) == m_assets.end()) {

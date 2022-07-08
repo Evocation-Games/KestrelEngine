@@ -21,7 +21,7 @@
 #include "core/event/key.hpp"
 
 // MARK: - Helper Functions
-
+/*
 #define KEY_STUB_SYMBOL(_c) event_key_##_c
 #define KEY_REFERENCE(_c) &KEY_STUB_SYMBOL(_c)
 #define KEY_CONSTANT_STUB(_c) static int KEY_STUB_SYMBOL(_c) = static_cast<int>(event::key::code::_c);
@@ -244,3 +244,4 @@ auto event::key::is_released() const -> bool
 {
     return m_state == key::state::released;
 }
+ */

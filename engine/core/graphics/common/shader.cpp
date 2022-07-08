@@ -27,19 +27,19 @@
 
 graphics::shader::shader(const std::string &type, const int64_t &vertex_id, const int64_t& fragment_id)
 {
-    if (auto res = graphite::rsrc::manager::shared_manager().find(type, vertex_id).lock()) {
-        m_vertex_name = res->name();
-        graphite::data::reader r(res->data());
-        m_vertex_code = r.read_cstr();
+    if (auto resource = graphite::rsrc::manager::shared_manager().find(type, vertex_id)) {
+        m_vertex_name = resource->name();
+        graphite::data::reader reader(&resource->data());
+        m_vertex_code = reader.read_cstr();
     }
     else {
         throw std::logic_error("Failed to load vertex shader '" + type + "' #" + std::to_string(vertex_id));
     }
 
-    if (auto res = graphite::rsrc::manager::shared_manager().find(type, fragment_id).lock()) {
-        m_fragment_name = res->name();
-        graphite::data::reader r(res->data());
-        m_fragment_code = r.read_cstr();
+    if (auto resource = graphite::rsrc::manager::shared_manager().find(type, fragment_id)) {
+        m_fragment_name = resource->name();
+        graphite::data::reader reader(&resource->data());
+        m_fragment_code = reader.read_cstr();
     }
     else {
         throw std::logic_error("Failed to load fragment shader '" + type + "' #" + std::to_string(fragment_id));

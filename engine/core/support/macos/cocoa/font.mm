@@ -32,7 +32,6 @@ auto cocoa::font::path_for(const std::string &name) -> std::string
         CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontRef, kCTFontURLAttribute);
         NSString *fontPath = [NSString stringWithString:[(NSURL *)CFBridgingRelease(url) path]];
         CFRelease(fontRef);
-//        CFRelease(url);
         if ([[fontPath pathExtension] isEqualToString:@"ttf"] || [[fontPath pathExtension] isEqualToString:@"ttc"]) {
             return cocoa::string::from(fontPath);
         }

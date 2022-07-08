@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Copyright (c) 2021 Tom Hancocks
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+NAME="Kestrel"
+BIN_NAME="Kestrel"
+PROJECT="projects/ExampleProject/example.kdlproj"
+DATA_FILES=""
+ICON="support/packaging/icon-1024.png"
+BUILD="Release"
+CLEAN="off"
+J=2
+
+cat .gitmodules
+
+mkdir -p build/Scenario
+
+for ARG in "$@"; do
+  case $ARG in
+    --name=*)
+      NAME="${ARG#*=}"
+      shift
+      ;;
+    --bin-name=*)
+      BIN_NAME="${ARG#*=}"
+      shift
+      ;;
+    --project=*)
+      PROJECT="${ARG#*=}"
+      shift
+      ;;
+    --data-files=*)
+      DATA_FILES=${ARG#*=}
+
+      if [[ -d "$DATA_FILES" ]]; then
+        for FILE in "$DATA_FILES"/*; do
+          cp "$FILE" "build/DataFiles"
+        done
+      else
+          cp "$DATA_FILES" "build/DataFiles"
+      fi
+
+      shift
+      ;;
+    --icon=*)
+      ICON="${ARG#*=}"
+      shift
+      ;;
+    --build=*)
+      BUILD="${ARG#*=}"
+      shift
+      ;;
+    --clean=*)
+      CLEAN="${ARG#*=}"
+      shift
+      ;;
+    -j=*)
+      J="${ARG#*=}"
+      shift
+      ;;
+  esac
+done
+
+if [[ "$CLEAN" == "on" ]]; then
+  echo "Cleaning build artifacts"
+  rm -rf build bin
+fi
+
+echo "Building Kestrel as '${NAME}'"
+cmake -DKESTREL_NAME="$NAME" \
+      -DKESTREL_BIN_NAME="$BIN_NAME" \
+      -DKESTREL_PROJECT_PATH="$PROJECT" \
+      -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
+      -DKESTREL_ICON_PATH="$ICON" \
+      -DCMAKE_BUILD_TYPE="$BUILD" \
+      -H. -Bbuild
+cmake --build build -- -j$J

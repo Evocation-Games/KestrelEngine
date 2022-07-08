@@ -54,15 +54,17 @@ auto graphics::color::enroll_object_api_in_state(const std::shared_ptr<scripting
 // MARK: - Construction
 
 graphics::color::color(const uint8_t &w, const uint8_t &a)
-    : rgba({ .components = { .r = w, .g = w, .b = w, .a = a }})
 {
-
+    rgba.components.a = a;
+    rgba.components.r = rgba.components.g = rgba.components.b = w;
 }
 
 graphics::color::color(const uint8_t &r, const uint8_t &g, const uint8_t &b, const uint8_t &a)
-    : rgba({ .components = { .r = r, .g = g, .b = b, .a = a }})
 {
-
+    rgba.components.a = a;
+    rgba.components.r = r;
+    rgba.components.g = g;
+    rgba.components.b = b;
 }
 
 graphics::color::color(const uint32_t& value)

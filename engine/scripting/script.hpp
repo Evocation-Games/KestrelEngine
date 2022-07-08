@@ -18,35 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SCRIPT_HPP)
-#define KESTREL_SCRIPT_HPP
+#pragma once
 
 #include <string>
 #include <memory>
 #include "scripting/state.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 
-namespace scripting { namespace lua {
+namespace scripting::lua
+{
 
     class script
     {
-    private:
-        constexpr static const char* type { "LuaC" };
-        std::weak_ptr<lua::state> m_state;
-        int64_t m_id { INT64_MIN };
-        std::string m_name;
-        std::string m_script;
-
     public:
-        script(const std::shared_ptr<lua::state>& state, const int64_t& id);
+        struct script_object
+        {
+            void *data;
+            size_t len;
+        };
+    public:
+        script(const std::shared_ptr<lua::state>& state, const asset::resource_descriptor::lua_reference &ref);
+        script(const std::shared_ptr<lua::state>& state, const graphite::rsrc::resource *resource);
+        script(const std::shared_ptr<lua::state>& state, const std::string& script);
+        ~script();
 
         [[nodiscard]] auto id() const ->int64_t;
         [[nodiscard]] auto name() const -> std::string;
 
         [[nodiscard]] auto code() const -> std::string;
+        [[nodiscard]] auto object() const -> void *;
+        [[nodiscard]] auto is_object() const -> bool;
+        [[nodiscard]] auto object_size() const -> size_t;
+
         auto execute() const -> void;
+
+    private:
+        constexpr static const char* type { "LuaC" };
+        constexpr static const char* script_type { "LuaS" };
+
+        std::weak_ptr<lua::state> m_state;
+        int64_t m_id { INT64_MIN };
+        std::string m_name;
+        std::string m_script;
+        struct script_object *m_object { nullptr };
+
     };
 
-}}
-
-
-#endif //KESTREL_SCRIPT_HPP
+}

@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_RECT_HPP)
-#define KESTREL_RECT_HPP
+#pragma once
 
 #include "math/point.hpp"
 #include "math/size.hpp"
@@ -41,48 +40,50 @@ namespace math
 
         rect();
         rect(const math::point& o, const math::size& s);
-        lua_api rect(const double& x, const double& y, const double& w, const double& h);
+        lua_api rect(double x, double y, double w, double h);
         rect(const math::rect& r);
 
-        lua_api static auto macintosh_rect(const double& top, const double& left, const double& bottom, const double& right) -> math::rect;
+        lua_api static auto macintosh_rect(double top, double left, double bottom, double right) -> math::rect;
 
         lua_api auto operator+(const math::point& p) const -> math::rect;
         lua_api auto operator+(const math::size& s) const -> math::rect;
         lua_api auto operator-(const math::point& p) const -> math::rect;
         lua_api auto operator-(const math::size& s) const -> math::rect;
-        lua_api auto operator*(const double& f) const -> math::rect;
-        lua_api auto operator/(const double& f) const -> math::rect;
+        lua_api auto operator*(double f) const -> math::rect;
+        lua_api auto operator/(double f) const -> math::rect;
         auto operator==(const math::rect& r) const -> bool;
         auto operator!=(const math::rect& r) const -> bool;
 
-        lua_api auto round() const -> math::rect;
-        lua_api auto floor() const -> math::rect;
-        lua_api auto ceil() const -> math::rect;
+        [[nodiscard]] lua_api auto round() const -> math::rect;
+        [[nodiscard]] lua_api auto floor() const -> math::rect;
+        [[nodiscard]] lua_api auto ceil() const -> math::rect;
 
-        lua_api auto area() const -> double;
-        lua_api auto contains_point(const math::point& p) const -> bool;
-        lua_api auto contains_rect(const math::rect& r) const -> bool;
-        lua_api auto intersects(const math::rect& r) const -> bool;
+        [[nodiscard]] lua_api auto area() const -> double;
+        [[nodiscard]] lua_api auto contains_point(const math::point& p) const -> bool;
+        [[nodiscard]] lua_api auto contains_rect(const math::rect& r) const -> bool;
+        [[nodiscard]] lua_api auto intersects(const math::rect& r) const -> bool;
 
         lua_api auto set_origin(const math::point& origin) -> void;
-        lua_api auto get_origin() const -> math::point;
+        [[nodiscard]] lua_api auto get_origin() const -> math::point;
 
         lua_api auto set_size(const math::size& size) -> void;
-        lua_api auto get_size() const -> math::size;
+        [[nodiscard]] lua_api auto get_size() const -> math::size;
 
-        lua_api auto set_x(const double& x) -> void;
-        lua_api auto get_x() const -> double;
+        lua_api auto set_x(double x) -> void;
+        [[nodiscard]] lua_api auto get_x() const -> double;
+        [[nodiscard]] lua_api auto get_max_x() const -> double;
 
-        lua_api auto set_y(const double& y) -> void;
-        lua_api auto get_y() const -> double;
+        lua_api auto set_y(double y) -> void;
+        [[nodiscard]] lua_api auto get_y() const -> double;
+        [[nodiscard]] lua_api auto get_max_y() const -> double;
 
-        lua_api auto set_width(const double& width) -> void;
-        lua_api auto get_width() const -> double;
+        lua_api auto set_width(double width) -> void;
+        [[nodiscard]] lua_api auto get_width() const -> double;
 
-        lua_api auto set_height(const double& height) -> void;
-        lua_api auto get_height() const -> double;
+        lua_api auto set_height(double height) -> void;
+        [[nodiscard]] lua_api auto get_height() const -> double;
+
+        [[nodiscard]] lua_api auto inset(double amount) const -> math::rect;
     };
 
 }
-
-#endif //KESTREL_RECT_HPP

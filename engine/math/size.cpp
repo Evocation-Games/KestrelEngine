@@ -31,10 +31,13 @@ auto math::size::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
             .addProperty("width", &math::size::get_width, &math::size::set_width)
             .addProperty("height", &math::size::get_height, &math::size::set_height)
             .addProperty("area", &math::size::area)
-            .addFunction("add", &math::size::operator+)
-            .addFunction("subtract", &math::size::operator-)
-            .addFunction("multiply", &math::size::operator*)
-            .addFunction("divide", &math::size::operator/)
+            .addFunction("add", &math::size::add)
+            .addFunction("subtract", &math::size::subtract)
+            .addFunction("multiply", &math::size::multiply)
+            .addFunction("divide", &math::size::divide)
+            .addFunction("round", &math::size::round)
+            .addFunction("floor", &math::size::floor)
+            .addFunction("ceil", &math::size::ceil)
         .endClass();
 }
 
@@ -76,12 +79,22 @@ auto math::size::operator-(const math::size& s) const -> math::size
     return math::size(width - s.width, height - s.height);
 }
 
-auto math::size::operator*(const double& f) const -> math::size
+auto math::size::operator*(const math::size& s) const -> math::size
+{
+    return math::size(width * s.width, height * s.height);
+}
+
+auto math::size::operator/(const math::size& s) const -> math::size
+{
+    return math::size(width / s.width, height / s.height);
+}
+
+auto math::size::operator*(double f) const -> math::size
 {
     return math::size(width * f, height * f);
 }
 
-auto math::size::operator/(const double& f) const -> math::size
+auto math::size::operator/(double f) const -> math::size
 {
     return math::size(width / f, height / f);
 }
@@ -97,6 +110,26 @@ auto math::size::operator!=(const math::size& s) const -> bool
 }
 
 // MARK: - Operations
+
+auto math::size::add(const math::size& s) const -> math::size
+{
+    return operator+(s);
+}
+
+auto math::size::subtract(const math::size& s) const -> math::size
+{
+    return operator-(s);
+}
+
+auto math::size::multiply(double f) const -> math::size
+{
+    return operator*(f);
+}
+
+auto math::size::divide(double f) const -> math::size
+{
+    return operator/(f);
+}
 
 auto math::size::round() const -> math::size
 {

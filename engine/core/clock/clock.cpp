@@ -54,10 +54,10 @@ auto rtc::clock::tick() -> void
     m_current_ticks++;
     m_current_time = std::chrono::steady_clock::now();
 
-    auto time_diff = since(m_last_time).count();
-    if (time_diff >= 1.0) {
-        auto tick_diff = m_current_ticks - m_last_ticks;
-        m_last_ticks = m_current_ticks;
-        m_last_time = m_current_time;
-    }
+//    auto time_diff = since(m_last_time).count();
+//    if (time_diff >= 1.0) {
+//        auto tick_diff = m_current_ticks - m_last_ticks;
+//        m_last_ticks = m_current_ticks;
+//        m_last_time = m_current_time;
+//    }
 }

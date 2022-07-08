@@ -28,8 +28,9 @@
 asset::tga::tga(const std::string& path)
 {
     // TARGA images are stored in little endian, so set the byte order accordingly
-    graphite::data::reader reader(path);
-    reader.get()->set_byte_order(graphite::data::data::lsb);
+    graphite::data::block source(path);
+    graphite::data::reader reader(&source);
+    reader.change_byte_order(graphite::data::byte_order::lsb);
 
     // TODO: Possibly handle any errors that occur?
     decode(reader);
@@ -37,12 +38,13 @@ asset::tga::tga(const std::string& path)
 
 asset::tga::tga(const std::shared_ptr<std::vector<char>>& data)
 {
-    auto ptr = std::make_shared<graphite::data::data>(data, data->size(), 0, graphite::data::data::lsb);
-    graphite::data::reader reader(ptr, 0);
-    decode(reader);
+    graphite::data::block tga_data(*data.get());
+    graphite::data::reader tga_reader(&tga_data);
+    tga_reader.change_byte_order(graphite::data::byte_order::lsb);
+    decode(tga_reader);
 }
 
-asset::tga::tga(std::shared_ptr<graphite::qd::surface>  surface)
+asset::tga::tga(graphite::quickdraw::surface& surface)
     : m_surface(std::move(surface))
 {
 
@@ -69,7 +71,7 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
 
     // Setup a QuickDraw surface for the image to be read into. The buffer should be completely
     // black by default. This will be the "default" image in the event we fail to read.
-    m_surface = std::make_shared<graphite::qd::surface>(header.width, header.height);
+    m_surface = graphite::quickdraw::surface(header.width, header.height);
 
     // Make sure this is a TGA image that we can handle.
     if (header.data_type_code != 2 && header.data_type_code != 10) {
@@ -137,13 +139,13 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
 auto asset::tga::merge_bytes(const int& position, const std::vector<char>& bytes, const int& offset, const int& size) -> void
 {
     if (size == 4) {
-        m_surface->set(position, graphite::qd::color(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], bytes[offset + 3]));
+        m_surface.set(position, graphite::quickdraw::rgb(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], bytes[offset + 3]));
     }
     else if (size == 3) {
-        m_surface->set(position, graphite::qd::color(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], 255));
+        m_surface.set(position, graphite::quickdraw::rgb(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], 255));
     }
     else if (size == 2) {
-        m_surface->set(position, graphite::qd::color((bytes[offset + 1] & 0x7c) << 1,
+        m_surface.set(position, graphite::quickdraw::rgb((bytes[offset + 1] & 0x7c) << 1,
                                                      ((bytes[offset + 1] & 0x03) << 6) | ((bytes[offset + 0] & 0xe0) >> 2),
                                                      (bytes[offset + 0] & 0x1f) << 3,
                                                      bytes[offset + 1] & 0x80));
@@ -164,8 +166,8 @@ auto asset::tga::encode(graphite::data::writer &writer) -> void
     header.color_map_depth = 0;
     header.x_origin = 0;
     header.y_origin = 0;
-    header.width = m_surface->size().width();
-    header.height = m_surface->size().height();
+    header.width = m_surface.size().width;
+    header.height = m_surface.size().height;
     header.bits_per_pixel = 32;
     header.image_descriptor = 0;
 
@@ -185,11 +187,11 @@ auto asset::tga::encode(graphite::data::writer &writer) -> void
     // Start compressing and writing the image data.
     int run = 0;
     bool dirty = false;
-    std::vector<graphite::qd::color> buffer;
+    std::vector<graphite::quickdraw::color> buffer;
 
     for (auto y = 0; y < header.height; ++y) {
         for (auto x = 0; x < header.width; ++x) {
-            auto picker = m_surface->at(x, header.height - 1 - y);
+            auto picker = m_surface.at(x, header.height - 1 - y);
 
             if (buffer.size() == 128 || (buffer.size() > 1 && buffer.back() == picker)) {
                 auto n = buffer.size() - 1;
@@ -199,10 +201,10 @@ auto asset::tga::encode(graphite::data::writer &writer) -> void
 
                 writer.write_byte(n);
                 for (auto i = 0; i < n; ++i) {
-                    writer.write_byte(buffer[i].blue_component());
-                    writer.write_byte(buffer[i].green_component());
-                    writer.write_byte(buffer[i].red_component());
-                    writer.write_byte(buffer[i].alpha_component());
+                    writer.write_byte(buffer[i].components.blue);
+                    writer.write_byte(buffer[i].components.green);
+                    writer.write_byte(buffer[i].components.red);
+                    writer.write_byte(buffer[i].components.alpha);
                 }
 
                 if (buffer.back() == picker) {
@@ -216,10 +218,10 @@ auto asset::tga::encode(graphite::data::writer &writer) -> void
 
                 if (run == 128) {
                     writer.write_byte(0x80 | (run - 1));
-                    writer.write_byte(buffer.back().blue_component());
-                    writer.write_byte(buffer.back().green_component());
-                    writer.write_byte(buffer.back().red_component());
-                    writer.write_byte(buffer.back().alpha_component());
+                    writer.write_byte(buffer.back().components.blue);
+                    writer.write_byte(buffer.back().components.green);
+                    writer.write_byte(buffer.back().components.red);
+                    writer.write_byte(buffer.back().components.alpha);
                     buffer.clear();
                     run = 0;
                 }
@@ -227,10 +229,10 @@ auto asset::tga::encode(graphite::data::writer &writer) -> void
             else {
                 if (run > 0) {
                     writer.write_byte(0x80 | (run - 1));
-                    writer.write_byte(buffer.back().blue_component());
-                    writer.write_byte(buffer.back().green_component());
-                    writer.write_byte(buffer.back().red_component());
-                    writer.write_byte(buffer.back().alpha_component());
+                    writer.write_byte(buffer.back().components.blue);
+                    writer.write_byte(buffer.back().components.green);
+                    writer.write_byte(buffer.back().components.red);
+                    writer.write_byte(buffer.back().components.alpha);
                     buffer.clear();
                     run = 0;
                 }
@@ -244,15 +246,20 @@ auto asset::tga::encode(graphite::data::writer &writer) -> void
 
 // MARK: - Accessors
 
-auto asset::tga::surface() -> std::weak_ptr<graphite::qd::surface>
+auto asset::tga::surface() const -> const graphite::quickdraw::surface&
 {
     return m_surface;
 }
 
 auto asset::tga::data() -> std::vector<char>
 {
-    auto data = std::make_shared<graphite::data::data>(graphite::data::data::byte_order::lsb);
-    graphite::data::writer writer(data);
+    graphite::data::writer writer;
+    writer.change_byte_order(graphite::data::byte_order::lsb);
     encode(writer);
-    return *data->get();
+
+    std::vector<char> v;
+    for (auto i = 0; i < writer.data()->size(); ++i) {
+        v.emplace_back(writer.data()->get<char>(i));
+    }
+    return v;
 }

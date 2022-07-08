@@ -50,6 +50,7 @@ auto graphics::rgba_buffer::common_construction() -> void
 {
     m_count = (static_cast<uint64_t>(m_size.width) * static_cast<uint64_t>(m_size.height)) << 2;
     m_buffer = static_cast<uint8_t *>(calloc(m_count, 1)); // 4 Channel Color (RGBA)
+    clear_clipping_rect();
 }
 
 // MARK: - Destruction
@@ -57,6 +58,18 @@ auto graphics::rgba_buffer::common_construction() -> void
 graphics::rgba_buffer::~rgba_buffer()
 {
     free(m_buffer);
+}
+
+// MARK: - Clipping
+
+auto graphics::rgba_buffer::set_clipping_rect(const math::rect &r) -> void
+{
+    m_clipping_rect = r;
+}
+
+auto graphics::rgba_buffer::clear_clipping_rect() -> void
+{
+    m_clipping_rect = { { 0, 0 }, m_size };
 }
 
 // MARK: - Accessors
@@ -74,6 +87,11 @@ auto graphics::rgba_buffer::size() const -> math::size
 auto graphics::rgba_buffer::data() const -> uint8_t *
 {
     return m_buffer;
+}
+
+auto graphics::rgba_buffer::data_block() const -> graphite::data::block
+{
+    return std::move(graphite::data::block(m_buffer, m_count, false, graphite::data::native_byte_order()));
 }
 
 // MARK: - Look Up
@@ -144,10 +162,10 @@ auto graphics::rgba_buffer::clear(const graphics::color &c) -> void
 
 auto graphics::rgba_buffer::clear_rect(const graphics::color &c, const math::rect &r) -> void
 {
-    auto lo_x = static_cast<uint32_t>(std::max(r.get_x(), 0.0));
-    auto lo_y = static_cast<uint32_t>(std::max(r.get_y(), 0.0));
-    auto hi_x = static_cast<uint32_t>(std::min(r.get_width() + r.get_x(), m_size.width));
-    auto hi_y = static_cast<uint32_t>(std::min(r.get_height() + r.get_y(), m_size.height));
+    auto lo_x = static_cast<uint32_t>(std::max(r.get_x(), m_clipping_rect.get_x()));
+    auto lo_y = static_cast<uint32_t>(std::max(r.get_y(), m_clipping_rect.get_y()));
+    auto hi_x = static_cast<uint32_t>(std::min(r.get_width() + r.get_x(), m_clipping_rect.get_max_x()));
+    auto hi_y = static_cast<uint32_t>(std::min(r.get_height() + r.get_y(), m_clipping_rect.get_max_y()));
     auto width = hi_x - lo_x;
     auto height = hi_y - lo_y;
 
@@ -182,7 +200,6 @@ auto graphics::rgba_buffer::clear_rect(const graphics::color &c, const math::rec
 
 #elif __arm64__
         uint32_t n = 0;
-        uint64_t i = 0;
         while (n < stride) {
             if ((reinterpret_cast<uint64_t>(ptr) & 0x7) || (stride - n) < 2) {
                 *ptr = v.f[n & 1];
@@ -208,7 +225,7 @@ auto graphics::rgba_buffer::clear_rect(const graphics::color &c, const math::rec
 
 auto graphics::rgba_buffer::draw_pixel(const graphics::color &c, const math::point &p) -> void
 {
-    if (p.x < 0 || p.x >= m_size.width || p.y < 0 || p.y >= m_size.height) {
+    if (p.x < m_clipping_rect.get_x() || p.x >= m_clipping_rect.get_max_x() || p.y < m_clipping_rect.get_y() || p.y >= m_clipping_rect.get_max_y()) {
         return;
     }
     apply_run(c, p.x, p.x + 1, p.y);
@@ -233,7 +250,11 @@ auto graphics::rgba_buffer::fill_rect(const graphics::color &c, const math::rect
 auto graphics::rgba_buffer::apply_run(const graphics::color &c, const uint64_t &start, const uint64_t &end,
                                       const uint64_t &line) -> void
 {
-    if (line < 0 || line >= m_size.height || start >= end) {
+    if (line < m_clipping_rect.get_y() ||
+        line >= m_clipping_rect.get_max_y() ||
+        start >= end ||
+        start >= m_clipping_rect.get_max_x()
+    ) {
         return;
     }
 
@@ -286,12 +307,13 @@ auto graphics::rgba_buffer::apply_run(const graphics::color &c, const uint64_t &
 auto graphics::rgba_buffer::apply_run(const std::vector<graphics::color> &cv, const uint64_t &start,
                                       const uint64_t &line) -> void
 {
-    if (line < 0 || line >= m_size.height) {
+    if (line < m_clipping_rect.get_y() || line >= m_clipping_rect.get_max_y()) {
         return;
     }
 
     auto ptr = reinterpret_cast<uint32_t *>(m_buffer) + (line * static_cast<uint64_t>(m_size.width)) + start;
     auto len = cv.size();
+    len = (len > m_clipping_rect.get_width()) ? m_clipping_rect.get_width() : len;
 
     union simd_value v {};
 
@@ -338,6 +360,70 @@ auto graphics::rgba_buffer::apply_run(const std::vector<graphics::color> &cv, co
     // Fallback on a default naive implementation.
     for (auto x = start; x < end; ++x) {
         *ptr++ = cv[i++].rgba.value;
+    }
+#endif
+}
+
+
+auto graphics::rgba_buffer::apply_run(const graphite::data::block& cv, uint64_t start, uint64_t line) -> void
+{
+    if (line < m_clipping_rect.get_y() || line >= m_clipping_rect.get_max_y()) {
+        return;
+    }
+
+    auto ptr = reinterpret_cast<uint32_t *>(m_buffer) + (line * static_cast<uint64_t>(m_size.width)) + start;
+    auto len = cv.size() >> 2; // We're looking at bytes, not colors, so divide by 4 to account for the components
+    len = (len > m_clipping_rect.get_width()) ? m_clipping_rect.get_width() : len;
+
+    union simd_value v {};
+
+#if __x86_64__
+    uint32_t n = 0;
+    uint64_t i = 0;
+    while (n < len) {
+
+        if ((reinterpret_cast<uint64_t>(ptr) & 0xF) || (len - n) < 4) {
+            *ptr = blend_func_i(*ptr, cv.get<uint32_t>(i));
+            i += 4;
+            ++ptr;
+            ++n;
+        }
+        else {
+            v.f[0] = cv.get<uint32_t>(i); i += 4;
+            v.f[1] = cv.get<uint32_t>(i); i += 4;
+            v.f[2] = cv.get<uint32_t>(i); i += 4;
+            v.f[3] = cv.get<uint32_t>(i); i += 4;
+
+            *reinterpret_cast<__int128 *>(ptr) = blend_func({ .wide = *reinterpret_cast<__int128*>(ptr) }, v).wide;
+            ptr += 4;
+            n += 4;
+        }
+
+    }
+#elif __arm64__
+    uint32_t n = 0;
+    uint32_t i = 0;
+    while (n < len) {
+        if ((reinterpret_cast<uint64_t>(ptr) & 0x7) || (len - n) < 2) {
+            *ptr = blend_func_i(*ptr, cv.get<uint32_t>(i));
+            i += 4;
+            ++ptr;
+            ++n;
+        }
+        else {
+            v.f[0] = cv.get<uint32_t>(i);
+            i += 4;
+            v.f[1] = cv.get<uint32_t>(i);
+            i += 4;
+            *reinterpret_cast<uint64_t*>(ptr) = blend_func({ .wide = *reinterpret_cast<uint64_t*>(ptr) }, v).wide;
+            ptr += 2;
+            n += 2;
+        }
+    }
+#else
+    // Fallback on a default naive implementation.
+    for (auto x = start; x < end; ++x) {
+        *ptr++ = cv.get<uint32_t>(i); i += 4;
     }
 #endif
 }

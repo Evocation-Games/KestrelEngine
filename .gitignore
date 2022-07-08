@@ -10,8 +10,13 @@
 
 # Build
 bin/
-cmake-build-debug/
-cmake-build-release/
+cmake-*-debug/
+cmake-*-release/
+cmake-*-asan/
 *.o
 *.bin
 build/
+vendor/
+support/packaging/appimage/appimagetool
+result.kdat
+result.ndat

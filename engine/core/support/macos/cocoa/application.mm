@@ -22,50 +22,19 @@
 #include "core/support/macos/cocoa/cocoa_utils.h"
 #include <Cocoa/Cocoa.h>
 
-// MARK: - Construction
-
-cocoa::application::application()
-{
-    // Setup an application
-    [NSAutoreleasePool new];
-    NSApplication *app = [NSApplication sharedApplication];
-    m_handle = (__bridge void *)app;
-}
-
-// MARK: - Setup
-
-auto cocoa::application::run(const std::vector<std::string> args, std::function<auto()->void> main_fn) -> int
-{
-    NSApplication *app = (__bridge NSApplication *)m_handle;
-
-    // Base app configuration
-    [app setActivationPolicy:NSApplicationActivationPolicyRegular];
-    id menubar = [[NSMenu new] autorelease];
-    id appMenuItem = [[NSMenuItem new] autorelease];
-    [menubar addItem:appMenuItem];
-    [app setMainMenu:menubar];
-    id appMenu = [[NSMenu new] autorelease];
-    id appName = [[NSProcessInfo processInfo] processName];
-    id quitTitle = [@"Quit " stringByAppendingString:appName];
-    id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle
-                                                  action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
-    [appMenu addItem:quitMenuItem];
-    [appMenuItem setSubmenu:appMenu];
-
-    // Setup the Cocoa application before entering the run loop.
-    main_fn();
-
-    // Enter the run loop and do the application!
-    [app activateIgnoringOtherApps:YES];
-    [app run];
-    return 0;
-}
-
 // MARK: - Application Bundle
 
 auto cocoa::application::bundle_path() -> std::string
 {
     return cocoa::string::from([[NSBundle mainBundle] bundlePath]);
+}
+
+auto cocoa::application::application_support_path() -> std::string
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    // TODO: Make this directory customizable.
+    NSString *applicationSupportDirectory = [[paths firstObject] stringByAppendingPathComponent:@"Kestrel"];
+    return cocoa::string::from(applicationSupportDirectory);
 }
 
 // MARK: - Screen

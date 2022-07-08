@@ -18,18 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_SPRITESHEET_ASSET_HPP)
-#define KESTREL_SPRITESHEET_ASSET_HPP
+#pragma once
 
 #include <memory>
 #include "scripting/state.hpp"
-#include "core/asset/image.hpp"
-#include "core/asset/resource_reference.hpp"
+#include "core/asset/basic_image.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
 
 namespace asset
 {
 
-    class spritesheet: public asset::image, public scripting::lua::object
+    class spritesheet: public asset::basic_image, public scripting::lua::object
     {
     public:
         constexpr static const char *type { "SpSh" };
@@ -39,15 +38,13 @@ namespace asset
     private:
 
     public:
-        lua_api explicit spritesheet(const asset::resource_reference::lua_reference& ref);
-        lua_api static auto load(const asset::resource_reference::lua_reference& ref) -> spritesheet::lua_reference;
+        lua_api explicit spritesheet(const asset::resource_descriptor::lua_reference& ref);
+        lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> spritesheet::lua_reference;
 
-        lua_api auto size() const -> math::size;
-        lua_api auto sprite_count() const -> int override;
+        lua_api [[nodiscard]] auto size() const -> math::size override;
+        lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
-        lua_api auto spawn_entity(const math::vector& position) const -> graphics::entity::lua_reference override;
+        lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
     };
 
 }
-
-#endif //KESTREL_SPRITESHEET_ASSET_HPP
