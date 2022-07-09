@@ -44,6 +44,7 @@ auto ui::dialog_configuration::enroll_object_api_in_state(const std::shared_ptr<
                 .addFunction("setAnchorOfElementNamed", &dialog_configuration::set_anchor_of_element_named)
                 .addFunction("typeOfElementNamed", &dialog_configuration::type_of_element_named)
                 .addFunction("anchorOfElementNamed", &dialog_configuration::anchor_of_element_named)
+                .addFunction("frameOfElementNamed", &dialog_configuration::frame_of_element_named)
                 .addFunction("build", &dialog_configuration::build)
             .endClass()
         .endNamespace();
@@ -99,6 +100,10 @@ ui::dialog_configuration::dialog_configuration(const luabridge::LuaRef &layout)
     else {
         throw std::runtime_error("Unknown DialogConfiguration layout reference.");
     }
+
+    // TODO: This is a nasty workaround. Determine the best way of working around.
+    auto dlog = ui::dialog::lua_reference(new ui::dialog(const_cast<ui::dialog_configuration *>(this)));
+    m_size = dlog->frame().size;
 }
 
 // MARK: - Configuration
@@ -210,6 +215,14 @@ auto ui::dialog_configuration::anchor_of_element_named(const std::string &name) 
     return static_cast<uint32_t>(m_elements.at(name).anchor);
 }
 
+auto ui::dialog_configuration::frame_of_element_named(const std::string &name) -> math::rect
+{
+    if (!m_dialog.get()) {
+        m_dialog = ui::dialog::lua_reference(new ui::dialog(const_cast<ui::dialog_configuration *>(this)));
+    }
+    return m_dialog->named_element(name)->frame();
+}
+
 auto ui::dialog_configuration::name_of_element(uint32_t idx) const -> std::string
 {
     for (auto it = m_elements.begin(); it != m_elements.end(); ++it) {
@@ -237,8 +250,10 @@ auto ui::dialog_configuration::defined_elements() const -> std::vector<std::stri
 auto ui::dialog_configuration::build(const luabridge::LuaRef &configure_callback) -> ui::dialog::lua_reference
 {
     m_dialog = ui::dialog::lua_reference(new ui::dialog(this));
+
     if (configure_callback.state() && configure_callback.isFunction()) {
         configure_callback(m_dialog);
     }
+    
     return m_dialog;
 }

@@ -32,7 +32,8 @@ namespace asset::legacy::spriteworld
     struct sprite: public asset::basic_image, public scripting::lua::object
     {
     public:
-        constexpr static const char *type { "rlëD" };
+        constexpr static const char *type_16 { "rlëD" };
+        constexpr static const char *type_32 { "rlëX" };
         typedef luabridge::RefCountedPtr<sprite> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
@@ -48,7 +49,9 @@ namespace asset::legacy::spriteworld
         lua_api [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<graphics::entity> override;
 
     private:
+        std::string m_source_type;
         graphite::quickdraw::surface m_surface;
+
     };
 
 };

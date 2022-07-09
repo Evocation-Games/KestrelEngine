@@ -59,6 +59,7 @@ namespace ui
         [[nodiscard]] auto index_vector_for_element_named(const std::string& name) const -> std::vector<uint32_t>;
         [[nodiscard]] lua_api auto type_of_element_named(const std::string& name) const -> uint8_t;
         [[nodiscard]] lua_api auto anchor_of_element_named(const std::string& name) const -> uint8_t;
+        lua_api auto frame_of_element_named(const std::string& name) -> math::rect;
         [[nodiscard]] lua_api auto name_of_element(uint32_t idx) const -> std::string;
 
         [[nodiscard]] auto defined_elements() const -> std::vector<std::string>;
@@ -75,6 +76,7 @@ namespace ui
             std::vector<uint32_t> index;
             enum control_definition::type type { 0 };
             enum control_definition::anchor anchor { 0 };
+            math::rect frame;
         };
 
     private:

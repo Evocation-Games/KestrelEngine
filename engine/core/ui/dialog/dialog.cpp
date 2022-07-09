@@ -39,7 +39,8 @@ auto ui::dialog::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
                 .addProperty("passthrough", &dialog::passthrough, &dialog::set_passthrough)
                 .addFunction("setBackground", &dialog::set_background)
                 .addFunction("setStretchableBackground", &dialog::set_stretchable_background)
-                .addFunction("namedElement", &dialog::named_element)
+                .addFunction("configureElement", &dialog::configure_element)
+                .addFunction("elementNamed", &dialog::named_element)
                 .addFunction("present", &dialog::present)
                 .addFunction("presentInScene", &dialog::present_in_scene)
                 .addFunction("close", &dialog::close)
@@ -160,6 +161,13 @@ auto ui::dialog::load_contents(dialog_configuration *config) -> void
     if (auto env = environment::active_environment().lock()) {
         m_owner_scene = env->session()->current_scene();
     }
+}
+
+// MARK: - Accessors
+
+auto ui::dialog::frame() const -> math::rect
+{
+    return m_frame;
 }
 
 // MARK: - Presentation
@@ -302,23 +310,38 @@ auto ui::dialog::set_stretchable_background(const math::size& size, const luabri
         new layout::positioning_frame(m_frame, {}, { m_positioning_offset.width, m_positioning_offset.height })
     });
 
-    graphics::canvas::lua_reference canvas { new graphics::canvas(size) };
 
     if (scripting::lua::ref_isa<asset::static_image>(top)) {
         m_background.top = top.cast<asset::static_image::lua_reference>();
         m_background.top_entity = { new ui::scene_entity(m_background.top) };
-    }
-
-    if (scripting::lua::ref_isa<asset::static_image>(fill)) {
-        m_background.fill = fill.cast<asset::static_image::lua_reference>();
-        math::rect fill_rect { 0, 0, m_background.fill->size().width, size.height };
-        canvas->draw_static_image(m_background.fill, fill_rect);
-        m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
+        m_background.top_entity->set_position({ 0, 0 });
     }
 
     if (scripting::lua::ref_isa<asset::static_image>(bottom)) {
         m_background.bottom = bottom.cast<asset::static_image::lua_reference>();
         m_background.bottom_entity = { new ui::scene_entity(m_background.bottom) };
+        m_background.bottom_entity->set_position({ 0 , size.height - m_background.bottom_entity->size().height });
+    }
+
+    if (scripting::lua::ref_isa<asset::static_image>(fill)) {
+        m_background.fill = fill.cast<asset::static_image::lua_reference>();
+
+        auto height = size.height;
+        auto y = 0;
+        if (m_background.top_entity.get()) {
+            height -= m_background.top_entity->size().height;
+            y = m_background.top_entity->size().height;
+        }
+        if (m_background.bottom_entity.get()) {
+            height -= m_background.bottom_entity->size().height;
+        }
+
+        graphics::canvas::lua_reference canvas(new graphics::canvas({ size.width, height }) );
+        math::rect fill_rect { 0, 0, m_background.fill->size().width, height };
+        canvas->draw_static_image(m_background.fill, fill_rect);
+        m_background.fill_entity = { new ui::scene_entity(canvas) };
+
+        m_background.fill_entity->set_position({ 0, static_cast<double>(y) });
     }
 
     m_owner_scene->add_entity(m_background.fill_entity);
@@ -326,14 +349,13 @@ auto ui::dialog::set_stretchable_background(const math::size& size, const luabri
     m_owner_scene->add_entity(m_background.bottom_entity);
 }
 
-auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef &configure) -> void
+auto ui::dialog::configure_element(const std::string &name, const luabridge::LuaRef &configure) -> void
 {
-    auto it = m_control_definitions.find(name);
-    if (it == m_control_definitions.end()) {
+    auto element = named_element(name);
+    if (!element.get()) {
         return;
     }
 
-    auto element = it->second;
     element->set_access_flag(true);
 
     if (configure.state() && configure.isFunction()) {
@@ -353,6 +375,16 @@ auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef 
         }
 
     }
+}
+
+auto ui::dialog::named_element(const std::string &name) -> ui::control_definition::lua_reference
+{
+    auto it = m_control_definitions.find(name);
+    if (it == m_control_definitions.end()) {
+        return { nullptr };
+    }
+
+    return it->second;
 }
 
 auto ui::dialog::close() -> void

@@ -44,13 +44,16 @@ namespace ui
         explicit dialog(dialog_configuration* config);
         explicit lua_api dialog(const luabridge::LuaRef& ref);
 
+        [[nodiscard]] auto frame() const -> math::rect;
+
         lua_api auto present() -> void;
         lua_api auto present_in_scene(const ui::game_scene::lua_reference& scene) -> void;
 
         lua_api auto set_background(const luabridge::LuaRef& background) -> void;
         lua_api auto set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void;
 
-        lua_api auto named_element(const std::string& name, const luabridge::LuaRef& configure) -> void;
+        lua_api auto configure_element(const std::string& name, const luabridge::LuaRef& configure) -> void;
+        lua_api auto named_element(const std::string& name) -> ui::control_definition::lua_reference;
 
         lua_api auto close() -> void;
 

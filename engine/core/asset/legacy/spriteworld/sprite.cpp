@@ -48,8 +48,20 @@ auto asset::legacy::spriteworld::sprite::enroll_object_api_in_state(const std::s
 
 asset::legacy::spriteworld::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (auto resource = ref->with_type(type)->load()) {
-        graphite::spriteworld::rle rle(resource->data(), resource->id(), resource->name());
+    if (auto resource = ref->with_type(type_16)->load()) {
+        m_source_type = std::string(type_16);
+        graphite::spriteworld::rle<16> rle(resource->data(), resource->id(), resource->name());
+        m_surface = std::move(rle.surface());
+        configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
+
+        auto frame_size = rle.frame_rect(0).size;
+        layout_sprites({ frame_size.width, frame_size.height });
+
+        return;
+    }
+    else if (auto resource = ref->with_type(type_32)->load()) {
+        m_source_type = std::string(type_32);
+        graphite::spriteworld::rle<32> rle(resource->data(), resource->id(), resource->name());
         m_surface = std::move(rle.surface());
         configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
 
@@ -65,7 +77,12 @@ auto asset::legacy::spriteworld::sprite::load(const asset::resource_descriptor::
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(sprite::type, ref);
+        auto asset = env->cache()->fetch(sprite::type_32, ref);
+        if (asset.has_value()) {
+            return std::any_cast<lua_reference>(asset.value());
+        }
+
+        asset = env->cache()->fetch(sprite::type_16, ref);
         if (asset.has_value()) {
             return std::any_cast<lua_reference>(asset.value());
         }
@@ -73,7 +90,7 @@ auto asset::legacy::spriteworld::sprite::load(const asset::resource_descriptor::
 
     auto image = lua_reference(new sprite(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(sprite::type, ref, image);
+        env->cache()->add(image->m_source_type, ref, image);
     }
     return image;
 }
