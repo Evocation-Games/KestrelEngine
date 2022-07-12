@@ -49,9 +49,9 @@ namespace ui::widgets
         static auto set_global_disabled_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
 
     public:
-        explicit button_widget(const std::string& label);
+        lua_api explicit button_widget(const std::string& label);
 
-        auto draw() -> void;
+        lua_api auto draw() -> void;
         [[nodiscard]] lua_api auto entity() const -> std::shared_ptr<scene_entity>;
 
         [[nodiscard]] lua_api auto normal_stencil() const -> stencils::button_stencil::lua_reference;

@@ -29,6 +29,7 @@
 #include "core/ui/widgets/label_widget.hpp"
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/textarea_widget.hpp"
+#include "core/ui/widgets/list_widget.hpp"
 
 // MARK: - Enumeration Types
 
@@ -126,6 +127,7 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
 
                 // Tables / Lists
                 .addProperty("selectedIndex", &control_definition::selected_index, &control_definition::set_selected_index)
+                .addProperty("selectedRow", &control_definition::selected_index, &control_definition::set_selected_index)
                 .addProperty("columnWidths", &control_definition::column_widths, &control_definition::set_column_widths)
                 .addProperty("columnHeadings", &control_definition::column_headings, &control_definition::set_column_headings)
                 .addProperty("columnSpacings", &control_definition::column_spacing, &control_definition::set_column_spacing)
@@ -160,6 +162,10 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("setContinuous", &control_definition::set_continuous)
                 .addFunction("scrollUp", &control_definition::scroll_up)
                 .addFunction("scrollDown", &control_definition::scroll_down)
+                .addFunction("setColumnWidths", &control_definition::set_column_widths)
+                .addFunction("setColumnHeadings", &control_definition::set_column_headings)
+                .addFunction("onRowSelect", &control_definition::set_action)
+                .addFunction("redraw", &control_definition::update)
             .endClass()
         .endNamespace();
 }
@@ -254,6 +260,22 @@ auto ui::control_definition::construct_scene_entity() -> void
 
             m_can_scroll_up = text->can_scroll_up();
             m_can_scroll_down = text->can_scroll_down();
+
+            break;
+        }
+        case type::list: {
+            widgets::list_widget::lua_reference list(new widgets::list_widget(m_frame));
+            list->set_column_headings(m_column_headings);
+            list->set_column_widths(m_column_widths);
+            list->set_row_items(m_items);
+            list->select_row(m_selected_index);
+            list->on_row_select(m_action);
+            list->draw();
+
+            m_widget = luabridge::LuaRef(state, list);
+            m_entity = scene_entity::lua_reference(new scene_entity(list->entity()));
+            m_entity->internal_entity()->set_position(m_frame.origin);
+            m_entity->set_position(m_frame.origin);
 
             break;
         }
@@ -383,6 +405,12 @@ auto ui::control_definition::update() -> void
         auto button = m_widget.cast<widgets::button_widget::lua_reference>();
         button->set_disabled(m_disabled);
         button->draw();
+    }
+    else if (scripting::lua::ref_isa<widgets::list_widget>(m_widget)) {
+        auto list = m_widget.cast<widgets::list_widget::lua_reference>();
+        list->select_row(m_selected_index);
+        list->set_row_items(m_items);
+        list->draw();
     }
 }
 

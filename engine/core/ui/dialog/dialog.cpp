@@ -44,6 +44,7 @@ auto ui::dialog::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
                 .addFunction("present", &dialog::present)
                 .addFunction("presentInScene", &dialog::present_in_scene)
                 .addFunction("close", &dialog::close)
+                .addFunction("update", &dialog::update)
             .endClass()
         .endNamespace();
 }
@@ -397,4 +398,11 @@ auto ui::dialog::close() -> void
         }
     }
     ui::game_scene::back();
+}
+
+auto ui::dialog::update() -> void
+{
+    for (auto def : m_control_definitions) {
+        def.second->update();
+    }
 }

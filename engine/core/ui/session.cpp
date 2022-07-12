@@ -22,12 +22,21 @@
 #include "core/ui/scene.hpp"
 #include "core/ui/game_scene.hpp"
 #include "renderer/common/renderer.hpp"
+#include "scripting/script.hpp"
+#include "core/environment.hpp"
 
 // MARK: - Construction
 
 ui::session::session()
 {
     m_cache.purge_time = session_clock::now();
+
+    m_console.console.on_command([&] (const std::string& input) {
+        if (auto env = environment::active_environment().lock()) {
+            scripting::lua::script command(env->lua_runtime(), input);
+            command.execute();
+        }
+    });
 }
 
 // MARK: - Scene Management

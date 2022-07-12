@@ -30,7 +30,6 @@
 #include "core/ui/session.hpp"
 #include "core/ui/scene.hpp"
 #include "core/ui/game_scene.hpp"
-#include "core/task/async_queue.hpp"
 
 #if TARGET_MACOS
 #include "core/support/macos/cocoa/font.h"

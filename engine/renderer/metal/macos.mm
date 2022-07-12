@@ -72,7 +72,13 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
         app.delegate = self;
 
         [app activateIgnoringOtherApps:YES];
-        [app run];
+
+        try {
+            [app run];
+        }
+        catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
+        }
     }
 }
 

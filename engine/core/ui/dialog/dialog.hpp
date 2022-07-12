@@ -57,6 +57,8 @@ namespace ui
 
         lua_api auto close() -> void;
 
+        lua_api auto update() -> void;
+
         [[nodiscard]] lua_api auto passthrough() const -> bool { return false; }
         lua_api auto set_passthrough(bool f) -> void { }
 

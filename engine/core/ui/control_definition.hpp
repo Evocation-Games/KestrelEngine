@@ -136,11 +136,11 @@ namespace ui
         [[nodiscard]] lua_api auto continuous() const -> bool { return m_continuous; }
         lua_api auto set_continuous(bool f) -> void { m_continuous = f; }
 
-        [[nodiscard]] lua_api auto column_widths() const -> util::lua_vector<float> { return m_column_widths; }
-        lua_api auto set_column_widths(const util::lua_vector<float>& widths) -> void { m_column_widths = widths; }
+        [[nodiscard]] lua_api auto column_widths() const -> luabridge::LuaRef { return m_column_widths; }
+        lua_api auto set_column_widths(const luabridge::LuaRef& widths) -> void { m_column_widths = widths; }
 
-        [[nodiscard]] lua_api auto column_headings() const -> util::lua_vector<std::string> { return m_column_headings; }
-        lua_api auto set_column_headings(const util::lua_vector<std::string>& headings) -> void { m_column_headings = headings; }
+        [[nodiscard]] lua_api auto column_headings() const -> luabridge::LuaRef { return m_column_headings; }
+        lua_api auto set_column_headings(const luabridge::LuaRef& headings) -> void { m_column_headings = headings; }
 
         lua_api auto set_columns(const luabridge::LuaRef& widths, const luabridge::LuaRef& headings) -> void;
 
@@ -153,7 +153,7 @@ namespace ui
         [[nodiscard]] auto entity_index() const -> uint32_t { return m_entity_index; }
         auto set_entity_index(uint32_t index) -> void { m_entity_index = index; }
 
-        auto set_items(const luabridge::LuaRef& items) -> void { m_items = items; }
+        auto set_items(const luabridge::LuaRef& items) -> void { m_items = items; update(); }
 
         lua_api auto update() -> void;
 
@@ -189,8 +189,8 @@ namespace ui
         float m_column_spacings { 0 };
         bool m_disabled { false };
         bool m_continuous { false };
-        util::lua_vector<float> m_column_widths;
-        util::lua_vector<std::string> m_column_headings;
+        luabridge::LuaRef m_column_widths { nullptr };
+        luabridge::LuaRef m_column_headings { nullptr };
         bool m_borders { false };
         luabridge::LuaRef m_render { nullptr };
         bool m_absolute_frame { true };
