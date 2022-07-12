@@ -1,6 +1,6 @@
 <p align="center"><img src="https://raw.githubusercontent.com/EvocationGames/KestrelEngine/version-0.5/support/assets/KestrelLogoRepoHeader.png"></p>
 
-<p align="center"><a href="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml"><img src="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg"></a> <img src="https://img.shields.io/badge/version-v0.6_beta-blue.svg">
+<p align="center"><a href="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml"><img src="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg"></a> <img src="https://img.shields.io/badge/version-v0.7_beta-blue.svg">
 <img src="https://img.shields.io/badge/license-MIT-blue.svg">
 <a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
 </p>

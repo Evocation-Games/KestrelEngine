@@ -26,7 +26,7 @@
 dev::console::console()
     : m_size({ 600, 300 }), m_dirty(true), m_visible(false)
 {
-    m_history.emplace_back("Kestrel v0.6");
+    m_history.emplace_back("Kestrel v0.7");
 
     m_input.on_enter([&] (const std::string& input) {
         m_history.emplace_back("&IN>" + input);
