@@ -85,6 +85,13 @@ namespace ui::widgets
         lua_api auto select_row(std::int32_t row) -> void;
         lua_api auto set_frame(const math::rect& frame) -> void;
 
+        lua_api auto set_text_color(const graphics::color::lua_reference& color) -> void;
+        lua_api auto set_background_color(const graphics::color::lua_reference& color) -> void;
+        lua_api auto set_hilite_color(const graphics::color::lua_reference& color) -> void;
+        lua_api auto set_outline_color(const graphics::color::lua_reference& color) -> void;
+        lua_api auto set_heading_text_color(const graphics::color::lua_reference& color) -> void;
+        lua_api auto set_font(const std::string& font, int16_t size) -> void;
+
         lua_api auto draw() -> void;
         [[nodiscard]] lua_api auto entity() const -> std::shared_ptr<scene_entity>;
 
@@ -110,6 +117,7 @@ namespace ui::widgets
         graphics::color::lua_reference m_hilite_color { nullptr };
         graphics::color::lua_reference m_text_color { nullptr };
         graphics::color::lua_reference m_outline_color { nullptr };
+        graphics::color::lua_reference m_heading_text_color { nullptr };
 
         auto setup(const math::rect& frame) -> void;
         auto redraw_entity() -> void;

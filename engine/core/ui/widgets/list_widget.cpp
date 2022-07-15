@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <algorithm>
 #include "core/ui/widgets/list_widget.hpp"
 #include "core/ui/entity/scene_entity.hpp"
 
@@ -98,11 +99,11 @@ auto ui::widgets::list_widget::headers() const -> bool
 
 auto ui::widgets::list_widget::current_row() const -> row::lua_reference
 {
-    if (m_selected_row < 0 || m_selected_row >= m_rows.size()) {
+    if (m_selected_row < 1 || m_selected_row >= m_rows.size()) {
         return { nullptr };
     }
     else {
-        return m_rows.at(m_selected_row);
+        return m_rows.at(m_selected_row - 1);
     }
 }
 
@@ -159,7 +160,7 @@ auto ui::widgets::list_widget::set_column_headings(const luabridge::LuaRef &colu
 {
     if (columns.state() && columns.isTable()) {
         m_headings.clear();
-        for (auto i = 0; i < columns.length(); ++i) {
+        for (auto i = 1; i <= columns.length(); ++i) {
             auto column = columns[i];
             if (column.isString()) {
                 m_headings.emplace_back(column.tostring());
@@ -168,6 +169,7 @@ auto ui::widgets::list_widget::set_column_headings(const luabridge::LuaRef &colu
                 m_headings.emplace_back("");
             }
         }
+        m_has_header = !m_headings.empty();
     }
 }
 
@@ -202,6 +204,44 @@ auto ui::widgets::list_widget::scroll_down() -> void
     m_entity->set_clipping_offset(m_scroll_offset);
 }
 
+
+auto ui::widgets::list_widget::set_text_color(const graphics::color::lua_reference& color) -> void
+{
+    m_text_color = color;
+    m_dirty = true;
+}
+
+auto ui::widgets::list_widget::set_background_color(const graphics::color::lua_reference& color) -> void
+{
+    m_background_color = color;
+    m_dirty = true;
+}
+
+auto ui::widgets::list_widget::set_hilite_color(const graphics::color::lua_reference& color) -> void
+{
+    m_hilite_color = color;
+    m_dirty = true;
+}
+
+auto ui::widgets::list_widget::set_outline_color(const graphics::color::lua_reference& color) -> void
+{
+    m_outline_color = color;
+    m_dirty = true;
+}
+
+auto ui::widgets::list_widget::set_heading_text_color(const graphics::color::lua_reference& color) -> void
+{
+    m_heading_text_color = color;
+    m_dirty = true;
+}
+
+auto ui::widgets::list_widget::set_font(const std::string &font, int16_t size) -> void
+{
+    m_label_font = font;
+    m_font_size = size;
+    m_dirty = true;
+}
+
 // MARK: - Drawing
 
 auto ui::widgets::list_widget::draw() -> void
@@ -215,9 +255,27 @@ auto ui::widgets::list_widget::redraw_entity() -> void
 {
     m_canvas->clear();
 
+    m_canvas->set_font(m_label_font, std::min(static_cast<std::int16_t>(10), m_font_size));
+
     math::point row_offset;
     if (m_has_header) {
+        m_canvas->set_pen_color(*m_background_color.get());
+        m_canvas->fill_rect({ { 1, 0 }, { m_row_size.width - 2, m_row_size.height } });
+        m_canvas->set_pen_color(*m_heading_text_color.get());
 
+        math::point row_position;
+        for (auto j = 1; j <= m_headings.size(); ++j) {
+            const auto& column = m_headings[j - 1];
+            auto column_width = this->column_width(j);
+
+            auto text_size = m_canvas->layout_text(column);
+            m_canvas->draw_text({
+               row_position.x + 5,
+               row_position.y + ((m_row_size.height - text_size.height) / 2)
+           });
+
+            row_position.x += column_width;
+        }
     }
 
     for (auto i = 0; i < m_rows.size(); ++i) {
@@ -232,6 +290,10 @@ auto ui::widgets::list_widget::redraw_entity() -> void
         }
 
         math::point row_position(0, i * m_row_size.height);
+        if (m_has_header) {
+            row_position.y += m_row_size.height;
+        }
+
         m_canvas->fill_rect({
             { row_position.x + 1, row_position.y },
             { m_row_size.width - 2, m_row_size.height }
@@ -256,6 +318,19 @@ auto ui::widgets::list_widget::redraw_entity() -> void
         row_position.y += m_row_size.height;
     }
 
+    if (m_borders) {
+        m_canvas->set_pen_color(*m_outline_color.get());
+
+        if (m_has_header) {
+            m_canvas->draw_line({ 0, m_row_size.height - 1 }, { m_entity->size().width, m_row_size.height - 1 }, 1);
+        }
+        else {
+            m_canvas->draw_line({ 0, 0 }, { m_entity->size().width, 0 }, 1);
+        }
+
+        m_canvas->draw_line({ 0, m_entity->size().height - 1 }, { m_entity->size().width, m_entity->size().height - 1 }, 1);
+    }
+
     m_canvas->rebuild_texture();
 }
 
@@ -267,7 +342,7 @@ auto ui::widgets::list_widget::row_index_at_point(const math::point &p) -> std::
     if (m_has_header) {
         y -= m_row_size.height;
     }
-    return std::floor(y / m_row_size.height);
+    return std::floor(y / m_row_size.height) + 1;
 }
 
 auto ui::widgets::list_widget::row_at_point(const math::point &p) -> row::lua_reference
@@ -300,7 +375,22 @@ auto ui::widgets::list_widget::receive_event(const event &e) -> bool
 
 auto ui::widgets::list_widget::bind_internal_events() -> void
 {
+    m_entity->on_mouse_down_internal([&] (const event& e) {
+        auto row_number = row_index_at_point(e.location());
+        auto row = m_rows[row_number - 1];
+        m_dirty = true;
 
+        if (!row.get() || row->column_value(1).empty()) {
+            m_selected_row = -1;
+        }
+        else {
+            m_selected_row = row_number;
+        }
+
+
+        redraw_entity();
+
+    });
 }
 
 // MARK: - Rows

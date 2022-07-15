@@ -105,6 +105,7 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
 
                 // General
                 .addProperty("disabled", &control_definition::disabled, &control_definition::set_disabled)
+                .addProperty("size", &control_definition::size)
 
                 // Strings
                 .addProperty("title", &control_definition::string_value, &control_definition::set_string_value)
@@ -131,6 +132,10 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addProperty("columnWidths", &control_definition::column_widths, &control_definition::set_column_widths)
                 .addProperty("columnHeadings", &control_definition::column_headings, &control_definition::set_column_headings)
                 .addProperty("columnSpacings", &control_definition::column_spacing, &control_definition::set_column_spacing)
+                .addProperty("listBackgroundColor", &control_definition::background_color, &control_definition::set_background_color)
+                .addProperty("listHiliteColor", &control_definition::hilite_color, &control_definition::set_hilite_color)
+                .addProperty("outlineColor", &control_definition::outline_color, &control_definition::set_outline_color)
+                .addProperty("headingTextColor", &control_definition::heading_text_color, &control_definition::set_heading_text_color)
 
                 // Methods
                 .addFunction("construct", &control_definition::construct)
@@ -166,6 +171,9 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("setColumnHeadings", &control_definition::set_column_headings)
                 .addFunction("onRowSelect", &control_definition::set_action)
                 .addFunction("redraw", &control_definition::update)
+                .addFunction("setHiliteColor", &control_definition::set_hilite_color)
+                .addFunction("setBackgroundColor", &control_definition::set_background_color)
+                .addFunction("setOutlineColor", &control_definition::set_outline_color)
             .endClass()
         .endNamespace();
 }
@@ -270,6 +278,13 @@ auto ui::control_definition::construct_scene_entity() -> void
             list->set_row_items(m_items);
             list->select_row(m_selected_index);
             list->on_row_select(m_action);
+            list->set_text_color(m_text_color);
+            list->set_background_color(m_background_color);
+            list->set_hilite_color(m_hilite_color);
+            list->set_borders(m_borders);
+            list->set_outline_color(m_outline_color);
+            list->set_font(m_font_name, m_font_size);
+            list->set_heading_text_color(m_heading_color);
             list->draw();
 
             m_widget = luabridge::LuaRef(state, list);

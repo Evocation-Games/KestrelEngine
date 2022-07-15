@@ -90,10 +90,22 @@ namespace ui
         lua_api auto set_body_text_value(const std::string& body_text) -> void { m_body_text = body_text; update(); }
 
         [[nodiscard]] lua_api auto text_color() const -> graphics::color::lua_reference { return m_text_color; }
-        lua_api auto set_text_color(const graphics::color::lua_reference& color) -> void { m_text_color = color; }
+        lua_api auto set_text_color(const graphics::color::lua_reference& color) -> void { m_text_color = color; update(); }
 
         [[nodiscard]] lua_api auto secondary_text_color() const -> graphics::color::lua_reference  { return m_secondary_text_color; }
-        lua_api auto set_secondary_text_color(const graphics::color::lua_reference& color) -> void { m_secondary_text_color = color; }
+        lua_api auto set_secondary_text_color(const graphics::color::lua_reference& color) -> void { m_secondary_text_color = color; update(); }
+
+        [[nodiscard]] lua_api auto heading_text_color() const -> graphics::color::lua_reference  { return m_secondary_text_color; }
+        lua_api auto set_heading_text_color(const graphics::color::lua_reference& color) -> void { m_secondary_text_color = color; update(); }
+
+        [[nodiscard]] lua_api auto background_color() const -> graphics::color::lua_reference  { return m_background_color; }
+        lua_api auto set_background_color(const graphics::color::lua_reference& color) -> void { m_background_color = color; update(); }
+
+        [[nodiscard]] lua_api auto hilite_color() const -> graphics::color::lua_reference  { return m_hilite_color; }
+        lua_api auto set_hilite_color(const graphics::color::lua_reference& color) -> void { m_hilite_color = color; update(); }
+
+        [[nodiscard]] lua_api auto outline_color() const -> graphics::color::lua_reference  { return m_outline_color; }
+        lua_api auto set_outline_color(const graphics::color::lua_reference& color) -> void { m_outline_color = color; update(); }
 
         [[nodiscard]] lua_api auto text_font() const -> std::string { return m_font_name; }
         lua_api auto set_text_font(const std::string& font) -> void { m_font_name = font; }
@@ -153,6 +165,8 @@ namespace ui
         [[nodiscard]] auto entity_index() const -> uint32_t { return m_entity_index; }
         auto set_entity_index(uint32_t index) -> void { m_entity_index = index; }
 
+        [[nodiscard]] auto size() const -> math::size { return m_frame.size; }
+
         auto set_items(const luabridge::LuaRef& items) -> void { m_items = items; update(); }
 
         lua_api auto update() -> void;
@@ -179,6 +193,10 @@ namespace ui
         luabridge::LuaRef m_action { nullptr };
         graphics::color::lua_reference m_text_color { new graphics::color(255, 255) };
         graphics::color::lua_reference m_secondary_text_color { new graphics::color(255, 255) };
+        graphics::color::lua_reference m_background_color { new graphics::color(0, 255) };
+        graphics::color::lua_reference m_hilite_color { new graphics::color(200, 0, 0, 255) };
+        graphics::color::lua_reference m_outline_color { new graphics::color(200, 200, 200, 255) };
+        graphics::color::lua_reference m_heading_color { new graphics::color(200, 200, 200, 255) };
         math::point m_content_offset;
         math::size m_content_size;
         bool m_can_scroll_up { false };
