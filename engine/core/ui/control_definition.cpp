@@ -57,12 +57,29 @@ static auto s_control_definition_separator = static_cast<uint32_t>(ui::control_d
 static auto s_control_definition_mode_scene = static_cast<uint32_t>(ui::control_definition::mode::scene);
 static auto s_control_definition_mode_imgui = static_cast<uint32_t>(ui::control_definition::mode::imgui);
 
+static auto s_text_alignment_top = static_cast<uint32_t>(ui::control_definition::alignment::vertical_top);
+static auto s_text_alignment_middle = static_cast<uint32_t>(ui::control_definition::alignment::vertical_middle);
+static auto s_text_alignment_bottom = static_cast<uint32_t>(ui::control_definition::alignment::vertical_bottom);
+static auto s_text_alignment_left = static_cast<uint32_t>(ui::control_definition::alignment::horizontal_left);
+static auto s_text_alignment_center = static_cast<uint32_t>(ui::control_definition::alignment::horizontal_center);
+static auto s_text_alignment_right = static_cast<uint32_t>(ui::control_definition::alignment::horizontal_right);
+
 // MARK: - Lua
 
 auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     lua->global_namespace()
         .beginNamespace("UI")
+            .beginNamespace("VerticalAlignment")
+                .addProperty("Top", &s_text_alignment_top, false)
+                .addProperty("Middle", &s_text_alignment_middle, false)
+                .addProperty("Bottom", &s_text_alignment_bottom, false)
+            .endNamespace()
+            .beginNamespace("HorizontalAlignment")
+                .addProperty("Left", &s_text_alignment_left, false)
+                .addProperty("Center", &s_text_alignment_center, false)
+                .addProperty("Right", &s_text_alignment_right, false)
+            .endNamespace()
             .beginClass<control_definition>("ControlDefinition")
                 .addConstructor<auto(*)(const math::rect&, uint32_t)->void, lua_reference>()
 
@@ -116,7 +133,8 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addProperty("secondaryTextColor", &control_definition::secondary_text_color, &control_definition::set_secondary_text_color)
                 .addProperty("textFont", &control_definition::text_font, &control_definition::set_text_font)
                 .addProperty("textSize", &control_definition::text_size, &control_definition::set_text_size)
-                .addProperty("alignment", &control_definition::alignment, &control_definition::set_alignment)
+                .addProperty("verticalAlignment", &control_definition::vertical_alignment, &control_definition::set_vertical_alignment)
+                .addProperty("horizontalAlignment", &control_definition::horizontal_alignment, &control_definition::set_horizontal_alignment)
 
                 // Images
                 .addProperty("image", &control_definition::image, &control_definition::set_image)
@@ -147,7 +165,8 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("setTextColor", &control_definition::set_text_color)
                 .addFunction("setSecondaryTextColor", &control_definition::set_secondary_text_color)
                 .addFunction("setTextFont", &control_definition::set_text_font_and_size)
-                .addFunction("setAlignment", &control_definition::set_alignment)
+                .addFunction("setHorizontalAlignment", &control_definition::set_horizontal_alignment)
+                .addFunction("setVerticalAlignment", &control_definition::set_vertical_alignment)
                 .addFunction("setImage", &control_definition::set_image)
                 .addFunction("setIcon", &control_definition::set_image)
                 .addFunction("setSprite", &control_definition::set_image)
@@ -237,6 +256,12 @@ auto ui::control_definition::construct_scene_entity() -> void
             label->set_font(m_font_name);
             label->set_font_size(static_cast<int16_t>(m_font_size));
             label->set_color(m_text_color);
+            label->set_vertical_alignment(static_cast<enum widgets::label_widget::vertical_alignment>(
+                static_cast<uint8_t>(vertical_alignment())
+            ));
+            label->set_horizontal_alignment(static_cast<enum widgets::label_widget::horizontal_alignment>(
+                static_cast<uint8_t>(horizontal_alignment())
+            ));
             label->draw();
             m_widget = luabridge::LuaRef(state, label);
             m_entity = scene_entity::lua_reference(new scene_entity(label->entity()));
@@ -426,6 +451,11 @@ auto ui::control_definition::update() -> void
         list->select_row(m_selected_index);
         list->set_row_items(m_items);
         list->draw();
+    }
+    else if (scripting::lua::ref_isa<widgets::label_widget>(m_widget)) {
+        auto label = m_widget.cast<widgets::label_widget::lua_reference>();
+        label->set_text(m_string_value);
+        label->draw();
     }
 }
 

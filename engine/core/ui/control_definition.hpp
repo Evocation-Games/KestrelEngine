@@ -57,8 +57,8 @@ namespace ui
 
         enum class alignment : uint8_t
         {
-            horizontal_left = 0x01, horizontal_center = 0x02, horizontal_right = 0x04,
-            vertical_top = 0x10, vertical_middle = 0x20, vertical_bottom = 0x40,
+            horizontal_left = 0x01, horizontal_center = 0x02, horizontal_right = 0x03,
+            vertical_top = 0xa0, vertical_middle = 0xb0, vertical_bottom = 0xc0,
         };
 
         typedef luabridge::RefCountedPtr<control_definition> lua_reference;
@@ -84,7 +84,7 @@ namespace ui
         [[nodiscard]] auto has_control() const -> bool { return m_control.state() != nullptr; }
 
         [[nodiscard]] lua_api auto string_value() const -> std::string { return m_string_value; }
-        lua_api auto set_string_value(const std::string& title) -> void { m_string_value = title; }
+        lua_api auto set_string_value(const std::string& title) -> void { m_string_value = title; update(); }
 
         [[nodiscard]] lua_api auto body_text_value() const -> std::string { return m_body_text; }
         lua_api auto set_body_text_value(const std::string& body_text) -> void { m_body_text = body_text; update(); }
@@ -115,8 +115,17 @@ namespace ui
 
         lua_api auto set_text_font_and_size(const std::string& font, uint32_t size) -> void;
 
-        [[nodiscard]] lua_api auto alignment() const -> uint8_t { return static_cast<uint8_t>(m_alignment); }
-        lua_api auto set_alignment(uint8_t size) -> void { m_alignment = static_cast<enum alignment>(size); }
+        [[nodiscard]] lua_api auto horizontal_alignment() const -> uint8_t { return static_cast<uint8_t>(m_alignment) & 0x0F; }
+        lua_api auto set_horizontal_alignment(uint8_t alignment) -> void
+        {
+            m_alignment = static_cast<enum alignment>((static_cast<uint8_t>(m_alignment) & 0xF0) | (alignment & 0x0F));
+        }
+
+        [[nodiscard]] lua_api auto vertical_alignment() const -> uint8_t { return (static_cast<uint8_t>(m_alignment) >> 4) & 0x0F; }
+        lua_api auto set_vertical_alignment(uint8_t alignment) -> void
+        {
+            m_alignment = static_cast<enum alignment>(((alignment << 4) & 0xF0) | (static_cast<uint8_t>(m_alignment) & 0xF));
+        }
 
         [[nodiscard]] lua_api auto action() const -> luabridge::LuaRef { return m_action; }
         lua_api auto set_action(const luabridge::LuaRef& action) -> void { m_action = action; }
