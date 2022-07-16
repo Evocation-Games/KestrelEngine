@@ -387,6 +387,9 @@ auto ui::widgets::list_widget::bind_internal_events() -> void
             m_selected_row = row_number;
         }
 
+        if (m_row_select_callback.state() && m_row_select_callback.isFunction()) {
+            m_row_select_callback(m_selected_row);
+        }
 
         redraw_entity();
 
