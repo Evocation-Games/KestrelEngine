@@ -370,7 +370,7 @@ auto ui::widgets::list_widget::on_row_select(const luabridge::LuaRef &callback) 
 
 auto ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
-
+    return false;
 }
 
 auto ui::widgets::list_widget::bind_internal_events() -> void
@@ -388,7 +388,7 @@ auto ui::widgets::list_widget::bind_internal_events() -> void
         }
 
         if (m_row_select_callback.state() && m_row_select_callback.isFunction()) {
-            m_row_select_callback(m_selected_row);
+            m_row_select_callback(m_selected_row + 1);
         }
 
         redraw_entity();

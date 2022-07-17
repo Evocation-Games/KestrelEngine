@@ -466,6 +466,13 @@ auto ui::scene_entity::on_animation_finish(const luabridge::LuaRef& callback) ->
     m_on_animation_finish = callback;
 }
 
+// MARK: -
+
+auto ui::scene_entity::replace(const lua_reference &entity) -> void
+{
+    m_entity = entity->internal_entity();
+}
+
 // MARK: - Layout & Drawing
 
 auto ui::scene_entity::layout() -> void

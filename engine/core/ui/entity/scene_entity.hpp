@@ -109,6 +109,8 @@ namespace ui
         auto on_mouse_release_internal(const std::function<auto(const event&)->void>& callback) -> void;
         auto on_mouse_drag_internal(const std::function<auto(const event&)->void>& callback) -> void;
 
+        auto replace(const lua_reference& entity) -> void;
+
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<graphics::entity>;
 
     private:

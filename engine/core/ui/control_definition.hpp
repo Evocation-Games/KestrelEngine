@@ -131,7 +131,7 @@ namespace ui
         lua_api auto set_action(const luabridge::LuaRef& action) -> void { m_action = action; }
 
         [[nodiscard]] lua_api auto image() const -> luabridge::LuaRef { return m_image; }
-        lua_api auto set_image(const luabridge::LuaRef& image) -> void { m_image = image; }
+        lua_api auto set_image(const luabridge::LuaRef& image) -> void { m_image = image; update(); }
 
         [[nodiscard]] lua_api auto content_offset() const -> math::point { return m_content_offset; }
         lua_api auto set_content_offset(const math::point& content_offset) -> void { m_content_offset = content_offset; update(); }

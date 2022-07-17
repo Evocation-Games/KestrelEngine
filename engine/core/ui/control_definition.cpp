@@ -30,6 +30,7 @@
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/textarea_widget.hpp"
 #include "core/ui/widgets/list_widget.hpp"
+#include "core/ui/widgets/grid_widget.hpp"
 
 // MARK: - Enumeration Types
 
@@ -155,6 +156,15 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addProperty("outlineColor", &control_definition::outline_color, &control_definition::set_outline_color)
                 .addProperty("headingTextColor", &control_definition::heading_text_color, &control_definition::set_heading_text_color)
 
+                // Grids
+                .addProperty("selectedItem", &control_definition::selected_index, &control_definition::set_selected_index)
+                .addProperty("columnWidths", &control_definition::column_widths, &control_definition::set_column_widths)
+                .addProperty("columnHeadings", &control_definition::column_headings, &control_definition::set_column_headings)
+                .addProperty("columnSpacings", &control_definition::column_spacing, &control_definition::set_column_spacing)
+                .addProperty("backgroundColor", &control_definition::background_color, &control_definition::set_background_color)
+                .addProperty("hiliteColor", &control_definition::hilite_color, &control_definition::set_hilite_color)
+                .addProperty("gridColor", &control_definition::outline_color, &control_definition::set_outline_color)
+
                 // Methods
                 .addFunction("construct", &control_definition::construct)
                 .addFunction("useImGuiFlowLayout", &control_definition::disable_absolute_frame)
@@ -189,10 +199,12 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addFunction("setColumnWidths", &control_definition::set_column_widths)
                 .addFunction("setColumnHeadings", &control_definition::set_column_headings)
                 .addFunction("onRowSelect", &control_definition::set_action)
+                .addFunction("onItemSelect", &control_definition::set_action)
                 .addFunction("redraw", &control_definition::update)
                 .addFunction("setHiliteColor", &control_definition::set_hilite_color)
                 .addFunction("setBackgroundColor", &control_definition::set_background_color)
                 .addFunction("setOutlineColor", &control_definition::set_outline_color)
+                .addFunction("setGridColor", &control_definition::set_outline_color)
             .endClass()
         .endNamespace();
 }
@@ -314,6 +326,26 @@ auto ui::control_definition::construct_scene_entity() -> void
 
             m_widget = luabridge::LuaRef(state, list);
             m_entity = scene_entity::lua_reference(new scene_entity(list->entity()));
+            m_entity->internal_entity()->set_position(m_frame.origin);
+            m_entity->set_position(m_frame.origin);
+
+            break;
+        }
+        case type::grid: {
+            widgets::grid_widget::lua_reference grid(new widgets::grid_widget(m_frame));
+            grid->set_items(m_items);
+            grid->select_item(m_selected_index);
+            grid->on_item_select(m_action);
+            grid->set_text_color(m_text_color);
+            grid->set_secondary_text_color(m_secondary_text_color);
+            grid->set_background_color(m_background_color);
+            grid->set_hilite_color(m_hilite_color);
+            grid->set_outline_color(m_outline_color);
+            grid->set_font(m_font_name, m_font_size);
+            grid->draw();
+
+            m_widget = luabridge::LuaRef(state, grid);
+            m_entity = scene_entity::lua_reference(new scene_entity(grid->entity()));
             m_entity->internal_entity()->set_position(m_frame.origin);
             m_entity->set_position(m_frame.origin);
 
@@ -452,10 +484,27 @@ auto ui::control_definition::update() -> void
         list->set_row_items(m_items);
         list->draw();
     }
+    else if (scripting::lua::ref_isa<widgets::grid_widget>(m_widget)) {
+        auto list = m_widget.cast<widgets::list_widget::lua_reference>();
+        list->select_row(m_selected_index);
+        list->set_row_items(m_items);
+        list->draw();
+    }
     else if (scripting::lua::ref_isa<widgets::label_widget>(m_widget)) {
         auto label = m_widget.cast<widgets::label_widget::lua_reference>();
         label->set_text(m_string_value);
         label->draw();
+    }
+    else if (scripting::lua::ref_isa<widgets::image_widget>(m_widget)) {
+        auto image = m_widget.cast<widgets::image_widget::lua_reference>();
+        image->set_image(m_image);
+        image->draw();
+
+        auto entity = scene_entity::lua_reference(new scene_entity(image->entity()));
+        entity->internal_entity()->set_position(m_frame.origin);
+        entity->set_position(m_frame.origin);
+
+        m_entity->replace(entity);
     }
 }
 
