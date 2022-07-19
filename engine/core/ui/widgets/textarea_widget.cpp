@@ -34,13 +34,18 @@ auto ui::widgets::textarea_widget::enroll_object_api_in_state(const std::shared_
                 .addProperty("font", &textarea_widget::font, &textarea_widget::set_font)
                 .addProperty("fontSize", &textarea_widget::font_size, &textarea_widget::set_font_size)
                 .addProperty("color", &textarea_widget::color, &textarea_widget::set_color)
+                .addProperty("textColor", &textarea_widget::color, &textarea_widget::set_color)
                 .addProperty("backgroundColor", &textarea_widget::background_color, &textarea_widget::set_background_color)
                 .addProperty("offset", &textarea_widget::offset, &textarea_widget::set_offset)
                 .addProperty("position", &textarea_widget::position, &textarea_widget::set_position)
                 .addProperty("size", &textarea_widget::size, &textarea_widget::set_size)
                 .addProperty("frame", &textarea_widget::frame, &textarea_widget::set_frame)
                 .addProperty("scrollOffset", &textarea_widget::scroll_offset, &textarea_widget::set_scroll_offset)
+                .addProperty("canScrollDown", &textarea_widget::can_scroll_down)
+                .addProperty("canScrollUp", &textarea_widget::can_scroll_up)
                 .addFunction("draw", &textarea_widget::draw)
+                .addFunction("scrollDown", &textarea_widget::scroll_down)
+                .addFunction("scrollUp", &textarea_widget::scroll_up)
             .endClass()
         .endNamespace();
 }
@@ -54,24 +59,25 @@ ui::widgets::textarea_widget::textarea_widget(const std::string &text)
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
 }
 
 ui::widgets::textarea_widget::textarea_widget(const math::rect &frame, const std::string &text)
-    : m_text(text)
+    : m_text(text), m_clipping_size(frame.size)
 {
     graphics::typesetter ts(text);
     ts.set_margins(frame.size.round());
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(math::size(frame.size.width, std::max(frame.size.height, ts.get_bounding_size().height)));
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(frame.origin));
+    m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin)) };
+    m_entity->set_clipping_area(m_clipping_size);
 }
 
 // MARK: - Accessors
 
 
-auto ui::widgets::textarea_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::textarea_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -183,12 +189,16 @@ auto ui::widgets::textarea_widget::set_size(const math::size& v) -> void
 {
     m_entity->set_size(v);
     m_entity->internal_entity()->set_clipping_area(v);
+    m_entity->set_clipping_area(v);
+    m_clipping_size = v;
 }
 
 auto ui::widgets::textarea_widget::set_frame(const math::rect& v) -> void
 {
-    set_position(v.origin);
     set_size(v.size);
+
+    m_entity->internal_entity()->set_position(v.origin);
+    m_entity->set_position(v.origin);
 }
 
 auto ui::widgets::textarea_widget::set_scroll_offset(int32_t offset) -> void
@@ -205,10 +215,9 @@ auto ui::widgets::textarea_widget::set_scroll_offset(int32_t offset) -> void
         offset = m_canvas->get_bounds().size.height - m_entity->size().height;
         m_can_scroll_down = false;
     }
-
-    m_dirty = true;
+    
     m_scroll_offset = offset;
-    m_entity->internal_entity()->set_clipping_offset({ 0, static_cast<double>(m_scroll_offset) });
+    m_entity->set_clipping_offset({ 0, static_cast<double>(m_scroll_offset) });
 }
 
 auto ui::widgets::textarea_widget::can_scroll_up() const -> bool
@@ -225,25 +234,30 @@ auto ui::widgets::textarea_widget::can_scroll_down() const -> bool
 
 auto ui::widgets::textarea_widget::redraw_entity() -> void
 {
-    if (!m_dirty) {
-        return;
-    }
-
     auto size = m_entity->size();
 
-    m_canvas->clear();
-    m_canvas->set_pen_color(m_background);
-    m_canvas->fill_rect({{0, 0}, size});
-
-    m_canvas->set_pen_color(m_color);
     m_canvas->set_font(m_font_face, m_font_size);
 
     auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
     auto x = m_offset.width;
     auto y = m_offset.height - 2 - m_scroll_offset;
 
+    auto height = std::max(text_size.height, m_entity->size().height);
+    m_canvas = std::make_unique<graphics::canvas>(math::size(m_entity->size().width, height));
+
+    m_canvas->set_pen_color(m_background);
+    m_canvas->fill_rect({{0, 0}, size});
+
+    m_canvas->set_pen_color(m_color);
+    m_canvas->set_font(m_font_face, m_font_size);
+
+    m_canvas->layout_text_in_bounds(m_text, size);
     m_canvas->draw_text({ x, y });
     m_canvas->rebuild_texture();
+
+    m_entity->change_internal_entity(m_canvas->spawn_entity({0, 0}));
+    m_entity->set_size(m_clipping_size);
+    m_entity->set_clipping_area(m_clipping_size);
     m_dirty = false;
 }
 
@@ -252,4 +266,16 @@ auto ui::widgets::textarea_widget::draw() -> void
     if (m_dirty) {
         redraw_entity();
     }
+}
+
+// MARK: - Scrolling
+
+auto ui::widgets::textarea_widget::scroll_up() -> void
+{
+    set_scroll_offset(m_scroll_offset - 2);
+}
+
+auto ui::widgets::textarea_widget::scroll_down() -> void
+{
+    set_scroll_offset(m_scroll_offset + 2);
 }

@@ -28,11 +28,7 @@
 #include "math/point.hpp"
 #include "math/size.hpp"
 #include "math/rect.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
 
 namespace ui::widgets
 {
@@ -48,7 +44,7 @@ namespace ui::widgets
 
         auto draw() -> void;
 
-        [[nodiscard]] auto entity() const -> std::shared_ptr<ui::scene_entity>;
+        [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
 
         [[nodiscard]] lua_api auto text() const -> std::string;
         [[nodiscard]] lua_api auto font() const -> std::string;
@@ -72,6 +68,9 @@ namespace ui::widgets
         lua_api auto set_frame(const math::rect& v) -> void;
         lua_api auto set_scroll_offset(int32_t offset) -> void;
 
+        lua_api auto scroll_up() -> void;
+        lua_api auto scroll_down() -> void;
+
         [[nodiscard]] lua_api auto can_scroll_up() const -> bool;
         [[nodiscard]] lua_api auto can_scroll_down() const -> bool;
 
@@ -80,11 +79,12 @@ namespace ui::widgets
         std::string m_text;
         std::string m_font_face { "Geneva" };
         int16_t m_font_size { 12 };
+        math::size m_clipping_size;
         graphics::color m_color { graphics::color::white_color() };
         graphics::color m_background { graphics::color::clear_color() };
         math::size m_offset { 0 };
         std::unique_ptr<graphics::canvas> m_canvas;
-        std::shared_ptr<ui::scene_entity> m_entity;
+        ui::scene_entity::lua_reference m_entity { nullptr };
         int32_t m_scroll_offset { 0 };
         bool m_can_scroll_up { false };
         bool m_can_scroll_down { false };

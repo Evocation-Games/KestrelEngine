@@ -58,14 +58,14 @@ ui::widgets::label_widget::label_widget(const std::string &text)
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({0, 0}));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({0, 0})) };
 
     m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
 // MARK: - Accessors
 
-auto ui::widgets::label_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::label_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -200,13 +200,15 @@ auto ui::widgets::label_widget::set_size(const math::size& v) -> void
 {
     auto position = this->position();
     m_canvas = std::make_unique<graphics::canvas>(v);
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(position));
+    m_entity->change_internal_entity(m_canvas->spawn_entity(position));
     redraw_entity();
 }
 
 auto ui::widgets::label_widget::set_frame(const math::rect& v) -> void
 {
-    set_position(v.origin);
+    m_entity->internal_entity()->set_position(v.origin);
+    m_entity->set_position(v.origin);
+
     set_size({ v.size.width, std::max(m_min_height, static_cast<int16_t>(v.size.height)) });
 }
 

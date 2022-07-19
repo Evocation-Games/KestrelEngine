@@ -28,11 +28,7 @@
 #include "math/point.hpp"
 #include "scripting/state.hpp"
 #include "core/graphics/common/color.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
 
 namespace ui::widgets
 {
@@ -44,18 +40,11 @@ namespace ui::widgets
         typedef luabridge::RefCountedPtr<image_widget> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        math::rect m_frame { 0, 0, 100, 100 };
-        luabridge::LuaRef m_image_ref;
-        std::shared_ptr<scene_entity> m_entity;
-        content_alignment m_alignment { content_alignment::center };
-
-        auto resize(bool reload = false) -> void;
 
     public:
         explicit image_widget(const luabridge::LuaRef& image);
 
-        [[nodiscard]] auto entity() const -> std::shared_ptr<ui::scene_entity>;
+        [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
         auto draw() -> void;
 
         [[nodiscard]] lua_api auto frame() const -> math::rect;
@@ -64,6 +53,13 @@ namespace ui::widgets
         lua_api auto set_frame(const math::rect& frame) -> void;
         lua_api auto set_image(const luabridge::LuaRef& image) -> void;
 
+    private:
+        math::rect m_frame { 0, 0, 100, 100 };
+        luabridge::LuaRef m_image_ref { nullptr };
+        scene_entity::lua_reference m_entity { nullptr };
+        content_alignment m_alignment { content_alignment::center };
+
+        auto resize(bool reload = false) -> void;
     };
 }
 

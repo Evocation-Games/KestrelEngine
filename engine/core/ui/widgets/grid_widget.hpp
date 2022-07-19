@@ -29,11 +29,7 @@
 #include "math/point.hpp"
 #include "math/size.hpp"
 #include "math/rect.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
 
 namespace ui::widgets
 {
@@ -91,7 +87,7 @@ namespace ui::widgets
         lua_api auto set_items(const luabridge::LuaRef& items) -> void;
 
         lua_api auto draw() -> void;
-        [[nodiscard]] lua_api auto entity() const -> std::shared_ptr<scene_entity>;
+        [[nodiscard]] lua_api auto entity() const -> scene_entity::lua_reference;
 
         auto receive_event(const event& e) -> bool override;
 
@@ -105,7 +101,7 @@ namespace ui::widgets
         luabridge::LuaRef m_item_select_callback { nullptr };
         std::vector<item::lua_reference> m_items;
         std::shared_ptr<graphics::canvas> m_canvas;
-        std::shared_ptr<scene_entity> m_entity;
+        scene_entity::lua_reference m_entity { nullptr };
         std::int32_t m_selected_item { -1 };
         std::int32_t m_scroll_offset { 0 };
         math::size m_grid { 4, 5 };

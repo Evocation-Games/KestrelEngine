@@ -37,6 +37,7 @@ namespace scripting::lua
             size_t len;
         };
     public:
+        script() = default;
         script(const std::shared_ptr<lua::state>& state, const asset::resource_descriptor::lua_reference &ref);
         script(const std::shared_ptr<lua::state>& state, const graphite::rsrc::resource *resource);
         script(const std::shared_ptr<lua::state>& state, const std::string& script);

@@ -41,14 +41,20 @@ auto ui::widgets::image_widget::enroll_object_api_in_state(const std::shared_ptr
 // MARK: - Construction
 
 ui::widgets::image_widget::image_widget(const luabridge::LuaRef &image)
-    : m_image_ref(image)
 {
+    if (image.state()) {
+        m_image_ref = image;
+    }
+
+    auto internal_entity = std::make_shared<graphics::entity>(math::size(1));
+    m_entity = { new scene_entity(internal_entity) };
+
     resize(true);
 }
 
 // MARK: - Accessors
 
-auto ui::widgets::image_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::image_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -68,6 +74,8 @@ auto ui::widgets::image_widget::image() const -> luabridge::LuaRef
 auto ui::widgets::image_widget::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
+
+
     resize();
 }
 
@@ -83,34 +91,34 @@ auto ui::widgets::image_widget::resize(bool reload) -> void
 {
     if (reload) {
         if (scripting::lua::ref_isa<asset::static_image>(m_image_ref)) {
-            auto entity = m_image_ref.cast<asset::static_image::lua_reference>()->spawn_entity({ 0, 0 });
-            m_entity = std::make_shared<scene_entity>(entity);
+            m_entity->change_internal_entity(m_image_ref.cast<asset::static_image::lua_reference>()->spawn_entity({ 0, 0 }));
         }
         else if (scripting::lua::ref_isa<asset::legacy::macintosh::quickdraw::picture>(m_image_ref)) {
-            auto entity = m_image_ref.cast<asset::legacy::macintosh::quickdraw::picture::lua_reference>()->spawn_entity({ 0, 0 });
-            m_entity = std::make_shared<scene_entity>(entity);
+            m_entity->change_internal_entity(m_image_ref.cast<asset::legacy::macintosh::quickdraw::picture::lua_reference>()->spawn_entity({ 0, 0 }));
         }
         else if (scripting::lua::ref_isa<asset::legacy::macintosh::quickdraw::color_icon>(m_image_ref)) {
-            auto entity = m_image_ref.cast<asset::legacy::macintosh::quickdraw::color_icon::lua_reference>()->spawn_entity({ 0, 0 });
-            m_entity = std::make_shared<scene_entity>(entity);
+            m_entity->change_internal_entity(m_image_ref.cast<asset::legacy::macintosh::quickdraw::color_icon::lua_reference>()->spawn_entity({ 0, 0 }));
         }
         else if (scripting::lua::ref_isa<asset::resource_descriptor>(m_image_ref)) {
             auto descriptor = m_image_ref.cast<asset::resource_descriptor::lua_reference>();
             asset::static_image img(descriptor);
-            m_entity = std::make_shared<scene_entity>(img.spawn_entity({0, 0}));
+            m_entity->change_internal_entity(img.spawn_entity({0, 0}));
         }
         else {
             // TODO: Handle unrecognised image format...
-            m_entity = nullptr;
         }
+
+        m_entity->set_size(m_entity->internal_entity()->get_size());
     }
 
     switch (m_alignment) {
         default:
-            m_entity->set_position({
+            math::point position(
                 m_frame.get_x() + ((m_frame.get_width() - m_entity->size().get_width()) / 2),
                 m_frame.get_y() + ((m_frame.get_height() - m_entity->size().get_height()) / 2)
-            });
+            );
+            m_entity->set_position(position);
+            m_entity->internal_entity()->set_position(position);
             break;
     }
 }

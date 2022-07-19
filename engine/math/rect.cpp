@@ -70,6 +70,14 @@ math::rect::rect(const math::rect& r)
 
 }
 
+math::rect::rect(const graphite::quickdraw::rect<std::int16_t> &r)
+{
+    origin.x = r.origin.x;
+    origin.y = r.origin.y;
+    size.width = r.size.width;
+    size.height = r.size.height;
+}
+
 auto math::rect::macintosh_rect(double top, double left, double bottom, double right) -> math::rect
 {
     return { left, top, right - left, bottom - top };

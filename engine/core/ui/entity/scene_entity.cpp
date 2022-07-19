@@ -642,3 +642,8 @@ auto ui::scene_entity::internal_entity() const -> std::shared_ptr<graphics::enti
 {
     return m_entity;
 }
+
+auto ui::scene_entity::change_internal_entity(const std::shared_ptr<graphics::entity>& entity) -> void
+{
+    m_entity = entity;
+}

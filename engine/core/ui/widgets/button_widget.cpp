@@ -60,6 +60,8 @@ auto ui::widgets::button_widget::enroll_object_api_in_state(const std::shared_pt
                 .addProperty("pressedStencil", &button_widget::pressed_stencil, &button_widget::set_pressed_stencil)
                 .addProperty("disabledStencil", &button_widget::disabled_stencil, &button_widget::set_disabled_stencil)
                 .addProperty("label", &button_widget::label, &button_widget::set_label)
+                .addProperty("title", &button_widget::label, &button_widget::set_label)
+                .addProperty("icon", &button_widget::icon, &button_widget::set_icon)
                 .addProperty("font", &button_widget::font, &button_widget::set_font)
                 .addProperty("fontSize", &button_widget::font_size, &button_widget::set_font_size)
                 .addProperty("labelColor", &button_widget::label_color, &button_widget::set_label_color)
@@ -70,6 +72,8 @@ auto ui::widgets::button_widget::enroll_object_api_in_state(const std::shared_pt
                 .addProperty("mouseExit", &button_widget::mouse_exit_body, &button_widget::set_mouse_exit)
                 .addProperty("userInfo", &button_widget::user_info, &button_widget::set_user_info)
                 .addProperty("frame", &button_widget::frame, &button_widget::set_frame)
+                .addProperty("continuous", &button_widget::continuous, &button_widget::set_continuous_action)
+                .addProperty("disabled", &button_widget::disabled, &button_widget::set_disabled)
                 .addFunction("draw", &button_widget::draw)
                 .addFunction("setAction", &button_widget::set_action)
                 .addFunction("setMouseEnter", &button_widget::set_mouse_enter)
@@ -88,11 +92,11 @@ ui::widgets::button_widget::button_widget(const std::string &label)
 
     if (ts.get_bounding_size().width == 0 || ts.get_bounding_size().height == 0) {
         m_canvas = std::make_shared<graphics::canvas>(math::size(10, 10));
-        m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+        m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
     }
     else {
         m_canvas = std::make_shared<graphics::canvas>(ts.get_bounding_size());
-        m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+        m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
     }
 
     bind_internal_events();
@@ -100,7 +104,7 @@ ui::widgets::button_widget::button_widget(const std::string &label)
 
 // MARK: - Accessors
 
-auto ui::widgets::button_widget::entity() const -> std::shared_ptr<scene_entity>
+auto ui::widgets::button_widget::entity() const -> scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -195,6 +199,11 @@ auto ui::widgets::button_widget::disabled() const -> bool
     return m_disabled;
 }
 
+auto ui::widgets::button_widget::continuous() const -> bool
+{
+    return m_continuous;
+}
+
 // MARK: - Setters
 
 auto ui::widgets::button_widget::set_label(const std::string& label) -> void
@@ -262,11 +271,13 @@ auto ui::widgets::button_widget::set_user_info(const luabridge::LuaRef& info) ->
 
 auto ui::widgets::button_widget::set_frame(const math::rect &r) -> void
 {
-    m_entity = nullptr;
     m_canvas = nullptr;
-
     m_canvas = std::make_shared<graphics::canvas>(r.size);
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(r.origin));
+    m_entity->change_internal_entity(m_canvas->spawn_entity(r.origin));
+
+    m_entity->internal_entity()->set_position(r.origin);
+    m_entity->set_position(r.origin);
+
     redraw_entity();
     bind_internal_events();
 }
@@ -343,6 +354,9 @@ auto ui::widgets::button_widget::draw() -> void
     if (m_dirty) {
         redraw_entity();
     }
+    if (m_continuous && m_pressed) {
+        m_action();
+    }
 }
 
 auto ui::widgets::button_widget::redraw_entity() -> void
@@ -386,7 +400,7 @@ auto ui::widgets::button_widget::redraw_entity() -> void
 
 auto ui::widgets::button_widget::receive_event(const event &e) -> bool
 {
-    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
+    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
         if (e.has_moved() && !m_inside) {
             m_inside = true;
             mouse_enter();
@@ -427,7 +441,7 @@ auto ui::widgets::button_widget::mouse_up() -> void
     }
 
     if (m_pressed && m_action.state() && m_action.isFunction()) {
-        m_action(m_user_info);
+        m_action();
     }
 
     m_pressed = false;

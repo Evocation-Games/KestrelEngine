@@ -199,7 +199,7 @@ auto ui::stencils::button_stencil::draw(const std::shared_ptr<graphics::canvas> 
             canvas->set_pen_color(*info->text_color.get());
             auto size = canvas->layout_text_in_bounds(info->text, canvas->get_bounds().size);
             auto origin_size = (canvas->get_bounds().size - size) / 2.0;
-            auto origin = math::point(origin_size.width, origin_size.height);
+            auto origin = math::point(origin_size.width, origin_size.height - 1).floor();
             canvas->draw_text(origin);
         }
 

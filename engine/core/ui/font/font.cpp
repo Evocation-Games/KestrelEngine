@@ -20,6 +20,7 @@
 
 #include "core/ui/font/font.hpp"
 #include "core/graphics/common/font.hpp"
+#include <libGraphite/font/manager.hpp>
 #if TARGET_MACOS
 #   include "core/support/macos/cocoa/font.h"
 #elif TARGET_LINUX
@@ -98,8 +99,19 @@ auto ui::font::reference::load_for_imgui() -> void
     m_instances.config.OversampleV = 1;
     m_instances.config.OversampleH = 1;
 
+    std::string fm_prefix = "rsrc::font_manager::";
+
     if (m_font_face == imgui_default_font) {
         m_instances.imgui = io.Fonts->AddFontDefault(&m_instances.config);
+    }
+    else if (m_path.starts_with(fm_prefix)) {
+        // The font data is contained in the font manager for graphite.
+//        auto name = m_path.substr(fm_prefix.size());
+//        if (auto ttf = graphite::font_manager::shared_manager().font_named(name)) {
+//            m_instances.config.FontDataOwnedByAtlas = false;
+//            m_instances.imgui = io.Fonts->AddFontFromMemoryTTF(ttf->get<void *>(0), m_font_size, m_font_size, &m_instances.config);
+//        }
+        m_instances.imgui = io.Fonts->AddFontFromFileTTF("/Users/tomhancocks/Desktop/Geneva-2.ttf", m_font_size, &m_instances.config);
     }
     else {
         m_instances.imgui = io.Fonts->AddFontFromFileTTF(m_path.c_str(), m_font_size, &m_instances.config);

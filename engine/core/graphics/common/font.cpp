@@ -21,6 +21,7 @@
 
 #include <stdexcept>
 #include "core/graphics/common/font.hpp"
+#include <libGraphite/font/manager.hpp>
 
 #if __APPLE__
 #include "core/support/macos/cocoa/font.h"
@@ -52,6 +53,19 @@ graphics::font::font(const std::string &path, float size)
     : m_path(path)
 {
     init_freetype();
+
+    std::string fm_prefix = "rsrc::font_manager::";
+    if (path.starts_with(fm_prefix)) {
+        // The font data is contained in the font manager for graphite.
+        auto name = path.substr(fm_prefix.size());
+        if (auto ttf = graphite::font::manager::shared_manager().ttf_font_named(name)) {
+            if (FT_New_Memory_Face(ft, ttf->get<FT_Byte *>(0), ttf->size(), 0, &m_face)) {
+                throw std::logic_error("Failed to load memory font face.");
+            }
+            return;
+        }
+    }
+
     if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
         throw std::logic_error("Failed to load font face.");
     }
@@ -69,6 +83,13 @@ graphics::font::font(const std::string& name, bool load_font)
 
     if (load_font) {
         init_freetype();
+
+        if (auto ttf = graphite::font::manager::shared_manager().ttf_font_named(name)) {
+            if (FT_New_Memory_Face(ft, ttf->get<FT_Byte *>(0), ttf->size(), 0, &m_face)) {
+                throw std::logic_error("Failed to load memory font face.");
+            }
+            return;
+        }
 
         if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
             throw std::logic_error("Failed to load font face.");

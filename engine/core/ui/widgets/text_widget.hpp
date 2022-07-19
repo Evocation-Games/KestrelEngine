@@ -31,11 +31,7 @@
 #include "math/size.hpp"
 #include "math/rect.hpp"
 #include "core/event/responder/responder_chain.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
 
 namespace ui::widgets
 {
@@ -50,7 +46,7 @@ namespace ui::widgets
 
         auto draw() -> void;
 
-        [[nodiscard]] auto entity() const -> std::shared_ptr<ui::scene_entity>;
+        [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
 
         [[nodiscard]] lua_api auto text() const -> std::string;
         [[nodiscard]] lua_api auto font() const -> std::string;
@@ -86,7 +82,7 @@ namespace ui::widgets
         int16_t m_font_size { 12 };
         text_entry_event m_input;
         std::unique_ptr<graphics::canvas> m_canvas;
-        std::shared_ptr<scene_entity> m_entity;
+        scene_entity::lua_reference m_entity { nullptr };
         graphics::color m_color { graphics::color::black_color() };
         graphics::color m_border_color { graphics::color::black_color() };
         graphics::color m_selection_color { graphics::color::blue_color() };

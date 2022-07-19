@@ -37,39 +37,35 @@ namespace ui
     class dialog : public scripting::lua::object
     {
     public:
+        enum class mode : std::uint8_t { scene = 0, imgui = 1 };
+
         typedef luabridge::RefCountedPtr<dialog> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
         explicit dialog(dialog_configuration* config);
-        explicit lua_api dialog(const luabridge::LuaRef& ref);
 
         [[nodiscard]] auto frame() const -> math::rect;
 
-        lua_api auto present() -> void;
-        lua_api auto present_in_scene(const ui::game_scene::lua_reference& scene) -> void;
+        auto present() -> void;
 
         lua_api auto set_background(const luabridge::LuaRef& background) -> void;
         lua_api auto set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void;
 
         lua_api auto configure_element(const std::string& name, const luabridge::LuaRef& configure) -> void;
-        lua_api auto named_element(const std::string& name) -> ui::control_definition::lua_reference;
+        lua_api auto named_element(const std::string& name) -> luabridge::LuaRef;
 
         lua_api auto close() -> void;
 
-        lua_api auto update() -> void;
-
-        [[nodiscard]] lua_api auto passthrough() const -> bool { return false; }
-        lua_api auto set_passthrough(bool f) -> void { }
-
     private:
+        enum mode m_mode { mode::scene };
         dialog_configuration *m_configuration { nullptr };
+        std::unordered_map<std::string, luabridge::LuaRef> m_elements;
+
         math::size m_positioning_offset;
         math::rect m_frame;
         std::string m_name;
-        std::unordered_map<std::string, ui::control_definition::lua_reference> m_control_definitions;
         ui::game_scene::lua_reference m_owner_scene { nullptr };
-        asset::legacy::macintosh::toolbox::item_list::lua_reference m_item_list { nullptr };
 
         struct {
             asset::static_image::lua_reference top { nullptr };
@@ -89,6 +85,8 @@ namespace ui
         } m_scene_ui;
 
         auto load_contents(dialog_configuration *config) -> void;
+        auto load_imgui_contents(dialog_configuration *config) -> void;
+        auto load_scene_contents(dialog_configuration *config) -> void;
         auto present_imgui(const ui::game_scene::lua_reference& scene) -> void;
         auto present_scene(const ui::game_scene::lua_reference& scene) -> void;
 

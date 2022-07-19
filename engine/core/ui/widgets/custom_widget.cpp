@@ -46,7 +46,7 @@ ui::widgets::custom_widget::custom_widget(const luabridge::LuaRef &drawing_funct
 
 // MARK: - Accessors
 
-auto ui::widgets::custom_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::custom_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -67,6 +67,8 @@ auto ui::widgets::custom_widget::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
     resize();
+
+    m_entity->internal_entity()->set_position(frame.origin);
     m_entity->set_position(frame.origin);
 }
 
@@ -81,7 +83,7 @@ auto ui::widgets::custom_widget::resize() -> void
 {
     m_dirty = true;
     m_canvas = { new graphics::canvas(m_frame.size) };
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
 }
 
 auto ui::widgets::custom_widget::redraw() -> void

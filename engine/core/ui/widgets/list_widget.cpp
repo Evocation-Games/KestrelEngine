@@ -78,8 +78,11 @@ auto ui::widgets::list_widget::setup(const math::rect& frame) -> void
     m_row_size = math::size(frame.size.width, std::floor(frame.size.height / m_visible_rows));
 
     m_canvas = std::make_shared<graphics::canvas>(frame.size);
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(frame.origin));
+    m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin)) };
     m_entity->set_clipping_area(frame.size);
+
+    m_entity->internal_entity()->set_position(frame.origin);
+    m_entity->set_position(frame.origin);
 
     redraw_entity();
     bind_internal_events();
@@ -187,7 +190,7 @@ auto ui::widgets::list_widget::set_row_items(const luabridge::LuaRef &rows) -> v
     }
 }
 
-auto ui::widgets::list_widget::entity() const -> std::shared_ptr<scene_entity>
+auto ui::widgets::list_widget::entity() const -> scene_entity::lua_reference
 {
     return m_entity;
 }

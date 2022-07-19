@@ -50,12 +50,12 @@ auto ui::widgets::text_widget::enroll_object_api_in_state(const std::shared_ptr<
 ui::widgets::text_widget::text_widget(double width)
 {
     m_canvas = std::make_unique<graphics::canvas>(math::size(width, 25));
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({0, 0}));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({0, 0})) };
 }
 
 // MARK: - Accessors
 
-auto ui::widgets::text_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::text_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -174,7 +174,7 @@ auto ui::widgets::text_widget::set_size(const math::size& v) -> void
 {
     auto position = this->position();
     m_canvas = std::make_unique<graphics::canvas>(v);
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(position));
+    m_entity->change_internal_entity(m_canvas->spawn_entity(position));
     redraw_entity();
 }
 

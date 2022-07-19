@@ -27,6 +27,9 @@
 #include "core/ui/widgets/custom_widget.hpp"
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/button_widget.hpp"
+#include "core/ui/widgets/grid_widget.hpp"
+#include "core/ui/widgets/textarea_widget.hpp"
+#include "core/ui/widgets/list_widget.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include "renderer/common/renderer.hpp"
 
@@ -377,7 +380,7 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
 
 auto ui::game_scene::draw_widgets() const -> void
 {
-    std::shared_ptr<scene_entity> entity;
+    scene_entity::lua_reference entity { nullptr };
 
     for (const auto& widget : m_widgets) {
         if (!widget.isUserdata()) {
@@ -409,12 +412,27 @@ auto ui::game_scene::draw_widgets() const -> void
             entity = button->entity();
             button->draw();
         }
+        else if (scripting::lua::ref_isa<ui::widgets::grid_widget>(widget)) {
+            auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
+            entity = grid->entity();
+            grid->draw();
+        }
+        else if (scripting::lua::ref_isa<ui::widgets::list_widget>(widget)) {
+            auto list = widget.cast<ui::widgets::list_widget::lua_reference>();
+            entity = list->entity();
+            list->draw();
+        }
+        else if (scripting::lua::ref_isa<ui::widgets::textarea_widget>(widget)) {
+            auto text = widget.cast<ui::widgets::textarea_widget::lua_reference>();
+            entity = text->entity();
+            text->draw();
+        }
         else {
             // TODO: Unrecognised widget type... skip.
             continue;
         }
 
-        entity->set_draw_position(m_positioning_frame->position_for_entity(*entity));
+        entity->set_draw_position(m_positioning_frame->position_for_entity(*entity.get()).floor());
         entity->layout();
         entity->draw();
     }
