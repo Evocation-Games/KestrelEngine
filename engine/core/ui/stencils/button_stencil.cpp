@@ -41,7 +41,6 @@ auto ui::stencils::button_stencil::enroll_object_api_in_state(const std::shared_
                     .addProperty("text", &button_stencil::info::text)
                     .addProperty("textColor", &button_stencil::info::text_color)
                     .addProperty("font", &button_stencil::info::font)
-                    .addProperty("fontSize", &button_stencil::info::font_size)
                     .addProperty("bounds", &button_stencil::info::bounds)
                     .addProperty("leftCapImage", &button_stencil::info::left)
                     .addProperty("centerImage", &button_stencil::info::center)
@@ -195,7 +194,7 @@ auto ui::stencils::button_stencil::draw(const std::shared_ptr<graphics::canvas> 
         }
 
         if (!info->text.empty()) {
-            canvas->set_font(info->font, info->font_size);
+            canvas->set_font(info->font);
             canvas->set_pen_color(*info->text_color.get());
             auto size = canvas->layout_text_in_bounds(info->text, canvas->get_bounds().size);
             auto origin_size = (canvas->get_bounds().size - size) / 2.0;

@@ -74,7 +74,12 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
         [app activateIgnoringOtherApps:YES];
 
         try {
-            [app run];
+            @try {
+                [app run];
+            }
+            @catch (NSException *e) {
+                NSLog(@"Exception: %@", [e description]);
+            }
         }
         catch (const std::exception& e) {
             std::cerr << e.what() << std::endl;

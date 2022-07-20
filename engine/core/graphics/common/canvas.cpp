@@ -96,10 +96,10 @@ auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
     m_dirty = true;
 }
 
-auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
+auto graphics::canvas::set_font(const ui::font::reference::lua_reference& font) -> void
 {
-    m_typesetter.set_font(name);
-    m_typesetter.set_font_size(size);
+    font->load_for_graphics();
+    m_typesetter.set_font(*font.get());
     m_dirty = true;
 }
 
@@ -274,7 +274,7 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
         }
 
         auto x = static_cast<int>(std::round(r));
-        typeof(x) y = 0;
+        decltype(x) y = 0;
         double err = 0;
 
         while (x >= y) {

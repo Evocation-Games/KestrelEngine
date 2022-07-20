@@ -33,7 +33,6 @@ auto ui::widgets::label_widget::enroll_object_api_in_state(const std::shared_ptr
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
                 .addProperty("text", &label_widget::text, &label_widget::set_text)
                 .addProperty("font", &label_widget::font, &label_widget::set_font)
-                .addProperty("fontSize", &label_widget::font_size, &label_widget::set_font_size)
                 .addProperty("color", &label_widget::color, &label_widget::set_color)
                 .addProperty("backgroundColor", &label_widget::background_color, &label_widget::set_background_color)
                 .addProperty("offset", &label_widget::offset, &label_widget::set_offset)
@@ -75,19 +74,9 @@ auto ui::widgets::label_widget::text() const -> std::string
     return m_text;
 }
 
-auto ui::widgets::label_widget::font() const -> std::string
+auto ui::widgets::label_widget::font() const -> ui::font::reference::lua_reference
 {
-    return m_font_face;
-}
-
-auto ui::widgets::label_widget::font_size() const -> int16_t
-{
-    return m_font_size;
-}
-
-auto ui::widgets::label_widget::lua_safe_font_size() const -> int
-{
-    return static_cast<int>(m_font_size);
+    return m_font;
 }
 
 auto ui::widgets::label_widget::color() const -> graphics::color::lua_reference
@@ -148,30 +137,17 @@ auto ui::widgets::label_widget::set_text(const std::string& v) -> void
     m_dirty = true;
 }
 
-auto ui::widgets::label_widget::set_font(const std::string& v) -> void
+auto ui::widgets::label_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
-    m_font_face = v;
+    m_font = font;
     m_dirty = true;
 
     graphics::typesetter ts { m_text };
+    ts.set_font(*m_font.get());
     ts.layout();
     m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
-auto ui::widgets::label_widget::set_font_size(int16_t v) -> void
-{
-    m_font_size = v;
-    m_dirty = true;
-
-    graphics::typesetter ts { m_text };
-    ts.layout();
-    m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
-}
-
-auto ui::widgets::label_widget::set_lua_safe_font_size(int v) -> void
-{
-    set_font_size(static_cast<int16_t>(v));
-}
 
 auto ui::widgets::label_widget::set_color(const graphics::color::lua_reference& v) -> void
 {
@@ -249,7 +225,7 @@ auto ui::widgets::label_widget::redraw_entity() -> void
     m_canvas->fill_rect({ {0, 0}, size});
 
     m_canvas->set_pen_color(m_color);
-    m_canvas->set_font(m_font_face, m_font_size);
+    m_canvas->set_font(m_font);
 
     const auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
     auto x = m_offset.width;

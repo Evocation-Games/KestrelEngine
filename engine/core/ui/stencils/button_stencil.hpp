@@ -20,7 +20,6 @@
 
 #pragma once
 
-
 #include <memory>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -28,6 +27,7 @@
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/canvas.hpp"
 #include "math/size.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace ui::stencils
 {
@@ -44,8 +44,7 @@ namespace ui::stencils
             typedef luabridge::RefCountedPtr<button_stencil::info> lua_reference;
 
             std::string text;
-            std::string font;
-            int16_t font_size;
+            ui::font::reference::lua_reference font { nullptr };
             math::rect bounds;
             graphics::color::lua_reference text_color { new graphics::color(255, 255) };
             asset::static_image::lua_reference left { nullptr };

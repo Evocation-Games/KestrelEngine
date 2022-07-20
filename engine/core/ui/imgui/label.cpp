@@ -34,7 +34,6 @@ auto ui::imgui::label::enroll_object_api_in_state(const std::shared_ptr<scriptin
                 .addProperty("text", &label::text, &label::set_text)
                 .addProperty("font", &label::font, &label::set_font)
                 .addProperty("wrapping", &label::wrapping, &label::set_wrapping)
-                .addProperty("textSize", &label::text_size, &label::set_text_size)
             .endClass()
         .endNamespace();
 }

@@ -25,6 +25,7 @@
 #include "core/ui/imgui/widget.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace ui::imgui
 {
@@ -40,14 +41,23 @@ namespace ui::imgui
 
         auto draw() -> void override;
 
-        auto position() const -> math::point override { return widget::position(); }
+        [[nodiscard]] auto position() const -> math::point override { return widget::position(); }
         auto set_position(const math::point &position) -> void override { widget::set_position(position); }
 
-        auto size() const -> math::size override { return widget::size(); }
+        [[nodiscard]] auto size() const -> math::size override { return widget::size(); }
         auto set_size(const math::size &size) -> void override { widget::set_size(size); }
+
+        [[nodiscard]] auto text() const -> std::string;
+        auto set_text(const std::string& text) -> void;
+
+        [[nodiscard]] auto font() const -> ui::font::reference::lua_reference;
+        auto set_font(const ui::font::reference::lua_reference& font) -> void;
 
     private:
         std::size_t m_buffer_size;
         char *m_buffer;
+        ui::font::reference::lua_reference m_font { nullptr };
+
+        auto internal_draw() -> void;
     };
 }

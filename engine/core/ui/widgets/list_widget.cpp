@@ -238,11 +238,15 @@ auto ui::widgets::list_widget::set_heading_text_color(const graphics::color::lua
     m_dirty = true;
 }
 
-auto ui::widgets::list_widget::set_font(const std::string &font, int16_t size) -> void
+auto ui::widgets::list_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_label_font = font;
-    m_font_size = size;
     m_dirty = true;
+}
+
+auto ui::widgets::list_widget::font() const -> ui::font::reference::lua_reference
+{
+    return m_label_font;
 }
 
 // MARK: - Drawing
@@ -257,8 +261,7 @@ auto ui::widgets::list_widget::draw() -> void
 auto ui::widgets::list_widget::redraw_entity() -> void
 {
     m_canvas->clear();
-
-    m_canvas->set_font(m_label_font, std::min(static_cast<std::int16_t>(10), m_font_size));
+    m_canvas->set_font(m_label_font);
 
     math::point row_offset;
     if (m_has_header) {
@@ -303,7 +306,7 @@ auto ui::widgets::list_widget::redraw_entity() -> void
         });
 
         m_canvas->set_pen_color(*m_text_color.get());
-        m_canvas->set_font(m_label_font, m_font_size);
+        m_canvas->set_font(m_label_font);
 
         for (auto j = 1; j <= m_column_widths.size(); ++j) {
             const auto& column = row->column_value(j);

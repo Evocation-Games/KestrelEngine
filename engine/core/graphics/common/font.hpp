@@ -32,28 +32,32 @@
 #include "math/size.hpp"
 #include "math/point.hpp"
 #include "core/graphics/common/color.hpp"
+#include <libGraphite/data/data.hpp>
 
 namespace graphics
 {
 
     class font: public std::enable_shared_from_this<graphics::font>
     {
-    private:
-        std::string m_path;
-        FT_Face m_face;
-
     public:
-        explicit font(const std::string& path, float size);
-        explicit font(const std::string& name = "", bool load_font = true);
+        explicit font(const std::string& name, std::int16_t size, bool load_font = true);
         ~font();
 
         [[nodiscard]] auto face() const -> FT_Face;
         [[nodiscard]] auto path() const -> std::string;
+        [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto size() const -> std::int16_t;
 
         [[nodiscard]] auto calculate_glyph_width(const FT_UInt& glyph_index, const FT_UInt& previous_glyph_index, math::size *kerning) const -> double;
         [[nodiscard]] auto line_height() const -> double;
 
         static auto font_name_at_path(const std::string& path) -> std::string;
+
+    private:
+        std::string m_path;
+        std::int16_t m_size { 11 };
+        FT_Face m_face;
+
     };
 
 }

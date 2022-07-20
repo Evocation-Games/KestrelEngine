@@ -71,6 +71,12 @@ namespace ui::widgets
 
         [[nodiscard]] lua_api auto selected_item() const -> std::int32_t;
         [[nodiscard]] lua_api auto frame() const -> math::rect;
+        [[nodiscard]] lua_api auto font() const -> ui::font::reference::lua_reference;
+        [[nodiscard]] lua_api auto text_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto secondary_text_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto background_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto hilite_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto outline_color() const -> graphics::color::lua_reference;
 
         lua_api auto on_item_select(const luabridge::LuaRef& callback) -> void;
 
@@ -82,7 +88,7 @@ namespace ui::widgets
         lua_api auto set_background_color(const graphics::color::lua_reference& color) -> void;
         lua_api auto set_hilite_color(const graphics::color::lua_reference& color) -> void;
         lua_api auto set_outline_color(const graphics::color::lua_reference& color) -> void;
-        lua_api auto set_font(const std::string& font, int16_t size) -> void;
+        lua_api auto set_font(const ui::font::reference::lua_reference& font) -> void;
 
         lua_api auto set_items(const luabridge::LuaRef& items) -> void;
 
@@ -96,8 +102,7 @@ namespace ui::widgets
 
     private:
         bool m_dirty { true };
-        std::string m_label_font { "Geneva" };
-        std::int16_t m_font_size { 11 };
+        ui::font::reference::lua_reference m_label_font { nullptr };
         luabridge::LuaRef m_item_select_callback { nullptr };
         std::vector<item::lua_reference> m_items;
         std::shared_ptr<graphics::canvas> m_canvas;

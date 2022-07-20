@@ -30,6 +30,8 @@ auto ui::imgui::textfield::enroll_object_api_in_state(const std::shared_ptr<scri
                 .addConstructor<auto(*)(std::size_t, const std::string&)->void, lua_reference>()
                 .addProperty("position", &textfield::position, &textfield::set_position)
                 .addProperty("size", &textfield::size, &textfield::set_size)
+                .addProperty("text", &textfield::text, &textfield::set_text)
+                .addProperty("font", &textfield::font, &textfield::set_font)
             .endClass()
         .endNamespace();
 }
@@ -53,7 +55,7 @@ ui::imgui::textfield::~textfield()
 
 // MARK: - Drawing
 
-auto ui::imgui::textfield::draw() -> void
+auto ui::imgui::textfield::internal_draw() -> void
 {
     if (has_position()) {
         ImGui::SetCursorPos({ static_cast<float>(position().x), static_cast<float>(position().y) });
@@ -64,4 +66,42 @@ auto ui::imgui::textfield::draw() -> void
     }
 
     ImGui::InputText(identifier_string(), m_buffer, m_buffer_size);
+}
+
+auto ui::imgui::textfield::draw() -> void
+{
+    if (m_font.get()) {
+        m_font->push([&] { internal_draw(); });
+    }
+    else {
+        internal_draw();
+    }
+}
+
+// MARK: - Accessors
+
+auto ui::imgui::textfield::text() const -> std::string
+{
+    return { m_buffer, m_buffer_size };
+}
+
+auto ui::imgui::textfield::set_text(const std::string &text) -> void
+{
+    delete m_buffer;
+
+    m_buffer_size = text.size();
+    m_buffer = new char[m_buffer_size + 1];
+    memset(m_buffer, 0, m_buffer_size + 1);
+    memcpy(m_buffer, text.c_str(), std::min(text.size(), m_buffer_size));
+}
+
+auto ui::imgui::textfield::font() const -> ui::font::reference::lua_reference
+{
+    return m_font;
+}
+
+auto ui::imgui::textfield::set_font(const ui::font::reference::lua_reference &font) -> void
+{
+    font->load_for_imgui();
+    m_font = font;
 }

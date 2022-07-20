@@ -29,6 +29,7 @@
 #include "math/size.hpp"
 #include "math/rect.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace ui::widgets
 {
@@ -49,8 +50,7 @@ namespace ui::widgets
         [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
 
         [[nodiscard]] lua_api auto text() const -> std::string;
-        [[nodiscard]] lua_api auto font() const -> std::string;
-        [[nodiscard]] auto font_size() const -> int16_t;
+        [[nodiscard]] lua_api auto font() const -> ui::font::reference::lua_reference ;
         [[nodiscard]] lua_api auto color() const -> graphics::color::lua_reference;
         [[nodiscard]] lua_api auto background_color() const -> graphics::color::lua_reference;
         [[nodiscard]] lua_api auto offset() const -> math::size;
@@ -61,8 +61,7 @@ namespace ui::widgets
         [[nodiscard]] auto horizontal_alignment() const -> enum horizontal_alignment;
 
         lua_api auto set_text(const std::string& v) -> void;
-        lua_api auto set_font(const std::string& v) -> void;
-        auto set_font_size(int16_t v) -> void;
+        lua_api auto set_font(const ui::font::reference::lua_reference& font) -> void;
         lua_api auto set_color(const graphics::color::lua_reference& v) -> void;
         lua_api auto set_background_color(const graphics::color::lua_reference& v) -> void;
         lua_api auto set_offset(const math::size& v) -> void;
@@ -76,8 +75,7 @@ namespace ui::widgets
         bool m_dirty { true };
         int16_t m_min_height { 0 };
         std::string m_text;
-        std::string m_font_face { "Geneva" };
-        int16_t m_font_size { 12 };
+        ui::font::reference::lua_reference m_font { nullptr };
         graphics::color m_color { graphics::color::white_color() };
         graphics::color m_background { graphics::color::clear_color() };
         math::size m_offset { 0 };
@@ -88,11 +86,9 @@ namespace ui::widgets
 
         auto redraw_entity() -> void;
 
-        [[nodiscard]] lua_api auto lua_safe_font_size() const -> int;
         [[nodiscard]] lua_api auto lua_safe_vertical_alignment() const -> int;
         [[nodiscard]] lua_api auto lua_safe_horizontal_alignment() const -> int;
 
-        lua_api auto set_lua_safe_font_size(int v) -> void;
         lua_api auto set_lua_safe_vertical_alignment(int v) -> void;
         lua_api auto set_lua_safe_horizontal_alignment(int v) -> void;
 

@@ -40,9 +40,11 @@ auto ui::imgui::combo::enroll_object_api_in_state(const std::shared_ptr<scriptin
 // MARK: - Constructor
 
 ui::imgui::combo::combo(luabridge::LuaRef items)
-    : widget(), m_items(items), m_action(nullptr)
+    : widget(), m_action(nullptr)
 {
-
+    if (items.state()) {
+        m_items = items;
+    }
 }
 
 // MARK: - Drawing

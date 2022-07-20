@@ -28,6 +28,7 @@
 #include "core/graphics/common/font.hpp"
 #include "core/graphics/common/color.hpp"
 #include "math/size.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace graphics
 {
@@ -50,7 +51,6 @@ namespace graphics
         int m_dpi { 100 };
         std::wstring m_text;
         std::shared_ptr<graphics::font> m_base_font;
-        unsigned int m_base_font_size;
         graphics::color m_font_color;
         std::vector<character> m_layout;
         std::vector<character> m_buffer;
@@ -72,6 +72,7 @@ namespace graphics
         lua_api explicit typesetter(const std::string& text, const double& scale = 1.0);
 
         lua_api auto set_margins(const math::size& margins) -> void;
+        lua_api auto set_font(const ui::font::reference& font) -> void;
         lua_api auto set_font(const std::string& font_name) -> void;
         lua_api auto set_font_size(const int& size) -> void;
         lua_api auto set_font_color(const graphics::color& color) -> void;

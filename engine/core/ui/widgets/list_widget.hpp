@@ -30,6 +30,7 @@
 #include "math/size.hpp"
 #include "math/rect.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace ui::widgets
 {
@@ -74,6 +75,7 @@ namespace ui::widgets
         [[nodiscard]] lua_api auto current_row() const -> row::lua_reference;
         [[nodiscard]] lua_api auto selected_row() const -> std::int32_t;
         [[nodiscard]] lua_api auto frame() const -> math::rect;
+        [[nodiscard]] lua_api auto font() const -> ui::font::reference::lua_reference;
 
         lua_api auto set_borders(bool f) -> void;
         lua_api auto set_headers(bool f) -> void;
@@ -85,7 +87,7 @@ namespace ui::widgets
         lua_api auto set_hilite_color(const graphics::color::lua_reference& color) -> void;
         lua_api auto set_outline_color(const graphics::color::lua_reference& color) -> void;
         lua_api auto set_heading_text_color(const graphics::color::lua_reference& color) -> void;
-        lua_api auto set_font(const std::string& font, int16_t size) -> void;
+        lua_api auto set_font(const ui::font::reference::lua_reference& font) -> void;
 
         lua_api auto draw() -> void;
         [[nodiscard]] lua_api auto entity() const -> scene_entity::lua_reference;
@@ -98,8 +100,7 @@ namespace ui::widgets
         bool m_borders { false };
         math::size m_row_size;
         std::uint32_t m_visible_rows { 0 };
-        std::string m_label_font { "Geneva" };
-        std::int16_t m_font_size { 11 };
+        ui::font::reference::lua_reference m_label_font { nullptr };
         std::vector<row::lua_reference> m_rows;
         std::vector<std::string> m_headings;
         std::vector<double> m_column_widths;

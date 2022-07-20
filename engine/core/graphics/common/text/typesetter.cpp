@@ -23,14 +23,14 @@
 #include <locale>
 #include <cmath>
 #include "core/graphics/common/text/typesetter.hpp"
+#include "core/ui/font/font.hpp"
 
 // MARK: - Construction
 
 graphics::typesetter::typesetter(const std::string &text, const double& scale)
-    : m_base_font(std::make_shared<graphics::font>()),
+    : m_base_font(std::make_shared<graphics::font>("system.default", 11)),
       m_scale(scale),
       m_dpi(static_cast<int>(100 * scale)),
-      m_base_font_size(12),
       m_font_color(graphics::color::white_color()),
       m_max_size(9999), m_min_size(0),
       m_pos(0),
@@ -48,14 +48,9 @@ auto graphics::typesetter::set_margins(const math::size &margins) -> void
 }
 
 
-auto graphics::typesetter::set_font(const std::string &font_name) -> void
+auto graphics::typesetter::set_font(const ui::font::reference& font) -> void
 {
-    m_base_font = std::make_shared<graphics::font>(font_name);
-}
-
-auto graphics::typesetter::set_font_size(const int &size) -> void
-{
-    m_base_font_size = static_cast<unsigned int>(size);
+    m_base_font = font.graphics_font();
 }
 
 auto graphics::typesetter::set_font_color(const graphics::color &color) -> void
@@ -126,7 +121,7 @@ auto graphics::typesetter::layout() -> void
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), m_dpi, m_dpi);
+    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font->size() - 2) << 6U), m_dpi, m_dpi);
 
     // Prepare a buffer to keep track of character layouts, before committing them to the actual layout.
     std::vector<character> buffer;
@@ -224,9 +219,9 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font_size - 2) << 6U), m_dpi, m_dpi);
+    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font->size() - 2) << 6U), m_dpi, m_dpi);
 
-    if (m_base_font_size <= 10) {
+    if (m_base_font->size() <= 10) {
         for (const auto& ch : m_layout) {
             FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), ch.value);
             if (FT_Load_Glyph(m_base_font->face(), glyph_index, FT_LOAD_DEFAULT | FT_LOAD_FORCE_AUTOHINT)) {

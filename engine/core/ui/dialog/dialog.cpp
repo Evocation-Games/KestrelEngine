@@ -97,7 +97,7 @@ auto ui::dialog::load_imgui_contents(dialog_configuration *config) -> void
 
         switch (static_cast<enum control_definition::type>(element->type())) {
             case control_definition::type::button: {
-                auto button = imgui::button::lua_reference(new imgui::button(element->suggested_value(), { nullptr }));
+                auto button = imgui::button::lua_reference(new imgui::button(element->suggested_value()));
                 button->set_position(element->frame().origin);
                 button->set_size(element->frame().size);
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
@@ -193,6 +193,9 @@ auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
                 image->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
                 break;
+            }
+            case control_definition::type::popup_button: {
+
             }
             case control_definition::type::label: {
                 auto label = widgets::label_widget::lua_reference(new widgets::label_widget(element->suggested_value()));

@@ -37,6 +37,7 @@ namespace ui::imgui
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
+        explicit button(const std::string& label);
         lua_api button(const std::string& label, luabridge::LuaRef action);
 
         [[nodiscard]] lua_api auto label() const -> std::string { return m_label; }

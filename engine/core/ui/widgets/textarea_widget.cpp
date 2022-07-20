@@ -32,7 +32,6 @@ auto ui::widgets::textarea_widget::enroll_object_api_in_state(const std::shared_
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
                 .addProperty("text", &textarea_widget::text, &textarea_widget::set_text)
                 .addProperty("font", &textarea_widget::font, &textarea_widget::set_font)
-                .addProperty("fontSize", &textarea_widget::font_size, &textarea_widget::set_font_size)
                 .addProperty("color", &textarea_widget::color, &textarea_widget::set_color)
                 .addProperty("textColor", &textarea_widget::color, &textarea_widget::set_color)
                 .addProperty("backgroundColor", &textarea_widget::background_color, &textarea_widget::set_background_color)
@@ -87,19 +86,9 @@ auto ui::widgets::textarea_widget::text() const -> std::string
     return m_text;
 }
 
-auto ui::widgets::textarea_widget::font() const -> std::string
+auto ui::widgets::textarea_widget::font() const -> ui::font::reference::lua_reference
 {
-    return m_font_face;
-}
-
-auto ui::widgets::textarea_widget::font_size() const -> int16_t
-{
-    return m_font_size;
-}
-
-auto ui::widgets::textarea_widget::lua_safe_font_size() const -> int
-{
-    return static_cast<int>(m_font_size);
+    return m_font;
 }
 
 auto ui::widgets::textarea_widget::color() const -> graphics::color::lua_reference
@@ -145,21 +134,10 @@ auto ui::widgets::textarea_widget::set_text(const std::string& v) -> void
     m_dirty = true;
 }
 
-auto ui::widgets::textarea_widget::set_font(const std::string& v) -> void
+auto ui::widgets::textarea_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
-    m_font_face = v;
+    m_font = font;
     m_dirty = true;
-}
-
-auto ui::widgets::textarea_widget::set_font_size(int16_t v) -> void
-{
-    m_font_size = v;
-    m_dirty = true;
-}
-
-auto ui::widgets::textarea_widget::set_lua_safe_font_size(int v) -> void
-{
-    set_font_size(static_cast<int16_t>(v));
 }
 
 auto ui::widgets::textarea_widget::set_color(const graphics::color::lua_reference& v) -> void
@@ -215,7 +193,7 @@ auto ui::widgets::textarea_widget::set_scroll_offset(int32_t offset) -> void
         offset = m_canvas->get_bounds().size.height - m_entity->size().height;
         m_can_scroll_down = false;
     }
-    
+
     m_scroll_offset = offset;
     m_entity->set_clipping_offset({ 0, static_cast<double>(m_scroll_offset) });
 }
@@ -236,7 +214,7 @@ auto ui::widgets::textarea_widget::redraw_entity() -> void
 {
     auto size = m_entity->size();
 
-    m_canvas->set_font(m_font_face, m_font_size);
+    m_canvas->set_font(m_font);
 
     auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
     auto x = m_offset.width;
@@ -249,7 +227,7 @@ auto ui::widgets::textarea_widget::redraw_entity() -> void
     m_canvas->fill_rect({{0, 0}, size});
 
     m_canvas->set_pen_color(m_color);
-    m_canvas->set_font(m_font_face, m_font_size);
+    m_canvas->set_font(m_font);
 
     m_canvas->layout_text_in_bounds(m_text, size);
     m_canvas->draw_text({ x, y });

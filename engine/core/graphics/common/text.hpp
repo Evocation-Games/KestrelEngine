@@ -28,6 +28,7 @@
 #include "scripting/state.hpp"
 #include "core/graphics/common/font.hpp"
 #include "core/graphics/common/color.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace graphics
 {
@@ -39,19 +40,17 @@ namespace graphics
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        lua_api text(std::string text, std::string font, int size, const graphics::color::lua_reference& color);
+        lua_api text(std::string text, const ui::font::reference::lua_reference& font, const graphics::color::lua_reference& color);
 
         lua_api auto spawn_entity(const math::point& position) -> std::shared_ptr<graphics::entity>;
 
         lua_api auto get_value() const -> std::string;
-        lua_api auto get_font_size() const -> int;
-        lua_api auto get_font() const -> std::string;
+        lua_api auto get_font() const -> ui::font::reference::lua_reference;
         lua_api auto get_color() const -> graphics::color::lua_reference;
 
     private:
         std::string m_text;
-        int m_font_size;
-        std::string m_font_face;
+        ui::font::reference::lua_reference m_font;
         graphics::color m_color { graphics::color::white_color() };
     };
 

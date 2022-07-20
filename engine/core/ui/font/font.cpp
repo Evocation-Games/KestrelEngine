@@ -29,6 +29,12 @@
 #   include "core/support/windows/fonts.hpp"
 #endif
 
+namespace ui::font::constants
+{
+    constexpr const char *rsrc_marker = "rsrc::font_manager::";
+    constexpr std::size_t rsrc_marker_len = 20;
+}
+
 // MARK: - Lua
 
 auto ui::font::reference::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
@@ -99,12 +105,10 @@ auto ui::font::reference::load_for_imgui() -> void
     m_instances.config.OversampleV = 1;
     m_instances.config.OversampleH = 1;
 
-    std::string fm_prefix = "rsrc::font_manager::";
-
     if (m_font_face == imgui_default_font) {
         m_instances.imgui = io.Fonts->AddFontDefault(&m_instances.config);
     }
-    else if (m_path.starts_with(fm_prefix)) {
+    else if (m_path.starts_with(constants::rsrc_marker)) {
         // The font data is contained in the font manager for graphite.
 //        auto name = m_path.substr(fm_prefix.size());
 //        if (auto ttf = graphite::font_manager::shared_manager().font_named(name)) {
@@ -133,7 +137,12 @@ auto ui::font::reference::load_for_graphics() -> void
         return;
     }
 
-    m_instances.graphics = std::make_shared<graphics::font>(m_path, static_cast<float>(m_font_size));
+    auto path = m_path;
+    if (path.starts_with(constants::rsrc_marker)) {
+        path = path.substr(constants::rsrc_marker_len);
+    }
+
+    m_instances.graphics = std::make_shared<graphics::font>(path, m_font_size);
 }
 
 auto ui::font::reference::unload_for_graphics() -> void

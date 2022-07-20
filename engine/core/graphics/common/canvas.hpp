@@ -36,6 +36,7 @@
 #include "core/asset/legacy/macintosh/picture.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/asset/legacy/macintosh/color_icon.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace graphics
 {
@@ -58,7 +59,7 @@ namespace graphics
 
         lua_api auto get_bounds() const -> math::rect;
 
-        lua_api auto set_font(const std::string& name, const int& size) -> void;
+        lua_api auto set_font(const ui::font::reference::lua_reference& font) -> void;
         [[nodiscard]] auto font() const -> std::shared_ptr<graphics::font>;
 
         lua_api auto clear() -> void;

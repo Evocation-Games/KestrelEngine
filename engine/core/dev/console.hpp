@@ -53,6 +53,7 @@ namespace dev
         std::shared_ptr<graphics::entity> m_entity;
         std::vector<std::string> m_history;
         text_entry_event m_input;
+        ui::font::reference::lua_reference m_font { nullptr };
         bool m_dirty { true };
         bool m_visible { true };
     };

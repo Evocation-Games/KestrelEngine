@@ -63,7 +63,6 @@ auto ui::widgets::button_widget::enroll_object_api_in_state(const std::shared_pt
                 .addProperty("title", &button_widget::label, &button_widget::set_label)
                 .addProperty("icon", &button_widget::icon, &button_widget::set_icon)
                 .addProperty("font", &button_widget::font, &button_widget::set_font)
-                .addProperty("fontSize", &button_widget::font_size, &button_widget::set_font_size)
                 .addProperty("labelColor", &button_widget::label_color, &button_widget::set_label_color)
                 .addProperty("pressedLabelColor", &button_widget::label_pressed_color, &button_widget::set_label_pressed_color)
                 .addProperty("disabledLabeledColor", &button_widget::label_disabled_color, &button_widget::set_label_disabled_color)
@@ -129,14 +128,9 @@ auto ui::widgets::button_widget::label() const -> std::string
     return m_label;
 }
 
-auto ui::widgets::button_widget::font() const -> std::string
+auto ui::widgets::button_widget::font() const -> ui::font::reference::lua_reference
 {
-    return m_label_font;
-}
-
-auto ui::widgets::button_widget::font_size() const -> int16_t
-{
-    return m_font_size;
+    return m_font;
 }
 
 auto ui::widgets::button_widget::is_pressed() const -> bool
@@ -212,15 +206,9 @@ auto ui::widgets::button_widget::set_label(const std::string& label) -> void
     m_dirty = true;
 }
 
-auto ui::widgets::button_widget::set_font(const std::string& font) -> void
+auto ui::widgets::button_widget::set_font(const ui::font::reference::lua_reference & font) -> void
 {
-    m_label_font = font;
-    m_dirty = true;
-}
-
-auto ui::widgets::button_widget::set_font_size(int16_t font_size) -> void
-{
-    m_font_size = font_size;
+    m_font = font;
     m_dirty = true;
 }
 
@@ -364,7 +352,6 @@ auto ui::widgets::button_widget::redraw_entity() -> void
     stencils::button_stencil::info::lua_reference info { new stencils::button_stencil::info() };
     info->bounds = frame();
     info->font = font();
-    info->font_size = font_size();
     info->text = label();
     info->icon = m_icon;
 

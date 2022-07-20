@@ -39,6 +39,11 @@ auto ui::imgui::button::enroll_object_api_in_state(const std::shared_ptr<scripti
 
 // MARK: - Construction
 
+ui::imgui::button::button(const std::string& label)
+    : m_label(label)
+{
+}
+
 ui::imgui::button::button(const std::string& label, luabridge::LuaRef action)
     : m_label(label), m_action(action)
 {

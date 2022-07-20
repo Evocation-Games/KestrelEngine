@@ -37,6 +37,16 @@ auto ui::widgets::grid_widget::enroll_object_api_in_state(const std::shared_ptr<
         .beginNamespace("Widget")
             .beginClass<grid_widget>("Grid")
                 .addConstructor<auto(*)(const math::rect&)->void, lua_reference>()
+                .addProperty("font", &grid_widget::font, &grid_widget::set_font)
+                .addProperty("textColor", &grid_widget::text_color, &grid_widget::set_text_color)
+                .addProperty("secondaryTextColor", &grid_widget::secondary_text_color, &grid_widget::set_secondary_text_color)
+                .addProperty("backgroundColor", &grid_widget::background_color, &grid_widget::set_background_color)
+                .addProperty("hiliteColor", &grid_widget::hilite_color, &grid_widget::set_hilite_color)
+                .addProperty("outlineColor", &grid_widget::outline_color, &grid_widget::set_outline_color)
+                .addProperty("frame", &grid_widget::frame, &grid_widget::set_frame)
+                .addProperty("selectedItem", &grid_widget::selected_item, &grid_widget::select_item)
+                .addFunction("onItemSelect", &grid_widget::on_item_select)
+                .addFunction("itemAtPoint", &grid_widget::item_index_at_point)
             .endClass()
             .beginClass<grid_widget::item>("GridItem")
                 .addConstructor<auto(*)(const luabridge::LuaRef&, const std::string&, const std::string&, const std::string&)->void, item::lua_reference>()
@@ -94,15 +104,44 @@ auto ui::widgets::grid_widget::frame() const -> math::rect
     return { m_entity->position(), m_entity->size() };
 }
 
+auto ui::widgets::grid_widget::font() const -> ui::font::reference::lua_reference
+{
+    return m_label_font;
+}
+
+auto ui::widgets::grid_widget::text_color() const -> graphics::color::lua_reference
+{
+    return m_text_color;
+}
+
+auto ui::widgets::grid_widget::secondary_text_color() const -> graphics::color::lua_reference
+{
+    return m_secondary_text_color;
+}
+
+auto ui::widgets::grid_widget::background_color() const -> graphics::color::lua_reference
+{
+    return m_background_color;
+}
+
+auto ui::widgets::grid_widget::hilite_color() const -> graphics::color::lua_reference
+{
+    return m_hilite_color;
+}
+
+auto ui::widgets::grid_widget::outline_color() const -> graphics::color::lua_reference
+{
+    return m_outline_color;
+}
+
 auto ui::widgets::grid_widget::set_frame(const math::rect &frame) -> void
 {
     setup(frame);
 }
 
-auto ui::widgets::grid_widget::set_font(const std::string& font, int16_t size) -> void
+auto ui::widgets::grid_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_label_font = font;
-    m_font_size = size;
     m_dirty = true;
 }
 
@@ -219,7 +258,7 @@ auto ui::widgets::grid_widget::draw() -> void
 auto ui::widgets::grid_widget::redraw_entity() -> void
 {
     m_canvas->clear();
-    m_canvas->set_font(m_label_font, std::min(static_cast<std::int16_t>(10), m_font_size));
+    m_canvas->set_font(m_label_font);
 
     if (!m_items.empty()) {
         auto count = static_cast<std::uint32_t>(m_grid.width * m_grid.height);
