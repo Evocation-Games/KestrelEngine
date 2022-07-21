@@ -86,7 +86,11 @@ auto ui::widgets::button_widget::enroll_object_api_in_state(const std::shared_pt
 ui::widgets::button_widget::button_widget(const std::string &label)
     : m_label(label)
 {
+    m_font = ui::font::manager::shared_manager().default_font();
+    m_font->load_for_graphics();
+
     graphics::typesetter ts { label };
+    ts.set_font(*m_font.get());
     ts.layout();
 
     if (ts.get_bounding_size().width == 0 || ts.get_bounding_size().height == 0) {

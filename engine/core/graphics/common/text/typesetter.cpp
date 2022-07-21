@@ -237,7 +237,7 @@ auto graphics::typesetter::render() -> std::vector<graphics::color>
 
             for (auto yy = 0; yy < slot->bitmap.rows; ++yy) {
                 uint8_t bits = 0;
-                for (auto xx = 0; xx < slot->bitmap.width; ++xx, bits <<= 1) {
+                for (auto xx = 0; xx <= slot->bitmap.width; ++xx, bits <<= 1) {
                     if ((xx & 7) == 0) {
                         bits = slot->bitmap.buffer[(yy * slot->bitmap.pitch) + xx];
                     }

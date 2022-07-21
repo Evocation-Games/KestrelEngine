@@ -20,6 +20,7 @@
 
 #include "core/ui/font/font.hpp"
 #include "core/graphics/common/font.hpp"
+#include "core/ui/font/manager.hpp"
 #include <libGraphite/font/manager.hpp>
 #if TARGET_MACOS
 #   include "core/support/macos/cocoa/font.h"
@@ -50,6 +51,7 @@ auto ui::font::reference::enroll_object_api_in_state(const std::shared_ptr<scrip
             .addFunction("unloadForImGui", &reference::unload_for_imgui)
             .addFunction("loadForGraphics", &reference::load_for_graphics)
             .addFunction("unloadForGraphics", &reference::unload_for_graphics)
+            .addFunction("withSize", &reference::with_size)
         .endClass();
 }
 
@@ -161,4 +163,17 @@ auto ui::font::reference::push(const std::function<auto()->void> &scope) const -
     ImGui::PushFont(m_instances.imgui);
     scope();
     ImGui::PopFont();
+}
+
+// MARK: - Alterations
+
+auto ui::font::reference::with_size(std::uint32_t size) -> lua_reference
+{
+    auto existing = manager::shared_manager().get_font(m_path, size);
+    if (existing.get()) {
+        return existing;
+    }
+
+    lua_reference adjusted(new reference(m_path, size));
+    return manager::shared_manager().add_font(adjusted);
 }

@@ -20,6 +20,7 @@
 
 #include "core/ui/widgets/custom_widget.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Lua
 
@@ -90,6 +91,8 @@ auto ui::widgets::custom_widget::resize() -> void
     m_dirty = true;
     m_canvas = { new graphics::canvas(m_frame.size) };
     m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
+
+    m_canvas->set_font(ui::font::manager::shared_manager().default_font());
 }
 
 auto ui::widgets::custom_widget::redraw() -> void

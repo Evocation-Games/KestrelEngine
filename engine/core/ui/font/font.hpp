@@ -55,6 +55,8 @@ namespace ui::font
         lua_api auto load_for_graphics() -> void;
         lua_api auto unload_for_graphics() -> void;
 
+        lua_api auto with_size(std::uint32_t size) -> lua_reference;
+
         auto push(const std::function<auto()->void>& scope) const -> void;
 
     private:

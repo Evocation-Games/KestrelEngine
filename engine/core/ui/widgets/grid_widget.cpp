@@ -21,6 +21,7 @@
 #include <algorithm>
 #include "core/ui/widgets/grid_widget.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Constants
 
@@ -70,6 +71,9 @@ ui::widgets::grid_widget::grid_widget(const math::rect &frame)
 
 auto ui::widgets::grid_widget::setup(const math::rect &frame) -> void
 {
+    m_label_font = ui::font::manager::shared_manager().default_font();
+    m_label_font->load_for_graphics();
+
     m_canvas = std::make_shared<graphics::canvas>(frame.size);
     m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin)) };
     m_entity->set_clipping_area(frame.size);
@@ -144,6 +148,7 @@ auto ui::widgets::grid_widget::set_frame(const math::rect &frame) -> void
 auto ui::widgets::grid_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_label_font = font;
+    m_label_font->load_for_graphics();
     m_dirty = true;
 }
 

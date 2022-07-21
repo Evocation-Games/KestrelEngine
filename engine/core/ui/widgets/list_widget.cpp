@@ -21,6 +21,7 @@
 #include <algorithm>
 #include "core/ui/widgets/list_widget.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Constants
 
@@ -52,7 +53,7 @@ auto ui::widgets::list_widget::enroll_object_api_in_state(const std::shared_ptr<
                 .addFunction("onRowSelect", &list_widget::on_row_select)
                 .addFunction("columnWidth", &list_widget::column_width)
                 .addFunction("columnHeading", &list_widget::column_heading)
-                .addFunction("setRowItems", &list_widget::set_row_items)
+                .addFunction("setItems", &list_widget::set_row_items)
                 .addFunction("setColumnWidths", &list_widget::set_column_widths)
                 .addFunction("setColumnHeadings", &list_widget::set_column_headings)
                 .addFunction("scrollUp", &list_widget::scroll_up)
@@ -76,12 +77,15 @@ ui::widgets::list_widget::list_widget(const math::rect& frame)
     m_background_color = { new graphics::color(0, 0, 0) };
     m_outline_color = { new graphics::color(220, 220, 220) };
 
+    m_label_font = ui::font::manager::shared_manager().default_font();
+    m_label_font->load_for_graphics();
+
     setup(frame);
 }
 
 auto ui::widgets::list_widget::setup(const math::rect& frame) -> void
 {
-    m_row_size = math::size(frame.size.width, std::floor(frame.size.height / m_visible_rows));
+    m_row_size = math::size(frame.size.width, constants::default_row_height);
 
     m_canvas = std::make_shared<graphics::canvas>(frame.size);
     m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin)) };
@@ -89,6 +93,9 @@ auto ui::widgets::list_widget::setup(const math::rect& frame) -> void
 
     m_entity->internal_entity()->set_position(frame.origin);
     m_entity->set_position(frame.origin);
+
+    m_label_font = ui::font::manager::shared_manager().default_font();
+    m_label_font->load_for_graphics();
 
     redraw_entity();
     bind_internal_events();

@@ -52,27 +52,32 @@ static inline auto init_freetype() -> void
 graphics::font::font(const std::string& name, std::int16_t size, bool load_font)
     : m_size(size)
 {
+    auto font_name = name;
+
+    if (name == "system.default") {
 #if __APPLE__
-    m_path = cocoa::font::path_for(name);
+        font_name = cocoa::font::path_for(name);
 #elif __linux__
-    m_path = linux_os::font_config::path_for_best_fit_font(name);
+        font_name = linux_os::font_config::path_for_best_fit_font(name);
 #else
-    m_path = "C:/Windows/Fonts/Arial.ttf";
+        font_name = "C:/Windows/Fonts/Arial.ttf";
 #endif
+    }
 
     if (load_font) {
         init_freetype();
 
-        if (auto ttf = graphite::font::manager::shared_manager().ttf_font_named(name)) {
+        if (auto ttf = graphite::font::manager::shared_manager().ttf_font_named(font_name)) {
             if (FT_New_Memory_Face(ft, ttf->get<FT_Byte *>(0), ttf->size(), 0, &m_face)) {
                 throw std::logic_error("Failed to load memory font face.");
             }
             return;
         }
 
-        if (FT_New_Face(ft, m_path.c_str(), 0, &m_face)) {
+        if (FT_New_Face(ft, font_name.c_str(), 0, &m_face)) {
             throw std::logic_error("Failed to load font face.");
         }
+        m_path = font_name;
     }
 }
 

@@ -189,13 +189,13 @@ auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
                 break;
             }
-            case control_definition::type::image: {
+            case control_definition::type::sprite: {
                 auto image = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
                 image->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
                 break;
             }
-            case control_definition::type::sprite: {
+            case control_definition::type::image: {
                 auto sprite = widgets::image_widget::lua_reference(new widgets::image_widget({ nullptr }));
                 sprite->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));

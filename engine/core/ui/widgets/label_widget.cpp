@@ -22,6 +22,7 @@
 #include "core/ui/widgets/label_widget.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Constants
 
@@ -60,8 +61,8 @@ auto ui::widgets::label_widget::enroll_object_api_in_state(const std::shared_ptr
                 .addProperty("position", &label_widget::position, &label_widget::set_position)
                 .addProperty("size", &label_widget::size, &label_widget::set_size)
                 .addProperty("frame", &label_widget::frame, &label_widget::set_frame)
-                .addProperty("verticalAlignment", &label_widget::vertical_alignment, &label_widget::set_vertical_alignment)
-                .addProperty("horizontalAlignment", &label_widget::horizontal_alignment, &label_widget::set_horizontal_alignment)
+                .addProperty("verticalAlignment", &label_widget::lua_safe_vertical_alignment, &label_widget::set_lua_safe_vertical_alignment)
+                .addProperty("horizontalAlignment", &label_widget::lua_safe_horizontal_alignment, &label_widget::set_lua_safe_horizontal_alignment)
                 .addFunction("draw", &label_widget::draw)
             .endClass()
         .endNamespace();
@@ -72,9 +73,14 @@ auto ui::widgets::label_widget::enroll_object_api_in_state(const std::shared_ptr
 ui::widgets::label_widget::label_widget(const std::string &text)
     : m_text(text)
 {
+    // Load up a default font.
+    m_font = ui::font::manager::shared_manager().default_font();
+    m_font->load_for_graphics();
+
     // Perform an estimation of the text size to get a basic label size.
     // TODO: We need to get the current scale here so the size is estimated correctly!
     graphics::typesetter ts { text };
+    ts.set_font(*m_font.get());
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
@@ -161,6 +167,7 @@ auto ui::widgets::label_widget::set_text(const std::string& v) -> void
 auto ui::widgets::label_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_font = font;
+    m_font->load_for_graphics();
     m_dirty = true;
 
     graphics::typesetter ts { m_text };

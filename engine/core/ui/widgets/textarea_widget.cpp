@@ -21,6 +21,7 @@
 #include "core/ui/widgets/textarea_widget.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Lua
 
@@ -54,7 +55,11 @@ auto ui::widgets::textarea_widget::enroll_object_api_in_state(const std::shared_
 ui::widgets::textarea_widget::textarea_widget(const std::string &text)
     : m_text(text)
 {
+    m_font = ui::font::manager::shared_manager().default_font();
+    m_font->load_for_graphics();
+
     graphics::typesetter ts(text);
+    ts.set_font(*m_font.get());
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
@@ -64,8 +69,12 @@ ui::widgets::textarea_widget::textarea_widget(const std::string &text)
 ui::widgets::textarea_widget::textarea_widget(const math::rect &frame, const std::string &text)
     : m_text(text), m_clipping_size(frame.size)
 {
+    m_font = ui::font::manager::shared_manager().default_font();
+    m_font->load_for_graphics();
+
     graphics::typesetter ts(text);
     ts.set_margins(frame.size.round());
+    ts.set_font(*m_font.get());
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(math::size(frame.size.width, std::max(frame.size.height, ts.get_bounding_size().height)));
@@ -137,6 +146,7 @@ auto ui::widgets::textarea_widget::set_text(const std::string& v) -> void
 auto ui::widgets::textarea_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_font = font;
+    m_font->load_for_graphics();
     m_dirty = true;
 }
 
@@ -213,7 +223,6 @@ auto ui::widgets::textarea_widget::can_scroll_down() const -> bool
 auto ui::widgets::textarea_widget::redraw_entity() -> void
 {
     auto size = m_entity->size();
-
     m_canvas->set_font(m_font);
 
     auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
