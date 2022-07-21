@@ -37,6 +37,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("penColor", &canvas::get_pen_color, &canvas::set_pen_color)
             .addProperty("bounds", &canvas::get_bounds)
             .addProperty("name", &canvas::get_name, &canvas::set_name)
+            .addProperty("font", &canvas::font, &canvas::set_font)
             .addFunction("entity", &canvas::entity)
             .addFunction("rebuildEntityTexture", &canvas::rebuild_texture)
             .addFunction("drawRect", &canvas::draw_rect)

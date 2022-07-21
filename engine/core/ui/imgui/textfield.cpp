@@ -39,7 +39,7 @@ auto ui::imgui::textfield::enroll_object_api_in_state(const std::shared_ptr<scri
 // MARK: - Construction
 
 ui::imgui::textfield::textfield(std::size_t buffer_size, const std::string &text)
-    : m_buffer_size(buffer_size)
+    : m_buffer_size(std::min(std::size_t(64), buffer_size))
 {
     m_buffer = new char[buffer_size + 1];
     memset(m_buffer, 0, buffer_size + 1);

@@ -50,6 +50,8 @@ namespace ui::widgets
         lua_api auto set_frame(const math::rect& frame) -> void;
         lua_api auto set_user_info(const luabridge::LuaRef& info) -> void;
 
+        lua_api auto set_drawing_function(const luabridge::LuaRef& block) -> void;
+
     private:
         bool m_dirty { true };
         luabridge::LuaRef m_drawing_function;

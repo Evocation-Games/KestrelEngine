@@ -76,6 +76,11 @@ namespace ui::widgets
         [[nodiscard]] lua_api auto selected_row() const -> std::int32_t;
         [[nodiscard]] lua_api auto frame() const -> math::rect;
         [[nodiscard]] lua_api auto font() const -> ui::font::reference::lua_reference;
+        [[nodiscard]] lua_api auto text_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto background_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto hilite_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto outline_color() const -> graphics::color::lua_reference;
+        [[nodiscard]] lua_api auto heading_text_color() const -> graphics::color::lua_reference;
 
         lua_api auto set_borders(bool f) -> void;
         lua_api auto set_headers(bool f) -> void;

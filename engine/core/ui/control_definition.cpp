@@ -56,7 +56,6 @@ static auto s_control_definition_anchor_right = static_cast<uint32_t>(ui::contro
 static auto s_control_definition_anchor_vertical = static_cast<uint32_t>(ui::control_definition::anchor::vertical);
 static auto s_control_definition_anchor_horizontal = static_cast<uint32_t>(ui::control_definition::anchor::horizontal);
 
-
 // MARK: - Lua
 
 auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void

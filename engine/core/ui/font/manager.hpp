@@ -49,7 +49,7 @@ namespace ui::font
         auto set_default_font(const reference::lua_reference& font) -> void { m_default_font = font; }
 
         auto add_font(const reference::lua_reference& font) -> reference::lua_reference;
-        [[nodiscard]] auto get_font(const std::string& name, uint32_t size) const -> reference::lua_reference;
+        [[nodiscard]] auto get_font(const std::string& name, uint32_t size) -> reference::lua_reference;
 
     private:
         std::unordered_map<std::string, reference::lua_reference> m_fonts;

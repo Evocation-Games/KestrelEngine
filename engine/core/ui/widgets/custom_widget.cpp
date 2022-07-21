@@ -32,6 +32,7 @@ auto ui::widgets::custom_widget::enroll_object_api_in_state(const std::shared_pt
                 .addProperty("frame", &custom_widget::frame, &custom_widget::set_frame)
                 .addProperty("userInfo", &custom_widget::user_info, &custom_widget::set_user_info)
                 .addFunction("draw", &custom_widget::redraw)
+                .addFunction("drawingFunction", &custom_widget::set_drawing_function)
             .endClass()
         .endNamespace();
 }
@@ -75,6 +76,11 @@ auto ui::widgets::custom_widget::set_frame(const math::rect &frame) -> void
 auto ui::widgets::custom_widget::set_user_info(const luabridge::LuaRef &info) -> void
 {
     m_user_info = info;
+}
+
+auto ui::widgets::custom_widget::set_drawing_function(const luabridge::LuaRef &block) -> void
+{
+    m_drawing_function = block;
 }
 
 // MARK: - Drawing

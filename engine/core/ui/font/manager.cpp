@@ -87,12 +87,13 @@ auto ui::font::manager::add_font(const reference::lua_reference &font) -> refere
     return font;
 }
 
-auto ui::font::manager::get_font(const std::string &name, uint32_t size) const -> reference::lua_reference
+auto ui::font::manager::get_font(const std::string &name, uint32_t size) -> reference::lua_reference
 {
     auto it = m_fonts.find(font_hash(name, size));
     if (it != m_fonts.end()) {
         return it->second;
     }
-    return nullptr;
+
+    return add_font(reference::lua_reference(new reference(name, size)));
 }
 

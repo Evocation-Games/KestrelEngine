@@ -41,7 +41,13 @@ auto ui::widgets::list_widget::enroll_object_api_in_state(const std::shared_ptr<
                 .addProperty("headers", &list_widget::headers, &list_widget::set_headers)
                 .addProperty("currentRow", &list_widget::current_row)
                 .addProperty("selectedRow", &list_widget::selected_row, &list_widget::select_row)
+                .addProperty("textColor", &list_widget::text_color, &list_widget::set_text_color)
+                .addProperty("backgroundColor", &list_widget::background_color, &list_widget::set_background_color)
+                .addProperty("hiliteColor", &list_widget::hilite_color, &list_widget::set_hilite_color)
+                .addProperty("outlineColor", &list_widget::outline_color, &list_widget::set_outline_color)
+                .addProperty("headingTextColor", &list_widget::heading_text_color, &list_widget::set_heading_text_color)
                 .addProperty("frame", &list_widget::frame, &list_widget::set_frame)
+                .addProperty("font", &list_widget::font, &list_widget::set_font)
                 .addFunction("rowAtPoint", &list_widget::row_at_point)
                 .addFunction("onRowSelect", &list_widget::on_row_select)
                 .addFunction("columnWidth", &list_widget::column_width)
@@ -248,6 +254,32 @@ auto ui::widgets::list_widget::font() const -> ui::font::reference::lua_referenc
 {
     return m_label_font;
 }
+
+auto ui::widgets::list_widget::text_color() const -> graphics::color::lua_reference
+{
+    return m_text_color;
+}
+
+auto ui::widgets::list_widget::background_color() const -> graphics::color::lua_reference
+{
+    return m_background_color;
+}
+
+auto ui::widgets::list_widget::hilite_color() const -> graphics::color::lua_reference
+{
+    return m_hilite_color;
+}
+
+auto ui::widgets::list_widget::outline_color() const -> graphics::color::lua_reference
+{
+    return m_outline_color;
+}
+
+auto ui::widgets::list_widget::heading_text_color() const -> graphics::color::lua_reference
+{
+    return m_heading_text_color;
+}
+
 
 // MARK: - Drawing
 

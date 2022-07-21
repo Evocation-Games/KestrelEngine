@@ -30,15 +30,13 @@
 #include "math/rect.hpp"
 #include "core/ui/entity/scene_entity.hpp"
 #include "core/ui/font/font.hpp"
+#include "core/ui/alignment.hpp"
 
 namespace ui::widgets
 {
     struct label_widget : public scripting::lua::object
     {
     public:
-        enum class vertical_alignment : uint8_t { top = 0xa0, middle = 0xb0, bottom = 0xc0 };
-        enum class horizontal_alignment : uint8_t { left = 0x01, center = 0x02, right = 0x03 };
-
         typedef luabridge::RefCountedPtr<label_widget> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 

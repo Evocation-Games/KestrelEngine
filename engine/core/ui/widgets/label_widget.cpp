@@ -23,11 +23,32 @@
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/ui/entity/scene_entity.hpp"
 
+// MARK: - Constants
+
+static auto s_alignment_top = static_cast<uint32_t>(ui::vertical_alignment::top);
+static auto s_alignment_middle = static_cast<uint32_t>(ui::vertical_alignment::middle);
+static auto s_alignment_bottom = static_cast<uint32_t>(ui::vertical_alignment::bottom);
+static auto s_alignment_left = static_cast<uint32_t>(ui::horizontal_alignment::left);
+static auto s_alignment_center = static_cast<uint32_t>(ui::horizontal_alignment::center);
+static auto s_alignment_right = static_cast<uint32_t>(ui::horizontal_alignment::right);
+
 // MARK: - Lua
 
 auto ui::widgets::label_widget::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     lua->global_namespace()
+        .beginNamespace("UI")
+            .beginNamespace("VerticalAlignment")
+                .addProperty("Top", &s_alignment_top, false)
+                .addProperty("Middle", &s_alignment_middle, false)
+                .addProperty("Bottom", &s_alignment_bottom, false)
+            .endNamespace()
+            .beginNamespace("HorizontalAlignment")
+                .addProperty("Left", &s_alignment_left, false)
+                .addProperty("Center", &s_alignment_center, false)
+                .addProperty("Right", &s_alignment_right, false)
+            .endNamespace()
+        .endNamespace()
         .beginNamespace("Widget")
             .beginClass<ui::widgets::label_widget>("Label")
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()

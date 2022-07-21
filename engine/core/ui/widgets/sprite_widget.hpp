@@ -22,42 +22,40 @@
 
 #include <memory>
 #include "util/hint.hpp"
-#include "math/size.hpp"
 #include "math/rect.hpp"
-#include "math/point.hpp"
 #include "scripting/state.hpp"
-#include "core/graphics/common/color.hpp"
 #include "core/ui/entity/scene_entity.hpp"
 
 namespace ui::widgets
 {
-    struct image_widget: public scripting::lua::object
+    struct sprite_widget: public scripting::lua::object
     {
     public:
         enum class content_alignment : int { center, fit, stretch };
 
-        typedef luabridge::RefCountedPtr<image_widget> lua_reference;
+        typedef luabridge::RefCountedPtr<sprite_widget> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        explicit image_widget(const luabridge::LuaRef& image);
+        explicit sprite_widget(const luabridge::LuaRef& sprite);
 
         [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
         auto draw() -> void;
 
         [[nodiscard]] lua_api auto frame() const -> math::rect;
         [[nodiscard]] lua_api auto image() const -> luabridge::LuaRef;
+        [[nodiscard]] lua_api auto frame_number() const -> std::int32_t;
 
         lua_api auto set_frame(const math::rect& frame) -> void;
         lua_api auto set_image(const luabridge::LuaRef& image) -> void;
+        lua_api auto set_frame_number(std::int32_t n) -> void;
 
     private:
-        math::rect m_frame { 0, 0, 100, 100 };
-        luabridge::LuaRef m_image_ref { nullptr };
+        math::rect m_frame;
+        luabridge::LuaRef m_sprite_ref { nullptr };
         scene_entity::lua_reference m_entity { nullptr };
         content_alignment m_alignment { content_alignment::center };
 
         auto resize(bool reload = false) -> void;
     };
 }
-

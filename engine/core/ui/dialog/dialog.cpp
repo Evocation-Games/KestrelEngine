@@ -37,6 +37,7 @@
 #include "core/ui/widgets/grid_widget.hpp"
 #include "core/ui/widgets/custom_widget.hpp"
 #include "core/ui/widgets/text_widget.hpp"
+#include "core/ui/widgets/sprite_widget.hpp"
 
 // Controls
 #include "core/ui/imgui/imgui.hpp"
@@ -189,9 +190,15 @@ auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
                 break;
             }
             case control_definition::type::image: {
-                auto image = widgets::image_widget::lua_reference(new widgets::image_widget({ nullptr }));
+                auto image = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
                 image->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
+                break;
+            }
+            case control_definition::type::sprite: {
+                auto sprite = widgets::image_widget::lua_reference(new widgets::image_widget({ nullptr }));
+                sprite->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
                 break;
             }
             case control_definition::type::popup_button: {
