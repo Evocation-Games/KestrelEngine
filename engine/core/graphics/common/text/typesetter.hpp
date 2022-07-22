@@ -46,9 +46,30 @@ namespace graphics
             double w;
         };
 
+    public:
+        lua_api explicit typesetter(const std::string& text, const double& scale = 1.0);
+
+        lua_api auto set_margins(const math::size& margins) -> void;
+        lua_api auto set_font(const ui::font::reference& font) -> void;
+        lua_api auto set_font_color(const graphics::color& color) -> void;
+
+        [[nodiscard]] auto font() const -> std::shared_ptr<graphics::font>;
+
+        lua_api auto set_text(const std::string& text) -> void;
+
+        lua_api auto get_bounding_size() const -> math::size;
+        lua_api auto get_point_at_location(const int& location) const -> math::point;
+
+        lua_api auto requires_layout() const -> bool;
+
+        lua_api auto reset() -> void;
+
+        lua_api auto layout() -> void;
+        auto render() -> std::vector<graphics::color>;
+
     private:
         double m_scale { 1.0 };
-        int m_dpi { 100 };
+        int m_dpi { 72 };
         std::wstring m_text;
         std::shared_ptr<graphics::font> m_base_font;
         graphics::color m_font_color;
@@ -67,29 +88,6 @@ namespace graphics
         auto place(const wchar_t& c, const bool& buffer = true, const double& cw = 0) -> void;
 
         static auto is_non_breaking(const wchar_t& c) -> bool;
-
-    public:
-        lua_api explicit typesetter(const std::string& text, const double& scale = 1.0);
-
-        lua_api auto set_margins(const math::size& margins) -> void;
-        lua_api auto set_font(const ui::font::reference& font) -> void;
-        lua_api auto set_font(const std::string& font_name) -> void;
-        lua_api auto set_font_size(const int& size) -> void;
-        lua_api auto set_font_color(const graphics::color& color) -> void;
-
-        [[nodiscard]] auto font() const -> std::shared_ptr<graphics::font>;
-
-        lua_api auto set_text(const std::string& text) -> void;
-
-        lua_api auto get_bounding_size() const -> math::size;
-        lua_api auto get_point_at_location(const int& location) const -> math::point;
-
-        lua_api auto requires_layout() const -> bool;
-
-        lua_api auto reset() -> void;
-
-        lua_api auto layout() -> void;
-        auto render() -> std::vector<graphics::color>;
     };
 
 }
