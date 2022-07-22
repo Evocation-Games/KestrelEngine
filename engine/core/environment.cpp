@@ -325,6 +325,25 @@ auto environment::load_game_data() -> void
             }
         }
     }
+
+    // Mods
+    auto mods_ref = host::sandbox::files::all_active_scenario_mods();
+    if (!mods_ref.empty()) {
+        for (auto i = 0; i < mods_ref.size(); ++i) {
+            const auto& mod = mods_ref.at(i);
+            if (!mod->enabled()) {
+                continue;
+            }
+
+            if (!mod->is_loaded()) {
+                mod->load_resources();
+            }
+
+            if (!mod->has_executed()) {
+                mod->execute();
+            }
+        }
+    }
 }
 
 // MARK: - Lua Interface

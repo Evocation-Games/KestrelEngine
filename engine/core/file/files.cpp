@@ -359,36 +359,37 @@ auto host::sandbox::files::all_packages(enum path_type type, bool load) const ->
 }
 
 
-auto host::sandbox::files::mods() const -> util::lua_vector<mod_reference::lua_reference>
+auto host::sandbox::files::mods() -> util::lua_vector<mod_reference::lua_reference>
 {
-    util::lua_vector<mod_reference::lua_reference> result;
-    result.append(mods(game_mods(), mod_reference::bundle_origin::game));
-    result.append(mods(user_mods(), mod_reference::bundle_origin::user));
-    return result;
+    if (m_mods.empty()) {
+        m_mods.append(mods(game_mods(), mod_reference::bundle_origin::game));
+        m_mods.append(mods(user_mods(), mod_reference::bundle_origin::user));
+    }
+    return m_mods;
 }
 
-auto host::sandbox::files::scenarios() const -> util::lua_vector<mod_reference::lua_reference>
+auto host::sandbox::files::scenarios() -> util::lua_vector<mod_reference::lua_reference>
 {
-    util::lua_vector<mod_reference::lua_reference> result;
+    if (m_scenarios.empty()) {
+        auto scenario_packages = all_packages(path_type::scenario);
+        auto mod_packages = all_packages(path_type::mods);
 
-    auto scenario_packages = all_packages(path_type::scenario);
-    auto mod_packages = all_packages(path_type::mods);
+        for (auto i = 0; i < scenario_packages.size(); ++i) {
+            const auto& package = scenario_packages.at(i);
+            if (package->is_scenario()) {
+                m_scenarios.emplace_back(package);
+            }
+        }
 
-    for (auto i = 0; i < scenario_packages.size(); ++i) {
-        const auto& package = scenario_packages.at(i);
-        if (package->is_scenario()) {
-            result.emplace_back(package);
+        for (auto i = 0; i < mod_packages.size(); ++i) {
+            const auto& package = mod_packages.at(i);
+            if (package->is_scenario()) {
+                m_scenarios.emplace_back(package);
+            }
         }
     }
 
-    for (auto i = 0; i < mod_packages.size(); ++i) {
-        const auto& package = mod_packages.at(i);
-        if (package->is_scenario()) {
-            result.emplace_back(package);
-        }
-    }
-
-    return result;
+    return m_scenarios;
 }
 
 auto host::sandbox::files::all_scenarios() -> util::lua_vector<mod_reference::lua_reference>

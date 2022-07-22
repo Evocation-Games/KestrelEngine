@@ -300,7 +300,7 @@ auto host::sandbox::mod_reference::lua_load_resources() -> void
 
 auto host::sandbox::mod_reference::load_resources() -> void
 {
-    if (m_enabled) {
+    if (!m_enabled) {
         return;
     }
 
