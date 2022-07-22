@@ -65,10 +65,10 @@ auto ui::imgui::dockspace::internal_draw() -> void
             window->draw();
         }
 
-        static bool demo = true;
-        if (demo) {
-            ImGui::ShowDemoWindow(&demo);
-        }
+//        static bool demo = true;
+//        if (demo) {
+//            ImGui::ShowDemoWindow(&demo);
+//        }
 
         ImGui::End();
     }

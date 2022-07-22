@@ -554,7 +554,9 @@ auto asset::resource_descriptor::resolve_identified() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -596,7 +598,9 @@ auto asset::resource_descriptor::resolve_typed() -> void
             }
 
             for (const auto& resource : *t) {
-                m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                res->m_file_constraint = m_file_constraint;
+                m_resolved_resources.emplace_back(std::move(res));
             }
         }
     }
@@ -634,7 +638,9 @@ auto asset::resource_descriptor::resolve_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -677,7 +683,9 @@ auto asset::resource_descriptor::resolve_typed_identified() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -716,7 +724,9 @@ auto asset::resource_descriptor::resolve_identified_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -759,7 +769,9 @@ auto asset::resource_descriptor::resolve_typed_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -802,7 +814,9 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }

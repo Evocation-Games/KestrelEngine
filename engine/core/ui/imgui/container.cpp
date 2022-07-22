@@ -32,6 +32,7 @@
 #include "core/ui/imgui/checkbox.hpp"
 #include "core/ui/imgui/table.hpp"
 #include "core/ui/imgui/box.hpp"
+#include "core/ui/imgui/textarea.hpp"
 
 // MARK: - Drawing
 
@@ -80,6 +81,9 @@ auto ui::imgui::widget_container::draw() -> void
         }
         else if (scripting::lua::ref_isa<separator>(widget)) {
             widget.cast<separator::lua_reference>()->draw();
+        }
+        else if (scripting::lua::ref_isa<textarea>(widget)) {
+            widget.cast<textarea::lua_reference>()->draw();
         }
     }
 }
