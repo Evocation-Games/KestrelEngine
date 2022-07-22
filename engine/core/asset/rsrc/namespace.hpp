@@ -65,6 +65,7 @@ namespace asset
         lua_api auto lua_each_name(luabridge::LuaRef body) const -> void;
         auto each_name(const std::function<auto(const asset::resource_namespace&)->void>& body) const -> void;
 
+        [[nodiscard]] lua_api auto file_constraint(const graphite::rsrc::file *file) -> resource_descriptor::lua_reference;
         [[nodiscard]] lua_api auto identified_resource(int64_t id) const -> resource_descriptor::lua_reference;
         [[nodiscard]] lua_api auto typed_resource(const std::string& type) const -> resource_descriptor::lua_reference;
         [[nodiscard]] lua_api auto named_resource(const std::string& name) const -> resource_descriptor::lua_reference;

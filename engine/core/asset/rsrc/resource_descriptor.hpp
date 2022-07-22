@@ -32,6 +32,7 @@ namespace asset
     {
         enum class variant
         {
+            none,
             identified,
             typed,
             named,
@@ -53,6 +54,8 @@ namespace asset
         explicit resource_descriptor() = default;
         resource_descriptor(resource_descriptor&) = default;
         resource_descriptor(const resource_descriptor&) = default;
+
+        static auto file_constrained(const graphite::rsrc::file *file) -> lua_reference;
 
         lua_api static auto identified(int64_t id) -> lua_reference;
         lua_api static auto typed(const std::string& type) -> lua_reference;
@@ -100,9 +103,10 @@ namespace asset
         auto load() -> const graphite::rsrc::resource *;
 
     private:
-        enum variant m_variant { variant::identified };
+        enum variant m_variant { variant::none };
         bool m_resolved { false };
-        util::lua_vector<lua_reference> m_resolved_resources;
+        util::lua_vector<lua_reference> m_resolved_resources {};
+        const graphite::rsrc::file *m_file_constraint { nullptr };
 
         auto resolve() -> void;
         auto resolve_identified() -> void;

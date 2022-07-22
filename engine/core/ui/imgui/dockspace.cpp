@@ -78,7 +78,7 @@ auto ui::imgui::dockspace::internal_draw() -> void
         }
     }
 
-    m_diagnostics->draw();
+//    m_diagnostics->draw();
 }
 
 auto ui::imgui::dockspace::draw() -> void

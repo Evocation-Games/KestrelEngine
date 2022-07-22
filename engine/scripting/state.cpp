@@ -49,6 +49,7 @@
 #include "core/file/file_reference.hpp"
 #include "core/file/directory_reference.hpp"
 #include "core/file/mod_reference.hpp"
+#include "core/file/resource_file_reference.hpp"
 #include "core/audio/codec/mp3.hpp"
 #include "core/ui/game_scene.hpp"
 #include "core/ui/layout/positioning_frame.hpp"
@@ -175,6 +176,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     event::enroll_object_api_in_state(shared_from_this());
 
     host::sandbox::file_reference::enroll_object_api_in_state(shared_from_this());
+    host::sandbox::resource_file_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::directory_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::mod_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::files::enroll_object_api_in_state(shared_from_this());

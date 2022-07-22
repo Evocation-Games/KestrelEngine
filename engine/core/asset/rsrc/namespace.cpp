@@ -192,6 +192,15 @@ auto asset::resource_namespace::each_name(const std::function<auto(const asset::
 
 // MARK: - Resources
 
+auto asset::resource_namespace::file_constraint(const graphite::rsrc::file *file) -> resource_descriptor::lua_reference
+{
+    auto r = asset::resource_descriptor::file_constrained(file);
+    each_name([&] (const resource_namespace& ns) {
+        r->namespaces.emplace_back(ns.primary_name());
+    });
+    return r;
+}
+
 auto asset::resource_namespace::identified_resource(int64_t id) const -> asset::resource_descriptor::lua_reference
 {
     auto r = asset::resource_descriptor::identified(id);

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Tom Hancocks
+// Copyright (c) 2022 Tom Hancocks
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +22,34 @@
 
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
-#include "core/file/resource_file_reference.hpp"
+#include "util/lua_vector.hpp"
+#include "core/asset/rsrc/resource_descriptor.hpp"
+#include <libGraphite/rsrc/file.hpp>
 
 namespace host::sandbox
 {
-
-    struct file_reference: public scripting::lua::object
+    struct resource_file_reference: public scripting::lua::object
     {
     public:
-        typedef luabridge::RefCountedPtr<host::sandbox::file_reference> lua_reference;
+        enum class type : std::uint8_t { none = 0, classic = 1, extended = 2, rez = 3 };
+
+        typedef luabridge::RefCountedPtr<resource_file_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        explicit file_reference(const std::string& path);
-
-        lua_api auto create_parent_directory() -> void;
-        lua_api auto touch() -> void;
+        explicit resource_file_reference(const std::string& path);
 
         [[nodiscard]] lua_api auto exists() const -> bool;
-        [[nodiscard]] lua_api auto is_directory() const -> bool;
         [[nodiscard]] lua_api auto name() const -> std::string;
         [[nodiscard]] lua_api auto path() const -> std::string;
         [[nodiscard]] lua_api auto extension() const -> std::string;
         [[nodiscard]] lua_api auto basename() const -> std::string;
+        [[nodiscard]] lua_api auto type() const -> enum type;
 
-        lua_api auto open_resource_file() const -> resource_file_reference::lua_reference;
+        [[nodiscard]] lua_api auto all_types() const -> util::lua_vector<asset::resource_descriptor::lua_reference>;
 
     private:
         std::string m_path;
-
+        graphite::rsrc::file m_file;
     };
-
 }

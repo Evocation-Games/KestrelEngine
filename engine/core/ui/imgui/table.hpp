@@ -52,11 +52,20 @@ namespace ui::imgui
             lua_api auto on_selected(luabridge::LuaRef callback) -> void;
             auto selected() -> void;
 
+            lua_api auto on_double_click(luabridge::LuaRef callback) -> void;
+            auto double_click() -> void;
+
+            lua_api auto add_child(luabridge::LuaRef child) -> void;
+            [[nodiscard]] lua_api auto has_children() const -> bool;
+
             auto draw() -> void override;
+            auto draw(const std::string& selected_id) -> std::string;
 
         private:
             luabridge::LuaRef m_on_selected { nullptr };
+            luabridge::LuaRef m_on_double_click { nullptr };
             widget_container m_contents;
+            std::vector<lua_reference> m_children;
 
         };
 
@@ -71,17 +80,21 @@ namespace ui::imgui
 
         lua_api auto add_row(luabridge::LuaRef row) -> void;
 
-        auto position() const -> math::point override { return widget::position(); }
+        [[nodiscard]] auto position() const -> math::point override { return widget::position(); }
         auto set_position(const math::point &position) -> void override { widget::set_position(position); }
 
-        auto size() const -> math::size override { return widget::size(); }
+        [[nodiscard]] auto size() const -> math::size override { return widget::size(); }
         auto set_size(const math::size &size) -> void override { widget::set_size(size); }
+
+        [[nodiscard]] auto selected_index() const -> std::uint32_t;
+        auto set_selected_index(std::uint32_t idx) -> void;
 
         auto draw() -> void override;
 
     private:
         float m_width { 1.f };
         uint32_t m_selected_row { 1 };
+        std::string m_selected_identifier;
         std::vector<luabridge::LuaRef> m_rows;
         std::string m_header;
 
