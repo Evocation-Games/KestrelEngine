@@ -102,6 +102,7 @@ namespace ui::widgets
 
     private:
         bool m_dirty { true };
+        bool m_pressed { false };
         ui::font::reference::lua_reference m_label_font { nullptr };
         luabridge::LuaRef m_item_select_callback { nullptr };
         std::vector<item::lua_reference> m_items;

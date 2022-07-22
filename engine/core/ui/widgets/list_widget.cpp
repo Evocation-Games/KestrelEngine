@@ -415,30 +415,39 @@ auto ui::widgets::list_widget::on_row_select(const luabridge::LuaRef &callback) 
 
 auto ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
+    auto local_position = e.location() - entity()->position();
+    if (e.is_mouse_event() && entity()->hit_test(local_position)) {
+        if (e.is_pressed() && !m_pressed) {
+            m_pressed = true;
+        }
+
+        if (e.is_released() && m_pressed) {
+            auto row_number = row_index_at_point(local_position);
+            auto row = m_rows[row_number - 1];
+            m_dirty = true;
+
+            if (!row.get() || row->column_value(1).empty()) {
+                m_selected_row = -1;
+            }
+            else {
+                m_selected_row = row_number;
+            }
+
+            if (m_row_select_callback.state() && m_row_select_callback.isFunction()) {
+                m_row_select_callback(m_selected_row + 1);
+            }
+
+            redraw_entity();
+            m_pressed = false;
+        }
+
+        return true;
+    }
     return false;
 }
 
 auto ui::widgets::list_widget::bind_internal_events() -> void
 {
-    m_entity->on_mouse_down_internal([&] (const event& e) {
-        auto row_number = row_index_at_point(e.location());
-        auto row = m_rows[row_number - 1];
-        m_dirty = true;
-
-        if (!row.get() || row->column_value(1).empty()) {
-            m_selected_row = -1;
-        }
-        else {
-            m_selected_row = row_number;
-        }
-
-        if (m_row_select_callback.state() && m_row_select_callback.isFunction()) {
-            m_row_select_callback(m_selected_row + 1);
-        }
-
-        redraw_entity();
-
-    });
 }
 
 // MARK: - Rows

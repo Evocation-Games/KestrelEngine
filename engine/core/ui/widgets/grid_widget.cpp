@@ -211,27 +211,37 @@ auto ui::widgets::grid_widget::set_items(const luabridge::LuaRef &items) -> void
 
 auto ui::widgets::grid_widget::bind_internal_events() -> void
 {
-    m_entity->on_mouse_down_internal([&] (const event& e) {
-        auto item_number = item_index_at_point(e.location());
-        m_dirty = true;
-
-        if (item_number >= m_items.size()) {
-            m_selected_item = -1;
-        }
-        else {
-            m_selected_item = item_number;
-        }
-
-        if (m_item_select_callback.state() && m_item_select_callback.isFunction()) {
-            m_item_select_callback(m_selected_item);
-        }
-
-        redraw_entity();
-    });
 }
 
 auto ui::widgets::grid_widget::receive_event(const event &e) -> bool
 {
+    auto local_position = e.location() - entity()->position();
+    if (e.is_mouse_event() && entity()->hit_test(local_position)) {
+        if (e.is_pressed() && !m_pressed) {
+            m_pressed = true;
+        }
+
+        if (e.is_released() && m_pressed) {
+            auto item_number = item_index_at_point(local_position);
+            m_dirty = true;
+
+            if (item_number >= m_items.size()) {
+                m_selected_item = -1;
+            }
+            else {
+                m_selected_item = item_number;
+            }
+
+            if (m_item_select_callback.state() && m_item_select_callback.isFunction()) {
+                m_item_select_callback(m_selected_item);
+            }
+
+            redraw_entity();
+            m_pressed = false;
+        }
+
+        return true;
+    }
     return false;
 }
 

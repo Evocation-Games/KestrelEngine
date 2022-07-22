@@ -103,6 +103,7 @@ namespace ui::widgets
         bool m_dirty { true };
         bool m_has_header { false };
         bool m_borders { false };
+        bool m_pressed { false };
         math::size m_row_size;
         std::uint32_t m_visible_rows { 0 };
         ui::font::reference::lua_reference m_label_font { nullptr };

@@ -376,6 +376,14 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
         auto button = widget.cast<ui::widgets::button_widget::lua_reference>();
         m_responder_chain.add_mouse_responder(button.get());
     }
+    else if (scripting::lua::ref_isa<ui::widgets::list_widget>(widget)) {
+        auto list = widget.cast<ui::widgets::list_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(list.get());
+    }
+    else if (scripting::lua::ref_isa<ui::widgets::grid_widget>(widget)) {
+        auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(grid.get());
+    }
 }
 
 auto ui::game_scene::draw_widgets() const -> void
