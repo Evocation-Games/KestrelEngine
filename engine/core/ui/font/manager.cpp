@@ -56,12 +56,23 @@ auto ui::font::manager::font_hash(const std::string &face, uint32_t size) -> std
 
 // MARK: - Font Management
 
+auto ui::font::manager::set_default_font(const reference::lua_reference &font) -> void
+{
+    m_default_font = font;
+
+    // If we already have an ImGui context, then set the default font.
+    if (ImGui::GetCurrentContext()) {
+        ImGui::GetIO().FontDefault = m_default_font->imgui_font();
+    }
+}
+
 auto ui::font::manager::load_all_fonts_for_imgui() -> void
 {
     for (auto it : m_fonts) {
         it.second->load_for_imgui();
     }
     ImGui::GetIO().Fonts->Build();
+    ImGui::GetIO().FontDefault = m_default_font->imgui_font();
 }
 
 auto ui::font::manager::unload_all_imgui_fonts() -> void

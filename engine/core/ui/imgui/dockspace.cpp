@@ -65,6 +65,9 @@ auto ui::imgui::dockspace::internal_draw() -> void
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), m_flags);
 
         for (const auto& window : m_windows) {
+            if (!window.get()) {
+                continue;
+            }
             window->draw();
         }
 
@@ -75,6 +78,11 @@ auto ui::imgui::dockspace::internal_draw() -> void
             window->draw();
         }
     }
+
+//    static bool demo = true;
+//    if (demo) {
+//        ImGui::ShowDemoWindow(&demo);
+//    }
 
     s_console.draw();
 }
@@ -115,6 +123,16 @@ auto ui::imgui::dockspace::stop_console() -> void
 auto ui::imgui::dockspace::add_window(const window::lua_reference& window) -> void
 {
     m_windows.emplace_back(window);
+}
+
+auto ui::imgui::dockspace::remove_window(const window *window) -> void
+{
+    for (auto it = m_windows.begin(); it != m_windows.end(); ++it) {
+        if (it->get() == window) {
+            m_windows.erase(it);
+            return;
+        }
+    }
 }
 
 auto ui::imgui::dockspace::erase() -> void

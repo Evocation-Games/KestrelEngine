@@ -22,53 +22,28 @@
 
 #include <vector>
 #include <imgui/imgui.h>
-#include "core/ui/imgui/window.hpp"
-#include "core/ui/imgui/diagnostics.hpp"
-#include "core/ui/imgui/console.hpp"
-#include "core/event/event.hpp"
+#include "core/ui/imgui/widget.hpp"
+#include "core/ui/imgui/container.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
 
 namespace ui::imgui
 {
-    class dockspace : public scripting::lua::object
+    class scrollarea : public widget, public scripting::lua::object
     {
     public:
+        typedef luabridge::RefCountedPtr<scrollarea> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        dockspace();
+        scrollarea() = default;
+        ~scrollarea() = default;
 
-        auto draw() -> void;
+        lua_api auto add_widget(luabridge::LuaRef widget) -> void;
 
-        auto add_window(const window::lua_reference& window) -> void;
-        auto remove_window(const window *window) -> void;
-        auto receive_event(const event& e) -> void;
-
-        auto erase() -> void;
-
-        lua_api static auto start_dockspace() -> void;
-        lua_api static auto end_dockspace() -> void;
-
-        lua_api static auto start_console() -> void;
-        lua_api static auto stop_console() -> void;
+        auto draw() -> void override;
 
     private:
-        bool m_open { true };
-        ImGuiDockNodeFlags m_flags { ImGuiDockNodeFlags_None };
-        ImGuiWindowFlags m_window_flags {
-            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
-            ImGuiWindowFlags_NoNavFocus
-        };
-        std::vector<window::lua_reference> m_windows;
-        diagnostics::lua_reference m_diagnostics;
-
-    private:
-        auto map_key(hid::key k) -> ImGuiKey;
-        auto internal_draw() -> void;
-
+        widget_container m_container;
     };
 }
-
-

@@ -18,23 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include "core/ui/imgui/box.hpp"
-#include "core/ui/imgui/button.hpp"
-#include "core/ui/imgui/checkbox.hpp"
-#include "core/ui/imgui/combo.hpp"
-#include "core/ui/imgui/dockspace.hpp"
-#include "core/ui/imgui/image.hpp"
-#include "core/ui/imgui/label.hpp"
-#include "core/ui/imgui/same_line.hpp"
-#include "core/ui/imgui/separator.hpp"
-#include "core/ui/imgui/slider.hpp"
-#include "core/ui/imgui/tabbar.hpp"
-#include "core/ui/imgui/table.hpp"
-#include "core/ui/imgui/textarea.hpp"
-#include "core/ui/imgui/textfield.hpp"
-#include "core/ui/imgui/window.hpp"
-#include "core/ui/imgui/style.hpp"
-#include "core/ui/imgui/codeeditor.hpp"
 #include "core/ui/imgui/scrollarea.hpp"
+// MARK: - Lua
+
+auto ui::imgui::scrollarea::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
+{
+    lua->global_namespace()
+        .beginNamespace("ImGui")
+            .beginClass<scrollarea>("ScrollArea")
+                .addConstructor<auto(*)()->void, lua_reference>()
+                .addFunction("addWidget", &scrollarea::add_widget)
+            .endClass()
+        .endNamespace();
+}
+
+// MARK: - Drawing
+
+auto ui::imgui::scrollarea::add_widget(luabridge::LuaRef widget) -> void
+{
+    m_container.add_widget(widget);
+}
+
+// MARK: - Draw
+
+auto ui::imgui::scrollarea::draw() -> void
+{
+    auto size = ImGui::GetContentRegionAvail();
+    ImGui::BeginChild(identifier_string(), size);
+    m_container.draw();
+    ImGui::EndChild();
+}

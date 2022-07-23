@@ -46,7 +46,7 @@ namespace ui::font
         auto unload_all_imgui_fonts() -> void;
 
         [[nodiscard]] auto default_font() const -> reference::lua_reference { return m_default_font; }
-        auto set_default_font(const reference::lua_reference& font) -> void { m_default_font = font; }
+        auto set_default_font(const reference::lua_reference& font) -> void;
 
         auto add_font(const reference::lua_reference& font) -> reference::lua_reference;
         [[nodiscard]] auto get_font(const std::string& name, uint32_t size) -> reference::lua_reference;

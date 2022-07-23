@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <imgui/imgui_internal.h>
 #include "core/ui/font/font.hpp"
 #include "core/graphics/common/font.hpp"
 #include "core/ui/font/manager.hpp"
@@ -112,9 +113,13 @@ auto ui::font::reference::load_for_imgui() -> void
     }
     else if (m_path.starts_with(constants::rsrc_marker)) {
         // The font data is contained in the font manager for graphite.
-//        auto name = m_path.substr(fm_prefix.size());
-//        if (auto ttf = graphite::font_manager::shared_manager().font_named(name)) {
+//        auto name = m_path.substr(constants::rsrc_marker_len);
+//        if (auto ttf = graphite::font::manager::shared_manager().ttf_font_named(name)) {
 //            m_instances.config.FontDataOwnedByAtlas = false;
+//            if (m_instances.config.Name[0] == '\0')
+//            {
+//                ImFormatString(m_instances.config.Name, IM_ARRAYSIZE(m_instances.config.Name), "%s, %.0fpx", name.c_str(), m_font_size);
+//            }
 //            m_instances.imgui = io.Fonts->AddFontFromMemoryTTF(ttf->get<void *>(0), m_font_size, m_font_size, &m_instances.config);
 //        }
         m_instances.imgui = io.Fonts->AddFontFromFileTTF("/Users/tomhancocks/Desktop/Geneva-2.ttf", m_font_size, &m_instances.config);
