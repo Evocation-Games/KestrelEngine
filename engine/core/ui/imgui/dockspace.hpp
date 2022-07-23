@@ -24,6 +24,7 @@
 #include <imgui/imgui.h>
 #include "core/ui/imgui/window.hpp"
 #include "core/ui/imgui/diagnostics.hpp"
+#include "core/ui/imgui/console.hpp"
 #include "core/event/event.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -45,8 +46,11 @@ namespace ui::imgui
 
         auto erase() -> void;
 
-        static auto start_dockspace() -> void;
-        static auto end_dockspace() -> void;
+        lua_api static auto start_dockspace() -> void;
+        lua_api static auto end_dockspace() -> void;
+
+        lua_api static auto start_console() -> void;
+        lua_api static auto stop_console() -> void;
 
     private:
         bool m_open { true };

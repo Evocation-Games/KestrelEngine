@@ -23,6 +23,7 @@
 #include <cmath>
 
 static bool s_dockspace_enabled = false;
+static ui::imgui::console s_console;
 
 // MARK: - Lua
 
@@ -32,6 +33,8 @@ auto ui::imgui::dockspace::enroll_object_api_in_state(const std::shared_ptr<scri
         .beginNamespace("ImGui")
             .addFunction("startDockspace", &dockspace::start_dockspace)
             .addFunction("endDockspace", &dockspace::end_dockspace)
+            .addFunction("showConsole", &dockspace::start_console)
+            .addFunction("closeConsole", &dockspace::stop_console)
         .endNamespace();
 }
 
@@ -79,6 +82,7 @@ auto ui::imgui::dockspace::internal_draw() -> void
     }
 
 //    m_diagnostics->draw();
+    s_console.draw();
 }
 
 auto ui::imgui::dockspace::draw() -> void
@@ -102,6 +106,16 @@ auto ui::imgui::dockspace::start_dockspace() -> void
 auto ui::imgui::dockspace::end_dockspace() -> void
 {
     s_dockspace_enabled = false;
+}
+
+auto ui::imgui::dockspace::start_console() -> void
+{
+    s_console = ui::imgui::console();
+}
+
+auto ui::imgui::dockspace::stop_console() -> void
+{
+    s_console.close();
 }
 
 auto ui::imgui::dockspace::add_window(const window::lua_reference& window) -> void

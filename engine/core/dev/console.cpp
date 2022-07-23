@@ -33,10 +33,7 @@ dev::console::console()
     m_font->load_for_graphics();
 
     m_input.on_enter([&] (const std::string& input) {
-        m_history.emplace_back("&IN>" + input);
-        m_on_command(input);
-        m_input.set_string_value("");
-        m_input.set_cursor_position(0);
+        send_command(input);
     });
 
     m_on_command = [] (const std::string&) {};
@@ -129,6 +126,11 @@ auto dev::console::is_visible() const -> bool
     return m_visible;
 }
 
+auto dev::console::entries() const -> const std::vector<std::string> &
+{
+    return m_history;
+}
+
 // MARK: - Events
 
 auto dev::console::receive(const event& e) -> void
@@ -149,4 +151,12 @@ auto dev::console::write(const std::string &message) -> void
 auto dev::console::on_command(std::function<auto(const std::string &)->void> callback) -> void
 {
     m_on_command = std::move(callback);
+}
+
+auto dev::console::send_command(const std::string& command) -> void
+{
+    m_history.emplace_back("&IN>" + command);
+    m_on_command(command);
+    m_input.set_string_value("");
+    m_input.set_cursor_position(0);
 }
