@@ -64,24 +64,18 @@ auto ui::imgui::dockspace::internal_draw() -> void
         ImGuiID dockspace_id = ImGui::GetID("KestrelDockspace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), m_flags);
 
-        for (auto window : m_windows) {
+        for (const auto& window : m_windows) {
             window->draw();
         }
-
-//        static bool demo = true;
-//        if (demo) {
-//            ImGui::ShowDemoWindow(&demo);
-//        }
 
         ImGui::End();
     }
     else {
-        for (auto window : m_windows) {
+        for (const auto& window : m_windows) {
             window->draw();
         }
     }
 
-//    m_diagnostics->draw();
     s_console.draw();
 }
 

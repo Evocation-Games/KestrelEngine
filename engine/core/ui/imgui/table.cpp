@@ -211,14 +211,16 @@ auto ui::imgui::table::cell::draw(const std::string& selected_id) -> std::string
         m_contents.draw();
 
         ImGui::SameLine();
-        if (ImGui::Selectable(identifier_string(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
+        if (ImGui::Selectable(identifier_string(), selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick)) {
             this->selected();
+
+            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                double_click();
+            }
+            
             return identifier_string();
         }
 
-        if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-            double_click();
-        }
     }
 
     return "";

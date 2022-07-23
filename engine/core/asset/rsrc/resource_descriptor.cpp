@@ -21,6 +21,7 @@
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include <libGraphite/rsrc/manager.hpp>
+#include <libGraphite/util/hashing.hpp>
 
 // MARK: - Lua
 
@@ -211,19 +212,23 @@ auto asset::resource_descriptor::description() const -> std::string
 
 auto asset::resource_descriptor::key() const -> std::string
 {
-    std::string prefix;
-    std::string value{"?"};
+    std::string value;
 
     if (is_namespaced()) {
         // TODO: Currently only taking the first namespace.
-        prefix = namespaces[0];
+        value += namespaces[0] + ":";
+    }
+
+    if (has_type()) {
+        value += type + ".";
     }
 
     if (has_id()) {
-        value = std::to_string(id);
+        value += "#" + std::to_string(id);
     }
 
-    return prefix.empty() ? value : prefix + "." + value;
+
+    return std::to_string(graphite::hashing::xxh64(value.c_str(), value.size()));
 }
 
 auto asset::resource_descriptor::has_type() const -> bool
