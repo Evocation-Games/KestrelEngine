@@ -48,6 +48,7 @@ auto host::sandbox::resource_file_reference::enroll_object_api_in_state(const st
                     .addProperty("extension", &resource_file_reference::extension)
                     .addProperty("format", &resource_file_reference::type)
                     .addProperty("resourceTypes", &resource_file_reference::all_types)
+                    .addFunction("save", &resource_file_reference::save)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -135,4 +136,16 @@ auto host::sandbox::resource_file_reference::all_types() const -> util::lua_vect
         descriptors.emplace_back(descriptor);
     }
     return descriptors;
+}
+
+auto host::sandbox::resource_file_reference::add_resource(const asset::resource_writer::lua_reference &writer) -> void
+{
+
+}
+
+// MARK: - File Management
+
+auto host::sandbox::resource_file_reference::save() -> void
+{
+    m_file.write(m_path);
 }

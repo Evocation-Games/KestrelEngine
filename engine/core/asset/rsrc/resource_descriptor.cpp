@@ -42,6 +42,7 @@ auto asset::resource_descriptor::enroll_object_api_in_state(const std::shared_pt
                     .addProperty("id", &resource_descriptor::id, false)
                     .addProperty("name", &resource_descriptor::name, false)
                     .addProperty("key", &resource_descriptor::key)
+                    .addProperty("hash", &resource_descriptor::hash)
                     .addFunction("valid", &resource_descriptor::valid)
                     .addFunction("hasType", &resource_descriptor::has_type)
                     .addFunction("hasId", &resource_descriptor::has_id)
@@ -214,6 +215,22 @@ auto asset::resource_descriptor::key() const -> std::string
 {
     std::string value;
 
+    if (is_namespaced() && !namespaces[0].empty()) {
+        // TODO: Currently only taking the first namespace.
+        value += namespaces[0] + ".";
+    }
+
+    if (has_id()) {
+        value += std::to_string(id);
+    }
+
+    return value;
+}
+
+auto asset::resource_descriptor::hash() const -> std::string
+{
+    std::string value;
+
     if (is_namespaced()) {
         // TODO: Currently only taking the first namespace.
         value += namespaces[0] + ":";
@@ -226,7 +243,6 @@ auto asset::resource_descriptor::key() const -> std::string
     if (has_id()) {
         value += "#" + std::to_string(id);
     }
-
 
     return std::to_string(graphite::hashing::xxh64(value.c_str(), value.size()));
 }

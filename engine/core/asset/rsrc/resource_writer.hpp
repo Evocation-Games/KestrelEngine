@@ -40,13 +40,6 @@ namespace asset
         typedef luabridge::RefCountedPtr<asset::resource_writer> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        int64_t m_id;
-        std::string m_name;
-        std::string m_type;
-        resource_namespace::lua_reference m_namespace { nullptr };
-        graphite::data::writer m_writer;
-
     public:
         resource_writer(const std::string& type, int64_t id, const std::string& name, const resource_namespace::lua_reference& ns);
 
@@ -70,5 +63,13 @@ namespace asset
         lua_api auto write_color(const graphics::color::lua_reference& v) -> void;
 
         lua_api auto commit() -> void;
+
+    private:
+        int64_t m_id;
+        std::string m_name;
+        std::string m_type;
+        resource_namespace::lua_reference m_namespace { nullptr };
+        graphite::data::writer m_writer;
+
     };
 }

@@ -75,6 +75,7 @@ namespace asset
 
         lua_api [[nodiscard]] auto description() const -> std::string;
         lua_api [[nodiscard]] auto key() const -> std::string;
+        lua_api [[nodiscard]] auto hash() const -> std::string;
 
         lua_api [[nodiscard]] auto with_type(const std::string& type) const -> lua_reference;
         lua_api [[nodiscard]] auto with_id(int64_t id) const -> lua_reference;

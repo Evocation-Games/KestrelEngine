@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
+
 #include "scripting/state.hpp"
 #include "scripting/script.hpp"
 #include "core/environment.hpp"
@@ -26,6 +28,8 @@
 #include "core/asset/rsrc/resource_writer.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
+#include "core/asset/rsrc/resource_key.hpp"
+#include "core/asset/rsrc/resource_collection.hpp"
 #include "math/angle.hpp"
 #include "math/angular_difference.hpp"
 #include "math/point.hpp"
@@ -90,6 +94,9 @@ static int scripting_lua_state_print(lua_State *state)
             if (lua_isstring(state, i)) {
                 auto str = lua_tostring(state, i);
                 env->lua_out(str);
+#if DEBUG
+                std::cout << str << std::endl;
+#endif
             }
             else {
 
@@ -114,6 +121,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     env->prepare_lua_interface();
 
     asset::resource_descriptor::enroll_object_api_in_state(shared_from_this());
+    asset::resource_key::enroll_object_api_in_state(shared_from_this());
+    asset::resource_collection::enroll_object_api_in_state(shared_from_this());
     asset::resource_namespace::enroll_object_api_in_state(shared_from_this());
     asset::resource_data::enroll_object_api_in_state(shared_from_this());
     asset::resource_writer::enroll_object_api_in_state(shared_from_this());

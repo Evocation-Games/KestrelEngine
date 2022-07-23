@@ -20,41 +20,30 @@
 
 #pragma once
 
+#include <unordered_map>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
-#include "util/lua_vector.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
-#include "core/asset/rsrc/resource_writer.hpp"
-#include <libGraphite/rsrc/file.hpp>
+#include "core/asset/rsrc/resource_key.hpp"
 
-namespace host::sandbox
+namespace asset
 {
-    struct resource_file_reference: public scripting::lua::object
+    struct resource_collection: public scripting::lua::object
     {
     public:
-        enum class type : std::uint8_t { none = 0, classic = 1, extended = 2, rez = 3 };
-
-        typedef luabridge::RefCountedPtr<resource_file_reference> lua_reference;
+        typedef luabridge::RefCountedPtr<resource_collection> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        explicit resource_file_reference(const std::string& path);
+        resource_collection() = default;
 
-        [[nodiscard]] lua_api auto exists() const -> bool;
-        [[nodiscard]] lua_api auto name() const -> std::string;
-        [[nodiscard]] lua_api auto path() const -> std::string;
-        [[nodiscard]] lua_api auto extension() const -> std::string;
-        [[nodiscard]] lua_api auto basename() const -> std::string;
-        [[nodiscard]] lua_api auto type() const -> enum type;
+        lua_api auto add_resource(const resource_descriptor::lua_reference& descriptor, const luabridge::LuaRef& resource) -> void;
 
-        [[nodiscard]] lua_api auto all_types() const -> util::lua_vector<asset::resource_descriptor::lua_reference>;
-
-        lua_api auto save() -> void;
-
-        lua_api auto add_resource(const asset::resource_writer::lua_reference& writer) -> void;
+        [[nodiscard]] lua_api auto size() const -> std::size_t;
+        [[nodiscard]] lua_api auto has(const resource_descriptor::lua_reference& descriptor) const -> bool;
+        [[nodiscard]] lua_api auto get(const resource_descriptor::lua_reference& descriptor) const -> luabridge::LuaRef;
 
     private:
-        std::string m_path;
-        graphite::rsrc::file m_file;
+        std::vector<std::pair<resource_key, luabridge::LuaRef>> m_resources;
     };
 }

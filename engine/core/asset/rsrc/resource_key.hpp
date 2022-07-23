@@ -20,41 +20,31 @@
 
 #pragma once
 
+#include <optional>
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
-#include "util/lua_vector.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
-#include "core/asset/rsrc/resource_writer.hpp"
-#include <libGraphite/rsrc/file.hpp>
+#include <libGraphite/rsrc/resource.hpp>
 
-namespace host::sandbox
+namespace asset
 {
-    struct resource_file_reference: public scripting::lua::object
+    struct resource_key: public scripting::lua::object
     {
     public:
-        enum class type : std::uint8_t { none = 0, classic = 1, extended = 2, rez = 3 };
-
-        typedef luabridge::RefCountedPtr<resource_file_reference> lua_reference;
+        typedef luabridge::RefCountedPtr<resource_key> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        explicit resource_file_reference(const std::string& path);
+        explicit resource_key(const asset::resource_descriptor& descriptor);
 
-        [[nodiscard]] lua_api auto exists() const -> bool;
-        [[nodiscard]] lua_api auto name() const -> std::string;
-        [[nodiscard]] lua_api auto path() const -> std::string;
-        [[nodiscard]] lua_api auto extension() const -> std::string;
-        [[nodiscard]] lua_api auto basename() const -> std::string;
-        [[nodiscard]] lua_api auto type() const -> enum type;
+        [[nodiscard]] auto str() const -> std::string;
+        [[nodiscard]] auto hash() const -> std::string;
 
-        [[nodiscard]] lua_api auto all_types() const -> util::lua_vector<asset::resource_descriptor::lua_reference>;
-
-        lua_api auto save() -> void;
-
-        lua_api auto add_resource(const asset::resource_writer::lua_reference& writer) -> void;
+        auto operator==(const resource_key& rhs) const -> bool;
 
     private:
-        std::string m_path;
-        graphite::rsrc::file m_file;
+        std::optional<graphite::rsrc::resource::identifier> m_id;
+        std::optional<std::string> m_type;
+        std::optional<std::string> m_namespace;
     };
 }
