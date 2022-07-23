@@ -56,6 +56,13 @@ ui::imgui::image::image(luabridge::LuaRef src)
         auto sheet = src.cast<asset::spritesheet::lua_reference>();
         m_spritesheet = sheet->sprite_sheet();
     }
+    else if (scripting::lua::ref_isa<asset::resource_descriptor>(src)) {
+        auto descriptor = src.cast<asset::resource_descriptor::lua_reference>();
+        asset::static_image img(descriptor);
+        m_spritesheet = img.sprite_sheet();
+    }
+
+    m_spritesheet->texture()->upload_to_gpu();
 }
 
 // MARK: - Drawing
