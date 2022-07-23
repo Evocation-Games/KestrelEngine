@@ -36,3 +36,4 @@
 #include "core/ui/imgui/textfield.hpp"
 #include "core/ui/imgui/window.hpp"
 #include "core/ui/imgui/style.hpp"
+#include "core/ui/imgui/codeeditor.hpp"

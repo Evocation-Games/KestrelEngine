@@ -161,6 +161,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::imgui::button::enroll_object_api_in_state(shared_from_this());
     ui::imgui::textfield::enroll_object_api_in_state(shared_from_this());
     ui::imgui::textarea::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::code_editor::enroll_object_api_in_state(shared_from_this());
     ui::imgui::image::enroll_object_api_in_state(shared_from_this());
     ui::imgui::slider::enroll_object_api_in_state(shared_from_this());
     ui::imgui::same_line::enroll_object_api_in_state(shared_from_this());

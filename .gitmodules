@@ -28,3 +28,6 @@
 [submodule "submodules/imgui"]
 	path = submodules/imgui
 	url = https://github.com/ocornut/imgui
+[submodule "submodules/ImGuiColorTextEdit"]
+	path = submodules/ImGuiColorTextEdit
+	url = https://github.com/BalazsJako/ImGuiColorTextEdit.git
