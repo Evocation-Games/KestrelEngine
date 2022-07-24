@@ -49,6 +49,7 @@ auto host::sandbox::resource_file_reference::enroll_object_api_in_state(const st
                     .addProperty("format", &resource_file_reference::type)
                     .addProperty("resourceTypes", &resource_file_reference::all_types)
                     .addFunction("save", &resource_file_reference::save)
+                    .addFunction("writeResource", &resource_file_reference::add_resource)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -140,7 +141,27 @@ auto host::sandbox::resource_file_reference::all_types() const -> util::lua_vect
 
 auto host::sandbox::resource_file_reference::add_resource(const asset::resource_writer::lua_reference &writer) -> void
 {
+    auto type_code = writer->type_code();
+    auto id = writer->id();
+    auto name = writer->name();
+    auto ns = writer->ns();
 
+    std::vector<graphite::rsrc::attribute> type_attributes;
+    if (ns.get()) {
+        type_attributes.emplace_back(graphite::rsrc::attribute("namespace", ns->primary_name()));
+    }
+
+    // Do we have an existing resource already?
+    if (auto resource = m_file.find(type_code, id, type_attributes)) {
+        const_cast<graphite::rsrc::resource *>(resource)->set_data(*const_cast<graphite::data::block *>(writer->data()));
+        return;
+    }
+
+    auto type = const_cast<graphite::rsrc::type *>(m_file.type(type_code, type_attributes));
+    if (type) {
+        auto resource = new graphite::rsrc::resource(type, id, name, *writer->data());
+        type->add_resource(resource);
+    }
 }
 
 // MARK: - File Management

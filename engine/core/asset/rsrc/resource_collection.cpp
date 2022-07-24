@@ -82,7 +82,7 @@ auto asset::resource_collection::has(const resource_descriptor::lua_reference &d
 {
     asset::resource_key key(*descriptor.get());
 
-    for (auto& it : m_resources) {
+    for (const auto& it : m_resources) {
         if (it.first == key) {
             return true;
         }

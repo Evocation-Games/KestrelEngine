@@ -57,7 +57,7 @@ namespace ui::imgui
         bool m_open { true };
         ImGuiDockNodeFlags m_flags { ImGuiDockNodeFlags_None };
         ImGuiWindowFlags m_window_flags {
-            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
             ImGuiWindowFlags_NoNavFocus
         };

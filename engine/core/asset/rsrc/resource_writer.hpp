@@ -41,7 +41,13 @@ namespace asset
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
-        resource_writer(const std::string& type, int64_t id, const std::string& name, const resource_namespace::lua_reference& ns);
+        resource_writer(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name, const resource_namespace::lua_reference& ns);
+
+        [[nodiscard]] auto type_code() const -> std::string;
+        [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto id() const -> graphite::rsrc::resource::identifier;
+        [[nodiscard]] auto ns() const -> resource_namespace::lua_reference;
+        [[nodiscard]] auto data() const -> const graphite::data::block*;
 
         lua_api auto write_signed_byte(int8_t v) -> void;
         lua_api auto write_signed_short(int16_t v) -> void;
@@ -65,7 +71,7 @@ namespace asset
         lua_api auto commit() -> void;
 
     private:
-        int64_t m_id;
+        graphite::rsrc::resource::identifier m_id;
         std::string m_name;
         std::string m_type;
         resource_namespace::lua_reference m_namespace { nullptr };
