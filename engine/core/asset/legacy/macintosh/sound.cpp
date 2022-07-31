@@ -191,7 +191,7 @@ auto asset::legacy::macintosh::quicktime::sound::load(const resource_descriptor:
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(sound::type, ref);
+        auto asset = env->cache()->fetch(ref->with_type(type));
         if (asset.has_value()) {
             return std::any_cast<lua_reference>(asset.value());
         }
@@ -199,7 +199,7 @@ auto asset::legacy::macintosh::quicktime::sound::load(const resource_descriptor:
 
     auto snd = lua_reference(new sound(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(sound::type, ref, snd);
+        env->cache()->add(ref->with_type(type), snd);
     }
     return snd;
 }

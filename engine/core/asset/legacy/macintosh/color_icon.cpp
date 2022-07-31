@@ -59,7 +59,7 @@ auto asset::legacy::macintosh::quickdraw::color_icon::load(const asset::resource
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(color_icon::type, ref);
+        auto asset = env->cache()->fetch(ref->with_type(type));
         if (asset.has_value()) {
             return std::any_cast<color_icon::lua_reference>(asset.value());
         }
@@ -67,7 +67,7 @@ auto asset::legacy::macintosh::quickdraw::color_icon::load(const asset::resource
 
     auto icon = asset::legacy::macintosh::quickdraw::color_icon::lua_reference(new color_icon(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(color_icon::type, ref, icon);
+        env->cache()->add(ref->with_type(type), icon);
     }
     return icon;
 }

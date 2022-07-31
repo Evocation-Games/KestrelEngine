@@ -20,51 +20,43 @@
 
 #include "core/asset/cache.hpp"
 
-// MARK: - Helpers
-
-static inline auto make_hash(const std::string& type, const asset::resource_descriptor::lua_reference& ref) -> std::size_t
-{
-    if (ref->has_id()) {
-        return std::hash<std::string>{}("type=" + type + ":id=" + std::to_string(ref->id));
-    }
-    else if (ref->has_name()) {
-        return std::hash<std::string>{}("type=" + type + ":name=" + ref->name);
-    }
-    else {
-        return std::hash<std::string>{}("type=" + type);
-    }
-}
-
 // MARK: - Caching Functions
 
-auto asset::cache::add(const std::string &type, const asset::resource_descriptor::lua_reference &ref,
-                       const std::any &asset) -> void
+auto asset::cache::add(const asset::resource_descriptor::lua_reference &ref, const std::any &asset) -> void
 {
-    m_assets[make_hash(type, ref)] = std::make_tuple(asset, rtc::clock::global().current());
-}
-
-auto asset::cache::fetch(const std::string &type,
-                         const asset::resource_descriptor::lua_reference &ref) -> std::optional<std::any>
-{
-    auto k = make_hash(type, ref);
-    if (m_assets.find(k) == m_assets.end()) {
-        return {};
+    asset::resource_key key(*ref.get());
+    for (auto& it : m_assets) {
+        if (std::get<0>(it) == key) {
+            std::get<2>(it) = asset;
+            std::get<1>(it) = rtc::clock::global().current();
+            return;
+        }
     }
 
-    auto asset = std::get<0>(m_assets.at(k));
-    m_assets[k] = std::make_tuple(asset, rtc::clock::global().current());
-    return asset;
+    m_assets.emplace(m_assets.begin(), std::tuple(key, rtc::clock::global().current(), asset));
+}
+
+auto asset::cache::fetch(const asset::resource_descriptor::lua_reference &ref) -> std::optional<std::any>
+{
+    asset::resource_key key(*ref.get());
+    for (auto& it : m_assets) {
+        if (std::get<0>(it) == key) {
+            std::get<1>(it) = rtc::clock::global().current();
+            return std::get<2>(it);
+        }
+    }
+    return {};
 }
 
 // MARK: - Purging
 
 auto asset::cache::purge_unused() -> void
 {
-    const auto death_interval = 10.0 * 60.0; // 10 Minutes
+    const auto death_interval = 2.0 * 60.0; // 2 Minutes
 
-    for (const auto& asset_pair : m_assets) {
-        if (rtc::clock::global().since(std::get<1>(asset_pair.second)).count() >= death_interval) {
-            m_assets.erase(asset_pair.first);
+    for (auto it = m_assets.begin(); it != m_assets.end(); ++it) {
+        if (rtc::clock::global().since(std::get<1>(*it)).count() >= death_interval) {
+            m_assets.erase(it);
         }
     }
 }

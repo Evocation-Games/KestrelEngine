@@ -61,7 +61,7 @@ auto asset::legacy::macintosh::quickdraw::picture::load(const asset::resource_de
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(picture::type, ref);
+        auto asset = env->cache()->fetch(ref->with_type(picture::type));
         if (asset.has_value()) {
             return std::any_cast<lua_reference>(asset.value());
         }
@@ -69,7 +69,7 @@ auto asset::legacy::macintosh::quickdraw::picture::load(const asset::resource_de
 
     auto image = lua_reference(new picture(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(picture::type, ref, image);
+        env->cache()->add(ref->with_type(picture::type), image);
     }
     return image;
 }

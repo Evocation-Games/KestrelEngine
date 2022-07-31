@@ -131,7 +131,7 @@ auto asset::static_image::load_best(const std::vector<resource_descriptor::lua_r
 
     // Check the environment for a pre-cached version of the resource.
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(ref->type, ref);
+        auto asset = env->cache()->fetch(ref);
         if (asset.has_value()) {
             if (ref->type == legacy::macintosh::quickdraw::picture::type) {
                 return static_image::using_pict(std::any_cast<legacy::macintosh::quickdraw::picture::lua_reference>(asset.value()));
@@ -152,21 +152,21 @@ auto asset::static_image::load_best(const std::vector<resource_descriptor::lua_r
     if (ref->type == legacy::macintosh::quickdraw::picture::type) {
         auto image = legacy::macintosh::quickdraw::picture::lua_reference(new legacy::macintosh::quickdraw::picture(ref));
         if (auto env = environment::active_environment().lock()) {
-            env->cache()->add(ref->type, ref, image);
+            env->cache()->add(ref, image);
         }
         return asset::static_image::using_pict(image);
     }
     else if (ref->type == legacy::macintosh::quickdraw::color_icon::type) {
         auto image = legacy::macintosh::quickdraw::color_icon::lua_reference(new legacy::macintosh::quickdraw::color_icon(ref));
         if (auto env = environment::active_environment().lock()) {
-            env->cache()->add(ref->type, ref, image);
+            env->cache()->add(ref, image);
         }
         return static_image::using_cicn(image);
     }
     else if (ref->type == static_image::type) {
         auto image = static_image::lua_reference(new static_image(ref));
         if (auto env = environment::active_environment().lock()) {
-            env->cache()->add(ref->type, ref, image);
+            env->cache()->add(ref, image);
         }
         return image;
     }

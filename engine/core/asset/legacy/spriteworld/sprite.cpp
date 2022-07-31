@@ -20,7 +20,8 @@
 
 #include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/spriteworld/rle.hpp>
+#include <libGraphite/spriteworld/rleD.hpp>
+#include <libGraphite/spriteworld/rleX.hpp>
 #include "sprite.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
@@ -48,27 +49,31 @@ auto asset::legacy::spriteworld::sprite::enroll_object_api_in_state(const std::s
 
 asset::legacy::spriteworld::sprite::sprite(const asset::resource_descriptor::lua_reference& ref)
 {
-    if (auto resource = ref->with_type(type_16)->load()) {
-        m_source_type = std::string(type_16);
-        graphite::spriteworld::rle<16> rle(resource->data(), resource->id(), resource->name());
-        m_surface = std::move(rle.surface());
-        configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
+    if (ref->has_type() && ref->type == type_16) {
+        if (auto resource = ref->with_type(type_16)->load()) {
+            m_source_type = std::string(type_16);
+            graphite::spriteworld::rleD rle(resource->data(), resource->id(), resource->name());
+            m_surface = rle.surface();
+            configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
 
-        auto frame_size = rle.frame_rect(0).size;
-        layout_sprites({ frame_size.width, frame_size.height });
+            auto frame_size = rle.frame_rect(0).size;
+            layout_sprites({ frame_size.width, frame_size.height });
 
-        return;
+            return;
+        }
     }
-    else if (auto resource = ref->with_type(type_32)->load()) {
-        m_source_type = std::string(type_32);
-        graphite::spriteworld::rle<32> rle(resource->data(), resource->id(), resource->name());
-        m_surface = std::move(rle.surface());
-        configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
+    else if (ref->has_type() && ref->type == type_32) {
+        if (auto resource = ref->with_type(type_32)->load()) {
+            m_source_type = std::string(type_32);
+            graphite::spriteworld::rleX rle(resource->data(), resource->id(), resource->name());
+            m_surface = rle.surface();
+            configure(resource->id(), resource->name(), { m_surface.size().width, m_surface.size().height }, m_surface.raw());
 
-        auto frame_size = rle.frame_rect(0).size;
-        layout_sprites({ frame_size.width, frame_size.height });
+            auto frame_size = rle.frame_rect(0).size;
+            layout_sprites({ frame_size.width, frame_size.height });
 
-        return;
+            return;
+        }
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");
 }
@@ -77,25 +82,38 @@ auto asset::legacy::spriteworld::sprite::load(const asset::resource_descriptor::
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(sprite::type_32, ref);
-        if (asset.has_value()) {
-            return std::any_cast<lua_reference>(asset.value());
+        if (ref->has_type()) {
+            auto asset = env->cache()->fetch(ref);
+            if (asset.has_value()) {
+                return std::any_cast<lua_reference>(asset.value());
+            }
         }
+        else {
+            auto asset = env->cache()->fetch(ref->with_type(type_32));
+            if (asset.has_value()) {
+                return std::any_cast<lua_reference>(asset.value());
+            }
 
-        asset = env->cache()->fetch(sprite::type_16, ref);
-        if (asset.has_value()) {
-            return std::any_cast<lua_reference>(asset.value());
+            asset = env->cache()->fetch(ref->with_type(type_16));
+            if (asset.has_value()) {
+                return std::any_cast<lua_reference>(asset.value());
+            }
         }
     }
 
     auto image = lua_reference(new sprite(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(image->m_source_type, ref, image);
+        env->cache()->add(ref->with_type(image->type()), image);
     }
     return image;
 }
 
 // MARK: - Properties
+
+auto asset::legacy::spriteworld::sprite::type() const -> std::string
+{
+    return m_source_type;
+}
 
 auto asset::legacy::spriteworld::sprite::size() const -> math::size
 {

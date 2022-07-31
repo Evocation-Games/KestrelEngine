@@ -41,6 +41,7 @@ namespace asset::legacy::spriteworld
         lua_api explicit sprite(const asset::resource_descriptor::lua_reference& ref);
         lua_api static auto load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference;
 
+        lua_api [[nodiscard]] auto type() const -> std::string;
         lua_api [[nodiscard]] auto size() const -> math::size override;
         lua_api [[nodiscard]] auto sprite_count() const -> int override;
 
