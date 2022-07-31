@@ -30,8 +30,7 @@ auto graphics::text::enroll_object_api_in_state(const std::shared_ptr<scripting:
 {
     lua->global_namespace()
         .beginClass<graphics::text>("Text")
-            .addConstructor<auto(*)(std::string, std::string, int, graphics::color::lua_reference)->void, graphics::text::lua_reference>()
-            .addProperty("fontSize", &text::get_font_size)
+            .addConstructor<auto(*)(std::string, const ui::font::reference::lua_reference&, graphics::color::lua_reference)->void, graphics::text::lua_reference>()
             .addProperty("font", &text::get_font)
             .addProperty("color", &text::get_color)
             .addFunction("spawnEntity", &text::spawn_entity)
@@ -40,9 +39,10 @@ auto graphics::text::enroll_object_api_in_state(const std::shared_ptr<scripting:
 
 // MARK: - Construction
 
-graphics::text::text(std::string text, std::string font, int size, const graphics::color::lua_reference& color)
-    : m_text(std::move(text)), m_font_face(std::move(font)), m_font_size(size), m_color(*color.get())
+graphics::text::text(std::string text, const ui::font::reference::lua_reference& font, const graphics::color::lua_reference& color)
+    : m_text(std::move(text)), m_font(font), m_color(*color.get())
 {
+    m_font->load_for_graphics();
 }
 
 // MARK: - Accessors
@@ -52,19 +52,14 @@ auto graphics::text::get_value() const -> std::string
     return m_text;
 }
 
-auto graphics::text::get_font_size() const -> int
+auto graphics::text::get_font() const -> ui::font::reference::lua_reference
 {
-    return m_font_size;
-}
-
-auto graphics::text::get_font() const -> std::string
-{
-    return m_font_face;
+    return m_font;
 }
 
 auto graphics::text::get_color() const -> graphics::color::lua_reference
 {
-    return graphics::color::lua_reference(new graphics::color(m_color));
+    return { new graphics::color(m_color) };
 }
 
 
@@ -74,8 +69,7 @@ auto graphics::text::spawn_entity(const math::point &position) -> std::shared_pt
 {
     // Create a typesetter to layout the text and generate a bitmap.
     graphics::typesetter ts(m_text);
-    ts.set_font(m_font_face);
-    ts.set_font_size(m_font_size);
+    ts.set_font(*m_font.get());
     ts.set_font_color(m_color);
     ts.layout();
 

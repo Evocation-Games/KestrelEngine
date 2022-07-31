@@ -85,7 +85,7 @@ auto renderer::metal::texture::set_data(const graphite::data::block &data) -> vo
 
 auto renderer::metal::texture::handle() const -> uint64_t
 {
-    return 0;
+    return reinterpret_cast<std::uint64_t>(m_handle);
 }
 
 auto renderer::metal::texture::handle_ptr() const -> id<MTLTexture>

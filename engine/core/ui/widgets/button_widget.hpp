@@ -30,11 +30,9 @@
 #include "math/rect.hpp"
 #include "core/ui/stencils/button_stencil.hpp"
 #include "core/event/responder/responder_chain.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace ui::widgets
 {
@@ -49,17 +47,16 @@ namespace ui::widgets
         static auto set_global_disabled_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
 
     public:
-        explicit button_widget(const std::string& label);
+        lua_api explicit button_widget(const std::string& label);
 
-        auto draw() -> void;
-        [[nodiscard]] lua_api auto entity() const -> std::shared_ptr<scene_entity>;
+        lua_api auto draw() -> void;
+        [[nodiscard]] lua_api auto entity() const -> scene_entity::lua_reference;
 
         [[nodiscard]] lua_api auto normal_stencil() const -> stencils::button_stencil::lua_reference;
         [[nodiscard]] lua_api auto pressed_stencil() const -> stencils::button_stencil::lua_reference;
         [[nodiscard]] lua_api auto disabled_stencil() const -> stencils::button_stencil::lua_reference;
         [[nodiscard]] lua_api auto label() const -> std::string;
-        [[nodiscard]] lua_api auto font() const -> std::string;
-        [[nodiscard]] lua_api auto font_size() const -> int16_t;
+        [[nodiscard]] lua_api auto font() const -> font::reference::lua_reference;
         [[nodiscard]] lua_api auto is_pressed() const -> bool;
         [[nodiscard]] lua_api auto is_disabled() const -> bool;
         [[nodiscard]] lua_api auto label_color() const -> graphics::color::lua_reference;
@@ -72,13 +69,13 @@ namespace ui::widgets
         [[nodiscard]] lua_api auto user_info() const -> luabridge::LuaRef;
         [[nodiscard]] lua_api auto frame() const -> math::rect;
         [[nodiscard]] lua_api auto disabled() const -> bool;
+        [[nodiscard]] lua_api auto continuous() const -> bool;
 
         auto set_normal_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
         auto set_pressed_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
         auto set_disabled_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
         auto set_label(const std::string& label) -> void;
-        auto set_font(const std::string& font) -> void;
-        auto set_font_size(int16_t font_size) -> void;
+        auto set_font(const font::reference::lua_reference& font) -> void;
         auto set_label_color(const graphics::color::lua_reference& color) -> void;
         auto set_label_pressed_color(const graphics::color::lua_reference& color) -> void;
         auto set_label_disabled_color(const graphics::color::lua_reference& color) -> void;
@@ -100,8 +97,7 @@ namespace ui::widgets
     private:
         bool m_dirty { true };
         std::string m_label;
-        std::string m_label_font { "Geneva" };
-        int16_t m_font_size { 12 };
+        ui::font::reference::lua_reference m_font { nullptr };
         bool m_pressed { false };
         bool m_disabled { false };
         bool m_inside { false };
@@ -110,7 +106,7 @@ namespace ui::widgets
         graphics::color m_label_pressed { graphics::color(100, 255) };
         graphics::color m_label_disabled { graphics::color(200, 255) };
         std::shared_ptr<graphics::canvas> m_canvas;
-        std::shared_ptr<scene_entity> m_entity;
+        scene_entity::lua_reference m_entity { nullptr };
         asset::static_image::lua_reference m_icon { nullptr };
         luabridge::LuaRef m_action { nullptr };
         luabridge::LuaRef m_mouse_enter { nullptr };

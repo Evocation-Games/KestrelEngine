@@ -33,6 +33,7 @@ auto ui::imgui::table::enroll_object_api_in_state(const std::shared_ptr<scriptin
                 .addProperty("position", &table::position, &table::set_position)
                 .addProperty("size", &table::size, &table::set_size)
                 .addProperty("header", &table::header, &table::set_header)
+                .addProperty("selectedRow", &table::selected_index, &table::set_selected_index)
                 .addFunction("addRow", &table::add_row)
             .endClass()
         .endNamespace();
@@ -47,8 +48,11 @@ auto ui::imgui::table::cell::enroll_object_api_in_state(const std::shared_ptr<sc
             .beginClass<table::cell>("TableCell")
                 .addConstructor<auto(*)()->void, lua_reference>()
                 .addStaticFunction("Text", &cell::text)
+                .addProperty("hasChildren", &cell::has_children)
                 .addFunction("addWidget", &cell::add_widget)
                 .addFunction("onSelected", &cell::on_selected)
+                .addFunction("addChild", &cell::add_child)
+                .addFunction("onDoubleClick", &cell::on_double_click)
             .endClass()
         .endNamespace();
 }
@@ -115,6 +119,18 @@ auto ui::imgui::table::cell::selected() -> void
     }
 }
 
+auto ui::imgui::table::cell::on_double_click(luabridge::LuaRef callback) -> void
+{
+    m_on_double_click = callback;
+}
+
+auto ui::imgui::table::cell::double_click() -> void
+{
+    if (m_on_double_click.state() && m_on_double_click.isFunction()) {
+        m_on_double_click();
+    }
+}
+
 // MARK: - Drawing
 
 auto ui::imgui::table::draw() -> void
@@ -143,19 +159,19 @@ auto ui::imgui::table::draw() -> void
         auto row_count = m_rows.size();
         for (auto i = 0; i < row_count; ++i) {
             auto row = m_rows[i];
-            auto selected = m_selected_row == i + 1;
 
             if (scripting::lua::ref_isa<table::cell>(row)) {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
                 auto cell = row.cast<table::cell::lua_reference>();
-                cell->draw();
-
-                ImGui::SameLine();
-                if (ImGui::Selectable(cell->identifier_string(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                auto id = cell->draw(m_selected_identifier);
+                if (id == cell->identifier_string()) {
                     m_selected_row = i + 1;
-                    cell->selected();
+                    m_selected_identifier = cell->identifier_string();
+                }
+                else if (id != "") {
+                    m_selected_identifier = id;
                 }
             }
         }
@@ -166,5 +182,76 @@ auto ui::imgui::table::draw() -> void
 
 auto ui::imgui::table::cell::draw() -> void
 {
-    m_contents.draw();
+    draw("");
+}
+
+auto ui::imgui::table::cell::draw(const std::string& selected_id) -> std::string
+{
+    bool selected = (identifier_string() == selected_id);
+
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+
+    if (has_children()) {
+        bool open = ImGui::TreeNodeEx(identifier_string(), ImGuiTreeNodeFlags_SpanFullWidth);
+        ImGui::SameLine();
+        m_contents.draw();
+        if (open) {
+            for (auto& cell : m_children) {
+                if (cell->draw(selected_id) == cell->identifier_string()) {
+                    ImGui::TreePop();
+                    return cell->identifier_string();
+                }
+            }
+            ImGui::TreePop();
+        }
+    }
+    else {
+
+        m_contents.draw();
+
+        ImGui::SameLine();
+        if (ImGui::Selectable(identifier_string(), selected, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowDoubleClick)) {
+            this->selected();
+
+            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                double_click();
+            }
+            
+            return identifier_string();
+        }
+
+    }
+
+    return "";
+}
+
+// MARK: - Accessors
+
+auto ui::imgui::table::selected_index() const -> std::uint32_t
+{
+    return m_selected_row;
+}
+
+auto ui::imgui::table::set_selected_index(std::uint32_t idx) -> void
+{
+    m_selected_row = idx;
+}
+
+// MARK: - Children
+
+auto ui::imgui::table::cell::add_child(luabridge::LuaRef child) -> void
+{
+    cell::lua_reference cell(new table::cell());
+
+    if (child.state() && child.isFunction()) {
+        child(cell);
+    }
+
+    m_children.emplace_back(cell);
+}
+
+auto ui::imgui::table::cell::has_children() const -> bool
+{
+    return !m_children.empty();
 }

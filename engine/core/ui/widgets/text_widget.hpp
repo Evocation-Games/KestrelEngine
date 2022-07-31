@@ -31,11 +31,8 @@
 #include "math/size.hpp"
 #include "math/rect.hpp"
 #include "core/event/responder/responder_chain.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/font.hpp"
 
 namespace ui::widgets
 {
@@ -50,11 +47,10 @@ namespace ui::widgets
 
         auto draw() -> void;
 
-        [[nodiscard]] auto entity() const -> std::shared_ptr<ui::scene_entity>;
+        [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
 
         [[nodiscard]] lua_api auto text() const -> std::string;
-        [[nodiscard]] lua_api auto font() const -> std::string;
-        [[nodiscard]] lua_api auto font_size() const -> int16_t;
+        [[nodiscard]] lua_api auto font() const -> ui::font::reference::lua_reference ;
         [[nodiscard]] lua_api auto color() const -> graphics::color::lua_reference;
         [[nodiscard]] lua_api auto background_color() const -> graphics::color::lua_reference;
         [[nodiscard]] lua_api auto border_color() const -> graphics::color::lua_reference;
@@ -65,8 +61,7 @@ namespace ui::widgets
         [[nodiscard]] lua_api auto frame() const -> math::rect;
 
         auto set_text(const std::string& v) -> void;
-        auto set_font(const std::string& v) -> void;
-        auto set_font_size(int16_t v) -> void;
+        auto set_font(const ui::font::reference::lua_reference& font) -> void;
         auto set_color(const graphics::color::lua_reference& v) -> void;
         auto set_background_color(const graphics::color::lua_reference& v) -> void;
         auto set_border_color(const graphics::color::lua_reference& v) -> void;
@@ -82,11 +77,10 @@ namespace ui::widgets
 
     private:
         bool m_dirty { true };
-        std::string m_font_face { "Geneva" };
-        int16_t m_font_size { 12 };
+        ui::font::reference::lua_reference m_font { nullptr };
         text_entry_event m_input;
         std::unique_ptr<graphics::canvas> m_canvas;
-        std::shared_ptr<scene_entity> m_entity;
+        scene_entity::lua_reference m_entity { nullptr };
         graphics::color m_color { graphics::color::black_color() };
         graphics::color m_border_color { graphics::color::black_color() };
         graphics::color m_selection_color { graphics::color::blue_color() };

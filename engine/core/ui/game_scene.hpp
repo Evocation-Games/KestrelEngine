@@ -102,6 +102,8 @@ namespace ui
         bool m_imgui { false };
 
         auto draw_widgets() const -> void;
+
+        auto forward_event_to_widgets(const event& e) -> void;
     };
 
 }

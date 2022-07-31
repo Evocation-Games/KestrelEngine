@@ -37,6 +37,7 @@ auto graphics::canvas::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("penColor", &canvas::get_pen_color, &canvas::set_pen_color)
             .addProperty("bounds", &canvas::get_bounds)
             .addProperty("name", &canvas::get_name, &canvas::set_name)
+            .addProperty("font", &canvas::font, &canvas::set_font)
             .addFunction("entity", &canvas::entity)
             .addFunction("rebuildEntityTexture", &canvas::rebuild_texture)
             .addFunction("drawRect", &canvas::draw_rect)
@@ -96,10 +97,10 @@ auto graphics::canvas::set_pen_color(const graphics::color& color) -> void
     m_dirty = true;
 }
 
-auto graphics::canvas::set_font(const std::string &name, const int &size) -> void
+auto graphics::canvas::set_font(const ui::font::reference::lua_reference& font) -> void
 {
-    m_typesetter.set_font(name);
-    m_typesetter.set_font_size(size);
+    font->load_for_graphics();
+    m_typesetter.set_font(*font.get());
     m_dirty = true;
 }
 
@@ -274,7 +275,7 @@ auto graphics::canvas::draw_circle(const math::point &p, const double &r) -> voi
         }
 
         auto x = static_cast<int>(std::round(r));
-        typeof(x) y = 0;
+        decltype(x) y = 0;
         double err = 0;
 
         while (x >= y) {

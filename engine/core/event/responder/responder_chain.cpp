@@ -83,12 +83,12 @@ auto responder_chain::add_mouse_responder(mouse_responder *responder) -> void
 
 auto responder_chain::send_event(const event &e) -> bool
 {
-    if (auto receiver = m_first_responder) {
-        return receiver->receive_event(e);
-    }
-
     for (auto receiver : m_mouse_responders) {
         receiver->receive_event(e);
+    }
+
+    if (auto receiver = m_first_responder) {
+        return receiver->receive_event(e);
     }
 
     return false;

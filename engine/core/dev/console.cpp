@@ -20,19 +20,20 @@
 
 #include <iostream>
 #include "core/dev/console.hpp"
+#include "core/ui/font/font.hpp"
 
 // MARK: - Construction
 
 dev::console::console()
     : m_size({ 600, 300 }), m_dirty(true), m_visible(false)
 {
-    m_history.emplace_back("Kestrel v0.6");
+    m_history.emplace_back("Kestrel v0.7");
+
+    m_font = { new ui::font::reference("Menlo", 11) };
+    m_font->load_for_graphics();
 
     m_input.on_enter([&] (const std::string& input) {
-        m_history.emplace_back("&IN>" + input);
-        m_on_command(input);
-        m_input.set_string_value("");
-        m_input.set_cursor_position(0);
+        send_command(input);
     });
 
     m_on_command = [] (const std::string&) {};
@@ -54,7 +55,7 @@ auto dev::console::update() -> void
     m_canvas->set_pen_color(graphics::color::black_color().with_alpha(200));
     m_canvas->fill_rect({ 0, 0, m_size.width, m_size.height });
 
-    m_canvas->set_font("Menlo", 12);
+    m_canvas->set_font(m_font);
     m_canvas->set_pen_color(graphics::color::white_color());
 
     auto y = m_size.height - 5;
@@ -125,6 +126,11 @@ auto dev::console::is_visible() const -> bool
     return m_visible;
 }
 
+auto dev::console::entries() const -> const std::vector<std::string> &
+{
+    return m_history;
+}
+
 // MARK: - Events
 
 auto dev::console::receive(const event& e) -> void
@@ -145,4 +151,12 @@ auto dev::console::write(const std::string &message) -> void
 auto dev::console::on_command(std::function<auto(const std::string &)->void> callback) -> void
 {
     m_on_command = std::move(callback);
+}
+
+auto dev::console::send_command(const std::string& command) -> void
+{
+    m_history.emplace_back("&IN>" + command);
+    m_on_command(command);
+    m_input.set_string_value("");
+    m_input.set_cursor_position(0);
 }

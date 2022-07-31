@@ -33,6 +33,7 @@ auto ui::imgui::window::enroll_object_api_in_state(const std::shared_ptr<scripti
                 .addProperty("title", &window::title, &window::set_title)
                 .addProperty("size", &window::size, &window::set_size)
                 .addProperty("isClosed", &window::is_closed)
+                .addProperty("isHidden", &window::is_hidden)
                 .addProperty("hasClosedButton", &window::has_close_button, &window::set_has_close_button)
                 .addProperty("resizable", &window::is_resizable, &window::set_resizable)
                 .addFunction("show", &window::show)
@@ -40,6 +41,7 @@ auto ui::imgui::window::enroll_object_api_in_state(const std::shared_ptr<scripti
                 .addFunction("close", &window::close)
                 .addFunction("addWidget", &window::add_widget)
                 .addFunction("center", &window::center)
+                .addFunction("destroy", &window::destroy)
             .endClass()
         .endNamespace();
 }
@@ -79,6 +81,13 @@ auto ui::imgui::window::close() -> void
     m_closed = true;
 }
 
+auto ui::imgui::window::destroy() -> void
+{
+    if (auto env = environment::active_environment().lock()) {
+        env->imgui_dockspace().remove_window(this);
+    }
+}
+
 auto ui::imgui::window::center() -> void
 {
     if (auto env = environment::active_environment().lock()) {
@@ -115,7 +124,7 @@ auto ui::imgui::window::set_size(const math::size &size) -> void
 
 auto ui::imgui::window::draw() -> void
 {
-    if (m_closed) {
+    if (m_closed || !m_shown) {
         return;
     }
 

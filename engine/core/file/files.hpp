@@ -66,8 +66,8 @@ namespace host::sandbox
 
         [[nodiscard]] auto scenario_data_files() -> util::lua_vector<file_reference::lua_reference>;
 
-        [[nodiscard]] auto mods() const -> util::lua_vector<mod_reference::lua_reference>;
-        [[nodiscard]] auto scenarios() const -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto mods() -> util::lua_vector<mod_reference::lua_reference>;
+        [[nodiscard]] auto scenarios() -> util::lua_vector<mod_reference::lua_reference>;
 
         [[nodiscard]] auto get_current_save_file() const -> host::sandbox::file_reference::lua_reference;
         auto set_save_file_name(const std::string& name) -> void;
@@ -106,6 +106,9 @@ namespace host::sandbox
         host::sandbox::mod_reference::lua_reference m_active_scenario { nullptr };
 
         host::sandbox::directory_reference::lua_reference m_active_scenario_dir { nullptr };
+
+        util::lua_vector<mod_reference::lua_reference> m_mods;
+        util::lua_vector<mod_reference::lua_reference> m_scenarios;
 
         files();
 

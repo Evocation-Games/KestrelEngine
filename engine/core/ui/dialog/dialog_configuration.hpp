@@ -30,6 +30,7 @@
 #include "core/asset/static_image.hpp"
 #include "core/ui/game_scene.hpp"
 #include "core/ui/dialog/dialog.hpp"
+#include "core/ui/dialog/dialog_layout.hpp"
 
 namespace ui
 {
@@ -44,48 +45,35 @@ namespace ui
 
         lua_api auto build(const luabridge::LuaRef& configure_callback) -> ui::dialog::lua_reference;
 
-        [[nodiscard]] lua_api inline auto size() const -> math::size { return m_size; }
-        lua_api inline auto set_size(const math::size& size) -> void { m_size = size; }
+        [[nodiscard]] lua_api inline auto size() const -> math::size { return m_layout.size(); }
+        lua_api inline auto set_size(const math::size& size) -> void { m_layout.set_size(size); }
 
         lua_api auto set_background(const luabridge::LuaRef& background) -> void;
         lua_api auto set_stretched_background(const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void;
 
-        lua_api auto define_element(const luabridge::LuaRef& index, const std::string& name, uint8_t type) -> void;
-        lua_api auto set_element_name(uint32_t idx, const std::string& name) -> void;
-        lua_api auto set_type_of_element_named(const std::string& name, uint8_t type) -> void;
-        lua_api auto set_anchor_of_element_named(const std::string& name, uint8_t anchor) -> void;
+        lua_api auto set_passthrough(bool f) -> void { m_passthrough = f; }
+        [[nodiscard]] lua_api auto passthrough() const -> bool { return m_passthrough; }
 
-        [[nodiscard]] lua_api auto index_for_element_named(const std::string& name) const -> luabridge::LuaRef;
-        [[nodiscard]] auto index_vector_for_element_named(const std::string& name) const -> std::vector<uint32_t>;
-        [[nodiscard]] lua_api auto type_of_element_named(const std::string& name) const -> uint8_t;
-        [[nodiscard]] lua_api auto anchor_of_element_named(const std::string& name) const -> uint8_t;
-        [[nodiscard]] lua_api auto name_of_element(uint32_t idx) const -> std::string;
-
-        [[nodiscard]] auto defined_elements() const -> std::vector<std::string>;
-
-        inline auto layout() -> luabridge::LuaRef { return m_layout_ref; };
+        lua_api auto define_element(const luabridge::LuaRef& index, const std::string& name, uint8_t type) -> control_definition::lua_reference;
+        lua_api auto element(const std::string& name) -> control_definition::lua_reference;
+        [[nodiscard]] auto all_elements() const -> std::vector<std::string>;
 
         [[nodiscard]] inline auto background() const -> asset::static_image::lua_reference { return m_background_image; }
         [[nodiscard]] inline auto background_stretch() const -> asset::static_image::lua_reference { return m_background_stretch_image; }
         [[nodiscard]] inline auto background_bottom() const -> asset::static_image::lua_reference { return m_background_bottom_image; }
 
-    private:
-        struct element_definition
-        {
-            std::vector<uint32_t> index;
-            enum control_definition::type type { 0 };
-            enum control_definition::anchor anchor { 0 };
-        };
+        [[nodiscard]] inline auto layout() const -> const dialog_layout * { return &m_layout; }
 
     private:
+        std::unordered_map<std::string, control_definition::lua_reference> m_element_definitions;
+        dialog_layout m_layout;
         ui::dialog::lua_reference m_dialog { nullptr };
-        std::unordered_map<std::string, element_definition> m_elements;
-        math::size m_size;
-        luabridge::LuaRef m_layout_ref { nullptr };
+        bool m_passthrough { true };
+
         asset::static_image::lua_reference m_background_image { nullptr };
         asset::static_image::lua_reference m_background_stretch_image { nullptr };
         asset::static_image::lua_reference m_background_bottom_image { nullptr };
 
-        auto load_image_asset(const luabridge::LuaRef& ref) -> asset::static_image::lua_reference;
+        static auto load_image_asset(const luabridge::LuaRef& ref) -> asset::static_image::lua_reference;
     };
 }

@@ -47,10 +47,10 @@ namespace ui::imgui
 
         lua_api auto set_action(luabridge::LuaRef callback) -> void { m_action = callback; }
 
-        auto position() const -> math::point override { return widget::position(); }
+        [[nodiscard]] auto position() const -> math::point override { return widget::position(); }
         auto set_position(const math::point &position) -> void override { widget::set_position(position); }
 
-        auto size() const -> math::size override { return widget::size(); }
+        [[nodiscard]] auto size() const -> math::size override { return widget::size(); }
         auto set_size(const math::size &size) -> void override { widget::set_size(size); }
 
         [[nodiscard]] auto font() const -> font::reference::lua_reference { return m_font; }

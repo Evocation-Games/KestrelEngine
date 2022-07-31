@@ -24,11 +24,7 @@
 #include "core/ui/control_definition.hpp"
 #include "core/environment.hpp"
 #include "core/ui/imgui/imgui.hpp"
-
-#include "core/ui/widgets/button_widget.hpp"
-#include "core/ui/widgets/label_widget.hpp"
-#include "core/ui/widgets/image_widget.hpp"
-#include "core/ui/widgets/textarea_widget.hpp"
+#include "core/ui/dialog/dialog_layout.hpp"
 
 // MARK: - Enumeration Types
 
@@ -53,8 +49,12 @@ static auto s_control_definition_radio = static_cast<uint32_t>(ui::control_defin
 static auto s_control_definition_tabbar = static_cast<uint32_t>(ui::control_definition::type::tabbar);
 static auto s_control_definition_separator = static_cast<uint32_t>(ui::control_definition::type::separator);
 
-static auto s_control_definition_mode_scene = static_cast<uint32_t>(ui::control_definition::mode::scene);
-static auto s_control_definition_mode_imgui = static_cast<uint32_t>(ui::control_definition::mode::imgui);
+static auto s_control_definition_anchor_top = static_cast<uint32_t>(ui::control_definition::anchor::top);
+static auto s_control_definition_anchor_bottom = static_cast<uint32_t>(ui::control_definition::anchor::bottom);
+static auto s_control_definition_anchor_left = static_cast<uint32_t>(ui::control_definition::anchor::left);
+static auto s_control_definition_anchor_right = static_cast<uint32_t>(ui::control_definition::anchor::right);
+static auto s_control_definition_anchor_vertical = static_cast<uint32_t>(ui::control_definition::anchor::vertical);
+static auto s_control_definition_anchor_horizontal = static_cast<uint32_t>(ui::control_definition::anchor::horizontal);
 
 // MARK: - Lua
 
@@ -62,11 +62,15 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
 {
     lua->global_namespace()
         .beginNamespace("UI")
+            .beginNamespace("Anchor")
+                .addProperty("Top", &s_control_definition_anchor_top, false)
+                .addProperty("Bottom", &s_control_definition_anchor_bottom, false)
+                .addProperty("Left", &s_control_definition_anchor_left, false)
+                .addProperty("Right", &s_control_definition_anchor_right, false)
+                .addProperty("Vertical", &s_control_definition_anchor_vertical, false)
+                .addProperty("Horizontal", &s_control_definition_anchor_horizontal, false)
+            .endNamespace()
             .beginClass<control_definition>("ControlDefinition")
-                .addConstructor<auto(*)(const math::rect&, uint32_t)->void, lua_reference>()
-
-                .addStaticProperty("Scene", &s_control_definition_mode_scene, false)
-                .addStaticProperty("ImGui", &s_control_definition_mode_imgui, false)
                 .addStaticProperty("None", &s_control_definition_none, false)
                 .addStaticProperty("Button", &s_control_definition_button, false)
                 .addStaticProperty("Label", &s_control_definition_label, false)
@@ -87,336 +91,131 @@ auto ui::control_definition::enroll_object_api_in_state(const std::shared_ptr<sc
                 .addStaticProperty("Radio", &s_control_definition_radio, false)
                 .addStaticProperty("TabBar", &s_control_definition_tabbar, false)
                 .addStaticProperty("Separator", &s_control_definition_separator, false)
-
-                .addProperty("type", &control_definition::type)
-                .addProperty("entity", &control_definition::entity)
-                .addProperty("control", &control_definition::control)
-                .addProperty("action", &control_definition::m_action, true)
-
-                // Framing
+                .addProperty("type", &control_definition::type, &control_definition::set_type)
+                .addProperty("name", &control_definition::name)
                 .addProperty("frame", &control_definition::frame, &control_definition::set_frame)
-                .addProperty("contentOffset", &control_definition::content_offset, &control_definition::set_content_offset)
-                .addProperty("contentSize", &control_definition::content_size, &control_definition::set_content_size)
-                .addProperty("gridSize", &control_definition::grid_size, &control_definition::set_grid_size)
-                .addProperty("borders", &control_definition::borders, &control_definition::set_borders)
-                .addProperty("canScrollUp", &control_definition::can_scroll_up)
-                .addProperty("canScrollDown", &control_definition::can_scroll_down)
-
-                // General
-                .addProperty("disabled", &control_definition::disabled, &control_definition::set_disabled)
-
-                // Strings
-                .addProperty("title", &control_definition::string_value, &control_definition::set_string_value)
-                .addProperty("bodyText", &control_definition::string_value, &control_definition::set_string_value)
-
-                // Font
-                .addProperty("textColor", &control_definition::text_color, &control_definition::set_text_color)
-                .addProperty("secondaryTextColor", &control_definition::secondary_text_color, &control_definition::set_secondary_text_color)
-                .addProperty("textFont", &control_definition::text_font, &control_definition::set_text_font)
-                .addProperty("textSize", &control_definition::text_size, &control_definition::set_text_size)
-                .addProperty("alignment", &control_definition::alignment, &control_definition::set_alignment)
-
-                // Images
-                .addProperty("image", &control_definition::image, &control_definition::set_image)
-                .addProperty("icon", &control_definition::image, &control_definition::set_image)
-                .addProperty("sprite", &control_definition::image, &control_definition::set_image)
-
-                // Action
-                .addProperty("action", &control_definition::action, &control_definition::set_action)
-
-                // Tables / Lists
-                .addProperty("selectedIndex", &control_definition::selected_index, &control_definition::set_selected_index)
-                .addProperty("columnWidths", &control_definition::column_widths, &control_definition::set_column_widths)
-                .addProperty("columnHeadings", &control_definition::column_headings, &control_definition::set_column_headings)
-                .addProperty("columnSpacings", &control_definition::column_spacing, &control_definition::set_column_spacing)
-
-                // Methods
-                .addFunction("construct", &control_definition::construct)
-                .addFunction("useImGuiFlowLayout", &control_definition::disable_absolute_frame)
-                .addFunction("setTitle", &control_definition::set_string_value)
-                .addFunction("setBodyText", &control_definition::set_body_text_value)
-                .addFunction("setAction", &control_definition::set_action)
-                .addFunction("setColumnSpacings", &control_definition::set_column_spacing)
-                .addFunction("setTextColor", &control_definition::set_text_color)
-                .addFunction("setSecondaryTextColor", &control_definition::set_secondary_text_color)
-                .addFunction("setTextFont", &control_definition::set_text_font_and_size)
-                .addFunction("setAlignment", &control_definition::set_alignment)
-                .addFunction("setImage", &control_definition::set_image)
-                .addFunction("setIcon", &control_definition::set_image)
-                .addFunction("setSprite", &control_definition::set_image)
-                .addFunction("setFrameSize", &control_definition::set_frame_size)
-                .addFunction("setContentOffset", &control_definition::set_content_offset)
-                .addFunction("setContentSize", &control_definition::set_content_size)
-                .addFunction("setItemCount", &control_definition::set_item_count)
-                .addFunction("selectIndex", &control_definition::set_selected_index)
-                .addFunction("setRowItems", &control_definition::set_items)
-                .addFunction("setGridItems", &control_definition::set_items)
-                .addFunction("setItems", &control_definition::set_items)
-                .addFunction("setDisabled", &control_definition::set_disabled)
-                .addFunction("setColumns", &control_definition::set_columns)
-                .addFunction("setBorders", &control_definition::set_borders)
-                .addFunction("setRender", &control_definition::set_render)
-                .addFunction("setActionScript", &control_definition::set_action)
-                .addFunction("setContinuous", &control_definition::set_continuous)
-                .addFunction("scrollUp", &control_definition::scroll_up)
-                .addFunction("scrollDown", &control_definition::scroll_down)
+                .addProperty("anchor", &control_definition::anchor, &control_definition::set_anchor)
+                .addProperty("suggestedValue", &control_definition::suggested_value)
             .endClass()
         .endNamespace();
 }
 
 // MARK: - Construction
 
-ui::control_definition::control_definition(const math::rect &frame, uint32_t type)
-    : m_frame(frame), m_type(static_cast<enum type>(type))
+ui::control_definition::control_definition(const dialog_layout *layout, const std::string &name, enum type type)
+    : m_name(name), m_type(type), m_layout(layout)
 {
-
+    recalculate_frame();
 }
 
-// MARK: -
+// MARK: - Element Indexes
 
-auto ui::control_definition::construct(uint32_t mode) -> void
+auto ui::control_definition::set_element_index_vector(const std::vector<std::uint16_t> &v) -> void
 {
-    switch (static_cast<enum mode>(mode)) {
-        case mode::scene: {
-            construct_scene_entity();
-            break;
-        }
-        case mode::imgui: {
-            construct_imgui_control();
-            break;
-        }
-    }
+    m_element_index_vec = v;
+    recalculate_frame();
 }
 
-auto ui::control_definition::construct_scene_entity() -> void
+auto ui::control_definition::add_element_index_vector(std::uint16_t idx) -> void
 {
-    auto env = environment::active_environment().lock();
-    if (!env) {
+    m_element_index_vec.emplace_back(idx);
+    recalculate_frame();
+}
+
+// MARK: - Framing
+
+auto ui::control_definition::recalculate_frame() -> void
+{
+    if (m_element_index_vec.empty()) {
         return;
     }
-    auto state = env->lua_runtime()->internal_state();
 
-    switch (m_type) {
-        case type::button: {
-            widgets::button_widget::lua_reference button(new widgets::button_widget(m_string_value));
-            button->set_frame(m_frame);
-            button->set_continuous_action(m_continuous);
+    double left = 10'000;
+    double top = 10'000;
+    double right = 0;
+    double bottom = 0;
 
-            if (m_image.state()) {
-                button->set_icon(m_image);
-            }
+    auto target_size = m_layout->size();
 
-            if (m_action.state()) {
-                button->set_action(m_action);
-            }
+    for (auto idx : m_element_index_vec) {
+        auto item = m_layout->element_at(idx);
 
-            button->draw();
-            m_widget = luabridge::LuaRef(state, button);
-            m_entity = scene_entity::lua_reference(new scene_entity(button->entity()));
-            m_entity->internal_entity()->set_position(m_frame.origin);
-            m_entity->set_position(m_frame.origin);
-            break;
-        }
-        case type::label: {
-            widgets::label_widget::lua_reference label(new widgets::label_widget(m_string_value));
-            label->set_frame(m_frame);
-            label->set_font(m_font_name);
-            label->set_font_size(static_cast<int16_t>(m_font_size));
-            label->set_color(m_text_color);
-            label->draw();
-            m_widget = luabridge::LuaRef(state, label);
-            m_entity = scene_entity::lua_reference(new scene_entity(label->entity()));
-            m_entity->internal_entity()->set_position(m_frame.origin);
-            m_entity->set_position(m_frame.origin);
-            break;
-        }
-        case type::image: {
-            widgets::image_widget::lua_reference image(new widgets::image_widget(m_image));
-            image->set_frame(m_frame);
-            m_widget = luabridge::LuaRef(state, image);
-            m_entity = scene_entity::lua_reference(new scene_entity(image->entity()));
-            m_entity->internal_entity()->set_position(m_frame.origin);
-            m_entity->set_position(m_frame.origin);
-            break;
-        }
-        case type::text_area: {
-            widgets::textarea_widget::lua_reference text(new widgets::textarea_widget(m_frame, m_body_text));
-            text->set_frame(m_frame);
-            text->set_font(m_font_name);
-            text->set_font_size(static_cast<int16_t>(m_font_size));
-            text->set_color(m_text_color);
-            text->set_scroll_offset(static_cast<int16_t>(m_content_offset.y));
-            text->draw();
-            m_widget = luabridge::LuaRef(state, text);
-            m_entity = scene_entity::lua_reference(new scene_entity(text->entity()));
-            m_entity->internal_entity()->set_position(m_frame.origin);
-            m_entity->set_position(m_frame.origin);
-
-            m_can_scroll_up = text->can_scroll_up();
-            m_can_scroll_down = text->can_scroll_down();
-
-            break;
-        }
+        left = std::min(left, item->frame.get_x());
+        top = std::min(top, item->frame.get_y());
+        right = std::max(right, item->frame.get_max_x());
+        bottom = std::max(bottom, item->frame.get_max_y());
     }
-}
 
-auto ui::control_definition::construct_imgui_control() -> void
-{
-    auto env = environment::active_environment().lock();
-    if (!env) {
-        return;
+    // Vertical Anchors
+    if ((m_anchor & anchor::vertical) == anchor::vertical) {
+        auto diff = m_layout->size().height - bottom;
+        bottom = target_size.height - diff;
     }
-    auto state = env->lua_runtime()->internal_state();
-
-    switch (m_type) {
-        case type::button: {
-            imgui::button::lua_reference button(new imgui::button(m_string_value, m_action));
-            if (m_absolute_frame) {
-                button->set_position(m_frame.origin);
-                button->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, button);
-            break;
-        }
-        case type::label: {
-            imgui::label::lua_reference label { new imgui::label(m_string_value) };
-            if (m_absolute_frame) {
-                label->set_position(m_frame.origin);
-                label->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, label);
-            break;
-        }
-        case type::image: {
-            imgui::image::lua_reference image { new imgui::image(m_image) };
-            if (m_absolute_frame) {
-                image->set_position(m_frame.origin);
-                image->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, image);
-            break;
-        }
-        case type::text_field: {
-            imgui::textfield::lua_reference field { new imgui::textfield(512, m_string_value) };
-            if (m_absolute_frame) {
-                field->set_position(m_frame.origin);
-                field->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, field);
-            break;
-        }
-        case type::checkbox: {
-            imgui::checkbox::lua_reference checkbox { new imgui::checkbox(m_string_value, false) };
-            if (m_absolute_frame) {
-                checkbox->set_position(m_frame.origin);
-                checkbox->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, checkbox);
-            break;
-        }
-        case type::popup_button: {
-            luabridge::LuaRef items {
-                luabridge::LuaRef::newTable(env->lua_runtime()->internal_state())
-            };
-
-            if (m_items.state() && m_items.isTable()) {
-                for (auto i = 0; i < m_items.length(); ++i) {
-                    items[i + 1] = m_items[i + 1];
-                }
-            }
-            else if (!m_string_value.empty()) {
-                std::istringstream iss { m_string_value };
-                std::string item;
-                while (std::getline(iss, item, ',')) {
-                    items[items.length() + 1] = item;
-                }
-            }
-
-            imgui::combo::lua_reference combo {
-                new imgui::combo(items)
-            };
-
-            if (m_absolute_frame) {
-                combo->set_position(m_frame.origin);
-                combo->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, combo);
-            break;
-        }
-        case type::separator: {
-            imgui::separator::lua_reference separator { new imgui::separator() };
-            if (m_absolute_frame) {
-                separator->set_position(m_frame.origin);
-                separator->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, separator);
-            break;
-        }
-        case type::slider: {
-            imgui::slider::lua_reference slider { new imgui::slider(50, 0, 100) };
-            if (m_absolute_frame) {
-                slider->set_position(m_frame.origin);
-                slider->set_size(m_frame.size);
-            }
-            m_control = luabridge::LuaRef(state, slider);
-            break;
-        }
-        default: {
-            env->lua_out("ControlDefinition type is not supported in ImGui.", true);
-            break;
-        }
+    else if ((m_anchor & anchor::bottom) == anchor::bottom) {
+        auto top_diff = m_layout->size().height - top;
+        auto bottom_diff = m_layout->size().height - bottom;
+        top = target_size.height - top_diff;
+        bottom = target_size.height - bottom_diff;
     }
-}
 
-auto ui::control_definition::update() -> void
-{
-    if (scripting::lua::ref_isa<widgets::textarea_widget>(m_widget)) {
-        auto text = m_widget.cast<widgets::textarea_widget::lua_reference>();
-        text->set_text(m_body_text);
-        text->set_scroll_offset(static_cast<int32_t>(m_content_offset.y));
-        text->draw();
-
-        m_can_scroll_up = text->can_scroll_up();
-        m_can_scroll_down = text->can_scroll_down();
+    // Horizontal Anchors
+    if ((m_anchor & anchor::horizontal) == anchor::horizontal) {
+        auto diff = m_layout->size().width - left;
+        left = target_size.height - diff;
     }
-    else if (scripting::lua::ref_isa<widgets::button_widget>(m_widget)) {
-        auto button = m_widget.cast<widgets::button_widget::lua_reference>();
-        button->set_disabled(m_disabled);
-        button->draw();
+    else if ((m_anchor & anchor::right) == anchor::right) {
+        auto right_diff = m_layout->size().width - right;
+        auto left_diff = m_layout->size().width - left;
+        right = target_size.width - right_diff;
+        left = target_size.width - left_diff;
     }
+
+    m_frame = math::rect(left, top, right - left, bottom - top);
 }
 
-// MARK: - Helper Functions
+// MARK: - Accessors
 
-auto ui::control_definition::set_columns(const luabridge::LuaRef &widths, const luabridge::LuaRef &headings) -> void
+auto ui::control_definition::name() const -> std::string
 {
-
+    return m_name;
 }
 
-auto ui::control_definition::set_text_font_and_size(const std::string &font, uint32_t size) -> void
+auto ui::control_definition::suggested_value() const -> std::string
 {
-    set_text_font(font);
-    set_text_size(size);
+    if (m_element_index_vec.empty()) {
+        return "";
+    }
+    auto element = m_layout->element_at(m_element_index_vec[0]);
+    return element->value;
 }
 
-auto ui::control_definition::scroll_up() -> void
+auto ui::control_definition::anchor() const -> std::uint8_t
 {
-    m_content_offset.y -= 2;
-    update();
+    return static_cast<std::uint8_t>(m_anchor);
 }
 
-auto ui::control_definition::scroll_down() -> void
+auto ui::control_definition::type() const -> std::uint8_t
 {
-    m_content_offset.y += 2;
-    update();
+    return static_cast<std::uint8_t>(m_type);
 }
 
-auto ui::control_definition::can_scroll_up() const -> bool
+auto ui::control_definition::frame() const -> math::rect
 {
-    return m_can_scroll_up;
+    return m_frame;
 }
 
-auto ui::control_definition::can_scroll_down() const -> bool
+auto ui::control_definition::set_type(std::uint8_t type) -> void
 {
-    return m_can_scroll_down;
+    m_type = static_cast<enum type>(type);
+}
+
+auto ui::control_definition::set_anchor(std::uint8_t anchor) -> void
+{
+    m_anchor = static_cast<enum anchor>(anchor);
+    recalculate_frame();
+}
+
+auto ui::control_definition::set_frame(const math::rect &frame) -> void
+{
+    m_frame = frame;
 }

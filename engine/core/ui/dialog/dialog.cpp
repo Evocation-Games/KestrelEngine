@@ -28,6 +28,21 @@
 #include "core/environment.hpp"
 #include "core/graphics/common/canvas.hpp"
 
+// Widgets
+#include "core/ui/widgets/button_widget.hpp"
+#include "core/ui/widgets/label_widget.hpp"
+#include "core/ui/widgets/image_widget.hpp"
+#include "core/ui/widgets/textarea_widget.hpp"
+#include "core/ui/widgets/list_widget.hpp"
+#include "core/ui/widgets/grid_widget.hpp"
+#include "core/ui/widgets/custom_widget.hpp"
+#include "core/ui/widgets/text_widget.hpp"
+#include "core/ui/widgets/sprite_widget.hpp"
+
+// Controls
+#include "core/ui/imgui/imgui.hpp"
+
+
 // MARK: - Lua
 
 auto ui::dialog::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void
@@ -35,13 +50,11 @@ auto ui::dialog::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
     lua->global_namespace()
         .beginNamespace("UI")
             .beginClass<dialog>("Dialog")
-                .addConstructor<auto(*)(const luabridge::LuaRef&)->void, lua_reference>()
-                .addProperty("passthrough", &dialog::passthrough, &dialog::set_passthrough)
                 .addFunction("setBackground", &dialog::set_background)
                 .addFunction("setStretchableBackground", &dialog::set_stretchable_background)
-                .addFunction("namedElement", &dialog::named_element)
+                .addFunction("configureElement", &dialog::configure_element)
+                .addFunction("elementNamed", &dialog::named_element)
                 .addFunction("present", &dialog::present)
-                .addFunction("presentInScene", &dialog::present_in_scene)
                 .addFunction("close", &dialog::close)
             .endClass()
         .endNamespace();
@@ -54,137 +67,209 @@ ui::dialog::dialog(dialog_configuration *config)
     load_contents(config);
 }
 
-ui::dialog::dialog(const luabridge::LuaRef &ref)
-{
-    if (ref.state() && scripting::lua::ref_isa<dialog_configuration>(ref)) {
-        load_contents(ref.cast<dialog_configuration::lua_reference>().get());
-    }
-    else {
-        throw std::runtime_error("Invalid parameter passed to Dialog constructor.");
-    }
-}
-
 auto ui::dialog::load_contents(dialog_configuration *config) -> void
 {
     m_configuration = config;
 
-    if (!m_configuration) {
-        throw std::runtime_error("Dialog construction requires DialogConfiguration");
-    }
-
-    auto target_size = m_configuration->size();
-    auto layout = m_configuration->layout();
-
-    if (scripting::lua::ref_isa<asset::scene_interface>(layout)) {
-        auto scene_interface = layout.cast<asset::scene_interface::lua_reference>();
-        auto flags = scene_interface->flags();
-
-        m_name = scene_interface->name();
-        m_frame = { math::point(), scene_interface->scene_size() };
-
-        for (auto i = 0; i < scene_interface->child_count(); ++i) {
-            auto child = scene_interface->child_at(i);
-
-            // Define a new ControlDefinition from the item.
-            ui::control_definition::lua_reference definition {
-                new ui::control_definition(child.frame(), static_cast<uint32_t>(child.type()))
-            };
-
-            m_control_definitions.emplace(std::pair(child.identifier(), definition));
+    switch (config->layout()->mode()) {
+        case dialog_layout::mode::scene: {
+            load_scene_contents(config);
+            break;
+        }
+        case dialog_layout::mode::imgui: {
+            load_imgui_contents(config);
+            break;
         }
     }
-    else if (scripting::lua::ref_isa<asset::legacy::macintosh::toolbox::dialog>(layout)) {
-        auto dialog = layout.cast<asset::legacy::macintosh::toolbox::dialog::lua_reference>();
+}
 
-        if (target_size.width == 0 && target_size.height == 0) {
-            target_size = dialog->bounds().size;
-        }
+auto ui::dialog::load_imgui_contents(dialog_configuration *config) -> void
+{
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        // TODO: Handle this scenario.
+        return;
+    }
+    auto L = env->lua_runtime()->internal_state();
 
-        asset::resource_descriptor::lua_reference ditl_ref(new asset::resource_descriptor());
-        ditl_ref = ditl_ref->with_id(dialog->interface_list());
+    // We're working with ImGUI, so use the ImGUI Controls
+    for (const auto& element_name : config->all_elements()) {
+        const auto& element = config->element(element_name);
 
-        m_item_list = { new asset::legacy::macintosh::toolbox::item_list(ditl_ref) };
-        m_name = dialog->title();
-        m_frame = dialog->bounds();
-
-        for (auto name : m_configuration->defined_elements()) {
-            auto type = static_cast<enum control_definition::type>(m_configuration->type_of_element_named(name));
-            auto anchor = static_cast<enum control_definition::anchor>(m_configuration->anchor_of_element_named(name));
-            auto index_vector = m_configuration->index_vector_for_element_named(name);
-
-            double left = 10'000;
-            double top = 10'000;
-            double right = 0;
-            double bottom = 0;
-
-            for (auto index : index_vector) {
-                auto item = m_item_list->at(index);
-                left = std::min(left, item.frame.get_x());
-                top = std::min(top, item.frame.get_y());
-                right = std::max(right, item.frame.get_max_x());
-                bottom = std::max(bottom, item.frame.get_max_y());
+        switch (static_cast<enum control_definition::type>(element->type())) {
+            case control_definition::type::button: {
+                auto button = imgui::button::lua_reference(new imgui::button(element->suggested_value()));
+                button->set_position(element->frame().origin);
+                button->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
+                break;
+            }
+            case control_definition::type::checkbox: {
+                auto checkbox = imgui::checkbox::lua_reference(new imgui::checkbox(element->suggested_value(), false));
+                checkbox->set_position(element->frame().origin);
+                checkbox->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, checkbox)));
+                break;
+            }
+            case control_definition::type::popup_button: {
+                // TODO: Take the suggested value, and extract items.
+                auto combo = imgui::combo::lua_reference(new imgui::combo({ nullptr }));
+                combo->set_position(element->frame().origin);
+                combo->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, combo)));
+                break;
+            }
+            case control_definition::type::image: {
+                auto image = imgui::image::lua_reference(new imgui::image({ nullptr }));
+                image->set_position(element->frame().origin);
+                image->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
+                break;
+            }
+            case control_definition::type::label: {
+                auto label = imgui::label::lua_reference(new imgui::label(element->suggested_value()));
+                label->set_position(element->frame().origin);
+                label->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, label)));
+                break;
+            }
+            case control_definition::type::text_field: {
+                auto value = element->suggested_value();
+                auto text_field = imgui::textfield::lua_reference(new imgui::textfield(value.size(), value));
+                text_field->set_position(element->frame().origin);
+                text_field->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text_field)));
+                break;
+            }
+            case control_definition::type::slider: {
+                auto slider = imgui::slider::lua_reference(new imgui::slider(50, 0, 100));
+                slider->set_position(element->frame().origin);
+                slider->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, slider)));
+                break;
+            }
+            case control_definition::type::tabbar: {
+                auto tabbar = imgui::tabbar::lua_reference(new imgui::tabbar({ nullptr }));
+                tabbar->set_position(element->frame().origin);
+                tabbar->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, tabbar)));
+                break;
+            }
+            case control_definition::type::table:
+            case control_definition::type::list: {
+                auto table = imgui::table::lua_reference(new imgui::table(0));
+                table->set_position(element->frame().origin);
+                table->set_size(element->frame().size);
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, table)));
+                break;
             }
 
-            // Vertical Anchors
-            if ((anchor & control_definition::anchor::vertical) == control_definition::anchor::vertical) {
-                auto diff = m_frame.get_height() - bottom;
-                bottom = target_size.get_height() - diff;
-            }
-            else if ((anchor & control_definition::anchor::bottom) == control_definition::anchor::bottom) {
-                auto top_diff = m_frame.get_height() - top;
-                auto bottom_diff = m_frame.get_height() - bottom;
-                top = target_size.height - top_diff;
-                bottom = target_size.height - bottom_diff;
-            }
-
-            // Horizontal Anchors
-            if ((anchor & control_definition::anchor::horizontal) == control_definition::anchor::horizontal) {
-                auto diff = m_frame.get_width() - right;
-                right = target_size.get_width() - diff;
-            }
-            else if ((anchor & control_definition::anchor::right) == control_definition::anchor::right) {
-                auto right_diff = m_frame.get_width() - right;
-                auto left_diff = m_frame.get_width() - left;
-                right = target_size.width - right_diff;
-                left = target_size.width - left_diff;
-            }
-
-            ui::control_definition::lua_reference definition {
-                new ui::control_definition({ left, top, right - left, bottom - top }, static_cast<uint8_t>(type))
-            };
-            m_control_definitions.emplace(std::pair(name, definition));
+            default: break;
         }
     }
+}
 
-    // Finally identify the scene that we're being created within.
-    if (auto env = environment::active_environment().lock()) {
-        m_owner_scene = env->session()->current_scene();
+auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
+{
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        // TODO: Handle this scenario.
+        return;
     }
+    auto L = env->lua_runtime()->internal_state();
+
+    // We're working with the native kestrel scene, so use the widgets
+    for (auto element_name : config->all_elements()) {
+        const auto& element = config->element(element_name);
+
+        switch (static_cast<enum control_definition::type>(element->type())) {
+            case control_definition::type::button: {
+                auto button = widgets::button_widget::lua_reference(new widgets::button_widget(element->suggested_value()));
+                button->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
+                break;
+            }
+            case control_definition::type::sprite: {
+                auto image = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
+                image->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
+                break;
+            }
+            case control_definition::type::image: {
+                auto sprite = widgets::image_widget::lua_reference(new widgets::image_widget({ nullptr }));
+                sprite->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
+                break;
+            }
+            case control_definition::type::popup_button: {
+
+            }
+            case control_definition::type::label: {
+                auto label = widgets::label_widget::lua_reference(new widgets::label_widget(element->suggested_value()));
+                label->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, label)));
+                break;
+            }
+            case control_definition::type::text_area: {
+                auto text = widgets::textarea_widget::lua_reference(new widgets::textarea_widget(element->suggested_value()));
+                text->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
+                break;
+            }
+            case control_definition::type::table:
+            case control_definition::type::list: {
+                auto list = widgets::list_widget::lua_reference(new widgets::list_widget());
+                list->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, list)));
+                break;
+            }
+            case control_definition::type::grid: {
+                auto grid = widgets::grid_widget::lua_reference(new widgets::grid_widget());
+                grid->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, grid)));
+                break;
+            }
+            case control_definition::type::canvas: {
+                auto custom = widgets::custom_widget::lua_reference(new widgets::custom_widget({ nullptr }));
+                custom->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, custom)));
+                break;
+            }
+
+            default: break;
+        }
+    }
+}
+
+
+// MARK: - Accessors
+
+auto ui::dialog::frame() const -> math::rect
+{
+    return m_frame;
 }
 
 // MARK: - Presentation
 
 auto ui::dialog::present() -> void
 {
-    auto layout = m_configuration->layout();
-    if (scripting::lua::ref_isa<asset::scene_interface>(layout)) {
-        auto scene_interface = layout.cast<asset::scene_interface::lua_reference>();
-        if ((scene_interface->flags() & asset::scene_interface::flags::use_imgui) == asset::scene_interface::flags::use_imgui) {
-            present_imgui(m_owner_scene);
-        }
-        else {
-            present_scene(m_owner_scene);
-        }
+    auto env = environment::active_environment().lock();
+    if (!env) {
+        // TODO: Handle this...
+        return;
     }
-    else if (scripting::lua::ref_isa<asset::legacy::macintosh::toolbox::dialog>(layout)) {
-        present_scene(m_owner_scene);
-    }
-}
+    auto scene = env->session()->current_scene();
 
-auto ui::dialog::present_in_scene(const ui::game_scene::lua_reference &scene) -> void
-{
-    add_to_scene(scene);
-    present();
+    switch (m_configuration->layout()->mode()) {
+        case dialog_layout::mode::scene: {
+            present_scene(scene);
+            break;
+        }
+        case dialog_layout::mode::imgui: {
+            present_imgui(scene);
+            break;
+        }
+    }
 }
 
 auto ui::dialog::present_imgui(const ui::game_scene::lua_reference& scene) -> void
@@ -194,12 +279,8 @@ auto ui::dialog::present_imgui(const ui::game_scene::lua_reference& scene) -> vo
         return;
     }
 
-    auto presentation_scene = scene;
-    if (m_configuration) {
-
-    }
-    auto layout = m_configuration->layout().cast<asset::scene_interface::lua_reference>();
-
+    auto& presentation_scene = scene;
+    auto layout = m_configuration->layout();
     add_to_scene(presentation_scene);
 
     env->start_imgui_environment();
@@ -213,9 +294,8 @@ auto ui::dialog::present_imgui(const ui::game_scene::lua_reference& scene) -> vo
     m_imgui.window->set_has_close_button(false);
     m_imgui.window->set_resizable(false);
 
-    for (auto& definition : m_control_definitions) {
-        definition.second->construct(static_cast<uint32_t>(control_definition::mode::imgui));
-        auto control = definition.second->control();
+    for (auto& element : m_elements) {
+        auto control = element.second;
         if (control.state()) {
             m_imgui.window->add_widget(control);
         }
@@ -232,13 +312,10 @@ auto ui::dialog::present_scene(const ui::game_scene::lua_reference& scene) -> vo
         return;
     }
 
-    auto presentation_scene = scene;
-    if (m_configuration) {
-    }
-
+    auto& presentation_scene = scene;
     add_to_scene(presentation_scene);
 
-    if (m_configuration && m_configuration->background().get()) {
+    if (m_configuration->background().get()) {
         // Setup the background of the dialog in the correct position.
         if (m_configuration->background_stretch().get() && m_configuration->background_bottom().get()) {
             set_stretchable_background(
@@ -253,13 +330,10 @@ auto ui::dialog::present_scene(const ui::game_scene::lua_reference& scene) -> vo
         }
     }
 
-    for (const auto& definition : m_control_definitions) {
-        if (definition.second->access_flag() && definition.second->frame().intersects(m_frame)) {
-            definition.second->construct(static_cast<uint32_t>(control_definition::mode::scene));
-            auto entity = definition.second->entity();
-            if (entity.get()) {
-                definition.second->set_entity_index(m_owner_scene->add_entity(entity));
-            }
+    for (auto& element : m_elements) {
+        auto widget = element.second;
+        if (widget.state()) {
+            m_owner_scene->add_widget(widget);
         }
     }
 }
@@ -269,7 +343,7 @@ auto ui::dialog::present_scene(const ui::game_scene::lua_reference& scene) -> vo
 auto ui::dialog::add_to_scene(const ui::game_scene::lua_reference &scene) -> void
 {
     m_owner_scene = scene;
-    scene->set_passthrough_render(true);
+    scene->set_passthrough_render(m_configuration->passthrough());
 }
 
 auto ui::dialog::set_background(const luabridge::LuaRef &background) -> void
@@ -302,23 +376,38 @@ auto ui::dialog::set_stretchable_background(const math::size& size, const luabri
         new layout::positioning_frame(m_frame, {}, { m_positioning_offset.width, m_positioning_offset.height })
     });
 
-    graphics::canvas::lua_reference canvas { new graphics::canvas(size) };
 
     if (scripting::lua::ref_isa<asset::static_image>(top)) {
         m_background.top = top.cast<asset::static_image::lua_reference>();
         m_background.top_entity = { new ui::scene_entity(m_background.top) };
-    }
-
-    if (scripting::lua::ref_isa<asset::static_image>(fill)) {
-        m_background.fill = fill.cast<asset::static_image::lua_reference>();
-        math::rect fill_rect { 0, 0, m_background.fill->size().width, size.height };
-        canvas->draw_static_image(m_background.fill, fill_rect);
-        m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
+        m_background.top_entity->set_position({ 0, 0 });
     }
 
     if (scripting::lua::ref_isa<asset::static_image>(bottom)) {
         m_background.bottom = bottom.cast<asset::static_image::lua_reference>();
         m_background.bottom_entity = { new ui::scene_entity(m_background.bottom) };
+        m_background.bottom_entity->set_position({ 0 , size.height - m_background.bottom_entity->size().height });
+    }
+
+    if (scripting::lua::ref_isa<asset::static_image>(fill)) {
+        m_background.fill = fill.cast<asset::static_image::lua_reference>();
+
+        auto height = size.height;
+        auto y = 0;
+        if (m_background.top_entity.get()) {
+            height -= m_background.top_entity->size().height;
+            y = m_background.top_entity->size().height;
+        }
+        if (m_background.bottom_entity.get()) {
+            height -= m_background.bottom_entity->size().height;
+        }
+
+        graphics::canvas::lua_reference canvas(new graphics::canvas({ size.width, height }) );
+        math::rect fill_rect { 0, 0, m_background.fill->size().width, height };
+        canvas->draw_static_image(m_background.fill, fill_rect);
+        m_background.fill_entity = { new ui::scene_entity(canvas) };
+
+        m_background.fill_entity->set_position({ 0, static_cast<double>(y) });
     }
 
     m_owner_scene->add_entity(m_background.fill_entity);
@@ -326,33 +415,25 @@ auto ui::dialog::set_stretchable_background(const math::size& size, const luabri
     m_owner_scene->add_entity(m_background.bottom_entity);
 }
 
-auto ui::dialog::named_element(const std::string &name, const luabridge::LuaRef &configure) -> void
+auto ui::dialog::configure_element(const std::string &name, const luabridge::LuaRef &configure) -> void
 {
-    auto it = m_control_definitions.find(name);
-    if (it == m_control_definitions.end()) {
+    auto element = named_element(name);
+    if (!element.state()) {
         return;
     }
 
-    auto element = it->second;
-    element->set_access_flag(true);
-
     if (configure.state() && configure.isFunction()) {
         configure(element);
-
-        if (element->entity_index() == UINT32_MAX) {
-            element->update();
-            if (element->has_control()) {
-                // TODO: Determine what to do for an ImGui Control
-            }
-            else if (element->has_entity()) {
-                m_owner_scene->replace_entity(element->entity_index(), element->entity());
-            }
-        }
-        else if (element->entity().get()) {
-            element->update();
-        }
-
     }
+}
+
+auto ui::dialog::named_element(const std::string &name) -> luabridge::LuaRef
+{
+    auto it = m_elements.find(name);
+    if (it == m_elements.end()) {
+        return { nullptr };
+    }
+    return it->second;
 }
 
 auto ui::dialog::close() -> void

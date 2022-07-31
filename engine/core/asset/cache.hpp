@@ -18,8 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_CACHE_HPP)
-#define KESTREL_CACHE_HPP
+#pragma once
 
 #include <any>
 #include <string>
@@ -27,6 +26,7 @@
 #include <unordered_map>
 #include <tuple>
 #include "core/asset/rsrc/resource_descriptor.hpp"
+#include "core/asset/rsrc/resource_key.hpp"
 #include "core/clock/clock.hpp"
 
 namespace asset
@@ -34,19 +34,16 @@ namespace asset
 
     class cache
     {
-    private:
-        std::unordered_map<std::size_t, std::tuple<std::any, rtc::clock::time>> m_assets;
-
     public:
         cache() = default;
 
-        auto add(const std::string& type, const asset::resource_descriptor::lua_reference& ref, const std::any& asset) -> void;
-        auto fetch(const std::string& type, const asset::resource_descriptor::lua_reference& ref) -> std::optional<std::any>;
+        auto add(const asset::resource_descriptor::lua_reference& ref, const std::any& asset) -> void;
+        auto fetch(const asset::resource_descriptor::lua_reference& ref) -> std::optional<std::any>;
 
         auto purge_unused() -> void;
+
+    private:
+        std::vector<std::tuple<resource_key, rtc::clock::time, std::any>> m_assets;
     };
 
 }
-
-
-#endif //KESTREL_CACHE_HPP

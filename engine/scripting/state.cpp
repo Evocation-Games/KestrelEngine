@@ -18,6 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
+
 #include "scripting/state.hpp"
 #include "scripting/script.hpp"
 #include "core/environment.hpp"
@@ -26,6 +28,8 @@
 #include "core/asset/rsrc/resource_writer.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include "core/asset/rsrc/resource_descriptor.hpp"
+#include "core/asset/rsrc/resource_key.hpp"
+#include "core/asset/rsrc/resource_collection.hpp"
 #include "math/angle.hpp"
 #include "math/angular_difference.hpp"
 #include "math/point.hpp"
@@ -49,6 +53,7 @@
 #include "core/file/file_reference.hpp"
 #include "core/file/directory_reference.hpp"
 #include "core/file/mod_reference.hpp"
+#include "core/file/resource_file_reference.hpp"
 #include "core/audio/codec/mp3.hpp"
 #include "core/ui/game_scene.hpp"
 #include "core/ui/layout/positioning_frame.hpp"
@@ -58,6 +63,9 @@
 #include "core/ui/widgets/image_widget.hpp"
 #include "core/ui/widgets/button_widget.hpp"
 #include "core/ui/widgets/textarea_widget.hpp"
+#include "core/ui/widgets/list_widget.hpp"
+#include "core/ui/widgets/grid_widget.hpp"
+#include "core/ui/widgets/sprite_widget.hpp"
 #include "core/ui/stencils/button_stencil.hpp"
 #include "core/ui/imgui/imgui.hpp"
 #include "core/ui/control_definition.hpp"
@@ -86,6 +94,9 @@ static int scripting_lua_state_print(lua_State *state)
             if (lua_isstring(state, i)) {
                 auto str = lua_tostring(state, i);
                 env->lua_out(str);
+#if DEBUG
+                std::cout << str << std::endl;
+#endif
             }
             else {
 
@@ -110,6 +121,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     env->prepare_lua_interface();
 
     asset::resource_descriptor::enroll_object_api_in_state(shared_from_this());
+    asset::resource_key::enroll_object_api_in_state(shared_from_this());
+    asset::resource_collection::enroll_object_api_in_state(shared_from_this());
     asset::resource_namespace::enroll_object_api_in_state(shared_from_this());
     asset::resource_data::enroll_object_api_in_state(shared_from_this());
     asset::resource_writer::enroll_object_api_in_state(shared_from_this());
@@ -143,6 +156,9 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::widgets::image_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::button_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::textarea_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::list_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::grid_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::sprite_widget::enroll_object_api_in_state(shared_from_this());
     ui::stencils::button_stencil::enroll_object_api_in_state(shared_from_this());
     ui::dialog_configuration::enroll_object_api_in_state(shared_from_this());
     ui::dialog::enroll_object_api_in_state(shared_from_this());
@@ -153,6 +169,8 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::imgui::label::enroll_object_api_in_state(shared_from_this());
     ui::imgui::button::enroll_object_api_in_state(shared_from_this());
     ui::imgui::textfield::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::textarea::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::code_editor::enroll_object_api_in_state(shared_from_this());
     ui::imgui::image::enroll_object_api_in_state(shared_from_this());
     ui::imgui::slider::enroll_object_api_in_state(shared_from_this());
     ui::imgui::same_line::enroll_object_api_in_state(shared_from_this());
@@ -163,12 +181,14 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::imgui::table::enroll_object_api_in_state(shared_from_this());
     ui::imgui::box::enroll_object_api_in_state(shared_from_this());
     ui::imgui::separator::enroll_object_api_in_state(shared_from_this());
+    ui::imgui::scrollarea::enroll_object_api_in_state(shared_from_this());
 
     ui::imgui::style::enroll_api_in_lua_state(shared_from_this());
 
     event::enroll_object_api_in_state(shared_from_this());
 
     host::sandbox::file_reference::enroll_object_api_in_state(shared_from_this());
+    host::sandbox::resource_file_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::directory_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::mod_reference::enroll_object_api_in_state(shared_from_this());
     host::sandbox::files::enroll_object_api_in_state(shared_from_this());

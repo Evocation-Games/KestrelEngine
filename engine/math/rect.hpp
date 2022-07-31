@@ -24,6 +24,7 @@
 #include "math/size.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include <libGraphite/quickdraw/type/rect.hpp>
 
 namespace math
 {
@@ -42,6 +43,7 @@ namespace math
         rect(const math::point& o, const math::size& s);
         lua_api rect(double x, double y, double w, double h);
         rect(const math::rect& r);
+        rect(const graphite::quickdraw::rect<std::int16_t>& r);
 
         lua_api static auto macintosh_rect(double top, double left, double bottom, double right) -> math::rect;
 

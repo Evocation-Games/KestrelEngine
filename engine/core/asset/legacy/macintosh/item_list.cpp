@@ -83,7 +83,7 @@ asset::legacy::macintosh::toolbox::item_list::item_list(const asset::resource_de
 auto asset::legacy::macintosh::toolbox::item_list::load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference
 {
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(type, ref);
+        auto asset = env->cache()->fetch(ref->with_type(type));
         if (asset.has_value()) {
             return std::any_cast<lua_reference>(asset.value());
         }
@@ -91,7 +91,7 @@ auto asset::legacy::macintosh::toolbox::item_list::load(const asset::resource_de
 
     auto ditl = lua_reference { new item_list(ref) };
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(type, ref, ditl);
+        env->cache()->add(ref->with_type(type), ditl);
     }
     return ditl;
 }

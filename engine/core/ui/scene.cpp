@@ -167,6 +167,10 @@ auto ui::scene::render() -> void
 
 auto ui::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) const -> void
 {
+    if (entity->sprite_sheet()->sprite_count() == 0) {
+        return;
+    }
+
     math::rect frame { entity->get_position(), entity->get_size() };
 
     auto sprite = entity->sprite_sheet()->at(static_cast<int>(entity->get_sprite_index()));

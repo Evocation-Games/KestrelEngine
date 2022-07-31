@@ -87,7 +87,7 @@ auto asset::spritesheet::load(const asset::resource_descriptor::lua_reference& r
 {
     // Attempt to de-cache asset
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(spritesheet::type, ref);
+        auto asset = env->cache()->fetch(ref->with_type(spritesheet::type));
         if (asset.has_value()) {
             return std::any_cast<asset::spritesheet::lua_reference>(asset.value());
         }
@@ -95,7 +95,7 @@ auto asset::spritesheet::load(const asset::resource_descriptor::lua_reference& r
 
     auto image = asset::spritesheet::lua_reference(new asset::spritesheet(ref));
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(spritesheet::type, ref, image);
+        env->cache()->add(ref->with_type(spritesheet::type), image);
     }
     return image;
 }

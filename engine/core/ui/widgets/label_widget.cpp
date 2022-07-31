@@ -22,26 +22,47 @@
 #include "core/ui/widgets/label_widget.hpp"
 #include "core/graphics/common/text/typesetter.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
+
+// MARK: - Constants
+
+static auto s_alignment_top = static_cast<uint32_t>(ui::vertical_alignment::top);
+static auto s_alignment_middle = static_cast<uint32_t>(ui::vertical_alignment::middle);
+static auto s_alignment_bottom = static_cast<uint32_t>(ui::vertical_alignment::bottom);
+static auto s_alignment_left = static_cast<uint32_t>(ui::horizontal_alignment::left);
+static auto s_alignment_center = static_cast<uint32_t>(ui::horizontal_alignment::center);
+static auto s_alignment_right = static_cast<uint32_t>(ui::horizontal_alignment::right);
 
 // MARK: - Lua
 
 auto ui::widgets::label_widget::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state> &lua) -> void
 {
     lua->global_namespace()
+        .beginNamespace("UI")
+            .beginNamespace("VerticalAlignment")
+                .addProperty("Top", &s_alignment_top, false)
+                .addProperty("Middle", &s_alignment_middle, false)
+                .addProperty("Bottom", &s_alignment_bottom, false)
+            .endNamespace()
+            .beginNamespace("HorizontalAlignment")
+                .addProperty("Left", &s_alignment_left, false)
+                .addProperty("Center", &s_alignment_center, false)
+                .addProperty("Right", &s_alignment_right, false)
+            .endNamespace()
+        .endNamespace()
         .beginNamespace("Widget")
             .beginClass<ui::widgets::label_widget>("Label")
                 .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
                 .addProperty("text", &label_widget::text, &label_widget::set_text)
                 .addProperty("font", &label_widget::font, &label_widget::set_font)
-                .addProperty("fontSize", &label_widget::font_size, &label_widget::set_font_size)
                 .addProperty("color", &label_widget::color, &label_widget::set_color)
                 .addProperty("backgroundColor", &label_widget::background_color, &label_widget::set_background_color)
                 .addProperty("offset", &label_widget::offset, &label_widget::set_offset)
                 .addProperty("position", &label_widget::position, &label_widget::set_position)
                 .addProperty("size", &label_widget::size, &label_widget::set_size)
                 .addProperty("frame", &label_widget::frame, &label_widget::set_frame)
-                .addProperty("verticalAlignment", &label_widget::vertical_alignment, &label_widget::set_vertical_alignment)
-                .addProperty("horizontalAlignment", &label_widget::horizontal_alignment, &label_widget::set_horizontal_alignment)
+                .addProperty("verticalAlignment", &label_widget::lua_safe_vertical_alignment, &label_widget::set_lua_safe_vertical_alignment)
+                .addProperty("horizontalAlignment", &label_widget::lua_safe_horizontal_alignment, &label_widget::set_lua_safe_horizontal_alignment)
                 .addFunction("draw", &label_widget::draw)
             .endClass()
         .endNamespace();
@@ -52,20 +73,25 @@ auto ui::widgets::label_widget::enroll_object_api_in_state(const std::shared_ptr
 ui::widgets::label_widget::label_widget(const std::string &text)
     : m_text(text)
 {
+    // Load up a default font.
+    m_font = ui::font::manager::shared_manager().default_font();
+    m_font->load_for_graphics();
+
     // Perform an estimation of the text size to get a basic label size.
     // TODO: We need to get the current scale here so the size is estimated correctly!
     graphics::typesetter ts { text };
+    ts.set_font(*m_font.get());
     ts.layout();
 
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({0, 0}));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({0, 0})) };
 
     m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
 // MARK: - Accessors
 
-auto ui::widgets::label_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::label_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -75,19 +101,9 @@ auto ui::widgets::label_widget::text() const -> std::string
     return m_text;
 }
 
-auto ui::widgets::label_widget::font() const -> std::string
+auto ui::widgets::label_widget::font() const -> ui::font::reference::lua_reference
 {
-    return m_font_face;
-}
-
-auto ui::widgets::label_widget::font_size() const -> int16_t
-{
-    return m_font_size;
-}
-
-auto ui::widgets::label_widget::lua_safe_font_size() const -> int
-{
-    return static_cast<int>(m_font_size);
+    return m_font;
 }
 
 auto ui::widgets::label_widget::color() const -> graphics::color::lua_reference
@@ -148,30 +164,18 @@ auto ui::widgets::label_widget::set_text(const std::string& v) -> void
     m_dirty = true;
 }
 
-auto ui::widgets::label_widget::set_font(const std::string& v) -> void
+auto ui::widgets::label_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
-    m_font_face = v;
+    m_font = font;
+    m_font->load_for_graphics();
     m_dirty = true;
 
     graphics::typesetter ts { m_text };
+    ts.set_font(*m_font.get());
     ts.layout();
     m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
 }
 
-auto ui::widgets::label_widget::set_font_size(int16_t v) -> void
-{
-    m_font_size = v;
-    m_dirty = true;
-
-    graphics::typesetter ts { m_text };
-    ts.layout();
-    m_min_height = static_cast<int16_t>(ts.get_bounding_size().height);
-}
-
-auto ui::widgets::label_widget::set_lua_safe_font_size(int v) -> void
-{
-    set_font_size(static_cast<int16_t>(v));
-}
 
 auto ui::widgets::label_widget::set_color(const graphics::color::lua_reference& v) -> void
 {
@@ -200,13 +204,15 @@ auto ui::widgets::label_widget::set_size(const math::size& v) -> void
 {
     auto position = this->position();
     m_canvas = std::make_unique<graphics::canvas>(v);
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(position));
+    m_entity->change_internal_entity(m_canvas->spawn_entity(position));
     redraw_entity();
 }
 
 auto ui::widgets::label_widget::set_frame(const math::rect& v) -> void
 {
-    set_position(v.origin);
+    m_entity->internal_entity()->set_position(v.origin);
+    m_entity->set_position(v.origin);
+
     set_size({ v.size.width, std::max(m_min_height, static_cast<int16_t>(v.size.height)) });
 }
 
@@ -247,7 +253,7 @@ auto ui::widgets::label_widget::redraw_entity() -> void
     m_canvas->fill_rect({ {0, 0}, size});
 
     m_canvas->set_pen_color(m_color);
-    m_canvas->set_font(m_font_face, m_font_size);
+    m_canvas->set_font(m_font);
 
     const auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
     auto x = m_offset.width;

@@ -23,6 +23,7 @@
 #include <cmath>
 
 static bool s_dockspace_enabled = false;
+static ui::imgui::console s_console;
 
 // MARK: - Lua
 
@@ -32,6 +33,8 @@ auto ui::imgui::dockspace::enroll_object_api_in_state(const std::shared_ptr<scri
         .beginNamespace("ImGui")
             .addFunction("startDockspace", &dockspace::start_dockspace)
             .addFunction("endDockspace", &dockspace::end_dockspace)
+            .addFunction("showConsole", &dockspace::start_console)
+            .addFunction("closeConsole", &dockspace::stop_console)
         .endNamespace();
 }
 
@@ -61,24 +64,27 @@ auto ui::imgui::dockspace::internal_draw() -> void
         ImGuiID dockspace_id = ImGui::GetID("KestrelDockspace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), m_flags);
 
-        for (auto window : m_windows) {
+        for (const auto& window : m_windows) {
+            if (!window.get()) {
+                continue;
+            }
             window->draw();
-        }
-
-        static bool demo = true;
-        if (demo) {
-            ImGui::ShowDemoWindow(&demo);
         }
 
         ImGui::End();
     }
     else {
-        for (auto window : m_windows) {
+        for (const auto& window : m_windows) {
             window->draw();
         }
     }
 
-    m_diagnostics->draw();
+//    static bool demo = true;
+//    if (demo) {
+//        ImGui::ShowDemoWindow(&demo);
+//    }
+
+    s_console.draw();
 }
 
 auto ui::imgui::dockspace::draw() -> void
@@ -104,9 +110,29 @@ auto ui::imgui::dockspace::end_dockspace() -> void
     s_dockspace_enabled = false;
 }
 
+auto ui::imgui::dockspace::start_console() -> void
+{
+    s_console = ui::imgui::console();
+}
+
+auto ui::imgui::dockspace::stop_console() -> void
+{
+    s_console.close();
+}
+
 auto ui::imgui::dockspace::add_window(const window::lua_reference& window) -> void
 {
     m_windows.emplace_back(window);
+}
+
+auto ui::imgui::dockspace::remove_window(const window *window) -> void
+{
+    for (auto it = m_windows.begin(); it != m_windows.end(); ++it) {
+        if (it->get() == window) {
+            m_windows.erase(it);
+            return;
+        }
+    }
 }
 
 auto ui::imgui::dockspace::erase() -> void

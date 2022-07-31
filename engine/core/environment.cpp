@@ -30,7 +30,6 @@
 #include "core/ui/session.hpp"
 #include "core/ui/scene.hpp"
 #include "core/ui/game_scene.hpp"
-#include "core/task/async_queue.hpp"
 
 #if TARGET_MACOS
 #include "core/support/macos/cocoa/font.h"
@@ -323,6 +322,25 @@ auto environment::load_game_data() -> void
             if (file_ref->extension() == "ttf") {
                 auto name = graphics::font::font_name_at_path(file_ref->path());
                 env->m_custom_fonts[name] = file_ref->path();
+            }
+        }
+    }
+
+    // Mods
+    auto mods_ref = host::sandbox::files::all_active_scenario_mods();
+    if (!mods_ref.empty()) {
+        for (auto i = 0; i < mods_ref.size(); ++i) {
+            const auto& mod = mods_ref.at(i);
+            if (!mod->enabled()) {
+                continue;
+            }
+
+            if (!mod->is_loaded()) {
+                mod->load_resources();
+            }
+
+            if (!mod->has_executed()) {
+                mod->execute();
             }
         }
     }

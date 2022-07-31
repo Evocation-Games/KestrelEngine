@@ -43,8 +43,8 @@ namespace ui::font
         [[nodiscard]] lua_api inline auto font_size() const -> uint32_t { return m_font_size; }
         [[nodiscard]] lua_api inline auto font_face() const -> std::string { return m_font_face; }
         [[nodiscard]] lua_api inline auto path() const -> std::string { return m_path; }
-        inline auto imgui_font() const -> ImFont * { return m_instances.imgui; }
-        inline auto graphics_font() const -> std::shared_ptr<graphics::font> { return m_instances.graphics; }
+        [[nodiscard]] inline auto imgui_font() const -> ImFont * { return m_instances.imgui; }
+        [[nodiscard]] inline auto graphics_font() const -> std::shared_ptr<graphics::font> { return m_instances.graphics; }
 
         lua_api auto load() -> void;
         lua_api auto unload() -> void;
@@ -54,6 +54,8 @@ namespace ui::font
 
         lua_api auto load_for_graphics() -> void;
         lua_api auto unload_for_graphics() -> void;
+
+        lua_api auto with_size(std::uint32_t size) -> lua_reference;
 
         auto push(const std::function<auto()->void>& scope) const -> void;
 

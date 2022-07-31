@@ -31,7 +31,6 @@ auto ui::widgets::text_widget::enroll_object_api_in_state(const std::shared_ptr<
                 .addConstructor<auto(*)(double)->void, lua_reference>()
                 .addProperty("text", &text_widget::text, &text_widget::set_text)
                 .addProperty("font", &text_widget::font, &text_widget::set_font)
-                .addProperty("fontSize", &text_widget::font_size, &text_widget::set_font_size)
                 .addProperty("backgroundColor", &text_widget::background_color, &text_widget::set_background_color)
                 .addProperty("borderColor", &text_widget::border_color, &text_widget::set_border_color)
                 .addProperty("selectionColor", &text_widget::selection_color, &text_widget::set_selection_color)
@@ -50,12 +49,12 @@ auto ui::widgets::text_widget::enroll_object_api_in_state(const std::shared_ptr<
 ui::widgets::text_widget::text_widget(double width)
 {
     m_canvas = std::make_unique<graphics::canvas>(math::size(width, 25));
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({0, 0}));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({0, 0})) };
 }
 
 // MARK: - Accessors
 
-auto ui::widgets::text_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::text_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -65,14 +64,9 @@ auto ui::widgets::text_widget::text() const -> std::string
     return m_input.string_value();
 }
 
-auto ui::widgets::text_widget::font() const -> std::string
+auto ui::widgets::text_widget::font() const -> ui::font::reference::lua_reference
 {
-    return m_font_face;
-}
-
-auto ui::widgets::text_widget::font_size() const -> int16_t
-{
-    return m_font_size;
+    return m_font;
 }
 
 auto ui::widgets::text_widget::color() const -> graphics::color::lua_reference
@@ -123,15 +117,9 @@ auto ui::widgets::text_widget::set_text(const std::string& v) -> void
     m_dirty = true;
 }
 
-auto ui::widgets::text_widget::set_font(const std::string& v) -> void
+auto ui::widgets::text_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
-    m_font_face = v;
-    m_dirty = true;
-}
-
-auto ui::widgets::text_widget::set_font_size(int16_t v) -> void
-{
-    m_font_size = v;
+    m_font = font;
     m_dirty = true;
 }
 
@@ -174,7 +162,7 @@ auto ui::widgets::text_widget::set_size(const math::size& v) -> void
 {
     auto position = this->position();
     m_canvas = std::make_unique<graphics::canvas>(v);
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity(position));
+    m_entity->change_internal_entity(m_canvas->spawn_entity(position));
     redraw_entity();
 }
 
@@ -205,7 +193,7 @@ auto ui::widgets::text_widget::redraw_entity() -> void
     m_canvas->set_pen_color(m_background_color);
     m_canvas->fill_rect(frame.inset(1));
 
-    m_canvas->set_font(m_font_face, m_font_size);
+    m_canvas->set_font(m_font);
     auto text_size = m_canvas->layout_text_in_bounds(m_input.string_value(), { 100000, 9999});
     const auto& cursor = m_canvas->character_point_in_text(m_input.cursor_position());
 

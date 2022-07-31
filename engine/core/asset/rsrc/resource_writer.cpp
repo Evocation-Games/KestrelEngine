@@ -30,7 +30,7 @@ auto asset::resource_writer::enroll_object_api_in_state(const std::shared_ptr<sc
             .beginNamespace("Macintosh")
                 .beginNamespace("Resource")
                     .beginClass<asset::resource_writer>("Writer")
-                        .addConstructor<auto(*)(const std::string&, int64_t, const std::string&, const resource_namespace::lua_reference&)->void, resource_writer::lua_reference>()
+                        .addConstructor<auto(*)(const std::string&, graphite::rsrc::resource::identifier, const std::string&, const resource_namespace::lua_reference&)->void, resource_writer::lua_reference>()
                         .addFunction("writeByte", &resource_writer::write_byte)
                         .addFunction("writeShort", &resource_writer::write_short)
                         .addFunction("writeLong", &resource_writer::write_long)
@@ -56,7 +56,7 @@ auto asset::resource_writer::enroll_object_api_in_state(const std::shared_ptr<sc
 
 // MARK: - Construction
 
-asset::resource_writer::resource_writer(const std::string& type, int64_t id, const std::string& name, const resource_namespace::lua_reference& ns)
+asset::resource_writer::resource_writer(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name, const resource_namespace::lua_reference& ns)
     : m_type(type), m_id(id), m_name(name), m_namespace(ns)
 {
 }
@@ -180,4 +180,31 @@ auto asset::resource_writer::commit() -> void
     new_file->write(save_file->path(), graphite::rsrc::file::format::extended);
 
     graphite::rsrc::manager::shared_manager().import_file(new_file);
+}
+
+// MARK: - Accessors
+
+auto asset::resource_writer::type_code() const -> std::string
+{
+    return m_type;
+}
+
+auto asset::resource_writer::name() const -> std::string
+{
+    return m_name;
+}
+
+auto asset::resource_writer::id() const -> graphite::rsrc::resource::identifier
+{
+    return m_id;
+}
+
+auto asset::resource_writer::ns() const -> resource_namespace::lua_reference
+{
+    return m_namespace;
+}
+
+auto asset::resource_writer::data() const -> const graphite::data::block *
+{
+    return m_writer.data();
 }

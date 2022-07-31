@@ -21,6 +21,7 @@
 #include "core/asset/rsrc/resource_descriptor.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include <libGraphite/rsrc/manager.hpp>
+#include <libGraphite/util/hashing.hpp>
 
 // MARK: - Lua
 
@@ -41,6 +42,7 @@ auto asset::resource_descriptor::enroll_object_api_in_state(const std::shared_pt
                     .addProperty("id", &resource_descriptor::id, false)
                     .addProperty("name", &resource_descriptor::name, false)
                     .addProperty("key", &resource_descriptor::key)
+                    .addProperty("hash", &resource_descriptor::hash)
                     .addFunction("valid", &resource_descriptor::valid)
                     .addFunction("hasType", &resource_descriptor::has_type)
                     .addFunction("hasId", &resource_descriptor::has_id)
@@ -69,6 +71,13 @@ auto asset::resource_descriptor::enroll_object_api_in_state(const std::shared_pt
 }
 
 // MARK: - Constructors
+
+auto asset::resource_descriptor::file_constrained(const graphite::rsrc::file* file) -> resource_descriptor::lua_reference
+{
+    auto r = asset::resource_descriptor::lua_reference(new resource_descriptor());
+    r->m_file_constraint = file;
+    return r;
+}
 
 auto asset::resource_descriptor::identified(int64_t id) -> lua_reference
 {
@@ -167,7 +176,7 @@ auto asset::resource_descriptor::valid() -> bool
     }
 
     resolve();
-    return m_resolved_resources.size() > 0;
+    return !m_resolved_resources.empty();
 }
 
 auto asset::resource_descriptor::description() const -> std::string
@@ -204,19 +213,38 @@ auto asset::resource_descriptor::description() const -> std::string
 
 auto asset::resource_descriptor::key() const -> std::string
 {
-    std::string prefix;
-    std::string value{"?"};
+    std::string value;
 
-    if (is_namespaced()) {
+    if (is_namespaced() && !namespaces[0].empty()) {
         // TODO: Currently only taking the first namespace.
-        prefix = namespaces[0];
+        value += namespaces[0] + ".";
     }
 
     if (has_id()) {
-        value = std::to_string(id);
+        value += std::to_string(id);
     }
 
-    return prefix.empty() ? value : prefix + "." + value;
+    return value;
+}
+
+auto asset::resource_descriptor::hash() const -> std::string
+{
+    std::string value;
+
+    if (is_namespaced()) {
+        // TODO: Currently only taking the first namespace.
+        value += namespaces[0] + ":";
+    }
+
+    if (has_type()) {
+        value += type + ".";
+    }
+
+    if (has_id()) {
+        value += "#" + std::to_string(id);
+    }
+
+    return std::to_string(graphite::hashing::xxh64(value.c_str(), value.size()));
 }
 
 auto asset::resource_descriptor::has_type() const -> bool
@@ -269,6 +297,7 @@ auto asset::resource_descriptor::with_type(const std::string &type) const -> lua
     }
 
     ref->namespaces = namespaces;
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -290,6 +319,7 @@ auto asset::resource_descriptor::with_id(int64_t id) const -> lua_reference
     }
 
     ref->namespaces = namespaces;
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -303,6 +333,7 @@ auto asset::resource_descriptor::from_namespace() const -> lua_reference
 {
     lua_reference ref(new resource_descriptor());
     ref->namespaces = namespaces;
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -324,6 +355,7 @@ auto asset::resource_descriptor::ignoring_type() const -> lua_reference
     }
 
     ref->namespaces = namespaces;
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -345,6 +377,7 @@ auto asset::resource_descriptor::ignoring_id() const -> lua_reference
     }
 
     ref->namespaces = namespaces;
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -366,6 +399,7 @@ auto asset::resource_descriptor::ignoring_name() const -> lua_reference
     }
 
     ref->namespaces = namespaces;
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -398,6 +432,7 @@ auto asset::resource_descriptor::ignoring_namespace() const -> lua_reference
         ref = lua_reference(new resource_descriptor());
     }
 
+    ref->m_file_constraint = m_file_constraint;
     return ref;
 }
 
@@ -413,13 +448,13 @@ auto asset::resource_descriptor::best_resource() -> lua_reference
 {
     resolve();
     if (m_variant == variant::resolved) {
-        return lua_reference();
+        return { nullptr };
     }
-    else if (m_resolved_resources.size() > 0) {
+    else if (!m_resolved_resources.empty()) {
         return m_resolved_resources.at(0);
     }
     else {
-        return lua_reference();
+        return { nullptr };
     }
 }
 
@@ -433,14 +468,19 @@ auto asset::resource_descriptor::load() -> const graphite::rsrc::resource *
     // We need to be able to assume that we have a valid resource descriptor at this point so that
     // we can just directly load it without conditions.
 
-    if (m_resolved_resources.size() == 0) {
+    if (m_resolved_resources.empty()) {
         std::vector<graphite::rsrc::attribute> attributes;
         resource_namespace ns(namespaces.at(0));
         if (!(ns.is_universal() || ns.is_global())) {
             attributes.emplace_back(graphite::rsrc::attribute("namespace", ns.primary_name()));
         }
 
-        return graphite::rsrc::manager::shared_manager().find(type, id, attributes);
+        if (m_file_constraint) {
+            return m_file_constraint->find(type, id, attributes);
+        }
+        else {
+            return graphite::rsrc::manager::shared_manager().find(type, id, attributes);
+        }
     }
     else {
         auto best = m_resolved_resources.at(0);
@@ -449,7 +489,13 @@ auto asset::resource_descriptor::load() -> const graphite::rsrc::resource *
         if (!(ns.is_universal() || ns.is_global())) {
             attributes.emplace_back(graphite::rsrc::attribute("namespace", ns.primary_name()));
         }
-        return graphite::rsrc::manager::shared_manager().find(best->type, best->id, attributes);
+
+        if (m_file_constraint) {
+            return m_file_constraint->find(best->type, best->id, attributes);
+        }
+        else {
+            return graphite::rsrc::manager::shared_manager().find(best->type, best->id, attributes);
+        }
     }
 }
 
@@ -462,6 +508,9 @@ auto asset::resource_descriptor::resolve() -> void
     }
 
     switch (m_variant) {
+        case variant::none: {
+            break;
+        }
         case variant::identified: {
             resolve_identified();
             break;
@@ -501,7 +550,15 @@ auto asset::resource_descriptor::resolve_identified() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<struct graphite::rsrc::type *>(file->type(type_hash));
 
@@ -518,7 +575,9 @@ auto asset::resource_descriptor::resolve_identified() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -532,7 +591,15 @@ auto asset::resource_descriptor::resolve_typed() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
@@ -552,7 +619,9 @@ auto asset::resource_descriptor::resolve_typed() -> void
             }
 
             for (const auto& resource : *t) {
-                m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                res->m_file_constraint = m_file_constraint;
+                m_resolved_resources.emplace_back(std::move(res));
             }
         }
     }
@@ -565,7 +634,15 @@ auto asset::resource_descriptor::resolve_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
@@ -582,7 +659,9 @@ auto asset::resource_descriptor::resolve_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -596,7 +675,15 @@ auto asset::resource_descriptor::resolve_typed_identified() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
@@ -617,7 +704,9 @@ auto asset::resource_descriptor::resolve_typed_identified() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -631,7 +720,15 @@ auto asset::resource_descriptor::resolve_identified_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
@@ -648,7 +745,9 @@ auto asset::resource_descriptor::resolve_identified_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -662,7 +761,15 @@ auto asset::resource_descriptor::resolve_typed_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
@@ -683,7 +790,9 @@ auto asset::resource_descriptor::resolve_typed_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }
@@ -697,7 +806,15 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
     resource_namespace ns(namespaces);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
-    for (const auto& file : rm.file_references()) {
+    std::vector<graphite::rsrc::file *> files;
+    if (m_file_constraint) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    }
+    else {
+        files = rm.file_references();
+    }
+
+    for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
@@ -718,7 +835,9 @@ auto asset::resource_descriptor::resolve_typed_identified_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
-                    m_resolved_resources.emplace_back(resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name()));
+                    auto res = resource_descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    res->m_file_constraint = m_file_constraint;
+                    m_resolved_resources.emplace_back(std::move(res));
                 }
             }
         }

@@ -20,6 +20,7 @@
 
 #include "core/ui/widgets/custom_widget.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/font/manager.hpp"
 
 // MARK: - Lua
 
@@ -32,6 +33,7 @@ auto ui::widgets::custom_widget::enroll_object_api_in_state(const std::shared_pt
                 .addProperty("frame", &custom_widget::frame, &custom_widget::set_frame)
                 .addProperty("userInfo", &custom_widget::user_info, &custom_widget::set_user_info)
                 .addFunction("draw", &custom_widget::redraw)
+                .addFunction("drawingFunction", &custom_widget::set_drawing_function)
             .endClass()
         .endNamespace();
 }
@@ -46,7 +48,7 @@ ui::widgets::custom_widget::custom_widget(const luabridge::LuaRef &drawing_funct
 
 // MARK: - Accessors
 
-auto ui::widgets::custom_widget::entity() const -> std::shared_ptr<ui::scene_entity>
+auto ui::widgets::custom_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
@@ -67,6 +69,8 @@ auto ui::widgets::custom_widget::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
     resize();
+
+    m_entity->internal_entity()->set_position(frame.origin);
     m_entity->set_position(frame.origin);
 }
 
@@ -75,13 +79,20 @@ auto ui::widgets::custom_widget::set_user_info(const luabridge::LuaRef &info) ->
     m_user_info = info;
 }
 
+auto ui::widgets::custom_widget::set_drawing_function(const luabridge::LuaRef &block) -> void
+{
+    m_drawing_function = block;
+}
+
 // MARK: - Drawing
 
 auto ui::widgets::custom_widget::resize() -> void
 {
     m_dirty = true;
     m_canvas = { new graphics::canvas(m_frame.size) };
-    m_entity = std::make_shared<scene_entity>(m_canvas->spawn_entity({ 0, 0 }));
+    m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
+
+    m_canvas->set_font(ui::font::manager::shared_manager().default_font());
 }
 
 auto ui::widgets::custom_widget::redraw() -> void

@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <iostream>
 #include "core/support/macos/cocoa/font.h"
 #include "core/support/macos/cocoa/cocoa_utils.h"
+#include <libGraphite/rsrc/manager.hpp>
 
 auto cocoa::font::path_for(const std::string &name) -> std::string
 {
@@ -34,6 +34,10 @@ auto cocoa::font::path_for(const std::string &name) -> std::string
         CFRelease(fontRef);
         if ([[fontPath pathExtension] isEqualToString:@"ttf"] || [[fontPath pathExtension] isEqualToString:@"ttc"]) {
             return cocoa::string::from(fontPath);
+        }
+        else if ([[fontPath pathExtension] isEqualToString:@"dfont"]) {
+            graphite::rsrc::manager::shared_manager().import_file(cocoa::string::from(fontPath));
+            return "rsrc::font_manager::" + name;
         }
     }
 

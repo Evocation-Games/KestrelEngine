@@ -54,7 +54,7 @@ namespace ui::imgui
             m_has_position = true;
         }
 
-        auto has_position() const -> bool
+        [[nodiscard]] auto has_position() const -> bool
         {
             return m_has_position;
         }

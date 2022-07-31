@@ -29,12 +29,13 @@ auto host::sandbox::file_reference::enroll_object_api_in_state(const std::shared
     luabridge::getGlobalNamespace(lua->internal_state())
         .beginNamespace("Kestrel")
             .beginNamespace("Sandbox")
-                .beginClass<host::sandbox::file_reference>("FileReference")
-                    .addProperty("exists", &host::sandbox::file_reference::exists)
-                    .addProperty("name", &host::sandbox::file_reference::name)
-                    .addProperty("path", &host::sandbox::file_reference::path)
-                    .addProperty("basename", &host::sandbox::file_reference::basename)
-                    .addProperty("extension", &host::sandbox::file_reference::extension)
+                .beginClass<file_reference>("FileReference")
+                    .addProperty("exists", &file_reference::exists)
+                    .addProperty("name", &file_reference::name)
+                    .addProperty("path", &file_reference::path)
+                    .addProperty("basename", &file_reference::basename)
+                    .addProperty("extension", &file_reference::extension)
+                    .addFunction("openResourceFile", &file_reference::open_resource_file)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -111,4 +112,15 @@ auto host::sandbox::file_reference::create_parent_directory() -> void
 auto host::sandbox::file_reference::touch() -> void
 {
     create_parent_directory();
+}
+
+auto host::sandbox::file_reference::open_resource_file() const -> resource_file_reference::lua_reference
+{
+    try {
+        resource_file_reference::lua_reference ref(new resource_file_reference(m_path));
+        return ref;
+    }
+    catch (std::exception& e) {
+        return { nullptr };
+    }
 }

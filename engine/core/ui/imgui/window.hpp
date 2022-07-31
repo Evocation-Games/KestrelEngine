@@ -48,8 +48,10 @@ namespace ui::imgui
         lua_api auto hide() -> void;
         lua_api auto close() -> void;
         lua_api auto center() -> void;
+        lua_api auto destroy() -> void;
 
         [[nodiscard]] lua_api inline auto is_closed() const -> bool { return m_closed; }
+        [[nodiscard]] lua_api inline auto is_hidden() const -> bool { return !m_shown; }
         [[nodiscard]] lua_api inline auto has_close_button() const -> bool { return m_has_close_button; }
         lua_api auto set_has_close_button(bool f) -> void { m_has_close_button = f; }
 

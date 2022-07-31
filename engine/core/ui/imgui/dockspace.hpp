@@ -24,6 +24,7 @@
 #include <imgui/imgui.h>
 #include "core/ui/imgui/window.hpp"
 #include "core/ui/imgui/diagnostics.hpp"
+#include "core/ui/imgui/console.hpp"
 #include "core/event/event.hpp"
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
@@ -41,18 +42,22 @@ namespace ui::imgui
         auto draw() -> void;
 
         auto add_window(const window::lua_reference& window) -> void;
+        auto remove_window(const window *window) -> void;
         auto receive_event(const event& e) -> void;
 
         auto erase() -> void;
 
-        static auto start_dockspace() -> void;
-        static auto end_dockspace() -> void;
+        lua_api static auto start_dockspace() -> void;
+        lua_api static auto end_dockspace() -> void;
+
+        lua_api static auto start_console() -> void;
+        lua_api static auto stop_console() -> void;
 
     private:
         bool m_open { true };
         ImGuiDockNodeFlags m_flags { ImGuiDockNodeFlags_None };
         ImGuiWindowFlags m_window_flags {
-            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
             ImGuiWindowFlags_NoNavFocus
         };

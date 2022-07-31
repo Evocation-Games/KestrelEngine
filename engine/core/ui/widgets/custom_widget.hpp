@@ -28,11 +28,7 @@
 #include "scripting/state.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/graphics/common/canvas.hpp"
-
-namespace ui
-{
-    struct scene_entity;
-}
+#include "core/ui/entity/scene_entity.hpp"
 
 namespace ui::widgets
 {
@@ -42,21 +38,10 @@ namespace ui::widgets
         typedef luabridge::RefCountedPtr<custom_widget> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-    private:
-        bool m_dirty { true };
-        luabridge::LuaRef m_drawing_function;
-        luabridge::LuaRef m_user_info;
-        graphics::canvas::lua_reference m_canvas;
-        std::shared_ptr<scene_entity> m_entity;
-        math::rect m_frame { 0, 0, 100, 100 };
-
-        auto resize() -> void;
-        auto redraw() -> void;
-
     public:
         explicit custom_widget(const luabridge::LuaRef& drawing_function);
 
-        [[nodiscard]] auto entity() const -> std::shared_ptr<ui::scene_entity>;
+        [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
         lua_api auto draw() -> void;
 
         [[nodiscard]] lua_api auto frame() const -> math::rect;
@@ -65,5 +50,17 @@ namespace ui::widgets
         lua_api auto set_frame(const math::rect& frame) -> void;
         lua_api auto set_user_info(const luabridge::LuaRef& info) -> void;
 
+        lua_api auto set_drawing_function(const luabridge::LuaRef& block) -> void;
+
+    private:
+        bool m_dirty { true };
+        luabridge::LuaRef m_drawing_function;
+        luabridge::LuaRef m_user_info;
+        graphics::canvas::lua_reference m_canvas;
+        scene_entity::lua_reference m_entity { nullptr };
+        math::rect m_frame { 0, 0, 100, 100 };
+
+        auto resize() -> void;
+        auto redraw() -> void;
     };
 }

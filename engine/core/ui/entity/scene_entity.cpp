@@ -466,6 +466,13 @@ auto ui::scene_entity::on_animation_finish(const luabridge::LuaRef& callback) ->
     m_on_animation_finish = callback;
 }
 
+// MARK: -
+
+auto ui::scene_entity::replace(const lua_reference &entity) -> void
+{
+    m_entity = entity->internal_entity();
+}
+
 // MARK: - Layout & Drawing
 
 auto ui::scene_entity::layout() -> void
@@ -634,4 +641,9 @@ auto ui::scene_entity::hit_test(const math::point& p) const -> bool
 auto ui::scene_entity::internal_entity() const -> std::shared_ptr<graphics::entity>
 {
     return m_entity;
+}
+
+auto ui::scene_entity::change_internal_entity(const std::shared_ptr<graphics::entity>& entity) -> void
+{
+    m_entity = entity;
 }

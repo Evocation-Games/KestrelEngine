@@ -84,7 +84,7 @@ asset::legacy::macintosh::toolbox::dialog::dialog(const asset::resource_descript
 auto asset::legacy::macintosh::toolbox::dialog::load(const asset::resource_descriptor::lua_reference& ref) -> lua_reference
 {
     if (auto env = environment::active_environment().lock()) {
-        auto asset = env->cache()->fetch(type, ref);
+        auto asset = env->cache()->fetch(ref->with_type(type));
         if (asset.has_value()) {
             return std::any_cast<lua_reference>(asset.value());
         }
@@ -92,7 +92,7 @@ auto asset::legacy::macintosh::toolbox::dialog::load(const asset::resource_descr
 
     auto dlog = lua_reference { new dialog(ref) };
     if (auto env = environment::active_environment().lock()) {
-        env->cache()->add(type, ref, dlog);
+        env->cache()->add(ref->with_type(type), dlog);
     }
     return dlog;
 }

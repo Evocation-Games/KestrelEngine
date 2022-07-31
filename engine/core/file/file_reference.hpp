@@ -18,11 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#if !defined(KESTREL_FILE_HPP)
-#define KESTREL_FILE_HPP
+#pragma once
 
 #include "scripting/state.hpp"
 #include "util/hint.hpp"
+#include "core/file/resource_file_reference.hpp"
 
 namespace host::sandbox
 {
@@ -32,9 +32,6 @@ namespace host::sandbox
     public:
         typedef luabridge::RefCountedPtr<host::sandbox::file_reference> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
-
-    private:
-        std::string m_path;
 
     public:
         explicit file_reference(const std::string& path);
@@ -49,8 +46,11 @@ namespace host::sandbox
         [[nodiscard]] lua_api auto extension() const -> std::string;
         [[nodiscard]] lua_api auto basename() const -> std::string;
 
+        lua_api auto open_resource_file() const -> resource_file_reference::lua_reference;
+
+    private:
+        std::string m_path;
+
     };
 
 }
-
-#endif //KESTREL_FILE_HPP

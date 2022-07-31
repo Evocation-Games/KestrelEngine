@@ -43,11 +43,14 @@ namespace ui
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
     public:
+        scene_entity() = default;
         explicit scene_entity(const std::shared_ptr<graphics::entity>& entity);
         explicit scene_entity(const luabridge::LuaRef& entity_provider);
         explicit scene_entity(const asset::static_image::lua_reference& image);
         explicit scene_entity(const graphics::canvas::lua_reference& canvas);
         explicit scene_entity(const std::shared_ptr<scene_entity>& entity);
+
+        auto set_id(const std::string& id) -> void { m_id = id; }
 
         [[nodiscard]] lua_api auto position() const -> math::point;
         [[nodiscard]] lua_api auto draw_position() const -> math::point;
@@ -81,6 +84,7 @@ namespace ui
         lua_api auto set_animator(const renderer::animator::lua_reference& animator) -> void;
         lua_api auto set_continuous_mouse_down_action(bool continuous) -> void;
 
+        auto change_internal_entity(const std::shared_ptr<graphics::entity>& entity) -> void;
         lua_api auto set_sprite(const luabridge::LuaRef& sprite) -> void;
 
         lua_api auto add_child_entity(const lua_reference& child) -> void;
@@ -109,9 +113,12 @@ namespace ui
         auto on_mouse_release_internal(const std::function<auto(const event&)->void>& callback) -> void;
         auto on_mouse_drag_internal(const std::function<auto(const event&)->void>& callback) -> void;
 
+        auto replace(const lua_reference& entity) -> void;
+
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<graphics::entity>;
 
     private:
+        std::string m_id;
         std::shared_ptr<graphics::entity> m_entity;
         bool m_centered { false };
         math::point m_position { 0 };
