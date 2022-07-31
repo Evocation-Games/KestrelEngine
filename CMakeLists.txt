@@ -20,6 +20,10 @@
 
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
+endif()
+
 ########################################################################################################################
 ## Kestrel Game Engine Project Configuration
 project(KestrelGameEngine LANGUAGES CXX C)
