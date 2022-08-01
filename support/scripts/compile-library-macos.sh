@@ -21,6 +21,7 @@
 echo "Building Intel macOS $3 Library"
 cmake -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
   -DFT_DISABLE_BROTLI=TRUE \
   -Hsubmodules/$1 \
   -Bcmake-$1-intel-build-release
@@ -30,6 +31,7 @@ echo "Building Apple Silicon macOS $3 Library"
 cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_ARCHITECTURES=arm64 \
+  -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
   -DFT_DISABLE_BROTLI=TRUE \
   -Hsubmodules/$1 \
   -Bcmake-$1-arm-build-release
