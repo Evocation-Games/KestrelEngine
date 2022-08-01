@@ -260,6 +260,10 @@ endif()
 ########################################################################################################################
 ## Installation
 
+install(TARGETS kdl
+        PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+        DESTINATION ${PROJECT_INSTALL_DIR})
+
 if (APPLE)
     set_target_properties(Kestrel PROPERTIES
         MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_NAME}"
@@ -270,10 +274,6 @@ if (APPLE)
             DESTINATION ${PROJECT_INSTALL_DIR})
 
     install(FILES ${CMAKE_BUILD_DIR}/GameCore.kdat
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
-
-    install(FILES ${CMAKE_BUILD_DIR}/kdl
-            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
 
     if (EXISTS ${KESTREL_DATA_FILES_PATH})
@@ -307,10 +307,6 @@ elseif(LINUX)
     install(FILES ${CMAKE_BUILD_DIR}/GameCore.kdat
             DESTINATION ${APP_SHARE_DIR})
 
-    install(TARGETS kdl
-            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-            DESTINATION ${PROJECT_INSTALL_DIR})
-
     if (EXISTS ${KESTREL_DATA_FILES_PATH})
         install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
                 DESTINATION ${APP_SHARE_DIR})
@@ -324,10 +320,6 @@ elseif(LINUX)
 
 else()
     install(TARGETS Kestrel
-            PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
-            DESTINATION ${PROJECT_INSTALL_DIR})
-
-    install(TARGETS kdl
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             DESTINATION ${PROJECT_INSTALL_DIR})
 endif()
