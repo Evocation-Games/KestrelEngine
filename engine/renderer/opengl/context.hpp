@@ -66,6 +66,9 @@ namespace renderer::opengl
         auto set_viewport_title(const std::string& title) -> void override;
         [[nodiscard]] auto viewport_title() const -> std::string override;
 
+        [[nodiscard]] auto native_screen_size() const -> math::size override;
+        auto set_fullscreen(bool f) -> void override;
+
     private:
         auto configure_device() -> void {};
 

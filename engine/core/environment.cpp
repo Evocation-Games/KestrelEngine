@@ -361,6 +361,8 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("presentScene", &environment::present_scene)
             .addFunction("setGameWindowTitle", &environment::set_game_window_title)
             .addFunction("setGameWindowSize", &environment::set_game_window_size)
+            .addFunction("nativeScreenSize", &environment::native_screen_size)
+            .addFunction("setFullscreen", &environment::set_fullscreen)
             .addFunction("importScript", &environment::import_script)
             .addFunction("runScript", &environment::run_script)
             .addFunction("scaleFactor", &environment::scale)
@@ -376,9 +378,19 @@ auto environment::set_game_window_title(const std::string &title) -> void
     renderer::set_window_title(title);
 }
 
-auto environment::set_game_window_size(const double& width, const double& height) -> void
+auto environment::set_game_window_size(const math::size& size) -> void
 {
-    renderer::set_window_size({ width, height });
+    renderer::set_window_size(size);
+}
+
+auto environment::native_screen_size() -> math::size
+{
+    return renderer::native_screen_size();
+}
+
+auto environment::set_fullscreen(bool f) -> void
+{
+    renderer::set_fullscreen(f);
 }
 
 auto environment::scale() -> double

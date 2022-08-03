@@ -49,6 +49,8 @@ namespace renderer
 
     auto scale_factor() -> float;
 
+    auto native_screen_size() -> math::size;
+    auto set_fullscreen(bool f) -> void;
     auto set_window_title(const std::string& title) -> void;
     auto set_window_size(const math::size& size) -> void;
     auto window_title() -> std::string;

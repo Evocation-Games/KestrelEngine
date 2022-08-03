@@ -639,3 +639,15 @@ auto renderer::opengl::context::map_modifiers(int modifiers) -> enum event::type
 
     return static_cast<enum event::type>(modifier_flags);
 }
+
+// MARK: - Screen
+
+auto renderer::opengl::context::set_fullscreen(bool f) -> void
+{
+}
+
+auto renderer::opengl::context::native_screen_size() const -> math::size
+{
+    return { 1920, 1080 };
+}
+

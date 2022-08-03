@@ -360,3 +360,16 @@ auto renderer::metal::context::set_tick_function(const std::function<auto()->voi
     m_display.tick = callback;
 }
 
+// MARK: - Screen
+
+auto renderer::metal::context::set_fullscreen(bool f) -> void
+{
+    [m_window toggleFullScreen:m_window];
+}
+
+auto renderer::metal::context::native_screen_size() const -> math::size
+{
+    NSScreen *screen = [m_window screen];
+    NSRect frame = [screen frame];
+    return math::size(frame.size.width, frame.size.height);
+}

@@ -142,6 +142,16 @@ auto renderer::scale_factor() -> float
     return 1.0;
 }
 
+auto renderer::native_screen_size() -> math::size
+{
+    return s_renderer_api.context->native_screen_size();
+}
+
+auto renderer::set_fullscreen(bool f) -> void
+{
+    s_renderer_api.context->set_fullscreen(f);
+}
+
 auto renderer::set_window_title(const std::string &title) -> void
 {
     s_renderer_api.context->set_viewport_title(title);

@@ -59,8 +59,10 @@ public:
     static auto load_kestrel_core() -> void;
     lua_api static auto load_game_data() -> void;
 
+    lua_api static auto native_screen_size() -> math::size;
     lua_api static auto set_game_window_title(const std::string& title) -> void;
-    lua_api static auto set_game_window_size(const double& width, const double& height) -> void;
+    lua_api static auto set_game_window_size(const math::size& size) -> void;
+    lua_api static auto set_fullscreen(bool f) -> void;
     lua_api static auto import_script(const asset::resource_descriptor::lua_reference& ref) -> void;
     lua_api static auto run_script(const std::string& script) -> void;
 
