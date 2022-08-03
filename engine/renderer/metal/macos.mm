@@ -107,6 +107,7 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
     [wnd becomeKeyWindow];
     [wnd center];
     [[wnd contentView] setWantsLayer:YES];
+    [[wnd contentView] setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawDuringViewResize];
 
     // Setup view
     KestrelView *view = [[KestrelView alloc] init];

@@ -93,6 +93,8 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
     reader.move(header.id_length);
     reader.move(header.color_map_type * header.color_map_length);
 
+    int start = (header.height - 1) * header.width;
+
     // Start reading the image itself.
     int bytes_to_read = header.bits_per_pixel >> 3U;
     int n = 0;
@@ -101,27 +103,44 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
             // Uncompressed
             case 2: {
                 auto v = reader.read_bytes(bytes_to_read);
-                merge_bytes(n, v, 0, bytes_to_read);
+                merge_bytes(start + n, v, 0, bytes_to_read);
                 ++n;
+                if (n >= header.width) {
+                    start -= header.width;
+                    n = 0;
+                }
                 break;
             }
             // Compressed
             case 10: {
                 auto v = reader.read_bytes(bytes_to_read + 1);
                 int j = v[0] & 0x7F;
-                merge_bytes(n, v, 1, bytes_to_read);
+                merge_bytes(start + n, v, 1, bytes_to_read);
                 ++n;
+                if (n >= header.width) {
+                    start -= header.width;
+                    n = 0;
+                }
+
                 if (v[0] & 0x80) { // RLE Chunk?
                     for (auto i = 0; i < j; ++i) {
-                        merge_bytes(n, v, 1, bytes_to_read);
+                        merge_bytes(start + n, v, 1, bytes_to_read);
                         ++n;
+                        if (n >= header.width) {
+                            start -= header.width;
+                            n = 0;
+                        }
                     }
                 }
                 else { // Normal Chunk?
                     for (auto i = 0; i < j; ++i) {
                         auto v2 = reader.read_bytes(bytes_to_read);
-                        merge_bytes(n, v2, 0, bytes_to_read);
+                        merge_bytes(start + n, v2, 0, bytes_to_read);
                         ++n;
+                        if (n >= header.width) {
+                            start -= header.width;
+                            n = 0;
+                        }
                     }
                 }
                 break;

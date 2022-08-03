@@ -50,7 +50,7 @@ ui::layout::positioning_frame::positioning_frame(math::rect frame, math::point a
 
 auto ui::layout::positioning_frame::position_for_entity(const ui::scene_entity& entity) const -> math::point
 {
-    math::size entity_size = entity.size();
+    math::size entity_size = entity.render_size();
     math::point entity_origin_offset = math::point(entity_size.width * m_anchor_point.x, entity_size.height * m_anchor_point.y) * -1;
     math::point entity_origin = entity.position() + entity_origin_offset;
     return m_base_origin + entity_origin;

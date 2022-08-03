@@ -174,6 +174,8 @@ auto renderer::metal::context::set_viewport_size(const math::size &viewport_size
 
     m_metal.viewport_width = static_cast<uint32_t>(viewport_size.width);
     m_metal.viewport_height = static_cast<uint32_t>(viewport_size.height);
+
+    [m_output_layer setDrawableSize:CGSizeMake(m_metal.viewport_width, m_metal.viewport_height)];
 }
 
 auto renderer::metal::context::viewport_size() const -> math::size

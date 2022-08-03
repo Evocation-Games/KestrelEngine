@@ -33,6 +33,7 @@ auto asset::resource_collection::enroll_object_api_in_state(const std::shared_pt
                     .addFunction("add", &resource_collection::add_resource)
                     .addFunction("has", &resource_collection::has)
                     .addFunction("get", &resource_collection::get)
+                    .addFunction("each", &resource_collection::each)
                 .endClass()
             .endNamespace()
         .endNamespace();
@@ -89,4 +90,13 @@ auto asset::resource_collection::has(const resource_descriptor::lua_reference &d
     }
 
     return false;
+}
+
+auto asset::resource_collection::each(const luabridge::LuaRef& block) const -> void
+{
+    if (block.state() && block.isFunction()) {
+        for (const auto& it : m_resources) {
+            block(it.second);
+        }
+    }
 }
