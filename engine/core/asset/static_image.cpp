@@ -100,11 +100,19 @@ asset::static_image::static_image(const resource_descriptor::lua_reference &ref)
         else if (descriptor->type == static_image::type) {
             graphite::data::reader reader(&resource->data());
             reader.change_byte_order(graphite::data::byte_order::msb);
-            auto tga_raw_data = std::make_shared<std::vector<char>>(reader.read_bytes(reader.size()));
-            tga tga(tga_raw_data);
+            auto format = reader.read_cstr(4);
 
-            const auto& surface = tga.surface();
-            configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            if (format == "TGA ") {
+                auto tga_raw_data = reader.read_data(reader.size() - 4);
+                tga tga(tga_raw_data);
+
+                const auto& surface = tga.surface();
+                configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            }
+            else {
+                throw std::runtime_error("Unrecognised StaticImage format: '" + format + "' in resource: " + descriptor->type + " #" + std::to_string(descriptor->id));
+            }
+
             return;
         }
     }

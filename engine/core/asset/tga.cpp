@@ -36,10 +36,9 @@ asset::tga::tga(const std::string& path)
     decode(reader);
 }
 
-asset::tga::tga(const std::shared_ptr<std::vector<char>>& data)
+asset::tga::tga(const graphite::data::block& data)
 {
-    graphite::data::block tga_data(*data.get());
-    graphite::data::reader tga_reader(&tga_data);
+    graphite::data::reader tga_reader(&data);
     tga_reader.change_byte_order(graphite::data::byte_order::lsb);
     decode(tga_reader);
 }
@@ -102,7 +101,7 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
         switch (header.data_type_code) {
             // Uncompressed
             case 2: {
-                auto v = reader.read_bytes(bytes_to_read);
+                auto v = reader.read_data(bytes_to_read);
                 merge_bytes(start + n, v, 0, bytes_to_read);
                 ++n;
                 if (n >= header.width) {
@@ -113,8 +112,8 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
             }
             // Compressed
             case 10: {
-                auto v = reader.read_bytes(bytes_to_read + 1);
-                int j = v[0] & 0x7F;
+                auto v = reader.read_data(bytes_to_read + 1);
+                int j = v.get<uint8_t>(0) & 0x7F;
                 merge_bytes(start + n, v, 1, bytes_to_read);
                 ++n;
                 if (n >= header.width) {
@@ -122,7 +121,7 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
                     n = 0;
                 }
 
-                if (v[0] & 0x80) { // RLE Chunk?
+                if (v.get<uint8_t>(0) & 0x80) { // RLE Chunk?
                     for (auto i = 0; i < j; ++i) {
                         merge_bytes(start + n, v, 1, bytes_to_read);
                         ++n;
@@ -134,7 +133,7 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
                 }
                 else { // Normal Chunk?
                     for (auto i = 0; i < j; ++i) {
-                        auto v2 = reader.read_bytes(bytes_to_read);
+                        auto v2 = reader.read_data(bytes_to_read);
                         merge_bytes(start + n, v2, 0, bytes_to_read);
                         ++n;
                         if (n >= header.width) {
@@ -155,19 +154,28 @@ auto asset::tga::decode(graphite::data::reader &reader) -> bool
     return true;
 }
 
-auto asset::tga::merge_bytes(const int& position, const std::vector<char>& bytes, const int& offset, const int& size) -> void
+auto asset::tga::merge_bytes(int position, const graphite::data::block& bytes, int offset, int size) -> void
 {
     if (size == 4) {
-        m_surface.set(position, graphite::quickdraw::rgb(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], bytes[offset + 3]));
+        auto r = bytes.get<uint8_t>(offset + 2);
+        auto g = bytes.get<uint8_t>(offset + 1);
+        auto b = bytes.get<uint8_t>(offset + 0);
+        auto a = bytes.get<uint8_t>(offset + 3);
+        m_surface.set(position, graphite::quickdraw::rgb(r, g, b, a));
     }
     else if (size == 3) {
-        m_surface.set(position, graphite::quickdraw::rgb(bytes[offset + 2], bytes[offset + 1], bytes[offset + 0], 255));
+        auto r = bytes.get<uint8_t>(offset + 2);
+        auto g = bytes.get<uint8_t>(offset + 1);
+        auto b = bytes.get<uint8_t>(offset + 0);
+        m_surface.set(position, graphite::quickdraw::rgb(r, g, b, 255));
     }
     else if (size == 2) {
-        m_surface.set(position, graphite::quickdraw::rgb((bytes[offset + 1] & 0x7c) << 1,
-                                                     ((bytes[offset + 1] & 0x03) << 6) | ((bytes[offset + 0] & 0xe0) >> 2),
-                                                     (bytes[offset + 0] & 0x1f) << 3,
-                                                     bytes[offset + 1] & 0x80));
+        auto f = bytes.get<uint8_t>(offset + 1);
+        auto s = bytes.get<uint8_t>(offset + 0);
+        m_surface.set(position, graphite::quickdraw::rgb((s & 0x7c) << 1,
+                                                         ((s & 0x03) << 6) | ((f & 0xe0) >> 2),
+                                                         (f & 0x1f) << 3,
+                                                         s & 0x80));
     }
 }
 

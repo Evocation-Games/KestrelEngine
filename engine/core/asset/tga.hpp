@@ -57,7 +57,7 @@ namespace asset
 
     public:
         explicit tga(const std::string& path);
-        explicit tga(const std::shared_ptr<std::vector<char>>& data);
+        explicit tga(const graphite::data::block& data);
         explicit tga(graphite::quickdraw::surface& surface);
 
         [[nodiscard]] auto surface() const -> const graphite::quickdraw::surface&;
@@ -67,7 +67,7 @@ namespace asset
         graphite::quickdraw::surface m_surface;
 
         auto decode(graphite::data::reader& reader) -> bool;
-        auto merge_bytes(const int& position, const std::vector<char>& bytes, const int& offset, const int& size) -> void;
+        auto merge_bytes(int position, const graphite::data::block& bytes, int offset, int size) -> void;
 
         auto encode(graphite::data::writer& writer) -> void;
     };
