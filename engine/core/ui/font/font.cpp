@@ -120,9 +120,10 @@ auto ui::font::reference::load_for_imgui() -> void
 //            {
 //                ImFormatString(m_instances.config.Name, IM_ARRAYSIZE(m_instances.config.Name), "%s, %.0fpx", name.c_str(), m_font_size);
 //            }
-//            m_instances.imgui = io.Fonts->AddFontFromMemoryTTF(ttf->get<void *>(0), m_font_size, m_font_size, &m_instances.config);
+//            m_instances.imgui = io.Fonts->AddFontFromMemoryTTF(ttf->get<uint8_t *>(0), m_font_size, m_font_size, &m_instances.config);
 //        }
-        m_instances.imgui = io.Fonts->AddFontFromFileTTF("/Users/tomhancocks/Desktop/Geneva-2.ttf", m_font_size, &m_instances.config);
+// TODO: Fix the above code and prevent the crash that occurs.
+        m_instances.imgui = io.Fonts->AddFontDefault(&m_instances.config);
     }
     else {
         m_instances.imgui = io.Fonts->AddFontFromFileTTF(m_path.c_str(), m_font_size, &m_instances.config);
