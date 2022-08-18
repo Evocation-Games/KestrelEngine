@@ -41,7 +41,6 @@
 #include "core/asset/legacy/macintosh/sound.hpp"
 #include "core/asset/legacy/macintosh/dialog.hpp"
 #include "core/asset/legacy/macintosh/item_list.hpp"
-#include "core/asset/spritesheet.hpp"
 #include "core/asset/static_image.hpp"
 #include "core/asset/scene_interface.hpp"
 #include "core/graphics/common/text.hpp"
@@ -126,7 +125,6 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     asset::resource_namespace::enroll_object_api_in_state(shared_from_this());
     asset::resource_data::enroll_object_api_in_state(shared_from_this());
     asset::resource_writer::enroll_object_api_in_state(shared_from_this());
-    asset::spritesheet::enroll_object_api_in_state(shared_from_this());
     asset::scene_interface::enroll_object_api_in_state(shared_from_this());
     asset::legacy::spriteworld::sprite::enroll_object_api_in_state(shared_from_this());
     asset::legacy::macintosh::quickdraw::picture::enroll_object_api_in_state(shared_from_this());

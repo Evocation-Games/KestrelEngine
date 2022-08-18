@@ -23,7 +23,6 @@
 #include <libGraphite/quickdraw/format/pict.hpp>
 #include <libGraphite/quickdraw/format/cicn.hpp>
 #include "core/asset/static_image.hpp"
-#include "core/asset/spritesheet.hpp"
 #include "core/asset/cache.hpp"
 #include "core/environment.hpp"
 #include "core/asset/tga.hpp"

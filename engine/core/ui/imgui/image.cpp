@@ -20,7 +20,6 @@
 
 #include "core/ui/imgui/image.hpp"
 #include "core/asset/static_image.hpp"
-#include "core/asset/spritesheet.hpp"
 #include "core/asset/legacy/spriteworld/sprite.hpp"
 #include "renderer/common/renderer.hpp"
 
@@ -51,10 +50,6 @@ ui::imgui::image::image(luabridge::LuaRef src)
     else if (scripting::lua::ref_isa<asset::legacy::spriteworld::sprite>(src)) {
         auto sprite = src.cast<asset::legacy::spriteworld::sprite::lua_reference>();
         m_spritesheet = sprite->sprite_sheet();
-    }
-    else if (scripting::lua::ref_isa<asset::spritesheet>(src)) {
-        auto sheet = src.cast<asset::spritesheet::lua_reference>();
-        m_spritesheet = sheet->sprite_sheet();
     }
     else if (scripting::lua::ref_isa<asset::resource_descriptor>(src)) {
         auto descriptor = src.cast<asset::resource_descriptor::lua_reference>();
