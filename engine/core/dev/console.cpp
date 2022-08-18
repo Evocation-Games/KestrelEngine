@@ -27,7 +27,7 @@
 dev::console::console()
     : m_size({ 600, 300 }), m_dirty(true), m_visible(false)
 {
-    m_history.emplace_back("Kestrel v0.7");
+    m_history.emplace_back("Kestrel v0.8");
 
     m_font = { new ui::font::reference("Menlo", 11) };
     m_font->load_for_graphics();
