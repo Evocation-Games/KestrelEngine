@@ -35,18 +35,63 @@ namespace ui::layout
         typedef luabridge::RefCountedPtr<ui::layout::positioning_frame> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
+        enum class axis_mode : std::uint8_t {
+            top_left = 0,
+            center_left = 1,
+            bottom_left = 2,
+            top_center = 3,
+            center = 4,
+            bottom_center = 5,
+            top_right = 6,
+            center_right = 7,
+            bottom_right = 8,
+        };
+
     public:
-        lua_api positioning_frame(math::rect frame, math::point anchor, math::point offset);
+        lua_api explicit positioning_frame(const math::size& target_size, bool constrain_to_viewport = true);
 
-        [[nodiscard]] auto position_for_entity(const scene_entity& entity) const -> math::point;
+        lua_api auto set_axis_origin(const math::point& origin) -> void;
+        [[nodiscard]] lua_api auto axis_origin() const -> math::point;
 
-        [[nodiscard]] lua_api auto lua_position_for_base_entity(const ui::scene_entity::lua_reference& entity) const -> math::point;
-        [[nodiscard]] lua_api auto translate_point(math::point p) const -> math::point;
-        [[nodiscard]] lua_api auto convert_point(math::point p0) const -> math::point;
+        lua_api auto set_axis_displacement(const math::point& displacement) -> void;
+        [[nodiscard]] lua_api auto axis_displacement() const -> math::point;
+
+        lua_api auto set_axis_direction(const math::point& direction) -> void;
+        [[nodiscard]] lua_api auto axis_direction() const -> math::point;
+
+        lua_api auto set_default_anchor(const math::size& anchor) -> void;
+        [[nodiscard]] lua_api auto default_anchor() const -> math::size;
+
+        lua_api auto set_scaling_factor(double factor) -> void;
+        [[nodiscard]] lua_api auto scaling_factor() const -> double;
+
+        lua_api auto position_entity(const ui::scene_entity::lua_reference& entity) const -> void;
+
+        [[nodiscard]] auto entity_position(const ui::scene_entity& entity) const -> math::point;
+        [[nodiscard]] auto entity_size(const ui::scene_entity& entity) const -> math::size;
+        [[nodiscard]] lua_api auto lua_entity_position(const ui::scene_entity::lua_reference& entity) const -> math::point;
+        [[nodiscard]] lua_api auto lua_entity_size(const ui::scene_entity::lua_reference& entity) const -> math::size;
+
+        [[nodiscard]] lua_api auto translate_point_to(const math::point& point) const -> math::point;
+        [[nodiscard]] lua_api auto translate_point_from(const math::point& point) const -> math::point;
 
     private:
-        math::point m_anchor_point;
-        math::point m_base_origin;
-        math::rect m_frame;
+        // The viewport size reflects the _real_ size of the viewport in pixels.
+        math::size m_viewport { 1920, 1080 };
+
+        // The target represents the bounds of the scene, to be centrally positioned in the viewport.
+        math::rect m_target { 448, 156, 1024, 768 };
+
+        // Scaling
+        double m_scaling_factor { 1.0 };
+
+        // Axis configuration
+        enum axis_mode m_axis_placement { axis_mode::center };
+        math::point m_axis_direction { 1, 1 };
+        math::point m_axis_displacement { 0, 0 };
+        math::point m_axis_origin { 512, 384 };
+
+        // Entity Anchor
+        math::size m_default_anchor { 0.5, 0.5 };
     };
 }

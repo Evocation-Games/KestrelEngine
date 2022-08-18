@@ -169,7 +169,9 @@ auto renderer::metal::context::tick() -> void
 
 auto renderer::metal::context::set_viewport_size(const math::size &viewport_size) -> void
 {
-    [m_window setFrame:NSMakeRect(0, 0, viewport_size.width, viewport_size.height) display:YES animate:NO];
+    auto titlebar_height = [m_window frame].size.height - [[m_window contentView] frame].size.height;
+    [[m_window contentView] setFrame:NSMakeRect(0.0, 0.0, viewport_size.width, viewport_size.height)];
+    [m_window setFrame:NSMakeRect(0, 0, viewport_size.width, viewport_size.height + titlebar_height) display:YES animate:NO];
     [m_window center];
 
     m_metal.viewport_width = static_cast<uint32_t>(viewport_size.width);

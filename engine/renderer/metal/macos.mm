@@ -109,6 +109,9 @@ auto cocoa::start_application(const std::function<auto(KestrelApplication *) -> 
     [[wnd contentView] setWantsLayer:YES];
     [[wnd contentView] setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawDuringViewResize];
 
+    auto titlebar_height = [wnd frame].size.height - [[wnd contentView] frame].size.height;
+    [[wnd contentView] setFrame:NSMakeRect(0.0, 0.0, size.width, size.height + titlebar_height)];
+
     // Setup view
     KestrelView *view = [[KestrelView alloc] init];
     [view setFrame:[[wnd contentView] frame]];

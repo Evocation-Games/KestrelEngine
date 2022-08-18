@@ -65,6 +65,9 @@ namespace graphics
         [[nodiscard]] auto get_render_size() const -> math::size;
         auto set_render_size(const math::size& sz) -> void;
 
+        [[nodiscard]] auto get_draw_size() const -> math::size;
+        auto set_draw_size(const math::size& sz) -> void;
+
         auto set_clipping_area(const math::size& sz) -> void;
         auto remove_clipping_area() -> void;
         [[nodiscard]] auto has_clipping_area() const -> bool;
@@ -94,6 +97,7 @@ namespace graphics
         math::point m_position { 0 };
         math::size m_size { 0 };
         math::size m_render_size { 0 };
+        math::size m_draw_size { 0 };
         uint32_t m_sprite_index { 0 };
         std::shared_ptr<graphics::spritesheet> m_sprite_sheet;
         enum renderer::blending m_blend { renderer::blending::normal };

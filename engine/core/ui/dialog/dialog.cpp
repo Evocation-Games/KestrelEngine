@@ -357,11 +357,8 @@ auto ui::dialog::set_background(const luabridge::LuaRef &background) -> void
 
     if (scripting::lua::ref_isa<asset::static_image>(background)) {
         m_background.fill = background.cast<asset::static_image::lua_reference>();
-        m_positioning_offset = (m_owner_scene->size() * 0.5) - (m_background.fill->size() * 0.5);
-        m_frame = { math::point(), m_background.fill->size() };
-        m_owner_scene->set_positioning_frame({
-            new layout::positioning_frame(m_frame, {}, { m_positioning_offset.width, m_positioning_offset.height })
-        });
+        auto size = m_background.fill->size();
+        m_owner_scene->set_positioning_frame({ new layout::positioning_frame(size) });
 
         m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
         m_owner_scene->add_entity(m_background.fill_entity);
@@ -370,12 +367,7 @@ auto ui::dialog::set_background(const luabridge::LuaRef &background) -> void
 
 auto ui::dialog::set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void
 {
-    m_positioning_offset = (m_owner_scene->size() * 0.5) - (size * 0.5);
-    m_frame = { math::point(), size };
-    m_owner_scene->set_positioning_frame({
-        new layout::positioning_frame(m_frame, {}, { m_positioning_offset.width, m_positioning_offset.height })
-    });
-
+    m_owner_scene->set_positioning_frame({ new layout::positioning_frame(size) });
 
     if (scripting::lua::ref_isa<asset::static_image>(top)) {
         m_background.top = top.cast<asset::static_image::lua_reference>();

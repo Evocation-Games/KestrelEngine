@@ -142,6 +142,16 @@ auto graphics::entity::set_render_size(const math::size &sz) -> void
     m_render_size = sz;
 }
 
+auto graphics::entity::get_draw_size() const -> math::size
+{
+    return m_draw_size;
+}
+
+auto graphics::entity::set_draw_size(const math::size &sz) -> void
+{
+    m_draw_size = sz;
+}
+
 auto graphics::entity::set_clipping_area(const math::size& sz) -> void
 {
     auto clip_sz = sz * renderer::scale_factor();

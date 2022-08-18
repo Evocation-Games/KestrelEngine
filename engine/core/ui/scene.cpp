@@ -171,7 +171,7 @@ auto ui::scene::draw_entity(const std::shared_ptr<graphics::entity>& entity) con
         return;
     }
 
-    math::rect frame { entity->get_position(), entity->get_render_size() };
+    math::rect frame { entity->get_position(), entity->get_draw_size() };
 
     auto sprite = entity->sprite_sheet()->at(static_cast<int>(entity->get_sprite_index()));
     auto uv_x = static_cast<float>(sprite.point().x);

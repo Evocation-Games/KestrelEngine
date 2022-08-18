@@ -60,6 +60,7 @@ public:
     lua_api static auto load_game_data() -> void;
 
     lua_api static auto native_screen_size() -> math::size;
+    lua_api static auto effective_game_size() -> math::size;
     lua_api static auto set_game_window_title(const std::string& title) -> void;
     lua_api static auto set_game_window_size(const math::size& size) -> void;
     lua_api static auto set_fullscreen(bool f) -> void;

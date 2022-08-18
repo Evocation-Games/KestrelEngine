@@ -362,6 +362,7 @@ auto environment::prepare_lua_interface() -> void
             .addFunction("setGameWindowTitle", &environment::set_game_window_title)
             .addFunction("setGameWindowSize", &environment::set_game_window_size)
             .addFunction("nativeScreenSize", &environment::native_screen_size)
+            .addFunction("effectiveGameSize", &environment::effective_game_size)
             .addFunction("setFullscreen", &environment::set_fullscreen)
             .addFunction("importScript", &environment::import_script)
             .addFunction("runScript", &environment::run_script)
@@ -386,6 +387,16 @@ auto environment::set_game_window_size(const math::size& size) -> void
 auto environment::native_screen_size() -> math::size
 {
     return renderer::native_screen_size();
+}
+
+auto environment::effective_game_size() -> math::size
+{
+    // The engine is intended to run at a 16:9 aspect ratio. Take the current game size and scale it to
+    // an appropriate game size.
+    // TODO: This only works with landscape orientations
+    auto width = renderer::window_size().width;
+    auto height = std::ceil(width / 1.7777778);
+    return math::size(width, height);
 }
 
 auto environment::set_fullscreen(bool f) -> void

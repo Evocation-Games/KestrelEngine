@@ -58,6 +58,7 @@ namespace ui
         [[nodiscard]] lua_api auto size() const -> math::size;
         [[nodiscard]] lua_api auto half_size() const -> math::size;
         [[nodiscard]] lua_api auto render_size() const -> math::size;
+        [[nodiscard]] lua_api auto draw_size() const -> math::size;
         [[nodiscard]] lua_api auto frame_count() const -> int32_t;
         [[nodiscard]] lua_api auto current_frame() const -> int32_t;
         [[nodiscard]] lua_api auto advances_to_next_frame_on_draw() const -> bool;
@@ -68,12 +69,14 @@ namespace ui
         [[nodiscard]] lua_api auto clipping_offset() const -> math::point;
         [[nodiscard]] lua_api auto children() const -> util::lua_vector<lua_reference>;
         [[nodiscard]] lua_api auto animator() const -> renderer::animator::lua_reference;
+        [[nodiscard]] lua_api auto ignore_positioning_frame_scaler() const -> bool;
 
         lua_api auto set_position(const math::point& v) -> void;
         lua_api auto set_draw_position(const math::point& v) -> void;
         lua_api auto set_centered(bool v) -> void;
         lua_api auto set_size(const math::size& v) -> void;
         lua_api auto set_render_size(const math::size& v) -> void;
+        lua_api auto set_draw_size(const math::size& v) -> void;
         lua_api auto set_current_frame(int32_t v) -> void;
         lua_api auto set_advances_to_next_frame_on_draw(bool v) -> void;
         lua_api auto set_animation_loops(bool v) -> void;
@@ -83,6 +86,7 @@ namespace ui
         lua_api auto set_clipping_offset(const math::point& v) -> void;
         lua_api auto set_animator(const renderer::animator::lua_reference& animator) -> void;
         lua_api auto set_continuous_mouse_down_action(bool continuous) -> void;
+        lua_api auto set_ignore_positioning_frame_scaler(bool f) -> void;
 
         auto change_internal_entity(const std::shared_ptr<graphics::entity>& entity) -> void;
         lua_api auto set_sprite(const luabridge::LuaRef& sprite) -> void;
@@ -132,6 +136,7 @@ namespace ui
         bool m_started { false };
         bool m_finished { false };
         bool m_continuous_mouse_down_action { false };
+        bool m_ignore_positioning_frame_scaler { false };
         event m_mouse_down_event;
         util::lua_vector<lua_reference> m_children;
         luabridge::LuaRef m_on_animation_finish { nullptr };

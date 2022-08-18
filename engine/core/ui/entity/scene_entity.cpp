@@ -52,9 +52,11 @@ auto ui::scene_entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addConstructor<auto(*)(const luabridge::LuaRef&)->void, lua_reference>()
             .addProperty("position", &scene_entity::position, &scene_entity::set_position)
             .addProperty("drawPosition", &scene_entity::draw_position, &scene_entity::set_draw_position)
+            .addProperty("drawSize", &scene_entity::draw_size, &scene_entity::set_draw_size)
             .addProperty("size", &scene_entity::size, &scene_entity::set_size)
             .addProperty("halfSize", &scene_entity::half_size)
             .addProperty("renderSize", &scene_entity::render_size, &scene_entity::set_render_size)
+            .addProperty("ignorePositioningFrameScaler", &scene_entity::ignore_positioning_frame_scaler, &scene_entity::set_ignore_positioning_frame_scaler)
             .addProperty("frameCount", &scene_entity::frame_count)
             .addProperty("frame", &scene_entity::current_frame, &scene_entity::set_current_frame) // TODO: Deprecate this variant.
             .addProperty("currentFrame", &scene_entity::current_frame, &scene_entity::set_current_frame)
@@ -264,6 +266,11 @@ auto ui::scene_entity::render_size() const -> math::size
     return m_entity->get_render_size();
 }
 
+auto ui::scene_entity::draw_size() const -> math::size
+{
+    return m_entity->get_draw_size();
+}
+
 auto ui::scene_entity::frame_count() const -> int32_t
 {
     return m_frame_count;
@@ -314,6 +321,11 @@ auto ui::scene_entity::animator() const -> renderer::animator::lua_reference
     return m_animator;
 }
 
+auto ui::scene_entity::ignore_positioning_frame_scaler() const -> bool
+{
+    return m_ignore_positioning_frame_scaler;
+}
+
 // MARK: - Setters
 
 auto ui::scene_entity::set_position(const math::point& v) -> void
@@ -345,6 +357,11 @@ auto ui::scene_entity::set_size(const math::size& v) -> void
 auto ui::scene_entity::set_render_size(const math::size& v) -> void
 {
     m_entity->set_render_size(v);
+}
+
+auto ui::scene_entity::set_draw_size(const math::size& v) -> void
+{
+    m_entity->set_draw_size(v);
 }
 
 auto ui::scene_entity::set_current_frame(int32_t v) -> void
@@ -393,6 +410,11 @@ auto ui::scene_entity::set_animator(const renderer::animator::lua_reference &ani
 auto ui::scene_entity::set_continuous_mouse_down_action(bool continuous) -> void
 {
     m_continuous_mouse_down_action = continuous;
+}
+
+auto ui::scene_entity::set_ignore_positioning_frame_scaler(bool f) -> void
+{
+    m_ignore_positioning_frame_scaler = f;
 }
 
 // MARK: - Child Entity Management

@@ -93,14 +93,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
     m_backing_scene = session->new_scene(m_name, scene_main_script);
 
     // Setup some defaults...
-    auto size = session->size();
-    m_positioning_frame = {
-        new ui::layout::positioning_frame(
-            { 0, 0, size.width, size.height },
-            { 0.5, 0.5 },
-            { 0, 0 }
-        )
-    };
+    m_positioning_frame = { new ui::layout::positioning_frame(renderer::window_size()) };
 
     m_backing_scene->add_mouse_event_block([&, this] (const event& e) {
         if (!m_user_input || !e.is_mouse_event()) {
@@ -108,7 +101,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         }
 
         auto point = e.location();
-        auto local_point = m_positioning_frame->convert_point(point);
+        auto local_point = m_positioning_frame->translate_point_from(point);
 
         for (auto entity : m_entities) {
             entity->send_event(event::mouse(e.type(), local_point - entity->position()));
@@ -139,7 +132,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         const auto& entities = this->m_entities;
         for (auto i = 0; i < entities.size(); ++i) {
             const auto& entity = entities[i];
-            entity->set_draw_position(m_positioning_frame->position_for_entity(*entity.get()));
+            m_positioning_frame->position_entity(entity);
             entity->layout();
             entity->draw();
         }
@@ -440,7 +433,7 @@ auto ui::game_scene::draw_widgets() const -> void
             continue;
         }
 
-        entity->set_draw_position(m_positioning_frame->position_for_entity(*entity.get()).floor());
+        m_positioning_frame->position_entity(entity);
         entity->layout();
         entity->draw();
     }
