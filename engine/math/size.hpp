@@ -51,22 +51,22 @@ namespace math
         auto operator==(const math::size& s) const -> bool;
         auto operator!=(const math::size& s) const -> bool;
 
-        lua_api auto add(const math::size& s) const -> math::size;
-        lua_api auto subtract(const math::size& s) const -> math::size;
-        lua_api auto multiply(double f) const -> math::size;
-        lua_api auto divide(double f) const -> math::size;
+        [[nodiscard]] lua_api auto add(const math::size& s) const -> math::size;
+        [[nodiscard]] lua_api auto subtract(const math::size& s) const -> math::size;
+        [[nodiscard]] lua_api auto multiply(double f) const -> math::size;
+        [[nodiscard]] lua_api auto divide(double f) const -> math::size;
 
-        lua_api auto round() const -> math::size;
-        lua_api auto floor() const -> math::size;
-        lua_api auto ceil() const -> math::size;
+        [[nodiscard]] lua_api auto round() const -> math::size;
+        [[nodiscard]] lua_api auto floor() const -> math::size;
+        [[nodiscard]] lua_api auto ceil() const -> math::size;
 
-        lua_api auto area() const -> double;
+        [[nodiscard]] lua_api auto area() const -> double;
 
         lua_api auto set_width(const double& width) -> void;
-        lua_api auto get_width() const -> double;
+        [[nodiscard]] lua_api auto get_width() const -> double;
 
         lua_api auto set_height(const double& height) -> void;
-        lua_api auto get_height() const -> double;
+        [[nodiscard]] lua_api auto get_height() const -> double;
     };
 
 };
