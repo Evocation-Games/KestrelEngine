@@ -57,7 +57,8 @@ asset::scene_interface::scene_interface(const asset::resource_descriptor::lua_re
             static_cast<double>(reader.read_signed_short())
         );
 
-        m_items = std::move(parse_item_list(reader));
+        auto item_count = reader.read_short();
+        m_items = std::move(parse_item_list(reader, item_count));
         return;
     }
     throw std::logic_error("Bad resource reference encountered: Unable to load resource.");

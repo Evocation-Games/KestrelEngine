@@ -44,7 +44,7 @@ ui::dialog_layout::dialog_layout(const luabridge::LuaRef &ref, const math::size&
                 descriptor = descriptor->with_type(graphite::toolbox::dialog::type_code());
             }
             else {
-                throw std::runtime_error("No matching resuorce for resource descriptor passed to dialog configuration: " + descriptor->description());
+                throw std::runtime_error("No matching resource for resource descriptor passed to dialog configuration: " + descriptor->description());
             }
         }
 

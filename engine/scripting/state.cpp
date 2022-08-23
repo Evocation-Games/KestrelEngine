@@ -55,6 +55,8 @@
 #include "core/file/resource_file_reference.hpp"
 #include "core/audio/codec/mp3.hpp"
 #include "core/ui/game_scene.hpp"
+#include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/entity/text_entity.hpp"
 #include "core/ui/layout/positioning_frame.hpp"
 #include "core/ui/widgets/label_widget.hpp"
 #include "core/ui/widgets/text_widget.hpp"
@@ -93,9 +95,9 @@ static int scripting_lua_state_print(lua_State *state)
             if (lua_isstring(state, i)) {
                 auto str = lua_tostring(state, i);
                 env->lua_out(str);
-#if DEBUG
+//#if DEBUG
                 std::cout << str << std::endl;
-#endif
+//#endif
             }
             else {
 
@@ -146,6 +148,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
 
     ui::game_scene::enroll_object_api_in_state(shared_from_this());
     ui::scene_entity::enroll_object_api_in_state(shared_from_this());
+    ui::text_entity::enroll_object_api_in_state(shared_from_this());
     ui::control_definition::enroll_object_api_in_state(shared_from_this());
     ui::layout::positioning_frame::enroll_object_api_in_state(shared_from_this());
     ui::widgets::label_widget::enroll_object_api_in_state(shared_from_this());

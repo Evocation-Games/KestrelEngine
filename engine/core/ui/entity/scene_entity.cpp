@@ -326,6 +326,7 @@ auto ui::scene_entity::ignore_positioning_frame_scaler() const -> bool
     return m_ignore_positioning_frame_scaler;
 }
 
+
 // MARK: - Setters
 
 auto ui::scene_entity::set_position(const math::point& v) -> void

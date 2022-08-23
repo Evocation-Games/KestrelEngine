@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include "core/ui/game_scene.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/entity/text_entity.hpp"
 #include "core/environment.hpp"
 #include "core/ui/widgets/text_widget.hpp"
 #include "core/ui/widgets/label_widget.hpp"
@@ -103,8 +104,11 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         auto point = e.location();
         auto local_point = m_positioning_frame->translate_point_from(point);
 
-        for (auto entity : m_entities) {
-            entity->send_event(event::mouse(e.type(), local_point - entity->position()));
+        for (auto entity_ref : m_entities) {
+            if (scripting::lua::ref_isa<scene_entity>(entity_ref)) {
+                auto entity = entity_ref.cast<scene_entity::lua_reference>();
+                entity->send_event(event::mouse(e.type(), local_point - entity->position()));
+            }
         }
 
         m_responder_chain.send_event(e.relocated(local_point));
@@ -131,10 +135,18 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
     m_backing_scene->add_render_block([&, this] {
         const auto& entities = this->m_entities;
         for (auto i = 0; i < entities.size(); ++i) {
-            const auto& entity = entities[i];
-            m_positioning_frame->position_entity(entity);
-            entity->layout();
-            entity->draw();
+            if (scripting::lua::ref_isa<scene_entity>(entities[i])) {
+                const auto& entity = entities[i].cast<scene_entity::lua_reference>();
+                m_positioning_frame->position_scene_entity(entity);
+                entity->layout();
+                entity->draw();
+            }
+            else if (scripting::lua::ref_isa<text_entity>(entities[i])) {
+                const auto& entity = entities[i].cast<text_entity::lua_reference>();
+                m_positioning_frame->position_text_entity(entity);
+                entity->layout();
+                entity->draw();
+            }
         }
 
         draw_widgets();
@@ -281,7 +293,7 @@ auto ui::game_scene::passthrough_render() const -> bool
     return m_backing_scene->is_passthrough_render();
 }
 
-auto ui::game_scene::entities() const -> util::lua_vector<scene_entity::lua_reference>
+auto ui::game_scene::entities() const -> util::lua_vector<luabridge::LuaRef>
 {
     return util::lua_vector(m_entities);
 }
@@ -337,16 +349,29 @@ auto ui::game_scene::repeat(double period, const luabridge::LuaRef& block) -> vo
 
 // MARK: - Entity Management
 
-auto ui::game_scene::add_entity(const scene_entity::lua_reference& entity) -> int32_t
+auto ui::game_scene::add_scene_entity(const scene_entity::lua_reference &entity) -> int32_t
 {
+    if (auto env = environment::active_environment().lock()) {
+        luabridge::LuaRef ref(env->lua_runtime()->internal_state(), entity);
+        return add_entity(ref);
+    }
+    return -1;
+}
+
+auto ui::game_scene::add_entity(const luabridge::LuaRef& entity) -> int32_t
+{
+    if (!entity.state()) {
+        return -1;
+    }
+
     auto index = m_entities.size();
     m_entities.emplace_back(entity);
     return static_cast<int32_t>(index);
 }
 
-auto ui::game_scene::replace_entity(int32_t index, const scene_entity::lua_reference& entity) -> void
+auto ui::game_scene::replace_entity(int32_t index, const luabridge::LuaRef& entity) -> void
 {
-    if (index >= m_entities.size()) {
+    if (index >= m_entities.size() || !entity.state()) {
         // TODO: Warning?
         return;
     }
@@ -433,7 +458,7 @@ auto ui::game_scene::draw_widgets() const -> void
             continue;
         }
 
-        m_positioning_frame->position_entity(entity);
+        m_positioning_frame->position_scene_entity(entity);
         entity->layout();
         entity->draw();
     }

@@ -62,7 +62,7 @@ namespace ui
         [[nodiscard]] lua_api auto size() const -> math::size;
         [[nodiscard]] lua_api auto current_time() const -> double;
         [[nodiscard]] lua_api auto passthrough_render() const -> bool;
-        [[nodiscard]] lua_api auto entities() const -> util::lua_vector<scene_entity::lua_reference>;
+        [[nodiscard]] lua_api auto entities() const -> util::lua_vector<luabridge::LuaRef>;
         [[nodiscard]] lua_api auto positioning_frame() const -> ui::layout::positioning_frame::lua_reference;
 
         lua_api auto set_passthrough_render(bool f) -> void;
@@ -75,8 +75,9 @@ namespace ui
         lua_api auto after(double period, const luabridge::LuaRef& block) -> void;
         lua_api auto repeat(double period, const luabridge::LuaRef& block) -> void;
 
-        lua_api auto add_entity(const scene_entity::lua_reference& entity) -> int32_t;
-        lua_api auto replace_entity(int32_t index, const scene_entity::lua_reference& entity) -> void;
+        lua_api auto add_scene_entity(const scene_entity::lua_reference & entity) -> int32_t;
+        lua_api auto add_entity(const luabridge::LuaRef& entity) -> int32_t;
+        lua_api auto replace_entity(int32_t index, const luabridge::LuaRef& entity) -> void;
         lua_api auto add_widget(const luabridge::LuaRef& widget) -> void;
 
         [[nodiscard]] lua_api auto key(int k) const -> event::lua_reference;
@@ -91,7 +92,7 @@ namespace ui
         std::shared_ptr<scene> m_backing_scene;
         layout::positioning_frame::lua_reference m_positioning_frame { nullptr };
         bool m_user_input { true };
-        std::vector<scene_entity::lua_reference> m_entities;
+        std::vector<luabridge::LuaRef> m_entities;
         std::vector<luabridge::LuaRef> m_widgets;
         std::unordered_map<int, event::lua_reference> m_key_states;
         luabridge::LuaRef m_render_block { nullptr };

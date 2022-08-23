@@ -26,6 +26,7 @@
 #include "math/size.hpp"
 #include "math/rect.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/ui/entity/text_entity.hpp"
 
 namespace ui::layout
 {
@@ -65,12 +66,27 @@ namespace ui::layout
         lua_api auto set_scaling_factor(double factor) -> void;
         [[nodiscard]] lua_api auto scaling_factor() const -> double;
 
-        lua_api auto position_entity(const ui::scene_entity::lua_reference& entity) const -> void;
+        lua_api auto position_entity(const luabridge::LuaRef& entity) const -> void;
+        lua_api auto position_entity_with_offset(const luabridge::LuaRef& entity, const math::point& offset) const -> void;
 
-        [[nodiscard]] auto entity_position(const ui::scene_entity& entity) const -> math::point;
-        [[nodiscard]] auto entity_size(const ui::scene_entity& entity) const -> math::size;
-        [[nodiscard]] lua_api auto lua_entity_position(const ui::scene_entity::lua_reference& entity) const -> math::point;
-        [[nodiscard]] lua_api auto lua_entity_size(const ui::scene_entity::lua_reference& entity) const -> math::size;
+        [[nodiscard]] lua_api auto lua_entity_position(const luabridge::LuaRef& entity) const -> math::point;
+        [[nodiscard]] lua_api auto lua_entity_size(const luabridge::LuaRef& entity) const -> math::size;
+
+        auto position_scene_entity(const ui::scene_entity::lua_reference& entity) const -> void;
+        auto position_scene_entity_with_offset(const ui::scene_entity::lua_reference& entity, const math::point& offset) const -> void;
+
+        auto position_text_entity(const ui::text_entity::lua_reference& entity) const -> void;
+        auto position_text_entity_with_offset(const ui::text_entity::lua_reference& entity, const math::point& offset) const -> void;
+
+        [[nodiscard]] auto scene_entity_position(const ui::scene_entity& entity) const -> math::point;
+        [[nodiscard]] auto scene_entity_size(const ui::scene_entity& entity) const -> math::size;
+        [[nodiscard]] auto lua_scene_entity_position(const ui::scene_entity::lua_reference& entity) const -> math::point;
+        [[nodiscard]] auto lua_scene_entity_size(const ui::scene_entity::lua_reference& entity) const -> math::size;
+
+        [[nodiscard]] auto text_entity_position(const ui::text_entity& entity) const -> math::point;
+        [[nodiscard]] auto text_entity_size(const ui::text_entity& entity) const -> math::size;
+        [[nodiscard]] auto lua_text_entity_position(const ui::text_entity::lua_reference& entity) const -> math::point;
+        [[nodiscard]] auto lua_text_entity_size(const ui::text_entity::lua_reference& entity) const -> math::size;
 
         [[nodiscard]] lua_api auto translate_point_to(const math::point& point) const -> math::point;
         [[nodiscard]] lua_api auto translate_point_from(const math::point& point) const -> math::point;
