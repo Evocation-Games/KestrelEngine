@@ -40,6 +40,7 @@ namespace asset
         lua_api auto add_resource(const resource_descriptor::lua_reference& descriptor, const luabridge::LuaRef& resource) -> void;
 
         [[nodiscard]] lua_api auto size() const -> std::size_t;
+        [[nodiscard]] lua_api auto random() const -> luabridge::LuaRef;
         [[nodiscard]] lua_api auto has(const resource_descriptor::lua_reference& descriptor) const -> bool;
         [[nodiscard]] lua_api auto get(const resource_descriptor::lua_reference& descriptor) const -> luabridge::LuaRef;
         lua_api auto each(const luabridge::LuaRef& block) const -> void;

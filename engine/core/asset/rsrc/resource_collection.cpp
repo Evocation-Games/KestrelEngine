@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <random>
 #include "core/asset/rsrc/resource_collection.hpp"
 
 // MARK: - Lua
@@ -30,6 +31,7 @@ auto asset::resource_collection::enroll_object_api_in_state(const std::shared_pt
                 .beginClass<resource_collection>("ResourceCollection")
                     .addConstructor<auto(*)()->void, lua_reference>()
                     .addProperty("size", &resource_collection::size)
+                    .addProperty("randomItem", &resource_collection::random)
                     .addFunction("add", &resource_collection::add_resource)
                     .addFunction("has", &resource_collection::has)
                     .addFunction("get", &resource_collection::get)
@@ -64,6 +66,17 @@ auto asset::resource_collection::add_resource(const resource_descriptor::lua_ref
 
     // Not found, so add new entry.
     m_resources.emplace_back(std::pair(key, resource));
+}
+
+auto asset::resource_collection::random() const -> luabridge::LuaRef
+{
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(0, m_resources.size() - 1); // distribution in range [1, 6]
+
+    auto idx = dist(rng);
+    auto resource = m_resources.at(dist(rng));
+    return resource.second;
 }
 
 auto asset::resource_collection::get(const resource_descriptor::lua_reference &descriptor) const -> luabridge::LuaRef
