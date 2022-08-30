@@ -112,6 +112,10 @@ auto graphics::typesetter::requires_layout() const -> bool
 
 auto graphics::typesetter::layout() -> void
 {
+    if (m_max_size.area() < 2) {
+        return;
+    }
+
     FT_Error error;
     FT_GlyphSlot slot = m_base_font->face()->glyph;
 
