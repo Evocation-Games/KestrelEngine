@@ -46,9 +46,13 @@ namespace ui::widgets
 
         [[nodiscard]] lua_api auto frame() const -> math::rect;
         [[nodiscard]] lua_api auto user_info() const -> luabridge::LuaRef;
+        [[nodiscard]] lua_api auto scroll_offset() const -> math::point;
 
         lua_api auto set_frame(const math::rect& frame) -> void;
         lua_api auto set_user_info(const luabridge::LuaRef& info) -> void;
+        lua_api auto set_scroll_offset(const math::point& offset) -> void;
+
+        lua_api auto add_child_entity(const scene_entity::lua_reference& entity) -> void;
 
         lua_api auto set_drawing_function(const luabridge::LuaRef& block) -> void;
 
@@ -59,6 +63,7 @@ namespace ui::widgets
         graphics::canvas::lua_reference m_canvas;
         scene_entity::lua_reference m_entity { nullptr };
         math::rect m_frame { 0, 0, 100, 100 };
+        math::point m_scroll_offset { 0 };
 
         auto resize() -> void;
         auto redraw() -> void;

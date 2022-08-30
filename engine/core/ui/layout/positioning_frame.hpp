@@ -27,6 +27,8 @@
 #include "math/rect.hpp"
 #include "core/ui/entity/scene_entity.hpp"
 #include "core/ui/entity/text_entity.hpp"
+#include "core/ui/layout/axis_origin.hpp"
+#include "core/ui/layout/scaling_mode.hpp"
 
 namespace ui::layout
 {
@@ -36,32 +38,20 @@ namespace ui::layout
         typedef luabridge::RefCountedPtr<ui::layout::positioning_frame> lua_reference;
         static auto enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void;
 
-        enum class axis_mode : std::uint8_t {
-            top_left = 0,
-            center_left = 1,
-            bottom_left = 2,
-            top_center = 3,
-            center = 4,
-            bottom_center = 5,
-            top_right = 6,
-            center_right = 7,
-            bottom_right = 8,
-        };
-
     public:
-        lua_api explicit positioning_frame(const math::size& target_size, bool constrain_to_viewport = true);
+        lua_api explicit positioning_frame(const math::size& target_size, std::int32_t origin, std::int32_t scaling);
+        lua_api explicit positioning_frame(const math::size& target_size, enum axis_origin origin, enum scaling_mode scaling);
 
-        lua_api auto set_axis_origin(const math::point& origin) -> void;
-        [[nodiscard]] lua_api auto axis_origin() const -> math::point;
+        auto set_axis_origin(const enum axis_origin origin) -> void;
+        [[nodiscard]] auto axis_origin() const -> enum axis_origin;
+        lua_api auto set_lua_axis_origin(std::int32_t origin) -> void;
+        [[nodiscard]] lua_api auto lua_axis_origin() const -> std::int32_t;
 
         lua_api auto set_axis_displacement(const math::point& displacement) -> void;
         [[nodiscard]] lua_api auto axis_displacement() const -> math::point;
 
         lua_api auto set_axis_direction(const math::point& direction) -> void;
         [[nodiscard]] lua_api auto axis_direction() const -> math::point;
-
-        lua_api auto set_default_anchor(const math::size& anchor) -> void;
-        [[nodiscard]] lua_api auto default_anchor() const -> math::size;
 
         lua_api auto set_scaling_factor(double factor) -> void;
         [[nodiscard]] lua_api auto scaling_factor() const -> double;
@@ -99,13 +89,14 @@ namespace ui::layout
         math::rect m_target { 448, 156, 1024, 768 };
 
         // Scaling
+        enum scaling_mode m_scaling_mode { scaling_mode::normal };
         double m_scaling_factor { 1.0 };
 
         // Axis configuration
-        enum axis_mode m_axis_placement { axis_mode::center };
+        enum axis_origin m_axis_origin { axis_origin::center };
+        math::point m_axis_placement { 960, 540 };
         math::point m_axis_direction { 1, 1 };
         math::point m_axis_displacement { 0, 0 };
-        math::point m_axis_origin { 512, 384 };
 
         // Entity Anchor
         math::size m_default_anchor { 0.5, 0.5 };

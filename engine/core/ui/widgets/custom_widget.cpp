@@ -32,8 +32,10 @@ auto ui::widgets::custom_widget::enroll_object_api_in_state(const std::shared_pt
                 .addConstructor<auto(*)(const luabridge::LuaRef&)->void, lua_reference>()
                 .addProperty("frame", &custom_widget::frame, &custom_widget::set_frame)
                 .addProperty("userInfo", &custom_widget::user_info, &custom_widget::set_user_info)
+                .addProperty("scrollOffset", &custom_widget::scroll_offset, &custom_widget::set_scroll_offset)
                 .addFunction("draw", &custom_widget::redraw)
                 .addFunction("drawingFunction", &custom_widget::set_drawing_function)
+                .addFunction("addChildEntity", &custom_widget::add_child_entity)
             .endClass()
         .endNamespace();
 }
@@ -41,7 +43,8 @@ auto ui::widgets::custom_widget::enroll_object_api_in_state(const std::shared_pt
 // MARK: - Construction
 
 ui::widgets::custom_widget::custom_widget(const luabridge::LuaRef &drawing_function)
-: m_drawing_function(drawing_function), m_user_info(nullptr)
+    : m_user_info(nullptr),
+      m_drawing_function(!drawing_function.state() ? luabridge::LuaRef(nullptr) : drawing_function)
 {
     resize();
 }
@@ -63,6 +66,11 @@ auto ui::widgets::custom_widget::user_info() const -> luabridge::LuaRef
     return m_user_info;
 }
 
+auto ui::widgets::custom_widget::scroll_offset() const -> math::point
+{
+    return m_scroll_offset;
+}
+
 // MARK: - Setters
 
 auto ui::widgets::custom_widget::set_frame(const math::rect &frame) -> void
@@ -82,6 +90,17 @@ auto ui::widgets::custom_widget::set_user_info(const luabridge::LuaRef &info) ->
 auto ui::widgets::custom_widget::set_drawing_function(const luabridge::LuaRef &block) -> void
 {
     m_drawing_function = block;
+}
+
+auto ui::widgets::custom_widget::set_scroll_offset(const math::point &offset) -> void
+{
+    m_scroll_offset = offset;
+    m_entity->set_clipping_offset(offset);
+}
+
+auto ui::widgets::custom_widget::add_child_entity(const scene_entity::lua_reference &entity) -> void
+{
+    m_entity->add_child_entity(entity);
 }
 
 // MARK: - Drawing

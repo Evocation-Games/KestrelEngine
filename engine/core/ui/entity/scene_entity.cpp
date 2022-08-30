@@ -62,7 +62,7 @@ auto ui::scene_entity::enroll_object_api_in_state(const std::shared_ptr<scriptin
             .addProperty("currentFrame", &scene_entity::current_frame, &scene_entity::set_current_frame)
             .addProperty("nextFrameOnDraw", &scene_entity::advances_to_next_frame_on_draw, &scene_entity::set_advances_to_next_frame_on_draw)
             .addProperty("loops", &scene_entity::animation_loops, &scene_entity::set_animation_loops)
-            .addProperty("centered", &scene_entity::centered, &scene_entity::set_centered)
+            .addProperty("axisAnchor", &scene_entity::lua_anchor_point, &scene_entity::set_lua_anchor_point)
             .addProperty("alpha", &scene_entity::alpha, &scene_entity::set_alpha)
             .addProperty("blend", &scene_entity::blend_mode, &scene_entity::set_blend_mode)
             .addProperty("clippingArea", &scene_entity::clipping_area, &scene_entity::set_clipping_area)
@@ -117,7 +117,7 @@ ui::scene_entity::scene_entity(const graphics::canvas::lua_reference &canvas)
 
 ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& entity)
     : m_entity(entity->m_entity),
-      m_centered(entity->m_centered),
+      m_anchor(entity->m_anchor),
       m_position(entity->m_position),
       m_frame_count(entity->m_frame_count),
       m_frame(entity->m_frame),
@@ -236,19 +236,18 @@ auto ui::scene_entity::position() const -> math::point
 
 auto ui::scene_entity::draw_position() const -> math::point
 {
-    auto pos = m_entity->get_position();
-    if (m_centered) {
-        auto hsize = half_size();
-        return pos + math::point(hsize.width, hsize.height);
-    }
-    else {
-        return pos;
-    }
+    auto offset = origin_for_axis(render_size(), m_anchor);
+    return m_entity->get_position() + offset;
 }
 
-auto ui::scene_entity::centered() const -> bool
+auto ui::scene_entity::anchor_point() const -> enum layout::axis_origin
 {
-    return m_centered;
+    return m_anchor;
+}
+
+auto ui::scene_entity::lua_anchor_point() const -> std::int32_t
+{
+    return static_cast<std::int32_t>(anchor_point());
 }
 
 auto ui::scene_entity::size() const -> math::size
@@ -336,18 +335,18 @@ auto ui::scene_entity::set_position(const math::point& v) -> void
 
 auto ui::scene_entity::set_draw_position(const math::point& v) -> void
 {
-    if (m_centered) {
-        auto hsize = half_size();
-        m_entity->set_position({ v.x - hsize.width, v.y - hsize.height });
-    }
-    else {
-        m_entity->set_position(v);
-    }
+    auto offset = origin_for_axis(render_size(), m_anchor);
+    m_entity->set_position(v - offset);
 }
 
-auto ui::scene_entity::set_centered(bool v) -> void
+auto ui::scene_entity::set_anchor_point(enum layout::axis_origin v) -> void
 {
-    m_centered = v;
+    m_anchor = v;
+}
+
+auto ui::scene_entity::set_lua_anchor_point(std::int32_t v) -> void
+{
+    set_anchor_point(static_cast<enum layout::axis_origin>(v));
 }
 
 auto ui::scene_entity::set_size(const math::size& v) -> void
@@ -537,7 +536,20 @@ auto ui::scene_entity::draw() -> void
     }
 
     for (auto i = 0; i < m_children.size(); ++i) {
-        m_children.at(i)->draw();
+        auto child = m_children.at(i);
+
+        auto child_size = child->render_size();
+        auto maximum_size = render_size();
+        child_size.width = std::min(child_size.width, maximum_size.width);
+        child_size.height = std::min(child_size.height, maximum_size.height);
+
+        child->set_draw_size(child_size);
+        child->set_draw_position(draw_position());
+
+        child->set_clipping_area(child_size);
+        child->set_clipping_offset(clipping_offset());
+
+        child->draw();
     }
 }
 

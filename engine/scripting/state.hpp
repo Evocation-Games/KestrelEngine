@@ -65,6 +65,8 @@ namespace scripting::lua
         auto run(const lua::script& script) -> void;
         auto run(const int64_t& id, const std::string& name,const std::string& script) -> void;
         auto run(const int64_t& id, const std::string& name, const lua::script &script) -> void;
+
+        auto dump_state() -> void;
     };
 
     class object

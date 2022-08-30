@@ -33,6 +33,7 @@
 #include "core/graphics/common/canvas.hpp"
 #include "core/asset/static_image.hpp"
 #include "renderer/common/animator.hpp"
+#include "core/ui/layout/axis_origin.hpp"
 
 namespace ui
 {
@@ -54,7 +55,8 @@ namespace ui
 
         [[nodiscard]] lua_api auto position() const -> math::point;
         [[nodiscard]] lua_api auto draw_position() const -> math::point;
-        [[nodiscard]] lua_api auto centered() const -> bool;
+        [[nodiscard]] auto anchor_point() const -> enum layout::axis_origin;
+        [[nodiscard]] lua_api auto lua_anchor_point() const -> std::int32_t;
         [[nodiscard]] lua_api auto size() const -> math::size;
         [[nodiscard]] lua_api auto half_size() const -> math::size;
         [[nodiscard]] lua_api auto render_size() const -> math::size;
@@ -73,7 +75,8 @@ namespace ui
 
         lua_api auto set_position(const math::point& v) -> void;
         lua_api auto set_draw_position(const math::point& v) -> void;
-        lua_api auto set_centered(bool v) -> void;
+        auto set_anchor_point(enum layout::axis_origin v) -> void;
+        lua_api auto set_lua_anchor_point(std::int32_t v) -> void;
         lua_api auto set_size(const math::size& v) -> void;
         lua_api auto set_render_size(const math::size& v) -> void;
         lua_api auto set_draw_size(const math::size& v) -> void;
@@ -124,7 +127,7 @@ namespace ui
     private:
         std::string m_id;
         std::shared_ptr<graphics::entity> m_entity;
-        bool m_centered { false };
+        enum layout::axis_origin m_anchor { layout::axis_origin::center };
         math::point m_position { 0 };
         int32_t m_frame_count { 1 };
         int32_t m_frame { 0 };

@@ -94,7 +94,9 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
     m_backing_scene = session->new_scene(m_name, scene_main_script);
 
     // Setup some defaults...
-    m_positioning_frame = { new ui::layout::positioning_frame(renderer::window_size()) };
+    m_positioning_frame = {
+        new ui::layout::positioning_frame(renderer::window_size(), layout::axis_origin::center, layout::scaling_mode::normal)
+    };
 
     m_backing_scene->add_mouse_event_block([&, this] (const event& e) {
         if (!m_user_input || !e.is_mouse_event()) {
@@ -458,6 +460,7 @@ auto ui::game_scene::draw_widgets() const -> void
             continue;
         }
 
+        entity->set_anchor_point(layout::axis_origin::top_left);
         m_positioning_frame->position_scene_entity(entity);
         entity->layout();
         entity->draw();

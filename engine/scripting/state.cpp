@@ -327,6 +327,19 @@ auto scripting::lua::state::run(const int64_t& id, const std::string& name, cons
     }
 }
 
+auto scripting::lua::state::dump_state() -> void
+{
+    lua_Debug info;
+    int level = 0;
+    while (lua_getstack(m_state, level, &info)) {
+        lua_getinfo(m_state, "nSl", &info);
+        fprintf(stderr, "  [%d] %s:%d -- %s [%s]\n",
+                level, info.short_src, info.currentline,
+                (info.name ? info.name : "<unknown>"), info.what);
+        ++level;
+    }
+}
+
 // MARK: - Namespaces
 
 auto scripting::lua::state::global_namespace() const -> luabridge::Namespace

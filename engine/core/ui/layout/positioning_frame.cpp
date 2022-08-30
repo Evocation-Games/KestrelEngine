@@ -21,21 +21,55 @@
 #include "core/ui/layout/positioning_frame.hpp"
 #include "renderer/common/renderer.hpp"
 #include "core/environment.hpp"
+#include "core/ui/layout/aspect_ratio.hpp"
 
 // MARK: - Constants
+
+static auto s_scaling_mode_none = static_cast<std::int32_t>(ui::layout::scaling_mode::normal);
+static auto s_scaling_aspect_fill = static_cast<std::int32_t>(ui::layout::scaling_mode::aspect_fill);
+static auto s_scaling_aspect_fit = static_cast<std::int32_t>(ui::layout::scaling_mode::aspect_fit);
+static auto s_scaling_scale_fill = static_cast<std::int32_t>(ui::layout::scaling_mode::scale_fill);
+static auto s_scaling_scale_fit = static_cast<std::int32_t>(ui::layout::scaling_mode::scale_fit);
+
+static auto s_axis_top_left = static_cast<std::int32_t>(ui::layout::axis_origin::top_left);
+static auto s_axis_center_left = static_cast<std::int32_t>(ui::layout::axis_origin::center_left);
+static auto s_axis_bottom_left = static_cast<std::int32_t>(ui::layout::axis_origin::bottom_left);
+static auto s_axis_top_center = static_cast<std::int32_t>(ui::layout::axis_origin::top_center);
+static auto s_axis_center = static_cast<std::int32_t>(ui::layout::axis_origin::center);
+static auto s_axis_bottom_center = static_cast<std::int32_t>(ui::layout::axis_origin::bottom_center);
+static auto s_axis_top_right = static_cast<std::int32_t>(ui::layout::axis_origin::top_right);
+static auto s_axis_center_right = static_cast<std::int32_t>(ui::layout::axis_origin::center_right);
+static auto s_axis_bottom_right = static_cast<std::int32_t>(ui::layout::axis_origin::bottom_right);
 
 // MARK: - Lua
 
 auto ui::layout::positioning_frame::enroll_object_api_in_state(const std::shared_ptr<scripting::lua::state>& lua) -> void
 {
     lua->global_namespace()
+        .beginNamespace("ScalingMode")
+            .addProperty("Normal", &s_scaling_mode_none, false)
+            .addProperty("AspectFill", &s_scaling_aspect_fill, false)
+            .addProperty("AspectFit", &s_scaling_aspect_fit, false)
+            .addProperty("ScaleFill", &s_scaling_scale_fill, false)
+            .addProperty("ScaleFit", &s_scaling_scale_fit, false)
+        .endNamespace()
+        .beginNamespace("AxisOrigin")
+            .addProperty("TopLeft", &s_axis_top_left, false)
+            .addProperty("CenterLeft", &s_axis_center_left, false)
+            .addProperty("BottomLeft", &s_axis_bottom_left, false)
+            .addProperty("TopCenter", &s_axis_top_center, false)
+            .addProperty("Center", &s_axis_center, false)
+            .addProperty("BottomCenter", &s_axis_bottom_center, false)
+            .addProperty("TopRight", &s_axis_top_right, false)
+            .addProperty("CenterRight", &s_axis_center_right, false)
+            .addProperty("BottomRight", &s_axis_bottom_right, false)
+        .endNamespace()
         .beginClass<positioning_frame>("PositioningFrame")
-            .addConstructor<auto(*)(const math::size&, bool)->void>()
+            .addConstructor<auto(*)(const math::size&, std::int32_t, std::int32_t)->void, lua_reference>()
             .addProperty("axisOrigin", &positioning_frame::axis_origin, &positioning_frame::set_axis_origin)
             .addProperty("axisDisplacement", &positioning_frame::axis_displacement, &positioning_frame::set_axis_displacement)
             .addProperty("axisDirection", &positioning_frame::axis_direction, &positioning_frame::set_axis_direction)
             .addProperty("scalingFactor", &positioning_frame::scaling_factor, &positioning_frame::set_scaling_factor)
-            .addProperty("defaultAnchor", &positioning_frame::default_anchor, &positioning_frame::set_default_anchor)
             .addFunction("translatePoint", &positioning_frame::translate_point_to)
             .addFunction("convertPoint", &positioning_frame::translate_point_from)
             .addFunction("positionEntity", &positioning_frame::position_entity)
@@ -47,47 +81,48 @@ auto ui::layout::positioning_frame::enroll_object_api_in_state(const std::shared
 
 // MARK: - Construction
 
-ui::layout::positioning_frame::positioning_frame(const math::size &target_size, bool constrain_to_viewport)
+ui::layout::positioning_frame::positioning_frame(const math::size &target_size, enum axis_origin origin, enum scaling_mode scaling)
 {
     m_viewport = renderer::window_size();
+    m_axis_origin = origin;
+    m_scaling_mode = scaling;
 
-    // If we need to constrain the target size to the viewport, then do so now.
-    auto corrected_target_size = target_size;
-    if (constrain_to_viewport && (corrected_target_size.width >= m_viewport.width || corrected_target_size.height >= m_viewport.height)) {
-        if (m_viewport.width >= m_viewport.height) {
-            if (corrected_target_size.width >= corrected_target_size.height) {
-                m_scaling_factor = m_viewport.width / corrected_target_size.width;
-                corrected_target_size.width = m_viewport.width;
-                corrected_target_size.height *=  m_scaling_factor;
-            }
-            else {
-                m_scaling_factor = m_viewport.height / corrected_target_size.height;
-                corrected_target_size.height = m_viewport.height;
-                corrected_target_size.width *= m_scaling_factor;
-            }
-        }
-    }
+    auto ratio = aspect_ratio(target_size);
+    auto corrected_target_size = calculate_size(scaling, m_viewport, target_size, ratio);
+    auto target_position = position_for_axis(m_viewport, origin, corrected_target_size);
 
     // Center the target size into the viewport size,
-    m_target = {
-        { (m_viewport.width - corrected_target_size.width) / 2.0, (m_viewport.height - corrected_target_size.height) / 2.0 },
-        corrected_target_size
-    };
+    m_target = { target_position, corrected_target_size };
 
     // Calculate supplemental support values.
-    m_axis_origin = math::point(m_target.size.width / 2.0, m_target.size.height / 2.0);
+    m_axis_placement = origin_for_axis(m_target.size, origin);
+}
+
+ui::layout::positioning_frame::positioning_frame(const math::size &target_size, std::int32_t origin, std::int32_t scaling)
+    : positioning_frame(target_size, static_cast<enum axis_origin>(origin), static_cast<enum scaling_mode>(scaling))
+{
 }
 
 // MARK: - Accessors
 
-auto ui::layout::positioning_frame::set_axis_origin(const math::point &origin) -> void
+auto ui::layout::positioning_frame::set_axis_origin(const enum axis_origin origin) -> void
 {
     m_axis_origin = origin;
 }
 
-auto ui::layout::positioning_frame::axis_origin() const -> math::point
+auto ui::layout::positioning_frame::axis_origin() const -> enum axis_origin
 {
     return m_axis_origin;
+}
+
+auto ui::layout::positioning_frame::set_lua_axis_origin(std::int32_t origin) -> void
+{
+    set_axis_origin(static_cast<enum axis_origin>(origin));
+}
+
+auto ui::layout::positioning_frame::lua_axis_origin() const -> std::int32_t
+{
+    return static_cast<std::int32_t>(axis_origin());
 }
 
 auto ui::layout::positioning_frame::set_axis_displacement(const math::point &displacement) -> void
@@ -108,16 +143,6 @@ auto ui::layout::positioning_frame::set_axis_direction(const math::point &direct
 auto ui::layout::positioning_frame::axis_direction() const -> math::point
 {
     return m_axis_direction;
-}
-
-auto ui::layout::positioning_frame::set_default_anchor(const math::size &anchor) -> void
-{
-    m_default_anchor = anchor;
-}
-
-auto ui::layout::positioning_frame::default_anchor() const -> math::size
-{
-    return m_default_anchor;
 }
 
 auto ui::layout::positioning_frame::set_scaling_factor(double factor) -> void
@@ -160,6 +185,7 @@ auto ui::layout::positioning_frame::lua_entity_position(const luabridge::LuaRef&
     else if (scripting::lua::ref_isa<text_entity>(entity)) {
         return lua_text_entity_position(entity.cast<text_entity::lua_reference>());
     }
+    return {};
 }
 
 auto ui::layout::positioning_frame::lua_entity_size(const luabridge::LuaRef& entity) const -> math::size
@@ -170,6 +196,7 @@ auto ui::layout::positioning_frame::lua_entity_size(const luabridge::LuaRef& ent
     else if (scripting::lua::ref_isa<text_entity>(entity)) {
         return lua_text_entity_size(entity.cast<text_entity::lua_reference>());
     }
+    return {};
 }
 
 auto ui::layout::positioning_frame::position_scene_entity_with_offset(const ui::scene_entity::lua_reference& entity, const math::point& offset) const -> void
@@ -179,7 +206,7 @@ auto ui::layout::positioning_frame::position_scene_entity_with_offset(const ui::
     auto entity_position = this->scene_entity_position(*entity.get());
 
     // Start constructing the viewport relative position
-    math::point position = m_target.origin + ((m_axis_origin + m_axis_displacement) * m_scaling_factor) + entity_position + (offset * m_scaling_factor);
+    math::point position = m_target.origin + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor) + entity_position + (offset * m_scaling_factor);
 
     // Apply the drawing dimensions to the entity.
     entity->set_draw_position(position);
@@ -198,7 +225,7 @@ auto ui::layout::positioning_frame::position_text_entity_with_offset(const ui::t
     auto entity_position = this->text_entity_position(*entity.get());
 
     // Start constructing the viewport relative position
-    math::point position = m_target.origin + ((m_axis_origin + m_axis_displacement) * m_scaling_factor) + entity_position + (offset * m_scaling_factor);
+    math::point position = m_target.origin + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor) + entity_position + (offset * m_scaling_factor);
 
     // Apply the drawing dimensions to the entity.
     entity->set_draw_position(position);
@@ -212,9 +239,8 @@ auto ui::layout::positioning_frame::position_text_entity(const ui::text_entity::
 
 auto ui::layout::positioning_frame::scene_entity_position(const ui::scene_entity &entity) const -> math::point
 {
-    auto entity_position = entity.position() * m_scaling_factor;
-    auto anchor_adjustment = scene_entity_size(entity) * m_default_anchor;
-    return math::point(entity_position.x - anchor_adjustment.width, entity_position.y - anchor_adjustment.height).round();
+    auto position = entity.position() * m_scaling_factor;
+    return position.round();
 }
 
 auto ui::layout::positioning_frame::scene_entity_size(const ui::scene_entity &entity) const -> math::size
@@ -236,9 +262,8 @@ auto ui::layout::positioning_frame::lua_scene_entity_size(const ui::scene_entity
 
 auto ui::layout::positioning_frame::text_entity_position(const ui::text_entity& entity) const -> math::point
 {
-    auto entity_position = entity.position() * m_scaling_factor;
-    auto anchor_adjustment = text_entity_size(entity) * m_default_anchor;
-    return math::point(entity_position.x - anchor_adjustment.width, entity_position.y - anchor_adjustment.height).round();
+    auto position = entity.position() * m_scaling_factor;
+    return position.round();
 }
 
 auto ui::layout::positioning_frame::text_entity_size(const ui::text_entity& entity) const -> math::size
@@ -259,10 +284,10 @@ auto ui::layout::positioning_frame::lua_text_entity_size(const ui::text_entity::
 
 auto ui::layout::positioning_frame::translate_point_to(const math::point &point) const -> math::point
 {
-    return point + (m_target.origin + ((m_axis_origin + m_axis_displacement) * m_scaling_factor));
+    return point + (m_target.origin + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor));
 }
 
 auto ui::layout::positioning_frame::translate_point_from(const math::point &point) const -> math::point
 {
-    return point - (m_target.origin + ((m_axis_origin + m_axis_displacement) * m_scaling_factor));
+    return point - (m_target.origin + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor));
 }

@@ -33,6 +33,7 @@ auto ui::text_entity::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addProperty("font", &text_entity::font, &text_entity::set_font)
             .addProperty("textColor", &text_entity::text_color, &text_entity::set_text_color)
             .addProperty("backgroundColor", &text_entity::background_color, &text_entity::set_background_color)
+            .addProperty("axisAnchor", &text_entity::lua_anchor_point, &text_entity::set_lua_anchor_point)
             .addProperty("position", &text_entity::position, &text_entity::set_position)
             .addProperty("drawPosition", &text_entity::draw_position, &text_entity::set_draw_position)
             .addProperty("drawSize", &text_entity::draw_size, &text_entity::set_draw_size)
@@ -91,6 +92,16 @@ auto ui::text_entity::background_color() const -> graphics::color::lua_reference
     return m_background_color;
 }
 
+auto ui::text_entity::anchor_point() const -> enum layout::axis_origin
+{
+    return m_anchor;
+}
+
+auto ui::text_entity::lua_anchor_point() const -> std::int32_t
+{
+    return static_cast<std::int32_t>(anchor_point());
+}
+
 auto ui::text_entity::position() const -> math::point
 {
     return m_position;
@@ -98,19 +109,8 @@ auto ui::text_entity::position() const -> math::point
 
 auto ui::text_entity::draw_position() const -> math::point
 {
-    auto pos = m_entity->get_position();
-    if (m_centered) {
-        auto hsize = half_size();
-        return pos + math::point(hsize.width, hsize.height);
-    }
-    else {
-        return pos;
-    }
-}
-
-auto ui::text_entity::centered() const -> bool
-{
-    return m_centered;
+    auto offset = origin_for_axis(render_size(), m_anchor);
+    return m_entity->get_position() + offset;
 }
 
 auto ui::text_entity::size() const -> math::size
@@ -198,6 +198,16 @@ auto ui::text_entity::set_background_color(const graphics::color::lua_reference 
     m_dirty = true;
 }
 
+auto ui::text_entity::set_anchor_point(enum layout::axis_origin v) -> void
+{
+    m_anchor = v;
+}
+
+auto ui::text_entity::set_lua_anchor_point(std::int32_t v) -> void
+{
+    set_anchor_point(static_cast<enum layout::axis_origin>(v));
+}
+
 auto ui::text_entity::set_position(const math::point &v) -> void
 {
     m_position = v;
@@ -205,18 +215,8 @@ auto ui::text_entity::set_position(const math::point &v) -> void
 
 auto ui::text_entity::set_draw_position(const math::point &v) -> void
 {
-    if (m_centered) {
-        auto hsize = half_size();
-        m_entity->set_position({ v.x - hsize.width, v.y - hsize.height });
-    }
-    else {
-        m_entity->set_position(v);
-    }
-}
-
-auto ui::text_entity::set_centered(bool v) -> void
-{
-    m_centered = v;
+    auto offset = layout::origin_for_axis(render_size(), m_anchor);
+    m_entity->set_position(v - offset);
 }
 
 auto ui::text_entity::set_size(const math::size &v) -> void

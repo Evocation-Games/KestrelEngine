@@ -358,29 +358,36 @@ auto ui::dialog::set_background(const luabridge::LuaRef &background) -> void
     if (scripting::lua::ref_isa<asset::static_image>(background)) {
         m_background.fill = background.cast<asset::static_image::lua_reference>();
         auto size = m_background.fill->size();
-        m_owner_scene->set_positioning_frame({ new layout::positioning_frame(size) });
+        m_owner_scene->set_positioning_frame({
+            new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
+        });
+        m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width / 2.0, -size.height / 2.0 });
 
         m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
+        m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
         m_owner_scene->add_scene_entity(m_background.fill_entity);
     }
 }
 
 auto ui::dialog::set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void
 {
-    m_owner_scene->set_positioning_frame({ new layout::positioning_frame(size) });
-    m_owner_scene->positioning_frame()->set_default_anchor({ 0, 0 });
-    m_owner_scene->positioning_frame()->set_axis_origin({ 0, 0 });
+    m_owner_scene->set_positioning_frame({
+        new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
+    });
+    m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width / 2.0, -size.height / 2.0 });
 
     if (scripting::lua::ref_isa<asset::static_image>(top)) {
         m_background.top = top.cast<asset::static_image::lua_reference>();
         m_background.top_entity = { new ui::scene_entity(m_background.top) };
         m_background.top_entity->set_position({ 0, 0 });
+        m_background.top_entity->set_anchor_point(layout::axis_origin::top_left);
     }
 
     if (scripting::lua::ref_isa<asset::static_image>(bottom)) {
         m_background.bottom = bottom.cast<asset::static_image::lua_reference>();
         m_background.bottom_entity = { new ui::scene_entity(m_background.bottom) };
         m_background.bottom_entity->set_position({ 0 , size.height - m_background.bottom_entity->size().height });
+        m_background.bottom_entity->set_anchor_point(layout::axis_origin::top_left);
     }
 
     if (scripting::lua::ref_isa<asset::static_image>(fill)) {
@@ -400,8 +407,8 @@ auto ui::dialog::set_stretchable_background(const math::size& size, const luabri
         math::rect fill_rect { 0, 0, m_background.fill->size().width, height };
         canvas->draw_static_image(m_background.fill, fill_rect);
         m_background.fill_entity = { new ui::scene_entity(canvas) };
-
         m_background.fill_entity->set_position({ 0, static_cast<double>(y) });
+        m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
     }
 
     m_owner_scene->add_scene_entity(m_background.fill_entity);
