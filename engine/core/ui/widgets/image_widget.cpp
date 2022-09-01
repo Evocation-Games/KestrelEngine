@@ -74,8 +74,6 @@ auto ui::widgets::image_widget::image() const -> luabridge::LuaRef
 auto ui::widgets::image_widget::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
-
-
     resize();
 }
 

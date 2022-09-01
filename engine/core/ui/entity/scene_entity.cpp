@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/environment.hpp"
 
 #include "core/graphics/common/canvas.hpp"
 #include "core/graphics/common/text.hpp"
@@ -538,17 +539,8 @@ auto ui::scene_entity::draw() -> void
     for (auto i = 0; i < m_children.size(); ++i) {
         auto child = m_children.at(i);
 
-        auto child_size = child->render_size();
-        auto maximum_size = render_size();
-        child_size.width = std::min(child_size.width, maximum_size.width);
-        child_size.height = std::min(child_size.height, maximum_size.height);
-
-        child->set_draw_size(child_size);
-        child->set_draw_position(draw_position());
-
-        child->set_clipping_area(child_size);
-        child->set_clipping_offset(clipping_offset());
-
+        child->set_draw_position(draw_position() + child->position());
+        child->set_draw_size(child->render_size());
         child->draw();
     }
 }

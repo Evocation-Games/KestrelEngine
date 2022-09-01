@@ -279,6 +279,11 @@ auto event::is_held() const -> bool
     return false;
 }
 
+auto event::was_dragged() const -> bool
+{
+    return has(event::mouse_drag);
+}
+
 auto event::has_moved() const -> bool
 {
     return (event::mouse_move);

@@ -36,8 +36,8 @@
 #include "core/ui/widgets/list_widget.hpp"
 #include "core/ui/widgets/grid_widget.hpp"
 #include "core/ui/widgets/custom_widget.hpp"
-#include "core/ui/widgets/text_widget.hpp"
 #include "core/ui/widgets/sprite_widget.hpp"
+#include "core/ui/widgets/scrollview_widget.hpp"
 
 // Controls
 #include "core/ui/imgui/imgui.hpp"
@@ -201,9 +201,6 @@ auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
                 break;
             }
-            case control_definition::type::popup_button: {
-
-            }
             case control_definition::type::label: {
                 auto label = widgets::label_widget::lua_reference(new widgets::label_widget(element->suggested_value()));
                 label->set_frame(element->frame());
@@ -233,6 +230,12 @@ auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
                 auto custom = widgets::custom_widget::lua_reference(new widgets::custom_widget({ nullptr }));
                 custom->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, custom)));
+                break;
+            }
+            case control_definition::type::scroll_area: {
+                auto scroll = widgets::scrollview_widget::lua_reference(new widgets::scrollview_widget());
+                scroll->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, scroll)));
                 break;
             }
 

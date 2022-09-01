@@ -85,6 +85,7 @@ auto ui::widgets::custom_widget::set_frame(const math::rect &frame) -> void
 auto ui::widgets::custom_widget::set_user_info(const luabridge::LuaRef &info) -> void
 {
     m_user_info = info;
+    m_dirty = true;
 }
 
 auto ui::widgets::custom_widget::set_drawing_function(const luabridge::LuaRef &block) -> void

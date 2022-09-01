@@ -99,6 +99,7 @@ public:
     [[nodiscard]] lua_api auto is_pressed() const -> bool;
     [[nodiscard]] lua_api auto is_released() const -> bool;
     [[nodiscard]] lua_api auto is_held() const -> bool;
+    [[nodiscard]] lua_api auto was_dragged() const -> bool;
     [[nodiscard]] lua_api auto has_moved() const -> bool;
 
 private:

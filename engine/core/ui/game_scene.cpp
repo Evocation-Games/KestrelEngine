@@ -31,6 +31,7 @@
 #include "core/ui/widgets/grid_widget.hpp"
 #include "core/ui/widgets/textarea_widget.hpp"
 #include "core/ui/widgets/list_widget.hpp"
+#include "core/ui/widgets/scrollview_widget.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include "renderer/common/renderer.hpp"
 
@@ -401,8 +402,12 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
         m_responder_chain.add_mouse_responder(list.get());
     }
     else if (scripting::lua::ref_isa<ui::widgets::grid_widget>(widget)) {
-        auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
-        m_responder_chain.add_mouse_responder(grid.get());
+    auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
+    m_responder_chain.add_mouse_responder(grid.get());
+    }
+    else if (scripting::lua::ref_isa<ui::widgets::scrollview_widget>(widget)) {
+        auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(scroll.get());
     }
 }
 
@@ -454,6 +459,11 @@ auto ui::game_scene::draw_widgets() const -> void
             auto text = widget.cast<ui::widgets::textarea_widget::lua_reference>();
             entity = text->entity();
             text->draw();
+        }
+        else if (scripting::lua::ref_isa<ui::widgets::scrollview_widget>(widget)) {
+            auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
+            entity = scroll->entity();
+            scroll->draw();
         }
         else {
             // TODO: Unrecognised widget type... skip.

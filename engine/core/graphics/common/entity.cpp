@@ -185,7 +185,7 @@ auto graphics::entity::set_clipping_offset(const math::point& p) -> void
     m_clipping_offset = math::point(
        std::max(0.0, std::min(texture()->size().width, p.x)),
        std::max(0.0, std::min(texture()->size().height, p.y))
-    ) * 2;
+    );
 
     m_clipping_offset_uv = math::point(m_clipping_offset.x / texture()->size().width, m_clipping_offset.y / texture()->size().height);
 }

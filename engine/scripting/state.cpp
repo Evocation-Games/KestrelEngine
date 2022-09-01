@@ -67,6 +67,7 @@
 #include "core/ui/widgets/list_widget.hpp"
 #include "core/ui/widgets/grid_widget.hpp"
 #include "core/ui/widgets/sprite_widget.hpp"
+#include "core/ui/widgets/scrollview_widget.hpp"
 #include "core/ui/stencils/button_stencil.hpp"
 #include "core/ui/imgui/imgui.hpp"
 #include "core/ui/control_definition.hpp"
@@ -160,6 +161,7 @@ auto scripting::lua::state::prepare_lua_environment(const std::shared_ptr<enviro
     ui::widgets::list_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::grid_widget::enroll_object_api_in_state(shared_from_this());
     ui::widgets::sprite_widget::enroll_object_api_in_state(shared_from_this());
+    ui::widgets::scrollview_widget::enroll_object_api_in_state(shared_from_this());
     ui::stencils::button_stencil::enroll_object_api_in_state(shared_from_this());
     ui::dialog_configuration::enroll_object_api_in_state(shared_from_this());
     ui::dialog::enroll_object_api_in_state(shared_from_this());
