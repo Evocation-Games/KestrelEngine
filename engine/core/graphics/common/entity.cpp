@@ -90,7 +90,7 @@ auto graphics::entity::sprite_sheet() const -> std::shared_ptr<graphics::sprites
 
 auto graphics::entity::texture() const -> std::shared_ptr<graphics::texture>
 {
-    return m_sprite_sheet->texture();
+    return m_sprite_sheet != nullptr ? m_sprite_sheet->texture() : nullptr;
 }
 
 auto graphics::entity::get_sprite_index() const -> uint32_t

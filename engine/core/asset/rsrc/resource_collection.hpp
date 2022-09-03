@@ -43,6 +43,7 @@ namespace asset
         [[nodiscard]] lua_api auto random() const -> luabridge::LuaRef;
         [[nodiscard]] lua_api auto has(const resource_descriptor::lua_reference& descriptor) const -> bool;
         [[nodiscard]] lua_api auto get(const resource_descriptor::lua_reference& descriptor) const -> luabridge::LuaRef;
+        [[nodiscard]] lua_api auto at(std::int32_t idx) const -> luabridge::LuaRef;
         lua_api auto each(const luabridge::LuaRef& block) const -> void;
 
     private:

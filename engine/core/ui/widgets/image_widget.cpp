@@ -34,6 +34,7 @@ auto ui::widgets::image_widget::enroll_object_api_in_state(const std::shared_ptr
                 .addConstructor<auto(*)(const luabridge::LuaRef&)->void, lua_reference>()
                 .addProperty("frame", &image_widget::frame, &image_widget::set_frame)
                 .addProperty("image", &image_widget::image, &image_widget::set_image)
+                .addProperty("dynamicResizing", &image_widget::dynamic_resizing, &image_widget::set_dynamic_resizing)
             .endClass()
         .endNamespace();
 }
@@ -69,6 +70,11 @@ auto ui::widgets::image_widget::image() const -> luabridge::LuaRef
     return m_image_ref;
 }
 
+auto ui::widgets::image_widget::dynamic_resizing() const -> bool
+{
+    return m_dynamic_resizing;
+}
+
 // MARK: - Setters
 
 auto ui::widgets::image_widget::set_frame(const math::rect &frame) -> void
@@ -81,6 +87,12 @@ auto ui::widgets::image_widget::set_image(const luabridge::LuaRef &image) -> voi
 {
     m_image_ref = image;
     resize(true);
+}
+
+auto ui::widgets::image_widget::set_dynamic_resizing(bool v) -> void
+{
+    m_dynamic_resizing = v;
+    resize();
 }
 
 // MARK: - Drawing
@@ -105,20 +117,49 @@ auto ui::widgets::image_widget::resize(bool reload) -> void
         else {
             // TODO: Handle unrecognised image format...
         }
+    }
 
+    if (m_dynamic_resizing) {
         m_entity->set_size(m_entity->internal_entity()->get_size());
+        switch (m_alignment) {
+            default:
+                math::point position(
+                    m_frame.get_x() + ((m_frame.get_width() - m_entity->size().get_width()) / 2),
+                    m_frame.get_y() + ((m_frame.get_height() - m_entity->size().get_height()) / 2)
+                );
+                m_entity->set_position(position);
+                break;
+        }
+    }
+    else if (m_entity->internal_entity() && m_entity->internal_entity()->texture()) {
+        // We need to aspect fill in the frame. First set up the frame and size of the entity...
+        m_entity->set_render_size(m_frame.get_size());
+        m_entity->set_draw_size(m_frame.get_size());
+        m_entity->set_position(m_frame.get_origin());
+
+        // then work out the clipping offset and the clipping area.
+        auto texture = m_entity->internal_entity()->texture();
+        auto ar = texture->size().width / texture->size().height;
+        auto target_ar = m_frame.size.width / m_frame.size.height;
+        math::size image_size;
+        math::size target_size = m_frame.size;
+
+        if (target_ar > 1) {
+            // Landscape
+            image_size.height = texture->size().height;
+            image_size.width = image_size.height * target_ar;
+        }
+        else {
+            // Portrait
+            image_size.width = texture->size().width;
+            image_size.height = image_size.width / target_ar;
+        }
+
+        math::point offset((texture->size().width - image_size.width) / 2.0, (texture->size().height - image_size.height) / 2.0);
+        m_entity->set_clipping_area(image_size);
+        m_entity->set_clipping_offset(offset);
     }
 
-    switch (m_alignment) {
-        default:
-            math::point position(
-                m_frame.get_x() + ((m_frame.get_width() - m_entity->size().get_width()) / 2),
-                m_frame.get_y() + ((m_frame.get_height() - m_entity->size().get_height()) / 2)
-            );
-            m_entity->set_position(position);
-            m_entity->internal_entity()->set_position(position);
-            break;
-    }
 }
 
 auto ui::widgets::image_widget::draw() -> void

@@ -46,6 +46,9 @@ auto ui::text_entity::enroll_object_api_in_state(const std::shared_ptr<scripting
             .addProperty("clippingArea", &text_entity::clipping_area, &text_entity::set_clipping_area)
             .addProperty("clippingOffset", &text_entity::clipping_offset, &text_entity::set_clipping_offset)
             .addProperty("alignment", &text_entity::lua_safe_alignment, &text_entity::set_lua_safe_alignment)
+            .addFunction("layout", &text_entity::layout)
+            .addFunction("onLayout", &text_entity::on_layout)
+            .addFunction("draw", &text_entity::draw)
         .endClass();
 }
 

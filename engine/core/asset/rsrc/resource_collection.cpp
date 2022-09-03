@@ -35,6 +35,7 @@ auto asset::resource_collection::enroll_object_api_in_state(const std::shared_pt
                     .addFunction("add", &resource_collection::add_resource)
                     .addFunction("has", &resource_collection::has)
                     .addFunction("get", &resource_collection::get)
+                    .addFunction("at", &resource_collection::at)
                     .addFunction("each", &resource_collection::each)
                 .endClass()
             .endNamespace()
@@ -87,6 +88,15 @@ auto asset::resource_collection::get(const resource_descriptor::lua_reference &d
         if (it.first == key) {
             return it.second;
         }
+    }
+
+    return { nullptr };
+}
+
+auto asset::resource_collection::at(std::int32_t idx) const -> luabridge::LuaRef
+{
+    if (idx >= 1 && idx <= m_resources.size()) {
+        return m_resources.at(idx - 1).second;
     }
 
     return { nullptr };

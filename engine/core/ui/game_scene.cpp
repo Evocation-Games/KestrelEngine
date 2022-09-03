@@ -402,8 +402,8 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
         m_responder_chain.add_mouse_responder(list.get());
     }
     else if (scripting::lua::ref_isa<ui::widgets::grid_widget>(widget)) {
-    auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
-    m_responder_chain.add_mouse_responder(grid.get());
+        auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(grid.get());
     }
     else if (scripting::lua::ref_isa<ui::widgets::scrollview_widget>(widget)) {
         auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
