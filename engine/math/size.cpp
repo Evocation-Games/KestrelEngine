@@ -31,6 +31,9 @@ auto math::size::enroll_object_api_in_state(const std::shared_ptr<scripting::lua
             .addProperty("width", &math::size::get_width, &math::size::set_width)
             .addProperty("height", &math::size::get_height, &math::size::set_height)
             .addProperty("area", &math::size::area)
+            .addProperty("isPortrait", &math::size::is_portrait)
+            .addProperty("isLandscape", &math::size::is_landscape)
+            .addProperty("aspectRatio", &math::size::aspect_ratio)
             .addFunction("add", &math::size::add)
             .addFunction("subtract", &math::size::subtract)
             .addFunction("multiply", &math::size::multiply)
@@ -149,6 +152,21 @@ auto math::size::ceil() const -> math::size
 auto math::size::area() const -> double
 {
     return width * height;
+}
+
+auto math::size::aspect_ratio() const -> double
+{
+    return width / height;
+}
+
+auto math::size::is_portrait() const -> bool
+{
+    return width <= height;
+}
+
+auto math::size::is_landscape() const -> bool
+{
+    return width >= height;
 }
 
 // MARK: - Lua Accessors

@@ -53,14 +53,14 @@ namespace ui::widgets
             [[nodiscard]] lua_api auto subtitle() const -> std::string { return m_subtitle; }
             [[nodiscard]] lua_api auto corner() const -> std::string { return m_corner; }
 
-            [[nodiscard]] auto lines() const -> const std::vector<std::string>& { return m_lines; }
+            [[nodiscard]] lua_api auto lines() const -> util::lua_vector<std::string> { return m_lines; }
 
         private:
             asset::static_image::lua_reference m_icon { nullptr };
             std::string m_title;
             std::string m_subtitle;
             std::string m_corner;
-            std::vector<std::string> m_lines;
+            util::lua_vector<std::string> m_lines;
         };
 
     public:
@@ -90,6 +90,8 @@ namespace ui::widgets
         lua_api auto set_outline_color(const graphics::color::lua_reference& color) -> void;
         lua_api auto set_font(const ui::font::reference::lua_reference& font) -> void;
 
+        lua_api auto set_cell_drawing_function(const luabridge::LuaRef& drawing_function) -> void;
+
         lua_api auto set_items(const luabridge::LuaRef& items) -> void;
 
         lua_api auto draw() -> void;
@@ -105,8 +107,9 @@ namespace ui::widgets
         bool m_pressed { false };
         ui::font::reference::lua_reference m_label_font { nullptr };
         luabridge::LuaRef m_item_select_callback { nullptr };
+        luabridge::LuaRef m_cell_drawing_function { nullptr };
         std::vector<item::lua_reference> m_items;
-        std::shared_ptr<graphics::canvas> m_canvas;
+        graphics::canvas::lua_reference m_canvas { nullptr };
         scene_entity::lua_reference m_entity { nullptr };
         std::int32_t m_selected_item { -1 };
         std::int32_t m_scroll_offset { 0 };

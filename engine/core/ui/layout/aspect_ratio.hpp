@@ -34,6 +34,6 @@ namespace ui::layout
 
     static inline auto aspect_ratio(const math::size& size) -> aspect_ratio_t
     {
-        return (size.width / size.height);
+        return size.aspect_ratio();
     }
 }

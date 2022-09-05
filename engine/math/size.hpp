@@ -61,6 +61,9 @@ namespace math
         [[nodiscard]] lua_api auto ceil() const -> math::size;
 
         [[nodiscard]] lua_api auto area() const -> double;
+        [[nodiscard]] lua_api auto aspect_ratio() const -> double;
+        [[nodiscard]] lua_api auto is_portrait() const -> bool;
+        [[nodiscard]] lua_api auto is_landscape() const -> bool;
 
         lua_api auto set_width(const double& width) -> void;
         [[nodiscard]] lua_api auto get_width() const -> double;

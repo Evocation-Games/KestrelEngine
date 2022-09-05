@@ -112,12 +112,23 @@ auto ui::session::tick(bool render, bool update) -> void
 
         if (scene.get()) {
             scene->internal_scene()->render();
+
+            if (m_console.console.is_visible() ) {
+                m_console.console.entity()->set_render_size({
+                    scene->size().width,
+                    scene->size().height / 2
+                });
+
+                m_console.console.entity()->set_draw_size({
+                    scene->size().width,
+                    scene->size().height / 2
+                });
+
+                m_console.console.update();
+                m_console.console.entity()->draw();
+            }
         }
 
-        if (m_console.console.is_visible()) {
-            m_console.console.update();
-            m_console.console.entity()->draw();
-        }
     }
 }
 

@@ -386,7 +386,6 @@ auto ui::game_scene::replace_entity(int32_t index, const luabridge::LuaRef& enti
 auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
 {
     auto scene = internal_scene();
-    m_widgets.emplace_back(widget);
 
     if (scripting::lua::ref_isa<ui::widgets::text_widget>(widget)) {
         auto text = widget.cast<ui::widgets::text_widget::lua_reference>();
@@ -395,6 +394,11 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
     }
     else if (scripting::lua::ref_isa<ui::widgets::button_widget>(widget)) {
         auto button = widget.cast<ui::widgets::button_widget::lua_reference>();
+
+        if (button->label().empty()) {
+            return;
+        }
+
         m_responder_chain.add_mouse_responder(button.get());
     }
     else if (scripting::lua::ref_isa<ui::widgets::list_widget>(widget)) {
@@ -409,6 +413,8 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
         auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
         m_responder_chain.add_mouse_responder(scroll.get());
     }
+
+    m_widgets.emplace_back(widget);
 }
 
 auto ui::game_scene::draw_widgets() const -> void

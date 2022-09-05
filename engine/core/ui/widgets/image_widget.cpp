@@ -132,32 +132,51 @@ auto ui::widgets::image_widget::resize(bool reload) -> void
         }
     }
     else if (m_entity->internal_entity() && m_entity->internal_entity()->texture()) {
-        // We need to aspect fill in the frame. First set up the frame and size of the entity...
-        m_entity->set_render_size(m_frame.get_size());
-        m_entity->set_draw_size(m_frame.get_size());
-        m_entity->set_position(m_frame.get_origin());
-
-        // then work out the clipping offset and the clipping area.
         auto texture = m_entity->internal_entity()->texture();
-        auto ar = texture->size().width / texture->size().height;
-        auto target_ar = m_frame.size.width / m_frame.size.height;
-        math::size image_size;
-        math::size target_size = m_frame.size;
 
-        if (target_ar > 1) {
-            // Landscape
-            image_size.height = texture->size().height;
-            image_size.width = image_size.height * target_ar;
+        auto source_size = texture->size();
+        auto destination_size = m_frame.size;
+        auto scale = source_size / destination_size;
+        auto source_ar = source_size.aspect_ratio();
+        auto destination_ar = destination_size.aspect_ratio();
+
+        math::size target_size(source_size);
+
+        // The first task is to scale the target size so that it fits within the destination.
+        if (target_size.is_landscape()) {
+            target_size.height = destination_size.height;
+            target_size.width = target_size.height * source_ar;
         }
         else {
-            // Portrait
-            image_size.width = texture->size().width;
-            image_size.height = image_size.width / target_ar;
+            target_size.width = destination_size.width;
+            target_size.width = target_size.width * source_ar;
         }
 
-        math::point offset((texture->size().width - image_size.width) / 2.0, (texture->size().height - image_size.height) / 2.0);
-        m_entity->set_clipping_area(image_size);
-        m_entity->set_clipping_offset(offset);
+        auto scale_factor = source_size.width / target_size.width;
+
+        math::point output_origin(0);
+        math::point output_uv_origin(0);
+        math::size output_size(target_size);
+        math::size output_uv_size(source_size);
+
+        output_size.width = std::min(output_size.width, destination_size.width);
+        output_size.height = std::min(output_size.height, destination_size.height);
+        output_origin.x = std::max(0.0, (destination_size.width - output_size.width) / 2.0);
+        output_origin.y = std::max(0.0, (destination_size.height - output_size.height) / 2.0);
+
+        output_uv_origin = math::point(
+            output_origin.x == 0 ? std::abs((destination_size.width - target_size.width) / 2.0) : 0,
+            output_origin.y == 0 ? std::abs((destination_size.height - target_size.height) / 2.0) : 0
+        ) * scale_factor;
+        output_uv_size = output_size * scale_factor;
+
+        // We need to aspect fill in the frame. First set up the frame and size of the entity...
+        m_entity->set_render_size(output_size);
+        m_entity->set_draw_size(output_size);
+        m_entity->set_position(m_frame.origin + output_origin);
+
+        m_entity->set_clipping_area(output_uv_size);
+        m_entity->set_clipping_offset(output_uv_origin);
     }
 
 }

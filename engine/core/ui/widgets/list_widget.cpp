@@ -96,6 +96,7 @@ auto ui::widgets::list_widget::setup(const math::rect& frame) -> void
 
     m_label_font = ui::font::manager::shared_manager().default_font();
     m_label_font->load_for_graphics();
+    m_row_size = math::size(frame.size.width, m_label_font->graphics_font()->line_height());
 
     redraw_entity();
     bind_internal_events();
@@ -254,6 +255,7 @@ auto ui::widgets::list_widget::set_heading_text_color(const graphics::color::lua
 auto ui::widgets::list_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_label_font = font;
+    m_row_size = math::size(m_row_size.width, m_label_font->graphics_font()->line_height());
     m_dirty = true;
 }
 
@@ -347,18 +349,29 @@ auto ui::widgets::list_widget::redraw_entity() -> void
         m_canvas->set_pen_color(*m_text_color.get());
         m_canvas->set_font(m_label_font);
 
-        for (auto j = 1; j <= m_column_widths.size(); ++j) {
-            const auto& column = row->column_value(j);
-            auto column_width = this->column_width(j);
-
+        if (m_column_widths.empty()) {
+            const auto& column = row->column_value(1);
             auto text_size = m_canvas->layout_text(column);
             m_canvas->draw_text({
                 row_position.x + 5,
                 row_position.y + ((m_row_size.height - text_size.height) / 2)
             });
-
-            row_position.x += column_width;
         }
+        else {
+            for (auto j = 1; j <= m_column_widths.size(); ++j) {
+                const auto& column = row->column_value(j);
+                auto column_width = this->column_width(j);
+
+                auto text_size = m_canvas->layout_text(column);
+                m_canvas->draw_text({
+                    row_position.x + 5,
+                    row_position.y + ((m_row_size.height - text_size.height) / 2)
+                });
+
+                row_position.x += column_width;
+            }
+        }
+
 
         row_position.y += m_row_size.height;
     }

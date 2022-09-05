@@ -50,6 +50,7 @@ auto ui::widgets::grid_widget::enroll_object_api_in_state(const std::shared_ptr<
                 .addFunction("onItemSelect", &grid_widget::on_item_select)
                 .addFunction("itemAtPoint", &grid_widget::item_index_at_point)
                 .addFunction("setItems", &grid_widget::set_items)
+                .addFunction("setCellDrawingFunction", &grid_widget::set_cell_drawing_function)
             .endClass()
             .beginClass<grid_widget::item>("GridItem")
                 .addConstructor<auto(*)(const luabridge::LuaRef&, const std::string&, const std::string&, const std::string&)->void, item::lua_reference>()
@@ -58,6 +59,7 @@ auto ui::widgets::grid_widget::enroll_object_api_in_state(const std::shared_ptr<
                 .addProperty("cornerText", &item::corner)
                 .addProperty("hasIcon", &item::has_icon)
                 .addProperty("icon", &item::icon)
+                .addProperty("lines", &item::lines)
             .endClass()
         .endNamespace();
 }
@@ -74,7 +76,7 @@ auto ui::widgets::grid_widget::setup(const math::rect &frame) -> void
     m_label_font = ui::font::manager::shared_manager().default_font();
     m_label_font->load_for_graphics();
 
-    m_canvas = std::make_shared<graphics::canvas>(frame.size);
+    m_canvas = { new graphics::canvas(frame.size) };
     m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin)) };
     m_entity->set_clipping_area(frame.size);
 
@@ -182,6 +184,12 @@ auto ui::widgets::grid_widget::set_outline_color(const graphics::color::lua_refe
     m_dirty = true;
 }
 
+auto ui::widgets::grid_widget::set_cell_drawing_function(const luabridge::LuaRef &drawing_function) -> void
+{
+    m_cell_drawing_function = drawing_function;
+    m_dirty = true;
+}
+
 // MARK: - Calculations
 
 auto ui::widgets::grid_widget::item_index_at_point(const math::point &p) -> std::int32_t
@@ -204,6 +212,7 @@ auto ui::widgets::grid_widget::set_items(const luabridge::LuaRef &items) -> void
             }
         }
     }
+    m_dirty = true;
 }
 
 
@@ -225,7 +234,7 @@ auto ui::widgets::grid_widget::receive_event(const event &e) -> bool
             auto item_number = item_index_at_point(local_position);
             m_dirty = true;
 
-            if (item_number >= m_items.size()) {
+            if (item_number > m_items.size() || item_number <= 0) {
                 m_selected_item = -1;
             }
             else {
@@ -299,40 +308,45 @@ auto ui::widgets::grid_widget::redraw_entity() -> void
             m_canvas->set_pen_color(*m_outline_color.get());
             m_canvas->draw_rect({ position, m_cell_size });
 
-            auto icon_scale = (1.0 / item->icon()->size().height) * (m_cell_size.height * 0.6);
-            auto icon_size = item->icon()->size() * icon_scale;
-            math::point icon_position((m_cell_size.width - icon_size.width) / 2.0, 3.0);
-
-            auto p = icon_position + position;
-            math::rect r(p.round(), icon_size.round());
-            m_canvas->draw_static_image(item->icon(), r);
-
-            auto base = m_cell_size.height - 7;
-            auto center = m_cell_size.width / 2;
-
-            const auto& lines = item->lines();
-            for (std::int32_t j = lines.size() - 1; j >= 0; --j) {
-                auto title = lines[j];
-
-                if (std::isalnum(title[0])) {
-                    m_canvas->set_pen_color(*m_text_color.get());
-                }
-                else {
-                    m_canvas->set_pen_color(*m_secondary_text_color.get());
-                }
-
-                auto title_size = m_canvas->layout_text_in_bounds(title, { m_cell_size.width - 6, m_cell_size.height - 6 });
-                base -= title_size.height - 8;
-
-                auto title_origin = position + math::point(center - (title_size.width / 2), base);
-                m_canvas->draw_text(title_origin);
+            if (m_cell_drawing_function.state()) {
+                m_cell_drawing_function(m_canvas, math::rect(position, m_cell_size), item);
             }
+            else {
+                auto icon_scale = (1.0 / item->icon()->size().height) * (m_cell_size.height * 0.6);
+                auto icon_size = item->icon()->size() * icon_scale;
+                math::point icon_position((m_cell_size.width - icon_size.width) / 2.0, 3.0);
 
-            if (!item->corner().empty()) {
-                m_canvas->set_pen_color(*m_text_color.get());
-                auto count_size = m_canvas->layout_text_in_bounds(item->corner(), { m_cell_size.width - 6, m_cell_size.height - 6 });
-                auto count_origin = position + math::point(m_cell_size.width - 3 - count_size.width, 3);
-                m_canvas->draw_text(count_origin);
+                auto p = icon_position + position;
+                math::rect r(p.round(), icon_size.round());
+                m_canvas->draw_static_image(item->icon(), r);
+
+                auto base = m_cell_size.height - 7;
+                auto center = m_cell_size.width / 2;
+
+                const auto& lines = item->lines();
+                for (std::int32_t j = lines.size() - 1; j >= 0; --j) {
+                    auto title = lines.at(j);
+
+                    if (std::isalnum(title[0])) {
+                        m_canvas->set_pen_color(*m_text_color.get());
+                    }
+                    else {
+                        m_canvas->set_pen_color(*m_secondary_text_color.get());
+                    }
+
+                    auto title_size = m_canvas->layout_text_in_bounds(title, { m_cell_size.width - 6, m_cell_size.height - 6 });
+                    base -= title_size.height - 8;
+
+                    auto title_origin = position + math::point(center - (title_size.width / 2), base);
+                    m_canvas->draw_text(title_origin);
+                }
+
+                if (!item->corner().empty()) {
+                    m_canvas->set_pen_color(*m_text_color.get());
+                    auto count_size = m_canvas->layout_text_in_bounds(item->corner(), { m_cell_size.width - 6, m_cell_size.height - 6 });
+                    auto count_origin = position + math::point(m_cell_size.width - 3 - count_size.width, 3);
+                    m_canvas->draw_text(count_origin);
+                }
             }
         }
 
