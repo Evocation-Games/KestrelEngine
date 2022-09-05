@@ -40,6 +40,8 @@ namespace ui::font
 
         lua_api static auto named_font(const std::string& name, uint32_t size) -> lua_reference;
 
+        [[nodiscard]] lua_api auto line_height() const -> std::uint32_t;
+
         [[nodiscard]] lua_api inline auto font_size() const -> uint32_t { return m_font_size; }
         [[nodiscard]] lua_api inline auto font_face() const -> std::string { return m_font_face; }
         [[nodiscard]] lua_api inline auto path() const -> std::string { return m_path; }

@@ -78,7 +78,7 @@ auto ui::widgets::sprite_widget::image() const -> luabridge::LuaRef
 auto ui::widgets::sprite_widget::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
-    resize(true);
+    resize(false);
 }
 
 auto ui::widgets::sprite_widget::set_image(const luabridge::LuaRef &image) -> void
@@ -103,6 +103,13 @@ auto ui::widgets::sprite_widget::resize(bool reload) -> void
         else if (scripting::lua::ref_isa<asset::resource_descriptor>(m_sprite_ref)) {
             auto descriptor = m_sprite_ref.cast<asset::resource_descriptor::lua_reference>();
 
+            if (descriptor->with_type(asset::legacy::spriteworld::sprite::type_32)->valid()) {
+                descriptor = descriptor->with_type(asset::legacy::spriteworld::sprite::type_32);
+            }
+            else if (descriptor->with_type(asset::legacy::spriteworld::sprite::type_16)->valid()) {
+                descriptor = descriptor->with_type(asset::legacy::spriteworld::sprite::type_16);
+            }
+
             if (descriptor->type == asset::legacy::spriteworld::sprite::type_16) {
                 asset::legacy::spriteworld::sprite sprite(descriptor);
                 m_entity->change_internal_entity(sprite.spawn_entity({0, 0}));
@@ -120,14 +127,27 @@ auto ui::widgets::sprite_widget::resize(bool reload) -> void
         }
     }
 
+    math::size size = entity()->size();
+    auto ar = size.aspect_ratio();
+    if (size.width >= m_frame.size.width - 30) {
+        size.width = m_frame.size.width - 30;
+        size.height = size.width * ar;
+    }
+
+    if (size.height >= m_frame.size.height - 30) {
+        size.height = m_frame.size.height - 30;
+        size.width = size.height / ar;
+    }
+
     switch (m_alignment) {
         default:
             math::point position(
-                m_frame.get_x() + ((m_frame.get_width() - m_entity->size().get_width()) / 2),
-                m_frame.get_y() + ((m_frame.get_height() - m_entity->size().get_height()) / 2)
+                m_frame.get_x() + ((m_frame.get_width() - size.width) / 2),
+                m_frame.get_y() + ((m_frame.get_height() - size.height) / 2)
             );
             m_entity->set_position(position);
-            m_entity->internal_entity()->set_position(position);
+            m_entity->set_render_size(size);
+            m_entity->set_draw_size(size);
             break;
     }
 }

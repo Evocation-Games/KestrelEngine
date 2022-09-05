@@ -45,6 +45,7 @@ auto ui::font::reference::enroll_object_api_in_state(const std::shared_ptr<scrip
         .beginClass<reference>("Font")
             .addConstructor<auto(*)()->void, lua_reference>()
             .addStaticFunction("namedFont", &reference::named_font)
+            .addProperty("lineHeight", &reference::line_height)
             .addProperty("fontSize", &reference::font_size)
             .addProperty("fontFace", &reference::font_face)
             .addProperty("path", &reference::path)
@@ -182,4 +183,17 @@ auto ui::font::reference::with_size(std::uint32_t size) -> lua_reference
 
     lua_reference adjusted(new reference(m_path, size));
     return manager::shared_manager().add_font(adjusted);
+}
+
+// MARK: - Accessors
+
+auto ui::font::reference::line_height() const -> std::uint32_t
+{
+    if (m_instances.graphics) {
+        return m_instances.graphics->line_height();
+    }
+    else if (m_instances.imgui) {
+        return 0;
+    }
+    return 0;
 }

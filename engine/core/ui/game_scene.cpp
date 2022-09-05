@@ -32,6 +32,7 @@
 #include "core/ui/widgets/textarea_widget.hpp"
 #include "core/ui/widgets/list_widget.hpp"
 #include "core/ui/widgets/scrollview_widget.hpp"
+#include "core/ui/widgets/sprite_widget.hpp"
 #include "core/asset/rsrc/namespace.hpp"
 #include "renderer/common/renderer.hpp"
 
@@ -470,6 +471,11 @@ auto ui::game_scene::draw_widgets() const -> void
             auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
             entity = scroll->entity();
             scroll->draw();
+        }
+        else if (scripting::lua::ref_isa<ui::widgets::sprite_widget>(widget)) {
+            auto sprite = widget.cast<ui::widgets::sprite_widget::lua_reference>();
+            entity = sprite->entity();
+            sprite->draw();
         }
         else {
             // TODO: Unrecognised widget type... skip.
