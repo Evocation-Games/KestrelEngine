@@ -28,10 +28,11 @@
 #include "scripting/state.hpp"
 #include "core/graphics/common/color.hpp"
 #include "core/ui/entity/scene_entity.hpp"
+#include "core/event/responder/responder_chain.hpp"
 
 namespace ui::widgets
 {
-    struct image_widget: public scripting::lua::object
+    struct image_widget: public scripting::lua::object, public responder_chain::mouse_responder
     {
     public:
         enum class content_alignment : int { center, fit, stretch };
@@ -53,12 +54,20 @@ namespace ui::widgets
         lua_api auto set_image(const luabridge::LuaRef& image) -> void;
         lua_api auto set_dynamic_resizing(bool v) -> void;
 
+        lua_api auto set_down_action(const luabridge::LuaRef& action) -> void;
+        lua_api auto set_click_action(const luabridge::LuaRef& action) -> void;
+
+        auto receive_event(const event& e) -> bool override;
+
     private:
+        bool m_pressed { false };
         bool m_dynamic_resizing { true };
         math::rect m_frame { 0, 0, 100, 100 };
         luabridge::LuaRef m_image_ref { nullptr };
         scene_entity::lua_reference m_entity { nullptr };
         content_alignment m_alignment { content_alignment::center };
+        luabridge::LuaRef m_down_action { nullptr };
+        luabridge::LuaRef m_click_action { nullptr };
 
         auto resize(bool reload = false) -> void;
     };

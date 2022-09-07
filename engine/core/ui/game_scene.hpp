@@ -64,6 +64,7 @@ namespace ui
         [[nodiscard]] lua_api auto passthrough_render() const -> bool;
         [[nodiscard]] lua_api auto entities() const -> util::lua_vector<luabridge::LuaRef>;
         [[nodiscard]] lua_api auto positioning_frame() const -> ui::layout::positioning_frame::lua_reference;
+        [[nodiscard]] lua_api auto disable_user_input() const -> bool;
 
         lua_api auto set_passthrough_render(bool f) -> void;
         lua_api auto set_positioning_frame(const ui::layout::positioning_frame::lua_reference& positioning) -> void;
@@ -83,6 +84,8 @@ namespace ui
         [[nodiscard]] lua_api auto key(int k) const -> event::lua_reference;
         [[nodiscard]] lua_api auto is_key_down(int k) const -> bool;
         [[nodiscard]] lua_api auto is_key_released(int k) const -> bool;
+
+        lua_api auto set_user_input_disabled(bool disabled) -> void;
 
         lua_api auto import_supporting_scripts(const luabridge::LuaRef& ns) -> void;
 

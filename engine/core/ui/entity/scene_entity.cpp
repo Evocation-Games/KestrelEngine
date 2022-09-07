@@ -659,7 +659,7 @@ auto ui::scene_entity::send_event(const event& e) -> void
 
 auto ui::scene_entity::hit_test(const math::point& p) const -> bool
 {
-    math::rect frame { math::point(0), m_entity->get_size() };
+    math::rect frame { math::point(0), m_entity->get_draw_size() };
     return frame.contains_point(p);
 }
 

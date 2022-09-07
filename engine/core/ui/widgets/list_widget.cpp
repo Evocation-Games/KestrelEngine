@@ -96,7 +96,7 @@ auto ui::widgets::list_widget::setup(const math::rect& frame) -> void
 
     m_label_font = ui::font::manager::shared_manager().default_font();
     m_label_font->load_for_graphics();
-    m_row_size = math::size(frame.size.width, m_label_font->graphics_font()->line_height());
+    m_row_size = math::size(frame.size.width, m_label_font->graphics_font()->line_height() * 6);
 
     redraw_entity();
     bind_internal_events();
@@ -255,7 +255,7 @@ auto ui::widgets::list_widget::set_heading_text_color(const graphics::color::lua
 auto ui::widgets::list_widget::set_font(const ui::font::reference::lua_reference& font) -> void
 {
     m_label_font = font;
-    m_row_size = math::size(m_row_size.width, m_label_font->graphics_font()->line_height());
+    m_row_size = math::size(m_row_size.width, m_label_font->graphics_font()->line_height() + 6);
     m_dirty = true;
 }
 
@@ -436,6 +436,10 @@ auto ui::widgets::list_widget::receive_event(const event &e) -> bool
 
         if (e.is_released() && m_pressed) {
             auto row_number = row_index_at_point(local_position);
+            if (row_number > m_rows.size()) {
+                row_number = m_rows.size();
+            }
+
             auto row = m_rows[row_number - 1];
             m_dirty = true;
 
@@ -447,7 +451,7 @@ auto ui::widgets::list_widget::receive_event(const event &e) -> bool
             }
 
             if (m_row_select_callback.state() && m_row_select_callback.isFunction()) {
-                m_row_select_callback(m_selected_row + 1);
+                m_row_select_callback(m_selected_row);
             }
 
             redraw_entity();

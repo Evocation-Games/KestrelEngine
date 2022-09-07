@@ -54,6 +54,7 @@ auto ui::game_scene::enroll_object_api_in_state(const std::shared_ptr<scripting:
             .addProperty("positioningFrame", &game_scene::positioning_frame, &game_scene::set_positioning_frame)
             .addProperty("isCurrent", &game_scene::is_current)
             .addProperty("entities", &game_scene::entities)
+            .addProperty("disableUserInput", &game_scene::disable_user_input, &game_scene::set_user_input_disabled)
             .addFunction("push", &game_scene::push)
             .addFunction("render", &game_scene::on_render)
             .addFunction("update", &game_scene::on_update)
@@ -287,6 +288,16 @@ auto ui::game_scene::size() const -> math::size
     return { 0, 0 };
 }
 
+auto ui::game_scene::disable_user_input() const -> bool
+{
+    return !m_user_input;
+}
+
+auto ui::game_scene::set_user_input_disabled(bool disabled) -> void
+{
+    m_user_input = !disabled;
+}
+
 auto ui::game_scene::current_time() const -> double
 {
     return m_backing_scene->current_time();
@@ -413,6 +424,10 @@ auto ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> void
     else if (scripting::lua::ref_isa<ui::widgets::scrollview_widget>(widget)) {
         auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
         m_responder_chain.add_mouse_responder(scroll.get());
+    }
+    else if (scripting::lua::ref_isa<ui::widgets::image_widget>(widget)) {
+        auto image = widget.cast<ui::widgets::image_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(image.get());
     }
 
     m_widgets.emplace_back(widget);

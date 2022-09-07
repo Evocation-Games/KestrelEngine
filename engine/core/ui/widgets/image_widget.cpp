@@ -35,6 +35,8 @@ auto ui::widgets::image_widget::enroll_object_api_in_state(const std::shared_ptr
                 .addProperty("frame", &image_widget::frame, &image_widget::set_frame)
                 .addProperty("image", &image_widget::image, &image_widget::set_image)
                 .addProperty("dynamicResizing", &image_widget::dynamic_resizing, &image_widget::set_dynamic_resizing)
+                .addFunction("onMouseDown", &image_widget::set_down_action)
+                .addFunction("onClick", &image_widget::set_click_action)
             .endClass()
         .endNamespace();
 }
@@ -93,6 +95,16 @@ auto ui::widgets::image_widget::set_dynamic_resizing(bool v) -> void
 {
     m_dynamic_resizing = v;
     resize();
+}
+
+auto ui::widgets::image_widget::set_click_action(const luabridge::LuaRef &action) -> void
+{
+    m_click_action = action;
+}
+
+auto ui::widgets::image_widget::set_down_action(const luabridge::LuaRef &action) -> void
+{
+    m_down_action = action;
 }
 
 // MARK: - Drawing
@@ -184,5 +196,28 @@ auto ui::widgets::image_widget::resize(bool reload) -> void
 auto ui::widgets::image_widget::draw() -> void
 {
     // Do nothing...
+}
+
+// MARK: - Event Handling
+
+auto ui::widgets::image_widget::receive_event(const event &e) -> bool
+{
+    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
+        if (e.is_pressed() && !m_pressed) {
+            m_pressed = true;
+            if (m_down_action.state() && m_down_action.isFunction()) {
+                m_down_action();
+            }
+        }
+
+        if (e.is_released() && m_pressed) {
+            m_pressed = false;
+            if (m_click_action.state() && m_click_action.isFunction()) {
+                m_click_action();
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
