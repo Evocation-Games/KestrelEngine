@@ -130,7 +130,7 @@ auto graphics::spritesheet::layout_sprites(bool flipped) -> void
             }
         }
     }
-    m_flipped = true;
+    m_flipped = flipped;
 }
 
 auto graphics::spritesheet::layout_sprites(const math::size &sprite_size, bool flipped) -> void

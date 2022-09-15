@@ -96,9 +96,6 @@ static int scripting_lua_state_print(lua_State *state)
             if (lua_isstring(state, i)) {
                 auto str = lua_tostring(state, i);
                 env->lua_out(str);
-//#if DEBUG
-                std::cout << str << std::endl;
-//#endif
             }
             else {
 

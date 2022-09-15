@@ -86,8 +86,6 @@ auto task::async_queue::execute_next_task() -> void
     auto task = m_tasks.front();
     m_tasks.erase(m_tasks.begin());
 
-    std::cout << "Executing Task: " << task.name << std::endl;
-
     if (task.block.state() && task.block.isFunction()) {
         task.block();
     }

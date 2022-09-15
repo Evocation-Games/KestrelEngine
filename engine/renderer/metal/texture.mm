@@ -73,7 +73,6 @@ auto renderer::metal::texture::set_data(const graphite::data::block &data) -> vo
 
     // If we're already uploaded, then adjust the contents of the texture?
     if (uploaded()) {
-//        std::cout << "updating texture #" << m_id << std::endl;
         MTLRegion region = MTLRegionMake2D(0, 0, m_descriptor.width, m_descriptor.height);
         region.origin.z = 0;
         region.size.depth = 1;
@@ -116,7 +115,6 @@ auto renderer::metal::texture::upload_to_gpu() -> void
     NSUInteger bytes_per_row = m_handle.width << 2;
     [m_handle replaceRegion:region mipmapLevel:0 withBytes:m_data.get<void *>() bytesPerRow:bytes_per_row];
 
-//    std::cout << "uploading texture #" << m_id << std::endl;
     graphics::texture::upload_to_gpu();
 }
 

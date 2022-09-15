@@ -140,9 +140,6 @@ auto dev::console::receive(const event& e) -> void
 
 auto dev::console::write(const std::string &message) -> void
 {
-#if DEBUG
-    std::cout << message << std::endl;
-#endif
     m_history.emplace_back(message);
 }
 
