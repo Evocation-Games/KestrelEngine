@@ -231,8 +231,34 @@ auto asset::resource_data::read_color() -> graphics::color::lua_reference
 
 auto asset::resource_data::read_resource_reference() -> asset::resource_descriptor::lua_reference
 {
+    enum resource_reference_flags : std::uint8_t {
+        has_namespace = 0x01,
+        has_type = 0x02,
+        same_file = 0x04,
+    };
+
     // TODO: Handle the namespacing format
-    return resource_namespace::global()->identified_resource(read_signed_short());
+    if (m_reader.data()->is_extended_format()) {
+        auto flags = read_byte();
+
+        auto descriptor = reference()->ignoring_id()->ignoring_name()->ignoring_type();
+
+        if (flags & has_namespace) {
+            descriptor = resource_namespace(read_pstr()).identified_resource(0);
+        }
+        if (flags & has_type) {
+            descriptor = descriptor->with_type(read_cstr_width(4));
+        }
+        if (flags & same_file) {
+            // TODO: Constrain to the same file as this data originates from.
+        }
+
+        descriptor = descriptor->with_id(read_signed_quad());
+        return descriptor;
+    }
+    else {
+        return resource_namespace::global()->identified_resource(read_signed_short());
+    }
 }
 
 auto asset::resource_data::read_typed_resource_reference(const std::string &type) -> asset::resource_descriptor::lua_reference
