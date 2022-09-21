@@ -83,4 +83,9 @@ namespace renderer
                    float alpha = 1.0,
                    float scale = 1.0) -> void;
 
+    auto draw_line(const math::point& p,
+                   const math::point& q,
+                   enum blending mode,
+                   const graphics::color& color) -> void;
+
 }

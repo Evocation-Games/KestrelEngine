@@ -276,12 +276,35 @@ auto renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, cons
     auto uv_w = tex_coords.size.width;
     auto uv_h = tex_coords.size.height;
 
-    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_vertex({ p.x + s.x, p.y + s.y }, { uv_x +uv_w, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_vertex({ p.x + s.x, p.y}, { uv_x +uv_w, uv_y }, alpha, texture_slot);
-    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_vertex({ p.x, p.y }, { uv_x, uv_y }, alpha, texture_slot);
-    buffer->push_vertex({ p.x + s.x, p.y }, { uv_x +uv_w, uv_y }, alpha, texture_slot);
+    buffer->push_triangle_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
+    buffer->push_triangle_vertex({ p.x + s.x, p.y + s.y }, { uv_x +uv_w, uv_y +uv_h }, alpha, texture_slot);
+    buffer->push_triangle_vertex({ p.x + s.x, p.y}, { uv_x +uv_w, uv_y }, alpha, texture_slot);
+    buffer->push_triangle_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
+    buffer->push_triangle_vertex({ p.x, p.y }, { uv_x, uv_y }, alpha, texture_slot);
+    buffer->push_triangle_vertex({ p.x + s.x, p.y }, { uv_x +uv_w, uv_y }, alpha, texture_slot);
+
+    if (buffer->is_full()) {
+        flush_frame();
+    }
+}
+
+auto renderer::draw_line(const math::point &p,
+                         const math::point &q,
+                         enum blending mode,
+                         const graphics::color &color) -> void
+{
+    auto buffer = s_renderer_api.drawing_buffer;
+
+    if (buffer->blend() != mode && !buffer->is_empty()) {
+        flush_frame();
+    }
+    buffer->set_blend(mode);
+
+    auto start = (math::vec2(p) + buffer->camera().translation()) * buffer->camera().scale();
+    auto end = (math::vec2(q) + buffer->camera().translation()) * buffer->camera().scale();
+
+    buffer->push_line_vertex({ start.x, start.y }, color);
+    buffer->push_line_vertex({ end.x, end.y }, color);
 
     if (buffer->is_full()) {
         flush_frame();

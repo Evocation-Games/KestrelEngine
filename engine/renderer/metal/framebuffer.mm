@@ -119,7 +119,7 @@ auto renderer::metal::framebuffer::draw(const draw_buffer *buffer) -> void
     auto state = shader->get_state();
     [m_command_encoder setRenderPipelineState:state];
 
-    memcpy(m_buffer.contents, buffer->data(), buffer->data_size());
+    memcpy(m_buffer.contents, buffer->triangles_data(), buffer->triangles_data_size());
 
     [m_command_encoder setVertexBytes:&m_viewport_size
                                length:sizeof(m_viewport_size)

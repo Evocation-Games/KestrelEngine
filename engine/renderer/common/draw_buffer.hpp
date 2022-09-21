@@ -55,10 +55,14 @@ namespace renderer
 
         [[nodiscard]] auto can_accept_texture(const std::shared_ptr<graphics::texture>& texture) const -> bool;
         auto push_texture(const std::shared_ptr<graphics::texture>& texture) -> float;
-        auto push_vertex(const math::point& point, const math::point& tex_coord, float alpha, float texture) -> void;
+        auto push_triangle_vertex(const math::point& point, const math::point& tex_coord, float alpha, float texture) -> void;
+        auto push_line_vertex(const math::point& point, const graphics::color& color) -> void;
 
-        [[nodiscard]] inline auto data() const -> void * { return reinterpret_cast<void *>(m_vertices); }
-        [[nodiscard]] inline auto data_size() const -> std::size_t { return (m_count * sizeof(vertex)); }
+        [[nodiscard]] inline auto triangles_data() const -> void * { return reinterpret_cast<void *>(m_triangle_vertices); }
+        [[nodiscard]] inline auto triangles_data_size() const -> std::size_t { return (m_triangles_count * sizeof(vertex)); }
+
+        [[nodiscard]] inline auto lines_data() const -> void * { return reinterpret_cast<void *>(m_line_vertices); }
+        [[nodiscard]] inline auto lines_data_size() const -> std::size_t { return (m_lines_count * sizeof(vertex)); }
 
         [[nodiscard]] inline auto texture(uint8_t idx) const -> std::shared_ptr<graphics::texture> { return m_texture_slots[idx]; }
         [[nodiscard]] inline auto texture_slots() const -> std::size_t { return m_texture_count; }
@@ -73,11 +77,17 @@ namespace renderer
         std::size_t m_max_textures { 0 };
         std::size_t m_texture_count { 0 };
 
-        struct vertex *m_vertices { nullptr };
-        struct vertex *m_vertex_ptr { nullptr };
-
         std::size_t m_max { 0 };
         std::size_t m_count { 0 };
 
+        // Triangles
+        std::size_t m_triangles_count { 0 };
+        struct vertex *m_triangle_vertices { nullptr };
+        struct vertex *m_triangle_vertex_ptr { nullptr };
+
+        // Lines
+        std::size_t m_lines_count { 0 };
+        struct vertex *m_line_vertices { nullptr };
+        struct vertex *m_line_vertex_ptr { nullptr };
     };
 }
