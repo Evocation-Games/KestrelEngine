@@ -110,6 +110,7 @@ auto audio::core_audio::player::play(std::shared_ptr<audio::player_item> item, s
     else {
         AudioQueueReset(session->info.queue);
         AudioQueueEnqueueBuffer(session->info.queue, session->info.buffer, 0, nullptr);
+        AudioQueueSetParameter(session->info.queue, kAudioQueueParam_Volume, 0.15);
         AudioQueueStart(session->info.queue, nullptr);
         AudioQueueStop(session->info.queue, false);
     }
