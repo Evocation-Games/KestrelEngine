@@ -178,6 +178,9 @@ auto ui::dialog::load_scene_contents(dialog_configuration *config) -> void
     }
     auto L = env->lua_runtime()->internal_state();
 
+    // Adopt any additional aspects of layout and configuration information provided.
+    m_scene_ui.frame_size = config->size();
+
     // We're working with the native kestrel scene, so use the widgets
     for (auto element_name : config->all_elements()) {
         const auto& element = config->element(element_name);
@@ -360,7 +363,7 @@ auto ui::dialog::set_background(const luabridge::LuaRef &background) -> void
 
     if (scripting::lua::ref_isa<asset::static_image>(background)) {
         m_background.fill = background.cast<asset::static_image::lua_reference>();
-        auto size = m_background.fill->size();
+        auto size = m_scene_ui.frame_size;
         m_owner_scene->set_positioning_frame({
             new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
         });
@@ -368,6 +371,8 @@ auto ui::dialog::set_background(const luabridge::LuaRef &background) -> void
 
         m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
         m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
+        m_background.fill_entity->set_render_size(size);
+        m_background.fill_entity->set_draw_size(size);
         m_owner_scene->add_scene_entity(m_background.fill_entity);
     }
 }

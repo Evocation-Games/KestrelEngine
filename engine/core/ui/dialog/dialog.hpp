@@ -81,7 +81,7 @@ namespace ui
         } m_imgui;
 
         struct {
-
+            math::size frame_size;
         } m_scene_ui;
 
         auto load_contents(dialog_configuration *config) -> void;
