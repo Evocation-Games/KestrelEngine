@@ -100,7 +100,7 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
     auto state = shader->get_state();
     [m_command_encoder setRenderPipelineState:state];
 
-    memcpy(m_buffer_ptr, buffer->triangles_data(), buffer->triangles_data_size());
+    memcpy(m_buffer_ptr, buffer->data(), buffer->data_size());
 //    [m_buffer didModifyRange:NSMakeRange(m_buffer_offset, buffer->data_size())];
 
     [m_command_encoder setVertexBytes:&m_viewport_size
@@ -115,8 +115,8 @@ auto renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
     }
 
     [m_command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:m_buffer_next_vertex vertexCount:buffer->count()];
-    m_buffer_ptr += buffer->triangles_data_size();
-    m_buffer_offset += buffer->triangles_data_size();
+    m_buffer_ptr += buffer->data_size();
+    m_buffer_offset += buffer->data_size();
     m_buffer_next_vertex += buffer->count();
 }
 

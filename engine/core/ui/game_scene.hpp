@@ -89,6 +89,8 @@ namespace ui
 
         lua_api auto import_supporting_scripts(const luabridge::LuaRef& ns) -> void;
 
+        lua_api auto draw_line(const math::point& p, const math::point& q, const graphics::color::lua_reference& color, float weight) -> void;
+
     private:
         std::string m_name;
         asset::resource_descriptor::lua_reference m_script_descriptor;

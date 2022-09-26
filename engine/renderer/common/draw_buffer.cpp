@@ -25,12 +25,10 @@
 renderer::draw_buffer::draw_buffer(std::size_t vertex_count, std::size_t texture_slots)
     : m_max(vertex_count), m_max_textures(texture_slots)
 {
-    m_triangle_vertices = new vertex[vertex_count];
-    m_line_vertices = new vertex[vertex_count];
+    m_vertices = new vertex[vertex_count];
     m_texture_slots = new std::shared_ptr<graphics::texture>[texture_slots];
 
-    m_triangle_vertex_ptr = m_triangle_vertices;
-    m_line_vertex_ptr = m_line_vertices;
+    m_vertex_ptr = m_vertices;
     m_next_empty_texture_slot = m_texture_slots;
 }
 
@@ -38,8 +36,7 @@ renderer::draw_buffer::draw_buffer(std::size_t vertex_count, std::size_t texture
 
 renderer::draw_buffer::~draw_buffer()
 {
-    delete m_triangle_vertices;
-    delete m_line_vertices;
+    delete m_vertices;
     delete m_texture_slots;
 }
 
@@ -47,14 +44,11 @@ renderer::draw_buffer::~draw_buffer()
 
 auto renderer::draw_buffer::clear() -> void
 {
-    m_triangle_vertex_ptr = m_triangle_vertices;
-    m_line_vertex_ptr = m_line_vertices;
+    m_vertex_ptr = m_vertices;
     m_next_empty_texture_slot = m_texture_slots;
 
     m_texture_count = 0;
     m_count = 0;
-    m_triangles_count = 0;
-    m_lines_count = 0;
     m_blend = blending::normal;
 }
 
@@ -96,42 +90,37 @@ auto renderer::draw_buffer::push_texture(const std::shared_ptr<graphics::texture
     return static_cast<float>(slot);
 }
 
-auto renderer::draw_buffer::push_triangle_vertex(const math::point &point, const math::point &tex_coord, float alpha, float texture) -> void
+auto renderer::draw_buffer::push_vertex(const math::vec2 &v, const math::point &tex_coord, float alpha, float texture) -> void
 {
-    m_triangle_vertex_ptr->position.x = static_cast<float>(point.x);
-    m_triangle_vertex_ptr->position.y = static_cast<float>(point.y);
+    m_vertex_ptr->position.x = static_cast<float>(v.x);
+    m_vertex_ptr->position.y = static_cast<float>(v.y);
 
-    m_triangle_vertex_ptr->tex_coord.x = static_cast<float>(tex_coord.x);
-    m_triangle_vertex_ptr->tex_coord.y = static_cast<float>(tex_coord.y);
+    m_vertex_ptr->tex_coord.x = static_cast<float>(tex_coord.x);
+    m_vertex_ptr->tex_coord.y = static_cast<float>(tex_coord.y);
 
-    m_triangle_vertex_ptr->color.x = 1.f;
-    m_triangle_vertex_ptr->color.y = 1.f;
-    m_triangle_vertex_ptr->color.z = 1.f;
-    m_triangle_vertex_ptr->color.w = alpha;
+    m_vertex_ptr->color.x = 1.f;
+    m_vertex_ptr->color.y = 1.f;
+    m_vertex_ptr->color.z = 1.f;
+    m_vertex_ptr->color.w = alpha;
 
-    m_triangle_vertex_ptr->texture = texture;
+    m_vertex_ptr->texture = texture;
 
-    m_triangle_vertex_ptr++;
+    m_vertex_ptr++;
     m_count++;
-    m_triangles_count++;
 }
 
-auto renderer::draw_buffer::push_line_vertex(const math::point &point, const graphics::color &color) -> void
+auto renderer::draw_buffer::push_vertex(const math::vec2 &v, const graphics::color& color) -> void
 {
-    m_line_vertex_ptr->position.x = static_cast<float>(point.x);
-    m_line_vertex_ptr->position.y = static_cast<float>(point.y);
+    m_vertex_ptr->position.x = static_cast<float>(v.x);
+    m_vertex_ptr->position.y = static_cast<float>(v.y);
 
-    m_triangle_vertex_ptr->tex_coord.x = 0;
-    m_triangle_vertex_ptr->tex_coord.y = 0;
+    m_vertex_ptr->color.x = static_cast<float>(color.rgba.components.r) / 255.f;
+    m_vertex_ptr->color.y = static_cast<float>(color.rgba.components.g) / 255.f;
+    m_vertex_ptr->color.z = static_cast<float>(color.rgba.components.b) / 255.f;
+    m_vertex_ptr->color.w = static_cast<float>(color.rgba.components.a) / 255.f;
 
-    m_triangle_vertex_ptr->color.x = static_cast<float>(color.rgba.components.r) / 255.f;
-    m_triangle_vertex_ptr->color.y = static_cast<float>(color.rgba.components.g) / 255.f;
-    m_triangle_vertex_ptr->color.z = static_cast<float>(color.rgba.components.b) / 255.f;
-    m_triangle_vertex_ptr->color.w = static_cast<float>(color.rgba.components.a) / 255.f;
+    m_vertex_ptr->texture = -1.f;
 
-    m_triangle_vertex_ptr->texture = 0;
-
-    m_line_vertex_ptr++;
+    m_vertex_ptr++;
     m_count++;
-    m_lines_count++;
 }

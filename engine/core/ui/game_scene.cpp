@@ -69,6 +69,7 @@ auto ui::game_scene::enroll_object_api_in_state(const std::shared_ptr<scripting:
             .addFunction("keyReleased", &game_scene::is_key_released)
             .addFunction("addWidget", &game_scene::add_widget)
             .addFunction("importSupportingScripts", &game_scene::import_supporting_scripts)
+            .addFunction("drawLine", &game_scene::draw_line)
         .endClass();
 }
 
@@ -159,6 +160,7 @@ ui::game_scene::game_scene(const asset::resource_descriptor::lua_reference &scri
         if (m_render_block.state() && m_render_block.isFunction()) {
             m_render_block();
         }
+
     });
 
     m_backing_scene->add_update_block([&, this] {
@@ -553,4 +555,11 @@ auto ui::game_scene::import_supporting_scripts(const luabridge::LuaRef& ref) -> 
     }
 
     s_imported_namespaces.emplace_back(ns->primary_name());
+}
+
+// MARK: - Direct Drawing
+
+auto ui::game_scene::draw_line(const math::point &p, const math::point &q, const graphics::color::lua_reference &color, float weight) -> void
+{
+    renderer::draw_line(p, q, renderer::blending::normal, *color.get(), weight);
 }

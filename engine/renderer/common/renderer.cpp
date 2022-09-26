@@ -276,12 +276,12 @@ auto renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, cons
     auto uv_w = tex_coords.size.width;
     auto uv_h = tex_coords.size.height;
 
-    buffer->push_triangle_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_triangle_vertex({ p.x + s.x, p.y + s.y }, { uv_x +uv_w, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_triangle_vertex({ p.x + s.x, p.y}, { uv_x +uv_w, uv_y }, alpha, texture_slot);
-    buffer->push_triangle_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_triangle_vertex({ p.x, p.y }, { uv_x, uv_y }, alpha, texture_slot);
-    buffer->push_triangle_vertex({ p.x + s.x, p.y }, { uv_x +uv_w, uv_y }, alpha, texture_slot);
+    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
+    buffer->push_vertex({ p.x + s.x, p.y + s.y }, { uv_x +uv_w, uv_y +uv_h }, alpha, texture_slot);
+    buffer->push_vertex({ p.x + s.x, p.y}, { uv_x +uv_w, uv_y }, alpha, texture_slot);
+    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
+    buffer->push_vertex({ p.x, p.y }, { uv_x, uv_y }, alpha, texture_slot);
+    buffer->push_vertex({ p.x + s.x, p.y }, { uv_x +uv_w, uv_y }, alpha, texture_slot);
 
     if (buffer->is_full()) {
         flush_frame();
@@ -291,7 +291,8 @@ auto renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, cons
 auto renderer::draw_line(const math::point &p,
                          const math::point &q,
                          enum blending mode,
-                         const graphics::color &color) -> void
+                         const graphics::color &color,
+                         float weight) -> void
 {
     auto buffer = s_renderer_api.drawing_buffer;
 
@@ -303,8 +304,19 @@ auto renderer::draw_line(const math::point &p,
     auto start = (math::vec2(p) + buffer->camera().translation()) * buffer->camera().scale();
     auto end = (math::vec2(q) + buffer->camera().translation()) * buffer->camera().scale();
 
-    buffer->push_line_vertex({ start.x, start.y }, color);
-    buffer->push_line_vertex({ end.x, end.y }, color);
+    auto delta = end - start;
+    auto width = weight / 2.f;
+    math::vec2 normals[] = {
+        math::vec2(-delta.y, delta.x).unit() * width,
+        math::vec2(delta.y, -delta.x).unit() * width
+    };
+
+    buffer->push_vertex(start + normals[0], color);
+    buffer->push_vertex(start + normals[1], color);
+    buffer->push_vertex(end + normals[1], color);
+    buffer->push_vertex(end + normals[1], color);
+    buffer->push_vertex(end + normals[0], color);
+    buffer->push_vertex(start + normals[0], color);
 
     if (buffer->is_full()) {
         flush_frame();

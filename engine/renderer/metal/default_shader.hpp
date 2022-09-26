@@ -89,9 +89,14 @@ namespace renderer::metal
         	raster_data in [[stage_in]],
         	array<texture2d<half>, 16> textures [[texture(0)]]
         ) {
-        	constexpr sampler texture_sampler (mag_filter::linear, min_filter::linear);
-            const float4 color_sample = in.color * float4(textures[in.texture].sample(texture_sampler, in.tex_coord));
-            return color_sample;
+            if (in.texture < 0) {
+                return in.color;
+            }
+            else {
+                constexpr sampler texture_sampler (mag_filter::linear, min_filter::linear);
+                const float4 color_sample = in.color * float4(textures[in.texture].sample(texture_sampler, in.tex_coord));
+                return color_sample;
+            }
         }
     )"};
 

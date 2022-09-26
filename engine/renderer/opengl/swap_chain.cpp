@@ -74,7 +74,7 @@ auto renderer::opengl::swap_chain::draw(const draw_buffer *buffer) -> void
     glUniformMatrix4fv(projection_location, 1, false, glm::value_ptr(m_projection));
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizei>(buffer->triangles_data_size()), buffer->triangles_data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizei>(buffer->data_size()), buffer->data());
 
     auto slots = buffer->texture_slots();
     for (auto i = 0; i < slots; ++i) {

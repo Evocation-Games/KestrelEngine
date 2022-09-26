@@ -82,5 +82,10 @@ namespace math
             return std::sqrt(dot(*this));
         }
 
+        [[nodiscard]] auto unit() const -> vec2
+        {
+            return *this / magnitude();
+        }
+
     };
 }

@@ -86,6 +86,7 @@ namespace renderer
     auto draw_line(const math::point& p,
                    const math::point& q,
                    enum blending mode,
-                   const graphics::color& color) -> void;
+                   const graphics::color& color,
+                   float weight = 1.f) -> void;
 
 }
