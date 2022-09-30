@@ -115,7 +115,7 @@ endif()
 ########################################################################################################################
 ## libKestrel
 set(KESTREL_LIBS
-    Graphite Lua png bz2 z
+    Graphite Lua
 )
 set(KESTREL_INC_DIRS
     "${PROJECT_SUBMODULE_DIR}/lua_bridge/Source"
@@ -130,6 +130,7 @@ file(GLOB_RECURSE KESTREL_SOURCES
 
 add_library(Kestrel ${KESTREL_SOURCES})
 target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
+target_link_libraries(Kestrel ${KESTREL_LIBS})
 
 ########################################################################################################################
 ## Kestrel - Test Suite
