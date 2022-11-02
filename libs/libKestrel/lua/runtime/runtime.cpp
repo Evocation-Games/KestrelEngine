@@ -23,11 +23,12 @@
 #include <libKestrel/lua/runtime/stack.hpp>
 #include <libKestrel/lua/script.hpp>
 #include <libGraphite/rsrc/resource.hpp>
+#include <libKestrel/device/console.hpp>
 
 // MARK: - Construction
 
 kestrel::lua::runtime::runtime()
-    : m_stack(std::make_shared<lua::stack>(shared_from_this()))
+    : m_stack(std::make_shared<lua::stack>(this))
 {
     prepare_lua_runtime();
 }
@@ -41,13 +42,30 @@ kestrel::lua::runtime::~runtime()
 
 // MARK: - Custom Print
 
+auto kestrel::lua::runtime::lua_print(lua_State *L) -> int
+{
+    auto argc = lua_gettop(L);
+    for (auto i = 1; i <= argc; ++i) {
+        if (lua_isstring(L, i)) {
+            device::console::write(lua_tostring(L, i), device::console::status::normal);
+        }
+    }
+    return 0;
+}
+
 // MARK: - Lua
 
 auto kestrel::lua::runtime::prepare_lua_runtime() -> void
 {
     m_state = luaL_newstate();
     luaL_openlibs(m_state);
+    install_internal_lua_overrides();
+}
 
+auto kestrel::lua::runtime::install_internal_lua_overrides() -> void
+{
+    global_namespace()
+        .addFunction("print", &runtime::lua_print);
 }
 
 // MARK: - Accessors
@@ -86,12 +104,14 @@ auto kestrel::lua::runtime::run(const lua::script& script) -> void
 
 auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const script& script) -> void
 {
+    run(id, name, script.code());
 }
 
 auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const std::string& script) -> void
 {
     if (luaL_loadstring(m_state, script.c_str()) != LUA_OK) {
-        throw lua_runtime_exception(error_string());
+        auto reason = error_string();
+        throw lua_runtime_exception(reason);
     }
 
     if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
@@ -120,4 +140,11 @@ auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const s
 auto kestrel::lua::runtime::global_namespace() const -> luabridge::Namespace
 {
     return luabridge::getGlobalNamespace(m_state);
+}
+
+// MARK: - Garbage Collector
+
+auto kestrel::lua::runtime::purge() -> void
+{
+    lua_gc(m_state, LUA_GCCOLLECT, 0);
 }

@@ -27,7 +27,26 @@ test_suite(Kestrel
             resource_namespace_addTypedNamedResourceIdentifier_returnsExpectedResource
 
         # ResourceDescriptor
-
+            resource_descriptor_fileConstrainedDescriptor
+            resource_descriptor_identifiedDescriptor
+            resource_descriptor_typedDescriptor
+            resource_descriptor_namedDescriptor
+            resource_descriptor_typedIdentifiedDescriptor
+            resource_descriptor_identifiedNamedDescriptor
+            resource_descriptor_typedNamedDescriptor
+            resource_descriptor_typedIdentifiedNamedDescriptor
+            resource_descriptor_identifier_descriptionHasExpectedValue
+            resource_descriptor_typed_descriptionHasExpectedValue
+            resource_descriptor_named_descriptionHasExpectedValue
+            resource_descriptor_typedIdentified_descriptionHasExpectedValue
+            resource_descriptor_typedNamed_descriptionHasExpectedValue
+            resource_descriptor_identifiedNamed_descriptionHasExpectedValue
+            resource_descriptor_typedIdentifiedNamed_descriptionHasExpectedValue
+            resource_descriptor_typedIdentifiedNamed_withNamespace_descriptionHasExpectedValue
+            resource_descriptor_hasType_expectedResult
+            resource_descriptor_hasId_expectedResult
+            resource_descriptor_hasName_expectedResult
+            resource_descriptor_isNamespaced_expectedResult
 
     # Scripting
         # lua::vector

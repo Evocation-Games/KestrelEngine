@@ -31,44 +31,46 @@ namespace kestrel::lua
      * @tparam T    The type of value contained in the vector.
      */
     template<typename T>
-    lua_api(0.8) struct vector
+    struct lua_api(Vector, Available_0_8) vector
     {
-        has_named_constructable_lua_api(vector<T>) {
-            runtime->global_namespace()
-                .beginClass<vector<T>>(name.c_str())
-                    .addProperty("count", &vector<T>::size)
-                    .addProperty("isEmpty", &vector<T>::empty)
-                    .addFunction("at", &vector<T>::lua_at)
-                    .addFunction("each", &vector<T>::each)
-                .endClass();
-        };
+        lua_declare_named(ResourceSet, resource::descriptor::lua_reference)
+        lua_declare_named(StringVector, std::string)
+        lua_declare_named(DirectoryContentsVector, sandbox::file_reference::lua_reference)
+        lua_declare_named(ModList, sandbox::mod_reference::lua_reference)
+        has_named_constructable_lua_api(vector<T>);
 
         vector() = default;
         explicit vector(const std::vector<T>& v) : m_items(v) {}
+        explicit vector(const T& item, std::size_t count = 1) : m_items(count, item) {}
 
-        lua_api(0.8) auto each(const luabridge::LuaRef& body) const -> void
+        lua_function(each, Available_0_8) auto each(const luabridge::LuaRef& body) const -> void
         {
             for (const auto& item : m_items) {
                 body(item);
             }
         }
 
-        lua_api(0.8) [[nodiscard]] auto empty() const -> bool
+        lua_getter(isEmpty, Available_0_8) [[nodiscard]] auto empty() const -> bool
         {
             return size() == 0;
         }
 
-        lua_api(0.8) [[nodiscard]] auto size() const -> int
+        lua_getter(count, Available_0_8) [[nodiscard]] auto size() const -> int
         {
             return m_items.size();
         }
 
-        lua_api(0.8) auto lua_at(const int& i) const -> T
+        lua_function(at, Available_0_8) [[nodiscard]] auto lua_at(const int& i) const -> T
         {
             return at(i - 1);
         }
 
-        auto at(const int& i) const -> T
+        lua_function(clear, Available_0_8) auto clear() -> void
+        {
+            m_items.clear();
+        }
+
+        [[nodiscard]] auto at(const int& i) const -> T
         {
             return m_items.at(i);
         }
@@ -91,6 +93,51 @@ namespace kestrel::lua
         auto sort(std::function<auto(const T&, const T&)->bool> fn) -> void
         {
             std::sort(m_items.begin(), m_items.end(), fn);
+        }
+
+        auto operator[](std::size_t idx) const -> T
+        {
+            return m_items[idx];
+        }
+
+        auto replace(std::size_t idx, T item) -> void
+        {
+            m_items[idx] = item;
+        }
+
+        auto front() -> T
+        {
+            return m_items.front();
+        }
+
+        auto back() -> T
+        {
+            return m_items.back();
+        }
+
+        auto begin() -> typename std::vector<T>::iterator
+        {
+            return m_items.begin();
+        }
+
+        auto end() -> typename std::vector<T>::iterator
+        {
+            return m_items.end();
+        }
+
+        [[nodiscard]] auto begin() const -> typename std::vector<T>::const_iterator
+        {
+            return m_items.begin();
+        }
+
+        [[nodiscard]] auto end() const-> typename std::vector<T>::const_iterator
+        {
+            return m_items.end();
+        }
+
+        [[nodiscard]] auto to_vector() const -> std::vector<T>
+        {
+            return m_items;
         }
 
     private:

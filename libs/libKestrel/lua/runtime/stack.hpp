@@ -32,7 +32,7 @@ namespace kestrel::lua
     public:
         enum index { previous = -2, current = -1, next = 0 };
 
-        explicit stack(std::weak_ptr<lua::runtime> runtime);
+        explicit stack(lua::runtime *runtime);
 
         auto pop(std::size_t count = 1) -> void;
 
@@ -40,6 +40,6 @@ namespace kestrel::lua
         auto pop_string() -> std::string;
 
     private:
-        std::weak_ptr<lua::runtime> m_runtime;
+        lua::runtime *m_runtime { nullptr };
     };
 }

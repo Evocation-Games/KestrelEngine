@@ -24,6 +24,7 @@
 #include <string>
 
 #include <libGraphite/util/hashing.hpp>
+#include <libGraphite/rsrc/resource.hpp>
 
 namespace kestrel::util
 {
@@ -33,14 +34,16 @@ namespace kestrel::util
     struct uid
     {
     public:
+        typedef std::uint64_t value;
+
         uid();
         uid(const uid&) = default;
-        explicit uid(std::uint64_t v);
+        explicit uid(value v);
         explicit uid(const std::string& name);
 
-        uid(const std::string& resource_type, std::int64_t resource_id, const std::string& ns = {});
+        uid(const std::string& resource_type, graphite::rsrc::resource::identifier resource_id, const std::string& ns = {});
 
-        explicit operator std::uint64_t() const { return m_value; }
+        explicit operator value() const { return m_value; }
 
         explicit operator std::uint32_t() const {
             std::string str { std::to_string(m_value) };
@@ -51,7 +54,7 @@ namespace kestrel::util
         auto operator!=(const uid& k) const -> bool { return m_value != k.m_value; }
 
     private:
-        std::uint64_t m_value;
+        value m_value;
     };
 }
 

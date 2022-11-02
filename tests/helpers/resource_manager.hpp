@@ -21,6 +21,7 @@
 #pragma once
 
 #include <libGraphite/rsrc/manager.hpp>
+#include <libKestrel/resource/namespace.hpp>
 
 namespace test
 {

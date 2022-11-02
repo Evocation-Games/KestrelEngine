@@ -35,7 +35,7 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const reso
         throw lua_runtime_exception("No script id specified.");
     }
 
-    if (auto script = ref->with_type(script_type)->load()) {
+    if (auto script = ref->with_type(resource_type::code)->load()) {
         m_name = script->name();
         graphite::data::reader reader(&script->data());
         m_script = "-- " + ref->description() + "\n" + reader.read_cstr();

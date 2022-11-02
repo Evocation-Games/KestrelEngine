@@ -24,7 +24,7 @@
 
 // MARK: - Construction
 
-kestrel::lua::stack::stack(std::weak_ptr<runtime> runtime)
+kestrel::lua::stack::stack(lua::runtime *runtime)
     : m_runtime(runtime)
 {
 }
@@ -33,26 +33,23 @@ kestrel::lua::stack::stack(std::weak_ptr<runtime> runtime)
 
 auto kestrel::lua::stack::pop(std::size_t count) -> void
 {
-    auto runtime = m_runtime.lock();
-    if (!runtime) {
+    if (!m_runtime) {
         throw lua_runtime_exception("Attempted to pop from stack without a parent state in place.");
     }
-    lua_pop(runtime->internal_state(), count);
+    lua_pop(m_runtime->internal_state(), count);
 }
 
 auto kestrel::lua::stack::peek_string(index i) -> std::string
 {
-    auto runtime = m_runtime.lock();
-    if (!runtime) {
+    if (!m_runtime) {
         throw lua_runtime_exception("Attempted to peek from stack without a parent state in place.");
     }
-    return { lua_tostring(runtime->internal_state(), i) };
+    return { lua_tostring(m_runtime->internal_state(), i) };
 }
 
 auto kestrel::lua::stack::pop_string() -> std::string
 {
-    auto runtime = m_runtime.lock();
-    if (!runtime) {
+    if (!m_runtime) {
         throw lua_runtime_exception("Attempted to pop_string from stack without a parent state in place.");
     }
 

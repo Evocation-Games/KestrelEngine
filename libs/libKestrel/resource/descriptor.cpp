@@ -18,60 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/resource/namespace.hpp>
 #include <libGraphite/util/hashing.hpp>
 #include <libGraphite/rsrc/manager.hpp>
-
-// MARK: - Lua API
-
-contruct_lua_api(kestrel::resource::descriptor)
-{
-    runtime->global_namespace()
-        .beginClass<descriptor>("ResourceDescriptor")
-            .addStaticFunction("identified", &descriptor::identified)
-            .addStaticFunction("typed", &descriptor::typed)
-            .addStaticFunction("named", &descriptor::named)
-            .addStaticFunction("typedIdentified", &descriptor::typed_identified)
-            .addStaticFunction("identifiedNamed", &descriptor::identified_named)
-            .addStaticFunction("typedNamed", &descriptor::typed_named)
-            .addStaticFunction("typedIdentifiedNamed", &descriptor::typed_identified_named)
-            .addProperty("type", &descriptor::type, false)
-            .addProperty("id", &descriptor::id, false)
-            .addProperty("name", &descriptor::name, false)
-            .addProperty("key", &descriptor::key)
-            .addProperty("hash", &descriptor::hash)
-            .addFunction("valid", &descriptor::valid)
-            .addFunction("hasType", &descriptor::has_type)
-            .addFunction("hasId", &descriptor::has_id)
-            .addFunction("hasName", &descriptor::has_name)
-            .addFunction("isNamespaced", &descriptor::is_namespaced)
-            .addFunction("withType", &descriptor::with_type)
-            .addFunction("withId", &descriptor::with_id)
-            .addFunction("normalizedId", &descriptor::normalized_id)
-            .addProperty("fromNamespace", &descriptor::from_namespace)
-            .addProperty("ignoringNamespace", &descriptor::ignoring_namespace)
-            .addProperty("ignoringType", &descriptor::ignoring_type)
-            .addProperty("ignoringId", &descriptor::ignoring_id)
-            .addProperty("ignoringName", &descriptor::ignoring_name)
-            .addProperty("description", &descriptor::description)
-            .addFunction("matchingResources", &descriptor::matching_resources)
-            .addFunction("bestResource", &descriptor::best_resource)
-            .addFunction("whenId", &descriptor::when_id)
-            .addFunction("whenNotId", &descriptor::when_not_id)
-            .addFunction("whenLessThanId", &descriptor::when_less_than_id)
-            .addFunction("whenGreaterThanId", &descriptor::when_greater_than_id)
-            .addFunction("whenIdInRange", &descriptor::when_id_in_range)
-            .addFunction("whenIdNotInRange", &descriptor::when_id_not_in_range)
-        .endClass();
-}
 
 // MARK: - Construction
 
 auto kestrel::resource::descriptor::file_constrained(const graphite::rsrc::file* file) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
-    r->m_file_constraint = file;
+    r->file = file;
     return r;
 }
 
@@ -137,12 +95,12 @@ auto kestrel::resource::descriptor::typed_identified_named(const std::string& ty
 }
 
 auto kestrel::resource::descriptor::reference(const std::string &ns,
-                                           const std::string &type,
-                                           int64_t id,
-                                           const std::string &name) -> lua_reference
+                                              const std::string &type,
+                                              std::int64_t id,
+                                              const std::string &name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
-    r->namespaces = { ns };
+    r->namespaces = lua::vector<std::string>(ns);
     r->id = id;
     r->name = name;
     r->type = type;
@@ -151,11 +109,11 @@ auto kestrel::resource::descriptor::reference(const std::string &ns,
 }
 
 auto kestrel::resource::descriptor::reference(const std::string &type,
-                                           int64_t id,
-                                           const std::string &name) -> lua_reference
+                                              std::int64_t id,
+                                              const std::string &name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
-    r->namespaces = { resource_namespace::universal()->primary_name() };
+    r->namespaces = lua::vector<std::string>(resource_namespace::universal()->primary_name());
     r->id = id;
     r->name = name;
     r->type = type;
@@ -164,6 +122,18 @@ auto kestrel::resource::descriptor::reference(const std::string &type,
 }
 
 // MARK: - Accessors
+
+auto kestrel::resource::descriptor::hash() const -> std::string
+{
+    std::string hash;
+    if (!namespaces.empty()) {
+        for (auto ns : namespaces) {
+            hash += ns + ":";
+        }
+    }
+    hash += std::to_string(id);
+    return hash;
+}
 
 auto kestrel::resource::descriptor::valid() -> bool
 {
@@ -201,46 +171,19 @@ auto kestrel::resource::descriptor::description() const -> std::string
                 description += ns + " ";
             }
         }
+
+        if (description.size() > 1 && description.back() == ' ') {
+            description.erase(description.size() - 1);
+        }
+
         description += ">";
     }
 
+    if (description.size() > 1 && description.back() == ' ') {
+        description.erase(description.size() - 1);
+    }
+
     return description;
-}
-
-auto kestrel::resource::descriptor::key() const -> std::string
-{
-    std::string value;
-
-    if (is_namespaced() && !namespaces[0].empty()) {
-        // TODO: Currently only taking the first namespace.
-        value += namespaces[0] + ".";
-    }
-
-    if (has_id()) {
-        value += std::to_string(id);
-    }
-
-    return value;
-}
-
-auto kestrel::resource::descriptor::hash() const -> std::string
-{
-    std::string value;
-
-    if (is_namespaced()) {
-        // TODO: Currently only taking the first namespace.
-        value += namespaces[0] + ":";
-    }
-
-    if (has_type()) {
-        value += type + ".";
-    }
-
-    if (has_id()) {
-        value += "#" + std::to_string(id);
-    }
-
-    return std::to_string(graphite::hashing::xxh64(value.c_str(), value.size()));
 }
 
 auto kestrel::resource::descriptor::has_type() const -> bool
@@ -295,7 +238,7 @@ auto kestrel::resource::descriptor::with_type(const std::string &type) const -> 
     }
 
     ref->namespaces = namespaces;
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -317,7 +260,7 @@ auto kestrel::resource::descriptor::with_id(int64_t id) const -> lua_reference
     }
 
     ref->namespaces = namespaces;
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -331,7 +274,7 @@ auto kestrel::resource::descriptor::from_namespace() const -> lua_reference
 {
     lua_reference ref(new descriptor());
     ref->namespaces = namespaces;
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -353,7 +296,7 @@ auto kestrel::resource::descriptor::ignoring_type() const -> lua_reference
     }
 
     ref->namespaces = namespaces;
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -375,7 +318,7 @@ auto kestrel::resource::descriptor::ignoring_id() const -> lua_reference
     }
 
     ref->namespaces = namespaces;
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -397,7 +340,7 @@ auto kestrel::resource::descriptor::ignoring_name() const -> lua_reference
     }
 
     ref->namespaces = namespaces;
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -430,7 +373,7 @@ auto kestrel::resource::descriptor::ignoring_namespace() const -> lua_reference
         ref = lua_reference(new descriptor());
     }
 
-    ref->m_file_constraint = m_file_constraint;
+    ref->file = file;
     return ref;
 }
 
@@ -473,8 +416,8 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
             attributes.emplace_back(graphite::rsrc::attribute("namespace", ns.primary_name()));
         }
 
-        if (m_file_constraint) {
-            return m_file_constraint->find(type, id, attributes);
+        if (file) {
+            return file->find(type, id, attributes);
         }
         else {
             return graphite::rsrc::manager::shared_manager().find(type, id, attributes);
@@ -488,8 +431,8 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
             attributes.emplace_back(graphite::rsrc::attribute(resource_namespace::attribute_name, ns.primary_name()));
         }
 
-        if (m_file_constraint) {
-            return m_file_constraint->find(best->type, best->id, attributes);
+        if (file) {
+            return file->find(best->type, best->id, attributes);
         }
         else {
             return graphite::rsrc::manager::shared_manager().find(best->type, best->id, attributes);
@@ -549,8 +492,8 @@ auto kestrel::resource::descriptor::resolve_identified() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -574,7 +517,7 @@ auto kestrel::resource::descriptor::resolve_identified() -> void
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
                     auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                    res->m_file_constraint = m_file_constraint;
+                    res->file = file;
                     m_resolved_resources.emplace_back(std::move(res));
                 }
             }
@@ -590,8 +533,8 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -618,7 +561,7 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
 
             for (const auto& resource : *t) {
                 auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                res->m_file_constraint = m_file_constraint;
+                res->file = file;
                 m_resolved_resources.emplace_back(std::move(res));
             }
         }
@@ -633,8 +576,8 @@ auto kestrel::resource::descriptor::resolve_named() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -658,7 +601,7 @@ auto kestrel::resource::descriptor::resolve_named() -> void
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
                     auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                    res->m_file_constraint = m_file_constraint;
+                    res->file = file;
                     m_resolved_resources.emplace_back(std::move(res));
                 }
             }
@@ -674,8 +617,8 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -703,7 +646,7 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
                     auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                    res->m_file_constraint = m_file_constraint;
+                    res->file = file;
                     m_resolved_resources.emplace_back(std::move(res));
                 }
             }
@@ -719,8 +662,8 @@ auto kestrel::resource::descriptor::resolve_identified_named() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -744,7 +687,7 @@ auto kestrel::resource::descriptor::resolve_identified_named() -> void
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
                     auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                    res->m_file_constraint = m_file_constraint;
+                    res->file = file;
                     m_resolved_resources.emplace_back(std::move(res));
                 }
             }
@@ -760,8 +703,8 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -789,7 +732,7 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
                     auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                    res->m_file_constraint = m_file_constraint;
+                    res->file = file;
                     m_resolved_resources.emplace_back(std::move(res));
                 }
             }
@@ -805,8 +748,8 @@ auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
-    if (m_file_constraint) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(m_file_constraint));
+    if (file) {
+        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -834,7 +777,7 @@ auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
                     auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
-                    res->m_file_constraint = m_file_constraint;
+                    res->file = file;
                     m_resolved_resources.emplace_back(std::move(res));
                 }
             }

@@ -24,6 +24,7 @@
 #include <memory>
 
 #include <libKestrel/resource/descriptor.hpp>
+#include <libKestrel/resource/macro.hpp>
 
 namespace kestrel::lua
 {
@@ -32,6 +33,8 @@ namespace kestrel::lua
     class script
     {
     public:
+        is_resource_type("LuaS");
+
         script() = default;
         script(const std::shared_ptr<runtime>& runtime, const resource::descriptor::lua_reference &ref);
         script(const std::shared_ptr<runtime>& runtime, const graphite::rsrc::resource *resource);
@@ -42,9 +45,6 @@ namespace kestrel::lua
         [[nodiscard]] auto code() const -> std::string;
 
         auto execute() const -> void;
-
-    private:
-        constexpr static const char* script_type = "LuaS";
 
     private:
         std::weak_ptr<runtime> m_runtime;

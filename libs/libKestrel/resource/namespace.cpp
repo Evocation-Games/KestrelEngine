@@ -18,38 +18,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <libKestrel/kestrel.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/resource/namespace.hpp>
 #include <libGraphite/rsrc/manager.hpp>
-
-// MARK: - Lua
-
-contruct_lua_api(kestrel::resource::resource_namespace)
-{
-    runtime->global_namespace()
-        .beginClass<resource_namespace>("Namespace")
-            .addConstructor<auto(*)(const std::string&)->void, lua_reference>()
-            .addStaticFunction("global", &resource_namespace::global)
-            .addStaticFunction("any", &resource_namespace::universal)
-            .addProperty("hasAssociatedResources", &resource_namespace::contains_resources)
-            .addProperty("primaryName", &resource_namespace::primary_name)
-            .addProperty("containsResources", &resource_namespace::contains_resources)
-            .addFunction("firstResourceOfType", &resource_namespace::first_resource_of)
-            .addFunction("hasName", &resource_namespace::has_name)
-            .addFunction("resourcesOfType", &resource_namespace::resources_of_type)
-            .addFunction("resource", &resource_namespace::resource_for_id)
-            .addFunction("each", &resource_namespace::lua_each_name)
-            .addFunction("identifiedResource", &resource_namespace::identified_resource)
-            .addFunction("typedResource", &resource_namespace::typed_resource)
-            .addFunction("namedResource", &resource_namespace::named_resource)
-            .addFunction("typedIdentifiedResource", &resource_namespace::typed_identified_resource)
-            .addFunction("identifiedNamedResource", &resource_namespace::identified_named_resource)
-            .addFunction("typedNamedResource", &resource_namespace::typed_named_resource)
-            .addFunction("typedIdentifiedNamedResource", &resource_namespace::typed_identified_named_resource)
-//            .addFunction("scene", &resource_namespace::scene)
-//            .addFunction("pushScene", &resource_namespace::push_scene)
-        .endClass();
-}
 
 // MARK: - Construction
 
@@ -60,6 +32,11 @@ kestrel::resource::resource_namespace::resource_namespace(const std::string &nam
 
 kestrel::resource::resource_namespace::resource_namespace(const std::vector<std::string>& names)
     : m_names(names.empty() ? std::vector<std::string>({ universal_name }) : names)
+{
+}
+
+kestrel::resource::resource_namespace::resource_namespace(const lua::vector<std::string>& names)
+    : m_names(names.empty() ? std::vector<std::string>({ universal_name }) : names.to_vector())
 {
 }
 
@@ -259,4 +236,18 @@ auto kestrel::resource::resource_namespace::typed_identified_named_resource(cons
         r->namespaces.emplace_back(ns.primary_name());
     });
     return r;
+}
+
+// MARK: - Scene
+
+auto kestrel::resource::resource_namespace::scene() const -> ui::game_scene::lua_reference
+{
+    return {
+        new ui::game_scene(typed_identified_resource(lua::script::resource_type::code, ui::game_scene::initial_script_id))
+    };
+}
+
+auto kestrel::resource::resource_namespace::push_scene() const -> void
+{
+    kestrel::push_scene(scene());
 }

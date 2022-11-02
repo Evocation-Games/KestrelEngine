@@ -36,6 +36,7 @@ set(KESTREL_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING 
 set(KESTREL_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data Files Path")
 
 set(CMAKE_CXX_STANDARD 20)
+set(OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 
 if(CMAKE_BUILD_TYPE MATCHES ASan)
@@ -51,6 +52,7 @@ set(CMAKE_BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_BINARY_DIR ${CMAKE_BUILD_DIR})
 set(PROJECT_INSTALL_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(PROJECT_SUBMODULE_DIR ${CMAKE_SOURCE_DIR}/submodules)
+set(PROJECT_TOOLS_DIR ${CMAKE_SOURCE_DIR}/tools)
 set(PROJECT_VENDOR_DIR ${CMAKE_SOURCE_DIR}/vendor)
 set(CMAKE_OUTPUT_PATH ${CMAKE_BUILD_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -58,6 +60,12 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 if (UNIX AND NOT APPLE)
     set(LINUX TRUE)
 endif()
+
+########################################################################################################################
+## LuaTool
+set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCHITECTURES})
+add_subdirectory(${CMAKE_SOURCE_DIR}/tools/luatool ${CMAKE_BINARY_DIR})
+set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 
 ########################################################################################################################
 ## Lua
@@ -113,62 +121,43 @@ if (APPLE)
 endif()
 
 ########################################################################################################################
+## libKestrel - Lua API
+set(luatool ${CMAKE_BUILD_DIR}/luatool)
+set(KestrelLuaAPISource ${CMAKE_BUILD_DIR}/kestrel_lua_api.cpp)
+
+file(GLOB_RECURSE KESTREL_LIB_HEADERS
+    "libs/libKestrel/*.hpp"
+)
+
+add_custom_target(
+    Kestrel-Lua-API
+    COMMAND ${luatool} -I /Volumes/CosmicFrontier/Kestrel/libs -I /Volumes/CosmicFrontier/Kestrel/submodules -lua ${KestrelLuaAPISource} ${KESTREL_LIB_HEADERS}
+    COMMENT "Generating Lua API for libKestrel into ${KestrelLuaAPISource}"
+)
+add_dependencies(Kestrel-Lua-API LuaTool)
+
+########################################################################################################################
 ## libKestrel
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+find_package(OpenAL REQUIRED)
+
 set(KESTREL_LIBS
-    Graphite Lua
+    Graphite Lua ImGUI
+    ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
+    png bz2 z
 )
 set(KESTREL_INC_DIRS
+    "${OPENGL_INCLUDE_DIRS}"
+    "${PROJECT_SUBMODULE_DIR}/glm"
     "${PROJECT_SUBMODULE_DIR}/lua_bridge/Source"
     "${PROJECT_SUBMODULE_DIR}/graphite"
     "${PROJECT_SUBMODULE_DIR}"
     "libs"
 )
 
-file(GLOB_RECURSE KESTREL_SOURCES
-    "libs/libKestrel/*.cpp"
-)
-
-add_library(Kestrel ${KESTREL_SOURCES})
-target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
-target_link_libraries(Kestrel ${KESTREL_LIBS})
-
-########################################################################################################################
-## Kestrel - Test Suite
-
-if (EXISTS ${CMAKE_SOURCE_DIR}/KestrelTests.cmake)
-    include(${PROJECT_SUBMODULE_DIR}/graphite/libTesting/testing.cmake)
-    build_testing_library()
-    add_testing_target(Kestrel ${CMAKE_SOURCE_DIR}/tests)
-    include(${CMAKE_SOURCE_DIR}/KestrelTests.cmake)
-endif()
-
-########################################################################################################################
-## Kestrel
-set(OpenGL_GL_PREFERENCE GLVND)
-find_package(OpenGL REQUIRED)
-find_package(OpenAL REQUIRED)
-
-set(KESTREL_BIN_LIBS
-    Graphite Lua ImGUI
-    ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
-    png bz2 z
-)
-set(KESTREL_BIN_INC_DIRS
-    "${OPENGL_INCLUDE_DIRS}"
-    "${PROJECT_SUBMODULE_DIR}/glm"
-    "${PROJECT_SUBMODULE_DIR}/lua_bridge/Source"
-    "${PROJECT_SUBMODULE_DIR}/graphite"
-    "${PROJECT_SUBMODULE_DIR}"
-    "engine"
-)
-
 if (APPLE)
-    set(KESTREL_BIN_EXE_TYPE MACOSX_BUNDLE)
-    file(GLOB_RECURSE KESTREL_BIN_SOURCES
-        "engine/*.cpp"
-        "engine/*.mm"
-    )
-    set(KESTREL_BIN_LIBS ${KESTREL_BIN_LIBS}
+    set(KESTREL_LIBS ${KESTREL_LIBS}
         "-framework Cocoa"
         "-framework MetalKit"
         "-framework Metal"
@@ -184,63 +173,90 @@ if (APPLE)
         glfw
         freetype
     )
-    set(KESTREL_BIN_INC_DIRS ${KESTREL_BIN_INC_DIRS}
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS}
         "${PROJECT_SUBMODULE_DIR}/freetype/include"
         "${PROJECT_SUBMODULE_DIR}/glfw/include"
     )
-
+    file(GLOB_RECURSE KESTREL_SOURCES
+        "libs/libKestrel/*.cpp"
+        "libs/libKestrel/*.mm"
+    )
 elseif(LINUX)
-    set(KESTREL_BIN_EXE_TYPE )
-    file(GLOB_RECURSE KESTREL_BIN_SOURCES
-        "engine/*.cpp"
-    )
-
     find_package(GLEW REQUIRED)
     find_package(glfw3 REQUIRED)
     find_package(Freetype REQUIRED)
-    set(KESTREL_BIN_LIBS ${KESTREL_BIN_LIBS} ${GLEW_LIBRARIES} freetype glfw dl fontconfig pthread)
-    set(KESTREL_BIN_INC_DIRS ${KESTREL_BIN_INC_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
+    set(KESTREL_LIBS ${KESTREL_LIBS} ${GLEW_LIBRARIES} freetype glfw dl fontconfig pthread)
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
 
+    file(GLOB_RECURSE KESTREL_SOURCES
+        "libs/libKestrel/*.cpp"
+    )
 elseif(WIN32)
-    set(KESTREL_BIN_EXE_TYPE WIN32)
-    file(GLOB_RECURSE KESTREL_BIN_SOURCES
-        "engine/*.cpp"
-    )
-
     find_package(GLEW REQUIRED)
     find_package(glfw3 REQUIRED)
     find_package(Freetype REQUIRED)
-    set(KESTREL_BIN_LIBS ${KESTREL_BIN_LIBS} GLEW::GLEW freetype glfw)
-    set(KESTREL_BIN_INC_DIRS ${KESTREL_BIN_INC_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
 
+    set(KESTREL_LIBS ${KESTREL_LIBS} GLEW::GLEW freetype glfw)
+    set(KESTREL_INC_DIRS ${KESTREL_INC_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS})
+
+    file(GLOB_RECURSE KESTREL_SOURCES
+        "libs/libKestrel/*.cpp"
+    )
 endif()
 
-add_executable(Kestrel-Bin ${KESTREL_BIN_EXE_TYPE} ${KESTREL_BIN_SOURCES})
-target_include_directories(Kestrel-Bin PUBLIC ${KESTREL_BIN_INC_DIRS})
-target_link_directories(Kestrel-Bin PUBLIC ${PROJECT_VENDOR_DIR})
-target_link_libraries(Kestrel-Bin ${KESTREL_BIN_LIBS})
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+if (NOT EXISTS ${KestrelLuaAPISource})
+    set(KestrelLuaAPISource "")
+endif()
 
-if (APPLE OR WIN32)
-    set_target_properties(Kestrel-Bin PROPERTIES OUTPUT_NAME ${KESTREL_NAME})
-elseif(LINUX)
-    set_target_properties(Kestrel-Bin PROPERTIES OUTPUT_NAME ${KESTREL_BIN_NAME})
+add_library(Kestrel ${KESTREL_SOURCES} ${KestrelLuaAPISource})
+target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
+target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
+target_link_libraries(Kestrel ${KESTREL_LIBS})
+add_dependencies(Kestrel LuaTool Kestrel-Lua-API)
+
+########################################################################################################################
+## Kestrel - Test Suite
+
+if (EXISTS ${CMAKE_SOURCE_DIR}/KestrelTests.cmake)
+    include(${PROJECT_SUBMODULE_DIR}/graphite/libTesting/testing.cmake)
+    build_testing_library()
+    add_testing_target(Kestrel ${CMAKE_SOURCE_DIR}/tests)
+    include(${CMAKE_SOURCE_DIR}/KestrelTests.cmake)
 endif()
 
 ########################################################################################################################
-## Kestrel - Example Project
-add_custom_target(Kestrel-GameProject
-    ${CMAKE_BUILD_DIR}/kdl -f extended -o /kdl -f extended -o "${CMAKE_BUILD_DIR}/GameCore" "${CMAKE_SOURCE_DIR}/${KESTREL_PROJECT_PATH}"
+## Kestrel PLayer
+file(GLOB_RECURSE KESTREL_PLAYER_SOURCES
+   "player/*.cpp"
 )
-add_dependencies(Kestrel-GameProject kdl-bin)
-add_dependencies(Kestrel Kestrel-GameProject)
+
+if (APPLE)
+    set(KESTREL_PLAYER_EXE_TYPE MACOSX_BUNDLE)
+elseif(LINUX)
+    set(KESTREL_PLAYER_EXE_TYPE )
+elseif(WIN32)
+    set(KESTREL_PLAYER_EXE_TYPE WIN32)
+endif()
+
+add_executable(Kestrel-Player ${KESTREL_PLAYER_EXE_TYPE} ${KESTREL_PLAYER_SOURCES})
+target_include_directories(Kestrel-Player PUBLIC
+    libs
+    player
+)
+target_link_libraries(Kestrel-Player Kestrel)
+
+if (APPLE OR WIN32)
+    set_target_properties(Kestrel-Player PROPERTIES OUTPUT_NAME ${KESTREL_NAME})
+elseif(LINUX)
+    set_target_properties(Kestrel-Player PROPERTIES OUTPUT_NAME ${KESTREL_BIN_NAME})
+endif()
 
 ########################################################################################################################
 ## Kestrel - Icon
 add_custom_target(generate-kestrel-icon
     cp "${CMAKE_SOURCE_DIR}/${KESTREL_ICON_PATH}" "${CMAKE_BUILD_DIR}/${KESTREL_ICON_NAME}.png"
 )
-add_dependencies(Kestrel-Bin generate-kestrel-icon)
+add_dependencies(Kestrel-Player generate-kestrel-icon)
 
 ########################################################################################################################
 ### Kestrel - Info Plist
@@ -253,7 +269,7 @@ if (APPLE)
                          -D KESTREL_ICON_NAME=${KESTREL_ICON_NAME}
     		             -P ${CMAKE_SOURCE_DIR}/support/packaging/macOS/GenerateInfoPlist.cmake
     )
-    add_dependencies(Kestrel-Bin generate-kestrel-info-plist)
+    add_dependencies(Kestrel-Player generate-kestrel-info-plist)
 endif()
 
 ########################################################################################################################
@@ -286,7 +302,7 @@ if (LINUX)
             -D APP_BIN_DIR=${APP_BIN_DIR}
             -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
     )
-    add_dependencies(Kestrel-Bin kestrel-app-image)
+    add_dependencies(kestrel-app-image Kestrel-Player)
 endif()
 
 ########################################################################################################################
@@ -296,12 +312,14 @@ install(TARGETS kdl-bin
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
         DESTINATION ${PROJECT_INSTALL_DIR})
 
-if (APPLE)
-    set_target_properties(Kestrel-Bin PROPERTIES
-        MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_NAME}"
-    )
+install(TARGETS LuaTool
+        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
+        DESTINATION ${PROJECT_INSTALL_DIR})
 
-    install(TARGETS Kestrel-Bin
+if (APPLE)
+    set_target_properties(Kestrel-Player PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_NAME}")
+
+    install(TARGETS Kestrel-Player
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
             DESTINATION ${PROJECT_INSTALL_DIR})
 
@@ -324,7 +342,7 @@ elseif(LINUX)
 
     set(CMAKE_INSTALL_PREFIX "/usr")
 
-    install(TARGETS Kestrel-Bin
+    install(TARGETS Kestrel-Player
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             DESTINATION ${APP_BIN_DIR})
 
@@ -351,7 +369,7 @@ elseif(LINUX)
     install(CODE "execute_process(COMMAND ${CMAKE_BUILD_DIR}/appimagetool ${APP_DIR} ${PROJECT_INSTALL_DIR}/${KESTREL_NAME})")
 
 else()
-    install(TARGETS Kestrel-Bin
+    install(TARGETS Kestrel-Player
             PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
             DESTINATION ${PROJECT_INSTALL_DIR})
 endif()
