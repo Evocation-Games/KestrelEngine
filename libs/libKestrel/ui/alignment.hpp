@@ -25,14 +25,14 @@
 
 namespace kestrel::ui
 {
-    enum class lua_api(VerticalAlignment, Available_0_8) vertical_alignment : std::uint8_t
+    enum class lua_api(UI.VerticalAlignment, Available_0_8) vertical_alignment : std::uint8_t
     {
         top lua_case(Top, Available_0_8) = 0xa0,
         middle lua_case(Middle, Available_0_8) = 0xb0,
         bottom lua_case(Bottom, Available_0_8) = 0xc0
     };
 
-    enum class lua_api(HorizontalAlignment, Available_0_8) horizontal_alignment : std::uint8_t
+    enum class lua_api(UI.HorizontalAlignment, Available_0_8) horizontal_alignment : std::uint8_t
     {
         left lua_case(Left, Available_0_8) = 0x01,
         center lua_case(Center, Available_0_8) = 0x02,
