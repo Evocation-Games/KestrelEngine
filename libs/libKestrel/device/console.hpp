@@ -24,6 +24,8 @@
 #include <string>
 #include <functional>
 #include <libKestrel/util/uid.hpp>
+#include <libKestrel/entity/entity.hpp>
+#include <libKestrel/event/event.hpp>
 
 namespace kestrel::device::console
 {
@@ -41,4 +43,11 @@ namespace kestrel::device::console
 
     auto pipe_output(const std::function<auto(const struct record&)->void>& handler) -> util::uid;
     auto destroy_pipe(const util::uid& uid) -> void;
+
+    [[nodiscard]] auto entity() -> std::shared_ptr<ecs::entity>;
+    auto show_console() -> void;
+    auto hide_console() -> void;
+    auto toggle_console() -> void;
+    auto send_event(const event& e) -> bool;
+    auto redraw() -> void;
 }

@@ -127,22 +127,9 @@ auto kestrel::ui::session::tick(bool render, bool update) -> void
 
         if (scene.get()) {
             scene->internal_scene()->render();
-
-            // TODO: Fix console renderering
-//            if (m_console.console.is_visible() ) {
-//                m_console.console.entity()->set_render_size({
-//                    scene->size().width,
-//                    scene->size().height / 2
-//                });
-//
-//                m_console.console.entity()->set_draw_size({
-//                    scene->size().width,
-//                    scene->size().height / 2
-//                });
-//
-//                m_console.console.update();
-//                m_console.console.entity()->draw();
-//            }
+            if (auto console = device::console::entity()) {
+                console->draw();
+            }
         }
 
     }
@@ -152,14 +139,12 @@ auto kestrel::ui::session::receive_event(const event &e) -> void
 {
     if (e.is_key_event()) {
         if (e.has(event_type::key_up) && e.is(hid::f1)) {
-//            m_console.console.set_size({ size().width, size().height / 2 });
-//            m_console.console.toggle_visibility();
+            device::console::toggle_console();
             return;
         }
-//        if (m_console.console.is_visible()) {
-//            m_console.console.receive(e);
-//            return;
-//        }
+        if (device::console::send_event(e)) {
+            return;
+        }
     }
 
     auto scene = this->current_scene();
