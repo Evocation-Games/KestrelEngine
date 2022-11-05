@@ -31,27 +31,23 @@
 // MARK: - Construction
 
 kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<ecs::entity>& entity)
-    : m_entity(entity), m_position(0), m_frame(0)
+    : m_entity(entity), m_position(0), m_frame(0), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
 {
-
 }
 
 kestrel::ui::scene_entity::scene_entity(const luabridge::LuaRef& entity_provider)
-    : m_entity(spawn_entity(entity_provider)), m_position(0), m_frame(0)
+    : m_entity(spawn_entity(entity_provider)), m_position(0), m_frame(0), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
 {
-
 }
 
 kestrel::ui::scene_entity::scene_entity(const image::static_image::lua_reference &image)
-    : m_entity(spawn_entity(image)), m_position(0), m_frame(0)
+    : m_entity(spawn_entity(image)), m_position(0), m_frame(0), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
 {
-
 }
 
 kestrel::ui::scene_entity::scene_entity(const graphics::canvas::lua_reference &canvas)
-    : m_entity(spawn_entity(canvas)), m_position(), m_frame(0)
+    : m_entity(spawn_entity(canvas)), m_position(), m_frame(0), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
 {
-
 }
 
 kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& entity)
@@ -74,7 +70,8 @@ kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& ent
       m_on_mouse_drag_internal(entity->m_on_mouse_drag_internal),
       m_on_mouse_enter_internal(entity->m_on_mouse_enter_internal),
       m_on_mouse_exit_internal(entity->m_on_mouse_exit_internal),
-      m_continuous_mouse_down_action(entity->m_continuous_mouse_down_action)
+      m_continuous_mouse_down_action(entity->m_continuous_mouse_down_action),
+      m_body(entity->m_body)
 {
     if (entity->m_on_animation_start.state() && entity->m_on_animation_start.isFunction()) {
         m_on_animation_start = entity->m_on_animation_start;
@@ -100,6 +97,11 @@ kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& ent
     if (entity->m_on_mouse_drag.state() && entity->m_on_mouse_drag.isFunction()) {
         m_on_mouse_drag = entity->m_on_mouse_drag;
     }
+}
+
+kestrel::ui::scene_entity::~scene_entity()
+{
+    m_body->destroy();
 }
 
 // MARK: - Entity Spawning
@@ -157,6 +159,11 @@ auto kestrel::ui::scene_entity::set_sprite(const luabridge::LuaRef& sprite) -> v
 }
 
 // MARK: - Accessors
+
+auto kestrel::ui::scene_entity::body() const -> physics::body::lua_reference
+{
+    return m_body;
+}
 
 auto kestrel::ui::scene_entity::position() const -> math::point
 {
@@ -602,4 +609,12 @@ auto kestrel::ui::scene_entity::internal_entity() const -> std::shared_ptr<ecs::
 auto kestrel::ui::scene_entity::change_internal_entity(const std::shared_ptr<ecs::entity>& entity) -> void
 {
     m_entity = entity;
+}
+
+// MARK: - Collisions
+
+auto kestrel::ui::scene_entity::build_collision_map() -> void
+{
+    // The collision map is part of the sprite sheet, with each sprite frame having its own.
+    m_entity->sprite_sheet()->build_collision_maps();
 }

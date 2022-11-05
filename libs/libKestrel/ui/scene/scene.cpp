@@ -184,4 +184,14 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
     math::rect tex_coords { uv_x, uv_y, uv_w, uv_h };
 
     renderer::draw_quad(entity->texture(), frame, tex_coords, entity->blend(), static_cast<float>(entity->get_alpha()), 1.0);
+
+    const auto& map = sprite.collision_map();
+    if (!map.empty()) {
+        // If the collision map is not empty, then draw it...
+        for (auto n = 0; n < map.size(); ++n) {
+            auto last = map.at(n == 0 ? map.size() - 1 : n - 1);
+            auto current = map.at(n);
+            renderer::draw_line(math::point(frame.origin.x + last.x, frame.origin.y + last.y), math::point(frame.origin.x + current.x, frame.origin.y + current.y), renderer::blending::normal, graphics::color::green_color(), 1);
+        }
+    }
 }

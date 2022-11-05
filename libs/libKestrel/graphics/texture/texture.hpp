@@ -25,6 +25,7 @@
 #include <type_traits>
 #include <libKestrel/math/size.hpp>
 #include <libGraphite/data/data.hpp>
+#include <libKestrel/graphics/types/color.hpp>
 
 namespace kestrel::graphics
 {
@@ -47,6 +48,8 @@ namespace kestrel::graphics
         virtual auto set_data(const graphite::data::block& data) -> void;
         virtual auto handle() const -> reference;
         virtual auto destroy() -> void;
+
+        virtual auto color(double x, double y) const -> graphics::color;
 
         virtual auto upload_to_gpu() -> void;
         [[nodiscard]] virtual auto uploaded() const -> bool;

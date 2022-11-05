@@ -33,6 +33,7 @@
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/event/responder/responder_chain.hpp>
 #include <libKestrel/event/event.hpp>
+#include <libKestrel/physics/world.hpp>
 
 namespace kestrel::ui
 {
@@ -54,6 +55,9 @@ namespace kestrel::ui
         lua_function(push, Available_0_8) auto push() -> void;
 
         auto internal_scene() -> std::shared_ptr<scene>;
+        auto physics_world() -> physics::world&;
+
+        lua_function(adoptPhysicsBody, Available_0_8) auto adopt_physics_body(physics::body::lua_reference body) -> void;
 
         lua_getter(isCurrent, Available_0_8) [[nodiscard]] auto is_current() const -> bool;
         lua_getter(name, Available_0_8) [[nodiscard]] auto name() const -> std::string;
@@ -92,6 +96,7 @@ namespace kestrel::ui
 
     private:
         std::string m_name;
+        physics::world m_world;
         resource::descriptor::lua_reference m_script_descriptor { nullptr };
         std::shared_ptr<scene> m_backing_scene;
         layout::positioning_frame::lua_reference m_positioning_frame { nullptr };

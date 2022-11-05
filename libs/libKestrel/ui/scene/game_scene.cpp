@@ -123,6 +123,8 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
     });
 
     m_backing_scene->add_update_block([&, this] {
+        m_world.update();
+
         if (m_update_block.state() && m_update_block.isFunction()) {
             m_update_block();
         }
@@ -179,6 +181,11 @@ auto kestrel::ui::game_scene::back() -> void
 auto kestrel::ui::game_scene::internal_scene() -> std::shared_ptr<ui::scene>
 {
     return m_backing_scene;
+}
+
+auto kestrel::ui::game_scene::physics_world() -> physics::world&
+{
+    return m_world;
 }
 
 auto kestrel::ui::game_scene::is_current() const -> bool
@@ -469,4 +476,11 @@ auto kestrel::ui::game_scene::import_supporting_scripts(const luabridge::LuaRef&
 auto kestrel::ui::game_scene::draw_line(const math::point &p, const math::point &q, const graphics::color::lua_reference &color, float weight) -> void
 {
     renderer::draw_line(p, q, renderer::blending::normal, *color.get(), weight);
+}
+
+// MARK: - Physics
+
+auto kestrel::ui::game_scene::adopt_physics_body(physics::body::lua_reference body) -> void
+{
+    body->migrate_to_world(&m_world);
 }

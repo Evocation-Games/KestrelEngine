@@ -92,3 +92,10 @@ auto kestrel::graphics::texture::uploaded() const -> bool
     return m_uploaded;
 }
 
+// MARK: - Color Lookup
+
+auto kestrel::graphics::texture::color(double x, double y) const -> graphics::color
+{
+    auto value = m_data.get<std::uint32_t>(static_cast<std::uint32_t>((y * m_size.width) + x) << 2);
+    return graphics::color(value);
+}

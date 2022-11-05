@@ -34,6 +34,7 @@
 #include <libKestrel/graphics/image/static_image.hpp>
 #include <libKestrel/graphics/renderer/common/animator.hpp>
 #include <libKestrel/ui/layout/axis_origin.hpp>
+#include <libKestrel/physics/body.hpp>
 
 namespace kestrel::ui
 {
@@ -47,6 +48,8 @@ namespace kestrel::ui
         explicit scene_entity(const image::static_image::lua_reference& image);
         explicit scene_entity(const graphics::canvas::lua_reference& canvas);
         explicit scene_entity(const std::shared_ptr<scene_entity>& entity);
+
+        ~scene_entity();
 
         luatool_type_fix(const luabridge::LuaRef&, entity_provider)
         lua_constructor(Available_0_8) explicit scene_entity(const luabridge::LuaRef& entity_provider);
@@ -73,6 +76,7 @@ namespace kestrel::ui
         lua_getter(animator, Available_0_8) [[nodiscard]] auto animator() const -> renderer::animator::lua_reference;
         lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
         lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous_mouse_down_action() const -> bool;
+        lua_getter(body, Available_0_8) [[nodiscard]] auto body() const -> physics::body::lua_reference;
 
         lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
         lua_setter(drawPosition, Available_0_8) auto set_draw_position(const math::point& v) -> void;
@@ -125,8 +129,11 @@ namespace kestrel::ui
 
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
 
+        lua_function(buildCollisionMap, Available_0_8) auto build_collision_map() -> void;
+
     private:
         std::string m_id;
+        physics::body::lua_reference m_body { nullptr };
         std::shared_ptr<ecs::entity> m_entity;
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
         math::point m_position { 0 };
