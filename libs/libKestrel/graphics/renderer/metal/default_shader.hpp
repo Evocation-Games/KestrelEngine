@@ -87,7 +87,7 @@ namespace kestrel::renderer::metal
         // Fragment Function
         fragment float4 fragment_shader(
         	raster_data in [[stage_in]],
-        	array<texture2d<half>, 16> textures [[texture(0)]]
+        	array<texture2d<half>, 31> textures [[texture(0)]]
         ) {
             if (in.texture < 0) {
                 return in.color;

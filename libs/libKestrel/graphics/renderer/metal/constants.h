@@ -24,8 +24,8 @@
 
 namespace kestrel::renderer::metal::constants
 {
-    constexpr std::size_t max_quads { 10'000 };
-    constexpr std::size_t texture_slots { 8 };
+    constexpr std::size_t max_quads { 50'000 };
+    constexpr std::size_t texture_slots { 31 };
     constexpr std::size_t swap_count { 3 };
 
     typedef enum

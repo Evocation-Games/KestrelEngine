@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <array>
 #include <libKestrel/util/availability.hpp>
 #include <libKestrel/graphics/renderer/common/render_pass.hpp>
 
@@ -54,7 +55,8 @@ namespace kestrel::renderer::metal
         id<CAMetalDrawable> m_drawable { nullptr };
         id<MTLTexture> m_texture { nullptr };
         id<MTLDevice> m_device { nullptr };
-        id<MTLBuffer> m_buffer { nullptr };
+        std::array<id<MTLBuffer>, 10> m_buffer;
+        std::uint8_t m_buffer_idx { 0 };
         std::uint8_t *m_buffer_ptr { nullptr };
         std::size_t m_buffer_offset { 0 };
         std::size_t m_buffer_next_vertex { 0 };

@@ -32,13 +32,18 @@ kestrel::renderer::metal::swap_chain::swap_chain()
     : renderer::swap_chain(),
       m_device(MTLCreateSystemDefaultDevice())
 {
-    m_buffer = [m_device newBufferWithLength:sizeof(vertex) * constants::max_quads options:MTLResourceStorageModeShared];
+    // Construct a series of buffers to cycle between.
+    for (auto i = 0; i < m_buffer.max_size(); ++i) {
+        m_buffer[i] = [m_device newBufferWithLength:sizeof(vertex) * constants::max_quads
+                                            options:MTLResourceStorageModeShared];
+    }
 }
 
 // MARK: - Frame Lifecycle
 
 auto kestrel::renderer::metal::swap_chain::start(id<CAMetalDrawable> drawable, id<MTLCommandBuffer> command_buffer, std::uint32_t width, std::uint32_t height) -> void
 {
+    m_buffer_idx = 0;
     m_drawable = drawable;
     m_texture = drawable.texture;
     m_command_buffer = command_buffer;
@@ -62,11 +67,11 @@ auto kestrel::renderer::metal::swap_chain::start(id<CAMetalDrawable> drawable, i
 
     m_command_encoder = [m_command_buffer renderCommandEncoderWithDescriptor:m_pass_descriptor];
     [m_command_encoder setViewport:viewport];
-    [m_command_encoder setVertexBuffer:m_buffer
+    [m_command_encoder setVertexBuffer:m_buffer[m_buffer_idx]
                                      offset:0
                                     atIndex:constants::vertex_input_index::vertices];
 
-    m_buffer_ptr = reinterpret_cast<uint8_t *>(m_buffer.contents);
+    m_buffer_ptr = reinterpret_cast<uint8_t *>(m_buffer[m_buffer_idx].contents);
     m_buffer_offset = 0;
     m_buffer_next_vertex = 0;
 }
@@ -84,7 +89,6 @@ auto kestrel::renderer::metal::swap_chain::finalize(const std::function<auto() -
     }];
 
     [m_command_buffer commit];
-
     m_pass_descriptor = nil;
 }
 
@@ -94,8 +98,8 @@ auto kestrel::renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> vo
     auto state = shader->get_state();
     [m_command_encoder setRenderPipelineState:state];
 
-    memcpy(m_buffer_ptr, buffer->data(), buffer->data_size());
-//    [m_buffer didModifyRange:NSMakeRange(m_buffer_offset, buffer->data_size())];
+    memcpy(reinterpret_cast<uint8_t *>(m_buffer[m_buffer_idx].contents), buffer->data(), buffer->data_size());
+    [m_buffer[m_buffer_idx] didModifyRange:NSMakeRange(m_buffer_offset, buffer->data_size())];
 
     [m_command_encoder setVertexBytes:&m_viewport_size
                                length:sizeof(m_viewport_size)
