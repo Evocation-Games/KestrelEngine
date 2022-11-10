@@ -21,12 +21,22 @@
 #include <libKestrel/physics/world.hpp>
 #include <libKestrel/physics/body.hpp>
 #include <libKestrel/math/angular_difference.hpp>
+#include <libKestrel/physics/hitbox.hpp>
+
+static std::uint64_t s_next_body_id = 1;
 
 // MARK: - Construction
 
 kestrel::physics::body::body(physics::world *world)
-    : m_world(world)
+    : m_world(world), m_id(s_next_body_id++)
 {}
+
+// MARK: - ID
+
+auto kestrel::physics::body::id() const -> std::uint64_t
+{
+    return m_id;
+}
 
 // MARK: - Inertia
 
@@ -67,6 +77,7 @@ auto kestrel::physics::body::position() const -> math::point
 auto kestrel::physics::body::set_position(const math::point& position) -> void
 {
     m_position = position;
+    m_hitbox.set_offset(m_position);
 }
 
 // MARK: - Velocity
@@ -116,24 +127,75 @@ auto kestrel::physics::body::reduce_speed(double speed) -> void
 
 // MARK: - Collisions
 
-auto kestrel::physics::body::is_solid() const -> bool
+auto kestrel::physics::body::set_hitbox(const physics::hitbox& hb) -> void
 {
-    return m_solid;
+    m_hitbox = hb;
 }
 
-auto kestrel::physics::body::collision_mask() const -> std::uint32_t
+auto kestrel::physics::body::hitbox() const -> const physics::hitbox &
 {
-    return m_collision_mask;
+    return m_hitbox;
 }
 
-auto kestrel::physics::body::set_collision_mask(std::uint32_t mask) -> void
+auto kestrel::physics::body::reset_collisions() -> void
 {
-    m_solid = (mask != 0);
-    m_collision_mask = mask;
+    m_collisions.clear();
+}
 
-    if (m_solid) {
-
+auto kestrel::physics::body::add_detected_collision(body *collided) -> void
+{
+    if (collided && allows_collisions_from_body(collided)) {
+        // TODO: Check if the collision is even allowed?
+        m_collisions.insert(collided->id());
     }
+}
+
+auto kestrel::physics::body::collision_type() const -> std::uint32_t
+{
+    return m_collision_type;
+}
+
+auto kestrel::physics::body::set_collision_type(std::uint32_t type) -> void
+{
+    m_collision_type = type;
+}
+
+auto kestrel::physics::body::reject_collisions_from_type(std::uint32_t type) -> void
+{
+    m_rejected_collision_types.insert(type);
+}
+
+auto kestrel::physics::body::reject_collisions_from_body(const lua_reference &ref) -> void
+{
+    if (ref.get()) {
+        m_rejected_collisions.insert(ref->id());
+    }
+}
+
+auto kestrel::physics::body::allows_collisions_of_type(std::uint32_t type) const -> bool
+{
+    return !m_rejected_collision_types.contains(type);
+}
+
+auto kestrel::physics::body::allows_collisions_from_body(const lua_reference &ref) const -> bool
+{
+    return allows_collisions_from_body(ref.get());
+}
+
+auto kestrel::physics::body::allows_collisions_from_body(body *ref) const -> bool
+{
+    if (ref) {
+        return !m_rejected_collisions.contains(ref->id());
+    }
+    return false;
+}
+
+auto kestrel::physics::body::has_collision_from_body(const lua_reference &ref) const -> bool
+{
+    if (!ref.get() || !allows_collisions_of_type(ref->collision_type())) {
+        return false;
+    }
+    return m_collisions.contains(ref->id());
 }
 
 // MARK: - Forces
@@ -173,7 +235,7 @@ auto kestrel::physics::body::force_value(double value) const -> math::point
     return m_rotation.vector(value);
 }
 
-// MARK: - Accelerationm
+// MARK: - Acceleration
 
 auto kestrel::physics::body::acceleration() const -> double
 {
@@ -236,6 +298,7 @@ auto kestrel::physics::body::halt() -> void
 auto kestrel::physics::body::update() -> void
 {
     m_position = m_position + m_velocity;
+    m_hitbox.set_offset(m_position);
 }
 
 // MARK: - Destruction
@@ -256,5 +319,25 @@ auto kestrel::physics::body::migrate_to_world(physics::world *new_world) -> void
         m_world->destroy_physics_body(this);
         m_world = new_world;
         m_world->add_physics_body(ref);
+    }
+}
+
+// MARK: - Info
+
+auto kestrel::physics::body::info() const -> luabridge::LuaRef
+{
+    if (!m_info.state()) {
+        return { nullptr };
+    }
+    return m_info;
+}
+
+auto kestrel::physics::body::set_info(luabridge::LuaRef ref) -> void
+{
+    if (ref.state() && (ref.isUserdata() || ref.isTable())) {
+        m_info = ref;
+    }
+    else {
+        m_info = { nullptr };
     }
 }

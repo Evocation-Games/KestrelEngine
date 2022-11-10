@@ -26,12 +26,12 @@
 // MARK: - Construction
 
 kestrel::ecs::entity::entity(const math::size &size)
-    : m_position( 0 ), m_size(size)
+    : m_position(0), m_size(size), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
 {
 }
 
 kestrel::ecs::entity::entity(const math::point& position, const math::size &size)
-    : m_position(position), m_size(size)
+    : m_position(position), m_size(size), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
 {
 }
 
@@ -40,6 +40,7 @@ kestrel::ecs::entity::entity(const math::point& position, const math::size &size
 kestrel::ecs::entity::~entity()
 {
     m_sprite_sheet = nullptr;
+    m_body->destroy();
 }
 
 // MARK: - Accessors
@@ -113,6 +114,8 @@ auto kestrel::ecs::entity::set_sprite_index(uint32_t sprite_index) -> void
     auto sprite_size = m_sprite_sheet->at(static_cast<int>(sprite_index)).size();
     auto tex_size = m_sprite_sheet->texture()->size();
     m_size = math::size(sprite_size.width * tex_size.width, sprite_size.height * tex_size.height);
+
+    m_body->set_hitbox(m_sprite_sheet->at(sprite_index).hitbox());
 }
 
 auto kestrel::ecs::entity::get_position() const -> math::point
@@ -233,6 +236,16 @@ auto kestrel::ecs::entity::set_alpha(double alpha) -> void
     m_alpha = alpha;
 }
 
+auto kestrel::ecs::entity::hitbox_color() const -> graphics::color::lua_reference
+{
+    return m_hitbox_color;
+}
+
+auto kestrel::ecs::entity::set_hitbox_color(const graphics::color::lua_reference &color) -> void
+{
+    m_hitbox_color = color;
+}
+
 // MARK: - Rendering
 
 auto kestrel::ecs::entity::draw() -> void
@@ -251,4 +264,16 @@ auto kestrel::ecs::entity::draw() -> void
 auto kestrel::ecs::entity::is_intersecting(const entity& subject) const -> bool
 {
     return get_bounds().intersects(subject.get_bounds());
+}
+
+auto kestrel::ecs::entity::body() -> physics::body::lua_reference
+{
+    return m_body;
+}
+
+auto kestrel::ecs::entity::update() -> void
+{
+    if (m_body.get()) {
+        m_body->update();
+    }
 }

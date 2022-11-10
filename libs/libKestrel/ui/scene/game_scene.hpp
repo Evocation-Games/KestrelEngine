@@ -37,7 +37,6 @@
 
 namespace kestrel::ui
 {
-
     struct lua_api(Scene, Available_0_8) game_scene
     {
     public:
@@ -112,8 +111,6 @@ namespace kestrel::ui
         bool m_imgui { false };
 
         auto draw_widgets() const -> void;
-
-        auto forward_event_to_widgets(const event& e) -> void;
     };
 
 }

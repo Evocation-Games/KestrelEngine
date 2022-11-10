@@ -26,6 +26,7 @@
 #include <libKestrel/graphics/sprites/sprite_sheet.hpp>
 #include <libKestrel/graphics/renderer/common/blending.hpp>
 #include <libKestrel/util/uid.hpp>
+#include <libKestrel/physics/body.hpp>
 
 namespace kestrel
 {
@@ -94,7 +95,13 @@ namespace kestrel::ecs
 
         auto is_intersecting(const ecs::entity& subject) const -> bool;
 
+        [[nodiscard]] auto hitbox_color() const -> graphics::color::lua_reference;
+        auto set_hitbox_color(const graphics::color::lua_reference& color) -> void;
+
         auto draw() -> void;
+        auto update() -> void;
+
+        auto body() -> physics::body::lua_reference;
 
     private:
         std::weak_ptr<class scene> m_scene;
@@ -114,6 +121,8 @@ namespace kestrel::ecs
         math::point m_clipping_offset { 0 };
         math::size m_clipping_area_uv { 0 };
         math::point m_clipping_offset_uv { 0 };
+        graphics::color::lua_reference m_hitbox_color { graphics::color::green_color_ref() };
+        physics::body::lua_reference m_body { new physics::body() };
     };
 
 };

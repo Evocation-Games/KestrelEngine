@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/graphics/sprites/sprite_sheet.hpp>
-#include <libKestrel/physics/collision_map.hpp>
+#include <libKestrel/physics/constructors/hitbox_constructor.hpp>
 
 // MARK: - Sprite Construction
 
@@ -55,14 +55,14 @@ auto kestrel::graphics::sprite_sheet::sprite::size() const -> math::size
     return m_frame.size;
 }
 
-auto kestrel::graphics::sprite_sheet::sprite::collision_map() const -> const physics::collision_map &
+auto kestrel::graphics::sprite_sheet::sprite::hitbox() const -> const physics::hitbox &
 {
-    return m_map;
+    return m_hitbox;
 }
 
-auto kestrel::graphics::sprite_sheet::sprite::set_collision_map(physics::collision_map map) -> void
+auto kestrel::graphics::sprite_sheet::sprite::set_hitbox(const physics::hitbox &hb) -> void
 {
-    m_map = std::move(map);
+    m_hitbox = hb;
 }
 
 // MARK: - Spritesheet Construction
@@ -190,66 +190,13 @@ auto kestrel::graphics::sprite_sheet::flipped() const -> bool
     return m_flipped;
 }
 
-// MARK: - Collision Maps
+// MARK: - HitBoxes
 
-auto kestrel::graphics::sprite_sheet::build_collision_maps() -> void
+auto kestrel::graphics::sprite_sheet::build_hitboxes() -> void
 {
-    auto width = m_backing_texture->size().width;
-    auto height = m_backing_texture->size().height;
-
     // Loop through each of the sprites and build up a collision map for each.
     for (auto& sprite : m_sprites) {
-        auto x_step = std::max(1.0, (sprite.size().width * width) / physics::collision_map::granularity);
-        auto y_step = std::max(1.0, (sprite.size().height * height) / physics::collision_map::granularity);
-
-        auto sprite_width = (sprite.size().width * width);
-        auto sprite_height = (sprite.size().height * height);
-
-        // Divide the sprite into "chunks" and determine if there is an edge within the cell.
-        // if there is then mark the cell as solid.
-        physics::collision_map map;
-
-        std::vector<std::pair<double, double>> left;
-        std::vector<std::pair<double, double>> right;
-
-        for (auto y = 0; y < (sprite.size().height * height); y += y_step) {
-            auto real_y = y + (sprite.point().y * height);
-
-            // Work from the left side and find the left edge (if it exists)
-            auto found_left_edge = false;
-            for (auto x = 0; x < (sprite.size().width * width); x += x_step) {
-                auto real_x = x + (sprite.point().x * width);
-                auto alpha = m_backing_texture->color(real_x, real_y).get_alpha();
-
-                if (alpha >= 10) {
-                    left.emplace_back(x, y);
-                    found_left_edge = true;
-                    break;
-                }
-            }
-
-            if (!found_left_edge) {
-                continue;
-            }
-
-            for (auto x = 0; x < (sprite.size().width * width); x += x_step) {
-                auto real_x = ((sprite.point().x + sprite.size().width) * width) - 1 - x;
-                auto alpha = m_backing_texture->color(real_x, real_y).get_alpha();
-                if (alpha >= 10) {
-                    right.emplace_back(sprite_width - x - 1, y);
-                    break;
-                }
-            }
-        }
-
-        for (const auto& p : left) {
-            map.add_point(p.first, p.second);
-        }
-        for (auto it = right.rbegin(); it != right.rend(); ++it) {
-            map.add_point(it->first, it->second);
-        }
-
-        // Store the collision map for this frame.
-        sprite.set_collision_map(std::move(map));
+        auto hb = std::move(physics::hitbox_constructor::hitbox(shared_from_this(), sprite.frame()));
+        sprite.set_hitbox(hb);
     }
 }

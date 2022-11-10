@@ -18,7 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <libKestrel/kestrel.hpp>
 #include <libKestrel/physics/world.hpp>
+#include <libKestrel/physics/quad_tree.hpp>
+
+// MARK: - Construction
+
+kestrel::physics::world::world()
+    : m_collision_tree(0, math::rect(math::point(0), kestrel::session().size()))
+{}
 
 // MARK: - Physics Bodies Management
 
@@ -58,7 +66,37 @@ auto kestrel::physics::world::get_physics_body(body *ref) -> body::lua_reference
 
 auto kestrel::physics::world::update() -> void
 {
+    if (m_bodies.empty()) {
+        return;
+    }
+
+    // Iterate through all bodies, and add them to a quad tree in order to test collisions.
+    m_collision_tree.clear();
     for (auto& body : m_bodies) {
         body->update();
+
+        if (body->hitbox().is_valid()) {
+            math::rect bounds(body->position(), body->hitbox().size());
+            m_collision_tree.insert(bounds, const_cast<physics::body *>(body.get()));
+        }
+    }
+
+    // Work through the tree and determine collisions.
+    for (auto n = 0; n < m_bodies.size(); ++n) {
+        auto body = m_bodies[n];
+        if (!body->hitbox().is_valid()) {
+            continue;
+        }
+
+        body->reset_collisions();
+
+        math::rect bounds(body->position(), body->hitbox().size());
+        auto objects = m_collision_tree.retrieve(bounds);
+        for (const auto& collision_candidate : objects) {
+            auto candidate_body = collision_candidate.second;
+            if ((body.get() != candidate_body) && body->hitbox().collision_test(candidate_body->hitbox())) {
+                body->add_detected_collision(candidate_body);
+            }
+        }
     }
 }

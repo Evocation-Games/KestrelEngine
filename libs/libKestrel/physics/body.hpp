@@ -20,12 +20,14 @@
 
 #pragma once
 
+#include <unordered_set>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/angle.hpp>
 #include <libKestrel/math/angular_difference.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
-#include <libKestrel/physics/collision_map.hpp>
+#include <libKestrel/lua/support/vector.hpp>
+#include <libKestrel/physics/hitbox.hpp>
 
 namespace kestrel::physics
 {
@@ -38,7 +40,11 @@ namespace kestrel::physics
     public:
         has_constructable_lua_api(body);
 
+        typedef std::uint64_t identifier;
+
         explicit body(physics::world *world = nullptr);
+
+        lua_getter(id, Available_0_8) [[nodiscard]] auto id() const -> std::uint64_t;
 
         lua_getter(hasInertia, Available_0_8) [[nodiscard]] auto has_inertia() const -> bool;
         lua_setter(hasInertia, Available_0_8) auto set_inertia(bool f) -> void;
@@ -58,9 +64,16 @@ namespace kestrel::physics
         lua_setter(maximumSpeed, Available_0_8) auto set_maximum_speed(double speed) -> void;
         lua_function(reduceSpeed, Available_0_8) auto reduce_speed(double speed) -> void;
 
-        lua_getter(isSolid, Available_0_8) [[nodiscard]] auto is_solid() const -> bool;
-        lua_getter(collisionMask, Available_0_8) [[nodiscard]] auto collision_mask() const -> std::uint32_t;
-        lua_setter(collisionMask, Available_0_8) auto set_collision_mask(std::uint32_t mask) -> void;
+        auto set_hitbox(const physics::hitbox& hb) -> void;
+        [[nodiscard]] auto hitbox() const -> const hitbox&;
+        lua_getter(collisionType, Available_0_8) [[nodiscard]] auto collision_type() const -> std::uint32_t;
+        lua_setter(collisionType, Available_0_8) auto set_collision_type(std::uint32_t type) -> void;
+        [[nodiscard]] auto allows_collisions_of_type(std::uint32_t type) const -> bool;
+        [[nodiscard]] auto allows_collisions_from_body(const lua_reference& ref) const -> bool;
+        [[nodiscard]] auto allows_collisions_from_body(body *ref) const -> bool;
+        lua_function(rejectCollisionsFromType, Available_0_8) auto reject_collisions_from_type(std::uint32_t type) -> void;
+        lua_function(rejectCollisionsFromBody, Available_0_8) auto reject_collisions_from_body(const lua_reference& ref) -> void;
+        lua_function(hasCollisionFromBody, Available_0_8) [[nodiscard]] auto has_collision_from_body(const lua_reference& ref) const -> bool;
 
         lua_function(applyForce, Available_0_8) auto apply_force(const math::point& force, bool ignore_maximum) -> void;
         lua_function(forceVectorValue, Available_0_8) [[nodiscard]] auto force_value(double value) const -> math::point;
@@ -78,16 +91,27 @@ namespace kestrel::physics
 
         lua_function(halt, Available_0_8) auto halt() -> void;
 
+        lua_getter(info, Available_0_8) [[nodiscard]] auto info() const -> luabridge::LuaRef;
+        lua_setter(info, Available_0_8) auto set_info(luabridge::LuaRef ref) -> void;
+
         auto update() -> void;
 
         auto destroy() -> void;
         auto migrate_to_world(physics::world *new_world) -> void;
 
+        auto reset_collisions() -> void;
+        auto add_detected_collision(body *collided) -> void;
+
     private:
+        identifier m_id { 0 };
         physics::world *m_world { nullptr };
+        std::unordered_set<identifier> m_collisions;
+        std::uint32_t m_collision_type { 0 };
+        std::unordered_set<std::uint32_t> m_rejected_collision_types;
+        std::unordered_set<identifier> m_rejected_collisions;
+        physics::hitbox m_hitbox;
+        luabridge::LuaRef m_info { nullptr };
         bool m_has_inertia { true };
-        bool m_solid { false };
-        std::uint32_t m_collision_mask { 0 };
         math::point m_position;
         math::point m_velocity;
         math::angle m_rotation;

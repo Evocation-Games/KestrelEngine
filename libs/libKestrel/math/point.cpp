@@ -140,6 +140,26 @@ auto kestrel::math::point::magnitude() const -> double
 {
     return std::sqrt(std::fabs(std::pow(x, 2)) + std::fabs(std::pow(y, 2)));
 }
+
+auto kestrel::math::point::dot_product(const point& p) const -> double
+{
+    return this->x * p.x + this->y * p.y;
+}
+
+auto kestrel::math::point::normalize() -> void
+{
+    auto magnitude = this->magnitude();
+    x /= magnitude;
+    y /= magnitude;
+}
+
+auto kestrel::math::point::normalized() const -> point
+{
+    auto p = *this;
+    p.normalize();
+    return p;
+}
+
 // MARK: - Lua Accessors
 
 auto kestrel::math::point::set_x(double v) -> void

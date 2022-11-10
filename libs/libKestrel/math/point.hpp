@@ -70,6 +70,11 @@ namespace kestrel::math
         [[nodiscard]] lua_getter(angle, Available_0_8) auto angle() const -> angle;
         [[nodiscard]] lua_function(angleTo, Available_0_8) auto angle_to(const point& p) const -> struct angle;
 
+        [[nodiscard]] lua_function(dotProduct, Available_0_8) auto dot_product(const point& p) const -> double;
+
+        lua_function(normalize, Available_0_8) auto normalize() -> void;
+        [[nodiscard]] lua_getter(normalized, Available_0_8) auto normalized() const -> point;
+
         auto set_x(double x) -> void;
         [[nodiscard]] auto get_x() const -> double;
 

@@ -24,7 +24,7 @@
 #include <vector>
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/graphics/texture/texture.hpp>
-#include <libKestrel/physics/collision_map.hpp>
+#include <libKestrel/physics/hitbox.hpp>
 
 namespace kestrel::graphics
 {
@@ -40,13 +40,13 @@ namespace kestrel::graphics
             [[nodiscard]] auto frame() const -> math::rect;
             [[nodiscard]] auto point() const -> math::point;
             [[nodiscard]] auto size() const -> math::size;
-            [[nodiscard]] auto collision_map() const -> const physics::collision_map&;
 
-            auto set_collision_map(physics::collision_map map) -> void;
+            [[nodiscard]] auto hitbox() const -> const physics::hitbox&;
+            auto set_hitbox(const physics::hitbox& hb) -> void;
 
         private:
             math::rect m_frame;
-            physics::collision_map m_map;
+            physics::hitbox m_hitbox;
         };
 
     public:
@@ -65,7 +65,7 @@ namespace kestrel::graphics
         auto layout_sprites(const math::size& sprite_size, bool flipped = false) -> void;
         auto layout_sprites(const std::vector<math::rect>& sprite_frames, bool flipped = false) -> void;
 
-        auto build_collision_maps() -> void;
+        auto build_hitboxes() -> void;
 
     private:
         std::shared_ptr<graphics::texture> m_backing_texture;

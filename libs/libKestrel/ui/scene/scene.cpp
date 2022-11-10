@@ -182,16 +182,27 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
     }
 
     math::rect tex_coords { uv_x, uv_y, uv_w, uv_h };
-
     renderer::draw_quad(entity->texture(), frame, tex_coords, entity->blend(), static_cast<float>(entity->get_alpha()), 1.0);
 
-    const auto& map = sprite.collision_map();
-    if (!map.empty()) {
-        // If the collision map is not empty, then draw it...
-        for (auto n = 0; n < map.size(); ++n) {
-            auto last = map.at(n == 0 ? map.size() - 1 : n - 1);
-            auto current = map.at(n);
-            renderer::draw_line(math::point(frame.origin.x + last.x, frame.origin.y + last.y), math::point(frame.origin.x + current.x, frame.origin.y + current.y), renderer::blending::normal, graphics::color::green_color(), 1);
-        }
-    }
+//    if (sprite.hitbox().is_valid()) {
+//        const auto& hb = sprite.hitbox();
+//        auto sheet = entity->sprite_sheet();
+//        auto scale = entity->get_draw_size() / sheet->sprite_size();
+//        auto color = *entity->hitbox_color().get();
+//
+//        // Determine what type of hitbox needs to be drawn...
+//        if (hb.type() == physics::hitbox::type::polygon) {
+//            const auto& poly = hb.polygon();
+//            for (auto n = 0; n < poly.triangle_count(); ++n) {
+//                const auto& tri = poly.triangle_at(n);
+//                math::point a(frame.origin.x + (tri.a.x * scale.width), frame.origin.y + (tri.a.y * scale.height));
+//                math::point b(frame.origin.x + (tri.b.x * scale.width), frame.origin.y + (tri.b.y * scale.height));
+//                math::point c(frame.origin.x + (tri.c.x * scale.width), frame.origin.y + (tri.c.y * scale.height));
+//
+//                renderer::draw_line(a, b, renderer::blending::normal, color, 1);
+//                renderer::draw_line(b, c, renderer::blending::normal, color, 1);
+//                renderer::draw_line(c, a, renderer::blending::normal, color, 1);
+//            }
+//        }
+//    }
 }

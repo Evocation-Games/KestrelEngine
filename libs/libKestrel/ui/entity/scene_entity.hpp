@@ -49,8 +49,6 @@ namespace kestrel::ui
         explicit scene_entity(const graphics::canvas::lua_reference& canvas);
         explicit scene_entity(const std::shared_ptr<scene_entity>& entity);
 
-        ~scene_entity();
-
         luatool_type_fix(const luabridge::LuaRef&, entity_provider)
         lua_constructor(Available_0_8) explicit scene_entity(const luabridge::LuaRef& entity_provider);
 
@@ -129,11 +127,12 @@ namespace kestrel::ui
 
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
 
-        lua_function(buildCollisionMap, Available_0_8) auto build_collision_map() -> void;
+        lua_function(setupHitbox, Available_0_8) auto setup_hitbox() -> void;
+        lua_getter(hitboxColor, Available_0_8) [[nodiscard]] auto hitbox_color() const -> graphics::color::lua_reference;
+        lua_setter(hitboxColor, Available_0_8) auto set_hitbox_color(const graphics::color::lua_reference& color) -> void;
 
     private:
         std::string m_id;
-        physics::body::lua_reference m_body { nullptr };
         std::shared_ptr<ecs::entity> m_entity;
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
         math::point m_position { 0 };

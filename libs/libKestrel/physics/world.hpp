@@ -22,13 +22,14 @@
 
 #include <vector>
 #include <libKestrel/physics/body.hpp>
+#include <libKestrel/physics/quad_tree.hpp>
 
 namespace kestrel::physics
 {
     class world
     {
     public:
-        world() = default;
+        world();
 
         [[nodiscard]] auto create_physics_body() -> body::lua_reference;
         [[nodiscard]] auto get_physics_body(body *ref) -> body::lua_reference;
@@ -38,6 +39,7 @@ namespace kestrel::physics
         auto update() -> void;
 
     private:
+        physics::quad_tree<body *, 10, 10> m_collision_tree;
         std::vector<body::lua_reference> m_bodies;
     };
 }
