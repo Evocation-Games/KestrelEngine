@@ -87,5 +87,10 @@ namespace kestrel::math
             return *this / magnitude();
         }
 
+        [[nodiscard]] auto angle_to(const vec2& v) const -> float
+        {
+            return static_cast<float>(std::atan2(v.y - y, v.x - x) * 180.0) / M_PI;
+        }
+
     };
 }
