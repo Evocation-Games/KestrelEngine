@@ -42,7 +42,11 @@ namespace kestrel::math
 
         [[nodiscard]] auto center() const -> vec2;
 
+        [[nodiscard]] auto operator*(const math::size& s) const -> triangulated_polygon;
+
     private:
+        explicit triangulated_polygon(const std::vector<triangle>& triangles, const math::vec2& center);
+
         auto triangulate_polygon(const polygon& poly) -> void;
 
     private:

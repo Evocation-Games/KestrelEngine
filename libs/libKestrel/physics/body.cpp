@@ -129,7 +129,9 @@ auto kestrel::physics::body::reduce_speed(double speed) -> void
 
 auto kestrel::physics::body::set_hitbox(const physics::hitbox& hb) -> void
 {
+    const auto scale = hb.scale_factor();
     m_hitbox = hb;
+    m_hitbox.set_scale_factor(scale);
 }
 
 auto kestrel::physics::body::hitbox() const -> const physics::hitbox &
@@ -142,11 +144,11 @@ auto kestrel::physics::body::reset_collisions() -> void
     m_collisions.clear();
 }
 
-auto kestrel::physics::body::add_detected_collision(body *collided) -> void
+auto kestrel::physics::body::add_detected_collision(lua_reference collided) -> void
 {
-    if (collided && allows_collisions_from_body(collided)) {
+    if (collided.get() && allows_collisions_from_body(collided) && allows_collisions_of_type(collided->collision_type())) {
         // TODO: Check if the collision is even allowed?
-        m_collisions.insert(collided->id());
+        m_collisions.insert(std::pair(collided->id(), collided));
     }
 }
 
@@ -174,7 +176,7 @@ auto kestrel::physics::body::reject_collisions_from_body(const lua_reference &re
 
 auto kestrel::physics::body::allows_collisions_of_type(std::uint32_t type) const -> bool
 {
-    return !m_rejected_collision_types.contains(type);
+    return !m_rejected_collision_types.contains(type) ;
 }
 
 auto kestrel::physics::body::allows_collisions_from_body(const lua_reference &ref) const -> bool
@@ -185,7 +187,7 @@ auto kestrel::physics::body::allows_collisions_from_body(const lua_reference &re
 auto kestrel::physics::body::allows_collisions_from_body(body *ref) const -> bool
 {
     if (ref) {
-        return !m_rejected_collisions.contains(ref->id());
+        return !(m_rejected_collisions.contains(ref->id()) || ref->m_rejected_collisions.contains(m_id));
     }
     return false;
 }
@@ -195,7 +197,21 @@ auto kestrel::physics::body::has_collision_from_body(const lua_reference &ref) c
     if (!ref.get() || !allows_collisions_of_type(ref->collision_type())) {
         return false;
     }
-    return m_collisions.contains(ref->id());
+    return m_collisions.find(ref->id()) != m_collisions.end();
+}
+
+auto kestrel::physics::body::has_collisions() const -> bool
+{
+    return !m_collisions.empty();
+}
+
+auto kestrel::physics::body::all_collisions() const -> lua::vector<lua_reference>
+{
+    lua::vector<lua_reference> result;
+    for (auto it : m_collisions) {
+        result.emplace_back(it.second);
+    }
+    return result;
 }
 
 // MARK: - Forces
@@ -340,4 +356,16 @@ auto kestrel::physics::body::set_info(luabridge::LuaRef ref) -> void
     else {
         m_info = { nullptr };
     }
+}
+
+// MARK: - Scaling Factor
+
+auto kestrel::physics::body::scaling_factor() const -> math::size
+{
+    return m_hitbox.scale_factor();
+}
+
+auto kestrel::physics::body::set_scaling_factor(const math::size &factor) -> void
+{
+    m_hitbox.set_scale_factor(factor);
 }

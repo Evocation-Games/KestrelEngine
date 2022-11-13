@@ -54,6 +54,9 @@ namespace kestrel::physics
         auto set_lod(enum lod lod) -> void;
         auto set_offset(const math::point& offset) -> void;
 
+        [[nodiscard]] auto scale_factor() const -> math::size;
+        auto set_scale_factor(const math::size& size) -> void;
+
         [[nodiscard]] auto collision_test(const hitbox& hb) const -> bool;
 
     private:
@@ -66,6 +69,7 @@ namespace kestrel::physics
         math::point m_offset;
         math::vec2 m_origin;
         math::vec2 m_size;
+        math::size m_scale { 1 };
         math::triangulated_polygon m_polygon;
 
     };

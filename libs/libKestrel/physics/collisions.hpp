@@ -20,26 +20,11 @@
 
 #pragma once
 
-#include <vector>
-#include <libKestrel/physics/body.hpp>
-#include <libKestrel/physics/quad_tree.hpp>
+#include <libKestrel/math/triangle.hpp>
 
-namespace kestrel::physics
+namespace kestrel::physics::collisions
 {
-    class world
-    {
-    public:
-        world();
 
-        [[nodiscard]] auto create_physics_body() -> body::lua_reference;
-        [[nodiscard]] auto get_physics_body(body *ref) -> body::lua_reference;
-        auto add_physics_body(body::lua_reference ref) -> void;
-        auto destroy_physics_body(body *ref) -> void;
+    [[nodiscard]] auto test(const math::triangle& a, const math::triangle& b) -> bool;
 
-        auto update() -> void;
-
-    private:
-        physics::quad_tree<body::lua_reference, 10, 10> m_collision_tree;
-        std::vector<body::lua_reference> m_bodies;
-    };
 }

@@ -18,28 +18,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include <libTesting/testing.hpp>
+#include <libKestrel/physics/collisions.hpp>
+#include <libKestrel/math/triangle.hpp>
 
-#include <vector>
-#include <libKestrel/physics/body.hpp>
-#include <libKestrel/physics/quad_tree.hpp>
+using namespace kestrel;
 
-namespace kestrel::physics
+// MARK: - Triangle Triangle Collisions
+
+TEST(triangle_triangle_hasCollision_whenOverlapping)
 {
-    class world
-    {
-    public:
-        world();
+    math::triangle a({ 10, 10 }, { 10, 40 }, { 40, 10 });
+    math::triangle b({ 0, 0 }, { 0, 30 }, { 30, 0 });
 
-        [[nodiscard]] auto create_physics_body() -> body::lua_reference;
-        [[nodiscard]] auto get_physics_body(body *ref) -> body::lua_reference;
-        auto add_physics_body(body::lua_reference ref) -> void;
-        auto destroy_physics_body(body *ref) -> void;
+    test::measure([a, b] {
+        test::is_true(physics::collisions::test(a, b));
+    });
+}
 
-        auto update() -> void;
+TEST(triangle_triangle_hasCollision_whenNotOverlapping)
+{
+    math::triangle a({ 10, 10 }, { 10, 40 }, { 40, 10 });
+    math::triangle b({ 100, 0 }, { 130, 0 }, { 100, 30 });
 
-    private:
-        physics::quad_tree<body::lua_reference, 10, 10> m_collision_tree;
-        std::vector<body::lua_reference> m_bodies;
-    };
+    test::measure([a, b] {
+        test::is_false(physics::collisions::test(a, b));
+    });
 }

@@ -20,6 +20,7 @@
 
 #include <stdexcept>
 #include <libKestrel/physics/hitbox.hpp>
+#include <libKestrel/physics/collisions.hpp>
 
 // MARK: - Construction
 
@@ -82,13 +83,23 @@ auto kestrel::physics::hitbox::set_offset(const math::point &offset) -> void
     m_offset = offset;
 }
 
+auto kestrel::physics::hitbox::scale_factor() const -> math::size
+{
+    return m_scale;
+}
+
+auto kestrel::physics::hitbox::set_scale_factor(const math::size &size) -> void
+{
+    m_scale = size;
+}
+
 // MARK: - Collision Checking
 
 auto kestrel::physics::hitbox::collision_test(const hitbox &hb) const -> bool
 {
     // TODO: Handle the varying LODs...
     if (m_type == type::polygon && hb.m_type == type::polygon) {
-        return collision_test(m_polygon, m_offset, hb.m_polygon, hb.m_offset);
+        return collision_test(m_polygon * m_scale, m_offset, hb.m_polygon * hb.m_scale, hb.m_offset);
     }
     else if (m_type == type::none || hb.m_type == type::none) {
         return false;
@@ -101,10 +112,10 @@ auto kestrel::physics::hitbox::collision_test(const hitbox &hb) const -> bool
 auto kestrel::physics::hitbox::collision_test(const math::triangulated_polygon &a, const math::point& offset_a, const math::triangulated_polygon &b, const math::point& offset_b) -> bool
 {
     for (auto i = 0; i < a.triangle_count(); ++i) {
-        auto t1 = a.triangle_at(i) + offset_a;
+        auto t1 = a.triangle_at(i) - a.center() + offset_a;
         for (auto j = 0; j < b.triangle_count(); ++j) {
-            auto t2 = b.triangle_at(j) + offset_b;
-            if (t1.check_collision(t2)) {
+            auto t2 = b.triangle_at(j) - b.center() + offset_b;
+            if (collisions::test(t1, t2)) {
                 return true;
             }
         }

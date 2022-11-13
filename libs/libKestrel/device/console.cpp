@@ -28,6 +28,7 @@
 // MARK: - Storage
 
 static struct {
+    bool dirty { true };
     kestrel::math::size canvas_size;
     std::shared_ptr<kestrel::graphics::canvas> canvas;
     std::shared_ptr<kestrel::ecs::entity> entity;
@@ -56,6 +57,7 @@ auto kestrel::device::console::write(const std::string &text, enum status status
         pipe.second(s_console.history.back());
     }
 
+    s_console.dirty = true;
     redraw();
 }
 
@@ -107,6 +109,7 @@ auto kestrel::device::console::show_console() -> void
             s_console.text_entry.set_cursor_position(0);
         });
 
+        s_console.dirty = true;
         redraw();
     }
 }
@@ -132,6 +135,7 @@ auto kestrel::device::console::send_event(const event &e) -> bool
 {
     if (s_console.entity) {
         s_console.text_entry.receive(e);
+        s_console.dirty = true;
         redraw();
         return true;
     }
@@ -140,7 +144,7 @@ auto kestrel::device::console::send_event(const event &e) -> bool
 
 auto kestrel::device::console::redraw() -> void
 {
-    if (!s_console.entity) {
+    if (!s_console.entity || !s_console.dirty) {
         return;
     }
 
@@ -190,4 +194,5 @@ auto kestrel::device::console::redraw() -> void
     }
 
     s_console.canvas->rebuild_texture();
+    s_console.dirty = false;
 }

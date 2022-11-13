@@ -44,93 +44,31 @@ namespace kestrel::math
             };
         }
 
-        [[nodiscard]] auto determinant() const -> double
+        auto operator+(const math::vec2& v) const -> triangle
         {
-            return determinant(a, b, c);
+            return {
+                vec2(a.x + v.x, a.y + v.y),
+                vec2(b.x + v.x, b.y + v.y),
+                vec2(c.x + v.x, c.y + v.y)
+            };
         }
 
-        [[nodiscard]] auto check_winding(bool allow_reversed = false) -> bool
+        auto operator-(const math::point& p) const -> triangle
         {
-            auto det = determinant();
-            if (det < 0) {
-                if (allow_reversed) {
-                    auto c = this->c;
-                    this->c = this->b;
-                    this->b = c;
-                }
-                else {
-                    return false;
-                }
-            }
-            return true;
+            return {
+                vec2(a.x - p.x, a.y - p.y),
+                vec2(b.x - p.x, b.y - p.y),
+                vec2(c.x - p.x, c.y - p.y)
+            };
         }
 
-        [[nodiscard]] auto check_collision(const triangle& tri, double eps = 0, bool allow_reversed = false, bool on_boundary = true) const -> bool
+        auto operator-(const math::vec2& v) const -> triangle
         {
-            auto t1 = *this;
-            auto t2 = tri;
-
-            if (!t1.check_winding(allow_reversed) || !t2.check_winding(allow_reversed)) {
-                return false;
-            }
-
-            auto check_function = on_boundary ? boundary_collision_check : boundary_no_collision_check;
-
-            if (check_function(t1.a, t1.b, t2.a, eps) &&
-                check_function(t1.a, t1.b, t2.b, eps) &&
-                check_function(t1.a, t1.b, t2.c, eps)) {
-                return false;
-            }
-
-            if (check_function(t1.b, t1.c, t2.a, eps) &&
-                check_function(t1.b, t1.c, t2.b, eps) &&
-                check_function(t1.b, t1.c, t2.c, eps)) {
-                return false;
-            }
-
-            if (check_function(t1.c, t1.a, t2.a, eps) &&
-                check_function(t1.c, t1.a, t2.b, eps) &&
-                check_function(t1.c, t1.a, t2.c, eps)) {
-                return false;
-            }
-
-            if (check_function(t2.a, t2.b, t1.a, eps) &&
-                check_function(t2.a, t2.b, t1.b, eps) &&
-                check_function(t2.a, t2.b, t1.c, eps)) {
-                return false;
-            }
-
-            if (check_function(t2.b, t2.c, t1.a, eps) &&
-                check_function(t2.b, t2.c, t1.b, eps) &&
-                check_function(t2.b, t2.c, t1.c, eps)) {
-                return false;
-            }
-
-            if (check_function(t2.c, t2.a, t1.a, eps) &&
-                check_function(t2.c, t2.a, t1.b, eps) &&
-                check_function(t2.c, t2.a, t1.c, eps)) {
-                return false;
-            }
-
-            return true;
-        }
-
-    private:
-        static auto determinant(const vec2& a, const vec2& b, const vec2& c) -> double
-        {
-            return +a.x * (b.y  - c.y)
-                   +b.x * (c.y - a.y)
-                   +c.x * (a.y - b.y);
-        }
-
-        static auto boundary_collision_check(const vec2& a, const vec2& b, const vec2& c, double eps) -> bool
-        {
-            return determinant(a, b, c) < eps;
-        }
-
-        static auto boundary_no_collision_check(const vec2& a, const vec2& b, const vec2& c, double eps) -> bool
-        {
-            return determinant(a, b, c) <= eps;
+            return {
+                vec2(a.x - v.x, a.y - v.y),
+                vec2(b.x - v.x, b.y - v.y),
+                vec2(c.x - v.x, c.y - v.y)
+            };
         }
     };
 }

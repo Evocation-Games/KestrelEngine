@@ -49,6 +49,9 @@ namespace kestrel::renderer
 
     auto scale_factor() -> float;
 
+    auto toggle_hitbox_debug() -> void;
+    [[nodiscard]] auto hitbox_debug() -> bool;
+
     auto native_screen_size() -> math::size;
     auto set_fullscreen(bool f) -> void;
     auto set_window_title(const std::string& title) -> void;

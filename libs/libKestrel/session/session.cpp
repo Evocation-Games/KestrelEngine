@@ -142,6 +142,10 @@ auto kestrel::ui::session::receive_event(const event &e) -> void
             device::console::toggle_console();
             return;
         }
+        if (e.has(event_type::key_up) && e.is(hid::f2)) {
+            renderer::toggle_hitbox_debug();
+            return;
+        }
         if (device::console::send_event(e)) {
             return;
         }

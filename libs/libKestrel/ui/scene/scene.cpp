@@ -184,25 +184,24 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
     math::rect tex_coords { uv_x, uv_y, uv_w, uv_h };
     renderer::draw_quad(entity->texture(), frame, tex_coords, entity->blend(), static_cast<float>(entity->get_alpha()), 1.0);
 
-//    if (sprite.hitbox().is_valid()) {
-//        const auto& hb = sprite.hitbox();
-//        auto sheet = entity->sprite_sheet();
-//        auto scale = entity->get_draw_size() / sheet->sprite_size();
-//        auto color = *entity->hitbox_color().get();
-//
-//        // Determine what type of hitbox needs to be drawn...
-//        if (hb.type() == physics::hitbox::type::polygon) {
-//            const auto& poly = hb.polygon();
-//            for (auto n = 0; n < poly.triangle_count(); ++n) {
-//                const auto& tri = poly.triangle_at(n);
-//                math::point a(frame.origin.x + (tri.a.x * scale.width), frame.origin.y + (tri.a.y * scale.height));
-//                math::point b(frame.origin.x + (tri.b.x * scale.width), frame.origin.y + (tri.b.y * scale.height));
-//                math::point c(frame.origin.x + (tri.c.x * scale.width), frame.origin.y + (tri.c.y * scale.height));
-//
-//                renderer::draw_line(a, b, renderer::blending::normal, color, 1);
-//                renderer::draw_line(b, c, renderer::blending::normal, color, 1);
-//                renderer::draw_line(c, a, renderer::blending::normal, color, 1);
-//            }
-//        }
-//    }
+    if (renderer::hitbox_debug() && entity->body()->hitbox().is_valid()) {
+        const auto& hb = entity->body()->hitbox();
+        auto sheet = entity->sprite_sheet();
+        auto color = *entity->hitbox_color().get();
+
+        // Determine what type of hitbox needs to be drawn...
+        if (hb.type() == physics::hitbox::type::polygon) {
+            const auto& poly = hb.polygon() * hb.scale_factor();
+            for (auto n = 0; n < poly.triangle_count(); ++n) {
+                const auto& tri = poly.triangle_at(n);
+                math::point a(frame.origin.x + tri.a.x, frame.origin.y + tri.a.y);
+                math::point b(frame.origin.x + tri.b.x, frame.origin.y + tri.b.y);
+                math::point c(frame.origin.x + tri.c.x, frame.origin.y + tri.c.y);
+
+                renderer::draw_line(a, b, renderer::blending::normal, color, 1);
+                renderer::draw_line(b, c, renderer::blending::normal, color, 1);
+                renderer::draw_line(c, a, renderer::blending::normal, color, 1);
+            }
+        }
+    }
 }

@@ -58,6 +58,11 @@ test_suite(Kestrel
             lua_vector_emplaceBack
             lua_vector_appendVector
 
+    # Physics
+        # Collisions
+            triangle_triangle_hasCollision_whenOverlapping
+            triangle_triangle_hasCollision_whenNotOverlapping
+
     # Utilities
         # uid
             uid_random_doesNotGenerateRepeatValues

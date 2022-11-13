@@ -151,6 +151,7 @@ auto kestrel::ecs::entity::get_render_size() const -> math::size
 auto kestrel::ecs::entity::set_render_size(const math::size &sz) -> void
 {
     m_render_size = sz;
+    m_body->set_scaling_factor(sz / m_size);
 }
 
 auto kestrel::ecs::entity::get_draw_size() const -> math::size
@@ -161,6 +162,7 @@ auto kestrel::ecs::entity::get_draw_size() const -> math::size
 auto kestrel::ecs::entity::set_draw_size(const math::size &sz) -> void
 {
     m_draw_size = sz;
+    m_body->set_scaling_factor(sz / m_size);
 }
 
 auto kestrel::ecs::entity::set_clipping_area(const math::size& sz) -> void

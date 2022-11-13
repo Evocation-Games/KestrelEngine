@@ -28,6 +28,10 @@ kestrel::math::triangulated_polygon::triangulated_polygon(const polygon &poly)
     triangulate_polygon(poly);
 }
 
+kestrel::math::triangulated_polygon::triangulated_polygon(const std::vector<triangle> &triangles, const math::vec2 &center)
+    : m_triangles(triangles), m_center(center)
+{}
+
 // MARK: - Accessors
 
 auto kestrel::math::triangulated_polygon::is_valid() const -> bool
@@ -48,6 +52,22 @@ auto kestrel::math::triangulated_polygon::triangle_at(std::uint32_t idx) const -
 auto kestrel::math::triangulated_polygon::center() const -> vec2
 {
     return m_center;
+}
+
+// MARK: - Operators
+
+auto kestrel::math::triangulated_polygon::operator*(const math::size &s) const -> triangulated_polygon
+{
+    auto triangles = m_triangles;
+    for (auto& it : triangles) {
+        it.a.x *= s.width;
+        it.a.y *= s.height;
+        it.b.x *= s.width;
+        it.b.y *= s.height;
+        it.c.x *= s.width;
+        it.c.y *= s.height;
+    }
+    return triangulated_polygon(triangles, m_center * vec2(s.width, s.height));
 }
 
 // MARK: - Triangulation

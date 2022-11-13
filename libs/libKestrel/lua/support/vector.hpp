@@ -37,6 +37,7 @@ namespace kestrel::lua
         lua_declare_named(StringVector, std::string)
         lua_declare_named(DirectoryContentsVector, sandbox::file_reference::lua_reference)
         lua_declare_named(ModList, sandbox::mod_reference::lua_reference)
+        lua_declare_named(PhysicsBodyList, physics::body::lua_reference)
         has_named_constructable_lua_api(vector<T>);
 
         vector() = default;

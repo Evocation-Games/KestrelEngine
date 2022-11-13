@@ -77,7 +77,7 @@ auto kestrel::physics::world::update() -> void
 
         if (body->hitbox().is_valid()) {
             math::rect bounds(body->position(), body->hitbox().size());
-            m_collision_tree.insert(bounds, const_cast<physics::body *>(body.get()));
+            m_collision_tree.insert(bounds, body);
         }
     }
 
@@ -94,7 +94,7 @@ auto kestrel::physics::world::update() -> void
         auto objects = m_collision_tree.retrieve(bounds);
         for (const auto& collision_candidate : objects) {
             auto candidate_body = collision_candidate.second;
-            if ((body.get() != candidate_body) && body->hitbox().collision_test(candidate_body->hitbox())) {
+            if ((body.get() != candidate_body.get()) && body->hitbox().collision_test(candidate_body->hitbox())) {
                 body->add_detected_collision(candidate_body);
             }
         }

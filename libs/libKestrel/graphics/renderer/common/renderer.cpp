@@ -40,6 +40,7 @@ static struct {
     kestrel::rtc::clock::time frame_start_time { kestrel::rtc::clock::global().current() };
     float time_since_last_frame { 0.f };
     bool first_frame { true };
+    bool hitbox_debug { false };
 } s_renderer_api;
 
 auto kestrel::renderer::initialize(enum renderer::api api, const std::function<auto()->void> &callback) -> void
@@ -135,6 +136,16 @@ auto kestrel::renderer::supports_metal() -> bool
 #else
     return false;
 #endif
+}
+
+auto kestrel::renderer::toggle_hitbox_debug() -> void
+{
+    s_renderer_api.hitbox_debug = !s_renderer_api.hitbox_debug;
+}
+
+auto kestrel::renderer::hitbox_debug() -> bool
+{
+    return s_renderer_api.hitbox_debug;
 }
 
 auto kestrel::renderer::scale_factor() -> float

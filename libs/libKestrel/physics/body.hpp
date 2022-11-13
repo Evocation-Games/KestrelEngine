@@ -21,6 +21,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <unordered_map>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/angle.hpp>
 #include <libKestrel/math/angular_difference.hpp>
@@ -74,6 +75,8 @@ namespace kestrel::physics
         lua_function(rejectCollisionsFromType, Available_0_8) auto reject_collisions_from_type(std::uint32_t type) -> void;
         lua_function(rejectCollisionsFromBody, Available_0_8) auto reject_collisions_from_body(const lua_reference& ref) -> void;
         lua_function(hasCollisionFromBody, Available_0_8) [[nodiscard]] auto has_collision_from_body(const lua_reference& ref) const -> bool;
+        lua_getter(hasCollisions, Available_0_8) [[nodiscard]] auto has_collisions() const -> bool;
+        lua_getter(allCollisions, Available_0_8) [[nodiscard]] auto all_collisions() const -> lua::vector<lua_reference>;
 
         lua_function(applyForce, Available_0_8) auto apply_force(const math::point& force, bool ignore_maximum) -> void;
         lua_function(forceVectorValue, Available_0_8) [[nodiscard]] auto force_value(double value) const -> math::point;
@@ -100,12 +103,15 @@ namespace kestrel::physics
         auto migrate_to_world(physics::world *new_world) -> void;
 
         auto reset_collisions() -> void;
-        auto add_detected_collision(body *collided) -> void;
+        auto add_detected_collision(lua_reference collided) -> void;
+
+        [[nodiscard]] auto scaling_factor() const -> math::size;
+        auto set_scaling_factor(const math::size& factor) -> void;
 
     private:
         identifier m_id { 0 };
         physics::world *m_world { nullptr };
-        std::unordered_set<identifier> m_collisions;
+        std::unordered_map<identifier, lua_reference> m_collisions;
         std::uint32_t m_collision_type { 0 };
         std::unordered_set<std::uint32_t> m_rejected_collision_types;
         std::unordered_set<identifier> m_rejected_collisions;

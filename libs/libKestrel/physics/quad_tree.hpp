@@ -27,7 +27,7 @@
 
 namespace kestrel::physics
 {
-    template<typename T, std::uint32_t M, std::uint32_t L, typename std::enable_if<std::is_pointer<T>::value>::type* = nullptr>
+    template<typename T, std::uint32_t M, std::uint32_t L>
     struct quad_tree
     {
         quad_tree() = default;
