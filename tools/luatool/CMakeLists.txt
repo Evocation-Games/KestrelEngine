@@ -28,7 +28,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 if (APPLE)
     execute_process(
-        COMMAND zsh "brew --prefix llvm"
+        COMMAND zsh-c "brew --prefix llvm"
         OUPUT_VARIABLE LLVM_DIR
     )
     message("LLVM_DIR = ${LLVM_DIR}")
