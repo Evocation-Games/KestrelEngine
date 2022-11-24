@@ -20,18 +20,30 @@
 
 #pragma once
 
-#include <libKestrel/math/vec2.hpp>
-#include <libKestrel/math/vec4.hpp>
+#include <libKestrel/lua/runtime/runtime.hpp>
+#include <libKestrel/lua/scripting.hpp>
+#include <libKestrel/resource/descriptor.hpp>
+#include <libKestrel/resource/macro.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 
-namespace kestrel::renderer
+namespace kestrel::renderer::shader
 {
-    struct vertex
+    struct lua_api(Renderer.Shader, Available_0_8) source
     {
-        struct math::vec4 position;
-        struct math::vec4 color;
-        struct math::vec4 attachments[13];
-        struct math::vec2 tex_coord;
-        float texture { 0 };
-        float unused { 0 };
+        is_resource_type("shdr");
+        has_constructable_lua_api(source);
+
+        lua_constructor(Available_0_8) explicit source(const resource::descriptor::lua_reference& descriptor);
+
+        lua_getter(isLoaded, Avaialble_0_8) [[nodiscard]] auto is_loaded() const -> bool;
+        [[nodiscard]] auto program() const -> std::shared_ptr<shader::program>;
+
+    private:
+        static constexpr const char *glsl = "glsl";
+        static constexpr const char *mlsl = "mlsl";
+
+    private:
+        bool m_valid { false };
+        std::shared_ptr<shader::program> m_program;
     };
 }

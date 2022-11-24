@@ -27,7 +27,7 @@
 #include <array>
 #include <unordered_map>
 #include <libKestrel/graphics/renderer/metal/constants.h>
-#include <libKestrel/graphics/renderer/common/shader.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 #include <libKestrel/graphics/renderer/common/context.hpp>
 #include <libKestrel/graphics/renderer/common/render_pass.hpp>
 #include <libKestrel/util/uid.hpp>
@@ -71,7 +71,8 @@ namespace kestrel::renderer::metal
         auto disable_imgui() -> void override;
         [[nodiscard]] inline auto is_imgui_enabled() const -> bool override { return m_imgui.enabled; }
 
-        auto create_shader_library(const std::string& source) -> void override;
+        auto create_shader_library(const std::string& name, const std::string& source) -> void override;
+        auto create_shader_library(const std::string& name, const std::string& vertex_function, const std::string& fragment_function) -> std::shared_ptr<renderer::shader::program> override;
         auto add_shader_program(const std::string& name, const std::string& vertex_function_name, const std::string& fragment_function_name) -> std::shared_ptr<renderer::shader::program> override;
         auto shader_program(const std::string& name) -> std::shared_ptr<renderer::shader::program> override;
 
@@ -104,7 +105,7 @@ namespace kestrel::renderer::metal
 
         struct {
             MTLDeviceRef device { MTLCreateSystemDefaultDevice() };
-            MTLLibraryRef library { nullptr };
+            std::unordered_map<std::string, MTLLibraryRef> libraries;
             MTLCommandQueueRef command_queue { nullptr };
             std::unordered_map<util::uid, std::shared_ptr<renderer::shader::program>> shader_programs;
             std::uint32_t viewport_width { 1280 };

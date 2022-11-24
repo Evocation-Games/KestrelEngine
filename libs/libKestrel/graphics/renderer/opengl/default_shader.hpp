@@ -22,7 +22,20 @@
 
 namespace kestrel::renderer::opengl
 {
-    static constexpr const char *s_default_opengl_vertex_shader {R"(
+    static constexpr const char *s_default_vertex_function {R"(
+        v_tex_coord = a_tex_coord;
+        v_color = a_color;
+        v_tex_index = a_texture;
+
+        gl_Position = u_projection * vec4(a_position.xy, 0.0, 1.0);
+    )"};
+
+    static constexpr const char *s_default_fragment_function {R"(
+        int tex_index = int(v_tex_index);
+        color = v_color * texture(u_textures[tex_index], v_tex_coord);
+    )"};
+
+    static constexpr const char *s_vertex_shader_template {R"(
         #version 330 core
         layout(location = 0) in vec4 a_position;
         layout(location = 1) in vec4 a_color;
@@ -37,15 +50,11 @@ namespace kestrel::renderer::opengl
 
         void main()
         {
-            v_tex_coord = a_tex_coord;
-            v_color = a_color;
-            v_tex_index = a_texture;
-
-            gl_Position = u_projection * vec4(a_position.xy, 0.0, 1.0);
+            /* @@VERTEX_FUNCTION@@ */
         }
     )"};
 
-    static constexpr const char *s_default_opengl_fragment_shader {R"(
+    static constexpr const char *s_opengl_fragment_shader {R"(
         #version 330 core
         out vec4 color;
 
@@ -57,8 +66,7 @@ namespace kestrel::renderer::opengl
 
         void main()
         {
-            int tex_index = int(v_tex_index);
-            color = v_color * texture(u_textures[tex_index], v_tex_coord);
+            /* @@FRAGMENT_FUNCTION@@ */
         }
     )"};
 }

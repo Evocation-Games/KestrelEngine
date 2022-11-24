@@ -36,7 +36,6 @@
 #include <libKestrel/graphics/renderer/metal/texture.h>
 #include <libKestrel/graphics/renderer/metal/shader.h>
 #include <imgui/backends/imgui_impl_metal.h>
-#include <mach/mach_time.h>
 
 // MARK: - Forward Definitions
 
@@ -62,9 +61,7 @@ auto kestrel::renderer::metal::context::start_application(const std::function<au
         }];
 
         context->configure_device();
-        context->create_shader_library(s_default_metal_shader_code);
-        context->add_shader_program("basic", "vertex_shader", "fragment_shader");
-        context->add_shader_program("light", "vertex_shader", "fragment_shader");
+        context->create_shader_library("basic", metal::s_default_vertex_function, metal::s_default_fragment_function);
 
         callback(context);
     });
@@ -193,7 +190,7 @@ auto kestrel::renderer::metal::context::viewport_title() const -> std::string
 
 // MARK: - Shader Management
 
-auto kestrel::renderer::metal::context::create_shader_library(const std::string &source) -> void
+auto kestrel::renderer::metal::context::create_shader_library(const std::string& name, const std::string &source) -> void
 {
     dispatch_group_t group = dispatch_group_create();
     dispatch_group_enter(group);
@@ -201,10 +198,11 @@ auto kestrel::renderer::metal::context::create_shader_library(const std::string 
     NSString *sourceString = [NSString stringWithUTF8String:source.c_str()];
     [m_metal.device newLibraryWithSource:sourceString options:nullptr completionHandler:^(id<MTLLibrary> lib, NSError *err) {
         if (lib && !err) {
-            m_metal.library = lib;
+            m_metal.libraries.emplace(std::pair(name, lib));
         }
         else {
             // TODO: Handle errors gracefully
+            std::cerr << [[err description] UTF8String] << std::endl;
         }
         dispatch_group_leave(group);
     }];
@@ -212,10 +210,39 @@ auto kestrel::renderer::metal::context::create_shader_library(const std::string 
     dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 }
 
+auto kestrel::renderer::metal::context::create_shader_library(const std::string &name,
+                                                              const std::string &vertex_function,
+                                                              const std::string &fragment_function) -> std::shared_ptr<renderer::shader::program>
+{
+    // Build the single source string.
+    std::string library_source(metal::s_shader_code_template);
+
+    std::string vertex_function_token = "@@VERTEX_FUNCTION@@";
+    auto vertex_function_it = library_source.find(vertex_function_token);
+    if (vertex_function_it != std::string::npos) {
+        library_source.replace(vertex_function_it, vertex_function_token.length(), vertex_function);
+    }
+
+    std::string fragment_function_token = "@@FRAGMENT_FUNCTION@@";
+    auto fragment_function_it = library_source.find(fragment_function_token);
+    if (fragment_function_it != std::string::npos) {
+        library_source.replace(fragment_function_it, fragment_function_token.length(), fragment_function);
+    }
+
+    create_shader_library(name, library_source);
+    return add_shader_program(name, metal::s_vertex_function_name, metal::s_fragment_function_name);
+}
+
 auto kestrel::renderer::metal::context::add_shader_program(const std::string &name, const std::string &vertex_function_name, const std::string &fragment_function_name) -> std::shared_ptr<renderer::shader::program>
 {
-    id<MTLFunction> vertex_function = [m_metal.library newFunctionWithName:[NSString stringWithUTF8String:vertex_function_name.c_str()]];
-    id<MTLFunction> fragment_function = [m_metal.library newFunctionWithName:[NSString stringWithUTF8String:fragment_function_name.c_str()]];
+    auto it = m_metal.libraries.find(name);
+    if (it == m_metal.libraries.end()) {
+        return nullptr;
+    }
+    auto library = it->second;
+
+    id<MTLFunction> vertex_function = [library newFunctionWithName:[NSString stringWithUTF8String:vertex_function_name.c_str()]];
+    id<MTLFunction> fragment_function = [library newFunctionWithName:[NSString stringWithUTF8String:fragment_function_name.c_str()]];
 
     if (!vertex_function) {
         // TODO: Handle missing vertex function
@@ -226,35 +253,8 @@ auto kestrel::renderer::metal::context::add_shader_program(const std::string &na
     }
 
     // Compile the functions into a pipeline that can be used.
-    MTLRenderPipelineDescriptor *pipeline = [[MTLRenderPipelineDescriptor alloc] init];
-    pipeline.label = [NSString stringWithUTF8String:name.c_str()];
-    pipeline.vertexFunction = vertex_function;
-    pipeline.fragmentFunction = fragment_function;
-    pipeline.colorAttachments[0].pixelFormat = m_output_layer.pixelFormat;
-    pipeline.colorAttachments[0].blendingEnabled = YES;
-
-    if (name == "light") {
-        pipeline.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        pipeline.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        pipeline.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        pipeline.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        pipeline.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
-        pipeline.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    }
-    else {
-        pipeline.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        pipeline.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        pipeline.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        pipeline.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        pipeline.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        pipeline.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    }
-
-    NSError *error;
-    id<MTLRenderPipelineState> pipelineState = [m_metal.device newRenderPipelineStateWithDescriptor:pipeline error:&error];
-
     util::uid id { name };
-    auto program = std::make_shared<metal::shader::program>(pipelineState);
+    auto program = std::make_shared<metal::shader::program>(this, name, vertex_function, fragment_function, m_output_layer.pixelFormat);
     m_metal.shader_programs.insert(std::pair(id, program));
 
     return shader_program(name);

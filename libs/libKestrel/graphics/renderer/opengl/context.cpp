@@ -196,7 +196,7 @@ auto kestrel::renderer::opengl::context::configure_window() -> void
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Setup the default shaders
-    add_shader_program("basic", s_default_opengl_vertex_shader, s_default_opengl_fragment_shader);
+    add_shader_program("basic", opengl::s_default_vertex_function, opengl::s_default_fragment_function);
 
     // Setup a default projection
     m_opengl.projection = glm::ortho(0.0, (double)m_opengl.viewport_width, (double)m_opengl.viewport_height, 0.0, 1.0, -1.0);
@@ -381,9 +381,16 @@ auto kestrel::renderer::opengl::context::draw(const draw_buffer *buffer) -> void
 
 // MARK: - Shaders
 
-auto kestrel::renderer::opengl::context::create_shader_library(const std::string &source) -> void
+auto kestrel::renderer::opengl::context::create_shader_library(const std::string& name, const std::string &source) -> void
 {
     // TODO: Investigate shader libraries in OpenGL
+}
+
+auto kestrel::renderer::opengl::context::create_shader_library(const std::string &name,
+                                                               const std::string &vertex_function,
+                                                               const std::string &fragment_function) -> std::shared_ptr<renderer::shader::program>
+{
+    return nullptr;
 }
 
 auto kestrel::renderer::opengl::context::add_shader_program(const std::string &name, const std::string &vertex_function, const std::string &fragment_function) -> std::shared_ptr<shader::program>

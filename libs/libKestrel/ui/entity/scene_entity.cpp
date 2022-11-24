@@ -442,6 +442,36 @@ auto kestrel::ui::scene_entity::on_layout(const luabridge::LuaRef& callback) -> 
     m_on_layout = callback;
 }
 
+auto kestrel::ui::scene_entity::shader() const -> renderer::shader::source::lua_reference
+{
+    return m_entity->shader();
+}
+
+auto kestrel::ui::scene_entity::set_shader(const renderer::shader::source::lua_reference &shader) -> void
+{
+    m_entity->set_shader(shader);
+}
+
+auto kestrel::ui::scene_entity::bind_shader_attachment(std::int32_t idx, double v1) -> void
+{
+    m_entity->bind_shader_attachment(idx, v1);
+}
+
+auto kestrel::ui::scene_entity::bind_shader_attachment2(std::int32_t idx, double v1, double v2) -> void
+{
+    m_entity->bind_shader_attachment2(idx, v1, v2);
+}
+
+auto kestrel::ui::scene_entity::bind_shader_attachment3(std::int32_t idx, double v1, double v2, double v3) -> void
+{
+    m_entity->bind_shader_attachment3(idx, v1, v2, v3);
+}
+
+auto kestrel::ui::scene_entity::bind_shader_attachment4(std::int32_t idx, double v1, double v2, double v3, double v4) -> void
+{
+    m_entity->bind_shader_attachment4(idx, v1, v2, v3, v4);
+}
+
 auto kestrel::ui::scene_entity::draw() -> void
 {
     if (!m_entity) {

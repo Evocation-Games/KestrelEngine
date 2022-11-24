@@ -109,10 +109,15 @@ auto kestrel::renderer::metal::framebuffer::finalize(const std::function<auto() 
 auto kestrel::renderer::metal::framebuffer::draw(const draw_buffer *buffer) -> void
 {
     auto shader = reinterpret_cast<metal::shader::program *>(buffer->shader().get());
-    auto state = shader->get_state();
+    auto state = shader->pipeline(buffer->blend());
     [m_command_encoder setRenderPipelineState:state];
 
-    memcpy(m_buffer.contents, buffer->data(), buffer->data_size());
+    memcpy(reinterpret_cast<uint8_t *>(m_buffer.contents), buffer->data(), buffer->data_size());
+    [m_buffer didModifyRange:NSMakeRange(0, buffer->data_size())];
+
+    [m_command_encoder setVertexBuffer:m_buffer
+                                offset:0
+                               atIndex:constants::vertex_input_index::vertices];
 
     [m_command_encoder setVertexBytes:&m_viewport_size
                                length:sizeof(m_viewport_size)
@@ -126,4 +131,5 @@ auto kestrel::renderer::metal::framebuffer::draw(const draw_buffer *buffer) -> v
     }
 
     [m_command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:buffer->count()];
+
 }

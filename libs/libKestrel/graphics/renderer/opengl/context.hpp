@@ -28,7 +28,7 @@
 #include <libKestrel/event/event.hpp>
 #include <libKestrel/graphics/renderer/opengl/opengl.hpp>
 #include <libKestrel/graphics/renderer/opengl/constants.hpp>
-#include <libKestrel/graphics/renderer/common/shader.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 #include <libKestrel/graphics/renderer/common/context.hpp>
 #include <libKestrel/graphics/renderer/common/render_pass.hpp>
 #include <libGraphite/data/data.hpp>
@@ -45,7 +45,8 @@ namespace kestrel::renderer::opengl
         auto disable_imgui() -> void override;
         [[nodiscard]] inline auto is_imgui_enabled() const -> bool override { return m_imgui.enabled; }
 
-        auto create_shader_library(const std::string& source) -> void override;
+        auto create_shader_library(const std::string& name, const std::string& source) -> void override;
+        auto create_shader_library(const std::string& name, const std::string& vertex_function, const std::string& fragment_function) -> std::shared_ptr<renderer::shader::program> override;
         auto add_shader_program(const std::string& name, const std::string& vertex_function, const std::string& fragment_function) -> std::shared_ptr<shader::program> override;
         auto shader_program(const std::string& name) -> std::shared_ptr<shader::program> override;
 

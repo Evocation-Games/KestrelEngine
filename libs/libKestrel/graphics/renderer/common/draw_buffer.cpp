@@ -42,7 +42,7 @@ kestrel::renderer::draw_buffer::~draw_buffer()
 
 // MARK: - Vertex Management
 
-auto kestrel::renderer::draw_buffer::clear() -> void
+auto kestrel::renderer::draw_buffer::reset() -> void
 {
     m_vertex_ptr = m_vertices;
     m_next_empty_texture_slot = m_texture_slots;
@@ -50,6 +50,11 @@ auto kestrel::renderer::draw_buffer::clear() -> void
     m_texture_count = 0;
     m_count = 0;
     m_blend = blending::normal;
+}
+
+auto kestrel::renderer::draw_buffer::clear() -> void
+{
+    reset();
 }
 
 auto kestrel::renderer::draw_buffer::can_accept_texture(const std::shared_ptr<graphics::texture> &texture) const -> bool
@@ -90,7 +95,7 @@ auto kestrel::renderer::draw_buffer::push_texture(const std::shared_ptr<graphics
     return static_cast<float>(slot);
 }
 
-auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math::point &tex_coord, float alpha, float texture) -> void
+auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math::point &tex_coord, float alpha, float texture, const std::array<math::vec4, 13>& shader_info) -> void
 {
     m_vertex_ptr->position.x = static_cast<float>(v.x);
     m_vertex_ptr->position.y = static_cast<float>(v.y);
@@ -105,11 +110,15 @@ auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math
 
     m_vertex_ptr->texture = texture;
 
+    for (auto i = 0; i < shader_info.size(); ++i) {
+        m_vertex_ptr->attachments[i] = shader_info[i];
+    }
+
     m_vertex_ptr++;
     m_count++;
 }
 
-auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const graphics::color& color) -> void
+auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const graphics::color& color, const std::array<math::vec4, 13>& shader_info) -> void
 {
     m_vertex_ptr->position.x = static_cast<float>(v.x);
     m_vertex_ptr->position.y = static_cast<float>(v.y);
@@ -120,6 +129,10 @@ auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const grap
     m_vertex_ptr->color.w = static_cast<float>(color.rgba.components.a) / 255.f;
 
     m_vertex_ptr->texture = -1.f;
+
+    for (auto i = 0; i < shader_info.size(); ++i) {
+        m_vertex_ptr->attachments[i] = shader_info[i];
+    }
 
     m_vertex_ptr++;
     m_count++;

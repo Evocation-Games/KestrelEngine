@@ -20,13 +20,14 @@
 
 #pragma once
 
+#include <array>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/size.hpp>
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/graphics/types/color.hpp>
 #include <libKestrel/graphics/texture/texture.hpp>
 #include <libKestrel/graphics/renderer/common/camera.hpp>
-#include <libKestrel/graphics/renderer/common/shader.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 #include <libKestrel/graphics/renderer/common/vertex.hpp>
 #include <libKestrel/graphics/renderer/common/blending.hpp>
 
@@ -39,6 +40,7 @@ namespace kestrel::renderer
         ~draw_buffer();
 
         auto clear() -> void;
+        auto reset() -> void;
 
         [[nodiscard]] inline auto is_full() const -> bool { return m_count >= m_max; }
         [[nodiscard]] inline auto is_empty() const -> bool { return m_count == 0; }
@@ -55,8 +57,8 @@ namespace kestrel::renderer
 
         [[nodiscard]] auto can_accept_texture(const std::shared_ptr<graphics::texture>& texture) const -> bool;
         auto push_texture(const std::shared_ptr<graphics::texture>& texture) -> float;
-        auto push_vertex(const math::vec2& v, const math::point& tex_coord, float alpha, float texture) -> void;
-        auto push_vertex(const math::vec2 &v, const graphics::color& color) -> void;
+        auto push_vertex(const math::vec2& v, const math::point& tex_coord, float alpha, float texture, const std::array<math::vec4, 13>& shader_info) -> void;
+        auto push_vertex(const math::vec2 &v, const graphics::color& color, const std::array<math::vec4, 13>& shader_info) -> void;
 
         [[nodiscard]] inline auto data() const -> void * { return reinterpret_cast<void *>(m_vertices); }
         [[nodiscard]] inline auto data_size() const -> std::size_t { return (m_count * sizeof(vertex)); }

@@ -35,6 +35,8 @@
 #include <libKestrel/graphics/renderer/common/animator.hpp>
 #include <libKestrel/ui/layout/axis_origin.hpp>
 #include <libKestrel/physics/body.hpp>
+#include <libKestrel/graphics/renderer/common/shader/source.hpp>
+#include <libKestrel/math/vec4.hpp>
 
 namespace kestrel::ui
 {
@@ -109,6 +111,13 @@ namespace kestrel::ui
         lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;
         lua_function(draw, Available_0_8) auto draw() -> void;
 
+        lua_getter(shader, Available_0_8) [[nodiscard]] auto shader() const -> renderer::shader::source::lua_reference;
+        lua_setter(shader, Available_0_8) auto set_shader(const renderer::shader::source::lua_reference& shader) -> void;
+        lua_function(bindShaderAttachment, Available_0_8) auto bind_shader_attachment(std::int32_t idx, double v1) -> void;
+        lua_function(bindShaderAttachment2, Available_0_8) auto bind_shader_attachment2(std::int32_t idx, double v1, double v2) -> void;
+        lua_function(bindShaderAttachment3, Available_0_8) auto bind_shader_attachment3(std::int32_t idx, double v1, double v2, double v3) -> void;
+        lua_function(bindShaderAttachment4, Available_0_8) auto bind_shader_attachment4(std::int32_t idx, double v1, double v2, double v3, double v4) -> void;
+
         lua_function(onMouseEnter, Available_0_8) auto on_mouse_enter(const luabridge::LuaRef& callback) -> void;
         lua_function(onMouseExit, Available_0_8) auto on_mouse_exit(const luabridge::LuaRef& callback) -> void;
         lua_function(onMouseDown, Available_0_8) auto on_mouse_down(const luabridge::LuaRef& callback) -> void;
@@ -163,6 +172,8 @@ namespace kestrel::ui
         std::function<auto(const event&)->void> m_on_mouse_down_internal { nullptr };
         std::function<auto(const event&)->void> m_on_mouse_release_internal { nullptr };
         std::function<auto(const event&)->void> m_on_mouse_drag_internal { nullptr };
+        renderer::shader::source::lua_reference m_shader { nullptr };
+        std::array<math::vec4, 13> m_shader_attachments;
 
         static auto spawn_entity(const luabridge::LuaRef& entity_provider) -> std::shared_ptr<ecs::entity>;
         static auto spawn_entity(const image::static_image::lua_reference& image) -> std::shared_ptr<ecs::entity>;

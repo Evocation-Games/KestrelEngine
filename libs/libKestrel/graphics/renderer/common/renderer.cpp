@@ -223,6 +223,8 @@ auto kestrel::renderer::resync_clock() -> void
 
 auto kestrel::renderer::start_frame(struct camera &camera, bool imgui) -> void
 {
+    s_renderer_api.drawing_buffer->reset();
+
     s_renderer_api.last_frame_time = rtc::clock::global().since(s_renderer_api.frame_start_time).count();
     s_renderer_api.frame_start_time = rtc::clock::global().current();
 
@@ -251,27 +253,18 @@ auto kestrel::renderer::flush_frame() -> void
 }
 
 auto kestrel::renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, const math::rect &frame,
-                                  const math::rect &tex_coords, enum blending mode, float alpha, float scale) -> void
+                                  const math::rect &tex_coords, enum blending mode, float alpha, float scale,
+                                  const std::shared_ptr<shader::program>& shader,
+                                  const std::array<math::vec4, 13>& shader_info) -> void
 {
     auto buffer = s_renderer_api.drawing_buffer;
+    auto new_shader = shader ?: current_context()->shader_program("basic");
 
-    if (buffer->blend() != mode && !buffer->is_empty()) {
+    if ((buffer->blend() != mode || buffer->shader() != new_shader) && !buffer->is_empty()) {
         flush_frame();
     }
     buffer->set_blend(mode);
-
-#if TARGET_MACOS
-    if (api() == api::metal) {
-        switch (mode) {
-            case blending::normal:
-                buffer->set_shader(s_renderer_api.context->shader_program("basic"));
-                break;
-            case blending::light:
-                buffer->set_shader(s_renderer_api.context->shader_program("light"));
-                break;
-        }
-    }
-#endif
+    buffer->set_shader(new_shader);
 
     if (!buffer->can_accept_texture(texture)) {
         flush_frame();
@@ -287,12 +280,12 @@ auto kestrel::renderer::draw_quad(const std::shared_ptr<graphics::texture> &text
     auto uv_w = tex_coords.size.width;
     auto uv_h = tex_coords.size.height;
 
-    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_vertex({ p.x + s.x, p.y + s.y }, { uv_x +uv_w, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_vertex({ p.x + s.x, p.y}, { uv_x +uv_w, uv_y }, alpha, texture_slot);
-    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot);
-    buffer->push_vertex({ p.x, p.y }, { uv_x, uv_y }, alpha, texture_slot);
-    buffer->push_vertex({ p.x + s.x, p.y }, { uv_x +uv_w, uv_y }, alpha, texture_slot);
+    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot, shader_info);
+    buffer->push_vertex({ p.x + s.x, p.y + s.y }, { uv_x +uv_w, uv_y +uv_h }, alpha, texture_slot, shader_info);
+    buffer->push_vertex({ p.x + s.x, p.y}, { uv_x +uv_w, uv_y }, alpha, texture_slot, shader_info);
+    buffer->push_vertex({ p.x, p.y + s.y }, { uv_x, uv_y +uv_h }, alpha, texture_slot, shader_info);
+    buffer->push_vertex({ p.x, p.y }, { uv_x, uv_y }, alpha, texture_slot, shader_info);
+    buffer->push_vertex({ p.x + s.x, p.y }, { uv_x +uv_w, uv_y }, alpha, texture_slot, shader_info);
 
     if (buffer->is_full()) {
         flush_frame();
@@ -303,14 +296,18 @@ auto kestrel::renderer::draw_line(const math::point &p,
                                   const math::point &q,
                                   enum blending mode,
                                   const graphics::color &color,
-                                  float weight) -> void
+                                  float weight,
+                                  const std::shared_ptr<shader::program>& shader,
+                                  const std::array<math::vec4, 13>& shader_info) -> void
 {
     auto buffer = s_renderer_api.drawing_buffer;
+    auto new_shader = shader ?: current_context()->shader_program("basic");
 
-    if (buffer->blend() != mode && !buffer->is_empty()) {
+    if ((buffer->blend() != mode || buffer->shader() != new_shader) && !buffer->is_empty()) {
         flush_frame();
     }
     buffer->set_blend(mode);
+    buffer->set_shader(new_shader);
 
     auto start = (math::vec2(p) + buffer->camera().translation()) * buffer->camera().scale();
     auto end = (math::vec2(q) + buffer->camera().translation()) * buffer->camera().scale();
@@ -322,12 +319,26 @@ auto kestrel::renderer::draw_line(const math::point &p,
         math::vec2(delta.y, -delta.x).unit() * width
     };
 
-    buffer->push_vertex(start + normals[0], color);
-    buffer->push_vertex(start + normals[1], color);
-    buffer->push_vertex(end + normals[1], color);
-    buffer->push_vertex(end + normals[1], color);
-    buffer->push_vertex(end + normals[0], color);
-    buffer->push_vertex(start + normals[0], color);
+//    buffer->push_vertex(start + normals[0], color, shader_info);
+//    buffer->push_vertex(start + normals[1], color, shader_info);
+//    buffer->push_vertex(end + normals[1], color, shader_info);
+//    buffer->push_vertex(end + normals[1], color, shader_info);
+//    buffer->push_vertex(end + normals[0], color, shader_info);
+//    buffer->push_vertex(start + normals[0], color, shader_info);
+
+    auto uv_x = 0.0;
+    auto uv_y = 0.0;
+    auto uv_w = 1.0;
+    auto uv_h = 1.0;
+
+
+    buffer->push_vertex(start + normals[0], { uv_x +uv_w, uv_y }, 1.0, -1.f, shader_info);
+    buffer->push_vertex(start + normals[1], { uv_x, uv_y }, 1.0, -1.f, shader_info);
+    buffer->push_vertex(end + normals[1], { uv_x, uv_y +uv_h }, 1.0, -1.f, shader_info);
+
+    buffer->push_vertex(end + normals[1], { uv_x, uv_y +uv_h }, 1.0, -1.f, shader_info);
+    buffer->push_vertex(end + normals[0], { uv_x +uv_w, uv_y +uv_h }, 1.0, -1.f, shader_info);
+    buffer->push_vertex(start + normals[0], { uv_x +uv_w, uv_y }, 1.0, -1.f, shader_info);
 
     if (buffer->is_full()) {
         flush_frame();

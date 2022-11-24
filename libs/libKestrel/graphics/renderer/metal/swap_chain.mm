@@ -44,6 +44,7 @@ kestrel::renderer::metal::swap_chain::swap_chain()
 auto kestrel::renderer::metal::swap_chain::start(id<CAMetalDrawable> drawable, id<MTLCommandBuffer> command_buffer, std::uint32_t width, std::uint32_t height) -> void
 {
     m_buffer_idx = 0;
+
     m_drawable = drawable;
     m_texture = drawable.texture;
     m_command_buffer = command_buffer;
@@ -95,11 +96,15 @@ auto kestrel::renderer::metal::swap_chain::finalize(const std::function<auto() -
 auto kestrel::renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> void
 {
     auto shader = reinterpret_cast<metal::shader::program *>(buffer->shader().get());
-    auto state = shader->get_state();
+    auto state = shader->pipeline(buffer->blend());
     [m_command_encoder setRenderPipelineState:state];
 
-    memcpy(reinterpret_cast<uint8_t *>(m_buffer[m_buffer_idx].contents), buffer->data(), buffer->data_size());
-    [m_buffer[m_buffer_idx] didModifyRange:NSMakeRange(m_buffer_offset, buffer->data_size())];
+    memcpy(reinterpret_cast<uint8_t *>(m_buffer[m_buffer_idx].contents) + m_buffer_offset, buffer->data(), buffer->data_size());
+//    [m_buffer[m_buffer_idx] didModifyRange:NSMakeRange(m_buffer_offset, buffer->data_size())];
+
+    [m_command_encoder setVertexBuffer:m_buffer[m_buffer_idx]
+                                offset:m_buffer_offset
+                               atIndex:constants::vertex_input_index::vertices];
 
     [m_command_encoder setVertexBytes:&m_viewport_size
                                length:sizeof(m_viewport_size)
@@ -112,7 +117,7 @@ auto kestrel::renderer::metal::swap_chain::draw(const draw_buffer *buffer) -> vo
         [m_command_encoder setFragmentTexture:texture atIndex:i];
     }
 
-    [m_command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:m_buffer_next_vertex vertexCount:buffer->count()];
+    [m_command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:buffer->count()];
     m_buffer_ptr += buffer->data_size();
     m_buffer_offset += buffer->data_size();
     m_buffer_next_vertex += buffer->count();

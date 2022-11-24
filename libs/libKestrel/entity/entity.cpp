@@ -279,3 +279,47 @@ auto kestrel::ecs::entity::update() -> void
         m_body->update();
     }
 }
+
+// MARK: - Shader
+
+
+auto kestrel::ecs::entity::shader() const -> renderer::shader::source::lua_reference
+{
+    return m_shader;
+}
+
+auto kestrel::ecs::entity::set_shader(const renderer::shader::source::lua_reference &shader) -> void
+{
+    m_shader = shader;
+}
+
+auto kestrel::ecs::entity::bind_shader_attachment(std::int32_t idx, double v1) -> void
+{
+    m_shader_attachments[idx].x = v1;
+}
+
+auto kestrel::ecs::entity::bind_shader_attachment2(std::int32_t idx, double v1, double v2) -> void
+{
+    m_shader_attachments[idx].x = v1;
+    m_shader_attachments[idx].y = v2;
+}
+
+auto kestrel::ecs::entity::bind_shader_attachment3(std::int32_t idx, double v1, double v2, double v3) -> void
+{
+    m_shader_attachments[idx].x = v1;
+    m_shader_attachments[idx].y = v2;
+    m_shader_attachments[idx].z = v3;
+}
+
+auto kestrel::ecs::entity::bind_shader_attachment4(std::int32_t idx, double v1, double v2, double v3, double v4) -> void
+{
+    m_shader_attachments[idx].x = v1;
+    m_shader_attachments[idx].y = v2;
+    m_shader_attachments[idx].z = v3;
+    m_shader_attachments[idx].w = v4;
+}
+
+auto kestrel::ecs::entity::shader_attachments() const -> std::array<math::vec4, 13>
+{
+    return m_shader_attachments;
+}

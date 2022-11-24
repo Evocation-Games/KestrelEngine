@@ -20,17 +20,20 @@
 
 #pragma once
 
+#include <array>
 #include <string>
 #include <memory>
 #include <functional>
 #include <type_traits>
 #include <libKestrel/math/rect.hpp>
+#include <libKestrel/math/vec4.hpp>
 #include <libKestrel/graphics/types/color.hpp>
-#include <libKestrel/graphics/texture//texture.hpp>
+#include <libKestrel/graphics/texture/texture.hpp>
 #include <libKestrel/graphics/renderer/common/api.hpp>
 #include <libKestrel/graphics/renderer/common/blending.hpp>
 #include <libKestrel/graphics/renderer/common/camera.hpp>
 #include <libKestrel/graphics/renderer/common/render_pass.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 
 namespace kestrel::renderer
 {
@@ -83,13 +86,17 @@ namespace kestrel::renderer
                    const math::rect& frame,
                    const math::rect& tex_coords,
                    enum blending mode,
-                   float alpha = 1.0,
-                   float scale = 1.0) -> void;
+                   float alpha = 1.f,
+                   float scale = 1.f,
+                   const std::shared_ptr<shader::program>& shader = nullptr,
+                   const std::array<math::vec4, 13>& shader_info = {}) -> void;
 
     auto draw_line(const math::point& p,
                    const math::point& q,
                    enum blending mode,
                    const graphics::color& color,
-                   float weight = 1.f) -> void;
+                   float weight = 1.f,
+                   const std::shared_ptr<shader::program>& shader = nullptr,
+                   const std::array<math::vec4, 13>& shader_info = {}) -> void;
 
 }

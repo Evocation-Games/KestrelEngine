@@ -109,6 +109,9 @@ auto kestrel::ui::layout::positioning_frame::position_entity_with_offset(const l
     else if (lua::ref_isa<text_entity>(entity)) {
         position_text_entity_with_offset(entity.cast<text_entity::lua_reference>(), offset);
     }
+    else if (lua::ref_isa<line_entity>(entity)) {
+        position_line_entity_with_offset(entity.cast<line_entity::lua_reference>(), offset);
+    }
 }
 
 auto kestrel::ui::layout::positioning_frame::position_entity(const luabridge::LuaRef& entity) const -> void
@@ -118,6 +121,9 @@ auto kestrel::ui::layout::positioning_frame::position_entity(const luabridge::Lu
     }
     else if (lua::ref_isa<text_entity>(entity)) {
         position_text_entity_with_offset(entity.cast<text_entity::lua_reference>(), {});
+    }
+    else if (lua::ref_isa<line_entity>(entity)) {
+        position_line_entity_with_offset(entity.cast<line_entity::lua_reference>(), {});
     }
 }
 
@@ -181,6 +187,26 @@ auto kestrel::ui::layout::positioning_frame::position_text_entity(const ui::text
     position_text_entity_with_offset(entity, math::point(0, 0));
 }
 
+auto kestrel::ui::layout::positioning_frame::position_line_entity_with_offset(const ui::line_entity::lua_reference& entity, const math::point& offset) const -> void
+{
+    // Scale the values of the entity first, before moving on to positioning them in the frame.
+    auto start_position = this->line_entity_start_position(*entity.get());
+    auto end_position = this->line_entity_end_position(*entity.get());
+
+    // Start constructing the viewport relative position
+    math::point adjusted_start_position = m_target.origin + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor) + start_position + (offset * m_scaling_factor);
+    math::point adjusted_end_position = m_target.origin + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor) + end_position + (offset * m_scaling_factor);
+
+    // Apply the drawing dimensions to the entity.
+    entity->set_draw_start(adjusted_start_position);
+    entity->set_draw_end(adjusted_end_position);
+}
+
+auto kestrel::ui::layout::positioning_frame::position_line_entity(const ui::line_entity::lua_reference& entity) const -> void
+{
+    position_line_entity_with_offset(entity, math::point(0, 0));
+}
+
 auto kestrel::ui::layout::positioning_frame::scene_entity_position(const ui::scene_entity &entity) const -> math::point
 {
     auto position = entity.position() * m_scaling_factor;
@@ -225,6 +251,30 @@ auto kestrel::ui::layout::positioning_frame::lua_text_entity_size(const ui::text
 {
     return text_entity_size(*entity.get());
 }
+
+
+auto kestrel::ui::layout::positioning_frame::line_entity_start_position(const ui::line_entity& entity) const -> math::point
+{
+    auto position = entity.start() * m_scaling_factor;
+    return position.round();
+}
+
+auto kestrel::ui::layout::positioning_frame::line_entity_end_position(const ui::line_entity& entity) const -> math::point
+{
+    auto position = entity.end() * m_scaling_factor;
+    return position.round();
+}
+
+auto kestrel::ui::layout::positioning_frame::lua_line_entity_start_position(const ui::line_entity::lua_reference &entity) const -> math::point
+{
+    return line_entity_start_position(*entity.get());
+}
+
+auto kestrel::ui::layout::positioning_frame::lua_line_entity_end_position(const ui::line_entity::lua_reference &entity) const -> math::point
+{
+    return line_entity_end_position(*entity.get());
+}
+
 
 auto kestrel::ui::layout::positioning_frame::translate_point_to(const math::point &point) const -> math::point
 {

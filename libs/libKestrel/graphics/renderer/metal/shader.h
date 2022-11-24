@@ -20,11 +20,15 @@
 
 #pragma once
 
+#include <unordered_map>
+#include <functional>
 #include <libKestrel/util/availability.hpp>
-#include <libKestrel/graphics/renderer/common/shader.hpp>
+#include <libKestrel/graphics/renderer/common/blending.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 
 #if TARGET_MACOS
 #include <MetalKit/MetalKit.h>
+#include <libKestrel/graphics/renderer/metal/context.h>
 
 namespace kestrel::renderer::metal::shader
 {
@@ -32,13 +36,57 @@ namespace kestrel::renderer::metal::shader
     {
     public:
         program() = default;
-        explicit program(id<MTLRenderPipelineState> state) : m_state(state) {};
+
+        explicit program(metal::context *ctx, const std::string& name, id<MTLFunction> vertex, id<MTLFunction> fragment, MTLPixelFormat format)
+        {
+            m_pipelines[blending::normal] = get_state(ctx, make_pipeline(name, vertex, fragment, format), [] (MTLRenderPipelineColorAttachmentDescriptor *color) {
+                color.rgbBlendOperation = MTLBlendOperationAdd;
+                color.alphaBlendOperation = MTLBlendOperationAdd;
+                color.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+                color.sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+                color.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+                color.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+            });
+
+            m_pipelines[blending::light] = get_state(ctx, make_pipeline(name, vertex, fragment, format), [] (MTLRenderPipelineColorAttachmentDescriptor *color) {
+                color.rgbBlendOperation = MTLBlendOperationAdd;
+                color.alphaBlendOperation = MTLBlendOperationAdd;
+                color.sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+                color.sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+                color.destinationRGBBlendFactor = MTLBlendFactorOne;
+                color.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+            });
+        }
+
         program(const program& program) = default;
 
-        [[nodiscard]] inline auto get_state() const -> id<MTLRenderPipelineState> { return m_state; }
+        [[nodiscard]] inline auto pipeline(renderer::blending mode) const -> id<MTLRenderPipelineState>
+        {
+            return m_pipelines.at(mode);
+        }
 
     private:
-        id<MTLRenderPipelineState> m_state;
+        static inline auto make_pipeline(const std::string& name, id<MTLFunction> vertex, id<MTLFunction> fragment, MTLPixelFormat format) -> MTLRenderPipelineDescriptor *
+        {
+            MTLRenderPipelineDescriptor *pipeline = [[MTLRenderPipelineDescriptor alloc] init];
+            pipeline.label = [NSString stringWithUTF8String:name.c_str()];
+            pipeline.vertexFunction = vertex;
+            pipeline.fragmentFunction = fragment;
+            pipeline.colorAttachments[0].pixelFormat = format;
+            pipeline.colorAttachments[0].blendingEnabled = YES;
+            return pipeline;
+        }
+
+        static inline auto get_state(metal::context *ctx, MTLRenderPipelineDescriptor *pipeline, const std::function<auto(MTLRenderPipelineColorAttachmentDescriptor *)->void>& config) -> id<MTLRenderPipelineState>
+        {
+            config(pipeline.colorAttachments[0]);
+
+            NSError *error;
+            return [ctx->device() newRenderPipelineStateWithDescriptor:pipeline error:&error];
+        }
+
+    private:
+        std::unordered_map<renderer::blending, id<MTLRenderPipelineState>> m_pipelines;
     };
 }
 

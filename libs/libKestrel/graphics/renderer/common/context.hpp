@@ -23,7 +23,7 @@
 #include <string>
 #include <functional>
 #include <libKestrel/util/uid.hpp>
-#include <libKestrel/graphics/renderer/common/shader.hpp>
+#include <libKestrel/graphics/renderer/common/shader/program.hpp>
 #include <libKestrel/graphics/renderer/common/render_pass.hpp>
 #include <libKestrel/graphics/texture/texture.hpp>
 #include <libGraphite/data/data.hpp>
@@ -38,7 +38,8 @@ namespace kestrel::renderer
         virtual auto disable_imgui() -> void = 0;
         [[nodiscard]] virtual auto is_imgui_enabled() const -> bool = 0;
 
-        virtual auto create_shader_library(const std::string& source) -> void = 0;
+        virtual auto create_shader_library(const std::string& name, const std::string& source) -> void = 0;
+        virtual auto create_shader_library(const std::string& name, const std::string& vertex_function, const std::string& fragment_function) -> std::shared_ptr<shader::program> = 0;
         virtual auto add_shader_program(const std::string& name, const std::string& vertex, const std::string& fragment) -> std::shared_ptr<shader::program> = 0;
         virtual auto shader_program(const std::string& name) -> std::shared_ptr<shader::program> = 0;
 

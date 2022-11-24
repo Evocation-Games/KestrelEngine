@@ -27,6 +27,7 @@
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
 #include <libKestrel/ui/entity/text_entity.hpp>
+#include <libKestrel/ui/entity/line_entity.hpp>
 #include <libKestrel/ui/layout/axis_origin.hpp>
 #include <libKestrel/ui/layout/scaling_mode.hpp>
 
@@ -66,6 +67,9 @@ namespace kestrel::ui::layout
         auto position_text_entity(const ui::text_entity::lua_reference& entity) const -> void;
         auto position_text_entity_with_offset(const ui::text_entity::lua_reference& entity, const math::point& offset) const -> void;
 
+        auto position_line_entity(const ui::line_entity::lua_reference& entity) const -> void;
+        auto position_line_entity_with_offset(const ui::line_entity::lua_reference& entity, const math::point& offset) const -> void;
+
         [[nodiscard]] auto scene_entity_position(const ui::scene_entity& entity) const -> math::point;
         [[nodiscard]] auto scene_entity_size(const ui::scene_entity& entity) const -> math::size;
         lua_function(positionForEntity, Available_0_8) [[nodiscard]] auto lua_scene_entity_position(const ui::scene_entity::lua_reference& entity) const -> math::point;
@@ -74,7 +78,12 @@ namespace kestrel::ui::layout
         [[nodiscard]] auto text_entity_position(const ui::text_entity& entity) const -> math::point;
         [[nodiscard]] auto text_entity_size(const ui::text_entity& entity) const -> math::size;
         lua_function(positionForTextEntity, Available_0_8) [[nodiscard]] auto lua_text_entity_position(const ui::text_entity::lua_reference& entity) const -> math::point;
-        lua_function(positionForTextEntity, Available_0_8) [[nodiscard]] auto lua_text_entity_size(const ui::text_entity::lua_reference& entity) const -> math::size;
+        lua_function(sizeForTextEntity, Available_0_8) [[nodiscard]] auto lua_text_entity_size(const ui::text_entity::lua_reference& entity) const -> math::size;
+
+        [[nodiscard]] auto line_entity_start_position(const ui::line_entity& entity) const -> math::point;
+        [[nodiscard]] auto line_entity_end_position(const ui::line_entity& entity) const -> math::point;
+        lua_function(startPositionForLineEntity, Available_0_8) [[nodiscard]] auto lua_line_entity_start_position(const ui::line_entity::lua_reference& entity) const -> math::point;
+        lua_function(endPositionForLineEntity, Available_0_8) [[nodiscard]] auto lua_line_entity_end_position(const ui::line_entity::lua_reference& entity) const -> math::point;
 
         lua_function(translatePointTo, Available_0_8) [[nodiscard]] auto translate_point_to(const math::point& point) const -> math::point;
         lua_function(translatePointFrom, Available_0_8) [[nodiscard]] auto translate_point_from(const math::point& point) const -> math::point;

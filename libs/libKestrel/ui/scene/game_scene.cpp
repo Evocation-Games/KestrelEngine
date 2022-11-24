@@ -23,6 +23,7 @@
 #include <libKestrel/ui/scene/game_scene.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
 #include <libKestrel/ui/entity/text_entity.hpp>
+#include <libKestrel/ui/entity/line_entity.hpp>
 #include <libKestrel/ui/widgets/text_widget.hpp>
 #include <libKestrel/ui/widgets/label_widget.hpp>
 #include <libKestrel/ui/widgets/custom_widget.hpp>
@@ -109,6 +110,12 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
             else if (lua::ref_isa<text_entity>(entities[i])) {
                 const auto& entity = entities[i].cast<text_entity::lua_reference>();
                 m_positioning_frame->position_text_entity(entity);
+                entity->layout();
+                entity->draw();
+            }
+            else if (lua::ref_isa<line_entity>(entities[i])) {
+                const auto& entity = entities[i].cast<line_entity::lua_reference>();
+                m_positioning_frame->position_line_entity(entity);
                 entity->layout();
                 entity->draw();
             }
