@@ -27,7 +27,10 @@ project(LuaTool LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 if (APPLE)
-    set(LLVM_DIR /usr/local/Cellar/llvm/15.0.2)
+    execute_process(
+        COMMAND zsh "brew --prefix llvm"
+        OUPUT_VARIABLE LLVM_DIR
+    )
 endif()
 
 set(LLVM_INCLUDE_DIR ${LLVM_DIR}/include)
