@@ -122,7 +122,7 @@ endif()
 
 ########################################################################################################################
 ## libKestrel - Lua API
-set(luatool ${CMAKE_BINARY_DIR}/tools/luatool)
+set(luatool ${CMAKE_BINARY_DIR}/luatool)
 set(KestrelLuaAPISource ${CMAKE_BUILD_DIR}/kestrel_lua_api.cpp)
 
 file(GLOB_RECURSE KESTREL_LIB_HEADERS
