@@ -31,6 +31,7 @@ if (APPLE)
         COMMAND zsh "brew --prefix llvm"
         OUPUT_VARIABLE LLVM_DIR
     )
+    message("LLVM_DIR = ${LLVM_DIR}")
 endif()
 
 set(LLVM_INCLUDE_DIR ${LLVM_DIR}/include)
