@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Homebrew Dependencies
         run: |
-          brew install llvm@15.0.2
+          brew install llvm@15
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
