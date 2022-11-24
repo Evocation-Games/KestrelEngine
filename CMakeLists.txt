@@ -64,7 +64,7 @@ endif()
 ########################################################################################################################
 ## LuaTool
 set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCHITECTURES})
-add_subdirectory(${CMAKE_SOURCE_DIR}/tools/luatool ${CMAKE_BINARY_DIR})
+add_subdirectory(${CMAKE_SOURCE_DIR}/tools/luatool ${CMAKE_BINARY_DIR}/tools)
 set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
 
 ########################################################################################################################
@@ -122,7 +122,7 @@ endif()
 
 ########################################################################################################################
 ## libKestrel - Lua API
-set(luatool ${CMAKE_BUILD_DIR}/luatool)
+set(luatool ${CMAKE_BINARY_DIR}/tools/luatool)
 set(KestrelLuaAPISource ${CMAKE_BUILD_DIR}/kestrel_lua_api.cpp)
 
 file(GLOB_RECURSE KESTREL_LIB_HEADERS
