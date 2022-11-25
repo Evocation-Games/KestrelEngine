@@ -25,7 +25,7 @@
 
 #if TARGET_LINUX
 
-namespace kestrel::platform::linux
+namespace kestrel::platform::gnu_linux
 {
     class font_config
     {

@@ -28,7 +28,7 @@
 
 static FcConfig *config = NULL;
 
-auto kestrel::platform::linux::font_config::path_for_best_fit_font(const std::string &font) -> std::string
+auto kestrel::platform::gnu_linux::font_config::path_for_best_fit_font(const std::string &font) -> std::string
 {
     // TODO: Determine what to replace this with, in order to manger bundled fonts.
 //    // Check if we have a custom font bundled with the game, that fits the requested font.

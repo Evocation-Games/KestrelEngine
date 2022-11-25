@@ -59,7 +59,7 @@ kestrel::graphics::font::font(const std::string& name, std::int16_t size, bool l
 #if TARGET_MACOS
         font_name = platform::macos::font::path_for(name);
 #elif TARGET_LINUX
-        font_name = platform::linux::font_config::path_for_best_fit_font(name);
+        font_name = platform::gnu_linux::font_config::path_for_best_fit_font(name);
 #elif TARGET_WINDOWS
         font_name = "C:/Windows/Fonts/Arial.ttf";
 #endif
