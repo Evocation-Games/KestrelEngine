@@ -62,7 +62,7 @@ file(GLOB_RECURSE LuaToolSources
 
 add_executable(LuaTool ${LuaToolSources})
 set_target_properties(LuaTool PROPERTIES OUTPUT_NAME luatool)
-target_link_libraries(LuaTool LIBCLANG_LIBRARY)
+target_link_libraries(LuaTool clang)
 target_include_directories(LuaTool PUBLIC
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src
