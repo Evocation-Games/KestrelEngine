@@ -50,7 +50,7 @@ if (APPLE)
     set(LIBCLANG_LIBRARY clang)
 else()
     find_package(Clang REQUIRED)
-    set(LLVM_INCLUDE_DIRS LIBCLANG_INCLUDE_DIR)
+    set(LLVM_INCLUDE_DIRS /usr/lib/llvm-14/include)
 endif()
 
 ########################################################################################################################
