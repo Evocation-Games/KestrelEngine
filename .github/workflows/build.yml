@@ -33,7 +33,8 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends libglew-dev
           sudo apt-get install -y -q --no-install-recommends libfreetype-dev
           sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
-          sudo apt-get install -y -q --no-install-recommends libclang-dev
+          sudo apt-get install -y -q --no-install-recommends llvm-14-dev
+          sudo apt-get install -y -q --no-install-recommends libclang-14-dev
       - name: Download AppImageTool
         run: |
           mkdir -p build

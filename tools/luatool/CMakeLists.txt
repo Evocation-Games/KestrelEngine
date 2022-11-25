@@ -26,11 +26,19 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 project(LuaTool LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
+if (UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
 if (APPLE)
     execute_process(
         COMMAND zsh -c "brew --prefix llvm | tr -d '\n'"
         OUTPUT_VARIABLE LLVM_DIR
     )
+    set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
+    set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
+elseif(LINUX)
+    set(LLVM_DIR /usr/lib/llvm-14)
     set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
     set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 else()
@@ -48,9 +56,10 @@ if (APPLE)
     add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang.dylib")
     set(LIBCLANG_LIBRARY clang)
-else()
-    find_package(Clang REQUIRED)
-    set(LLVM_INCLUDE_DIRS /usr/lib/llvm-14/include)
+elseif(LINUX)
+    add_library(clang SHARED IMPORTED)
+    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang-14.so")
+    set(LIBCLANG_LIBRARY clang)
 endif()
 
 ########################################################################################################################
