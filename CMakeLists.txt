@@ -205,6 +205,7 @@ elseif(WIN32)
 endif()
 
 if (NOT EXISTS ${KestrelLuaAPISource})
+    message("Kestrel Lua API Source is missing")
     set(KestrelLuaAPISource "")
 endif()
 
