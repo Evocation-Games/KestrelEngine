@@ -205,11 +205,6 @@ elseif(WIN32)
     )
 endif()
 
-if (NOT EXISTS ${KestrelLuaAPISource})
-    message("Kestrel Lua API Source is missing")
-    set(KestrelLuaAPISource "")
-endif()
-
 add_library(Kestrel ${KESTREL_SOURCES} ${KestrelLuaAPISource})
 target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
 target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})

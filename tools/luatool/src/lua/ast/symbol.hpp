@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <clang-c/Index.h>
 #include "lua/ast/namespace_path.hpp"
 
