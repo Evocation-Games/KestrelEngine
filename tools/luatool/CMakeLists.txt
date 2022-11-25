@@ -34,9 +34,8 @@ if (APPLE)
     set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
     set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 else()
-
+    add_compile_definitions(GLIBCXX_USE_CXX11_ABI=0)
 endif()
-
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,${LLVM_LIBS_DIR}")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -61,7 +60,7 @@ file(GLOB_RECURSE LuaToolSources
 
 add_executable(LuaTool ${LuaToolSources})
 set_target_properties(LuaTool PROPERTIES OUTPUT_NAME luatool)
-target_link_libraries(LuaTool -lclang)
+target_link_libraries(LuaTool clang)
 target_include_directories(LuaTool PUBLIC
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src
