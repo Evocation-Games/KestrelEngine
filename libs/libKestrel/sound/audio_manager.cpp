@@ -116,13 +116,13 @@ auto kestrel::sound::manager::finish_item(const playback_session_ref &ref) -> vo
     switch (m_api) {
         case api::core_audio:
 #if TARGET_MACOS
-            return m_core_audio->stop(ref);
+            m_core_audio->stop(ref);
 #else
-            return 0;
+            return;
 #endif
 
         case api::openal:
-            return m_openal->stop(ref);
+            m_openal->stop(ref);
 
         default:
             return;
