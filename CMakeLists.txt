@@ -125,6 +125,7 @@ endif()
 set(luatool ${CMAKE_BINARY_DIR}/luatool)
 set(KestrelLuaAPISource ${CMAKE_BUILD_DIR}/kestrel_lua_api.cpp)
 message("Setting KestrelLuaAPISource to ${KestrelLuaAPISource}")
+file(TOUCH ${KestrelLuaAPISource})
 
 file(GLOB_RECURSE KESTREL_LIB_HEADERS
     "libs/libKestrel/*.hpp"
