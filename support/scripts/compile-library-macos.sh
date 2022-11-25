@@ -23,6 +23,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_ARCHITECTURES=x86_64 \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
   -DFT_DISABLE_BROTLI=TRUE \
+  -DFT_DISABLE_HARFBUZZ=TRUE \
   -Hsubmodules/$1 \
   -Bcmake-$1-intel-build-release
 cmake --build cmake-$1-intel-build-release -- -j2
@@ -33,6 +34,7 @@ cmake \
   -DCMAKE_OSX_ARCHITECTURES=arm64 \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
   -DFT_DISABLE_BROTLI=TRUE \
+  -DFT_DISABLE_HARFBUZZ=TRUE \
   -Hsubmodules/$1 \
   -Bcmake-$1-arm-build-release
 cmake --build cmake-$1-arm-build-release -- -j2

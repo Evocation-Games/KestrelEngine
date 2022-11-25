@@ -100,7 +100,6 @@ if (APPLE)
         "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_osx.mm"
         "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_metal.mm"
     )
-
     set(ImGUI_FREETYPE_INCLUDES "${PROJECT_SUBMODULE_DIR}/freetype/include")
 else()
     find_package(Freetype REQUIRED)
