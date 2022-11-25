@@ -31,11 +31,12 @@ if (APPLE)
         COMMAND zsh -c "brew --prefix llvm | tr -d '\n'"
         OUTPUT_VARIABLE LLVM_DIR
     )
-    message("LLVM_DIR = ${LLVM_DIR}")
+    set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
+    set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
+else()
+
 endif()
 
-set(LLVM_INCLUDE_DIR ${LLVM_DIR}/include)
-set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,${LLVM_LIBS_DIR}")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -47,6 +48,8 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 if (APPLE)
     add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang.dylib")
+else()
+    find_package(Clang REQUIRED)
 endif()
 
 ########################################################################################################################
@@ -58,8 +61,8 @@ file(GLOB_RECURSE LuaToolSources
 
 add_executable(LuaTool ${LuaToolSources})
 set_target_properties(LuaTool PROPERTIES OUTPUT_NAME luatool)
-target_link_libraries(LuaTool clang)
+target_link_libraries(LuaTool -lclang)
 target_include_directories(LuaTool PUBLIC
-    ${LLVM_INCLUDE_DIR}
+    ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
