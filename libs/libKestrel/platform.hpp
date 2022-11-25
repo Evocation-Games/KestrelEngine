@@ -29,7 +29,7 @@ namespace kestrel::platform
     {
         unknown lua_case(Unknown, Available_0_8),
         macos lua_case(MacOS, Available_0_8),
-        linux lua_case(Linux, Available_0_8),
+        gnu_linux lua_case(Linux, Available_0_8),
         windows lua_case(Windows, Available_0_8)
     };
 
@@ -38,7 +38,7 @@ namespace kestrel::platform
 #if TARGET_WINDOWS
         return family::windows;
 #elif TARGET_LINUX
-        return family::linux;
+        return family::gnu_linux;
 #elif TARGET_MACOS
         return family::macos;
 #else

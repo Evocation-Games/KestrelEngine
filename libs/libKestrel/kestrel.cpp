@@ -342,19 +342,19 @@ auto kestrel::audio_driver() -> std::int32_t
 auto kestrel::platform_family_name() -> std::string
 {
     switch (platform::current()) {
-        case platform::family::macos:   return "macOS";
-        case platform::family::windows: return "Windows";
-        case platform::family::linux:   return "Linux";
-        case platform::family::unknown: return "Unknown";
+        case platform::family::macos:       return "macOS";
+        case platform::family::windows:     return "Windows";
+        case platform::family::gnu_linux:   return "Linux";
+        case platform::family::unknown:     return "Unknown";
     }
 }
 
 auto kestrel::renderer_api_name() -> std::string
 {
     switch (s_kestrel_session.base_configuration.renderer.desired_api) {
-        case renderer::api::opengl:     return "OpenGL";
-        case renderer::api::metal:      return "Metal";
-        case renderer::api::none:       return "None";
+        case renderer::api::opengl:         return "OpenGL";
+        case renderer::api::metal:          return "Metal";
+        case renderer::api::none:           return "None";
     }
 }
 
