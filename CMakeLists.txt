@@ -133,7 +133,7 @@ file(GLOB_RECURSE KESTREL_LIB_HEADERS
 
 add_custom_target(
     Kestrel-Lua-API
-    COMMAND ${luatool} -I /Volumes/CosmicFrontier/Kestrel/libs -I /Volumes/CosmicFrontier/Kestrel/submodules -lua ${KestrelLuaAPISource} ${KESTREL_LIB_HEADERS}
+    COMMAND ${luatool} -I ${CMAKE_SOURCE_DIR}/libs -I ${CMAKE_SOURCE_DIR}/submodules -lua ${KestrelLuaAPISource} ${KESTREL_LIB_HEADERS}
     COMMENT "Generating Lua API for libKestrel into ${KestrelLuaAPISource}"
 )
 add_dependencies(Kestrel-Lua-API LuaTool)

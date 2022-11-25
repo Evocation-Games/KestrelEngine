@@ -47,8 +47,10 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 if (APPLE)
     add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang.dylib")
+    set(LIBCLANG_LIBRARY clang)
 else()
     find_package(Clang REQUIRED)
+    set(LLVM_INCLUDE_DIRS LIBCLANG_INCLUDE_DIR)
 endif()
 
 ########################################################################################################################
@@ -60,7 +62,7 @@ file(GLOB_RECURSE LuaToolSources
 
 add_executable(LuaTool ${LuaToolSources})
 set_target_properties(LuaTool PROPERTIES OUTPUT_NAME luatool)
-target_link_libraries(LuaTool clang)
+target_link_libraries(LuaTool LIBCLANG_LIBRARY)
 target_include_directories(LuaTool PUBLIC
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src
