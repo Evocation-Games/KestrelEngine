@@ -213,7 +213,6 @@ add_dependencies(Kestrel LuaTool Kestrel-Lua-API)
 
 ########################################################################################################################
 ## Kestrel - Test Suite
-
 if (EXISTS ${CMAKE_SOURCE_DIR}/KestrelTests.cmake)
     include(${PROJECT_SUBMODULE_DIR}/graphite/libTesting/testing.cmake)
     build_testing_library()
@@ -301,6 +300,17 @@ if (LINUX)
     )
     add_dependencies(kestrel-app-image Kestrel-Player)
 endif()
+
+########################################################################################################################
+## Kestrel - Placeholder GameCore
+add_custom_target(Placeholder-GameCore
+    ${CMAKE_BUILD_DIR}/kdl
+        -f extended
+        -o "${CMAKE_BUILD_DIR}/GameCore"
+        "${CMAKE_SOURCE_DIR}/projects/placeholder/placeholder.kdlproj"
+)
+add_dependencies(Placeholder-GameCore kdl-bin)
+add_dependencies(Kestrel-Player Placeholder-GameCore)
 
 ########################################################################################################################
 ## Installation

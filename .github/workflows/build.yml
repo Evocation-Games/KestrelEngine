@@ -59,7 +59,7 @@ jobs:
     name: Build on macOS
     strategy:
       matrix:
-        os: [ macos-11, macos-12 ]
+        os: [ macos-12 ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout

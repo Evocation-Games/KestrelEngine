@@ -32,7 +32,7 @@ endif()
 
 if (APPLE)
     execute_process(
-        COMMAND zsh -c "brew --prefix llvm | tr -d '\n'"
+        COMMAND zsh -c "/usr/local/bin/brew --prefix llvm | tr -d '\n'"
         OUTPUT_VARIABLE LLVM_DIR
     )
     set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
