@@ -298,7 +298,7 @@ if (LINUX)
             -D APP_BIN_DIR=${APP_BIN_DIR}
             -P ${CMAKE_SOURCE_DIR}/support/packaging/appimage/GenerateAppImageFile.cmake
     )
-    add_dependencies(kestrel-app-image Kestrel-Player)
+    add_dependencies(Kestrel-Player kestrel-app-image)
 endif()
 
 ########################################################################################################################
