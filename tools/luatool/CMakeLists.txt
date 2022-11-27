@@ -38,7 +38,7 @@ if (APPLE)
 elseif(LINUX)
     set(LLVM_DIR /usr/lib/llvm-14)
 elseif(WIN32)
-    set(LLVM_DIR /mingw64)
+    set(LLVM_DIR D:/a/_temp/msys64/mingw64)
 endif()
 
 
