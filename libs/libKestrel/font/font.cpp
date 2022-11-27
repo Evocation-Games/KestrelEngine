@@ -30,7 +30,7 @@
 #elif TARGET_LINUX
 #   include <libKestrel/platform/linux/font_config.hpp>
 #elif TARGET_WINDOWS
-#   include <libKestrel/windows/fonts.hpp>
+#   include <libKestrel/platform/windows/fonts.hpp>
 #endif
 
 namespace kestrel::font::constants
