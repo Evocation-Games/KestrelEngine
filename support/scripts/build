@@ -26,6 +26,7 @@ DATA_FILES=""
 ICON="support/packaging/icon-1024.png"
 BUILD="Release"
 CLEAN="off"
+MAKEFILE_GENERATOR=""
 J=2
 
 cat .gitmodules
@@ -75,6 +76,10 @@ for ARG in "$@"; do
       J="${ARG#*=}"
       shift
       ;;
+    --makefile=*)
+      MAKEFILE_GENERATOR="-G \"${ARG#*=}\""
+      shift
+      ;;
   esac
 done
 
@@ -90,5 +95,6 @@ cmake -DKESTREL_NAME="$NAME" \
       -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
       -DKESTREL_ICON_PATH="$ICON" \
       -DCMAKE_BUILD_TYPE="$BUILD" \
+      $MAKEFILE_GENERATOR \
       -H. -Bbuild
 cmake --build build -- -j$J
