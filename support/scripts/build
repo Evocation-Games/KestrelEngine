@@ -77,7 +77,7 @@ for ARG in "$@"; do
       shift
       ;;
     --windows)
-      MAKEFILE_GENERATOR="-G \"MSYS Makefiles\""
+      MAKEFILE_GENERATOR="MSYS Makefiles"
       shift
       ;;
   esac
@@ -89,12 +89,24 @@ if [[ "$CLEAN" == "on" ]]; then
 fi
 
 echo "Building Kestrel as '${NAME}'"
-cmake -DKESTREL_NAME="$NAME" \
-      -DKESTREL_BIN_NAME="$BIN_NAME" \
-      -DKESTREL_PROJECT_PATH="$PROJECT" \
-      -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
-      -DKESTREL_ICON_PATH="$ICON" \
-      -DCMAKE_BUILD_TYPE="$BUILD" \
-      $MAKEFILE_GENERATOR \
-      -H. -Bbuild
+if [[ -z "$MAKEFILE_GENERATOR" ]]; then
+  cmake -DKESTREL_NAME="$NAME" \
+        -DKESTREL_BIN_NAME="$BIN_NAME" \
+        -DKESTREL_PROJECT_PATH="$PROJECT" \
+        -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
+        -DKESTREL_ICON_PATH="$ICON" \
+        -DCMAKE_BUILD_TYPE="$BUILD" \
+        -G "$MAKEFILE_GENERATOR" \
+        -H. -Bbuild
+else
+  cmake -DKESTREL_NAME="$NAME" \
+        -DKESTREL_BIN_NAME="$BIN_NAME" \
+        -DKESTREL_PROJECT_PATH="$PROJECT" \
+        -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
+        -DKESTREL_ICON_PATH="$ICON" \
+        -DCMAKE_BUILD_TYPE="$BUILD" \
+        $MAKEFILE_GENERATOR \
+        -H. -Bbuild
+fi
+
 cmake --build build -- -j$J
