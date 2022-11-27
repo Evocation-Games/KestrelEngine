@@ -26,7 +26,6 @@ DATA_FILES=""
 ICON="support/packaging/icon-1024.png"
 BUILD="Release"
 CLEAN="off"
-MAKEFILE_GENERATOR=""
 J=2
 
 cat .gitmodules
@@ -76,10 +75,6 @@ for ARG in "$@"; do
       J="${ARG#*=}"
       shift
       ;;
-    --windows)
-      MAKEFILE_GENERATOR="MSYS Makefiles"
-      shift
-      ;;
   esac
 done
 
@@ -89,23 +84,11 @@ if [[ "$CLEAN" == "on" ]]; then
 fi
 
 echo "Building Kestrel as '${NAME}'"
-if [[ -z "$MAKEFILE_GENERATOR" ]]; then
-  cmake -DKESTREL_NAME="$NAME" \
+cmake -DKESTREL_NAME="$NAME" \
         -DKESTREL_BIN_NAME="$BIN_NAME" \
         -DKESTREL_PROJECT_PATH="$PROJECT" \
         -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
         -DKESTREL_ICON_PATH="$ICON" \
         -DCMAKE_BUILD_TYPE="$BUILD" \
         -H. -Bbuild
-else
-  cmake -DKESTREL_NAME="$NAME" \
-        -DKESTREL_BIN_NAME="$BIN_NAME" \
-        -DKESTREL_PROJECT_PATH="$PROJECT" \
-        -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
-        -DKESTREL_ICON_PATH="$ICON" \
-        -DCMAKE_BUILD_TYPE="$BUILD" \
-        -G "$MAKEFILE_GENERATOR" \
-        -H. -Bbuild
-fi
-
 cmake --build build -- -j$J
