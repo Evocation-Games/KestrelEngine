@@ -76,8 +76,8 @@ for ARG in "$@"; do
       J="${ARG#*=}"
       shift
       ;;
-    --makefile=*)
-      MAKEFILE_GENERATOR="-G \"${ARG#*=}\""
+    --windows)
+      MAKEFILE_GENERATOR="-G \"MSYS Makefiles\""
       shift
       ;;
   esac
