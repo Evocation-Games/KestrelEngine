@@ -121,7 +121,11 @@ endif()
 
 ########################################################################################################################
 ## libKestrel - Lua API
-set(luatool ${CMAKE_BINARY_DIR}/luatool)
+if(WIN32)
+    set(luatool ${CMAKE_BINARY_DIR}/luatool.exe)
+else()
+    set(luatool ${CMAKE_BINARY_DIR}/luatool)
+endif()
 set(KestrelLuaAPISource ${CMAKE_BUILD_DIR}/kestrel_lua_api.cpp)
 message("Setting KestrelLuaAPISource to ${KestrelLuaAPISource}")
 file(TOUCH ${KestrelLuaAPISource})
@@ -303,12 +307,22 @@ endif()
 
 ########################################################################################################################
 ## Kestrel - Placeholder GameCore
-add_custom_target(Placeholder-GameCore
-    ${CMAKE_BUILD_DIR}/kdl
+if(WIN32)
+    add_custom_target(Placeholder-GameCore
+        ${CMAKE_BUILD_DIR}/kdl.exe
         -f extended
         -o "${CMAKE_BUILD_DIR}/GameCore"
         "${CMAKE_SOURCE_DIR}/projects/placeholder/placeholder.kdlproj"
-)
+    )
+else()
+    add_custom_target(Placeholder-GameCore
+        ${CMAKE_BUILD_DIR}/kdl
+        -f extended
+        -o "${CMAKE_BUILD_DIR}/GameCore"
+        "${CMAKE_SOURCE_DIR}/projects/placeholder/placeholder.kdlproj"
+    )
+endif()
+
 add_dependencies(Placeholder-GameCore kdl-bin)
 add_dependencies(Kestrel-Player Placeholder-GameCore)
 
