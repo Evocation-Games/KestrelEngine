@@ -38,7 +38,7 @@ if (APPLE)
 elseif(LINUX)
     set(LLVM_DIR /usr/lib/llvm-14)
 elseif(WIN32)
-    set(LLVM_DIR D:/a/_temp/msys64/mingw64)
+    set(LLVM_DIR /mingw64)
 endif()
 
 
@@ -52,14 +52,18 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 ########################################################################################################################
 ## libClang
 message("SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
-add_library(clang SHARED IMPORTED)
-set(LIBCLANG_LIBRARY clang)
 if (APPLE)
+    add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION  "${LLVM_LIBS_DIR}/libclang.dylib")
+    set(LIBCLANG_LIBRARY clang)
 elseif(LINUX)
+    add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang-14.so")
+    set(LIBCLANG_LIBRARY clang)
 elseif(WIN32)
-    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_DIR}/bin/libclang.dll")
+    add_library(clang STATIC IMPORTED)
+    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_DIR}/lib/libclang.a")
+    set(LIBCLANG_LIBRARY "${LLVM_DIR}/lib/libclang.a")
 endif()
 
 ########################################################################################################################
