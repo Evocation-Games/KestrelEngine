@@ -141,7 +141,7 @@ jobs:
           CC: ${{ matrix.env.CC }}
           CXX: ${{ matrix.env.CXX }}
         run: |
-          support/scripts/build --makefile="MSYS Makefiles"
+          support/scripts/build --makefile="MSYS\ Makefiles"
           support/scripts/install
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
