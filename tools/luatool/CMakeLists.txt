@@ -35,15 +35,15 @@ if (APPLE)
         COMMAND zsh -c "/usr/local/bin/brew --prefix llvm | tr -d '\n'"
         OUTPUT_VARIABLE LLVM_DIR
     )
-    set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
-    set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 elseif(LINUX)
     set(LLVM_DIR /usr/lib/llvm-14)
-    set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
-    set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
-else()
-    add_compile_definitions(GLIBCXX_USE_CXX11_ABI=0)
+elseif(WIN32)
+    set(LLVM_DIR /mingw64)
 endif()
+
+
+set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
+set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,${LLVM_LIBS_DIR}")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -52,14 +52,14 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 ########################################################################################################################
 ## libClang
 
+add_library(clang SHARED IMPORTED)
+set(LIBCLANG_LIBRARY clang)
 if (APPLE)
-    add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang.dylib")
-    set(LIBCLANG_LIBRARY clang)
 elseif(LINUX)
-    add_library(clang SHARED IMPORTED)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang-14.so")
-    set(LIBCLANG_LIBRARY clang)
+elseif(WIN32)
+    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_DIR}/bin/libclang.dll")
 endif()
 
 ########################################################################################################################
