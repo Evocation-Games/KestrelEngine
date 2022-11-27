@@ -51,11 +51,11 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 ########################################################################################################################
 ## libClang
-
+message("SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 add_library(clang SHARED IMPORTED)
 set(LIBCLANG_LIBRARY clang)
 if (APPLE)
-    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang.dylib")
+    set_property(TARGET clang PROPERTY IMPORTED_LOCATION  "${LLVM_LIBS_DIR}/libclang.dylib")
 elseif(LINUX)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang-14.so")
 elseif(WIN32)
