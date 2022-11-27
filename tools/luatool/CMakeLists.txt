@@ -60,9 +60,9 @@ elseif(LINUX)
     set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_LIBS_DIR}/libclang-14.so")
     set(LIBCLANG_LIBRARY clang)
 elseif(WIN32)
-    add_library(clang STATIC IMPORTED)
-    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_DIR}/lib/libclang.a")
-    set(LIBCLANG_LIBRARY "${LLVM_DIR}/lib/libclang.a")
+    add_library(clang SHARED IMPORTED)
+    set_property(TARGET clang PROPERTY IMPORTED_LOCATION "${LLVM_DIR}/bin/libclang.dll")
+    set(LIBCLANG_LIBRARY "${LLVM_DIR}/bin/libclang.dll")
 endif()
 
 ########################################################################################################################
