@@ -96,7 +96,6 @@ if [[ -z "$MAKEFILE_GENERATOR" ]]; then
         -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
         -DKESTREL_ICON_PATH="$ICON" \
         -DCMAKE_BUILD_TYPE="$BUILD" \
-        -G "$MAKEFILE_GENERATOR" \
         -H. -Bbuild
 else
   cmake -DKESTREL_NAME="$NAME" \
@@ -105,7 +104,7 @@ else
         -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
         -DKESTREL_ICON_PATH="$ICON" \
         -DCMAKE_BUILD_TYPE="$BUILD" \
-        $MAKEFILE_GENERATOR \
+        -G "$MAKEFILE_GENERATOR" \
         -H. -Bbuild
 fi
 
