@@ -38,7 +38,7 @@ if (APPLE)
 elseif(LINUX)
     set(LLVM_DIR /usr/lib/llvm-14)
 elseif(WIN32)
-    set(LLVM_DIR /mingw64)
+    set(LLVM_DIR D:/a/_temp/msys64/mingw64)
 endif()
 
 
@@ -47,7 +47,6 @@ set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,${LLVM_LIBS_DIR}")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
 ########################################################################################################################
 ## libClang
@@ -75,7 +74,7 @@ file(GLOB_RECURSE LuaToolSources
 
 add_executable(LuaTool ${LuaToolSources})
 set_target_properties(LuaTool PROPERTIES OUTPUT_NAME luatool)
-target_link_libraries(LuaTool clang)
+target_link_libraries(LuaTool ${LIBCLANG_LIBRARY})
 target_include_directories(LuaTool PUBLIC
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src
