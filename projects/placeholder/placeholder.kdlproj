@@ -1,0 +1,11 @@
+@project "Placeholder Project";
+@author "Tom Hancocks";
+@version "1.0";
+
+@import Kestrel;
+
+declare LuaScript {
+    new (#0, "main") {
+        Script = import "@spath/main.lua";
+    };
+};

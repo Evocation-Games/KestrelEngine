@@ -96,6 +96,7 @@ if RESULT=$(xcrun altool --notarize-app --primary-bundle-id "$BUNDLE_ID" -u "$AP
       sleep 15
     else
       echo "  -> failed..."
+      echo "$FULL_STATUS"
       security delete-keychain build.keychain
       rm "$ZIP_PATH" "$CERT_PATH"
       exit 1

@@ -85,10 +85,10 @@ fi
 
 echo "Building Kestrel as '${NAME}'"
 cmake -DKESTREL_NAME="$NAME" \
-      -DKESTREL_BIN_NAME="$BIN_NAME" \
-      -DKESTREL_PROJECT_PATH="$PROJECT" \
-      -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
-      -DKESTREL_ICON_PATH="$ICON" \
-      -DCMAKE_BUILD_TYPE="$BUILD" \
-      -H. -Bbuild
+        -DKESTREL_BIN_NAME="$BIN_NAME" \
+        -DKESTREL_PROJECT_PATH="$PROJECT" \
+        -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
+        -DKESTREL_ICON_PATH="$ICON" \
+        -DCMAKE_BUILD_TYPE="$BUILD" \
+        -H. -Bbuild
 cmake --build build -- -j$J
