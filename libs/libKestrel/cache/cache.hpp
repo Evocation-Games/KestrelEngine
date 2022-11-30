@@ -34,5 +34,6 @@ namespace kestrel::cache
     auto add(const resource::descriptor::lua_reference& ref, const std::any& asset) -> void;
     auto fetch(const resource::descriptor::lua_reference& ref) -> std::optional<std::any>;
 
+    auto purge_all() -> void;
     auto purge_unused() -> void;
 }

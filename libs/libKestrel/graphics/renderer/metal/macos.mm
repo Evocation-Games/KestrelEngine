@@ -26,6 +26,7 @@
 #include <libKestrel/event/event.hpp>
 #include <libKestrel/kestrel.hpp>
 #include <LuaBridge/detail/LuaException.h>
+#include <libKestrel/cache/cache.hpp>
 
 @interface KestrelApplication() <NSApplicationDelegate>
 - (void)runWithContinuation:(const std::function<auto(KestrelApplication *)->void>&)continuation;
@@ -112,6 +113,11 @@ auto kestrel::platform::macos::start_application(const std::function<auto(Kestre
         std::cerr << "Unknown Exception occurred" << std::endl;
         exit(1);
     }
+}
+
+- (void)applicationWillTerminate:(NSNotification *)notification
+{
+    kestrel::cache::purge_all();
 }
 
 // MARK: - Window

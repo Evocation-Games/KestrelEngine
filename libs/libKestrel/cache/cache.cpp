@@ -22,16 +22,14 @@
 
 // MARK: - Storage
 
-static struct {
-    std::vector<std::tuple<kestrel::resource::key, kestrel::rtc::clock::time, std::any>> assets;
-} s_cache;
+static std::vector<std::tuple<kestrel::resource::key, kestrel::rtc::clock::time, std::any>> s_cache_assets;
 
 // MARK: - Caching Functions
 
 auto kestrel::cache::add(const resource::descriptor::lua_reference &ref, const std::any &asset) -> void
 {
     resource::key key(*ref.get());
-    for (auto& it : s_cache.assets) {
+    for (auto& it : s_cache_assets) {
         if (std::get<0>(it) == key) {
             std::get<2>(it) = asset;
             std::get<1>(it) = rtc::clock::global().current();
@@ -39,13 +37,13 @@ auto kestrel::cache::add(const resource::descriptor::lua_reference &ref, const s
         }
     }
 
-    s_cache.assets.emplace(s_cache.assets.begin(), std::tuple(key, rtc::clock::global().current(), asset));
+    s_cache_assets.emplace(s_cache_assets.begin(), std::tuple(key, rtc::clock::global().current(), asset));
 }
 
 auto kestrel::cache::fetch(const resource::descriptor::lua_reference &ref) -> std::optional<std::any>
 {
     resource::key key(*ref.get());
-    for (auto& it : s_cache.assets) {
+    for (auto& it : s_cache_assets) {
         if (std::get<0>(it) == key) {
             std::get<1>(it) = rtc::clock::global().current();
             return std::get<2>(it);
@@ -56,12 +54,17 @@ auto kestrel::cache::fetch(const resource::descriptor::lua_reference &ref) -> st
 
 // MARK: - Purging
 
+auto kestrel::cache::purge_all() -> void
+{
+    s_cache_assets.clear();
+}
+
 auto kestrel::cache::purge_unused() -> void
 {
     const auto death_interval = 2.0 * 60.0; // 2 Minutes
-    for (auto it = s_cache.assets.begin(); it != s_cache.assets.end(); ++it) {
+    for (auto it = s_cache_assets.begin(); it != s_cache_assets.end(); ++it) {
         if (rtc::clock::global().since(std::get<1>(*it)).count() >= death_interval) {
-            s_cache.assets.erase(it);
+            s_cache_assets.erase(it);
         }
     }
 }
