@@ -48,8 +48,15 @@
 #   define Deprecated_0_8               Deprecated(LIB_KESTREL_VERSION_0_8)
 #endif
 
+#if !defined(Available_0_9)
+#   define Available_0_9                Available(LIB_KESTREL_VERSION_0_9)
+#endif
+#if !defined(Deprecated_0_9)
+#   define Deprecated_0_9               Deprecated(LIB_KESTREL_VERSION_0_9)
+#endif
+
 #if !defined(CurrentVersion)
-#   define CurrentVersion               Available_0_8
+#   define CurrentVersion               Available_0_9
 #endif
 
 #if !defined(lua_api)
