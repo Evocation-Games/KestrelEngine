@@ -120,9 +120,11 @@ auto kestrel::sound::manager::finish_item(const playback_session_ref &ref) -> vo
 #else
             return;
 #endif
+            break;
 
         case api::openal:
             m_openal->stop(ref);
+            break;
 
         default:
             return;
