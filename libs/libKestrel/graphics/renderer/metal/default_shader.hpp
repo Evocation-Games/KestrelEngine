@@ -50,13 +50,17 @@ namespace kestrel::renderer::metal
 
         using namespace metal;
 
-        // Generate a random float in the range [0.0f, 1.0f] using x, y, and z (based on the xor128 algorithm)
-        float rand(float3 v)
+        namespace kestrel
         {
-            int seed = v.x + v.y * 57 + v.z * 241;
-            seed= (seed<< 13) ^ seed;
-            return (( 1.0 - ( (seed * (seed * seed * 15731 + 789221) + 1376312589) & 2147483647) / 1073741824.0f) + 1.0f) / 2.0f;
-        }
+            float rand(float3 v)
+            {
+                float2 K1 = float2(
+                    23.14069263277926, // e^pi (Gelfond's constant)
+                    2.665144142690225 // 2^sqrt(2) (Gelfond Schneider constant)
+                );
+                return fract( cos( dot(float2(v.x, v.y),K1) ) * 12345.6789 );
+            }
+        };
 
         typedef enum
         {
