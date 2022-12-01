@@ -206,8 +206,11 @@ namespace kestrel::loader
     {
         auto ref = sandbox::files::game_support();
         if (ref.get()) {
-            auto file = new graphite::rsrc::file(ref->path());
-            graphite::rsrc::manager::shared_manager().import_file(file);
+            sandbox::file_reference file_ref(ref->path());
+            if (file_ref.exists()) {
+                auto file = new graphite::rsrc::file(ref->path());
+                graphite::rsrc::manager::shared_manager().import_file(file);
+            }
         }
     }
 

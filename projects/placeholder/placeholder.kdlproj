@@ -9,3 +9,9 @@ declare LuaScript {
         Script = import "@spath/main.lua";
     };
 };
+
+declare ExampleScene.LuaScript {
+    new (#1000, "Scene") {
+        Script = import "@spath/scene.lua";
+    };
+};

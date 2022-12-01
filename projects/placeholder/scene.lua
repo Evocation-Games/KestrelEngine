@@ -18,7 +18,13 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-Kestrel.setGameWindowTitle("Kestrel")
-Kestrel.setGameWindowSize(Size(1280, 800))
+Kestrel.loadImGui(function()
 
-Namespace("ExampleScene"):pushScene()
+end)
+
+local window = ImGui.Window.create("Kestrel", Size(600, 400))
+window.hasClosedButton = false
+window.resizable = false
+window:addWidget(ImGui.Text("Hello, World!"))
+window:center()
+window:show()

@@ -58,7 +58,9 @@ auto kestrel::font::manager::load_all_fonts_for_imgui() -> void
         it.second->load_for_imgui();
     }
     ImGui::GetIO().Fonts->Build();
-    ImGui::GetIO().FontDefault = m_default_font->imgui_font();
+    if (m_default_font.get() && m_default_font->imgui_font()) {
+        ImGui::GetIO().FontDefault = m_default_font->imgui_font();
+    }
 }
 
 auto kestrel::font::manager::unload_all_imgui_fonts() -> void
