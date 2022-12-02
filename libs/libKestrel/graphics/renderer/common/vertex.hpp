@@ -29,7 +29,7 @@ namespace kestrel::renderer
     {
         struct math::vec4 position;
         struct math::vec4 color;
-        struct math::vec4 attachments[13];
+        struct math::vec4 attachments[8];
         struct math::vec2 tex_coord;
         float texture { 0 };
         float unused { 0 };

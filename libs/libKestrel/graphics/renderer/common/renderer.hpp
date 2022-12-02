@@ -89,7 +89,7 @@ namespace kestrel::renderer
                    float alpha = 1.f,
                    float scale = 1.f,
                    const std::shared_ptr<shader::program>& shader = nullptr,
-                   const std::array<math::vec4, 13>& shader_info = {}) -> void;
+                   const std::array<math::vec4, 8>& shader_info = {}) -> void;
 
     auto draw_line(const math::point& p,
                    const math::point& q,
@@ -97,6 +97,6 @@ namespace kestrel::renderer
                    const graphics::color& color,
                    float weight = 1.f,
                    const std::shared_ptr<shader::program>& shader = nullptr,
-                   const std::array<math::vec4, 13>& shader_info = {}) -> void;
+                   const std::array<math::vec4, 8>& shader_info = {}) -> void;
 
 }

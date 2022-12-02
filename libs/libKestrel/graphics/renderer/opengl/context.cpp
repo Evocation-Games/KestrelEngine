@@ -111,10 +111,29 @@ auto kestrel::renderer::opengl::context::configure_vertex_buffer() -> void
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, position));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, color));
+
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, tex_coord));
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *) offsetof(vertex, texture));
+
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[0]));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[1]));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[2]));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[3]));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[0]));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[1]));
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[2]));
+    glEnableVertexAttribArray(11);
+    glVertexAttribPointer(11, 4, GL_FLOAT, GL_FALSE, sizeof(vertex), (const void *)offsetof(vertex, attachments[3]));
+
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -196,7 +215,7 @@ auto kestrel::renderer::opengl::context::configure_window() -> void
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Setup the default shaders
-    add_shader_program("basic", opengl::s_default_vertex_function, opengl::s_default_fragment_function);
+    create_shader_library("basic", opengl::s_default_vertex_function, opengl::s_default_fragment_function);
 
     // Setup a default projection
     m_opengl.projection = glm::ortho(0.0, (double)m_opengl.viewport_width, (double)m_opengl.viewport_height, 0.0, 1.0, -1.0);
@@ -214,6 +233,12 @@ auto kestrel::renderer::opengl::context::set_viewport_size(const math::size &vie
     m_opengl.viewport_height = static_cast<uint32_t>(viewport_size.height);
 
     glfwSetWindowSize(m_screen.window, m_opengl.viewport_width, m_opengl.viewport_height);
+    m_opengl.projection = glm::ortho(0.0, (double)m_opengl.viewport_width, (double)m_opengl.viewport_height, 0.0, 1.0, -1.0);
+
+    for (auto i = 0; i < constants::swap_count; ++i) {
+        m_swap.passes[i] = new opengl::swap_chain(m_screen.window, m_opengl.texture_samplers, constants::texture_slots, m_opengl.vao, m_opengl.vbo);
+        reinterpret_cast<opengl::swap_chain *>(m_swap.passes[i])->set_projection(m_opengl.projection);
+    }
 }
 
 auto kestrel::renderer::opengl::context::viewport_size() const -> math::size
@@ -390,7 +415,22 @@ auto kestrel::renderer::opengl::context::create_shader_library(const std::string
                                                                const std::string &vertex_function,
                                                                const std::string &fragment_function) -> std::shared_ptr<renderer::shader::program>
 {
-    return nullptr;
+    std::string vertex_shader_source(opengl::s_vertex_shader_template);
+    std::string fragment_shader_source(opengl::s_fragment_shader_template);
+
+    std::string vertex_function_token = "@@VERTEX_FUNCTION@@";
+    auto vertex_function_it = vertex_shader_source.find(vertex_function_token);
+    if (vertex_function_it != std::string::npos) {
+        vertex_shader_source.replace(vertex_function_it, vertex_function_token.length(), vertex_function);
+    }
+
+    std::string fragment_function_token = "@@FRAGMENT_FUNCTION@@";
+    auto fragment_function_it = fragment_shader_source.find(fragment_function_token);
+    if (fragment_function_it != std::string::npos) {
+        fragment_shader_source.replace(fragment_function_it, fragment_function_token.length(), fragment_function);
+    }
+
+    return add_shader_program(name, vertex_shader_source, fragment_shader_source);
 }
 
 auto kestrel::renderer::opengl::context::add_shader_program(const std::string &name, const std::string &vertex_function, const std::string &fragment_function) -> std::shared_ptr<shader::program>

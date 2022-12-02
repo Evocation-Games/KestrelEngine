@@ -255,7 +255,7 @@ auto kestrel::renderer::flush_frame() -> void
 auto kestrel::renderer::draw_quad(const std::shared_ptr<graphics::texture> &texture, const math::rect &frame,
                                   const math::rect &tex_coords, enum blending mode, float alpha, float scale,
                                   const std::shared_ptr<shader::program>& shader,
-                                  const std::array<math::vec4, 13>& shader_info) -> void
+                                  const std::array<math::vec4, 8>& shader_info) -> void
 {
     auto buffer = s_renderer_api.drawing_buffer;
     auto new_shader = shader ?: current_context()->shader_program("basic");
@@ -298,7 +298,7 @@ auto kestrel::renderer::draw_line(const math::point &p,
                                   const graphics::color &color,
                                   float weight,
                                   const std::shared_ptr<shader::program>& shader,
-                                  const std::array<math::vec4, 13>& shader_info) -> void
+                                  const std::array<math::vec4, 8>& shader_info) -> void
 {
     auto buffer = s_renderer_api.drawing_buffer;
     auto new_shader = shader ?: current_context()->shader_program("basic");

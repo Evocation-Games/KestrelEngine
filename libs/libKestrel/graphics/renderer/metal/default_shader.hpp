@@ -85,11 +85,6 @@ namespace kestrel::renderer::metal
             float4 attachment_5;
             float4 attachment_6;
             float4 attachment_7;
-            float4 attachment_8;
-            float4 attachment_9;
-            float4 attachment_10;
-            float4 attachment_11;
-            float4 attachment_12;
         	float2 tex_coord;
         	float texture;
         } vertex_descriptor;
@@ -106,11 +101,6 @@ namespace kestrel::renderer::metal
             float4 attachment_5;
             float4 attachment_6;
             float4 attachment_7;
-            float4 attachment_8;
-            float4 attachment_9;
-            float4 attachment_10;
-            float4 attachment_11;
-            float4 attachment_12;
         	float2 tex_coord;
         	float texture;
         } raster_data;
@@ -137,11 +127,6 @@ namespace kestrel::renderer::metal
             out.attachment_5 = vertex_array[vertex_id].attachment_5;
             out.attachment_6 = vertex_array[vertex_id].attachment_6;
             out.attachment_7 = vertex_array[vertex_id].attachment_7;
-            out.attachment_8 = vertex_array[vertex_id].attachment_8;
-            out.attachment_9 = vertex_array[vertex_id].attachment_9;
-            out.attachment_10 = vertex_array[vertex_id].attachment_10;
-            out.attachment_11 = vertex_array[vertex_id].attachment_11;
-            out.attachment_12 = vertex_array[vertex_id].attachment_12;
 
         	float2 viewport_size = float2(*viewport_size_ptr);
             float2 pixel_space_position = floor(position.xy * scale);

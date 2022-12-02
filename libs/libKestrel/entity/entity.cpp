@@ -319,7 +319,7 @@ auto kestrel::ecs::entity::bind_shader_attachment4(std::int32_t idx, double v1, 
     m_shader_attachments[idx].w = v4;
 }
 
-auto kestrel::ecs::entity::shader_attachments() const -> std::array<math::vec4, 13>
+auto kestrel::ecs::entity::shader_attachments() const -> std::array<math::vec4, 8>
 {
     return m_shader_attachments;
 }

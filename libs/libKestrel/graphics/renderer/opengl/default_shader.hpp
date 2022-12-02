@@ -41,6 +41,14 @@ namespace kestrel::renderer::opengl
         layout(location = 1) in vec4 a_color;
         layout(location = 2) in vec2 a_tex_coord;
         layout(location = 3) in float a_texture;
+        layout(location = 4) in vec4 a_attachment_0;
+        layout(location = 5) in vec4 a_attachment_1;
+        layout(location = 6) in vec4 a_attachment_2;
+        layout(location = 7) in vec4 a_attachment_3;
+        layout(location = 8) in vec4 a_attachment_4;
+        layout(location = 9) in vec4 a_attachment_5;
+        layout(location = 10) in vec4 a_attachment_6;
+        layout(location = 11) in vec4 a_attachment_7;
 
         out vec2 v_tex_coord;
         out vec4 v_color;
@@ -50,11 +58,11 @@ namespace kestrel::renderer::opengl
 
         void main()
         {
-            /* @@VERTEX_FUNCTION@@ */
+            @@VERTEX_FUNCTION@@
         }
     )"};
 
-    static constexpr const char *s_opengl_fragment_shader {R"(
+    static constexpr const char *s_fragment_shader_template {R"(
         #version 330 core
         out vec4 color;
 
@@ -66,7 +74,7 @@ namespace kestrel::renderer::opengl
 
         void main()
         {
-            /* @@FRAGMENT_FUNCTION@@ */
+            @@FRAGMENT_FUNCTION@@
         }
     )"};
 }

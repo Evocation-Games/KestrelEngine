@@ -173,7 +173,7 @@ namespace kestrel::ui
         std::function<auto(const event&)->void> m_on_mouse_release_internal { nullptr };
         std::function<auto(const event&)->void> m_on_mouse_drag_internal { nullptr };
         renderer::shader::source::lua_reference m_shader { nullptr };
-        std::array<math::vec4, 13> m_shader_attachments;
+        std::array<math::vec4, 8> m_shader_attachments;
 
         static auto spawn_entity(const luabridge::LuaRef& entity_provider) -> std::shared_ptr<ecs::entity>;
         static auto spawn_entity(const image::static_image::lua_reference& image) -> std::shared_ptr<ecs::entity>;

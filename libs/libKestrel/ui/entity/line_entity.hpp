@@ -88,6 +88,6 @@ namespace kestrel::ui
         double m_alpha { 1.0 };
         luabridge::LuaRef m_on_layout { nullptr };
         renderer::shader::source::lua_reference m_shader { nullptr };
-        std::array<math::vec4, 13> m_shader_attachments;
+        std::array<math::vec4, 8> m_shader_attachments;
     };
 }

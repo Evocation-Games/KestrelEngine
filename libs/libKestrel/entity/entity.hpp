@@ -107,7 +107,7 @@ namespace kestrel::ecs
         auto bind_shader_attachment3(std::int32_t idx, double v1, double v2, double v3) -> void;
         auto bind_shader_attachment4(std::int32_t idx, double v1, double v2, double v3, double v4) -> void;
 
-        [[nodiscard]] auto shader_attachments() const -> std::array<math::vec4, 13>;
+        [[nodiscard]] auto shader_attachments() const -> std::array<math::vec4, 8>;
 
         auto draw() -> void;
         auto update() -> void;
@@ -135,7 +135,7 @@ namespace kestrel::ecs
         graphics::color::lua_reference m_hitbox_color { graphics::color::green_color_ref() };
         physics::body::lua_reference m_body { new physics::body() };
         renderer::shader::source::lua_reference m_shader { nullptr };
-        std::array<math::vec4, 13> m_shader_attachments;
+        std::array<math::vec4, 8> m_shader_attachments;
     };
 
 };

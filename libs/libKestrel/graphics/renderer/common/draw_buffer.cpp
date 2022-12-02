@@ -95,7 +95,7 @@ auto kestrel::renderer::draw_buffer::push_texture(const std::shared_ptr<graphics
     return static_cast<float>(slot);
 }
 
-auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math::point &tex_coord, float alpha, float texture, const std::array<math::vec4, 13>& shader_info) -> void
+auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math::point &tex_coord, float alpha, float texture, const std::array<math::vec4, 8>& shader_info) -> void
 {
     m_vertex_ptr->position.x = static_cast<float>(v.x);
     m_vertex_ptr->position.y = static_cast<float>(v.y);
@@ -118,7 +118,7 @@ auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math
     m_count++;
 }
 
-auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const graphics::color& color, const std::array<math::vec4, 13>& shader_info) -> void
+auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const graphics::color& color, const std::array<math::vec4, 8>& shader_info) -> void
 {
     m_vertex_ptr->position.x = static_cast<float>(v.x);
     m_vertex_ptr->position.y = static_cast<float>(v.y);
