@@ -36,12 +36,12 @@
 
 namespace kestrel::ui::widgets
 {
-    struct lua_api(Widget.Text, Available_0_8) text_widget: public responder_chain::mouse_responder,  public responder_chain::responder
+    struct lua_api(Widget.PopupButton, Available_0_8) popup_button_widget: public responder_chain::mouse_responder
     {
     public:
-        has_constructable_lua_api(text_widget);
+        has_constructable_lua_api(popup_button_widget);
 
-        lua_constructor(Available_0_8) explicit text_widget(double width);
+        lua_constructor(Available_0_8) explicit popup_button_widget(double width);
 
         lua_function(draw, Available_0_8) auto draw() -> void;
         lua_getter(entity, Available_0_8) [[nodiscard]] auto entity() const -> ui::scene_entity::lua_reference;
@@ -52,10 +52,10 @@ namespace kestrel::ui::widgets
         lua_getter(backgroundColor, Available_0_8) [[nodiscard]] auto background_color() const -> graphics::color::lua_reference;
         lua_getter(borderColor, Available_0_8) [[nodiscard]] auto border_color() const -> graphics::color::lua_reference;
         lua_getter(selectionColor, Available_0_8) [[nodiscard]] auto selection_color() const -> graphics::color::lua_reference;
-        lua_getter(cursorColor, Available_0_8) [[nodiscard]] auto cursor_color() const -> graphics::color::lua_reference;
         lua_getter(position, Available_0_8) [[nodiscard]] auto position() const -> math::point;
         lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size;
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
+        lua_getter(items, Available_0_8) [[nodiscard]] auto items() const -> lua::vector<std::string>;
 
         lua_setter(text, Available_0_8) auto set_text(const std::string& v) -> void;
         lua_setter(font, Available_0_8) auto set_font(const font::reference::lua_reference& font) -> void;
@@ -63,25 +63,23 @@ namespace kestrel::ui::widgets
         lua_setter(backgroundColor, Available_0_8) auto set_background_color(const graphics::color::lua_reference& v) -> void;
         lua_setter(borderColor, Available_0_8) auto set_border_color(const graphics::color::lua_reference& v) -> void;
         lua_setter(selectionColor, Available_0_8) auto set_selection_color(const graphics::color::lua_reference& v) -> void;
-        lua_setter(cursorColor, Available_0_8) auto set_cursor_color(const graphics::color::lua_reference& v) -> void;
         lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
         lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& v) -> void;
+        lua_setter(items, Available_0_8) auto set_items(const luabridge::LuaRef& items) -> void;
 
-        auto did_become_first_responder() -> void override;
-        auto did_resign_first_responder() -> void override;
         auto receive_event(const event& e) -> bool override;
 
     private:
         bool m_dirty { true };
+        std::string m_string_value;
+        lua::vector<std::string> m_items;
         font::reference::lua_reference m_font { nullptr };
-        text_entry_event m_input;
         std::unique_ptr<graphics::canvas> m_canvas;
         scene_entity::lua_reference m_entity { nullptr };
         graphics::color m_color { graphics::color::black_color() };
         graphics::color m_border_color { graphics::color::black_color() };
         graphics::color m_selection_color { graphics::color::blue_color() };
-        graphics::color m_cursor_color { graphics::color::black_color() };
         graphics::color m_background_color { graphics::color::white_color() };
 
         auto redraw_entity() -> void;

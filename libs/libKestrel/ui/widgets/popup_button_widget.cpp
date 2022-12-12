@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <libKestrel/ui/widgets/text_widget.hpp>
+#include <libKestrel/ui/widgets/popup_button_widget.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
 #include <libKestrel/font/manager.hpp>
 #include <libKestrel/ui/scene/game_scene.hpp>
 
 // MARK: - Construction
 
-kestrel::ui::widgets::text_widget::text_widget(double width)
+kestrel::ui::widgets::popup_button_widget::popup_button_widget(double width)
 {
     // Load up a default font.
     m_font = font::manager::shared_manager().default_font();
@@ -37,111 +37,104 @@ kestrel::ui::widgets::text_widget::text_widget(double width)
 
 // MARK: - Accessors
 
-auto kestrel::ui::widgets::text_widget::entity() const -> ui::scene_entity::lua_reference
+auto kestrel::ui::widgets::popup_button_widget::entity() const -> ui::scene_entity::lua_reference
 {
     return m_entity;
 }
 
-auto kestrel::ui::widgets::text_widget::text() const -> std::string
+auto kestrel::ui::widgets::popup_button_widget::text() const -> std::string
 {
-    return m_input.string_value();
+    return m_items.empty() ? "" : m_items.at(0);
 }
 
-auto kestrel::ui::widgets::text_widget::font() const -> font::reference::lua_reference
+auto kestrel::ui::widgets::popup_button_widget::font() const -> font::reference::lua_reference
 {
     return m_font;
 }
 
-auto kestrel::ui::widgets::text_widget::color() const -> graphics::color::lua_reference
+auto kestrel::ui::widgets::popup_button_widget::color() const -> graphics::color::lua_reference
 {
     return { new graphics::color(m_color) };
 }
 
-auto kestrel::ui::widgets::text_widget::background_color() const -> graphics::color::lua_reference
+auto kestrel::ui::widgets::popup_button_widget::background_color() const -> graphics::color::lua_reference
 {
     return { new graphics::color(m_background_color) };
 }
 
-auto kestrel::ui::widgets::text_widget::border_color() const -> graphics::color::lua_reference
+auto kestrel::ui::widgets::popup_button_widget::border_color() const -> graphics::color::lua_reference
 {
     return { new graphics::color(m_border_color) };
 }
 
-auto kestrel::ui::widgets::text_widget::selection_color() const -> graphics::color::lua_reference
+auto kestrel::ui::widgets::popup_button_widget::selection_color() const -> graphics::color::lua_reference
 {
     return { new graphics::color(m_selection_color) };
 }
 
-auto kestrel::ui::widgets::text_widget::cursor_color() const -> graphics::color::lua_reference
-{
-    return { new graphics::color(m_cursor_color) };
-}
-
-auto kestrel::ui::widgets::text_widget::position() const -> math::point
+auto kestrel::ui::widgets::popup_button_widget::position() const -> math::point
 {
     return m_entity->position();
 }
 
-auto kestrel::ui::widgets::text_widget::size() const -> math::size
+auto kestrel::ui::widgets::popup_button_widget::size() const -> math::size
 {
     return m_entity->size();
 }
 
-auto kestrel::ui::widgets::text_widget::frame() const -> math::rect
+auto kestrel::ui::widgets::popup_button_widget::frame() const -> math::rect
 {
     return { position(), size() };
 }
 
+auto kestrel::ui::widgets::popup_button_widget::items() const -> lua::vector<std::string>
+{
+    return m_items;
+}
+
 // MARK: - Setters
 
-auto kestrel::ui::widgets::text_widget::set_text(const std::string& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_text(const std::string& v) -> void
 {
-    m_input.set_string_value(v);
     m_dirty = true;
 }
 
-auto kestrel::ui::widgets::text_widget::set_font(const font::reference::lua_reference& font) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_font(const font::reference::lua_reference& font) -> void
 {
     m_font = font;
     m_dirty = true;
 }
 
-auto kestrel::ui::widgets::text_widget::set_color(const graphics::color::lua_reference& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_color(const graphics::color::lua_reference& v) -> void
 {
     m_color = { *v.get() };
     m_dirty = true;
 }
 
-auto kestrel::ui::widgets::text_widget::set_background_color(const graphics::color::lua_reference& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_background_color(const graphics::color::lua_reference& v) -> void
 {
     m_background_color = { *v.get() };
     m_dirty = true;
 }
 
-auto kestrel::ui::widgets::text_widget::set_border_color(const graphics::color::lua_reference& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_border_color(const graphics::color::lua_reference& v) -> void
 {
     m_border_color = { *v.get() };
     m_dirty = true;
 }
 
-auto kestrel::ui::widgets::text_widget::set_selection_color(const graphics::color::lua_reference& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_selection_color(const graphics::color::lua_reference& v) -> void
 {
     m_selection_color = { *v.get() };
     m_dirty = true;
 }
 
-auto kestrel::ui::widgets::text_widget::set_cursor_color(const graphics::color::lua_reference& v) -> void
-{
-    m_cursor_color = { *v.get() };
-    m_dirty = true;
-}
-
-auto kestrel::ui::widgets::text_widget::set_position(const math::point& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_position(const math::point& v) -> void
 {
     m_entity->set_position(v);
 }
 
-auto kestrel::ui::widgets::text_widget::set_size(const math::size& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_size(const math::size& v) -> void
 {
     auto position = this->position();
     m_canvas = std::make_unique<graphics::canvas>(v);
@@ -149,21 +142,37 @@ auto kestrel::ui::widgets::text_widget::set_size(const math::size& v) -> void
     redraw_entity();
 }
 
-auto kestrel::ui::widgets::text_widget::set_frame(const math::rect& v) -> void
+auto kestrel::ui::widgets::popup_button_widget::set_frame(const math::rect& v) -> void
 {
     set_position(v.origin);
     set_size(v.size);
 }
 
+auto kestrel::ui::widgets::popup_button_widget::set_items(const luabridge::LuaRef& items) -> void
+{
+    if (items.state() && items.isTable()) {
+        m_items.clear();
+        for (auto i = 1; i <= items.length(); ++i) {
+            auto row = items[i];
+            if (row.isString()) {
+                m_items.emplace_back(row.tostring());
+            }
+        }
+    }
+    m_dirty = true;
+    redraw_entity();
+}
+
 // MARK: - Drawing
 
-auto kestrel::ui::widgets::text_widget::redraw_entity() -> void
+auto kestrel::ui::widgets::popup_button_widget::redraw_entity() -> void
 {
     if (!m_dirty) {
         return;
     }
 
     const auto size = math::size(m_entity->size().width - 1, m_entity->size().height);
+    const auto center = math::point(size.width / 2, size.height / 2);
     const auto inset = 3;
     math::size text_area_size { size.width - (inset << 1), size.height - (inset << 1) };
 
@@ -177,22 +186,22 @@ auto kestrel::ui::widgets::text_widget::redraw_entity() -> void
     m_canvas->fill_rect(frame.inset(1));
 
     m_canvas->set_font(m_font);
-    auto text_size = m_canvas->layout_text_in_bounds(m_input.string_value(), { 100000, 9999});
-    const auto& cursor = m_canvas->character_point_in_text(m_input.cursor_position());
+    auto text_size = m_canvas->layout_text_in_bounds(text(), { 100000, 9999 });
 
     m_canvas->set_pen_color({ new graphics::color(m_color) });
     m_canvas->set_clipping_rect(frame.inset(inset));
     m_canvas->draw_text({inset, inset + ((text_area_size.height - text_size.height) / 2)});
     m_canvas->clear_clipping_rect();
 
-    m_canvas->set_pen_color({ new graphics::color(m_cursor_color) });
-    m_canvas->fill_rect({inset + cursor.x, inset + cursor.y, 1, text_area_size.height});
+    m_canvas->set_pen_color({ new graphics::color(m_border_color) });
+    m_canvas->draw_line({ size.width - center.y - 7, center.y - 4 }, { size.width - center.y, center.y + 4 }, 2);
+    m_canvas->draw_line({ size.width - center.y, center.y + 4 }, { size.width - center.y + 7, center.y - 4 }, 2);
 
     m_canvas->rebuild_texture();
     m_dirty = false;
 }
 
-auto kestrel::ui::widgets::text_widget::draw() -> void
+auto kestrel::ui::widgets::popup_button_widget::draw() -> void
 {
     if (m_dirty) {
         redraw_entity();
@@ -201,27 +210,15 @@ auto kestrel::ui::widgets::text_widget::draw() -> void
 
 // MARK: - Events
 
-auto kestrel::ui::widgets::text_widget::did_become_first_responder() -> void
-{
-
-}
-
-auto kestrel::ui::widgets::text_widget::did_resign_first_responder() -> void
-{
-
-}
-
-auto kestrel::ui::widgets::text_widget::receive_event(const event& e) -> bool
+auto kestrel::ui::widgets::popup_button_widget::receive_event(const event& e) -> bool
 {
     if (e.has(event_type::any_mouse_down)) {
         if (entity()->hit_test(e.location() - entity()->position())) {
-            auto& chain = ui::game_scene::current()->responder_chain();
-            chain.set_first_responder(this);
+
             return true;
         }
     }
     else if (e.is_key_event()) {
-        m_input.receive(e);
         m_dirty = true;
         return true;
     }

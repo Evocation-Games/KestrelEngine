@@ -101,6 +101,11 @@ namespace kestrel::renderer::metal
             float4 attachment_5;
             float4 attachment_6;
             float4 attachment_7;
+            float4 attachment_8;
+            float4 attachment_9;
+            float4 attachment_10;
+            float4 attachment_11;
+            float4 attachment_12;
         	float2 tex_coord;
         	float texture;
         } raster_data;

@@ -59,7 +59,9 @@ namespace kestrel::ui
         box lua_case(Box, Available_0_8),
         radio lua_case(Radio, Available_0_8),
         tabbar lua_case(TabBar, Available_0_8),
-        separator lua_case(Separator, Available_0_8)
+        separator lua_case(Separator, Available_0_8),
+        spacer lua_case(Spacer, Available_0_9),
+        position lua_case(Position, Available_0_9)
     };
 
     class lua_api(UI.ControlDefinition, Available_0_8) control_definition

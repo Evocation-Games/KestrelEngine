@@ -83,12 +83,18 @@ auto kestrel::responder_chain::add_mouse_responder(mouse_responder *responder) -
 
 auto kestrel::responder_chain::send_event(const event &e) -> bool
 {
-    for (auto receiver : m_mouse_responders) {
-        receiver->receive_event(e);
+    if (e.has(event_type::any_mouse_down) || e.has(event_type::any_mouse_up)) {
+        for (auto receiver: m_mouse_responders) {
+            if (receiver->receive_event(e)) {
+                return true;
+            }
+        }
     }
 
-    if (auto receiver = m_first_responder) {
-        return receiver->receive_event(e);
+    if (e.is_key_event()) {
+        if (auto receiver = m_first_responder) {
+            return receiver->receive_event(e);
+        }
     }
 
     return false;

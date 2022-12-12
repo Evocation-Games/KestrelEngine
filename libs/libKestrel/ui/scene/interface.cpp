@@ -48,6 +48,10 @@ kestrel::ui::scene_interface::scene_interface(const resource::descriptor::lua_re
 auto kestrel::ui::scene_interface::parse_item_list(graphite::data::reader &reader, std::uint32_t count) -> std::vector<scene_interface_item::lua_reference>
 {
     std::vector<scene_interface_item::lua_reference> items;
+    std::vector<scene_interface_item::lua_reference> dynamic_height_items;
+
+    double y_position = 0;
+    double y_advance = 0;
 
     for (auto n = 0; n < count && !reader.eof(); ++n) {
         scene_interface_item::lua_reference item(new scene_interface_item());
@@ -67,7 +71,43 @@ auto kestrel::ui::scene_interface::parse_item_list(graphite::data::reader &reade
             item->set_children(std::move(parse_item_list(reader, item_count)));
         }
 
+        // If we are using flow layout, then we then to determine what to do with the item positioning.
+        if (m_flags & scene_interface_flags::vertical_flow_layout) {
+            switch (item->type()) {
+                case ui::control_type::spacer: {
+                    y_position += y_advance + item->frame().size.height;
+                    y_advance = 0;
+                    continue;
+                }
+                case ui::control_type::position: {
+                    y_position = item->frame().origin.y;
+                    y_advance = 0;
+                    continue;
+                }
+                default: {
+                    auto r = item->frame();
+                    r.origin.y = y_position;
+                    item->set_frame(r);
+                    y_advance = std::max(y_advance, r.size.height);
+                    break;
+                }
+            }
+        }
+
         items.emplace_back(std::move(item));
+        if (item->frame().size.height < 0) {
+            dynamic_height_items.emplace_back(items.back());
+        }
+    }
+
+    // Update the scene size if we have calculated a new height.
+    if (m_flags & scene_interface_flags::vertical_flow_layout) {
+        m_scene_size.height = y_position + y_advance;
+        for (const auto& item : dynamic_height_items) {
+            auto r = item->frame();
+            r.size.height = m_scene_size.height;
+            item->set_frame(r);
+        }
     }
 
     return std::move(items);

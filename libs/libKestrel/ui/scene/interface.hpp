@@ -42,6 +42,7 @@ namespace kestrel::ui
 
         // Scene
         scene_passthrough = 0x0010,
+        vertical_flow_layout = 0x0020,
     };
 
     struct lua_api(UI.SceneInterfaceItem, Available_0_8) scene_interface_item

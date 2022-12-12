@@ -55,6 +55,7 @@ namespace kestrel::ui
 
         auto internal_scene() -> std::shared_ptr<scene>;
         auto physics_world() -> physics::world&;
+        auto responder_chain() -> responder_chain&;
 
         lua_function(adoptPhysicsBody, Available_0_8) auto adopt_physics_body(physics::body::lua_reference body) -> void;
 
@@ -107,7 +108,7 @@ namespace kestrel::ui
         luabridge::LuaRef m_update_block { nullptr };
         luabridge::LuaRef m_key_event_block { nullptr };
         luabridge::LuaRef m_mouse_event_block { nullptr };
-        responder_chain m_responder_chain;
+        struct responder_chain m_responder_chain;
         bool m_imgui { false };
 
         auto draw_widgets() const -> void;

@@ -64,7 +64,7 @@ namespace kestrel::ui
         [[nodiscard]] inline auto layout() const -> const dialog_layout * { return &m_layout; }
 
     private:
-        std::unordered_map<std::string, control_definition::lua_reference> m_element_definitions;
+        std::vector<std::pair<std::string, control_definition::lua_reference>> m_element_definitions;
         dialog_layout m_layout;
         ui::dialog::lua_reference m_dialog { nullptr };
         bool m_passthrough { true };

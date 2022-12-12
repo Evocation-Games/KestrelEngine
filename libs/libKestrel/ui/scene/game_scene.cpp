@@ -34,6 +34,8 @@
 #include <libKestrel/ui/widgets/list_widget.hpp>
 #include <libKestrel/ui/widgets/scrollview_widget.hpp>
 #include <libKestrel/ui/widgets/sprite_widget.hpp>
+#include <libKestrel/ui/widgets/checkbox_widget.hpp>
+#include <libKestrel/ui/widgets/popup_button_widget.hpp>
 #include <libKestrel/resource/namespace.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
 #include <libKestrel/lua/script.hpp>
@@ -195,6 +197,11 @@ auto kestrel::ui::game_scene::physics_world() -> physics::world&
     return m_world;
 }
 
+auto kestrel::ui::game_scene::responder_chain() -> struct responder_chain&
+{
+    return m_responder_chain;
+}
+
 auto kestrel::ui::game_scene::is_current() const -> bool
 {
     return (*kestrel::session().current_scene() == this);
@@ -328,6 +335,7 @@ auto kestrel::ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> voi
         auto text = widget.cast<widgets::text_widget::lua_reference>();
         text->attach_responder_chain(&m_responder_chain);
         text->become_first_responder();
+        m_responder_chain.add_mouse_responder(text.get());
     }
     else if (lua::ref_isa<ui::widgets::button_widget>(widget)) {
         auto button = widget.cast<ui::widgets::button_widget::lua_reference>();
@@ -352,6 +360,14 @@ auto kestrel::ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> voi
     else if (lua::ref_isa<ui::widgets::image_widget>(widget)) {
         auto image = widget.cast<ui::widgets::image_widget::lua_reference>();
         m_responder_chain.add_mouse_responder(image.get());
+    }
+    else if (lua::ref_isa<ui::widgets::checkbox_widget>(widget)) {
+        auto checkbox = widget.cast<ui::widgets::checkbox_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(checkbox.get());
+    }
+    else if (lua::ref_isa<ui::widgets::popup_button_widget>(widget)) {
+        auto popup = widget.cast<ui::widgets::popup_button_widget::lua_reference>();
+        m_responder_chain.add_mouse_responder(popup.get());
     }
 
     m_widgets.emplace_back(widget);
@@ -415,6 +431,16 @@ auto kestrel::ui::game_scene::draw_widgets() const -> void
             auto sprite = widget.cast<ui::widgets::sprite_widget::lua_reference>();
             entity = sprite->entity();
             sprite->draw();
+        }
+        else if (lua::ref_isa<ui::widgets::checkbox_widget>(widget)) {
+            auto checkbox = widget.cast<ui::widgets::checkbox_widget::lua_reference>();
+            entity = checkbox->entity();
+            checkbox->draw();
+        }
+        else if (lua::ref_isa<ui::widgets::popup_button_widget>(widget)) {
+            auto popup = widget.cast<ui::widgets::popup_button_widget::lua_reference>();
+            entity = popup->entity();
+            popup->draw();
         }
         else {
             // TODO: Unrecognised widget type... skip.

@@ -108,6 +108,11 @@ auto kestrel::ui::widgets::grid_widget::outline_color() const -> graphics::color
     return m_outline_color;
 }
 
+auto kestrel::ui::widgets::grid_widget::dimensions() const -> math::size
+{
+    return m_grid;
+}
+
 auto kestrel::ui::widgets::grid_widget::set_frame(const math::rect &frame) -> void
 {
     setup(frame);
@@ -154,6 +159,12 @@ auto kestrel::ui::widgets::grid_widget::set_cell_drawing_function(const luabridg
 {
     m_cell_drawing_function = drawing_function;
     m_dirty = true;
+}
+
+auto kestrel::ui::widgets::grid_widget::set_dimensions(const math::size &dimensions) -> void
+{
+    m_grid = dimensions;
+    m_cell_size = math::size((m_entity->size().width - 1) / m_grid.width, (m_entity->size().height - 1) / m_grid.height);
 }
 
 // MARK: - Calculations

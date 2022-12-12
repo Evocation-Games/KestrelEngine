@@ -93,17 +93,18 @@ auto kestrel::ui::dialog_configuration::define_element(const luabridge::LuaRef& 
         }
     }
 
-    m_element_definitions.emplace(std::pair(name, def));
+    m_element_definitions.emplace_back(std::pair(name, def));
     return def;
 }
 
 auto kestrel::ui::dialog_configuration::element(const std::string &name) -> control_definition::lua_reference
 {
-    auto it = m_element_definitions.find(name);
-    if (it == m_element_definitions.end()) {
-        return nullptr;
+    for (auto& element : m_element_definitions) {
+        if (element.first == name) {
+            return element.second;
+        }
     }
-    return it->second;
+    return nullptr;
 }
 
 auto kestrel::ui::dialog_configuration::all_elements() const -> std::vector<std::string>

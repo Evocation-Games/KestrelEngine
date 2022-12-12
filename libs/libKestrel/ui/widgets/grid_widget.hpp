@@ -75,6 +75,7 @@ namespace kestrel::ui::widgets
         lua_getter(backgroundColor, Available_0_8) [[nodiscard]] auto background_color() const -> graphics::color::lua_reference;
         lua_getter(hiliteColor, Available_0_8) [[nodiscard]] auto hilite_color() const -> graphics::color::lua_reference;
         lua_getter(outlineColor, Available_0_8) lua_getter(gridColor, Available_0_8) [[nodiscard]] auto outline_color() const -> graphics::color::lua_reference;
+        lua_getter(dimensions, Available_0_9) [[nodiscard]] auto dimensions() const -> math::size;
 
         lua_function(onItemSelect, Available_0_8) auto on_item_select(const luabridge::LuaRef& callback) -> void;
 
@@ -86,6 +87,7 @@ namespace kestrel::ui::widgets
         lua_setter(hiliteColor, Available_0_8) auto set_hilite_color(const graphics::color::lua_reference& color) -> void;
         lua_setter(outlineColor, Available_0_8) lua_setter(gridColor, Available_0_8) auto set_outline_color(const graphics::color::lua_reference& color) -> void;
         lua_setter(font, Available_0_8) auto set_font(const font::reference::lua_reference& font) -> void;
+        lua_setter(dimensions, Available_0_9) auto set_dimensions(const math::size& dimensions) -> void;
 
         lua_function(setCellDrawingFunction, Available_0_8) auto set_cell_drawing_function(const luabridge::LuaRef& drawing_function) -> void;
 

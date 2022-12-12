@@ -38,6 +38,9 @@
 #include <libKestrel/ui/widgets/custom_widget.hpp>
 #include <libKestrel/ui/widgets/sprite_widget.hpp>
 #include <libKestrel/ui/widgets/scrollview_widget.hpp>
+#include <libKestrel/ui/widgets/text_widget.hpp>
+#include <libKestrel/ui/widgets/checkbox_widget.hpp>
+#include <libKestrel/ui/widgets/popup_button_widget.hpp>
 
 // Controls
 #include <libKestrel/ui/imgui/imgui.hpp>
@@ -176,16 +179,35 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config) -> v
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
                 break;
             }
+            case control_type::checkbox: {
+                auto checkbox = widgets::checkbox_widget::lua_reference(new widgets::checkbox_widget());
+                checkbox->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, checkbox)));
+                break;
+            }
             case control_type::label: {
                 auto label = widgets::label_widget::lua_reference(new widgets::label_widget(element->suggested_value()));
                 label->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, label)));
                 break;
             }
+            case control_type::text_field: {
+                auto text = widgets::text_widget::lua_reference(new widgets::text_widget(element->frame().get_width()));
+                text->set_text(element->suggested_value());
+                text->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
+                break;
+            }
             case control_type::text_area: {
                 auto text = widgets::textarea_widget::lua_reference(new widgets::textarea_widget(element->suggested_value()));
                 text->set_frame(element->frame());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
+                break;
+            }
+            case control_type::popup_button: {
+                auto popup = widgets::popup_button_widget::lua_reference(new widgets::popup_button_widget(element->frame().get_width()));
+                popup->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, popup)));
                 break;
             }
             case control_type::table:
@@ -292,10 +314,13 @@ auto kestrel::ui::dialog::present_scene(const ui::game_scene::lua_reference& sce
         }
     }
 
-    for (auto& element : m_elements) {
-        auto widget = element.second;
-        if (widget.state()) {
-            m_owner_scene->add_widget(widget);
+    for (auto& element_name : m_configuration->all_elements()) {
+        const auto& it = m_elements.find(element_name);
+        if (it != m_elements.end()) {
+            auto widget = it->second;
+            if (widget.state()) {
+                m_owner_scene->add_widget(widget);
+            }
         }
     }
 }
