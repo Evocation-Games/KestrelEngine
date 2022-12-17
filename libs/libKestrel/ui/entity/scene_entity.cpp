@@ -260,6 +260,11 @@ auto kestrel::ui::scene_entity::continuous_mouse_down_action() const -> bool
     return m_continuous_mouse_down_action;
 }
 
+auto kestrel::ui::scene_entity::hidden() const -> bool
+{
+    return m_hidden;
+}
+
 // MARK: - Setters
 
 auto kestrel::ui::scene_entity::set_position(const math::point& v) -> void
@@ -349,6 +354,11 @@ auto kestrel::ui::scene_entity::set_continuous_mouse_down_action(bool continuous
 auto kestrel::ui::scene_entity::set_ignore_positioning_frame_scaler(bool f) -> void
 {
     m_ignore_positioning_frame_scaler = f;
+}
+
+auto kestrel::ui::scene_entity::set_hidden(bool hidden) -> void
+{
+    m_hidden = hidden;
 }
 
 // MARK: - Child Entity Management
@@ -474,7 +484,7 @@ auto kestrel::ui::scene_entity::bind_shader_attachment4(std::int32_t idx, double
 
 auto kestrel::ui::scene_entity::draw() -> void
 {
-    if (!m_entity) {
+    if (!m_entity || m_hidden) {
         return;
     }
 
@@ -620,7 +630,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 auto kestrel::ui::scene_entity::hit_test(const math::point& p) const -> bool
 {
     math::rect frame { math::point(0), m_entity->get_draw_size() };
-    return frame.contains_point(p);
+    return frame.contains_point(p) && !m_hidden;
 }
 
 // MARK: - Entity

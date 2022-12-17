@@ -170,7 +170,7 @@ auto kestrel::ui::widgets::text_widget::redraw_entity() -> void
     math::rect frame { {0, 0}, size };
 
     m_canvas->clear();
-    m_canvas->set_pen_color({ new graphics::color(m_border_color) });
+    m_canvas->set_pen_color({ new graphics::color(m_is_first_responder ? m_selection_color : m_border_color) });
     m_canvas->fill_rect(frame);
 
     m_canvas->set_pen_color({ new graphics::color(m_background_color) });
@@ -185,8 +185,10 @@ auto kestrel::ui::widgets::text_widget::redraw_entity() -> void
     m_canvas->draw_text({inset, inset + ((text_area_size.height - text_size.height) / 2)});
     m_canvas->clear_clipping_rect();
 
-    m_canvas->set_pen_color({ new graphics::color(m_cursor_color) });
-    m_canvas->fill_rect({inset + cursor.x, inset + cursor.y, 1, text_area_size.height});
+    if (m_is_first_responder) {
+        m_canvas->set_pen_color({ new graphics::color(m_cursor_color) });
+        m_canvas->fill_rect({inset + cursor.x, inset + cursor.y, 1, text_area_size.height});
+    }
 
     m_canvas->rebuild_texture();
     m_dirty = false;
@@ -203,12 +205,16 @@ auto kestrel::ui::widgets::text_widget::draw() -> void
 
 auto kestrel::ui::widgets::text_widget::did_become_first_responder() -> void
 {
-
+    m_is_first_responder = true;
+    m_dirty = true;
+    redraw_entity();
 }
 
 auto kestrel::ui::widgets::text_widget::did_resign_first_responder() -> void
 {
-
+    m_is_first_responder = false;
+    m_dirty = true;
+    redraw_entity();
 }
 
 auto kestrel::ui::widgets::text_widget::receive_event(const event& e) -> bool

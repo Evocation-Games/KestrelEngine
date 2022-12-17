@@ -72,6 +72,18 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
         auto point = e.location();
         auto local_point = m_positioning_frame->translate_point_from(point);
 
+        if (m_menu_widget.get()) {
+            if (m_menu_widget->receive_event(e.relocated(local_point))) {
+                m_menu_widget->will_close();
+                m_menu_widget = { nullptr };
+                return;
+            }
+            else if (e.has(event_type::any_mouse_down)) {
+                m_menu_widget->will_close();
+                m_menu_widget = { nullptr };
+            }
+        }
+
         for (auto entity_ref : m_entities) {
             if (lua::ref_isa<scene_entity>(entity_ref)) {
                 auto entity = entity_ref.cast<scene_entity::lua_reference>();
@@ -452,6 +464,13 @@ auto kestrel::ui::game_scene::draw_widgets() const -> void
         entity->layout();
         entity->draw();
     }
+
+    if (m_menu_widget.get()) {
+        m_menu_widget->entity()->set_anchor_point(layout::axis_origin::top_left);
+        m_positioning_frame->position_scene_entity(m_menu_widget->entity());
+        m_menu_widget->entity()->layout();
+        m_menu_widget->entity()->draw();
+    }
 }
 
 // MARK: - Key States
@@ -516,4 +535,16 @@ auto kestrel::ui::game_scene::draw_line(const math::point &p, const math::point 
 auto kestrel::ui::game_scene::adopt_physics_body(physics::body::lua_reference body) -> void
 {
     body->migrate_to_world(&m_world);
+}
+
+// MARK: - Menu Widgets
+
+auto kestrel::ui::game_scene::menu_widget() const -> widgets::menu_widget::lua_reference
+{
+    return m_menu_widget;
+}
+
+auto kestrel::ui::game_scene::set_menu_widget(const widgets::menu_widget::lua_reference &menu) -> void
+{
+    m_menu_widget = menu;
 }

@@ -73,6 +73,7 @@ namespace kestrel::ui::widgets
         auto receive_event(const event& e) -> bool override;
 
     private:
+        bool m_is_first_responder { false };
         bool m_dirty { true };
         font::reference::lua_reference m_font { nullptr };
         text_entry_event m_input;

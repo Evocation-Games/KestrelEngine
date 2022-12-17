@@ -33,6 +33,12 @@ kestrel::ui::widgets::popup_button_widget::popup_button_widget(double width)
 
     m_canvas = std::make_unique<graphics::canvas>(math::size(width, 25));
     m_entity = { new scene_entity(m_canvas->spawn_entity({0, 0})) };
+
+    m_menu.widget = { new widgets::menu_widget({}) };
+    m_menu.widget->present_from_parent(entity(), [this] {
+        m_dirty = true;
+        redraw_entity();
+    });
 }
 
 // MARK: - Accessors
@@ -44,7 +50,7 @@ auto kestrel::ui::widgets::popup_button_widget::entity() const -> ui::scene_enti
 
 auto kestrel::ui::widgets::popup_button_widget::text() const -> std::string
 {
-    return m_items.empty() ? "" : m_items.at(0);
+    return m_menu.widget->selected_item();
 }
 
 auto kestrel::ui::widgets::popup_button_widget::font() const -> font::reference::lua_reference
@@ -89,7 +95,7 @@ auto kestrel::ui::widgets::popup_button_widget::frame() const -> math::rect
 
 auto kestrel::ui::widgets::popup_button_widget::items() const -> lua::vector<std::string>
 {
-    return m_items;
+    return m_menu.widget->items();
 }
 
 // MARK: - Setters
@@ -107,24 +113,28 @@ auto kestrel::ui::widgets::popup_button_widget::set_font(const font::reference::
 
 auto kestrel::ui::widgets::popup_button_widget::set_color(const graphics::color::lua_reference& v) -> void
 {
+    m_menu.widget->set_color(v);
     m_color = { *v.get() };
     m_dirty = true;
 }
 
 auto kestrel::ui::widgets::popup_button_widget::set_background_color(const graphics::color::lua_reference& v) -> void
 {
+    m_menu.widget->set_background_color(v);
     m_background_color = { *v.get() };
     m_dirty = true;
 }
 
 auto kestrel::ui::widgets::popup_button_widget::set_border_color(const graphics::color::lua_reference& v) -> void
 {
+    m_menu.widget->set_border_color(v);
     m_border_color = { *v.get() };
     m_dirty = true;
 }
 
 auto kestrel::ui::widgets::popup_button_widget::set_selection_color(const graphics::color::lua_reference& v) -> void
 {
+    m_menu.widget->set_selection_color(v);
     m_selection_color = { *v.get() };
     m_dirty = true;
 }
@@ -151,14 +161,16 @@ auto kestrel::ui::widgets::popup_button_widget::set_frame(const math::rect& v) -
 auto kestrel::ui::widgets::popup_button_widget::set_items(const luabridge::LuaRef& items) -> void
 {
     if (items.state() && items.isTable()) {
-        m_items.clear();
+        m_menu.items.clear();
         for (auto i = 1; i <= items.length(); ++i) {
             auto row = items[i];
             if (row.isString()) {
-                m_items.emplace_back(row.tostring());
+                m_menu.items.emplace_back(row.tostring());
             }
         }
     }
+    m_menu.widget->set_items(m_menu.items);
+    m_menu.widget->set_index_of_selected_item(m_menu.items.empty() ? -1 : 0);
     m_dirty = true;
     redraw_entity();
 }
@@ -214,7 +226,7 @@ auto kestrel::ui::widgets::popup_button_widget::receive_event(const event& e) ->
 {
     if (e.has(event_type::any_mouse_down)) {
         if (entity()->hit_test(e.location() - entity()->position())) {
-
+            present_menu();
             return true;
         }
     }
@@ -224,4 +236,19 @@ auto kestrel::ui::widgets::popup_button_widget::receive_event(const event& e) ->
     }
 
     return false;
+}
+
+// MARK: - Menu
+
+auto kestrel::ui::widgets::popup_button_widget::present_menu() -> void
+{
+    const auto& scene = ui::game_scene::current();
+
+    m_menu.widget->set_font(m_font);
+    m_menu.widget->set_color({ new graphics::color(m_color) });
+    m_menu.widget->set_border_color({ new graphics::color(m_border_color) });
+    m_menu.widget->set_background_color({ new graphics::color(m_background_color) });
+    m_menu.widget->set_selection_color({ new graphics::color(m_selection_color) });
+
+    scene->set_menu_widget(m_menu.widget);
 }

@@ -77,6 +77,7 @@ namespace kestrel::ui
         lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
         lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous_mouse_down_action() const -> bool;
         lua_getter(body, Available_0_8) [[nodiscard]] auto body() const -> physics::body::lua_reference;
+        lua_getter(hidden, Available_0_9) [[nodiscard]] auto hidden() const -> bool;
 
         lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
         lua_setter(drawPosition, Available_0_8) auto set_draw_position(const math::point& v) -> void;
@@ -95,6 +96,7 @@ namespace kestrel::ui
         lua_setter(animator, Available_0_8) auto set_animator(const renderer::animator::lua_reference& animator) -> void;
         lua_setter(continuous, Available_0_8) auto set_continuous_mouse_down_action(bool continuous) -> void;
         lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
+        lua_setter(hidden, Available_0_9) auto set_hidden(bool hidden) -> void;
 
         auto change_internal_entity(const std::shared_ptr<ecs::entity>& entity) -> void;
         lua_function(setSprite, Available_0_8) auto set_sprite(const luabridge::LuaRef& sprite) -> void;
@@ -152,6 +154,7 @@ namespace kestrel::ui
         bool m_mouse_over { false };
         bool m_mouse_dragged { false };
         bool m_pressed { false };
+        bool m_hidden { false };
         bool m_started { false };
         bool m_finished { false };
         bool m_continuous_mouse_down_action { false };

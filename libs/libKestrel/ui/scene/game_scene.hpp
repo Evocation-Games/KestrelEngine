@@ -34,6 +34,7 @@
 #include <libKestrel/event/responder/responder_chain.hpp>
 #include <libKestrel/event/event.hpp>
 #include <libKestrel/physics/world.hpp>
+#include <libKestrel/ui/widgets/menu_widget.hpp>
 
 namespace kestrel::ui
 {
@@ -84,6 +85,9 @@ namespace kestrel::ui
         lua_function(replaceEntity, Available_0_8) auto replace_entity(std::int32_t index, const luabridge::LuaRef& entity) -> void;
         lua_function(addWidget, Available_0_8) auto add_widget(const luabridge::LuaRef& widget) -> void;
 
+        lua_setter(menuWidget, Available_0_9) auto set_menu_widget(const widgets::menu_widget::lua_reference& menu) -> void;
+        lua_getter(menuWidget, Available_0_9) auto menu_widget() const -> widgets::menu_widget::lua_reference;
+
         lua_function(key, Available_0_8) [[nodiscard]] auto key(std::int32_t k) const -> event::lua_reference;
         lua_function(keyDown, Available_0_8) [[nodiscard]] auto is_key_down(std::int32_t k) const -> bool;
         lua_function(keyReleased, Available_0_8) [[nodiscard]] auto is_key_released(std::int32_t k) const -> bool;
@@ -103,6 +107,7 @@ namespace kestrel::ui
         bool m_user_input { true };
         lua::vector<luabridge::LuaRef> m_entities;
         std::vector<luabridge::LuaRef> m_widgets;
+        widgets::menu_widget::lua_reference m_menu_widget { nullptr };
         std::unordered_map<int, event::lua_reference> m_key_states;
         luabridge::LuaRef m_render_block { nullptr };
         luabridge::LuaRef m_update_block { nullptr };
