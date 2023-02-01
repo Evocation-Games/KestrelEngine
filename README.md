@@ -32,6 +32,34 @@ Kestrel's early development has been for the most part guided by the requirement
 
 Of course it has added challenges, not least of all in the fact that the technologies are decades out of date, deprecated and/or gone. Hence why this project has reimplemented so many of them.
 
+## Kestrel Components
+There are a number of components to the Kestrel Game Engine which include;
+
+- **Kestrel**
+  - `libKestrel`<br/>
+  A static library containing all the functionality of the Kestrel Game Engine
+  
+  - `KestrelPlayer`<br/>
+  An example executable that links against _libKestrel_ that can run games built for Kestrel
+  
+- **Kestrel Development Kit**
+  - `libKDL`<br/>
+  A static library containing all the functionality for reading and assembling KDL scripts and projects
+  
+  - `kdl`<br/>
+  A command line tool linked against _libKDL_, providing the default tooling for Kestrel
+  
+  - `luatool`<br/>
+  A command line tool used to parse C++ headers files in the `libKestrel` build process so that the Lua API for Kestrel can be
+  generated, along with documentation for the API.
+  
+  - `tree-sitter-kdl`<br/>
+  A tree-sitter grammar/parser that can be used to provide KDL syntax highlighting capabilities in various text editors
+
+- **Supporting Libraries** -
+  - `libMath`<br/>
+  A static library containing all of the math related functionality.1
+
 ## Building Kestrel
 It should be relatively straightforward to get started with building Kestrel for yourself. However if you are on Windows, then please refer to the _Building Kestrel on Windows_ section, as you will need to setup MinGW/MSYS2 first.
 

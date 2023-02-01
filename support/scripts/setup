@@ -87,17 +87,17 @@ if [[ $OS =~ ^darwin ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   fi
 
-  if [[ ! -f "vendor/libfreetype.a" ]]; then
+  if [[ ! -f "support/vendor/libfreetype.a" ]]; then
     echo "Building universal libfreetype... "
     support/scripts/compile-library-macos.sh freetype libfreetype FreeType
   fi
 
-  if [[ ! -f "vendor/libglfw.a" ]]; then
+  if [[ ! -f "support/vendor/libglfw.a" ]]; then
     echo "Building universal libglfw... "
     support/scripts/compile-library-macos.sh glfw src/libglfw3 GLFW
   fi
 
-  if [[ ! -f "vendor/libpng.a" ]]; then
+  if [[ ! -f "support/vendor/libpng.a" ]]; then
     echo "Building universal libpng... "
     _=$(cd submodules/png && git apply ../../support/patches/libpng.macos.patch)
     support/scripts/compile-library-macos.sh png libpng16 PNG
