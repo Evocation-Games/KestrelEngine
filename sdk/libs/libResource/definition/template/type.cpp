@@ -26,8 +26,8 @@ resource::definition::binary_template::type::type(enum $type type)
     : m_base(type), m_nested({ .definition = nullptr })
 {}
 
-resource::definition::binary_template::type::type(const instance *nested)
-    : m_base($type::NESTED), m_nested({ .definition = nested })
+resource::definition::binary_template::type::type(const instance *nested, const std::string& name)
+    : m_base($type::NESTED), m_nested({ .definition = nested, .name = name })
 {}
 
 // MARK: - Accessors
@@ -60,7 +60,7 @@ auto resource::definition::binary_template::type::name() const -> std::string
             return "Cnnn";
         }
         case NESTED: {
-            return "Nested<>";
+            return "Nested<" + m_nested.name + ">";
         }
     }
 }
@@ -73,4 +73,9 @@ auto resource::definition::binary_template::type::value() const -> enum $type
 auto resource::definition::binary_template::type::nested_type() const -> const instance *
 {
     return m_nested.definition;
+}
+
+auto resource::definition::binary_template::type::nested_type_name() const -> std::string
+{
+    return m_nested.name;
 }

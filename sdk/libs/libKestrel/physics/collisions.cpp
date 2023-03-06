@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/physics/collisions.hpp>
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 
 // MARK: - Helpers
 
@@ -27,10 +27,10 @@ namespace kestrel::physics::collisions
 {
     inline auto orient(const math::vec2& a, const math::vec2& b, const math::vec2& c) -> double
     {
-        auto n = math::SIMD::float4(a.x(), b.y(), a.y(), b.x());
-        auto m = math::SIMD::float4(c.x(), c.y(), c.y(), c.x());
+        auto n = simd::float32(a.x(), b.y(), a.y(), b.x());
+        auto m = simd::float32(c.x(), c.y(), c.y(), c.x());
         n -= m;
-        m = math::SIMD::float4(n[0], n[2]) * math::SIMD::float4(n[1], n[3]);
+        m = simd::float32(n[0], n[2]) * simd::float32(n[1], n[3]);
         return m[0] - m[1];
     }
 

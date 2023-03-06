@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/size.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
@@ -41,7 +41,7 @@ namespace kestrel::math
         rect(const struct point& o, const struct size& s);
         rect(const rect& r) = default;
         rect(rect&& r) noexcept = default;
-        explicit rect(SIMD::float4 v);
+        explicit rect(simd::float32 v);
         explicit rect(const graphite::quickdraw::rect<std::int16_t>& r);
 
         auto operator=(const rect&) -> rect& = default;
@@ -58,10 +58,10 @@ namespace kestrel::math
         auto operator==(const rect& r) const -> bool;
         auto operator!=(const rect& r) const -> bool;
 
-        lua_function(addPoint, Available_0_8) auto add_point(const struct point& p) const -> rect;
-        lua_function(addSize, Available_0_8) auto add_size(const struct size& s) const -> rect;
-        lua_function(subtractPoint, Available_0_8) auto subtract_point(const struct point& p) const -> rect;
-        lua_function(subtractSize, Available_0_8) auto subtract_size(const struct size& s) const -> rect;
+        [[nodiscard]] lua_function(addPoint, Available_0_8) auto add_point(const struct point& p) const -> rect;
+        [[nodiscard]] lua_function(addSize, Available_0_8) auto add_size(const struct size& s) const -> rect;
+        [[nodiscard]] lua_function(subtractPoint, Available_0_8) auto subtract_point(const struct point& p) const -> rect;
+        [[nodiscard]] lua_function(subtractSize, Available_0_8) auto subtract_size(const struct size& s) const -> rect;
 
         lua_function(round, Available_0_8) [[nodiscard]] auto round() const -> rect;
         lua_function(floor, Available_0_8) [[nodiscard]] auto floor() const -> rect;
@@ -98,7 +98,7 @@ namespace kestrel::math
         friend struct size;
 
     private:
-        SIMD::float4 m_value;
+        simd::float32 m_value;
     };
 
 }

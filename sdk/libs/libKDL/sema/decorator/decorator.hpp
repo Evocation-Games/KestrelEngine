@@ -22,12 +22,13 @@
 
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
+#include <libResource/decorator/decorator.hpp>
 
 namespace kdl::sema::decorator
 {
     struct collection
     {
-        std::vector<tokenizer::token> decorators;
+        std::vector<resource::decorator> decorators;
     };
 
     auto test(foundation::stream<tokenizer::token>& stream) -> bool;

@@ -33,7 +33,7 @@ namespace interpreter
     struct function
     {
     public:
-        typedef std::function<auto(interpreter::scope *)->token> native_function_body;
+        typedef std::function<auto(interpreter::scope *, const std::vector<token>&)->token> native_function_body;
 
         function(const std::string& name, const native_function_body& body);
         function(const std::string& name, const foundation::stream<token>& stream);

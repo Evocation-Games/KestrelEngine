@@ -42,6 +42,7 @@ namespace kestrel::image
 
         static auto from(const luabridge::LuaRef& ref) -> lua_reference;
 
+        luatool_type_fix(const resource::descriptor::lua_reference&, ref)
         lua_constructor(Available_0_8) explicit static_image(const resource::descriptor::lua_reference& ref);
         lua_function(load, Available_0_8) static auto load_best(const std::vector<resource::descriptor::lua_reference>& refs) -> lua_reference;
         lua_function(usingLegacyMacintoshPicture, Available_0_8) static auto using_pict(const legacy::macintosh::quickdraw::picture::lua_reference& ref) -> lua_reference;

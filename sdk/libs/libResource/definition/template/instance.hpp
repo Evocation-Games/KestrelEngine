@@ -42,6 +42,7 @@ namespace resource::definition::binary_template
         [[nodiscard]] auto field_named(const std::vector<std::string>& name) const -> const field&;
 
     private:
+        std::vector<field::hash_value> m_field_order;
         std::map<field::hash_value, field> m_fields;
     };
 }

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <libKestrel/math/triangulated_polygon.hpp>
 
 // MARK: - Construction
@@ -62,8 +62,8 @@ auto kestrel::math::triangulated_polygon::operator*(const math::size &s) const -
     auto triangles = m_triangles;
     vec2 center;
     for (auto& it : triangles) {
-        auto v = SIMD::float4(it.a.x(), it.a.y(), it.b.x(), it.b.y()) * s.m_value;
-        auto w = SIMD::float4(it.c.x(), it.c.y(), m_center.x(), m_center.y()) * s.m_value;
+        auto v = (simd::float32(it.a.x(), it.a.y(), it.b.x(), it.b.y()) * s.m_value).round();
+        auto w = (simd::float32(it.c.x(), it.c.y(), m_center.x(), m_center.y()) * s.m_value).round();
         it.a = vec2(v[0], v[1]);
         it.b = vec2(v[2], v[3]);
         it.c = vec2(w[0], w[1]);

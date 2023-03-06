@@ -22,6 +22,7 @@
 
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
+#include <libKDL/sema/context.hpp>
 
 namespace kdl::sema
 {
@@ -30,7 +31,7 @@ namespace kdl::sema
     public:
         explicit analyser(const foundation::stream<tokenizer::token>& tokens);
 
-        auto process() -> void;
+        auto process() -> context;
 
     private:
         foundation::stream<tokenizer::token> m_tokens;

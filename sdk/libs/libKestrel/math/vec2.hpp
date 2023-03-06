@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/size.hpp>
 
@@ -29,7 +29,7 @@ namespace kestrel::math
     struct vec2
     {
         vec2();
-        explicit vec2(SIMD::float4 v);
+        explicit vec2(simd::float32 v);
         explicit vec2(float u);
         vec2(float x, float y);
         vec2(vec2&& v) noexcept = default;
@@ -63,9 +63,11 @@ namespace kestrel::math
         [[nodiscard]] auto unit() const -> vec2;
         [[nodiscard]] auto angle_to(const vec2& v) const -> float;
 
+        [[nodiscard]] auto round() const -> vec2;
+
         friend struct triangle;
 
     private:
-        SIMD::float4 m_value;
+        simd::float32 m_value;
     };
 }

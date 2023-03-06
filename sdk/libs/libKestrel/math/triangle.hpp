@@ -39,5 +39,12 @@ namespace kestrel::math
         auto operator+(const math::vec2& v) const -> triangle;
         auto operator-(const math::point& p) const -> triangle;
         auto operator-(const math::vec2& v) const -> triangle;
+
+        [[nodiscard]] auto intersects(const triangle& other) const -> bool;
+
+    private:
+        [[nodiscard]] static inline auto det(const vec2& a, const vec2& b, const vec2& c) -> float;
+        [[nodiscard]] static inline auto check_winding(const vec2& a, const vec2& b, const vec2& c, bool allow_reversed) -> bool;
+        [[nodiscard]] static inline auto boundary_collision(const vec2& a, const vec2& b, const vec2& c, float eps) -> bool;
     };
 }

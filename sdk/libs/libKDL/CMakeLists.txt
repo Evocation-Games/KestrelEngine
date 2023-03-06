@@ -32,8 +32,8 @@ file(GLOB_RECURSE libKDL_Sources
 )
 
 add_library(KDL ${libKDL_Sources})
-target_link_libraries(KDL Graphite Foundation Resource Interpreter Lexer)
+target_link_libraries(KDL SIMD Graphite Foundation Resource Interpreter Lexer Image Sound)
 target_include_directories(KDL PUBLIC
     ${PROJECT_SDK_LIBS}
-    ${PROJECT_SUBMODULE_DIR}/graphite
+    ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )

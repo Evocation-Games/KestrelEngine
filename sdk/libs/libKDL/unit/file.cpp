@@ -22,13 +22,24 @@
 #include <libLexer/lexer.hpp>
 #include <libKDL/tokenizer/tokenizer.hpp>
 #include <libKDL/sema/analyser.hpp>
+#include <libKDL/assembler/encoder.hpp>
 
 // MARK: - Construction
 
-kdl::unit::file::file(const std::string &output_path)
-    : m_output_path(output_path)
+kdl::unit::file::file(graphite::rsrc::file& output)
+    : m_output(&output)
 {}
 
+// MARK: - Helpers
+
+static inline auto setup_attributes(const resource::reference& reference) -> std::unordered_map<std::string, std::string>
+{
+    std::unordered_map<std::string, std::string> attributes;
+    if (reference.has_container()) {
+        attributes.emplace("ns", reference.container_name());
+    }
+    return attributes;
+}
 
 // MARK: - File Import
 
@@ -52,6 +63,32 @@ auto kdl::unit::file::import_file(const std::string &path) -> void
     auto lexical_result = lexer::lexer(file).analyze();
     auto token_stream = tokenizer::tokenizer(lexical_result).process();
 
-    // Now that we have a token stream, we are ready to begin semantic analysis.
-    sema::analyser(token_stream).process();
+    // Now that we have a token stream, we are ready to begin semantic analysis
+    auto analysis_context = sema::analyser(token_stream).process();
+
+    // Using the result of the analysis, we now need to encode each of the resources
+    // that have been generated.
+    if (!m_output) {
+        // TODO: Record an error that there is no output file for the resources to be written to.
+        return;
+    }
+
+    for (const auto& instance : analysis_context.resources) {
+        // Make sure the resource reference has a type name. If there is no type name,
+        // then this can not be considered valid.
+        const auto& ref = instance.reference();
+        if (!ref.has_type_name()) {
+            continue;
+        }
+
+        const auto *type = analysis_context.type_named(ref.type_name());
+        if (!type) {
+            // TODO: Report an error regarding the missing type.
+            throw std::runtime_error("");
+        }
+
+        // Setup an encoder and generate the instance data and add it to the resource file.
+        assembler::encoder encoder(instance, type);
+        m_output->add_resource(type->code(), ref.id(), instance.name(), encoder.encode(), setup_attributes(ref));
+    }
 }

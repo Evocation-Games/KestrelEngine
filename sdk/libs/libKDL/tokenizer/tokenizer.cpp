@@ -137,6 +137,10 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
         else if (m_input.expect({ lexer::expectation(lexer::identifier).be_true() })) {
             output.append(token(m_input.read(), token_type::identifier));
         }
+        else if (m_input.expect({ lexer::expectation(lexer::dollar).be_true(), lexer::expectation(lexer::identifier).be_true() })) {
+            m_input.advance();
+            output.append(token(m_input.read(), token_type::variable));
+        }
 
         // Literals ----------------------------------------------------------------------------------------------------
         else if (m_input.expect({ lexer::expectation(lexer::string).be_true() })) {
@@ -366,6 +370,7 @@ auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> toke
     else if (name.is(spec::keywords::repeatable_keyword))   return token_type::repeatable_keyword;
     else if (name.is(spec::keywords::as_keyword))           return token_type::as_keyword;
     else if (name.is(spec::keywords::constructor_keyword))  return token_type::constructor_keyword;
+    else if (name.is(spec::keywords::import_keyword))       return token_type::import_keyword;
     throw std::runtime_error("");
 }
 
@@ -404,6 +409,9 @@ auto kdl::tokenizer::tokenizer::type_named(const lexer::lexeme &name) -> token_t
     else if (name.is(spec::types::bitmask))                 return token_type::bitmask_type;
     else if (name.is(spec::types::file))                    return token_type::file_type;
     else if (name.is(spec::types::image))                   return token_type::image_type;
+    else if (name.is(spec::types::image_set))               return token_type::image_set_type;
+    else if (name.is(spec::types::sound))                   return token_type::sound_type;
+    else if (name.is(spec::types::data))                    return token_type::data_type;
     throw std::runtime_error("");
 }
 

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <libKestrel/math/vec2.hpp>
 
 namespace kestrel::math
@@ -28,7 +28,7 @@ namespace kestrel::math
     struct vec3
     {
         vec3();
-        explicit vec3(SIMD::float4 v);
+        explicit vec3(simd::float32 v);
         explicit vec3(float u);
         vec3(float x, float y, float z);
         vec3(vec3&& v) noexcept = default;
@@ -59,6 +59,6 @@ namespace kestrel::math
         [[nodiscard]] auto unit() const -> vec3;
 
     private:
-        SIMD::float4 m_value;
+        simd::float32 m_value;
     };
 }

@@ -28,6 +28,8 @@ namespace resource::definition::type
     struct descriptor
     {
     public:
+        descriptor() = default;
+
         explicit descriptor(bool is_reference);
         descriptor(bool is_reference, const std::string& name);
         descriptor(bool is_reference, const std::string& name, const std::vector<std::string>& hints);
@@ -38,6 +40,11 @@ namespace resource::definition::type
         [[nodiscard]] auto has_name() const -> bool;
         [[nodiscard]] auto name() const -> std::string;
         auto set_name(const std::string& name) -> void;
+
+        [[nodiscard]] auto has_hints() const -> bool;
+        [[nodiscard]] auto hints() const -> std::vector<std::string>;
+
+        [[nodiscard]] auto can_multi_import() const -> bool;
 
     private:
         bool m_reference { false };

@@ -39,6 +39,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
         expectation(tokenizer::l_paren).be_true(),
     });
     auto field_name = stream.read();
+    resource::definition::type::field field(field_name.string_value());
     stream.ensure({ expectation(tokenizer::r_paren).be_true() });
 
     // Repeatable?
@@ -49,11 +50,18 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
     // Body
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
     while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
-        if (stream.expect_any({
+        if (sema::decorator::test(stream)) {
+            ctx.current_decorators = sema::decorator::parse(stream);
+            continue;
+        }
+        else if (stream.expect_any({
             expectation(tokenizer::identifier).be_true(),
             expectation(tokenizer::identifier_path).be_true()
         })) {
-            parse_value(stream, ctx);
+            auto value = parse_value(stream, ctx);
+            value.add_decorators(ctx.current_decorators.decorators);
+            field.add_value(value);
+            ctx.current_decorators.decorators.clear();
         }
         else {
             throw std::runtime_error("");
@@ -63,25 +71,49 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
     }
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 
-    resource::definition::type::field field(field_name.string_value());
     return field;
 }
 
-auto kdl::sema::type_definition::field_definition::parse_value(foundation::stream<tokenizer::token> &stream, context &ctx) -> void
+auto kdl::sema::type_definition::field_definition::parse_value(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field_value
 {
     const auto value_identifier = stream.read();
     resource::definition::type::descriptor explicit_type(false);
     ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(value_identifier.path_value("."));
+    resource::definition::type::field_value value(ctx.current_binary_field);
+
+    if (stream.expect({ expectation(tokenizer::l_angle).be_true() })) {
+        // We have name extensions
+        stream.advance();
+        while (stream.expect({ expectation(tokenizer::r_angle).be_false() })) {
+            if (stream.expect({ expectation(tokenizer::variable).be_true() })) {
+                value.add_name_extension(stream.read().string_value());
+            }
+            else {
+                throw std::runtime_error("");
+            }
+
+            if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
+                stream.advance();
+                continue;
+            }
+            break;
+        }
+        stream.ensure({ expectation(tokenizer::r_angle).be_true() });
+    }
 
     if (stream.expect({ expectation(tokenizer::as_keyword).be_true() })) {
         stream.advance();
-        explicit_type = descriptor::parse(stream, ctx);
+        value.set_type(descriptor::parse(stream, ctx), true);
     }
     else {
-        explicit_type = descriptor::infer_type(ctx);
+        value.set_type(descriptor::infer_type(ctx), false);
     }
 
     if (stream.expect({ expectation(tokenizer::equals).be_true() })) {
         stream.advance();
+
+        // We have a default value specified.
     }
+
+    return value;
 }

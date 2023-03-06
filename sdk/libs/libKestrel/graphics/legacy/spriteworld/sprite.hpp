@@ -37,6 +37,7 @@ namespace kestrel::image::legacy::spriteworld
         is_resource_type("rlëD");
         struct alternate_type { static constexpr const char *code = "rlëX"; };
 
+        luatool_type_fix(const resource::descriptor::lua_reference&, ref)
         lua_constructor(Available_0_8) explicit sprite(const resource::descriptor::lua_reference& ref);
         lua_function(load, Available_0_8) static auto load(const resource::descriptor::lua_reference& ref) -> lua_reference;
 

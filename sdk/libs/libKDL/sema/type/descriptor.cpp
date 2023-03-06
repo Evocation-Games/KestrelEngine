@@ -21,30 +21,18 @@
 #include <libKDL/sema/type/descriptor.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/spec/types.hpp>
+#include <libResource/definition/template/instance.hpp>
 
 auto kdl::sema::type_definition::descriptor::parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::descriptor
 {
     std::optional<std::string> type_name;
     std::vector<std::string> hints;
     bool is_reference = false;
+    bool allows_hints = false;
 
     if (stream.expect({ expectation(tokenizer::identifier).be_true() })) {
         type_name = stream.read().string_value();
-        if (stream.expect({ expectation(tokenizer::l_angle).be_true() })) {
-            stream.advance();
-            while (stream.expect({ expectation(tokenizer::r_angle).be_false() })) {
-                hints.emplace_back(stream.read().string_value());
-
-                if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
-                    stream.advance();
-                    continue;
-                }
-                else if (stream.expect({ expectation(tokenizer::r_angle).be_true() })) {
-                    break;
-                }
-            }
-            stream.ensure({ expectation(tokenizer::r_angle).be_true() });
-        }
+        allows_hints = true;
     }
     else if (stream.expect({ expectation(tokenizer::string_type).be_true() })){
         type_name = spec::types::string;
@@ -65,11 +53,47 @@ auto kdl::sema::type_definition::descriptor::parse(foundation::stream<tokenizer:
         type_name = spec::types::file;
         auto tk = stream.read();
         hints = tk.associated_values();
+        allows_hints = true;
     }
     else if (stream.expect({ expectation(tokenizer::image_type).be_true() })){
         type_name = spec::types::image;
         auto tk = stream.read();
         hints = tk.associated_values();
+        allows_hints = true;
+    }
+    else if (stream.expect({ expectation(tokenizer::data_type).be_true() })){
+        type_name = spec::types::data;
+        auto tk = stream.read();
+        hints = tk.associated_values();
+        allows_hints = true;
+    }
+    else if (stream.expect({ expectation(tokenizer::image_set_type).be_true() })){
+        type_name = spec::types::image_set;
+        auto tk = stream.read();
+        hints = tk.associated_values();
+        allows_hints = true;
+    }
+    else if (stream.expect({ expectation(tokenizer::sound_type).be_true() })){
+        type_name = spec::types::sound;
+        auto tk = stream.read();
+        hints = tk.associated_values();
+        allows_hints = true;
+    }
+
+    if (allows_hints && stream.expect({ expectation(tokenizer::l_angle).be_true() })) {
+        stream.advance();
+        while (stream.expect({ expectation(tokenizer::r_angle).be_false() })) {
+            hints.emplace_back(stream.read().string_value());
+
+            if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
+                stream.advance();
+                continue;
+            }
+            else if (stream.expect({ expectation(tokenizer::r_angle).be_true() })) {
+                break;
+            }
+        }
+        stream.ensure({ expectation(tokenizer::r_angle).be_true() });
     }
 
     if (stream.expect({ expectation(tokenizer::amp).be_true() })) {
@@ -87,5 +111,48 @@ auto kdl::sema::type_definition::descriptor::parse(foundation::stream<tokenizer:
 
 auto kdl::sema::type_definition::descriptor::infer_type(context &ctx) -> resource::definition::type::descriptor
 {
+    switch (ctx.current_binary_field->type().value()) {
+        case resource::definition::binary_template::type::DBYT:
+        case resource::definition::binary_template::type::DWRD:
+        case resource::definition::binary_template::type::DLNG:
+        case resource::definition::binary_template::type::DQWD:
+        case resource::definition::binary_template::type::HBYT:
+        case resource::definition::binary_template::type::HWRD:
+        case resource::definition::binary_template::type::HLNG:
+        case resource::definition::binary_template::type::HQWD:
+            return { false, spec::types::integer };
 
+        case resource::definition::binary_template::type::RECT:
+            return { false, "Rect" };
+
+        case resource::definition::binary_template::type::PSTR:
+        case resource::definition::binary_template::type::CSTR:
+        case resource::definition::binary_template::type::Cnnn:
+        case resource::definition::binary_template::type::LSTR:
+        case resource::definition::binary_template::type::OSTR:
+            return { false, spec::types::string };
+
+        case resource::definition::binary_template::type::CHAR:
+        case resource::definition::binary_template::type::OCNT:
+            return { false, spec::types::integer };
+
+        case resource::definition::binary_template::type::LSTC:
+            return { false, "$ListStart" };
+
+        case resource::definition::binary_template::type::LSTE:
+            return { false, "$ListEnd" };
+
+        case resource::definition::binary_template::type::BBIT:
+        case resource::definition::binary_template::type::BOOL:
+            return { false, spec::types::boolean };
+
+        case resource::definition::binary_template::type::HEXD:
+            return { false, spec::types::data };
+
+        case resource::definition::binary_template::type::RSRC:
+            return { true, "" };
+
+        case resource::definition::binary_template::type::NESTED:
+            return { true, ctx.current_binary_field->type().nested_type_name() };
+    }
 }

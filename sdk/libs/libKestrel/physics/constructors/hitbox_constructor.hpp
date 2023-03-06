@@ -27,7 +27,7 @@
 
 namespace kestrel::physics::hitbox_constructor
 {
-    static constexpr std::uint32_t accuracy = 10;
+    static constexpr std::uint32_t accuracy = 15;
     static constexpr std::uint8_t alpha_threshold = 5;
 
     auto polygon(std::shared_ptr<graphics::sprite_sheet> sheet, const math::rect& sprite_frame, std::uint32_t accuracy = hitbox_constructor::accuracy) -> math::polygon;

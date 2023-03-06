@@ -53,8 +53,8 @@ auto kdl::sema::decorator::parse(foundation::stream<tokenizer::token> &stream) -
         expectation(tokenizer::condition_decorator).be_true(),
         expectation(tokenizer::decorator).be_true()
     })) {
-        collection.decorators.emplace_back(stream.read());
+        auto token = stream.read();
+        collection.decorators.emplace_back(token.source().text(), token.associated_values());
     }
-
     return collection;
 }

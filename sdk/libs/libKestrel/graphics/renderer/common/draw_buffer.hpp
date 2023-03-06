@@ -58,6 +58,7 @@ namespace kestrel::renderer
         [[nodiscard]] auto can_accept_texture(const std::shared_ptr<graphics::texture>& texture) const -> bool;
         auto push_texture(const std::shared_ptr<graphics::texture>& texture) -> float;
         auto push_vertex(const math::vec2& v, const math::point& tex_coord, float alpha, float texture, const std::array<math::vec4, 8>& shader_info) -> void;
+        auto push_vertex(const math::vec2& v, const math::point& tex_coord, float alpha, float texture, const std::array<math::vec4, 8>& shader_info, const graphics::color& color) -> void;
         auto push_vertex(const math::vec2 &v, const graphics::color& color, const std::array<math::vec4, 8>& shader_info) -> void;
 
         [[nodiscard]] inline auto data() const -> void * { return reinterpret_cast<void *>(m_vertices); }

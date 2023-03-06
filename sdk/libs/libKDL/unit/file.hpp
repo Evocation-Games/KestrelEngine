@@ -24,18 +24,18 @@
 #include <libFoundation/stream/stream.hpp>
 #include <libLexer/lexeme.hpp>
 #include <libFoundation/system/filesystem/file.hpp>
+#include <libGraphite/rsrc/file.hpp>
 
 namespace kdl::unit
 {
     struct file
     {
     public:
-       explicit file(const std::string& output_path);
-
+       explicit file(graphite::rsrc::file& output);
        auto import_file(const std::string& path) -> void;
 
     private:
         std::vector<std::shared_ptr<foundation::filesystem::file>> m_imported_files;
-        std::string m_output_path;
+        graphite::rsrc::file *m_output { nullptr };
     };
 }

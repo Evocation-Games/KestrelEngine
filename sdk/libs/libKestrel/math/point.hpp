@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/math/angle.hpp>
@@ -35,7 +35,7 @@ namespace kestrel::math
         explicit point(float v);
         point(const point& p);
         point(point&&) noexcept = default;
-        explicit point(SIMD::float4 v);
+        explicit point(simd::float32 v);
 
         auto operator=(const point&) -> point& = default;
 
@@ -83,6 +83,6 @@ namespace kestrel::math
         friend struct rect;
         friend struct triangle;
     private:
-        SIMD::float4 m_value;
+        simd::float32 m_value;
     };
 }

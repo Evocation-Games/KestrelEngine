@@ -87,6 +87,7 @@ auto interpreter::function::execute(scope &scope, const std::vector<token> &argu
 
     if (m_body.index() == 0) {
         // Native Function
+        return std::get<native_function_body>(m_body)(&scope, arguments);
     }
     else if (m_body.index() == 1) {
         // Token Stream

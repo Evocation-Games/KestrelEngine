@@ -13,6 +13,7 @@ bin/
 cmake-*-debug/
 cmake-*-release/
 cmake-*-asan/
+cmake-*-jit/
 *.o
 *.bin
 build/

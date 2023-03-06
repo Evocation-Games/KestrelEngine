@@ -110,6 +110,21 @@ auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math
     m_count++;
 }
 
+auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const math::point &tex_coord, float alpha, float texture, const std::array<math::vec4, 8>& shader_info, const graphics::color& color) -> void
+{
+    m_vertex_ptr->position = vec4(v);
+    m_vertex_ptr->tex_coord = vec2(tex_coord);
+    m_vertex_ptr->color = vec4(color.get_red() / 255.f, color.get_green() / 255.f, color.get_blue() / 255.f, alpha);
+    m_vertex_ptr->texture = texture;
+
+    for (auto i = 0; i < shader_info.size(); ++i) {
+        m_vertex_ptr->attachments[i] = vec4(shader_info[i]);
+    }
+
+    m_vertex_ptr++;
+    m_count++;
+}
+
 auto kestrel::renderer::draw_buffer::push_vertex(const math::vec2 &v, const graphics::color& color, const std::array<math::vec4, 8>& shader_info) -> void
 {
     m_vertex_ptr->position = vec4(v);

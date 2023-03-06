@@ -22,6 +22,7 @@
 
 #include <libResource/decorator/decoratable.hpp>
 #include <libResource/definition/template/field.hpp>
+#include <libResource/definition/type/descriptor.hpp>
 #include <libInterpreter/scope/scope.hpp>
 
 namespace resource::definition::type
@@ -34,14 +35,20 @@ namespace resource::definition::type
 
         [[nodiscard]] auto base_name() const -> std::string;
         [[nodiscard]] auto extended_name(const interpreter::scope& scope) const -> std::string;
+        auto add_name_extension(const std::string& name) -> void;
         [[nodiscard]] auto has_extended_name() const -> bool;
 
         [[nodiscard]] auto has_export_name() const -> bool;
         [[nodiscard]] auto export_name() const -> std::string;
         auto set_export_name(const std::string& name) -> void;
 
+        [[nodiscard]] auto is_type_explicit() const -> bool;
+        [[nodiscard]] auto type() const -> const descriptor&;
+        auto set_type(const descriptor& type, bool is_explicit) -> void;
+
     private:
         const binary_template::field *m_field { nullptr };
+        descriptor m_type_descriptor;
         std::string m_base_name;
         std::vector<std::string> m_name_extensions;
     };

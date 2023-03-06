@@ -32,6 +32,13 @@ auto resource::decoratable::add_decorator(const decorator &decorator) -> void
     m_decorators.insert(decorator);
 }
 
+auto resource::decoratable::add_decorators(const std::vector<decorator> &decorators) -> void
+{
+    for (const auto& decorator : decorators) {
+        add_decorator(decorator);
+    }
+}
+
 // MARK: - Decorator Look Up
 
 auto resource::decoratable::all_decorators() const -> std::vector<decorator>
@@ -57,4 +64,14 @@ auto resource::decoratable::decorators_named(const std::string &name) const -> s
 auto resource::decoratable::has_decorator(const std::string &name, const std::vector<std::string> &values) const -> bool
 {
     return m_decorators.contains(decorator(name, values));
+}
+
+auto resource::decoratable::has_decorator(const std::string &name) const -> bool
+{
+    for (const auto& decorator : m_decorators) {
+        if (decorator.name() == name) {
+            return true;
+        }
+    }
+    return false;
 }

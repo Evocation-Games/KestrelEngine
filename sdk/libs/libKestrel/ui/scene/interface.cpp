@@ -34,8 +34,8 @@ kestrel::ui::scene_interface::scene_interface(const resource::descriptor::lua_re
         m_flags = static_cast<enum scene_interface_flags>(reader.read_short());
         m_name = reader.read_pstr();
         m_scene_size = math::size(
-            static_cast<double>(reader.read_signed_short()),
-            static_cast<double>(reader.read_signed_short())
+            static_cast<float>(reader.read_signed_short()),
+            static_cast<float>(reader.read_signed_short())
         );
 
         auto item_count = reader.read_short();

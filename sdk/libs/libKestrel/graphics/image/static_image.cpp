@@ -53,7 +53,7 @@ kestrel::image::static_image::static_image(const resource::descriptor::lua_refer
         std::vector<graphite::rsrc::attribute> attributes;
         if (ref->is_namespaced()) {
             if (!ref->namespaces.front().empty()) {
-                attributes.emplace_back(graphite::rsrc::attribute("namespace", ref->namespaces.front()));
+                attributes.emplace_back("namespace", ref->namespaces.front());
             }
         }
 

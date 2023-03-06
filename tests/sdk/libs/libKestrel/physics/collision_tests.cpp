@@ -28,8 +28,8 @@ using namespace kestrel;
 
 TEST(triangle_triangle_hasCollision_whenOverlapping)
 {
-    math::triangle a({ 10, 10 }, { 10, 40 }, { 40, 10 });
-    math::triangle b({ 0, 0 }, { 0, 30 }, { 30, 0 });
+    math::triangle a({ 0, 0 }, { 5, 0 }, { 2.5, 5 });
+    math::triangle b({ 0, 4 }, { 2.5, -1 }, { 5, 4 });
 
     test::measure([a, b] {
         test::is_true(physics::collisions::test(a, b));

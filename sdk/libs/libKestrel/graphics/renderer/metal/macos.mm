@@ -87,7 +87,7 @@ auto kestrel::platform::macos::start_application(const std::function<auto(Kestre
             alert.informativeText = [NSString stringWithUTF8String:e.what()];
             [alert addButtonWithTitle:@"Exit"];
             [alert runModal];
-            std::cerr << "Unknown Exception occurred" << std::endl;
+            std::cerr << "Unknown Exception occurred: " << e.what() << std::endl;
         }
         exit(1);
     }

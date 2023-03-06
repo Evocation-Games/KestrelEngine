@@ -25,6 +25,7 @@
 #include <libResource/definition/type/field.hpp>
 #include <libKDL/sema/context.hpp>
 #include <libResource/definition/template/type.hpp>
+#include <libResource/definition/type/value.hpp>
 
 namespace kdl::sema::type_definition::field_definition
 {
@@ -32,6 +33,5 @@ namespace kdl::sema::type_definition::field_definition
 
     auto parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field;
 
-    auto parse_value(foundation::stream<tokenizer::token> &stream, context &ctx) -> void;
-
+    auto parse_value(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field_value;
 }

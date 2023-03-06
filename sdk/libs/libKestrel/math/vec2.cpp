@@ -30,12 +30,12 @@ kestrel::math::vec2::vec2()
     : m_value()
 {}
 
-kestrel::math::vec2::vec2(SIMD::float4 v)
+kestrel::math::vec2::vec2(simd::float32 v)
     : m_value(v)
 {}
 
 kestrel::math::vec2::vec2(float u)
-    : m_value(SIMD::float4::constant(u))
+    : m_value(simd::float32::constant(u))
 {}
 
 kestrel::math::vec2::vec2(float x, float y)
@@ -76,7 +76,7 @@ auto kestrel::math::vec2::to_size() const -> size
 
 auto kestrel::math::vec2::operator=(float s) -> vec2&
 {
-    m_value = SIMD::float4::constant(s);
+    m_value = simd::float32::constant(s);
     return *this;
 }
 
@@ -150,4 +150,9 @@ auto kestrel::math::vec2::angle_to(const vec2 &v) const -> float
 {
     auto xx = v.m_value - m_value;
     return (std::atan2f(xx[0], xx[1]) * 180.0f) / std::numbers::pi_v<float>;
+}
+
+auto kestrel::math::vec2::round() const -> vec2
+{
+    return vec2(m_value.round());
 }

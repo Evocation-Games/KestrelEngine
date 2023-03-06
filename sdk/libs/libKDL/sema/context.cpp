@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <libKDL/sema/context.hpp>
+#include <iostream>
 
 // MARK: - Types
 
@@ -45,25 +46,38 @@ auto kdl::sema::context::type_named(const std::string& name) const -> const reso
     return &it->second;
 }
 
+auto kdl::sema::context::type(const resource::definition::type::descriptor &descriptor) const -> const resource::definition::type::instance *
+{
+    if (!descriptor.has_name()) {
+        return nullptr;
+    }
+    return type_named(descriptor.name());
+}
+
 // MARK: -
 
 auto kdl::sema::context::create_scope() -> interpreter::scope *
 {
+    interpreter::scope *ptr = nullptr;
+
     if (scope_stack.empty()) {
-        scope_stack.emplace_back();
+        ptr = new interpreter::scope();
     }
     else {
-        scope_stack.emplace_back(active_scope()->subscope());
+        ptr = new interpreter::scope(scope_stack.back());
     }
-    return &scope_stack.back();
+    scope_stack.emplace_back(ptr);
+
+    return ptr;
 }
 
 auto kdl::sema::context::pop_scope() -> void
 {
+    delete scope_stack.back();
     scope_stack.pop_back();
 }
 
 auto kdl::sema::context::active_scope() -> interpreter::scope *
 {
-    return &scope_stack.back();
+    return scope_stack.back();
 }

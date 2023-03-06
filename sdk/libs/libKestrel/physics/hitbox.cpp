@@ -133,6 +133,9 @@ auto kestrel::physics::hitbox::collision_test(const math::triangulated_polygon &
             if (collisions::test(t1, t2)) {
                 return true;
             }
+//            if (t1.intersects(t2)) {
+//                return true;
+//            }
         }
     }
     return false;

@@ -54,6 +54,8 @@ namespace kestrel::ui::widgets
         has_constructable_lua_api(list_widget);
 
         list_widget() = default;
+
+        luatool_type_fix(const math::rect&, frame)
         lua_constructor(Available_0_8) explicit list_widget(const math::rect& frame);
 
         lua_function(rowAtPoint, Available_0_8) auto row_at_point(const math::point& p) -> list_row::lua_reference;

@@ -92,3 +92,25 @@ auto resource::definition::type::field::make_repeatable(std::int32_t lower, std:
     m_repeatable.set_bounds(lower, upper);
     return m_repeatable;
 }
+
+// MARK: - Values
+
+auto resource::definition::type::field::values() const -> const std::vector<field_value> &
+{
+    return m_values;
+}
+
+auto resource::definition::type::field::value_count() const -> std::size_t
+{
+    return m_values.size();
+}
+
+auto resource::definition::type::field::value_at(std::int32_t idx) const -> const field_value &
+{
+    return m_values[idx];
+}
+
+auto resource::definition::type::field::add_value(const field_value &value) -> void
+{
+    m_values.emplace_back(value);
+}

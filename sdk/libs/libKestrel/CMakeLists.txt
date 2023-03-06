@@ -42,7 +42,7 @@ find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 
 set(KESTREL_LIBS
-    Graphite Lua ImGUI Foundation
+    SIMD Graphite ImGUI Foundation
     ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
     png bz2 z
 )
@@ -50,10 +50,19 @@ set(KESTREL_INC_DIRS
     "${OPENGL_INCLUDE_DIRS}"
     "${PROJECT_SUBMODULE_DIR}/glm"
     "${PROJECT_SUBMODULE_DIR}/lua_bridge/Source"
-    "${PROJECT_SUBMODULE_DIR}/graphite"
+    "${PROJECT_SUBMODULE_DIR}/graphite/libs"
     "${PROJECT_SUBMODULE_DIR}"
     ${PROJECT_SDK_LIBS}
 )
+set(KESTREL_LIBS_DIR )
+
+if (USE_LUA_JIT)
+    set(KESTREL_LIBS ${KESTREL_LIBS} libluajit.a)
+    set(KESTREL_LIBS_DIR ${KESTREL_LIBS_DIR} ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
+
+else()
+    set(KESTREL_LIBS ${KESTREL_LIBS} Lua)
+endif()
 
 if (APPLE)
     set(KESTREL_LIBS ${KESTREL_LIBS}
@@ -105,9 +114,11 @@ endif()
 
 add_library(Kestrel ${KESTREL_SOURCES} ${KestrelAPIDefinition})
 target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
-target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR})
+target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR} ${KESTREL_LIBS_DIR})
 target_link_libraries(Kestrel ${KESTREL_LIBS})
 add_dependencies(Kestrel LuaTool)
+
+
 
 ########################################################################################################################
 ## libKestrel: Lua API Definition
@@ -124,6 +135,8 @@ add_custom_command(
     OUTPUT      ${KestrelAPIDefinition}
     COMMAND     ${luatool}
                     -I ${PROJECT_SDK_LIBS} -I ${CMAKE_SOURCE_DIR}/submodules
+                    -I ${CMAKE_SOURCE_DIR}/submodules/graphite/libs
+                    -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
                     -lua ${KestrelAPIDefinition}
                     ${KESTREL_LIB_HEADERS}
     DEPENDS     ${KESTREL_LIB_HEADERS}

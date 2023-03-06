@@ -34,7 +34,6 @@ namespace kestrel::memory
         slab()
         {
             // TODO: Investigate memory alignment here?
-            m_pool = new T[C];
             m_queue.item_stack_base = new reference[C];
             m_queue.allocated_base = new reference[C];
             m_queue.next_item = m_queue.item_stack_base;
@@ -48,7 +47,7 @@ namespace kestrel::memory
 
         ~slab()
         {
-            delete m_pool;
+            delete[] m_pool;
             delete m_queue.item_stack_base;
             delete m_queue.allocated_base;
         }
@@ -60,6 +59,11 @@ namespace kestrel::memory
         inline auto operator[](reference item) noexcept -> T&
         {
             return m_pool[item];
+        }
+
+        inline auto first() noexcept -> T&
+        {
+            return m_pool[*m_queue.allocated_base];
         }
 
         inline auto purge() -> void
@@ -100,7 +104,7 @@ namespace kestrel::memory
         }
 
     private:
-        T *m_pool { nullptr };
+        T *m_pool { new T[C] };
 
         struct {
             reference *item_stack_base { nullptr };

@@ -20,7 +20,7 @@
 
 #include <libResource/definition/type/descriptor.hpp>
 
-// MARK: - Constructionm
+// MARK: - Construction
 
 resource::definition::type::descriptor::descriptor(bool is_reference)
     : m_reference(is_reference)
@@ -59,4 +59,14 @@ auto resource::definition::type::descriptor::has_name() const -> bool
 auto resource::definition::type::descriptor::set_name(const std::string &name) -> void
 {
     m_type = name;
+}
+
+auto resource::definition::type::descriptor::has_hints() const -> bool
+{
+    return !m_hints.empty();
+}
+
+auto resource::definition::type::descriptor::hints() const -> std::vector<std::string>
+{
+    return m_hints;
 }

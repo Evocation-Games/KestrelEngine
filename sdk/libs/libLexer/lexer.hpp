@@ -39,6 +39,8 @@ namespace lexer
     public:
         typedef foundation::stream<lexeme> lexical_result;
 
+        enum class comment_style { none, KDL, KSL, LUA };
+
     public:
         /**
          * Construct a new lexer with the specified source file.
@@ -47,6 +49,8 @@ namespace lexer
         explicit lexer(const std::shared_ptr<foundation::filesystem::file>& source);
 
         auto add_keyword(const std::string& keyword) -> void;
+
+        auto set_comment_style(enum comment_style style) -> void;
 
         /**
          * Perform lexical analysis on the source file.
@@ -62,6 +66,7 @@ namespace lexer
         std::string m_slice;
         std::vector<lexeme> m_lexemes;
         std::unordered_set<std::string> m_keywords;
+        enum comment_style m_comment_style { comment_style::KDL };
 
         /**
          * Generates a dummy lexeme based on the current lexer position. This is used for

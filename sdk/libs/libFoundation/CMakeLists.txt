@@ -26,14 +26,14 @@ project(Foundation LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 ########################################################################################################################
-## libKDL
+## libFoundation
 file(GLOB_RECURSE libFoundation_Sources
     *.cpp
 )
 
 add_library(Foundation ${libFoundation_Sources})
-target_link_libraries(Foundation Graphite)
+target_link_libraries(Foundation SIMD Graphite)
 target_include_directories(Foundation PUBLIC
     ${PROJECT_SDK_LIBS}
-    ${PROJECT_SUBMODULE_DIR}/graphite
+    ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )

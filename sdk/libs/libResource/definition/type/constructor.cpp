@@ -81,6 +81,11 @@ auto resource::definition::type::constructor::execute(
         script.add_variable_watch("this." + field.label());
     }
 
+    // Make sure the provided argument count matches the expected argument count.
+    if (arguments.size() != m_arguments.size()) {
+        throw std::runtime_error("");
+    }
+
     // Inject the arguments into the scope.
     auto constructor_scope = scope.subscope();
     for (auto i = 0; i < m_arguments.size(); ++i) {

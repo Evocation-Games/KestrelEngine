@@ -29,7 +29,7 @@ namespace kdl::tokenizer
         // Keywords
         type_keyword, declare_keyword, new_keyword, override_keyword, duplicate_keyword,
         field_keyword, template_keyword, assert_keyword, component_keyword, files_keyword,
-        types_keyword, repeatable_keyword, as_keyword, constructor_keyword,
+        types_keyword, repeatable_keyword, as_keyword, constructor_keyword, import_keyword,
 
         // Directives
         project_directive, author_directive, version_directive, license_directive,
@@ -47,7 +47,7 @@ namespace kdl::tokenizer
 
         // High Level Types
         integer_type, string_type, bitmask_type, file_type, image_type, named_reference_type,
-        unnamed_reference_type,
+        unnamed_reference_type, data_type, image_set_type, sound_type,
 
         // Data Values
         string, integer, percentage, reference, data,

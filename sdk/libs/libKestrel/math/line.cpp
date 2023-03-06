@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/math/line.hpp>
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <cmath>
 
 // MARK: - Construction
@@ -47,15 +47,15 @@ auto kestrel::math::line::operator/(float f) const -> line
 auto kestrel::math::line::intersects(const line &l) const -> bool
 {
     const auto determinant = [](float a, float b, float c, float d) -> float {
-        auto r = SIMD::float4(a, b) * SIMD::float4(d, c);
+        auto r = simd::float32(a, b) * simd::float32(d, c);
         return r[0] - r[1];
     };
 
     auto det_l1 = determinant(p.x(), p.y(), q.x(), q.y());
     auto det_l2 = determinant(l.p.x(), l.p.y(), l.q.x(), l.q.y());
 
-    auto mx = SIMD::float4(p.x(), l.p.x(), p.y(), l.p.y());
-    auto nx = SIMD::float4(q.x(), l.q.x(), q.y(), l.q.y());
+    auto mx = simd::float32(p.x(), l.p.x(), p.y(), l.p.y());
+    auto nx = simd::float32(q.x(), l.q.x(), q.y(), l.q.y());
     auto rx = mx - nx;
     auto xnom = determinant(det_l1, rx[0], det_l2, rx[1]);
     auto ynom = determinant(det_l1, rx[2], det_l2, rx[3]);
@@ -65,7 +65,7 @@ auto kestrel::math::line::intersects(const line &l) const -> bool
         return false;
     }
 
-    auto coords = SIMD::float4(xnom, ynom) / denom;
+    auto coords = simd::float32(xnom, ynom) / denom;
     if (!std::isfinite(coords[0]) || !std::isfinite(coords[1])) {
         return false;
     }

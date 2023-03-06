@@ -38,6 +38,13 @@ lexer::lexer::lexer(const std::shared_ptr<foundation::filesystem::file>& source)
 {
 }
 
+// MARK: - Comments
+
+auto lexer::lexer::set_comment_style(enum comment_style style) -> void
+{
+    m_comment_style = style;
+}
+
 // MARK: - Keywords
 
 auto lexer::lexer::add_keyword(const std::string &keyword) -> void
@@ -73,7 +80,15 @@ auto lexer::lexer::analyze() -> lexical_result
 
         // Check for a comment. If we're looking at a comment then we need to consume the entire line. We need to
         // advance past the character at the end of the match.
-        if (test_if(condition::match<'`'>::yes)) {
+        if (test_if(condition::match<'`'>::yes) && m_comment_style == comment_style::KDL) {
+            consume_while(condition::match<'\n'>::no);
+            continue;
+        }
+        else if (test_if(condition::sequence<'/', '/'>::yes, 0, 2) && m_comment_style == comment_style::KSL) {
+            consume_while(condition::match<'\n'>::no);
+            continue;
+        }
+        else if (test_if(condition::sequence<'-', '-'>::yes, 0, 2) && m_comment_style == comment_style::LUA) {
             consume_while(condition::match<'\n'>::no);
             continue;
         }

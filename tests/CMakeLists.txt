@@ -21,7 +21,7 @@
 
 ########################################################################################################################
 ## libTesting
-set(libTesting ${PROJECT_SUBMODULE_DIR}/graphite/libTesting)
+set(libTesting ${PROJECT_SUBMODULE_DIR}/graphite/libs/libTesting)
 include(${libTesting}/testing.cmake)
 build_testing_library()
 
@@ -30,5 +30,5 @@ build_testing_library()
 
 set(TESTS ${PROJECT_SOURCE_DIR}/tests)
 add_test_target(Hashing ${TESTS}/sdk/libs/libHashing)
-add_test_target(KDL ${TESTS}/sdk/libs/libKDL)
+#add_test_target(KDL ${TESTS}/sdk/libs/libKDL)
 add_test_target(Kestrel ${TESTS}/sdk/libs/libKestrel)

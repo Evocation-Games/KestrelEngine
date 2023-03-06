@@ -28,6 +28,7 @@ resource::definition::type::instance::instance(const std::string& name, const st
 
 // MARK: - Accessors
 
+
 auto resource::definition::type::instance::name() const -> std::string
 {
     return m_name;
@@ -86,9 +87,17 @@ auto resource::definition::type::instance::field_named(const std::string& name) 
 auto resource::definition::type::instance::add_field(const field& field) -> void
 {
     auto it = m_fields.find(foundation::hashing::string(field.name()));
+    if (it == m_fields.end()) {
+        m_fields.insert(std::pair(foundation::hashing::string(field.name()), field));
+    }
+    else {
+        it->second = field;
+    }
 }
 
 auto resource::definition::type::instance::add_field(const std::string& name) -> field&
 {
-
+    field new_field(name);
+    add_field(new_field);
+    return m_fields.find(foundation::hashing::string(name))->second;
 }

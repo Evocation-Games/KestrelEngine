@@ -23,7 +23,7 @@
 // MARK: - Construction
 
 kestrel::math::size::size(float v)
-    : m_value(SIMD::float4::constant(v))
+    : m_value(simd::float32::constant(v))
 {}
 
 kestrel::math::size::size(float w, float h)
@@ -31,7 +31,7 @@ kestrel::math::size::size(float w, float h)
 {
 }
 
-kestrel::math::size::size(SIMD::float4 v)
+kestrel::math::size::size(simd::float32 v)
     : m_value(v)
 {}
 
@@ -79,12 +79,12 @@ auto kestrel::math::size::operator/(float f) const -> size
 
 auto kestrel::math::size::operator==(const size& s) const -> bool
 {
-    return m_value == s.m_value;
+    return (m_value[0] == s.m_value[0]) && (m_value[1] == s.m_value[1]);
 }
 
 auto kestrel::math::size::operator!=(const size& s) const -> bool
 {
-    return m_value != s.m_value;
+    return (m_value[0] != s.m_value[0]) || (m_value[1] != s.m_value[1]);
 }
 
 // MARK: - Operations

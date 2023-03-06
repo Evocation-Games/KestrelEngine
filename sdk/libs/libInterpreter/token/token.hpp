@@ -31,7 +31,7 @@ namespace interpreter
     public:
         enum type
         {
-            integer, decimal, string, boolean, reference,
+            constructor_result, integer, decimal, string, boolean, reference,
             plus, minus, multiply, divide, amp, pipe, tilde, carat, exclaim,
             left_shift, right_shift, identifier, identifier_path, l_paren, r_paren,
             comma, semi, equals

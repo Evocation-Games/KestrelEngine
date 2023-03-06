@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libKestrel/math/SIMD/float4.hpp>
+#include <libSIMD/float32.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 
@@ -39,7 +39,7 @@ namespace kestrel::math
         explicit size(float v);
         size(size&& v) noexcept = default;
         size(const size& v) = default;
-        explicit size(SIMD::float4 v);
+        explicit size(simd::float32 v);
 
         auto operator=(const size&) -> size& = default;
 
@@ -83,7 +83,7 @@ namespace kestrel::math
         friend struct rect;
 
     private:
-        SIMD::float4 m_value;
+        simd::float32 m_value;
     };
 
 };

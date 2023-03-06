@@ -25,7 +25,7 @@
 // MARK: - Construction
 
 kestrel::math::point::point(float v)
-    : m_value(SIMD::float4::constant(v))
+    : m_value(simd::float32::constant(v))
 {}
 
 kestrel::math::point::point(const point &p)
@@ -36,7 +36,7 @@ kestrel::math::point::point(float x, float y)
     : m_value(x, y, x, y)
 {}
 
-kestrel::math::point::point(SIMD::float4 v)
+kestrel::math::point::point(simd::float32 v)
     : m_value(v)
 {}
 
@@ -98,12 +98,12 @@ auto kestrel::math::point::operator/(float f) const -> point
 
 auto kestrel::math::point::operator==(const point& p) const -> bool
 {
-    return m_value == p.m_value;
+    return (m_value[0] == p.m_value[0]) && (m_value[1] == p.m_value[1]);
 }
 
 auto kestrel::math::point::operator!=(const point& p) const -> bool
 {
-    return m_value != p.m_value;
+    return (m_value[0] != p.m_value[0]) || (m_value[1] != p.m_value[1]);
 }
 
 // MARK: - Operations
@@ -145,15 +145,15 @@ auto kestrel::math::point::ceil() const -> point
 
 auto kestrel::math::point::distance_to(const point& p) const -> float
 {
-    auto xx = (p.m_value - m_value).squared();
+    auto xx = (p.m_value - m_value).pow(2);
     auto rr = xx.reversed();
-    xx = xx + rr;
+    xx += rr;
     return std::sqrt(xx[0]);
 }
 
 auto kestrel::math::point::magnitude() const -> float
 {
-    auto xx = m_value.squared().abs();
+    auto xx = m_value.pow(2).abs();
     return std::sqrt(xx[0] + xx[1]);
 }
 
@@ -161,7 +161,7 @@ auto kestrel::math::point::dot_product(const point &p) const -> float
 {
     auto xx = m_value * p.m_value;
     auto rr = xx.reversed();
-    xx = xx + rr;
+    xx += rr;
     return xx[0];
 }
 
@@ -194,7 +194,7 @@ auto kestrel::math::point::rotate_around(const point& c, const struct angle& ang
     auto fcos = angle.fcos();
     math::point q = *this - c;
 
-    auto n = (m_value - c.m_value) * SIMD::float4(fcos, fsin, -fsin, fcos);
+    auto n = (m_value - c.m_value) * simd::float32(fcos, fsin, -fsin, fcos);
     n += n.reversed();
     n += c.m_value;
 

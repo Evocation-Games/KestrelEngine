@@ -100,6 +100,12 @@ auto foundation::filesystem::file::set_bytes(const std::vector<std::uint8_t>& co
 
 }
 
+auto foundation::filesystem::file::bytes() const -> std::vector<std::uint8_t>
+{
+    std::vector<std::uint8_t> v(m_raw, m_raw + m_length);
+    return std::move(v);
+}
+
 // MARK: - Saving
 
 auto foundation::filesystem::file::save(const filesystem::path& path) -> void

@@ -35,5 +35,5 @@ add_library(Interpreter ${libInterpreter_Sources})
 target_link_libraries(Interpreter Foundation)
 target_include_directories(Interpreter PUBLIC
     ${PROJECT_SDK_LIBS}
-    ${PROJECT_SUBMODULE_DIR}/graphite
+    ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )

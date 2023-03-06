@@ -91,13 +91,69 @@ auto interpreter::script::statement::evaluate_single_token_statement(struct cont
     return r;
 }
 
+auto interpreter::script::statement::evaluate_argument(struct context &context) -> result
+{
+    result result;
+    std::int32_t nesting = 0;
+
+    std::vector<token> argument_tokens;
+
+    while (true) {
+        if (m_tokens.expect({ expectation(token::l_paren).be_true() })) {
+            nesting++;
+            argument_tokens.emplace_back(m_tokens.read());
+        }
+        else if (nesting > 0 && m_tokens.expect({ expectation(token::r_paren).be_true() })) {
+            nesting--;
+            argument_tokens.emplace_back(m_tokens.read());
+        }
+        else if (nesting <= 0 && m_tokens.expect_any({
+            expectation(token::r_paren).be_true(),
+            expectation(token::comma).be_true()
+        })) {
+            break;
+        }
+        else {
+            argument_tokens.emplace_back(m_tokens.read());
+        }
+    }
+
+    foundation::stream<token> argument_stream(argument_tokens);
+    statement argument_statement(argument_stream);
+
+    return argument_statement.evaluate(context.scope);
+}
+
 auto interpreter::script::statement::evaluate_function_call(struct context& context) -> void
 {
     if (m_tokens.expect({
         expectation(token::identifier).be_true(),
         expectation(token::l_paren).be_true()
     })) {
-        // Function Call
+        auto function_name = m_tokens.peek();
+        if (context.scope->has_function(function_name.string_value(), true)) {
+            m_tokens.advance(2);
+
+            // Extract arguments for the function
+            std::vector<token> arguments;
+            while (m_tokens.expect({ expectation(token::r_paren).be_false() })) {
+                auto argument = evaluate_argument(context);
+                arguments.emplace_back(argument.value);
+
+                if (m_tokens.expect({ expectation(token::comma).be_true() })) {
+                    m_tokens.advance();
+                    continue;
+                }
+
+                m_tokens.ensure({ expectation(token::r_paren).be_true() });
+                break;
+            }
+
+            // Call the function and pass in the arguments to it. Push the result of the function,
+            // into the stream.
+            auto result = context.scope->call(function_name.string_value(), arguments);
+            m_tokens.push(result);
+        }
     }
 }
 
@@ -107,9 +163,10 @@ auto interpreter::script::statement::evaluate_variable(struct context& context) 
         expectation(token::identifier).be_true()
     })) {
         // Variable
-        const auto variable = m_tokens.read();
+        const auto variable = m_tokens.peek();
         if (context.scope->has_variable(variable.string_value(), true)) {
             auto value = context.scope->variable(variable.string_value());
+            m_tokens.advance();
             m_tokens.push(value);
         }
     }

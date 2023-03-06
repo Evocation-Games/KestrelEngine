@@ -29,6 +29,7 @@
 auto resource::definition::binary_template::instance::add_field(struct field &field) -> void
 {
     m_fields.emplace(field.hash(), field);
+    m_field_order.emplace_back(field.hash());
 }
 
 auto resource::definition::binary_template::instance::add_field(struct type &type, const std::string &label) -> void
@@ -69,8 +70,11 @@ auto resource::definition::binary_template::instance::field_named(const std::vec
 auto resource::definition::binary_template::instance::all_fields() const -> std::vector<field>
 {
     std::vector<field> out;
-    for (const auto& [hash, field] : m_fields) {
-        out.emplace_back(field);
+    for (const auto& field : m_field_order) {
+        auto it = m_fields.find(field);
+        if (it != m_fields.end()) {
+            out.emplace_back(it->second);
+        }
     }
     return out;
 }

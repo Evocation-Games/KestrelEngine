@@ -127,7 +127,7 @@ auto kestrel::resource::descriptor::hash() const -> std::string
 {
     std::string hash;
     if (!namespaces.empty()) {
-        for (auto ns : namespaces) {
+        for (const auto& ns : namespaces) {
             hash += ns + ":";
         }
     }
@@ -220,7 +220,7 @@ auto kestrel::resource::descriptor::is_namespaced() const -> bool
 
 // MARK: - Modifiers
 
-auto kestrel::resource::descriptor::with_type(const std::string &type) const -> lua_reference
+auto kestrel::resource::descriptor::with_type(const std::string& type) const -> lua_reference
 {
     lua_reference ref;
 
@@ -413,7 +413,7 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
         std::vector<graphite::rsrc::attribute> attributes;
         resource_namespace ns(namespaces.at(0));
         if (!(ns.is_universal() || ns.is_global())) {
-            attributes.emplace_back(graphite::rsrc::attribute("namespace", ns.primary_name()));
+            attributes.emplace_back("namespace", ns.primary_name());
         }
 
         if (file) {

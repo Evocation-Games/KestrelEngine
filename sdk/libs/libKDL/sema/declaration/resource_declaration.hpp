@@ -23,6 +23,7 @@
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
 #include <libResource/definition/type/instance.hpp>
+#include <libResource/declaration/instance.hpp>
 #include <libKDL/sema/context.hpp>
 
 namespace kdl::sema::declaration::resource
@@ -30,5 +31,5 @@ namespace kdl::sema::declaration::resource
     auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
     auto parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> void;
 
-    auto parse_resource(foundation::stream<tokenizer::token>& stream, context& ctx, bool is_inline = false) -> void;
+    auto parse_resource(foundation::stream<tokenizer::token>& stream, context& ctx, bool is_inline = false) -> ::resource::instance;
 }

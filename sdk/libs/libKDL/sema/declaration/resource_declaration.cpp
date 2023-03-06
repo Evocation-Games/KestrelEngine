@@ -51,14 +51,19 @@ auto kdl::sema::declaration::resource::parse(foundation::stream<tokenizer::token
             expectation(tokenizer::duplicate_keyword).be_true(),
         })) {
             // New/Override/Duplicate Resource
-            parse_resource(stream, ctx);
+            auto resource = parse_resource(stream, ctx);
+            if (declaration_type.is(tokenizer::identifier_path) && !resource.reference().has_container()) {
+                auto container = declaration_type.associated_values().front();
+                resource.set_reference(resource.reference().with_container(container));
+            }
+            ctx.resources.emplace_back(resource);
         }
         stream.ensure({ expectation(tokenizer::semi).be_true() });
     }
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 }
 
-auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokenizer::token> &stream, context &ctx, bool is_inline) -> void
+auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokenizer::token> &stream, context &ctx, bool is_inline) -> ::resource::instance
 {
     auto scope = ctx.create_scope();
     if (is_inline && stream.expect_any({
@@ -110,11 +115,15 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
         stream.ensure({ expectation(tokenizer::r_paren).be_true() });
     }
 
+    // Setup the resource instance
+    ::resource::instance resource(id.with_type_name(ctx.current_type->name()));
+    resource.set_name(name);
+
     // Start parsing the body of the declaration
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
-    while (stream.expect({ expectation(tokenizer::r_brace).be_true() })) {
+    while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
         if (field::test(stream)) {
-            field::parse(stream, ctx);
+            resource.set_values(field::parse(stream, ctx));
         }
         else {
             throw std::runtime_error("");
@@ -123,4 +132,5 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
     }
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 
+    return std::move(resource);
 }

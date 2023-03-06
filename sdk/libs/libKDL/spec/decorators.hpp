@@ -26,6 +26,7 @@
 namespace kdl::spec::decorators
 {
     static constexpr const char *builtin = "__builtin";
+    static constexpr const char *explicit_type = "__explicit";
     static constexpr const char *no_declaration = "no_declaration";
     static constexpr const char *synthesize = "synthesize";
     static constexpr const char *constexpression = "constexpr";
@@ -37,7 +38,7 @@ namespace kdl::spec::decorators
     static auto vector() -> std::vector<std::string>
     {
         return {
-            builtin, no_declaration, synthesize, constexpression,
+            builtin, explicit_type, no_declaration, synthesize, constexpression,
             api, example, deprecated, condition,
         };
     }

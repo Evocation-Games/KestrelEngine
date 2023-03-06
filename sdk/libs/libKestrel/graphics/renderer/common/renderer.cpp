@@ -319,25 +319,19 @@ auto kestrel::renderer::draw_line(const math::point &p,
         math::vec2(delta.y(), -delta.x()).unit() * width
     };
 
-//    buffer->push_vertex(start + normals[0], color, shader_info);
-//    buffer->push_vertex(start + normals[1], color, shader_info);
-//    buffer->push_vertex(end + normals[1], color, shader_info);
-//    buffer->push_vertex(end + normals[1], color, shader_info);
-//    buffer->push_vertex(end + normals[0], color, shader_info);
-//    buffer->push_vertex(start + normals[0], color, shader_info);
 
     auto uv_x = 0.0f;
     auto uv_y = 0.0f;
     auto uv_w = 1.0f;
     auto uv_h = 1.0f;
 
-    buffer->push_vertex(start + normals[0], { uv_x +uv_w, uv_y }, 1.0, -1.f, shader_info);
-    buffer->push_vertex(start + normals[1], { uv_x, uv_y }, 1.0, -1.f, shader_info);
-    buffer->push_vertex(end + normals[1], { uv_x, uv_y +uv_h }, 1.0, -1.f, shader_info);
+    buffer->push_vertex(start + normals[0], { uv_x +uv_w, uv_y }, 1.0, -1.f, shader_info, color);
+    buffer->push_vertex(start + normals[1], { uv_x, uv_y }, 1.0, -1.f, shader_info, color);
+    buffer->push_vertex(end + normals[1], { uv_x, uv_y +uv_h }, 1.0, -1.f, shader_info, color);
 
-    buffer->push_vertex(end + normals[1], { uv_x, uv_y +uv_h }, 1.0, -1.f, shader_info);
-    buffer->push_vertex(end + normals[0], { uv_x +uv_w, uv_y +uv_h }, 1.0, -1.f, shader_info);
-    buffer->push_vertex(start + normals[0], { uv_x +uv_w, uv_y }, 1.0, -1.f, shader_info);
+    buffer->push_vertex(end + normals[1], { uv_x, uv_y +uv_h }, 1.0, -1.f, shader_info, color);
+    buffer->push_vertex(end + normals[0], { uv_x +uv_w, uv_y +uv_h }, 1.0, -1.f, shader_info, color);
+    buffer->push_vertex(start + normals[0], { uv_x +uv_w, uv_y }, 1.0, -1.f, shader_info, color);
 
     if (buffer->is_full()) {
         flush_frame();

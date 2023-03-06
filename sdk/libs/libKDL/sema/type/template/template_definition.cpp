@@ -137,7 +137,7 @@ auto kdl::sema::type_definition::template_definition::binary_type(const tokenize
     else if (token.is(tokenizer::NESTED)) {
         // TODO: Lookup the actual type definition here and pass it instead.
         auto type = ctx.type_named(token.string_value());
-        return resource::definition::binary_template::type(type->binary_template());
+        return resource::definition::binary_template::type(type->binary_template(), type->name());
     }
     else {
         throw std::runtime_error("");

@@ -34,6 +34,7 @@ namespace kestrel::image::legacy::macintosh::quickdraw
         is_resource_type("cicn");
         has_constructable_lua_api(color_icon);
 
+        luatool_type_fix(const resource::descriptor::lua_reference&, ref)
         lua_constructor(Available_0_8) explicit color_icon(const resource::descriptor::lua_reference& ref);
         lua_function(load, Available_0_8) static auto load(const resource::descriptor::lua_reference& ref) -> lua_reference;
 

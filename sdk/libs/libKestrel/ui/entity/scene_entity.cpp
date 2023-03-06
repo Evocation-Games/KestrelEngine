@@ -661,4 +661,5 @@ auto kestrel::ui::scene_entity::setup_hitbox() -> void
 {
     // The collision map is part of the sprite sheet, with each sprite frame having its own.
     m_entity->sprite_sheet()->build_hitboxes();
+    m_entity->set_sprite_index(m_entity->get_sprite_index());
 }

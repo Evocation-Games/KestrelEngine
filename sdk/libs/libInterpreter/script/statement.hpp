@@ -58,5 +58,7 @@ namespace interpreter::script
 
         auto iterate_shunting_yard(struct context& context) -> void;
         auto evaluate_shunting_yard(struct context& context) -> void;
+
+        auto evaluate_argument(struct context& context) -> result;
     };
 }

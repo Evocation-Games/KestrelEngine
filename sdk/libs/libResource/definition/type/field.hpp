@@ -23,6 +23,7 @@
 #include <libFoundation/hashing/hashing.hpp>
 #include <libResource/decorator/decoratable.hpp>
 #include <libResource/definition/type/descriptor.hpp>
+#include <libResource/definition/type/value.hpp>
 
 namespace resource::definition::binary_template
 {
@@ -56,19 +57,6 @@ namespace resource::definition::type
             const binary_template::field *m_count_field { nullptr };
         };
 
-        struct value
-        {
-        public:
-            value(binary_template::field *field, const definition::type::descriptor& type);
-
-            [[nodiscard]] auto binary_field() const -> const binary_template::field *;
-            [[nodiscard]] auto explicit_type() const -> definition::type::descriptor;
-
-        private:
-            const binary_template::field *m_binary_field;
-            const definition::type::descriptor m_explicit_type;
-        };
-
     public:
         typedef foundation::hashing::value hash_value;
 
@@ -80,9 +68,15 @@ namespace resource::definition::type
         auto repeatable() -> repeatable_info&;
         auto make_repeatable(std::int32_t lower, std::int32_t upper) -> repeatable_info&;
 
+        [[nodiscard]] auto values() const -> const std::vector<field_value>&;
+        [[nodiscard]] auto value_count() const -> std::size_t;
+        [[nodiscard]] auto value_at(std::int32_t idx) const -> const field_value&;
+        auto add_value(const field_value& value) -> void;
+
     private:
         std::string m_name;
         hash_value m_hash;
         repeatable_info m_repeatable;
+        std::vector<field_value> m_values;
     };
 }

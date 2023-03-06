@@ -36,7 +36,7 @@ kestrel::math::rect::rect(float x, float y, float w, float h)
     : m_value(x, y, w, h)
 {}
 
-kestrel::math::rect::rect(SIMD::float4 v)
+kestrel::math::rect::rect(simd::float32 v)
     : m_value(v)
 {}
 
@@ -86,12 +86,15 @@ auto kestrel::math::rect::operator/(float f) const -> rect
 
 auto kestrel::math::rect::operator==(const rect& r) const -> bool
 {
-    return m_value == r.m_value;
+    return (m_value[0] == r.m_value[0])
+        && (m_value[1] == r.m_value[1])
+        && (m_value[2] == r.m_value[2])
+        && (m_value[3] == r.m_value[3]);
 }
 
 auto kestrel::math::rect::operator!=(const rect& r) const -> bool
 {
-    return m_value != r.m_value;
+    return *this != r;
 }
 
 auto kestrel::math::rect::add_point(const struct point& p) const -> rect
@@ -161,22 +164,22 @@ auto kestrel::math::rect::intersects(const rect& r) const -> bool
 
 auto kestrel::math::rect::set_origin(const struct point& origin) -> void
 {
-    m_value = m_value.upper() + origin.m_value.lower();
+    m_value.set_lower(origin.m_value);
 }
 
 auto kestrel::math::rect::origin() const -> struct point
 {
-    return point(m_value.lower() + m_value.lower().swapped());
+    return point(m_value.lower());
 }
 
 auto kestrel::math::rect::set_size(const struct size& size) -> void
 {
-    m_value = m_value.lower() + size.m_value.upper();
+    m_value.set_upper(size.m_value);
 }
 
 auto kestrel::math::rect::size() const -> struct size
 {
-    return math::size(m_value.upper() + m_value.upper().swapped());
+    return math::size(m_value.upper());
 }
 
 auto kestrel::math::rect::set_x(float x) -> void
@@ -191,7 +194,7 @@ auto kestrel::math::rect::x() const -> float
 
 auto kestrel::math::rect::max_x() const -> float
 {
-    return (m_value + m_value.upper().swapped())[0];
+    return (m_value + m_value.upper())[0];
 }
 
 auto kestrel::math::rect::set_y(float y) -> void
@@ -206,7 +209,7 @@ auto kestrel::math::rect::y() const -> float
 
 auto kestrel::math::rect::max_y() const -> float
 {
-    return (m_value + m_value.upper().swapped())[1];
+    return (m_value + m_value.upper())[1];
 }
 
 auto kestrel::math::rect::set_width(float width) -> void
@@ -231,6 +234,6 @@ auto kestrel::math::rect::height() const -> float
 
 auto kestrel::math::rect::inset(float amount) const -> rect
 {
-    auto delta = SIMD::float4(1, 1, -2, -2) * amount;
-    return rect(m_value * delta);
+    auto delta = simd::float32(-1, -1, 2, 2) * amount;
+    return rect(m_value - delta);
 }

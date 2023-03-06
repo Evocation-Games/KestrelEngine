@@ -32,8 +32,8 @@ file(GLOB_RECURSE libResource_Sources
 )
 
 add_library(Resource ${libResource_Sources})
-target_link_libraries(Resource Graphite)
+target_link_libraries(Resource SIMD Graphite)
 target_include_directories(Resource PUBLIC
     ${PROJECT_SDK_LIBS}
-    ${PROJECT_SUBMODULE_DIR}/graphite
+    ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )

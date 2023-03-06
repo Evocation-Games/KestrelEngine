@@ -28,12 +28,12 @@ kestrel::math::vec4::vec4()
     : m_value()
 {}
 
-kestrel::math::vec4::vec4(SIMD::float4 v)
+kestrel::math::vec4::vec4(simd::float32 v)
     : m_value(v)
 {}
 
 kestrel::math::vec4::vec4(float u)
-    : m_value(SIMD::float4::constant(u))
+    : m_value(simd::float32::constant(u))
 {}
 
 kestrel::math::vec4::vec4(float x, float y, float z, float w)
@@ -74,7 +74,7 @@ auto kestrel::math::vec4::w() const -> float
 
 auto kestrel::math::vec4::operator=(float s) -> vec4&
 {
-    m_value = SIMD::float4::constant(s);
+    m_value = simd::float32::constant(s);
     return *this;
 }
 

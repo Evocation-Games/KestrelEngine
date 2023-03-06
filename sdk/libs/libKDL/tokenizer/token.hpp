@@ -45,10 +45,18 @@ namespace kdl::tokenizer
         {}
 
         // MARK: - Look Ups
+        [[nodiscard]] auto source() const -> const lexer::lexeme&
+        {
+            return m_source;
+        }
+
         [[nodiscard]] auto string_value() const -> std::string
         {
             if (m_value.index() == value_lut::string) {
                 return std::get<std::string>(m_value);
+            }
+            else if (m_value.index() == value_lut::values) {
+                return std::get<std::vector<lexer::lexeme>>(m_value).back().text();
             }
             throw std::runtime_error("");
         }

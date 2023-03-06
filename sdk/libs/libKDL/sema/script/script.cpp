@@ -42,6 +42,7 @@ auto kdl::sema::script::parse(foundation::stream<tokenizer::token> &stream, cont
 auto kdl::sema::script::parse_statement(foundation::stream<tokenizer::token> &stream, context &ctx) -> interpreter::script::statement
 {
     foundation::stream<interpreter::token> statement_tokens;
+    std::int32_t nesting = 0;
 
     // Keep looping until we have a semicolon, denoting the end of the statement
     while (true) {
@@ -101,27 +102,29 @@ auto kdl::sema::script::parse_statement(foundation::stream<tokenizer::token> &st
         }
         else if (tk.is(tokenizer::l_paren)) {
             statement_tokens.append(interpreter::token(interpreter::token::l_paren));
+            nesting++;
         }
-        else if (tk.is(tokenizer::r_paren)) {
+        else if (tk.is(tokenizer::r_paren) && nesting > 0) {
             statement_tokens.append(interpreter::token(interpreter::token::r_paren));
+            nesting--;
         }
-        else if (tk.is(tokenizer::comma)) {
+        else if (tk.is(tokenizer::comma) && nesting > 0) {
             statement_tokens.append(interpreter::token(interpreter::token::comma));
         }
         else if (tk.is(tokenizer::equals)) {
             statement_tokens.append(interpreter::token(interpreter::token::equals));
         }
 
-        if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
+        if (stream.expect({ expectation(tokenizer::comma).be_true() }) && nesting == 0) {
             break;
         }
         else if (stream.expect({ expectation(tokenizer::semi).be_true() })) {
             break;
         }
-        else if (stream.expect({ expectation(tokenizer::r_brace).be_true() })) {
+        else if (stream.expect({ expectation(tokenizer::r_brace).be_true() }) && nesting == 0) {
             break;
         }
-        else if (stream.expect({ expectation(tokenizer::r_paren).be_true() })) {
+        else if (stream.expect({ expectation(tokenizer::r_paren).be_true() }) && nesting == 0) {
             break;
         }
     }

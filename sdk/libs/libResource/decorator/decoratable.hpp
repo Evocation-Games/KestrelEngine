@@ -33,9 +33,11 @@ namespace resource
         [[nodiscard]] auto all_decorators() const -> std::vector<decorator>;
         [[nodiscard]] auto decorators_named(const std::string& name) const -> std::vector<decorator>;
         [[nodiscard]] auto has_decorator(const std::string& name, const std::vector<std::string>& values) const -> bool;
+        [[nodiscard]] auto has_decorator(const std::string& name) const -> bool;
 
         auto add_decorator(const std::string& name, const std::vector<std::string>& values) -> void;
         auto add_decorator(const decorator& decorator) -> void;
+        auto add_decorators(const std::vector<decorator>& decorators) -> void;
 
     private:
         std::set<decorator> m_decorators;

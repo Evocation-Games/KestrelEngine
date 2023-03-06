@@ -36,9 +36,25 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const reso
     }
 
     if (auto script = ref->with_type(resource_type::code)->load()) {
-        m_name = script->name();
         graphite::data::reader reader(&script->data());
-        m_script = "-- " + ref->description() + "\n" + reader.read_cstr();
+
+        // Peek the first 4 bytes and determine if we're looking at raw Lua source code or byte code.
+        auto lua_magic = reader.read_integer<std::uint32_t>() & 0xFFFFFF00;
+        reader.set_position(0);
+
+        if (lua_magic == 0x1B4C4A00) {
+            // Bytecode
+            m_bytecode = reader.data()->get<void *>();
+            m_bytecode_size = reader.size() - 1;
+            m_bytecode_offset = 0;
+            m_format = format::bytecode;
+        }
+        else {
+            // Source
+            m_script = reader.read_cstr();
+            m_format = format::source;
+        }
+
         m_id = script->id();
         m_name = script->name();
     }
@@ -54,15 +70,31 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const grap
         throw lua_runtime_exception("No script specified");
     }
 
-    m_name = resource->name();
     graphite::data::reader reader(&resource->data());
-    m_script = "-- " + std::to_string(resource->id()) + " - " + resource->name() + "\n" + reader.read_cstr();
+
+    // Peek the first 4 bytes and determine if we're looking at raw Lua source code or byte code.
+    auto lua_magic = reader.read_integer<std::uint32_t>() & 0xFFFFFF00;
+    reader.set_position(0);
+
+    if (lua_magic == 0x1B4C4A00) {
+        // Bytecode
+        m_bytecode = reader.data()->get<void *>();
+        m_bytecode_size = reader.size() - 1;
+        m_bytecode_offset = 0;
+        m_format = format::bytecode;
+    }
+    else {
+        // Source
+        m_script = reader.read_cstr();
+        m_format = format::source;
+    }
+
     m_id = resource->id();
     m_name = resource->name();
 }
 
 kestrel::lua::script::script(const std::shared_ptr<runtime> &runtime, const std::string& code)
-    : m_runtime(runtime), m_script(code), m_name("console.input"), m_id(-1)
+    : m_runtime(runtime), m_script(code), m_format(format::source), m_name("console.input"), m_id(-1)
 {
 }
 
@@ -77,7 +109,10 @@ auto kestrel::lua::script::code() const -> std::string
 
 auto kestrel::lua::script::execute() const -> void
 {
-    if (m_script.empty()) {
+    if (m_script.empty() && m_format == format::source) {
+        return;
+    }
+    else if (m_bytecode_size == 0 && m_format == format::bytecode) {
         return;
     }
 
@@ -96,4 +131,31 @@ auto kestrel::lua::script::id() const -> graphite::rsrc::resource::identifier
 auto kestrel::lua::script::name() const -> std::string
 {
     return m_name;
+}
+
+auto kestrel::lua::script::bytecode() const -> void *
+{
+    return m_bytecode;
+}
+
+auto kestrel::lua::script::bytecode_size() const -> std::size_t
+{
+    return m_bytecode_size;
+}
+
+auto kestrel::lua::script::format() const -> enum format
+{
+    return m_format;
+}
+
+// MARK: - Chunk Reading
+
+auto kestrel::lua::script::read_next_chunk() -> chunk_info
+{
+    struct chunk_info info {
+        .size = m_bytecode_size,
+        .ptr = (m_bytecode_offset >= m_bytecode_size) ? nullptr : m_bytecode
+    };
+    m_bytecode_offset = m_bytecode_size;
+    return info;
 }

@@ -112,9 +112,9 @@ namespace foundation
             return item;
         }
 
-        [[nodiscard]] auto expect(std::initializer_list<expectation_function<T>> expect) const -> bool
+        [[nodiscard]] auto expect(std::initializer_list<expectation_function<T>> expect, std::int32_t offset = 0) const -> bool
         {
-            auto ptr = 0;
+            auto ptr = offset;
             for (const auto& f : expect) {
                 if (m_ptr + ptr >= size() || !f(peek(ptr++))) {
                     return false;
@@ -123,15 +123,15 @@ namespace foundation
             return true;
         }
 
-        [[nodiscard]] auto expect_any(std::initializer_list<expectation_function<T>> expect) const -> bool
+        [[nodiscard]] auto expect_any(std::initializer_list<expectation_function<T>> expect, std::int32_t offset = 0) const -> bool
         {
-            return expect_any(std::vector(expect));
+            return expect_any(std::vector(expect), offset);
         }
 
-        [[nodiscard]] auto expect_any(const std::vector<expectation_function<T>>& expect) const -> bool
+        [[nodiscard]] auto expect_any(const std::vector<expectation_function<T>>& expect, std::int32_t offset = 0) const -> bool
         {
             for (const auto& f : expect) {
-                if (f(peek())) {
+                if (f(peek(offset))) {
                     return true;
                 }
             }

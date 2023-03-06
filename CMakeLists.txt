@@ -24,6 +24,9 @@ if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
 endif()
 
+set(USE_LUA_JIT true)
+add_definitions(-DUSE_LUA_JIT)
+
 ########################################################################################################################
 ## Kestrel Game Engine Project Configuration
 project(KestrelGameEngine LANGUAGES CXX)
@@ -38,10 +41,14 @@ set(KESTREL_PLAYER_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data F
 
 if (APPLE)
     set(OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
-    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc -mavx -msse")
 elseif (UNIX)
     set(LINUX TRUE)
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES ASan)
@@ -65,13 +72,14 @@ set(PROJECT_TARGETS_DIR ${CMAKE_SOURCE_DIR}/targets)
 ########################################################################################################################
 
 add_subdirectory(sdk/vendor/lua)
+add_subdirectory(sdk/vendor/LuaJIT)
 add_subdirectory(sdk/vendor/imgui)
 add_subdirectory(submodules/graphite)
 
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCHITECTURES})
     add_subdirectory(sdk/bin/luatool)
-    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
 else()
     add_subdirectory(sdk/bin/luatool)
 endif()
@@ -79,6 +87,8 @@ endif()
 add_subdirectory(sdk/libs/libFoundation)
 add_subdirectory(sdk/libs/libInterpreter)
 add_subdirectory(sdk/libs/libResource)
+add_subdirectory(sdk/libs/libSound)
+add_subdirectory(sdk/libs/libImage)
 add_subdirectory(sdk/libs/libLexer)
 add_subdirectory(sdk/libs/libKDL)
 add_subdirectory(sdk/bin/kdl)
@@ -86,8 +96,7 @@ add_subdirectory(sdk/bin/kdl)
 add_subdirectory(sdk/libs/libKestrel)
 add_subdirectory(sdk/bin/player)
 
-add_subdirectory(sdk/extra/tree-sitter/tree-sitter-ksl)
-add_subdirectory(sdk/extra/tree-sitter-kdl)
+add_subdirectory(sdk/extra/tree-sitter/tree-sitter-kdl)
 
 ########################################################################################################################
 

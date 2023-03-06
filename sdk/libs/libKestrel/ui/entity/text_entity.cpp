@@ -263,12 +263,20 @@ auto kestrel::ui::text_entity::draw() -> void
         redraw();
     }
 
+    const auto size = m_entity->get_size();
+    if (size.area() <= 1) {
+        return;
+    }
+
     m_entity->draw();
 }
 
 auto kestrel::ui::text_entity::redraw() -> void
 {
     const auto size = m_entity->get_size();
+    if (size.area() <= 1) {
+        return;
+    }
 
     m_canvas->clear();
     if (m_background_color.get()) {

@@ -85,6 +85,16 @@ auto kestrel::lua::runtime::error_string() const -> std::string
     return m_stack->pop_string();
 }
 
+// MARK: - Reader
+
+static auto lua_runtime_reader(lua_State *L, void *data, size_t *size) -> const char *
+{
+    auto script = reinterpret_cast<kestrel::lua::script *>(data);
+    auto chunk = script->read_next_chunk();
+    *size = chunk.size;
+    return reinterpret_cast<const char *>(chunk.ptr);
+}
+
 // MARK: - Lua Interaction
 
 auto kestrel::lua::runtime::function(const std::string& name) const -> luabridge::LuaRef
@@ -99,25 +109,45 @@ auto kestrel::lua::runtime::function(const char *name) const -> luabridge::LuaRe
 
 auto kestrel::lua::runtime::run(const lua::script& script) -> void
 {
-    run(script.id(), script.name(), script.code());
+    run(script.id(), script.name(), script);
 }
 
 auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const script& script) -> void
 {
-    run(id, name, script.code());
-}
+    int result = LUA_OK;
 
-auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const std::string& script) -> void
-{
-    if (luaL_loadstring(m_state, script.c_str()) != LUA_OK) {
+    if (script.format() == script::format::bytecode) {
+        auto chunk_name = "LuaS:#" + std::to_string(id) + ":" + name;
+        result = lua_load(m_state, lua_runtime_reader, const_cast<lua::script *>(&script), chunk_name.c_str());
+    }
+    else {
+        result = luaL_loadstring(m_state, script.code().c_str());
+    }
+
+    if (result != LUA_OK) {
         auto reason = error_string();
         throw lua_runtime_exception(reason);
     }
 
+    execute(id, name);
+}
+
+auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const std::string& script) -> void
+{
+    // TODO: Move this load so that it only happens once.
+    if (luaL_loadstring(m_state, script.c_str()) != LUA_OK) {
+        auto reason = error_string();
+        throw lua_runtime_exception(reason);
+    }
+    execute(id, name);
+}
+
+auto kestrel::lua::runtime::execute(graphite::rsrc::resource::identifier id, const std::string &name) -> void
+{
     if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
         std::string stack_string;
         auto error_string = this->error_string();
-        
+
         lua_Debug info;
         int level = 0;
         while (lua_getstack(m_state, level, &info)) {
