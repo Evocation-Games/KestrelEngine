@@ -32,7 +32,7 @@ namespace kdl::spec::keywords
     static constexpr const char *assert_keyword = "assert";
     static constexpr const char *component_keyword = "component";
     static constexpr const char *files_keyword = "files";
-    static constexpr const char *types_keyword = "types";
+    static constexpr const char *types_keyword = "api_export";
     static constexpr const char *repeatable_keyword = "repeatable";
     static constexpr const char *as_keyword = "as";
     static constexpr const char *constructor_keyword = "constructor";

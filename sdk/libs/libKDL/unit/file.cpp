@@ -88,7 +88,12 @@ auto kdl::unit::file::import_file(const std::string &path) -> void
         }
 
         // Setup an encoder and generate the instance data and add it to the resource file.
-        assembler::encoder encoder(instance, type);
-        m_output->add_resource(type->code(), ref.id(), instance.name(), encoder.encode(), setup_attributes(ref));
+        if (instance.values().empty() && instance.data().size() > 0) {
+            m_output->add_resource(type->code(), ref.id(), instance.name(), instance.data(), setup_attributes(ref));
+        }
+        else {
+            assembler::encoder encoder(instance, type);
+            m_output->add_resource(type->code(), ref.id(), instance.name(), encoder.encode(), setup_attributes(ref));
+        }
     }
 }

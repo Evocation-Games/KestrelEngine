@@ -25,6 +25,7 @@
 #include <libResource/reference.hpp>
 #include <libResource/declaration/value.hpp>
 #include <libInterpreter/token/token.hpp>
+#include <libGraphite/data/data.hpp>
 
 namespace resource
 {
@@ -32,11 +33,13 @@ namespace resource
     {
         instance() = default;
         explicit instance(const resource::reference& reference);
+        instance(const resource::reference& reference, graphite::data::block& data);
 
         [[nodiscard]] auto reference() const -> resource::reference;
         [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto type() const -> const definition::type::instance *;
         [[nodiscard]] auto values() const -> const std::unordered_map<std::string, value_container>&;
+        [[nodiscard]] auto data() const -> const graphite::data::block&;
 
         auto set_reference(const resource::reference& reference) -> void;
         auto set_name(const std::string& name) -> void;
@@ -49,5 +52,6 @@ namespace resource
         std::string m_name;
         const definition::type::instance *m_type { nullptr };
         std::unordered_map<std::string, value_container> m_values;
+        graphite::data::block m_data;
     };
 }

@@ -28,4 +28,9 @@ namespace kdl::sema::component
 {
     auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
     auto parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> void;
+
+    auto parse_files(foundation::stream<tokenizer::token>& stream, context& ctx, resource::reference& ref) -> void;
+    auto parse_types(foundation::stream<tokenizer::token>& stream, context& ctx, resource::reference& ref) -> void;
+
+    auto synthesize_resource(context& ctx, resource::reference& ref, const foundation::filesystem::path& path, const std::string& name = "") -> void;
 }

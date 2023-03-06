@@ -121,6 +121,15 @@ auto foundation::filesystem::path::convert_to_absolute() -> void
     m_relative = false;
 }
 
+// MARK: - New Path
+
+auto foundation::filesystem::path::appending_path_component(const std::string &component) const -> path
+{
+    auto components = m_components;
+    components.emplace_back(component);
+    return { components, m_relative };
+}
+
 // MARK: - Accessors
 
 auto foundation::filesystem::path::string() const -> std::string

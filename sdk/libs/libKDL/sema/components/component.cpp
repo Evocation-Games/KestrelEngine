@@ -42,7 +42,18 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
         throw std::runtime_error("");
     }
     stream.advance();
-    auto reference = stream.read();
+    auto reference = stream.read().reference_value();
+    if (component_type.associated_values().size() == 1) {
+        reference = reference.with_type_name(component_type.associated_values()[0]);
+    }
+    else if (component_type.associated_values().size() == 2) {
+        reference = reference
+            .with_type_name(component_type.associated_values().back())
+            .with_container(component_type.associated_values().front());
+    }
+    else {
+        throw std::runtime_error("");
+    }
 
     stream.ensure({ expectation(tokenizer::r_angle).be_true() });
 
@@ -52,8 +63,75 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
     auto component_name = stream.read();
 
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
+    while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
+        if (stream.expect({ expectation(tokenizer::files_keyword).be_true() })) {
+            stream.advance();
+            parse_files(stream, ctx, reference);
+        }
+        else if (stream.expect({ expectation(tokenizer::types_keyword).be_true() })) {
+//            parse_types(stream, ctx, reference);
+        }
+        else {
+            throw std::runtime_error("");
+        }
 
-
+        stream.ensure({ expectation(tokenizer::semi).be_true() });
+    }
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 }
 
+// MARK: - Resources
+
+auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference &ref, const foundation::filesystem::path &path, const std::string &name) -> void
+{
+    graphite::data::block block(path.string());
+    resource::instance resource(ref, block);
+    resource.set_name(name);
+    ctx.resources.emplace_back(std::move(resource));
+    ref = ref.with_id(ref.id() + 1);
+}
+
+// MARK: - Files
+
+auto kdl::sema::component::parse_files(foundation::stream<tokenizer::token> &stream, context &ctx, resource::reference &ref) -> void
+{
+    if (!stream.expect({
+        expectation(tokenizer::l_paren).be_true(),
+        expectation(tokenizer::string).be_true(),
+        expectation(tokenizer::r_paren).be_true(),
+        expectation(tokenizer::l_brace).be_true()
+    })) {
+        throw std::runtime_error("");
+    }
+    stream.advance();
+    auto path_prefix = stream.read();
+    stream.advance(2);
+
+    foundation::filesystem::path prefix(path_prefix.string_value());
+
+    while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
+        if (stream.expect({
+            expectation(tokenizer::string).be_true(),
+            expectation(tokenizer::minus).be_true(),
+            expectation(tokenizer::r_angle).be_true(),
+            expectation(tokenizer::string).be_true()
+        })) {
+            auto file = stream.read();
+            stream.advance(2);
+            auto name = stream.read();
+            synthesize_resource(ctx, ref, prefix.appending_path_component(file.string_value()), name.string_value());
+        }
+        else if (stream.expect({
+            expectation(tokenizer::string).be_true()
+        })) {
+            auto file = stream.read();
+            synthesize_resource(ctx, ref, prefix.appending_path_component(file.string_value()));
+        }
+        else {
+            throw std::runtime_error("");
+        }
+
+        stream.ensure({ expectation(tokenizer::semi).be_true() });
+    };
+    stream.ensure({ expectation(tokenizer::r_brace).be_true() });
+}

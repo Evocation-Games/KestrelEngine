@@ -26,6 +26,10 @@ resource::instance::instance(const resource::reference& reference)
     : m_reference(reference)
 {}
 
+resource::instance::instance(const resource::reference &reference, graphite::data::block &data)
+    : m_reference(reference), m_data(std::move(data))
+{}
+
 // MARK: - Accessors
 
 auto resource::instance::reference() const -> resource::reference
@@ -56,6 +60,11 @@ auto resource::instance::type() const -> const definition::type::instance *
 auto resource::instance::values() const -> const std::unordered_map<std::string, value_container> &
 {
     return m_values;
+}
+
+auto resource::instance::data() const -> const graphite::data::block &
+{
+    return m_data;
 }
 
 // MARK: - Value Management

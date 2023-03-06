@@ -67,6 +67,12 @@ namespace foundation::filesystem
         static auto path_components(const std::string& path, char separator = '/') -> std::vector<std::string>;
 
         /**
+         * Creates a new string by appending the specified path component to it.
+         * @return
+         */
+        [[nodiscard]] auto appending_path_component(const std::string& component) const -> path;
+
+        /**
          * Access the string representation of the path.
          * @return
          */
