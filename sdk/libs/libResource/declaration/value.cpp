@@ -47,15 +47,36 @@ auto resource::value_container::type() const -> enum type
 
 auto resource::value_container::string_value() const -> std::string
 {
-    return std::get<std::string>(m_value);
+    switch (m_type) {
+        case type::string: {
+            return std::get<std::string>(m_value);
+        }
+        default: {
+            return "";
+        }
+    }
 }
 
 auto resource::value_container::reference_value() const -> reference
 {
-    return std::get<reference>(m_value);
+    switch (m_type) {
+        case type::reference: {
+            return std::get<reference>(m_value);
+        }
+        default: {
+            return {};
+        }
+    }
 }
 
 auto resource::value_container::data_value() const -> std::vector<std::uint8_t>
 {
-    return std::get<std::vector<std::uint8_t>>(m_value);
+    switch (m_type) {
+        case type::data: {
+            return std::get<std::vector<std::uint8_t>>(m_value);
+        }
+        default: {
+            return {};
+        }
+    }
 }

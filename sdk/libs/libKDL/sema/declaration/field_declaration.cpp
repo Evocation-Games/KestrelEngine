@@ -228,13 +228,39 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
     std::unordered_map<std::string, ::resource::value_container> values;
     auto current_type = ctx.current_type;
     auto current_type_descriptor = ctx.current_type_descriptor;
+
+    // Determine the field repeat information
+    auto field_scope = ctx.create_scope();
+    if (field.repeatable().enabled()) {
+        auto count_field = field.name();
+        if (field.repeatable().has_count_field()) {
+            count_field = field.repeatable().count_field()->label();
+        }
+
+        std::int64_t field_number = 0;
+        auto it = ctx.field_repeat_counts.find(count_field);
+        if (it != ctx.field_repeat_counts.end()) {
+            field_number = ++it->second;
+            if (field_number > field.repeatable().upper_bound()) {
+                throw std::runtime_error("");
+            }
+        }
+        else {
+            field_number = field.repeatable().lower_bound();
+            ctx.field_repeat_counts.emplace(count_field, field_number);
+        }
+        field_scope->add_variable("FieldNumber", field_number);
+        values.emplace(count_field + std::to_string(field_number), ::resource::value_container(field_number));
+    }
+
+    // Parse the field values
     while (stream.expect({ expectation(tokenizer::semi).be_false() })) {
         if (value_index >= field.value_count()) {
             throw std::runtime_error("");
         }
 
         const auto& value = field.value_at(value_index);
-        const auto& value_name = value.extended_name(*ctx.active_scope());
+        const auto& value_name = value.extended_name(*field_scope);
         ctx.current_type_descriptor = &value.type();
         ctx.current_type = nullptr;
         if (!is_builtin_type(ctx.current_type_descriptor)) {
@@ -242,11 +268,53 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
         }
 
         // Determine what type of value parser to load up.
-        if (stream.expect({ expectation(tokenizer::new_keyword).be_true() })) {
+        if (value.has_joined_values() && (value.type().name() == spec::types::bitmask)) {
+            std::vector<std::uint64_t> masks(value.joined_values().size() + 1, 0);
+            while (true) {
+                if (stream.expect({ expectation(tokenizer::identifier).be_true() })) {
+                    auto symbol = stream.read();
+                    for (auto n = 0; n < masks.size(); ++n) {
+                        if (n == 0 && value.has_symbol_named(symbol.string_value())) {
+                            masks[0] |= value.symbol_named(symbol.string_value())
+                                .value().integer_value<std::uint64_t>();
+                        }
+                        else if (n > 0 && value.joined_values()[n - 1].has_symbol_named(symbol.string_value())) {
+                            masks[n] |= value.joined_values()[n - 1]
+                                .symbol_named(symbol.string_value())
+                                .value().integer_value<std::uint64_t>();
+                        }
+                    }
+                }
+                else {
+                    throw std::runtime_error("");
+                }
+
+                if (stream.expect({ expectation(tokenizer::pipe).be_true() })) {
+                    stream.advance();
+                    continue;
+                }
+                break;
+            }
+
+            for (auto n = 0; n < masks.size(); ++n) {
+                if (n == 0) {
+                    write_value(values, value_name, ::resource::value_container(masks[n]));
+                }
+                else {
+                    write_value(values, value.joined_values()[n - 1].extended_name(*field_scope), ::resource::value_container(masks[n]));
+                }
+            }
+        }
+        else if (stream.expect({ expectation(tokenizer::new_keyword).be_true() })) {
             // Reference resource - we need to pop on the resource type here and save the current one.
             // Parse the resource instance and get the reference information.
+            auto repeat_field_counts = ctx.field_repeat_counts;
+            ctx.field_repeat_counts.clear();
             auto resource = resource::parse_resource(stream, ctx, true);
-            ctx.resources.emplace_back(resource);
+            ctx.field_repeat_counts = repeat_field_counts;
+            if (!ctx.flags.surpress_resource_creation) {
+                ctx.resources.emplace_back(resource);
+            }
             write_value(values, value_name, ::resource::value_container(resource.reference()));
         }
         else if (stream.expect({ expectation(tokenizer::import_keyword).be_true() }) && can_multi_import(&value.type())) {
@@ -260,7 +328,7 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
             while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
                 // Import the contents of a file to use for the value.
                 auto import_path_stmt = script::parse_statement(stream, ctx);
-                auto import_path_result = import_path_stmt.evaluate(ctx.active_scope());
+                auto import_path_result = import_path_stmt.evaluate(field_scope);
 
                 if (import_path_result.status == interpreter::script::statement::result::error) {
                     throw std::runtime_error("");
@@ -283,7 +351,7 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
         else if (stream.expect({ expectation(tokenizer::import_keyword).be_true() })) {
             // Import the contents of a file to use for the value.
             auto import_path_stmt = script::parse_statement(stream, ctx);
-            auto import_path_result = import_path_stmt.evaluate(ctx.active_scope());
+            auto import_path_result = import_path_stmt.evaluate(field_scope);
 
             if (import_path_result.status == interpreter::script::statement::result::error) {
                 throw std::runtime_error("");

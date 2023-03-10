@@ -21,6 +21,9 @@
 #include <libKDL/sema/type/field/field_definition.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/type/descriptor.hpp>
+#include <libKDL/sema/type/field/symbol_list.hpp>
+#include <libKDL/spec/decorators.hpp>
+#include <libKDL/spec/types.hpp>
 
 auto kdl::sema::type_definition::field_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -40,6 +43,9 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
     });
     auto field_name = stream.read();
     resource::definition::type::field field(field_name.string_value());
+    field.add_decorators(ctx.current_decorators.decorators);
+    ctx.current_decorators.decorators.clear();
+
     stream.ensure({ expectation(tokenizer::r_paren).be_true() });
 
     // Repeatable?
@@ -48,28 +54,55 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
     }
 
     // Body
-    stream.ensure({ expectation(tokenizer::l_brace).be_true() });
-    while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
-        if (sema::decorator::test(stream)) {
-            ctx.current_decorators = sema::decorator::parse(stream);
-            continue;
-        }
-        else if (stream.expect_any({
-            expectation(tokenizer::identifier).be_true(),
-            expectation(tokenizer::identifier_path).be_true()
-        })) {
-            auto value = parse_value(stream, ctx);
-            value.add_decorators(ctx.current_decorators.decorators);
-            field.add_value(value);
-            ctx.current_decorators.decorators.clear();
-        }
-        else {
-            throw std::runtime_error("");
-        }
+    if (!field.has_decorator(spec::decorators::synthesize)) {
+        stream.ensure({ expectation(tokenizer::l_brace).be_true() });
+        while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
+            if (sema::decorator::test(stream)) {
+                ctx.current_decorators = sema::decorator::parse(stream);
+                continue;
+            }
+            else if (stream.expect_any({
+                expectation(tokenizer::identifier).be_true(),
+                expectation(tokenizer::identifier_path).be_true()
+            })) {
+                auto value = parse_value(stream, ctx);
+                value.add_decorators(ctx.current_decorators.decorators);
+                ctx.current_decorators.decorators.clear();
 
-        stream.ensure({ expectation(tokenizer::semi).be_true() });
+                // Check if we need to merge bitmasks.
+                if (field.has_decorator(spec::decorators::merge_bitmask)) {
+                    if (value.type().name() != spec::types::bitmask) {
+                        throw std::runtime_error("");
+                    }
+
+                    if (field.value_count() == 0) {
+                        field.add_value(value);
+                    }
+                    else {
+                        const_cast<resource::definition::type::field_value&>(field.value_at(0)).add_joined_value(value);
+                    }
+                }
+                else {
+                    field.add_value(value);
+                }
+            }
+            else {
+                throw std::runtime_error("");
+            }
+
+            stream.ensure({ expectation(tokenizer::semi).be_true() });
+        }
+        stream.ensure({ expectation(tokenizer::r_brace).be_true() });
     }
-    stream.ensure({ expectation(tokenizer::r_brace).be_true() });
+    else {
+        // Synthesize the field - find the matching binary field.
+        if (ctx.current_type->binary_template()->has_field_named(field.name())) {
+            ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(field.name());
+            resource::definition::type::field_value value(ctx.current_binary_field);
+            value.set_type(descriptor::infer_type(ctx), false);
+            field.add_value(value);
+        }
+    }
 
     return field;
 }
@@ -113,6 +146,10 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
         stream.advance();
 
         // We have a default value specified.
+    }
+
+    if (sema::type_definition::field_definition::symbol_list::test(stream)) {
+        sema::type_definition::field_definition::symbol_list::parse(stream, ctx, value);
     }
 
     return value;

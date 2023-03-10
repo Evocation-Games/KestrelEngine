@@ -29,7 +29,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(TREE_SITTER tree-sitter)
 
 set(tree_sitter_lib tree-sitter-kdl)
-set(tree_sitter_dir ${PROJECT_SDK}/extra/${tree_sitter_lib})
+set(tree_sitter_dir ${PROJECT_SDK}/extra/tree-sitter/${tree_sitter_lib})
 set(tree_sitter_src ${tree_sitter_dir}/src)
 
 ########################################################################################################################

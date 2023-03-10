@@ -23,18 +23,19 @@
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
 #include <libKDL/sema/context.hpp>
+#include <libGraphite/rsrc/file.hpp>
 
 namespace kdl::sema
 {
     struct analyser
     {
     public:
-        explicit analyser(const foundation::stream<tokenizer::token>& tokens);
+        explicit analyser(const foundation::stream<tokenizer::token>& tokens, const std::vector<std::string>& definitions);
 
         auto process() -> context;
 
     private:
         foundation::stream<tokenizer::token> m_tokens;
-
+        std::vector<std::string> m_definitions;
     };
 }

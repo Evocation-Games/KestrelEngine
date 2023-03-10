@@ -58,3 +58,27 @@ auto kdl::sema::decorator::parse(foundation::stream<tokenizer::token> &stream) -
     }
     return collection;
 }
+
+// MARK: - Decorators
+
+auto kdl::sema::decorator::collection::has_decorator(const std::string &name, const std::vector<std::string> &hints) const -> bool
+{
+    for (const auto& d : decorators) {
+        if (d.name() == name) {
+            if (d.has_associated_values()) {
+                if (d.associated_value_count() == hints.size()) {
+                    for (auto i = 0; i < hints.size(); ++i) {
+                        if (hints[i] != d.associated_value_at(i)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+    }
+    return false;
+}

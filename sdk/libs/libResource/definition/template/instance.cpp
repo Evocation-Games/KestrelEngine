@@ -38,6 +38,18 @@ auto resource::definition::binary_template::instance::add_field(struct type &typ
     add_field(new_field);
 }
 
+auto resource::definition::binary_template::instance::add_field(enum type::$type type, const std::string &label) -> void
+{
+    field new_field(type, label);
+    add_field(new_field);
+}
+
+auto resource::definition::binary_template::instance::add_field(enum type::$type type, std::uint16_t size, const std::string &label) -> void
+{
+    field new_field(type, size, label);
+    add_field(new_field);
+}
+
 auto resource::definition::binary_template::instance::field_count() const -> std::size_t
 {
     return m_fields.size();
@@ -62,9 +74,17 @@ auto resource::definition::binary_template::instance::field_named(const std::vec
         const auto *nested = it->second.nested_type();
         return nested->field_named(std::vector<std::string>(name.begin() + 1, name.end()));
     }
+    else if (it->second.is_list()) {
+        return *it->second.list_field_named(name.at(1));
+    }
     else {
         throw std::runtime_error("");
     }
+}
+
+auto resource::definition::binary_template::instance::has_field_named(const std::string& name) const -> bool
+{
+    return m_fields.find(foundation::hashing::string(name)) != m_fields.end();
 }
 
 auto resource::definition::binary_template::instance::all_fields() const -> std::vector<field>

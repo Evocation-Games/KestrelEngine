@@ -47,6 +47,11 @@ auto resource::decorator::description() const -> std::string
     return out;
 }
 
+auto resource::decorator::associated_values() const -> std::vector<std::string>
+{
+    return m_assoc_values;
+}
+
 auto resource::decorator::has_associated_values() const -> bool
 {
     return !m_assoc_values.empty();

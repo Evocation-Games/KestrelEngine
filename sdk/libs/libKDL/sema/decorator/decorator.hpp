@@ -29,6 +29,8 @@ namespace kdl::sema::decorator
     struct collection
     {
         std::vector<resource::decorator> decorators;
+
+        [[nodiscard]] auto has_decorator(const std::string& name, const std::vector<std::string>& hints = {}) const -> bool;
     };
 
     auto test(foundation::stream<tokenizer::token>& stream) -> bool;

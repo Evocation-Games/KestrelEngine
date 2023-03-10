@@ -34,12 +34,15 @@ namespace kdl::spec::decorators
     static constexpr const char *example = "example";
     static constexpr const char *deprecated = "deprecated";
     static constexpr const char *condition = "if";
+    static constexpr const char *not_condition = "if_not";
+    static constexpr const char *merge_bitmask = "MergeBitmask";
+    static constexpr const char *setter = "WantsSetter";
 
     static auto vector() -> std::vector<std::string>
     {
         return {
             builtin, explicit_type, no_declaration, synthesize, constexpression,
-            api, example, deprecated, condition,
+            api, example, deprecated, condition, merge_bitmask, setter, not_condition
         };
     }
 }

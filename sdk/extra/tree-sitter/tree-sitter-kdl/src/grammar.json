@@ -30,6 +30,10 @@
         {
           "type": "SYMBOL",
           "name": "component"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "scene"
         }
       ]
     },
@@ -1952,6 +1956,373 @@
               "type": "BLANK"
             }
           ]
+        }
+      ]
+    },
+    "scene": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SYMBOL",
+                "name": "decorator"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "scene"
+        },
+        {
+          "type": "STRING",
+          "value": "<"
+        },
+        {
+          "type": "FIELD",
+          "name": "id",
+          "content": {
+            "type": "SYMBOL",
+            "name": "resource_reference_literal"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ">"
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier_literal"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "scene_body"
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "scene_body": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "scene_property"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "scene_element"
+                  }
+                ]
+              },
+              {
+                "type": "STRING",
+                "value": ";"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "scene_property": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "Title"
+              },
+              {
+                "type": "STRING",
+                "value": "Flags"
+              },
+              {
+                "type": "STRING",
+                "value": "Size"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "expression"
+              },
+              {
+                "type": "REPEAT",
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "expression"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "scene_element": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "type",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "Button"
+              },
+              {
+                "type": "STRING",
+                "value": "Label"
+              },
+              {
+                "type": "STRING",
+                "value": "TextArea"
+              },
+              {
+                "type": "STRING",
+                "value": "Image"
+              },
+              {
+                "type": "STRING",
+                "value": "TextField"
+              },
+              {
+                "type": "STRING",
+                "value": "Checkbox"
+              },
+              {
+                "type": "STRING",
+                "value": "List"
+              },
+              {
+                "type": "STRING",
+                "value": "ScrollArea"
+              },
+              {
+                "type": "STRING",
+                "value": "Grid"
+              },
+              {
+                "type": "STRING",
+                "value": "LabeledList"
+              },
+              {
+                "type": "STRING",
+                "value": "Canvas"
+              },
+              {
+                "type": "STRING",
+                "value": "Sprite"
+              },
+              {
+                "type": "STRING",
+                "value": "PopupButton"
+              },
+              {
+                "type": "STRING",
+                "value": "Slider"
+              },
+              {
+                "type": "STRING",
+                "value": "Table"
+              },
+              {
+                "type": "STRING",
+                "value": "Box"
+              },
+              {
+                "type": "STRING",
+                "value": "Radio"
+              },
+              {
+                "type": "STRING",
+                "value": "TabBar"
+              },
+              {
+                "type": "STRING",
+                "value": "Separator"
+              },
+              {
+                "type": "STRING",
+                "value": "Spacer"
+              },
+              {
+                "type": "STRING",
+                "value": "Position"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "string_literal"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "scene_element_body"
+        },
+        {
+          "type": "STRING",
+          "value": ";"
+        }
+      ]
+    },
+    "scene_element_body": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "scene_element_property"
+              },
+              {
+                "type": "STRING",
+                "value": ";"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
+    "scene_element_property": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "Frame"
+              },
+              {
+                "type": "STRING",
+                "value": "Label"
+              },
+              {
+                "type": "STRING",
+                "value": "Value"
+              },
+              {
+                "type": "STRING",
+                "value": "Action"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "expression"
+              },
+              {
+                "type": "REPEAT",
+                "content": {
+                  "type": "SEQ",
+                  "members": [
+                    {
+                      "type": "STRING",
+                      "value": ","
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "expression"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
         }
       ]
     },

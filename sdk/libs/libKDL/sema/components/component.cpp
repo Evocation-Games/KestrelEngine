@@ -20,6 +20,8 @@
 
 #include <libKDL/sema/components/component.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/codegen/lua/exporter.hpp>
+#include <libGraphite/data/writer.hpp>
 
 auto kdl::sema::component::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -46,6 +48,9 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
     if (component_type.associated_values().size() == 1) {
         reference = reference.with_type_name(component_type.associated_values()[0]);
     }
+    else if (component_type.is(tokenizer::identifier)) {
+        reference = reference.with_type_name(component_type.string_value());
+    }
     else if (component_type.associated_values().size() == 2) {
         reference = reference
             .with_type_name(component_type.associated_values().back())
@@ -69,7 +74,8 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
             parse_files(stream, ctx, reference);
         }
         else if (stream.expect({ expectation(tokenizer::types_keyword).be_true() })) {
-//            parse_types(stream, ctx, reference);
+            stream.advance();
+            parse_types(stream, ctx, reference);
         }
         else {
             throw std::runtime_error("");
@@ -87,7 +93,23 @@ auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference
     graphite::data::block block(path.string());
     resource::instance resource(ref, block);
     resource.set_name(name);
-    ctx.resources.emplace_back(std::move(resource));
+    if (!ctx.flags.surpress_resource_creation) {
+        ctx.resources.emplace_back(std::move(resource));
+    }
+    ref = ref.with_id(ref.id() + 1);
+}
+
+auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference &ref, const std::string &content, const std::string &name) -> void
+{
+    graphite::data::block block(content.size() + 1);
+    graphite::data::writer writer(&block);
+    writer.write_cstr(content);
+
+    resource::instance resource(ref, block);
+    resource.set_name(name);
+    if (!ctx.flags.surpress_resource_creation) {
+        ctx.resources.emplace_back(std::move(resource));
+    }
     ref = ref.with_id(ref.id() + 1);
 }
 
@@ -131,7 +153,39 @@ auto kdl::sema::component::parse_files(foundation::stream<tokenizer::token> &str
             throw std::runtime_error("");
         }
 
+        // Check for any hints applied to the entry...
+        if (stream.expect({ expectation(tokenizer::l_paren).be_true() })) {
+            stream.consume(expectation(tokenizer::r_paren).be_false());
+            stream.ensure({ expectation(tokenizer::r_paren).be_true() });
+        }
+
         stream.ensure({ expectation(tokenizer::semi).be_true() });
     };
+    stream.ensure({ expectation(tokenizer::r_brace).be_true() });
+}
+
+// MARK: - Types
+
+auto kdl::sema::component::parse_types(foundation::stream<tokenizer::token> &stream, context &ctx, resource::reference &ref) -> void
+{
+    stream.ensure({ expectation(tokenizer::l_brace).be_true() });
+
+    while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
+        if (stream.expect({ expectation(tokenizer::identifier).be_true() })) {
+            auto type_name = stream.read();
+            if (auto type = ctx.type_named(type_name.string_value())) {
+                codegen::lua::exporter exporter(type, ctx.create_scope());
+                synthesize_resource(ctx, ref, exporter.generate(), type_name.string_value());
+            }
+            else {
+                throw std::runtime_error("");
+            }
+        }
+        else {
+            throw std::runtime_error("");
+        }
+        stream.ensure({ expectation(tokenizer::semi).be_true() });
+    }
+
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 }

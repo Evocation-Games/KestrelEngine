@@ -26,6 +26,14 @@ resource::definition::binary_template::field::field(const struct type &type, con
     : m_type(type), m_label(label)
 {}
 
+resource::definition::binary_template::field::field(enum type::$type type, const std::string& label)
+    : m_type(type), m_label(label)
+{}
+
+resource::definition::binary_template::field::field(enum type::$type type, std::uint16_t size, const std::string& label)
+    : m_type(type), m_label(label)
+{}
+
 // MARK: - Nested Types
 
 auto resource::definition::binary_template::field::has_nested_type() const -> bool
@@ -48,6 +56,53 @@ auto resource::definition::binary_template::field::type() const -> const struct 
 auto resource::definition::binary_template::field::label() const -> std::string
 {
     return m_label;
+}
+
+auto resource::definition::binary_template::field::skip_length() const -> std::size_t
+{
+    // TODO: Calculate this...
+    return 0;
+}
+
+// MARK: - Lists
+
+auto resource::definition::binary_template::field::is_list() const -> bool
+{
+    return !m_list_fields.empty();
+}
+
+auto resource::definition::binary_template::field::list_fields() const -> const std::vector<field> &
+{
+    return m_list_fields;
+}
+
+auto resource::definition::binary_template::field::list_field_named(const std::string &label) const -> const field *
+{
+    for (const auto& field : m_list_fields) {
+        if (field.m_label == label) {
+            return &field;
+        }
+    }
+    return nullptr;
+}
+
+auto resource::definition::binary_template::field::add_list_field(const field &item) -> void
+{
+    m_list_fields.emplace_back(item);
+}
+auto resource::definition::binary_template::field::add_list_field(const struct type& type, const std::string& label) -> void
+{
+    m_list_fields.emplace_back(type, label);
+}
+
+auto resource::definition::binary_template::field::add_list_field(enum type::$type type, const std::string& label) -> void
+{
+    m_list_fields.emplace_back(type, label);
+}
+
+auto resource::definition::binary_template::field::add_list_field(enum type::$type type, std::uint16_t size, const std::string& label) -> void
+{
+    m_list_fields.emplace_back(type, size, label);
 }
 
 // MARK: - Hashing

@@ -41,7 +41,9 @@ auto resource::definition::type::field_value::base_name() const -> std::string
 
 auto resource::definition::type::field_value::add_name_extension(const std::string &name) -> void
 {
-    m_name_extensions.emplace_back(name);
+    if (std::find(m_name_extensions.begin(), m_name_extensions.end(), name) == m_name_extensions.end()) {
+        m_name_extensions.emplace_back(name);
+    }
 }
 
 auto resource::definition::type::field_value::extended_name(const interpreter::scope &scope) const -> std::string
@@ -102,4 +104,65 @@ auto resource::definition::type::field_value::set_type(const descriptor& type, b
     if (is_explicit) {
         add_decorator("__explicit", {});
     }
+}
+
+// MARK: - Symbols
+
+auto resource::definition::type::field_value::has_symbols() const -> bool
+{
+    return !m_symbols.empty();
+}
+
+auto resource::definition::type::field_value::symbols() const -> const std::unordered_map<std::string, symbol>&
+{
+    return m_symbols;
+}
+
+auto resource::definition::type::field_value::symbol_names() const -> std::vector<std::string>
+{
+    std::vector<std::string> names;
+    for (const auto& it : m_symbols) {
+        names.emplace_back(it.first);
+    }
+    return std::move(names);
+}
+
+auto resource::definition::type::field_value::has_symbol_named(const std::string &name) const -> bool
+{
+    return (m_symbols.find(name) != m_symbols.end());
+}
+
+auto resource::definition::type::field_value::symbol_named(const std::string &name) const -> const symbol &
+{
+    return m_symbols.find(name)->second;
+}
+
+auto resource::definition::type::field_value::add_symbol(const std::string &name, const value_container &value) -> symbol&
+{
+    auto it = m_symbols.find(name);
+    if (it == m_symbols.end()) {
+        m_symbols.emplace(name, symbol(name, value));
+        it = m_symbols.find(name);
+    }
+    else {
+        it->second = symbol(name, value);
+    }
+    return it->second;
+}
+
+// MARK: - Joined Values
+
+auto resource::definition::type::field_value::has_joined_values() const -> bool
+{
+    return !m_joined_values.empty();
+}
+
+auto resource::definition::type::field_value::joined_values() const -> const std::vector<field_value> &
+{
+    return m_joined_values;
+}
+
+auto resource::definition::type::field_value::add_joined_value(const field_value &value) -> void
+{
+    m_joined_values.emplace_back(value);
 }

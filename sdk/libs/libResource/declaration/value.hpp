@@ -22,8 +22,9 @@
 
 #include <string>
 #include <type_traits>
+#include <variant>
+#include <vector>
 #include <libResource/reference.hpp>
-#include <libResource/definition/type/instance.hpp>
 
 namespace resource
 {
@@ -53,7 +54,14 @@ namespace resource
         template<typename T, typename std::enable_if<std::is_integral<T>::value>::type* = nullptr>
         [[nodiscard]] auto integer_value() const -> T
         {
-            return std::get<__int128>(m_value);
+            switch (m_type) {
+                case type::integer: {
+                    return static_cast<T>(std::get<__int128>(m_value));
+                }
+                default: {
+                    return 0;
+                }
+            }
         }
 
         [[nodiscard]] auto string_value() const -> std::string;

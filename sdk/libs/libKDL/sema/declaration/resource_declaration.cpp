@@ -51,12 +51,20 @@ auto kdl::sema::declaration::resource::parse(foundation::stream<tokenizer::token
             expectation(tokenizer::duplicate_keyword).be_true(),
         })) {
             // New/Override/Duplicate Resource
+            auto repeat_field_counts = ctx.field_repeat_counts;
+            ctx.field_repeat_counts.clear();
+
             auto resource = parse_resource(stream, ctx);
             if (declaration_type.is(tokenizer::identifier_path) && !resource.reference().has_container()) {
                 auto container = declaration_type.associated_values().front();
                 resource.set_reference(resource.reference().with_container(container));
             }
-            ctx.resources.emplace_back(resource);
+
+            if (!ctx.flags.surpress_resource_creation) {
+                ctx.resources.emplace_back(resource);
+            }
+
+            ctx.field_repeat_counts = repeat_field_counts;
         }
         stream.ensure({ expectation(tokenizer::semi).be_true() });
     }

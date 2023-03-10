@@ -30,6 +30,7 @@ namespace kdl::tokenizer
         type_keyword, declare_keyword, new_keyword, override_keyword, duplicate_keyword,
         field_keyword, template_keyword, assert_keyword, component_keyword, files_keyword,
         types_keyword, repeatable_keyword, as_keyword, constructor_keyword, import_keyword,
+        scene_keyword,
 
         // Directives
         project_directive, author_directive, version_directive, license_directive,

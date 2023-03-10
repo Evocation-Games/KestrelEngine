@@ -102,7 +102,7 @@ auto kdl::sema::type_definition::template_definition::binary_type(const tokenize
         return resource::definition::binary_template::type(resource::definition::binary_template::type::CSTR);
     }
     else if (token.is(tokenizer::Cnnn)) {
-        return resource::definition::binary_template::type(resource::definition::binary_template::type::Cnnn);
+        return { resource::definition::binary_template::type::Cnnn, token.size_value() };
     }
     else if (token.is(tokenizer::LSTR)) {
         return resource::definition::binary_template::type(resource::definition::binary_template::type::LSTR);

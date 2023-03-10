@@ -39,6 +39,7 @@ namespace resource
 
         [[nodiscard]] auto associated_value_count() const -> std::size_t;
         [[nodiscard]] auto associated_value_at(std::int32_t i) const -> std::string;
+        [[nodiscard]] auto associated_values() const -> std::vector<std::string>;
 
         [[nodiscard]] auto has(const std::string& value) const -> bool;
 

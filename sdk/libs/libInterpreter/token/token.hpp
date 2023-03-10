@@ -69,6 +69,9 @@ namespace interpreter
             if (m_value.index() == 0) {
                 return std::get<std::string>(m_value);
             }
+            else if (m_value.index() == 2) {
+                return std::to_string(static_cast<std::int64_t>(std::get<__int128>(m_value)));
+            }
             else if (m_value.index() == 4) {
                 auto values = std::get<std::vector<std::string>>(m_value);
                 std::string out;

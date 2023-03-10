@@ -22,9 +22,10 @@
 
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
+#include <libKDL/sema/context.hpp>
 
 namespace kdl::sema::directive
 {
     auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
-    auto parse(foundation::stream<tokenizer::token>& stream) -> void;
+    auto parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> void;
 }

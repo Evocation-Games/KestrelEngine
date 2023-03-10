@@ -20,10 +20,15 @@
 
 #include <libKDL/sema/directive/directive.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/unit/file.hpp>
 
 #include <libKDL/sema/directive/out.hpp>
 #include <libKDL/sema/directive/metadata.hpp>
 #include <libKDL/sema/directive/format.hpp>
+
+#include <libKDL/modules/kestrel/kestrel.hpp>
+#include <libKDL/modules/macintosh/macintosh.hpp>
+#include <libKDL/modules/spriteworld/spriteworld.hpp>
 
 auto kdl::sema::directive::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -36,11 +41,12 @@ auto kdl::sema::directive::test(const foundation::stream<tokenizer::token>& stre
         expectation(tokenizer::email_directive).be_true(),
         expectation(tokenizer::website_directive).be_true(),
         expectation(tokenizer::out_directive).be_true(),
-        expectation(tokenizer::format_directive).be_true()
+        expectation(tokenizer::format_directive).be_true(),
+        expectation(tokenizer::import_directive).be_true()
     });
 }
 
-auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream) -> void
+auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> void
 {
     if (stream.expect({ expectation(tokenizer::out_directive).be_true() })) {
         out::parse(stream);
@@ -58,6 +64,32 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream) -
     }
     else if (stream.expect({ expectation(tokenizer::format_directive).be_true() })) {
         format::parse(stream);
+    }
+    else if (stream.expect({ expectation(tokenizer::import_directive).be_true(), expectation(tokenizer::identifier).be_true() })) {
+        // Importing a module.
+        stream.advance();
+        auto name = stream.read().string_value();
+        if (name == "Kestrel") {
+            modules::kestrel::construct(ctx);
+        }
+        else if (name == "Macintosh") {
+            modules::macintosh::construct(ctx);
+        }
+        else if (name == "SpriteWorld") {
+            modules::spriteworld::construct(ctx);
+        }
+    }
+    else if (stream.expect({ expectation(tokenizer::import_directive).be_true(), expectation(tokenizer::string).be_true() })) {
+        // Import a script.
+        stream.advance();
+        auto raw_path = stream.read();
+        auto path = ctx.resolve_path(raw_path.string_value(), raw_path.source().source_directory());
+
+        auto lexical_result = unit::file::import_and_tokenize_file(path.string(), std::vector<std::string>(
+            ctx.definitions.begin(), ctx.definitions.end()
+        ));
+        stream.insert(lexical_result);
+        stream.push(tokenizer::token(tokenizer::semi));
     }
     else {
         throw std::runtime_error("");

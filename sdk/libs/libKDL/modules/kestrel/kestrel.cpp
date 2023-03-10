@@ -1,0 +1,349 @@
+// Copyright (c) 2023 Tom Hancocks
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include <libKDL/modules/kestrel/kestrel.hpp>
+#include <libResource/definition/type/instance.hpp>
+#include <libResource/definition/type/field.hpp>
+#include <libResource/definition/template/instance.hpp>
+#include <libKDL/spec/types.hpp>
+#include <libImage/conversion/conversion.hpp>
+
+// MARK: -
+
+namespace kdl::modules::kestrel
+{
+    static inline auto construct_lua_script(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance lua_script("LuaScript", "LuaS");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "Source");
+        lua_script.set_binary_template(tmpl);
+
+        resource::definition::type::field source_field("Source");
+        resource::definition::type::field_value source_value(&lua_script.binary_template()->field_named("Source"));
+        source_field.add_value(source_value);
+        lua_script.add_field(source_field);
+
+        ctx.register_type(lua_script);
+    }
+
+    static inline auto construct_glsl(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance glsl_shader("GLSLShader", "glsl");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "VertexFunction");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "FragmentFunction");
+        glsl_shader.set_binary_template(tmpl);
+
+        resource::definition::type::field vertex_field("VertexFunction");
+        resource::definition::type::field_value vertex_value(&glsl_shader.binary_template()->field_named("VertexFunction"));
+        vertex_value.set_type(resource::definition::type::descriptor(spec::types::file), true);
+        vertex_field.add_value(vertex_value);
+        glsl_shader.add_field(vertex_field);
+
+        resource::definition::type::field fragment_field("FragmentFunction");
+        resource::definition::type::field_value fragment_value(&glsl_shader.binary_template()->field_named("FragmentFunction"));
+        fragment_value.set_type(resource::definition::type::descriptor(spec::types::file), true);
+        fragment_field.add_value(fragment_value);
+        glsl_shader.add_field(fragment_field);
+
+        ctx.register_type(glsl_shader);
+    }
+
+    static inline auto construct_mlsl(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance mlsl_shader("MetalShader", "mlsl");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "VertexFunction");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "FragmentFunction");
+        mlsl_shader.set_binary_template(tmpl);
+
+        resource::definition::type::field vertex_field("VertexFunction");
+        resource::definition::type::field_value vertex_value(&mlsl_shader.binary_template()->field_named("VertexFunction"));
+        vertex_value.set_type(resource::definition::type::descriptor(spec::types::file), true);
+        vertex_field.add_value(vertex_value);
+        mlsl_shader.add_field(vertex_field);
+
+        resource::definition::type::field fragment_field("FragmentFunction");
+        resource::definition::type::field_value fragment_value(&mlsl_shader.binary_template()->field_named("FragmentFunction"));
+        fragment_value.set_type(resource::definition::type::descriptor(spec::types::file), true);
+        fragment_field.add_value(fragment_value);
+        mlsl_shader.add_field(fragment_field);
+
+        ctx.register_type(mlsl_shader);
+    }
+
+    static inline auto construct_shader_set(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance shader_set("ShaderSet", "shdr");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "glsl");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "mlsl");
+        shader_set.set_binary_template(tmpl);
+
+        resource::definition::type::field glsl_field("GLSL");
+        resource::definition::type::field_value glsl_value(&shader_set.binary_template()->field_named("glsl"));
+        glsl_value.set_type(resource::definition::type::descriptor(true, "GLSLShader"), true);
+        glsl_field.add_value(glsl_value);
+        shader_set.add_field(glsl_field);
+
+        resource::definition::type::field metal_field("Metal");
+        resource::definition::type::field_value metal_value(&shader_set.binary_template()->field_named("mlsl"));
+        metal_value.set_type(resource::definition::type::descriptor(true, "MetalShader"), true);
+        metal_field.add_value(metal_value);
+        shader_set.add_field(metal_field);
+
+        ctx.register_type(shader_set);
+    }
+
+    static inline auto construct_sprite_set(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance sprite_set("SpriteSet", "rlëX");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
+        sprite_set.set_binary_template(tmpl);
+
+        resource::definition::type::field png_field("PNG");
+        resource::definition::type::field_value png_value(&sprite_set.binary_template()->field_named("Data"));
+        png_value.set_type(resource::definition::type::descriptor(false, spec::types::image_set, std::vector<std::string>({
+            image::conversion::format::png, image::conversion::format::rlex
+        })), true);
+        png_field.add_value(png_value);
+        sprite_set.add_field(png_field);
+
+        resource::definition::type::field tga_field("TGA");
+        resource::definition::type::field_value tga_value(&sprite_set.binary_template()->field_named("Data"));
+        tga_value.set_type(resource::definition::type::descriptor(false, spec::types::image_set, std::vector<std::string>({
+            image::conversion::format::tga, image::conversion::format::rlex
+        })), true);
+        tga_field.add_value(tga_value);
+        sprite_set.add_field(tga_field);
+
+        ctx.register_type(sprite_set);
+    }
+
+    static inline auto construct_scene_interface(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance scene_interface("SceneInterface", "scïn");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::HWRD, "Flags");
+        tmpl.add_field(resource::definition::binary_template::type::PSTR, "Title");
+        tmpl.add_field(resource::definition::binary_template::type::DWRD, "SceneWidth");
+        tmpl.add_field(resource::definition::binary_template::type::DWRD, "SceneHeight");
+
+        resource::definition::binary_template::field elements(resource::definition::binary_template::type::OCNT, "Elements");
+        elements.add_list_field(resource::definition::binary_template::type::HBYT, "ElementType");
+        elements.add_list_field(resource::definition::binary_template::type::PSTR, "ElementId");
+        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementX");
+        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementY");
+        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementWidth");
+        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementHeight");
+        elements.add_list_field(resource::definition::binary_template::type::CSTR, "ElementValue");
+        elements.add_list_field(resource::definition::binary_template::type::CSTR, "ElementAction");
+        elements.add_list_field(resource::definition::binary_template::type::HLNG, "ElementChildCount");
+        tmpl.add_field(elements);
+        scene_interface.set_binary_template(tmpl);
+
+        resource::definition::type::field flags_field("Flags");
+        resource::definition::type::field_value flags_value(&scene_interface.binary_template()->field_named("Flags"));
+        flags_value.set_type(resource::definition::type::descriptor(false, spec::types::bitmask), true);
+        flags_value.add_symbol("UseImGui", resource::value_container(0x0001));
+        flags_value.add_symbol("ImGuiShowTitle", resource::value_container(0x0002));
+        flags_value.add_symbol("ImGuiCloseButton", resource::value_container(0x0004));
+        flags_value.add_symbol("ScenePassthrough", resource::value_container(0x0010));
+        flags_value.add_symbol("VerticalFlowLayout", resource::value_container(0x0020));
+        flags_field.add_value(flags_value);
+        scene_interface.add_field(flags_field);
+
+        resource::definition::type::field title_field("Title");
+        resource::definition::type::field_value title_value(&scene_interface.binary_template()->field_named("Title"));
+        title_field.add_value(title_value);
+        scene_interface.add_field(title_field);
+
+        resource::definition::type::field size_field("Size");
+        resource::definition::type::field_value size_width_value(&scene_interface.binary_template()->field_named("SceneWidth"));
+        resource::definition::type::field_value size_height_value(&scene_interface.binary_template()->field_named("SceneHeight"));
+        size_field.add_value(size_width_value);
+        size_field.add_value(size_height_value);
+        scene_interface.add_field(size_field);
+
+        resource::definition::type::field element_field("Element");
+        element_field.make_repeatable(0, 100);
+        element_field.repeatable().set_count_field(&scene_interface.binary_template()->field_named("Elements"));
+
+        resource::definition::type::field_value element_type_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({"Elements", "ElementType"})));
+        element_type_value.add_symbol("None", resource::value_container(0));
+        element_type_value.add_symbol("Button", resource::value_container(1));
+        element_type_value.add_symbol("Label", resource::value_container(2));
+        element_type_value.add_symbol("TextArea", resource::value_container(3));
+        element_type_value.add_symbol("Image", resource::value_container(4));
+        element_type_value.add_symbol("TextField", resource::value_container(5));
+        element_type_value.add_symbol("Checkbox", resource::value_container(6));
+        element_type_value.add_symbol("List", resource::value_container(7));
+        element_type_value.add_symbol("ScrollArea", resource::value_container(8));
+        element_type_value.add_symbol("Grid", resource::value_container(9));
+        element_type_value.add_symbol("LabeledList", resource::value_container(10));
+        element_type_value.add_symbol("Canvas", resource::value_container(11));
+        element_type_value.add_symbol("Sprite", resource::value_container(12));
+        element_type_value.add_symbol("PopupButton", resource::value_container(13));
+        element_type_value.add_symbol("Slider", resource::value_container(14));
+        element_type_value.add_symbol("Table", resource::value_container(15));
+        element_type_value.add_symbol("Box", resource::value_container(16));
+        element_type_value.add_symbol("Radio", resource::value_container(17));
+        element_type_value.add_symbol("TabBar", resource::value_container(18));
+        element_type_value.add_symbol("Separator", resource::value_container(19));
+        element_type_value.add_symbol("Spacer", resource::value_container(20));
+        element_type_value.add_symbol("Position", resource::value_container(21));
+        element_field.add_value(element_type_value);
+
+        resource::definition::type::field_value element_id_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementId" })));
+        resource::definition::type::field_value element_x_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementX" })));
+        resource::definition::type::field_value element_y_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementY" })));
+        resource::definition::type::field_value element_width_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementWidth" })));
+        resource::definition::type::field_value element_height_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementHeight" })));
+        resource::definition::type::field_value element_value_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementValue" })));
+        resource::definition::type::field_value element_action_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementAction" })));
+        resource::definition::type::field_value element_child_count_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementChildCount" })));
+
+        element_field.add_value(element_id_value);
+        element_field.add_value(element_x_value);
+        element_field.add_value(element_y_value);
+        element_field.add_value(element_width_value);
+        element_field.add_value(element_height_value);
+        element_field.add_value(element_value_value);
+        element_field.add_value(element_action_value);
+        element_field.add_value(element_child_count_value);
+
+        ctx.register_type(scene_interface);
+    }
+
+    static inline auto construct_package(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance package("KestrelPackage", "kmöd");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "Name");
+        tmpl.add_field(resource::definition::binary_template::type::Cnnn, 0x040, "Version");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "Author");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "PrimaryContainer");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "LuaEntryScript");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "Description");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "Category");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "PackageID");
+        tmpl.add_field(resource::definition::binary_template::type::CSTR, "ScenarioID");
+        package.set_binary_template(tmpl);
+
+        resource::definition::type::field name_field("Name");
+        resource::definition::type::field_value name_value(&package.binary_template()->field_named("Name"));
+        name_field.add_value(name_value);
+
+        resource::definition::type::field version_field("Version");
+        resource::definition::type::field_value version_value(&package.binary_template()->field_named("Version"));
+        version_field.add_value(version_value);
+
+        resource::definition::type::field author_field("Author");
+        resource::definition::type::field_value author_value(&package.binary_template()->field_named("Author"));
+        author_field.add_value(author_value);
+
+        resource::definition::type::field primary_container_field("PrimaryContainer");
+        resource::definition::type::field_value primary_container_value(&package.binary_template()->field_named("PrimaryContainer"));
+        primary_container_field.add_value(primary_container_value);
+
+        resource::definition::type::field lua_entry_script_field("LuaEntryScript");
+        resource::definition::type::field_value lua_entry_script_value(&package.binary_template()->field_named("LuaEntryScript"));
+        lua_entry_script_field.add_value(lua_entry_script_value);
+
+        resource::definition::type::field description_field("Description");
+        resource::definition::type::field_value description_value(&package.binary_template()->field_named("Description"));
+        description_field.add_value(description_value);
+
+        resource::definition::type::field category_field("Category");
+        resource::definition::type::field_value category_value(&package.binary_template()->field_named("Category"));
+        category_field.add_value(category_value);
+
+        resource::definition::type::field package_id_field("PackageID");
+        resource::definition::type::field_value package_id_value(&package.binary_template()->field_named("PackageID"));
+        package_id_field.add_value(package_id_value);
+
+        resource::definition::type::field scenario_id_field("ScenarioID");
+        resource::definition::type::field_value scenario_id_value(&package.binary_template()->field_named("ScenarioID"));
+        scenario_id_field.add_value(scenario_id_value);
+
+        package.add_field(name_field);
+        package.add_field(version_field);
+        package.add_field(author_field);
+        package.add_field(primary_container_field);
+        package.add_field(lua_entry_script_field);
+        package.add_field(description_field);
+        package.add_field(category_field);
+        package.add_field(package_id_field);
+        package.add_field(scenario_id_field);
+
+        ctx.register_type(package);
+    }
+
+    static inline auto construct_static_image(sema::context& ctx) -> void
+    {
+        resource::definition::type::instance static_image("StaticImage", "sïmg");
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::Cnnn, 0x004, "ImageFormat");
+        tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
+        static_image.set_binary_template(tmpl);
+
+        resource::definition::type::field png_field("PNG");
+        resource::definition::type::field_value png_value(&static_image.binary_template()->field_named("Data"));
+        png_value.set_type(resource::definition::type::descriptor(false, spec::types::image, std::vector<std::string>({
+            image::conversion::format::png, image::conversion::format::tga
+        })), true);
+        png_field.add_value(png_value);
+        static_image.add_field(png_field);
+
+        resource::definition::type::field tga_field("TGA");
+        resource::definition::type::field_value tga_value(&static_image.binary_template()->field_named("Data"));
+        tga_value.set_type(resource::definition::type::descriptor(false, spec::types::image, std::vector<std::string>({
+            image::conversion::format::tga, image::conversion::format::tga
+        })), true);
+        tga_field.add_value(tga_value);
+        static_image.add_field(tga_field);
+
+        ctx.register_type(static_image);
+    }
+}
+
+// MARK: -
+
+auto kdl::modules::kestrel::construct(sema::context& ctx) -> void
+{
+    construct_lua_script(ctx);
+    construct_glsl(ctx);
+    construct_mlsl(ctx);
+    construct_shader_set(ctx);
+    construct_sprite_set(ctx);
+    construct_scene_interface(ctx);
+    construct_package(ctx);
+    construct_static_image(ctx);
+}

@@ -91,6 +91,12 @@ auto foundation::filesystem::path::convert_to_absolute() -> void
         return;
     }
 
+    if (!m_components.empty()) {
+        if (m_components.at(0)[0] == '@') {
+            return;
+        }
+    }
+
     char cwd[PATH_MAX];
     if (getcwd(cwd, PATH_MAX) == nullptr) {
         switch (errno) {
@@ -167,6 +173,11 @@ auto foundation::filesystem::path::directory_name() const -> std::string
         it++;
     }
     return *it;
+}
+
+auto foundation::filesystem::path::components() const -> std::vector<std::string>
+{
+    return m_components;
 }
 
 auto foundation::filesystem::path::name() const -> std::string
@@ -355,4 +366,28 @@ auto foundation::filesystem::path::copy_to(const path &path) const -> bool
 
     // TODO: Make sure we check if the operation can be completed...
     return true;
+}
+
+// MARK: -
+
+auto foundation::filesystem::path::replace_component(std::int32_t i, const path &replacement) const -> path
+{
+    if (m_components.empty()) {
+        return {};
+    }
+    else if (m_components.size() == 1) {
+        return replacement;
+    }
+    else if (i == 0) {
+        std::vector<std::string> slice(m_components.begin() + i + 1, m_components.end());
+        auto result = replacement.m_components;
+        result.insert(result.end(), slice.begin(), slice.end());
+        return { result };
+    }
+    else if (i == m_components.size() - 1) {
+        auto result = m_components;
+        result.pop_back();
+        result.insert(result.end() - 1, replacement.m_components.begin(), replacement.m_components.end());
+        return { result };
+    }
 }

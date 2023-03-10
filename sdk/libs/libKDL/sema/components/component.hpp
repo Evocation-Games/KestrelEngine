@@ -33,4 +33,5 @@ namespace kdl::sema::component
     auto parse_types(foundation::stream<tokenizer::token>& stream, context& ctx, resource::reference& ref) -> void;
 
     auto synthesize_resource(context& ctx, resource::reference& ref, const foundation::filesystem::path& path, const std::string& name = "") -> void;
+    auto synthesize_resource(context& ctx, resource::reference& ref, const std::string& content, const std::string &name = "") -> void;
 }

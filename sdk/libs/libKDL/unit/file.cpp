@@ -43,7 +43,25 @@ static inline auto setup_attributes(const resource::reference& reference) -> std
 
 // MARK: - File Import
 
-auto kdl::unit::file::import_file(const std::string &path) -> void
+auto kdl::unit::file::import_and_tokenize_file(const std::string &path, const std::vector<std::string> &definitions) -> foundation::stream<kdl::tokenizer::token>
+{
+    foundation::filesystem::path fs_path(path);
+    if (!fs_path.exists()) {
+        return {};
+    }
+
+    auto file = std::make_shared<foundation::filesystem::file>(fs_path);
+    if (!file->exists()) {
+        return {};
+    }
+
+    // We now have a successfully imported textual file. Perform lexical
+    // analysis upon it, and then pass it to the tokenizer.
+    auto lexical_result = lexer::lexer(file).analyze();
+    return tokenizer::tokenizer(lexical_result).process();
+}
+
+auto kdl::unit::file::import_file(const std::string &path, const std::vector<std::string>& definitions) -> void
 {
     foundation::filesystem::path fs_path(path);
     if (!fs_path.exists()) {
@@ -64,7 +82,7 @@ auto kdl::unit::file::import_file(const std::string &path) -> void
     auto token_stream = tokenizer::tokenizer(lexical_result).process();
 
     // Now that we have a token stream, we are ready to begin semantic analysis
-    auto analysis_context = sema::analyser(token_stream).process();
+    auto analysis_context = sema::analyser(token_stream, definitions).process();
 
     // Using the result of the analysis, we now need to encode each of the resources
     // that have been generated.

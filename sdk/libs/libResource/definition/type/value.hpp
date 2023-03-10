@@ -23,6 +23,8 @@
 #include <libResource/decorator/decoratable.hpp>
 #include <libResource/definition/template/field.hpp>
 #include <libResource/definition/type/descriptor.hpp>
+#include <libResource/definition/type/symbol.hpp>
+#include <libResource/declaration/value.hpp>
 #include <libInterpreter/scope/scope.hpp>
 
 namespace resource::definition::type
@@ -46,10 +48,23 @@ namespace resource::definition::type
         [[nodiscard]] auto type() const -> const descriptor&;
         auto set_type(const descriptor& type, bool is_explicit) -> void;
 
+        [[nodiscard]] auto has_symbols() const -> bool;
+        [[nodiscard]] auto symbols() const -> const std::unordered_map<std::string, symbol>&;
+        [[nodiscard]] auto symbol_names() const -> std::vector<std::string>;
+        [[nodiscard]] auto has_symbol_named(const std::string& name) const -> bool;
+        [[nodiscard]] auto symbol_named(const std::string& name) const -> const symbol&;
+        auto add_symbol(const std::string& name, const value_container& value) -> symbol&;
+
+        [[nodiscard]] auto has_joined_values() const -> bool;
+        [[nodiscard]] auto joined_values() const -> const std::vector<field_value>&;
+        auto add_joined_value(const field_value& value) -> void;
+
     private:
         const binary_template::field *m_field { nullptr };
         descriptor m_type_descriptor;
         std::string m_base_name;
         std::vector<std::string> m_name_extensions;
+        std::unordered_map<std::string, symbol> m_symbols;
+        std::vector<field_value> m_joined_values;
     };
 }

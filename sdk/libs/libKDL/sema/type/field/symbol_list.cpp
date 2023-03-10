@@ -18,4 +18,75 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "symbol_list.hpp"
+#include <libKDL/sema/type/field/symbol_list.hpp>
+#include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/sema/decorator/decorator.hpp>
+#include <libKDL/sema/script/script.hpp>
+
+auto kdl::sema::type_definition::field_definition::symbol_list::test(const foundation::stream<tokenizer::token> &stream) -> bool
+{
+    return stream.expect({
+        expectation(tokenizer::l_bracket).be_true()
+    });
+}
+
+auto kdl::sema::type_definition::field_definition::symbol_list::parse(foundation::stream<tokenizer::token> &stream, context &ctx, resource::definition::type::field_value &field) -> void
+{
+    auto scope = ctx.create_scope();
+
+    stream.ensure({ expectation(tokenizer::l_bracket).be_true() });
+    while (true) {
+        if (sema::decorator::test(stream)) {
+            ctx.current_decorators = sema::decorator::parse(stream);
+            continue;
+        }
+        else if (stream.expect({
+            expectation(tokenizer::identifier).be_true(),
+            expectation(tokenizer::equals).be_true()
+        })) {
+            auto name = stream.read(); stream.advance();
+            auto value_statement = script::parse_statement(stream, ctx);
+            auto value_result = value_statement.evaluate(scope);
+            if (value_result.status == interpreter::script::statement::result::error) {
+                throw std::runtime_error("");
+            }
+
+            resource::definition::type::symbol *symbol = nullptr;
+            switch (value_result.value.type()) {
+                case interpreter::token::integer: {
+                    symbol = &field.add_symbol(name.string_value(), resource::value_container(value_result.value.integer_value()));
+                    break;
+                }
+                case interpreter::token::string: {
+                    symbol = &field.add_symbol(name.string_value(), resource::value_container(value_result.value.string_value()));
+                    break;
+                }
+                case interpreter::token::reference: {
+                    symbol = &field.add_symbol(name.string_value(), resource::value_container(resource::reference(value_result.value.integer_value())));
+                    break;
+                }
+                default: break;
+            }
+
+            if (symbol) {
+                symbol->add_decorators(ctx.current_decorators.decorators);
+            }
+            ctx.current_decorators.decorators.clear();
+        }
+        else if (stream.expect({ expectation(tokenizer::r_bracket).be_true() })) {
+            break;
+        }
+        else {
+            throw std::runtime_error("");
+        }
+
+        if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
+            stream.advance();
+            continue;
+        }
+        break;
+    }
+    stream.ensure({ expectation(tokenizer::r_bracket).be_true() });
+
+    ctx.pop_scope();
+}

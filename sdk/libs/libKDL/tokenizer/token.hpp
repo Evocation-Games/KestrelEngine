@@ -44,10 +44,22 @@ namespace kdl::tokenizer
             : m_source(lx), m_value(values), m_type(type)
         {}
 
+        token(const lexer::lexeme& lx, std::size_t size, token_type type)
+            : m_source(lx), m_value(size), m_type(type)
+        {}
+
         // MARK: - Look Ups
         [[nodiscard]] auto source() const -> const lexer::lexeme&
         {
             return m_source;
+        }
+
+        [[nodiscard]] auto size_value() const -> std::size_t
+        {
+            if (m_value.index() == value_lut::size) {
+                return std::get<std::size_t>(m_value);
+            }
+            throw std::runtime_error("");
         }
 
         [[nodiscard]] auto string_value() const -> std::string
@@ -146,10 +158,10 @@ namespace kdl::tokenizer
         }
 
     private:
-        enum value_lut { string, reference, values };
+        enum value_lut { string, size, reference, values };
 
         token_type m_type;
         lexer::lexeme m_source { 0 };
-        std::variant<std::string, resource::reference, std::vector<lexer::lexeme>> m_value;
+        std::variant<std::string, std::size_t, resource::reference, std::vector<lexer::lexeme>> m_value;
     };
 }

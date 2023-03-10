@@ -26,6 +26,10 @@ resource::definition::binary_template::type::type(enum $type type)
     : m_base(type), m_nested({ .definition = nullptr })
 {}
 
+resource::definition::binary_template::type::type(enum $type type, std::size_t size)
+    : m_base(type), m_nested({ .definition = nullptr }), m_size(size)
+{}
+
 resource::definition::binary_template::type::type(const instance *nested, const std::string& name)
     : m_base($type::NESTED), m_nested({ .definition = nested, .name = name })
 {}
@@ -78,4 +82,9 @@ auto resource::definition::binary_template::type::nested_type() const -> const i
 auto resource::definition::binary_template::type::nested_type_name() const -> std::string
 {
     return m_nested.name;
+}
+
+auto resource::definition::binary_template::type::size() const -> std::size_t
+{
+    return m_size;
 }

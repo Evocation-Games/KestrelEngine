@@ -38,7 +38,7 @@ namespace kdl::assembler
         graphite::data::writer m_writer;
 
         auto encode_binary_template(const std::string& prefix, const resource::definition::binary_template::instance *binary_template) -> void;
-        auto encode_binary_field(const std::string& prefix, const resource::definition::binary_template::field& field) -> void;
+        auto encode_binary_field(const std::string& prefix, const resource::definition::binary_template::field& field, std::optional<std::uint16_t> index = {}) -> void;
         auto encode_value(const resource::value_container& value, const resource::definition::binary_template::type& type) -> void;
     };
 }

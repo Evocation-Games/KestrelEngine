@@ -122,6 +122,11 @@ namespace foundation::filesystem
         [[nodiscard]] auto component_count() const -> std::size_t;
 
         /**
+         * Return the components of the path.
+         */
+        [[nodiscard]] auto components() const -> std::vector<std::string>;
+
+        /**
          * Does the path contain any components, and thus represent anything on disk.
          * @return       The result of the query.
          */
@@ -158,6 +163,11 @@ namespace foundation::filesystem
          * @return       Was the copy operation successful?
          */
         [[nodiscard]] auto copy_to(const path& path) const -> bool;
+
+        /**
+         * Replace a path component with the contents of another path.
+         */
+        [[nodiscard]] auto replace_component(std::int32_t i, const path& replacement) const -> path;
 
     public:
         /**

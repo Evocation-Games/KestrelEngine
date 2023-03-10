@@ -33,11 +33,14 @@ namespace resource::definition::binary_template
         instance() = default;
 
         auto add_field(struct type& type, const std::string& label) -> void;
+        auto add_field(enum type::$type type, const std::string& label) -> void;
+        auto add_field(enum type::$type type, std::uint16_t size, const std::string& label) -> void;
         auto add_field(struct field& field) -> void;
 
         [[nodiscard]] auto field_count() const -> std::size_t;
         [[nodiscard]] auto field_named(const std::string& name) const -> const field&;
         [[nodiscard]] auto all_fields() const -> std::vector<field>;
+        [[nodiscard]] auto has_field_named(const std::string& name) const -> bool;
 
         [[nodiscard]] auto field_named(const std::vector<std::string>& name) const -> const field&;
 

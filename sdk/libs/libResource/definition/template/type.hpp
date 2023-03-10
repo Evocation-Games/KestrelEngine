@@ -42,16 +42,18 @@ namespace resource::definition::binary_template
     public:
         type() = default;
         explicit type(enum $type type);
-        explicit type(const instance *nested, const std::string& name);
+        type(enum $type type, std::size_t size);
+        type(const instance *nested, const std::string& name);
 
         [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto value() const -> enum $type;
         [[nodiscard]] auto nested_type() const -> const instance *;
         [[nodiscard]] auto nested_type_name() const -> std::string;
+        [[nodiscard]] auto size() const -> std::size_t;
 
     private:
         enum $type m_base { DWRD };
-        std::int64_t m_size { 0 };
+        std::size_t m_size { 0 };
         struct {
             const instance *definition { nullptr };
             std::string name;

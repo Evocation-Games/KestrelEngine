@@ -90,6 +90,11 @@ auto resource::definition::type::field::make_repeatable(std::int32_t lower, std:
 {
     m_repeatable = repeatable_info(true);
     m_repeatable.set_bounds(lower, upper);
+
+    for (auto& value : m_values) {
+        value.add_name_extension("FieldNumber");
+    }
+
     return m_repeatable;
 }
 
@@ -112,5 +117,9 @@ auto resource::definition::type::field::value_at(std::int32_t idx) const -> cons
 
 auto resource::definition::type::field::add_value(const field_value &value) -> void
 {
+    if (m_repeatable.enabled()) {
+        const_cast<field_value&>(value)
+            .add_name_extension("FieldNumber");
+    }
     m_values.emplace_back(value);
 }

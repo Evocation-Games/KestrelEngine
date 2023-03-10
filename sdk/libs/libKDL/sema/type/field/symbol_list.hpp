@@ -20,8 +20,13 @@
 
 #pragma once
 
+#include <libFoundation/stream/stream.hpp>
+#include <libKDL/tokenizer/token.hpp>
+#include <libKDL/sema/context.hpp>
+#include <libResource/definition/type/value.hpp>
 
-class symbol_list
+namespace kdl::sema::type_definition::field_definition::symbol_list
 {
-
-};
+    auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
+    auto parse(foundation::stream<tokenizer::token>& stream, context& ctx, resource::definition::type::field_value& field) -> void;
+}

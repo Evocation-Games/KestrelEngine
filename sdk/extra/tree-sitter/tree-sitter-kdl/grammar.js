@@ -20,12 +20,13 @@ module.exports = grammar({
             $.type_definition,
             $.resource_declaration,
             $.component,
+            $.scene
         ),
         
         binary_type: $ => choice(
             'CSTR', 'PSTR', 'CHAR',
-            'DBYT', 'DWRD', 'DLNG', 'DQAD',
-            'HBYT', 'HWRD', 'HLNG', 'HQAD',
+            'DBYT', 'DWRD', 'DLNG', 'DQWD',
+            'HBYT', 'HWRD', 'HLNG', 'HQWD',
             'BOOL', 'BBIT', 'RECT',
             'HEXD', 'RSRC',
             'LSTB', 'LSTC', 'LSTE', 'OCNT',
@@ -376,7 +377,55 @@ module.exports = grammar({
                 field('value', $.expression)
             ))
         ),
-        
+
+        // Scenes
+        scene: $ => seq(
+            optional(repeat($.decorator)),
+            'scene', '<', field('id', $.resource_reference_literal), '>',
+            field('name', $.identifier_literal),
+            $.scene_body,
+            ';'
+        ),
+
+        scene_body: $ => seq(
+          '{',
+          repeat(seq(choice(
+              $.scene_property,
+              $.scene_element
+          ), ';')),
+          '}'
+        ),
+
+        scene_property: $ => seq(
+            field('name', choice('Title', 'Flags', 'Size')),
+            '=',
+            field('value', seq($.expression, repeat(seq(',', $.expression))))
+        ),
+
+        scene_element: $ => seq(
+            field('type', choice(
+                'Button', 'Label', 'TextArea', 'Image', 'TextField', 'Checkbox',
+                'List', 'ScrollArea', 'Grid', 'LabeledList', 'Canvas', 'Sprite',
+                'PopupButton', 'Slider', 'Table', 'Box', 'Radio', 'TabBar', 'Separator',
+                'Spacer', 'Position'
+            )),
+            '(', field('name', $.string_literal), ')',
+            $.scene_element_body,
+            ';'
+        ),
+
+        scene_element_body: $ => seq(
+            '{',
+            repeat(seq($.scene_element_property, ';')),
+            '}'
+        ),
+
+        scene_element_property: $ => seq(
+            field('name', choice('Frame', 'Label', 'Value', 'Action')),
+            '=',
+            field('value', seq($.expression, repeat(seq(',', $.expression))))
+        ),
+
         // Values
         value: $ => choice(
             $.hex_literal,

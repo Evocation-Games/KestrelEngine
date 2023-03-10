@@ -64,7 +64,6 @@ auto kdl::sema::type_definition::parse(foundation::stream<tokenizer::token> &str
         }
         else if (stream.expect({ expectation(tokenizer::field_keyword).be_true() })) {
             auto field = field_definition::parse(stream, ctx);
-            field.add_decorators(ctx.current_decorators.decorators);
             type.add_field(field);
             ctx.current_decorators.decorators.clear();
         }

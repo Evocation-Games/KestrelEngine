@@ -1081,6 +1081,276 @@
     }
   },
   {
+    "type": "scene",
+    "named": true,
+    "fields": {
+      "id": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "resource_reference_literal",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier_literal",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "decorator",
+          "named": true
+        },
+        {
+          "type": "scene_body",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "scene_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "scene_element",
+          "named": true
+        },
+        {
+          "type": "scene_property",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "scene_element",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string_literal",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "Box",
+            "named": false
+          },
+          {
+            "type": "Button",
+            "named": false
+          },
+          {
+            "type": "Canvas",
+            "named": false
+          },
+          {
+            "type": "Checkbox",
+            "named": false
+          },
+          {
+            "type": "Grid",
+            "named": false
+          },
+          {
+            "type": "Image",
+            "named": false
+          },
+          {
+            "type": "Label",
+            "named": false
+          },
+          {
+            "type": "LabeledList",
+            "named": false
+          },
+          {
+            "type": "List",
+            "named": false
+          },
+          {
+            "type": "PopupButton",
+            "named": false
+          },
+          {
+            "type": "Position",
+            "named": false
+          },
+          {
+            "type": "Radio",
+            "named": false
+          },
+          {
+            "type": "ScrollArea",
+            "named": false
+          },
+          {
+            "type": "Separator",
+            "named": false
+          },
+          {
+            "type": "Slider",
+            "named": false
+          },
+          {
+            "type": "Spacer",
+            "named": false
+          },
+          {
+            "type": "Sprite",
+            "named": false
+          },
+          {
+            "type": "TabBar",
+            "named": false
+          },
+          {
+            "type": "Table",
+            "named": false
+          },
+          {
+            "type": "TextArea",
+            "named": false
+          },
+          {
+            "type": "TextField",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "scene_element_body",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "scene_element_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "scene_element_property",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "scene_element_property",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "Action",
+            "named": false
+          },
+          {
+            "type": "Frame",
+            "named": false
+          },
+          {
+            "type": "Label",
+            "named": false
+          },
+          {
+            "type": "Value",
+            "named": false
+          }
+        ]
+      },
+      "value": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "scene_property",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "Flags",
+            "named": false
+          },
+          {
+            "type": "Size",
+            "named": false
+          },
+          {
+            "type": "Title",
+            "named": false
+          }
+        ]
+      },
+      "value": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": ",",
+            "named": false
+          },
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "source_file",
     "named": true,
     "fields": {},
@@ -1102,6 +1372,10 @@
         },
         {
           "type": "resource_declaration",
+          "named": true
+        },
+        {
+          "type": "scene",
           "named": true
         },
         {
@@ -1488,6 +1762,10 @@
     "named": false
   },
   {
+    "type": "Action",
+    "named": false
+  },
+  {
     "type": "BBIT",
     "named": false
   },
@@ -1496,11 +1774,27 @@
     "named": false
   },
   {
+    "type": "Box",
+    "named": false
+  },
+  {
+    "type": "Button",
+    "named": false
+  },
+  {
     "type": "CHAR",
     "named": false
   },
   {
     "type": "CSTR",
+    "named": false
+  },
+  {
+    "type": "Canvas",
+    "named": false
+  },
+  {
+    "type": "Checkbox",
     "named": false
   },
   {
@@ -1517,6 +1811,18 @@
   },
   {
     "type": "DWRD",
+    "named": false
+  },
+  {
+    "type": "Flags",
+    "named": false
+  },
+  {
+    "type": "Frame",
+    "named": false
+  },
+  {
+    "type": "Grid",
     "named": false
   },
   {
@@ -1540,6 +1846,10 @@
     "named": false
   },
   {
+    "type": "Image",
+    "named": false
+  },
+  {
     "type": "LSTB",
     "named": false
   },
@@ -1549,6 +1859,18 @@
   },
   {
     "type": "LSTE",
+    "named": false
+  },
+  {
+    "type": "Label",
+    "named": false
+  },
+  {
+    "type": "LabeledList",
+    "named": false
+  },
+  {
+    "type": "List",
     "named": false
   },
   {
@@ -1564,6 +1886,14 @@
     "named": false
   },
   {
+    "type": "PopupButton",
+    "named": false
+  },
+  {
+    "type": "Position",
+    "named": false
+  },
+  {
     "type": "RECT",
     "named": false
   },
@@ -1572,7 +1902,59 @@
     "named": false
   },
   {
+    "type": "Radio",
+    "named": false
+  },
+  {
     "type": "Reference",
+    "named": false
+  },
+  {
+    "type": "ScrollArea",
+    "named": false
+  },
+  {
+    "type": "Separator",
+    "named": false
+  },
+  {
+    "type": "Size",
+    "named": false
+  },
+  {
+    "type": "Slider",
+    "named": false
+  },
+  {
+    "type": "Spacer",
+    "named": false
+  },
+  {
+    "type": "Sprite",
+    "named": false
+  },
+  {
+    "type": "TabBar",
+    "named": false
+  },
+  {
+    "type": "Table",
+    "named": false
+  },
+  {
+    "type": "TextArea",
+    "named": false
+  },
+  {
+    "type": "TextField",
+    "named": false
+  },
+  {
+    "type": "Title",
+    "named": false
+  },
+  {
+    "type": "Value",
     "named": false
   },
   {
@@ -1677,6 +2059,10 @@
   },
   {
     "type": "rsrc",
+    "named": false
+  },
+  {
+    "type": "scene",
     "named": false
   },
   {

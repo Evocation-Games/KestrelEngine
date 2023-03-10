@@ -44,8 +44,6 @@ namespace resource::definition::type
         [[nodiscard]] auto has_hints() const -> bool;
         [[nodiscard]] auto hints() const -> std::vector<std::string>;
 
-        [[nodiscard]] auto can_multi_import() const -> bool;
-
     private:
         bool m_reference { false };
         std::string m_type;

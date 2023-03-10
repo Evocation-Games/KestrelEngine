@@ -33,11 +33,16 @@ namespace kdl::spec::types
     static constexpr const char *sound = "Sound";
     static constexpr const char *boolean = "Boolean";
     static constexpr const char *data = "BinaryData";
+    static constexpr const char *color = "Color";
+    static constexpr const char *range = "Range";
+    static constexpr const char *command_encoder = "CommandEncoder";
+    static constexpr const char *rect = "Rect";
 
     static auto vector() -> std::vector<std::string>
     {
         return {
-            integer, string, bitmask, file, image, image_set, boolean, data, sound
+            integer, string, bitmask, file, image, image_set, boolean, data, sound, color, range,
+            command_encoder, rect
         };
     }
 }

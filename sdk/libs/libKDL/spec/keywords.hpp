@@ -37,6 +37,7 @@ namespace kdl::spec::keywords
     static constexpr const char *as_keyword = "as";
     static constexpr const char *constructor_keyword = "constructor";
     static constexpr const char *import_keyword = "import";
+    static constexpr const char *scene_keyword = "scene";
 
     static auto vector() -> std::vector<std::string>
     {
@@ -44,7 +45,7 @@ namespace kdl::spec::keywords
             type_keyword, declare_keyword, new_keyword, override_keyword,
             duplicate_keyword, field_keyword, template_keyword, assert_keyword,
             component_keyword, files_keyword, types_keyword, repeatable_keyword,
-            as_keyword, constructor_keyword, import_keyword,
+            as_keyword, constructor_keyword, import_keyword, scene_keyword,
         };
     }
 }

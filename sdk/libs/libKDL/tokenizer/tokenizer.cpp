@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <sstream>
 #include <libKDL/tokenizer/tokenizer.hpp>
 #include <libLexer/expect/expectation.hpp>
 #include <libKDL/spec/directives.hpp>
@@ -33,6 +34,13 @@
 kdl::tokenizer::tokenizer::tokenizer(const foundation::stream<lexer::lexeme> &input)
     : m_input(input)
 {}
+
+// MARK: - Helper
+
+static auto inline is_fixed_cstr(const lexer::lexeme& lx) -> bool
+{
+
+}
 
 // MARK: - Processing
 
@@ -122,6 +130,13 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
         else if (m_input.expect({ lexer::expectation(lexer::identifier).be_true(), lexer::expectation(lexer::amp).be_true() })) {
             auto reference_type_name = m_input.read(); m_input.advance();
             output.append(token(reference_type_name, token_type::named_reference_type));
+        }
+        else if (m_input.expect({ lexer::expectation(lexer::identifier).be_true() }) && is_fixed_cstr(m_input.peek())) {
+            auto cnnn = m_input.read();
+            std::size_t size = 0;
+            std::stringstream ss; ss << std::hex << cnnn.text().substr(1);
+            ss >> size;
+            output.append(token(cnnn, size, token_type::string_type));
         }
 
         // Identifiers -------------------------------------------------------------------------------------------------
@@ -371,6 +386,7 @@ auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> toke
     else if (name.is(spec::keywords::as_keyword))           return token_type::as_keyword;
     else if (name.is(spec::keywords::constructor_keyword))  return token_type::constructor_keyword;
     else if (name.is(spec::keywords::import_keyword))       return token_type::import_keyword;
+    else if (name.is(spec::keywords::scene_keyword))        return token_type::scene_keyword;
     throw std::runtime_error("");
 }
 

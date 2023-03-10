@@ -19,12 +19,14 @@
 // SOFTWARE.
 
 #include <iostream>
+#include <numeric>
+#include <limits>
 #include <libKDL/assembler/encoder.hpp>
 
 // MARK: - Construction
 
 kdl::assembler::encoder::encoder(const resource::instance &instance, const resource::definition::type::instance *type)
-    : m_instance_ref(&instance), m_type(type)
+    : m_instance_ref(&instance), m_type(type), m_writer(graphite::data::byte_order::msb)
 {}
 
 // MARK: - Encoding
@@ -53,12 +55,31 @@ auto kdl::assembler::encoder::encode_binary_template(const std::string& prefix, 
     }
 }
 
-auto kdl::assembler::encoder::encode_binary_field(const std::string& prefix, const resource::definition::binary_template::field& field) -> void
+auto kdl::assembler::encoder::encode_binary_field(const std::string& prefix, const resource::definition::binary_template::field& field, std::optional<std::uint16_t> index) -> void
 {
     auto value_name = extend_prefix(prefix, field.label());
+    if (index.has_value()) {
+        value_name += std::to_string(index.value());
+    }
+
     if (field.has_nested_type()) {
         // Nested type, which means we need to look at the nested binary template and handle that.
         encode_binary_template(value_name, field.nested_type());
+    }
+    else if (field.is_list()) {
+        std::vector<std::uint16_t> list_indicies;
+        for (auto n = 0; n <= std::numeric_limits<std::uint16_t>::max(); ++n) {
+            auto it = m_instance_ref->values().find(value_name + std::to_string(n));
+            if (it != m_instance_ref->values().end()) {
+                list_indicies.emplace_back(n);
+            }
+        }
+        encode_value(resource::value_container(list_indicies.size()), field.type());
+        for (const auto idx : list_indicies) {
+            for (const auto& element_field : field.list_fields()) {
+                encode_binary_field(prefix, element_field, idx);
+            }
+        }
     }
     else {
         // Singular value.
@@ -81,6 +102,7 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
             m_writer.write_signed_byte(value.integer_value<std::int8_t>());
             break;
         }
+        case resource::definition::binary_template::type::OCNT:
         case resource::definition::binary_template::type::DWRD: {
             m_writer.write_signed_short(value.integer_value<std::int16_t>());
             break;
@@ -121,24 +143,9 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
             break;
         }
         case resource::definition::binary_template::type::Cnnn: {
-            // TODO: Fix the encoding of the size information.
-            m_writer.write_cstr(value.string_value());
+            m_writer.write_cstr(value.string_value(), type.size());
             break;
         }
-        case resource::definition::binary_template::type::LSTR:
-            break;
-        case resource::definition::binary_template::type::OSTR:
-            break;
-        case resource::definition::binary_template::type::OCNT:
-            break;
-        case resource::definition::binary_template::type::LSTC:
-            break;
-        case resource::definition::binary_template::type::LSTE:
-            break;
-        case resource::definition::binary_template::type::BBIT:
-            break;
-        case resource::definition::binary_template::type::BOOL:
-            break;
         case resource::definition::binary_template::type::HEXD: {
             m_writer.write_bytes(value.data_value());
             break;
@@ -175,6 +182,9 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
             break;
         }
         case resource::definition::binary_template::type::NESTED:
+            break;
+
+        default:
             break;
     }
 }

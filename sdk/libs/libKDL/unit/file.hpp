@@ -22,6 +22,7 @@
 
 #include <string>
 #include <libFoundation/stream/stream.hpp>
+#include <libKDL/tokenizer/token.hpp>
 #include <libLexer/lexeme.hpp>
 #include <libFoundation/system/filesystem/file.hpp>
 #include <libGraphite/rsrc/file.hpp>
@@ -32,7 +33,9 @@ namespace kdl::unit
     {
     public:
        explicit file(graphite::rsrc::file& output);
-       auto import_file(const std::string& path) -> void;
+       auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
+
+       static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions) -> foundation::stream<kdl::tokenizer::token>;
 
     private:
         std::vector<std::shared_ptr<foundation::filesystem::file>> m_imported_files;
