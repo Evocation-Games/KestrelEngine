@@ -42,9 +42,9 @@ auto kdl::sema::type_definition::parse(foundation::stream<tokenizer::token> &str
     const auto code_string = stream.read();
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
 
-    resource::definition::type::instance type(type_identifier.string_value(), code_string.string_value());
-    type.add_decorators(ctx.current_decorators.decorators);
-    ctx.current_type = &type;
+    resource::definition::type::instance raw_type(type_identifier.string_value(), code_string.string_value());
+    raw_type.add_decorators(ctx.current_decorators.decorators);
+    auto type = const_cast<resource::definition::type::instance *>(ctx.current_type = ctx.register_type(raw_type));
 
     while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
         if (sema::decorator::test(stream)) {
@@ -53,22 +53,21 @@ auto kdl::sema::type_definition::parse(foundation::stream<tokenizer::token> &str
         }
         else if (stream.expect({ expectation(tokenizer::template_keyword).be_true() })) {
             auto tmpl = template_definition::parse(stream, ctx);
-            type.set_binary_template(tmpl);
+            type->set_binary_template(tmpl);
             ctx.current_decorators.decorators.clear();
         }
         else if (stream.expect({ expectation(tokenizer::constructor_keyword).be_true() })) {
             auto constructor = constructor::parse(stream, ctx);
             constructor.add_decorators(ctx.current_decorators.decorators);
-            type.add_constructor(constructor);
+            type->add_constructor(constructor);
             ctx.current_decorators.decorators.clear();
         }
         else if (stream.expect({ expectation(tokenizer::field_keyword).be_true() })) {
             auto field = field_definition::parse(stream, ctx);
-            type.add_field(field);
+            type->add_field(field);
             ctx.current_decorators.decorators.clear();
         }
         else if (stream.expect({ expectation(tokenizer::assert_keyword).be_true() })) {
-
             ctx.current_decorators.decorators.clear();
         }
 
@@ -77,6 +76,4 @@ auto kdl::sema::type_definition::parse(foundation::stream<tokenizer::token> &str
 
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 
-    // Finally register the type for future use.
-    ctx.register_type(type);
 }

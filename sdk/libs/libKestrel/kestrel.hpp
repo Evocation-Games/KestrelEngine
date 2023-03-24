@@ -28,6 +28,8 @@
 #include <libKestrel/event/event.hpp>
 #include <libKestrel/session/session.hpp>
 #include <libKestrel/ui/imgui/dockspace.hpp>
+#include <libKestrel/resource/container.hpp>
+#include <libKestrel/ui/scene/definition.hpp>
 
 namespace lua_api(Kestrel, Available_0_8) kestrel
 {
@@ -49,6 +51,8 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
     lua_getter(platformName, Available_0_8) auto platform_family_name() -> std::string;
     lua_getter(graphicsLayerName, Available_0_8) auto renderer_api_name() -> std::string;
     lua_getter(audioDriverName, Available_0_8) auto audio_driver_name() -> std::string;
+
+    lua_function(start, Available_0_9) auto configure_window(const std::string& title, const math::size& size) -> void;
 
     lua_function(setGameWindowTitle, Available_0_8) auto set_game_window_title(const std::string& title) -> void;
     lua_function(setGameWindowSize, Available_0_8) auto set_game_window_size(const math::size& size) -> void;
@@ -80,6 +84,8 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
     lua_function(unloadImGui, Available_0_8) auto unload_imgui_environment(const luabridge::LuaRef& callback) -> void;
 
     // MARK: - Scene Management
+    lua_function(SceneContainer, Available_0_9) auto get_scene_container(const std::string& name) -> resource::container::lua_reference;
+    lua_function(Scene, Available_0_9) auto get_scene_definition(const std::string& name) -> ui::scene_definition::lua_reference;
     auto current_scene() -> ui::game_scene::lua_reference;
     auto create_backing_scene(const lua::script& script, const std::string& name = "untitled-scene") -> std::shared_ptr<ui::scene>;
     lua_function(presentScene, Available_0_8) auto push_scene(const ui::game_scene::lua_reference& scene) -> void;

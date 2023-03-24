@@ -120,6 +120,17 @@ auto kestrel::ui::dialog_configuration::all_elements() const -> std::vector<std:
 
 // MARK: - Building
 
+auto kestrel::ui::dialog_configuration::build_into_scene( const game_scene::lua_reference &scene) -> dialog::lua_reference
+{
+    if (m_dialog.get()) {
+        throw std::runtime_error("Dialog has already been built.");
+    }
+
+    m_dialog = { new dialog(this) };
+    m_dialog->present_into_scene(scene);
+    return m_dialog;
+}
+
 auto kestrel::ui::dialog_configuration::build(const luabridge::LuaRef &configure_callback) -> ui::dialog::lua_reference
 {
     if (m_dialog.get()) {

@@ -28,6 +28,7 @@
 #include <libKDL/spec/decorators.hpp>
 #include <libKDL/tokenizer/token.hpp>
 #include <libResource/reference.hpp>
+#include <libKDL/exception/unexpected_lexeme_exception.hpp>
 
 // MARK: - Construction
 
@@ -37,9 +38,17 @@ kdl::tokenizer::tokenizer::tokenizer(const foundation::stream<lexer::lexeme> &in
 
 // MARK: - Helper
 
+static auto inline is_hex(char c) -> bool
+{
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+}
+
 static auto inline is_fixed_cstr(const lexer::lexeme& lx) -> bool
 {
-
+    if (lx.text().size() == 4 && lx.text().starts_with('C')) {
+        return is_hex(lx.text()[1]) && is_hex(lx.text()[2]) && is_hex(lx.text()[3]);
+    }
+    return false;
 }
 
 // MARK: - Processing
@@ -47,6 +56,7 @@ static auto inline is_fixed_cstr(const lexer::lexeme& lx) -> bool
 auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
 {
     foundation::stream<token> output;
+    auto owner = m_input.peek().owner();
 
     // Consume the stream of lexemes from the lexer and convert them into tokens.
     // Each token may represent more than one lexeme.
@@ -61,7 +71,8 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
             output.append(directive_named(m_input.read()));
         }
         else if (m_input.expect({ lexer::expectation(lexer::identifier, spec::keywords::vector()).be_true() })) {
-            output.append(keyword_named(m_input.read()));
+            auto keyword = m_input.read();
+            output.append(token(keyword, keyword_named(keyword)));
         }
         else if (m_input.expect({
             lexer::expectation(lexer::at).be_true(), lexer::expectation(lexer::identifier).be_true()
@@ -82,7 +93,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                         arguments.emplace_back(m_input.read());
                     }
                     else {
-                        throw std::runtime_error("");
+                        throw unexpected_lexeme_exception("Decorator arguments must be either an identifier, string or integer.", m_input.peek());
                     }
 
                     if (m_input.expect({ lexer::expectation(lexer::comma).be_true() })) {
@@ -93,7 +104,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                         break;
                     }
                     else {
-                        throw std::runtime_error("");
+                        throw unexpected_lexeme_exception("Decorator arguments must be separated by a comma.", m_input.peek());
                     }
                 }
                 m_input.advance();
@@ -116,14 +127,31 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                     output.append(token(nested_type, token_type::NESTED));
                 }
                 else {
-                    throw std::runtime_error("");
+                    throw unexpected_lexeme_exception("Nested type in binary template expects type to be provided within angle brackets '<', '>'.", m_input.peek());
+                }
+            }
+            else if (binary_type.is(spec::binary_types::BYTE_CODE)) {
+                if (m_input.expect({
+                    lexer::expectation(lexer::l_angle).be_true(),
+                    lexer::expectation(lexer::identifier).be_true(),
+                    lexer::expectation(lexer::r_angle).be_true()
+                })) {
+                    m_input.advance();
+                    auto language = m_input.read(); m_input.advance();
+                    output.append(token(language, token_type::BYTE_CODE));
+                }
+                else {
+                    throw unexpected_lexeme_exception("ByteCode type in binary template expects language name to be provided within angle brackets '<', '>'.", m_input.peek());
                 }
             }
             else {
                 output.append(binary_type_named(binary_type));
             };
         }
-        else if (m_input.expect({ lexer::expectation(lexer::identifier, spec::types::vector()).be_true() })) {
+        else if (m_input.expect({
+            lexer::expectation(lexer::identifier, "as").be_true(),
+            lexer::expectation(lexer::identifier, spec::types::vector()).be_true()
+        }, -1)) {
             auto type = m_input.read();
             output.append(type_named(type));
         }
@@ -136,7 +164,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
             std::size_t size = 0;
             std::stringstream ss; ss << std::hex << cnnn.text().substr(1);
             ss >> size;
-            output.append(token(cnnn, size, token_type::string_type));
+            output.append(token(cnnn, size, token_type::Cnnn));
         }
 
         // Identifiers -------------------------------------------------------------------------------------------------
@@ -153,6 +181,10 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
             output.append(token(m_input.read(), token_type::identifier));
         }
         else if (m_input.expect({ lexer::expectation(lexer::dollar).be_true(), lexer::expectation(lexer::identifier).be_true() })) {
+            m_input.advance();
+            output.append(token(m_input.read(), token_type::variable));
+        }
+        else if (m_input.expect({ lexer::expectation(lexer::dollar).be_true(), lexer::expectation(lexer::integer).be_true() })) {
             m_input.advance();
             output.append(token(m_input.read(), token_type::variable));
         }
@@ -285,6 +317,14 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
             m_input.advance();
             output.append(token_type::semi);
         }
+        else if (m_input.expect({ lexer::expectation(lexer::plus).be_true(), lexer::expectation(lexer::plus).be_true() })) {
+            m_input.advance(2);
+            output.append(token_type::increment);
+        }
+        else if (m_input.expect({ lexer::expectation(lexer::minus).be_true(), lexer::expectation(lexer::minus).be_true() })) {
+            m_input.advance(2);
+            output.append(token_type::decrement);
+        }
         else if (m_input.expect({ lexer::expectation(lexer::plus).be_true() })) {
             m_input.advance();
             output.append(token_type::plus);
@@ -366,7 +406,10 @@ auto kdl::tokenizer::tokenizer::directive_named(const lexer::lexeme &name) -> to
     else if (name.is(spec::directives::out_directive))          return token_type::out_directive;
     else if (name.is(spec::directives::format_directive))       return token_type::format_directive;
     else if (name.is(spec::directives::import_directive))       return token_type::import_directive;
-    throw std::runtime_error("");
+    else if (name.is(spec::directives::variable_directive))     return token_type::variable_directive;
+    else if (name.is(spec::directives::constant_directive))     return token_type::constant_directive;
+    else if (name.is(spec::directives::function_directive))     return token_type::function_directive;
+    throw std::runtime_error("Invalid named directive requested: " + name.text());
 }
 
 auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> token_type
@@ -387,7 +430,8 @@ auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> toke
     else if (name.is(spec::keywords::constructor_keyword))  return token_type::constructor_keyword;
     else if (name.is(spec::keywords::import_keyword))       return token_type::import_keyword;
     else if (name.is(spec::keywords::scene_keyword))        return token_type::scene_keyword;
-    throw std::runtime_error("");
+    else if (name.is(spec::keywords::dialog_keyword))       return token_type::dialog_keyword;
+    throw std::runtime_error("Invalid keyword requested: " + name.text());
 }
 
 auto kdl::tokenizer::tokenizer::binary_type_named(const lexer::lexeme &name) -> token_type
@@ -415,7 +459,8 @@ auto kdl::tokenizer::tokenizer::binary_type_named(const lexer::lexeme &name) -> 
     else if (name.is(spec::binary_types::RSRC))             return token_type::RSRC;
     else if (name.is(spec::binary_types::HEXD))             return token_type::HEXD;
     else if (name.is(spec::binary_types::NESTED))           return token_type::NESTED;
-    throw std::runtime_error("");
+    else if (name.is(spec::binary_types::BYTE_CODE))        return token_type::BYTE_CODE;
+    throw std::runtime_error("Invalid binary type requested: " + name.text());
 }
 
 auto kdl::tokenizer::tokenizer::type_named(const lexer::lexeme &name) -> token_type
@@ -428,7 +473,10 @@ auto kdl::tokenizer::tokenizer::type_named(const lexer::lexeme &name) -> token_t
     else if (name.is(spec::types::image_set))               return token_type::image_set_type;
     else if (name.is(spec::types::sound))                   return token_type::sound_type;
     else if (name.is(spec::types::data))                    return token_type::data_type;
-    throw std::runtime_error("");
+    else if (name.is(spec::types::command_encoder))         return token_type::command_encoder_type;
+    else if (name.is(spec::types::range))                   return token_type::range_type;
+    else if (name.is(spec::types::color))                   return token_type::color_type;
+    throw std::runtime_error("Invalid built-in value type requested: " + name.text());
 }
 
 auto kdl::tokenizer::tokenizer::decorator_named(const lexer::lexeme &name) -> token_type

@@ -211,21 +211,21 @@ auto kdl::codegen::lua::exporter::prepare_template_read_calls(ast::symbol *resou
     for (auto& field : m_type_definition->all_fields()) {
         if (field.repeatable().enabled() && field.repeatable().has_count_field()) {
             // Get the OCNT field for the count field, and add a reader for it.
-            auto& binary_field = *const_cast<resource::definition::binary_template::field *>(field.repeatable().count_field());
-            auto list_count = produce_read_call(&binary_field, data);
-            m_type.binary_fields.emplace(binary_field.label(), list_count);
+            auto binary_field = field.repeatable().count_field();
+            auto list_count = produce_read_call(binary_field, data);
+            m_type.binary_fields.emplace(binary_field->label(), list_count);
 
             for (auto i = 0; i < field.value_count(); ++i) {
                 const auto& value = field.value_at(i);
-                binary_field = tmpl->field_named(value.base_name());
-                auto value_reader = produce_read_call(&binary_field, &value, data);
-                m_type.binary_fields.emplace(binary_field.label(), value_reader);
+                binary_field = &tmpl->field_named(value.base_name());
+                auto value_reader = produce_read_call(binary_field, &value, data);
+                m_type.binary_fields.emplace(binary_field->label(), value_reader);
 
                 if (value.has_joined_values()) {
                     for (const auto& joined : value.joined_values()) {
-                        binary_field = tmpl->field_named(joined.base_name());
-                        value_reader = produce_read_call(&binary_field, &joined, data);
-                        m_type.binary_fields.emplace(binary_field.label(), value_reader);
+                        binary_field = &tmpl->field_named(joined.base_name());
+                        value_reader = produce_read_call(binary_field, &joined, data);
+                        m_type.binary_fields.emplace(binary_field->label(), value_reader);
                     }
                 }
             }

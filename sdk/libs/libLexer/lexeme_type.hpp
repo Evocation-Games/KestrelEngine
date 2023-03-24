@@ -24,7 +24,7 @@ namespace lexer
 {
     enum lexeme_type
     {
-        integer, decimal, string, identifier, keyword,
+        any, integer, decimal, string, identifier, keyword,
         l_paren, r_paren, l_angle, r_angle, l_brace, r_brace, l_bracket, r_bracket,
         comma, dot, pipe, slash, amp, colon, semi, plus, minus, star, equals, carat,
         left_shift, right_shift, tilde, at, hash, percent, exclaim, question, dollar

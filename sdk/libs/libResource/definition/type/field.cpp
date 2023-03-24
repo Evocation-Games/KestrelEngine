@@ -67,7 +67,7 @@ auto resource::definition::type::field::repeatable_info::upper_bound() const -> 
 
 auto resource::definition::type::field::repeatable_info::enabled() const -> bool
 {
-    return m_enabled && (m_count_field != nullptr);
+    return m_enabled || (m_count_field != nullptr);
 }
 
 auto resource::definition::type::field::repeatable_info::count_field() const -> const binary_template::field*
@@ -117,9 +117,5 @@ auto resource::definition::type::field::value_at(std::int32_t idx) const -> cons
 
 auto resource::definition::type::field::add_value(const field_value &value) -> void
 {
-    if (m_repeatable.enabled()) {
-        const_cast<field_value&>(value)
-            .add_name_extension("FieldNumber");
-    }
     m_values.emplace_back(value);
 }

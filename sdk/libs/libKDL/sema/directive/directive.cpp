@@ -21,10 +21,13 @@
 #include <libKDL/sema/directive/directive.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/unit/file.hpp>
+#include <libKDL/exception/invalid_attribute_exception.hpp>
 
 #include <libKDL/sema/directive/out.hpp>
 #include <libKDL/sema/directive/metadata.hpp>
 #include <libKDL/sema/directive/format.hpp>
+#include <libKDL/sema/directive/variable.hpp>
+#include <libKDL/sema/directive/function.hpp>
 
 #include <libKDL/modules/kestrel/kestrel.hpp>
 #include <libKDL/modules/macintosh/macintosh.hpp>
@@ -42,7 +45,10 @@ auto kdl::sema::directive::test(const foundation::stream<tokenizer::token>& stre
         expectation(tokenizer::website_directive).be_true(),
         expectation(tokenizer::out_directive).be_true(),
         expectation(tokenizer::format_directive).be_true(),
-        expectation(tokenizer::import_directive).be_true()
+        expectation(tokenizer::import_directive).be_true(),
+        expectation(tokenizer::variable_directive).be_true(),
+        expectation(tokenizer::constant_directive).be_true(),
+        expectation(tokenizer::function_directive).be_true()
     });
 }
 
@@ -64,6 +70,12 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
     }
     else if (stream.expect({ expectation(tokenizer::format_directive).be_true() })) {
         format::parse(stream);
+    }
+    else if (stream.expect_any({ expectation(tokenizer::variable_directive).be_true(), expectation(tokenizer::constant_directive).be_true() })) {
+        variable::parse(stream, ctx);
+    }
+    else if (stream.expect({ expectation(tokenizer::function_directive).be_true() })) {
+        function::parse(stream, ctx);
     }
     else if (stream.expect({ expectation(tokenizer::import_directive).be_true(), expectation(tokenizer::identifier).be_true() })) {
         // Importing a module.
@@ -87,11 +99,11 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
 
         auto lexical_result = unit::file::import_and_tokenize_file(path.string(), std::vector<std::string>(
             ctx.definitions.begin(), ctx.definitions.end()
-        ));
+        ), ctx);
         stream.insert(lexical_result);
         stream.push(tokenizer::token(tokenizer::semi));
     }
     else {
-        throw std::runtime_error("");
+        throw invalid_attribute_exception("Unrecognised attribute '" + stream.peek().string_value() + "'.", stream.peek().source());
     }
 }

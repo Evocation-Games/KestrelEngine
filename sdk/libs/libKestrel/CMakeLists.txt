@@ -59,7 +59,6 @@ set(KESTREL_LIBS_DIR )
 if (USE_LUA_JIT)
     set(KESTREL_LIBS ${KESTREL_LIBS} libluajit.a)
     set(KESTREL_LIBS_DIR ${KESTREL_LIBS_DIR} ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
-
 else()
     set(KESTREL_LIBS ${KESTREL_LIBS} Lua)
 endif()

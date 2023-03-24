@@ -32,14 +32,17 @@ namespace kdl::spec::directives
     static constexpr const char *out_directive = "out";
     static constexpr const char *format_directive = "format";
     static constexpr const char *import_directive = "import";
-
+    static constexpr const char *variable_directive = "var";
+    static constexpr const char *constant_directive = "const";
+    static constexpr const char *function_directive = "function";
 
     static auto vector() -> std::vector<std::string>
     {
         return {
             project_directive, author_directive, version_directive, license_directive,
             copyright_directive, email_directive, website_directive, out_directive,
-            format_directive, import_directive
+            format_directive, import_directive, variable_directive, constant_directive,
+            function_directive
         };
     }
 }

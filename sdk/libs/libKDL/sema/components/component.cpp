@@ -21,7 +21,9 @@
 #include <libKDL/sema/components/component.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/codegen/lua/exporter.hpp>
+#include <libKDL/assembler/compiler/lua/lua.hpp>
 #include <libGraphite/data/writer.hpp>
+#include <libGraphite/data/reader.hpp>
 
 auto kdl::sema::component::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -90,20 +92,45 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
 
 auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference &ref, const foundation::filesystem::path &path, const std::string &name) -> void
 {
-    graphite::data::block block(path.string());
-    resource::instance resource(ref, block);
-    resource.set_name(name);
-    if (!ctx.flags.surpress_resource_creation) {
-        ctx.resources.emplace_back(std::move(resource));
+    auto output_type = ctx.type_named(ref.type_name());
+    auto tmpl = output_type->binary_template();
+
+    if (tmpl && (tmpl->field_count() == 1) && (tmpl->all_fields().front().has_lua_byte_code_type())) {
+        foundation::filesystem::file source_file(path);
+        auto byte_code = assembler::compiler::lua::compile(source_file.string_contents(), path.string());
+        resource::instance resource(ref, byte_code);
+        resource.set_name(name);
+        if (!ctx.flags.surpress_resource_creation) {
+            ctx.resources.emplace_back(std::move(resource));
+        }
     }
+    else {
+        graphite::data::block block(path.string());
+        resource::instance resource(ref, block);
+        resource.set_name(name);
+        if (!ctx.flags.surpress_resource_creation) {
+            ctx.resources.emplace_back(std::move(resource));
+        }
+    }
+
     ref = ref.with_id(ref.id() + 1);
 }
 
 auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference &ref, const std::string &content, const std::string &name) -> void
 {
+    auto output_type = ctx.type_named(ref.type_name());
+    auto tmpl = output_type->binary_template();
+
     graphite::data::block block(content.size() + 1);
     graphite::data::writer writer(&block);
-    writer.write_cstr(content);
+
+    if (tmpl && (tmpl->field_count() == 1) && (tmpl->all_fields().front().has_lua_byte_code_type())) {
+        auto byte_code = assembler::compiler::lua::compile(content, name);
+        writer.write_data(&byte_code);
+    }
+    else {
+        writer.write_cstr(content);
+    }
 
     resource::instance resource(ref, block);
     resource.set_name(name);

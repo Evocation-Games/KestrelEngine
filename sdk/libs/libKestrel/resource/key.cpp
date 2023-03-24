@@ -20,6 +20,7 @@
 
 #include <libKestrel/resource/key.hpp>
 #include <libGraphite/util/hashing.hpp>
+#include <libKestrel/resource/container.hpp>
 
 // MARK: - Construction
 
@@ -31,8 +32,8 @@ kestrel::resource::key::key(const descriptor &descriptor)
         m_type = descriptor.type;
     }
 
-    if (descriptor.is_namespaced()) {
-        m_namespace = descriptor.namespaces[0];
+    if (descriptor.has_container()) {
+        m_container = descriptor.containers[0];
     }
 }
 
@@ -42,8 +43,8 @@ auto kestrel::resource::key::str() const -> std::string
 {
     std::string result;
 
-    if (m_namespace.has_value() && !m_namespace.value().empty()) {
-        result += m_namespace.value() + ".";
+    if (m_container.has_value() && !m_container.value().empty()) {
+        result += m_container.value() + ".";
     }
 
     if (m_type.has_value()) {
@@ -65,22 +66,22 @@ auto kestrel::resource::key::hash() const -> std::string
 auto kestrel::resource::key::operator==(const key &rhs) const -> bool
 {
     // Deal with namespace first.
-    if (m_namespace.has_value() && rhs.m_namespace.has_value()) {
+    if (m_container.has_value() && rhs.m_container.has_value()) {
         // Check for universal namespace, as this makes the namespace valid.
-        if ((m_namespace == "*" || rhs.m_namespace == "*") || m_namespace == rhs.m_namespace) {
+        if ((m_container == resource::container::universal_name || rhs.m_container == resource::container::universal_name) || m_container == rhs.m_container) {
             // Do nothing...
         }
         else {
             return false;
         }
     }
-    else if ((m_namespace.has_value() && m_namespace.value().empty()) && !rhs.m_namespace.has_value()) {
+    else if ((m_container.has_value() && m_container.value().empty()) && !rhs.m_container.has_value()) {
         // Do nothing...
     }
-    else if ((rhs.m_namespace.has_value() && rhs.m_namespace.value().empty()) && !m_namespace.has_value()) {
+    else if ((rhs.m_container.has_value() && rhs.m_container.value().empty()) && !m_container.has_value()) {
         // Do nothing...
     }
-    else if (!m_namespace.has_value() && !rhs.m_namespace.has_value()) {
+    else if (!m_container.has_value() && !rhs.m_container.has_value()) {
         // Do nothing...
     }
     else {

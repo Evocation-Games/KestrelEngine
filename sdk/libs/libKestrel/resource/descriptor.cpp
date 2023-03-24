@@ -20,7 +20,7 @@
 
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/resource/descriptor.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 #include <libGraphite/util/hashing.hpp>
 #include <libGraphite/rsrc/manager.hpp>
 
@@ -100,7 +100,7 @@ auto kestrel::resource::descriptor::reference(const std::string &ns,
                                               const std::string &name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
-    r->namespaces = lua::vector<std::string>(ns);
+    r->containers = lua::vector<std::string>(ns);
     r->id = id;
     r->name = name;
     r->type = type;
@@ -113,7 +113,7 @@ auto kestrel::resource::descriptor::reference(const std::string &type,
                                               const std::string &name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
-    r->namespaces = lua::vector<std::string>(resource_namespace::universal()->primary_name());
+    r->containers = lua::vector<std::string>(container::universal()->primary_name());
     r->id = id;
     r->name = name;
     r->type = type;
@@ -126,9 +126,9 @@ auto kestrel::resource::descriptor::reference(const std::string &type,
 auto kestrel::resource::descriptor::hash() const -> std::string
 {
     std::string hash;
-    if (!namespaces.empty()) {
-        for (const auto& ns : namespaces) {
-            hash += ns + ":";
+    if (!containers.empty()) {
+        for (const auto& c : containers) {
+            hash += c + ":";
         }
     }
     hash += std::to_string(id);
@@ -161,14 +161,14 @@ auto kestrel::resource::descriptor::description() const -> std::string
         description += name + " ";
     }
 
-    if (is_namespaced()) {
-        description += "ns<";
-        for (const auto& ns : namespaces) {
-            if (resource_namespace(ns).is_global()) {
+    if (has_container()) {
+        description += "container<";
+        for (const auto& c : containers) {
+            if (resource::container(c).is_global()) {
                 description += "global ";
             }
             else {
-                description += ns + " ";
+                description += c + " ";
             }
         }
 
@@ -213,9 +213,9 @@ auto kestrel::resource::descriptor::has_name() const -> bool
            || m_variant == variant::resolved;
 }
 
-auto kestrel::resource::descriptor::is_namespaced() const -> bool
+auto kestrel::resource::descriptor::has_container() const -> bool
 {
-    return !namespaces.empty();
+    return !containers.empty();
 }
 
 // MARK: - Modifiers
@@ -237,7 +237,7 @@ auto kestrel::resource::descriptor::with_type(const std::string& type) const -> 
         ref = descriptor::typed(type);
     }
 
-    ref->namespaces = namespaces;
+    ref->containers = containers;
     ref->file = file;
     return ref;
 }
@@ -259,7 +259,7 @@ auto kestrel::resource::descriptor::with_id(int64_t id) const -> lua_reference
         ref = descriptor::identified(id);
     }
 
-    ref->namespaces = namespaces;
+    ref->containers = containers;
     ref->file = file;
     return ref;
 }
@@ -270,10 +270,10 @@ auto kestrel::resource::descriptor::normalized_id(int64_t index_base, int64_t fi
     return with_id((id - index_base) + first_id);
 }
 
-auto kestrel::resource::descriptor::from_namespace() const -> lua_reference
+auto kestrel::resource::descriptor::container() const -> lua_reference
 {
     lua_reference ref(new descriptor());
-    ref->namespaces = namespaces;
+    ref->containers = containers;
     ref->file = file;
     return ref;
 }
@@ -295,7 +295,7 @@ auto kestrel::resource::descriptor::ignoring_type() const -> lua_reference
         ref = lua_reference(new descriptor());
     }
 
-    ref->namespaces = namespaces;
+    ref->containers = containers;
     ref->file = file;
     return ref;
 }
@@ -317,7 +317,7 @@ auto kestrel::resource::descriptor::ignoring_id() const -> lua_reference
         ref = lua_reference(new descriptor());
     }
 
-    ref->namespaces = namespaces;
+    ref->containers = containers;
     ref->file = file;
     return ref;
 }
@@ -339,12 +339,12 @@ auto kestrel::resource::descriptor::ignoring_name() const -> lua_reference
         ref = lua_reference(new descriptor());
     }
 
-    ref->namespaces = namespaces;
+    ref->containers = containers;
     ref->file = file;
     return ref;
 }
 
-auto kestrel::resource::descriptor::ignoring_namespace() const -> lua_reference
+auto kestrel::resource::descriptor::ignoring_container() const -> lua_reference
 {
     lua_reference ref;
 
@@ -411,9 +411,9 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
 
     if (m_resolved_resources.empty()) {
         std::vector<graphite::rsrc::attribute> attributes;
-        resource_namespace ns(namespaces.at(0));
-        if (!(ns.is_universal() || ns.is_global())) {
-            attributes.emplace_back("namespace", ns.primary_name());
+        resource::container c(containers.at(0));
+        if (!(c.is_universal() || c.is_global())) {
+            attributes.emplace_back(resource::container::attribute_name, c.primary_name());
         }
 
         if (file) {
@@ -426,9 +426,9 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
     else {
         auto best = m_resolved_resources.at(0);
         std::vector<graphite::rsrc::attribute> attributes;
-        resource_namespace ns(best->namespaces.at(0));
-        if (!(ns.is_universal() || ns.is_global())) {
-            attributes.emplace_back(graphite::rsrc::attribute(resource_namespace::attribute_name, ns.primary_name()));
+        resource::container c(best->containers.at(0));
+        if (!(c.is_universal() || c.is_global())) {
+            attributes.emplace_back(resource::container::attribute_name, c.primary_name());
         }
 
         if (file) {
@@ -488,7 +488,7 @@ auto kestrel::resource::descriptor::resolve() -> void
 
 auto kestrel::resource::descriptor::resolve_identified() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -503,22 +503,22 @@ auto kestrel::resource::descriptor::resolve_identified() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<struct graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
-                    auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                     res->file = file;
-                    m_resolved_resources.emplace_back(std::move(res));
+                    m_resolved_resources.emplace_back(res);
                 }
             }
         }
@@ -529,7 +529,7 @@ auto kestrel::resource::descriptor::resolve_identified() -> void
 
 auto kestrel::resource::descriptor::resolve_typed() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -544,14 +544,14 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
@@ -560,9 +560,9 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
             }
 
             for (const auto& resource : *t) {
-                auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                 res->file = file;
-                m_resolved_resources.emplace_back(std::move(res));
+                m_resolved_resources.emplace_back(res);
             }
         }
     }
@@ -572,7 +572,7 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
 
 auto kestrel::resource::descriptor::resolve_named() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -587,22 +587,22 @@ auto kestrel::resource::descriptor::resolve_named() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
-                    auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                     res->file = file;
-                    m_resolved_resources.emplace_back(std::move(res));
+                    m_resolved_resources.emplace_back(res);
                 }
             }
         }
@@ -613,7 +613,7 @@ auto kestrel::resource::descriptor::resolve_named() -> void
 
 auto kestrel::resource::descriptor::resolve_typed_identified() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -628,14 +628,14 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
@@ -645,9 +645,9 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id) {
-                    auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                     res->file = file;
-                    m_resolved_resources.emplace_back(std::move(res));
+                    m_resolved_resources.emplace_back(res);
                 }
             }
         }
@@ -658,7 +658,7 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
 
 auto kestrel::resource::descriptor::resolve_identified_named() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -673,22 +673,22 @@ auto kestrel::resource::descriptor::resolve_identified_named() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
-                    auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                     res->file = file;
-                    m_resolved_resources.emplace_back(std::move(res));
+                    m_resolved_resources.emplace_back(res);
                 }
             }
         }
@@ -699,7 +699,7 @@ auto kestrel::resource::descriptor::resolve_identified_named() -> void
 
 auto kestrel::resource::descriptor::resolve_typed_named() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -714,14 +714,14 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
@@ -731,9 +731,9 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->name() == name) {
-                    auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                     res->file = file;
-                    m_resolved_resources.emplace_back(std::move(res));
+                    m_resolved_resources.emplace_back(res);
                 }
             }
         }
@@ -744,7 +744,7 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
 
 auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
 {
-    resource_namespace ns(namespaces);
+    resource::container c(containers);
     const auto& rm = graphite::rsrc::manager::shared_manager();
 
     std::vector<graphite::rsrc::file *> files;
@@ -759,14 +759,14 @@ auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
         for (const auto& type_hash : file->types()) {
             const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
 
-            std::string type_namespace = resource_namespace::global()->primary_name();
+            std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                type_namespace = it->second.string_value();
+                type_container = it->second.string_value();
             }
 
-            if (!ns.is_universal() && !ns.has_name(type_namespace)) {
+            if (!c.is_universal() && !c.has_name(type_container)) {
                 continue;
             }
 
@@ -776,9 +776,9 @@ auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
 
             for (const auto& resource : *t) {
                 if (resource->id() == id && resource->name() == name) {
-                    auto res = descriptor::reference(type_namespace, t->code(), resource->id(), resource->name());
+                    auto res = descriptor::reference(type_container, t->code(), resource->id(), resource->name());
                     res->file = file;
-                    m_resolved_resources.emplace_back(std::move(res));
+                    m_resolved_resources.emplace_back(res);
                 }
             }
         }

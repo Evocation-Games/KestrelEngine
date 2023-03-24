@@ -32,7 +32,7 @@ namespace kestrel::resource
     public:
         has_constructable_lua_api(descriptor);
 
-        lua_data(namespaces, const, Available_0_8) lua::vector<std::string> namespaces;
+        lua_data(containers, const, Available_0_8) lua::vector<std::string> containers;
         lua_data(type, const, Available_0_8) std::string type;
         lua_data(id, const, Available_0_8) graphite::rsrc::resource::identifier id { INT64_MIN };
         lua_data(name, const, Available_0_8) std::string name;
@@ -44,7 +44,7 @@ namespace kestrel::resource
 
         static auto file_constrained(const graphite::rsrc::file *file) -> lua_reference;
 
-        lua_getter(hash, Available_0_8) auto hash() const -> std::string;
+        lua_getter(hash, Available_0_8) [[nodiscard]] auto hash() const -> std::string;
 
         lua_function(identified, Available_0_8) static auto identified(graphite::rsrc::resource::identifier id) -> lua_reference;
         lua_function(typed, Available_0_8) static auto typed(const std::string& type) -> lua_reference;
@@ -60,7 +60,7 @@ namespace kestrel::resource
         lua_function(hasType, Available_0_8) [[nodiscard]] auto has_type() const -> bool;
         lua_function(hasId, Available_0_8) [[nodiscard]] auto has_id() const -> bool;
         lua_function(hasName, Available_0_8) [[nodiscard]] auto has_name() const -> bool;
-        lua_function(isNamespaced, Available_0_8) [[nodiscard]] auto is_namespaced() const -> bool;
+        lua_function(hasContainer, Available_0_8) [[nodiscard]] auto has_container() const -> bool;
 
         lua_getter(description, Available_0_8) [[nodiscard]] auto description() const -> std::string;
 
@@ -73,9 +73,9 @@ namespace kestrel::resource
         lua_getter(ignoringType, Available_0_8) [[nodiscard]] auto ignoring_type() const -> lua_reference;
         lua_getter(ignoringId, Available_0_8) [[nodiscard]] auto ignoring_id() const -> lua_reference;
         lua_getter(ignoringName, Available_0_8) [[nodiscard]] auto ignoring_name() const -> lua_reference;
-        lua_getter(ignoringNamespace, Available_0_8) [[nodiscard]] auto ignoring_namespace() const -> lua_reference;
+        lua_getter(ignoringContainer, Available_0_8) [[nodiscard]] auto ignoring_container() const -> lua_reference;
 
-        lua_getter(fromNamespace, Available_0_8) [[nodiscard]] auto from_namespace() const -> lua_reference;
+        lua_getter(container, Available_0_8) [[nodiscard]] auto container() const -> lua_reference;
 
         lua_function(valid, Available_0_8) auto valid() -> bool;
 

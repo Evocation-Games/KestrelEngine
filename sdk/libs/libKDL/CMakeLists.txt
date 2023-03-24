@@ -25,6 +25,13 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 project(KDL LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
+if (USE_LUA_JIT)
+    set(KDL_LUA_LIB libluajit.a)
+    set(KDL_LUA_DIR ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
+else()
+    set(KDL_LUA_LIB Lua)
+endif()
+
 ########################################################################################################################
 ## libKDL
 file(GLOB_RECURSE libKDL_Sources
@@ -32,8 +39,13 @@ file(GLOB_RECURSE libKDL_Sources
 )
 
 add_library(KDL ${libKDL_Sources})
-target_link_libraries(KDL SIMD Graphite Foundation Resource Interpreter Lexer Image Sound)
+target_link_libraries(KDL SIMD Graphite Foundation Resource Interpreter Lexer Image Sound ${KDL_LUA_LIB})
 target_include_directories(KDL PUBLIC
     ${PROJECT_SDK_LIBS}
+    ${PROJECT_SUBMODULE_DIR}
     ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )
+
+if(USE_LUA_JIT)
+    target_link_directories(KDL PUBLIC ${KDL_LUA_DIR})
+endif()

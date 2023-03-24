@@ -253,7 +253,11 @@ auto kestrel::ui::dialog::frame() const -> math::rect
 
 auto kestrel::ui::dialog::present() -> void
 {
-    auto scene = kestrel::session().current_scene();
+    present_into_scene(kestrel::session().current_scene());
+}
+
+auto kestrel::ui::dialog::present_into_scene(const game_scene::lua_reference &scene) -> void
+{
     switch (m_configuration->layout()->mode()) {
         case dialog_render_mode::scene: {
             present_scene(scene);

@@ -44,6 +44,7 @@ namespace kestrel::ui
 
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_function(present, Available_0_8) auto present() -> void;
+        auto present_into_scene(const game_scene::lua_reference& scene) -> void;
 
         lua_function(setBackground, Available_0_8) auto set_background(const luabridge::LuaRef& background) -> void;
         lua_function(setStretchableBackground, Available_0_8) auto set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void;

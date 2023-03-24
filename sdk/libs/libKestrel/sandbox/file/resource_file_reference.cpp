@@ -20,7 +20,7 @@
 
 #include <sys/stat.h>
 #include <libKestrel/sandbox/file/resource_file_reference.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 
 // MARK: - Construction
 
@@ -38,7 +38,7 @@ auto kestrel::sandbox::resource_file_reference::type() const -> enum resource_fi
         case graphite::rsrc::file::format::classic:     return resource_file_type::classic;
         case graphite::rsrc::file::format::extended:    return resource_file_type::extended;
         case graphite::rsrc::file::format::rez:         return resource_file_type::rez;
-        default:                                       return resource_file_type::none;
+        default:                                        return resource_file_type::none;
     }
 };
 
@@ -92,15 +92,15 @@ auto kestrel::sandbox::resource_file_reference::all_types() const -> lua::vector
     for (const auto& type_hash : m_file.types()) {
         const auto& type = m_file.type(type_hash);
 
-        auto ns = resource::resource_namespace::global();
+        auto container = resource::container::global();
         for (const auto& attr : type->attributes()) {
-            if (attr.second.name() == resource::resource_namespace::attribute_name) {
-                ns = resource::resource_namespace::lua_reference(new resource::resource_namespace(attr.second.string_value()));
+            if (attr.second.name() == resource::container::attribute_name) {
+                container = resource::container::lua_reference(new resource::container(attr.second.string_value()));
                 break;
             }
         }
 
-        auto descriptor = ns->file_constraint(&m_file)->with_type(type->code());
+        auto descriptor = container->file_constraint(&m_file)->with_type(type->code());
         descriptors.emplace_back(descriptor);
     }
     return descriptors;
@@ -111,11 +111,11 @@ auto kestrel::sandbox::resource_file_reference::add_resource(const resource::wri
     auto type_code = writer->type_code();
     auto id = writer->id();
     auto name = writer->name();
-    auto ns = writer->ns();
+    auto container = writer->container();
 
     std::vector<graphite::rsrc::attribute> type_attributes;
-    if (ns.get()) {
-        type_attributes.emplace_back(graphite::rsrc::attribute(resource::resource_namespace::attribute_name, ns->primary_name()));
+    if (container.get()) {
+        type_attributes.emplace_back(graphite::rsrc::attribute(resource::container::attribute_name, container->primary_name()));
     }
 
     // Do we have an existing resource already?

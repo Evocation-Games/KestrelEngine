@@ -66,6 +66,9 @@ auto resource::definition::binary_template::type::name() const -> std::string
         case NESTED: {
             return "Nested<" + m_nested.name + ">";
         }
+        case LUA_BYTE_CODE: {
+            return "ByteCode<Lua>";
+        }
     }
 }
 

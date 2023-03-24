@@ -21,6 +21,7 @@
 #include <libKDL/sema/type/constructor/constructor_definition.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/script/script.hpp>
+#include <libKDL/exception/unexpected_token_exception.hpp>
 
 auto kdl::sema::type_definition::constructor::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -49,7 +50,7 @@ auto kdl::sema::type_definition::constructor::parse(foundation::stream<tokenizer
             break;
         }
         else {
-            throw std::runtime_error("");
+            throw unexpected_token_exception("Expected either ',' or '(' tokens.", stream.peek());
         }
     }
 

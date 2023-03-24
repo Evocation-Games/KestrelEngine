@@ -62,7 +62,7 @@ auto kdl::sema::type_definition::template_definition::test_binary_type(const fou
         expectation(tokenizer::OCNT).be_true(), expectation(tokenizer::LSTC).be_true(),
         expectation(tokenizer::LSTE).be_true(), expectation(tokenizer::BBIT).be_true(),
         expectation(tokenizer::BOOL).be_true(), expectation(tokenizer::RSRC).be_true(),
-        expectation(tokenizer::NESTED).be_true()
+        expectation(tokenizer::NESTED).be_true(), expectation(tokenizer::BYTE_CODE).be_true()
     });
 }
 
@@ -137,7 +137,10 @@ auto kdl::sema::type_definition::template_definition::binary_type(const tokenize
     else if (token.is(tokenizer::NESTED)) {
         // TODO: Lookup the actual type definition here and pass it instead.
         auto type = ctx.type_named(token.string_value());
-        return resource::definition::binary_template::type(type->binary_template(), type->name());
+        return { type->binary_template(), type->name() };
+    }
+    else if (token.is(tokenizer::BYTE_CODE, "Lua")) {
+        return resource::definition::binary_template::type(resource::definition::binary_template::type::LUA_BYTE_CODE);
     }
     else {
         throw std::runtime_error("");

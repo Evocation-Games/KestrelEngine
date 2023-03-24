@@ -22,7 +22,7 @@
 
 #include <stdexcept>
 #include <utility>
-#include <libKDL/session/resources/reference.hpp>
+#include <libResource/reference.hpp>
 
 namespace kdl
 {
@@ -33,7 +33,7 @@ namespace kdl
             : m_reason(std::move(reason)), m_ref()
         {}
 
-        resource_already_exists_exception(std::string reason, session::resources::reference ref)
+        resource_already_exists_exception(std::string reason, resource::reference ref)
             : m_reason(std::move(reason)), m_ref(ref)
         {};
 
@@ -42,13 +42,13 @@ namespace kdl
             return m_reason;
         }
 
-        [[nodiscard]] auto reference() const -> session::resources::reference
+        [[nodiscard]] auto reference() const -> resource::reference
         {
             return m_ref;
         }
 
     private:
         std::string m_reason;
-        session::resources::reference m_ref;
+        resource::reference m_ref;
     };
 }

@@ -20,39 +20,39 @@
 
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/resource/descriptor.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 #include <libGraphite/rsrc/manager.hpp>
 
 // MARK: - Construction
 
-kestrel::resource::resource_namespace::resource_namespace(const std::string &name)
+kestrel::resource::container::container(const std::string &name)
     : m_names({ name })
 {
 }
 
-kestrel::resource::resource_namespace::resource_namespace(const std::vector<std::string>& names)
+kestrel::resource::container::container(const std::vector<std::string>& names)
     : m_names(names.empty() ? std::vector<std::string>({ universal_name }) : names)
 {
 }
 
-kestrel::resource::resource_namespace::resource_namespace(const lua::vector<std::string>& names)
+kestrel::resource::container::container(const lua::vector<std::string>& names)
     : m_names(names.empty() ? std::vector<std::string>({ universal_name }) : names.to_vector())
 {
 }
 
-auto kestrel::resource::resource_namespace::global() -> lua_reference
+auto kestrel::resource::container::global() -> lua_reference
 {
-    return { new resource_namespace(global_name) };
+    return { new container(global_name) };
 }
 
-auto kestrel::resource::resource_namespace::universal() -> lua_reference
+auto kestrel::resource::container::universal() -> lua_reference
 {
-    return { new resource_namespace(universal_name) };
+    return { new container(universal_name) };
 }
 
 // MARK: - Accessors
 
-auto kestrel::resource::resource_namespace::primary_name() const -> std::string
+auto kestrel::resource::container::primary_name() const -> std::string
 {
     if (is_universal()) {
         return universal_name;
@@ -60,12 +60,12 @@ auto kestrel::resource::resource_namespace::primary_name() const -> std::string
     return m_names.empty() ? global_name : m_names[0];
 }
 
-auto kestrel::resource::resource_namespace::count() const -> std::size_t
+auto kestrel::resource::container::count() const -> std::size_t
 {
     return m_names.size();
 }
 
-auto kestrel::resource::resource_namespace::text() const -> std::string
+auto kestrel::resource::container::text() const -> std::string
 {
     std::string s;
     for (const auto& n : m_names) {
@@ -75,7 +75,7 @@ auto kestrel::resource::resource_namespace::text() const -> std::string
     return s;
 }
 
-auto kestrel::resource::resource_namespace::contains_resources() const -> bool
+auto kestrel::resource::container::contains_resources() const -> bool
 {
     // This may or may not be the correct way of doing this. Theoretically universal should always have at least 1
     // resource.
@@ -104,150 +104,150 @@ auto kestrel::resource::resource_namespace::contains_resources() const -> bool
     return false;
 }
 
-auto kestrel::resource::resource_namespace::has_name(const std::string &name) const -> bool
+auto kestrel::resource::container::has_name(const std::string &name) const -> bool
 {
     return (std::find(m_names.begin(), m_names.end(), name) != m_names.end());
 }
 
-auto kestrel::resource::resource_namespace::is_global() const -> bool
+auto kestrel::resource::container::is_global() const -> bool
 {
     return has_name(global_name);
 }
 
-auto kestrel::resource::resource_namespace::is_universal() const -> bool
+auto kestrel::resource::container::is_universal() const -> bool
 {
     return has_name(universal_name);
 }
 
 // MARK: - Management
 
-auto kestrel::resource::resource_namespace::lua_add_namespace(const lua_reference &ns) -> void
+auto kestrel::resource::container::lua_add_container(const lua_reference &ns) -> void
 {
-    add_namespace(*ns.get());
+    add_container(*ns.get());
 }
 
-auto kestrel::resource::resource_namespace::add_namespace(const resource_namespace &ns) -> void
+auto kestrel::resource::container::add_container(const container &ns) -> void
 {
     m_names.insert(m_names.end(), ns.m_names.begin(), ns.m_names.end());
 }
 
 // MARK: - Look Up
 
-auto kestrel::resource::resource_namespace::first_resource_of(const std::string& type) const -> descriptor::lua_reference
+auto kestrel::resource::container::first_resource_of(const std::string& type) const -> descriptor::lua_reference
 {
     return resources_of_type(type).at(0);
 }
 
-auto kestrel::resource::resource_namespace::resources_of_type(const std::string& type) const -> lua::vector<descriptor::lua_reference>
+auto kestrel::resource::container::resources_of_type(const std::string& type) const -> lua::vector<descriptor::lua_reference>
 {
     return typed_resource(type)->matching_resources();
 }
 
-auto kestrel::resource::resource_namespace::resource_for_id(const std::string &type, int64_t id) const -> descriptor::lua_reference
+auto kestrel::resource::container::resource_for_id(const std::string &type, int64_t id) const -> descriptor::lua_reference
 {
     return typed_identified_resource(type, id)->best_resource();
 }
 
 // MARK: - Functional
 
-auto kestrel::resource::resource_namespace::lua_each_name(luabridge::LuaRef body) const -> void
+auto kestrel::resource::container::lua_each_name(luabridge::LuaRef body) const -> void
 {
     for (const auto& name : m_names) {
-        body(lua_reference(new resource_namespace(name)));
+        body(lua_reference(new container(name)));
     }
 }
 
-auto kestrel::resource::resource_namespace::each_name(const std::function<auto(const resource_namespace&)->void> &body) const -> void
+auto kestrel::resource::container::each_name(const std::function<auto(const container&)->void> &body) const -> void
 {
     for (const auto& name : m_names) {
-        body(resource_namespace(name));
+        body(container(name));
     }
 }
 
 // MARK: - Resources
 
-auto kestrel::resource::resource_namespace::file_constraint(const graphite::rsrc::file *file) -> descriptor::lua_reference
+auto kestrel::resource::container::file_constraint(const graphite::rsrc::file *file) -> descriptor::lua_reference
 {
     auto r = descriptor::file_constrained(file);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::identified_resource(int64_t id) const -> descriptor::lua_reference
+auto kestrel::resource::container::identified_resource(int64_t id) const -> descriptor::lua_reference
 {
     auto r = descriptor::identified(id);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::typed_resource(const std::string &type) const -> descriptor::lua_reference
+auto kestrel::resource::container::typed_resource(const std::string &type) const -> descriptor::lua_reference
 {
     auto r = descriptor::typed(type);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::named_resource(const std::string &name) const -> descriptor::lua_reference
+auto kestrel::resource::container::named_resource(const std::string &name) const -> descriptor::lua_reference
 {
     auto r = descriptor::named(name);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::typed_identified_resource(const std::string &type, int64_t id) const -> descriptor::lua_reference
+auto kestrel::resource::container::typed_identified_resource(const std::string &type, int64_t id) const -> descriptor::lua_reference
 {
     auto r = descriptor::typed_identified(type, id);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::identified_named_resource(int64_t id, const std::string &name) const -> descriptor::lua_reference
+auto kestrel::resource::container::identified_named_resource(int64_t id, const std::string &name) const -> descriptor::lua_reference
 {
     auto r = descriptor::identified_named(id, name);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::typed_named_resource(const std::string &type, const std::string &name) const -> descriptor::lua_reference
+auto kestrel::resource::container::typed_named_resource(const std::string &type, const std::string &name) const -> descriptor::lua_reference
 {
     auto r = descriptor::typed_named(type, name);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
-auto kestrel::resource::resource_namespace::typed_identified_named_resource(const std::string &type, int64_t id, const std::string &name) const -> descriptor::lua_reference
+auto kestrel::resource::container::typed_identified_named_resource(const std::string &type, int64_t id, const std::string &name) const -> descriptor::lua_reference
 {
     auto r = descriptor::typed_identified_named(type, id, name);
-    each_name([&] (const resource_namespace& ns) {
-        r->namespaces.emplace_back(ns.primary_name());
+    each_name([&] (const container& ns) {
+        r->containers.emplace_back(ns.primary_name());
     });
     return r;
 }
 
 // MARK: - Scene
 
-auto kestrel::resource::resource_namespace::scene() const -> ui::game_scene::lua_reference
+auto kestrel::resource::container::scene() const -> ui::game_scene::lua_reference
 {
     return {
         new ui::game_scene(typed_identified_resource(lua::script::resource_type::code, ui::game_scene::initial_script_id))
     };
 }
 
-auto kestrel::resource::resource_namespace::push_scene() const -> void
+auto kestrel::resource::container::push_scene() const -> void
 {
     kestrel::push_scene(scene());
 }

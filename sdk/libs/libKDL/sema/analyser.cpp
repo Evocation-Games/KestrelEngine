@@ -39,10 +39,8 @@ kdl::sema::analyser::analyser(const foundation::stream<tokenizer::token> &tokens
 
 // MARK: - Semantic Analysis Base
 
-auto kdl::sema::analyser::process() -> context
+auto kdl::sema::analyser::process(context& ctx) -> void
 {
-    context ctx;
-
     // Setup definitions in the context
     for (const auto& definition : m_definitions) {
         ctx.definitions.insert(definition);
@@ -82,6 +80,4 @@ auto kdl::sema::analyser::process() -> context
         m_tokens.ensure({ expectation(tokenizer::semi).be_true() });
         ctx.current_decorators.decorators.clear();
     }
-
-    return std::move(ctx);
 }

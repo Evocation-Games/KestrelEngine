@@ -23,17 +23,18 @@
 #include <stdexcept>
 #include <utility>
 #include <libLexer/lexeme.hpp>
+#include <libKDL/tokenizer/token.hpp>
 
-namespace lexer
+namespace kdl
 {
     class unexpected_lexeme_exception : public std::exception
     {
     public:
         explicit unexpected_lexeme_exception(std::string reason)
-            : m_reason(std::move(reason)), m_lexeme(0)
+            : m_reason(std::move(reason)), m_lexeme("none", lexer::lexeme_type::any)
         {}
 
-        unexpected_lexeme_exception(std::string reason, lexeme lx)
+        unexpected_lexeme_exception(std::string reason, lexer::lexeme lx)
             : m_reason(std::move(reason)), m_lexeme(std::move(lx))
         {};
 
@@ -42,13 +43,13 @@ namespace lexer
             return m_reason;
         }
 
-        [[nodiscard]] auto lexeme() const -> lexeme
+        [[nodiscard]] auto lexeme() const -> lexer::lexeme
         {
             return m_lexeme;
         }
 
     private:
         std::string m_reason;
-        struct lexeme m_lexeme;
+        lexer::lexeme m_lexeme;
     };
 }

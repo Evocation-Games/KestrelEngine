@@ -25,9 +25,13 @@
 
 // MARK: - Construction
 
-kdl::assembler::encoder::encoder(const resource::instance &instance, const resource::definition::type::instance *type)
+kdl::assembler::encoder::encoder(const resource::instance &instance, const resource::definition::type::instance *type, const std::vector<std::string>& definitions)
     : m_instance_ref(&instance), m_type(type), m_writer(graphite::data::byte_order::msb)
-{}
+{
+    if (std::find(definitions.begin(), definitions.end(), "FORCE_UNSAFE_IDS") != definitions.end()) {
+        m_use_extended_resource_id = false;
+    }
+}
 
 // MARK: - Encoding
 
@@ -151,7 +155,7 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
             break;
         }
         case resource::definition::binary_template::type::RSRC: {
-            if (m_writer.data()->is_extended_format()) {
+            if (m_use_extended_resource_id) {
                 std::uint8_t flags = 0;
                 std::string container;
                 std::string type_name;
@@ -167,10 +171,10 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
                 }
 
                 m_writer.write_integer<std::uint8_t>(flags);
-                if (container.empty()) {
+                if (!container.empty()) {
                     m_writer.write_pstr(container);
                 }
-                if (type_name.empty()) {
+                if (!type_name.empty()) {
                     m_writer.write_cstr(type_name, 4);
                 }
                 m_writer.write_integer<std::int64_t>(value.reference_value().id());
@@ -181,8 +185,13 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
             }
             break;
         }
-        case resource::definition::binary_template::type::NESTED:
+        case resource::definition::binary_template::type::NESTED: {
             break;
+        }
+
+        case resource::definition::binary_template::type::LUA_BYTE_CODE: {
+            break;
+        }
 
         default:
             break;

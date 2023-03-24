@@ -25,28 +25,46 @@
 
 auto kdl::sema::scene::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
-    return stream.expect({
+    return stream.expect_any({
         expectation(tokenizer::scene_keyword).be_true(),
-        expectation(tokenizer::l_angle).be_true(),
-        expectation(tokenizer::reference).be_true(),
-        expectation(tokenizer::r_angle).be_true(),
-        expectation(tokenizer::identifier).be_true(),
-        expectation(tokenizer::l_brace).be_true()
+        expectation(tokenizer::dialog_keyword).be_true()
     });
 }
 
 auto kdl::sema::scene::parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> void
 {
-    stream.ensure({ expectation(tokenizer::scene_keyword).be_true(), expectation(tokenizer::l_angle).be_true() });
-    auto id = stream.read();
-    stream.ensure({ expectation(tokenizer::r_angle).be_true() });
+    bool is_dialog = false;
+    if (stream.expect({ expectation(tokenizer::dialog_keyword).be_true() })) {
+        stream.read();
+        is_dialog = true;
+    }
+    else {
+        stream.ensure({ expectation(tokenizer::scene_keyword).be_true() });
+    }
+
+    resource::reference id(0);
+    bool infer_container_from_name = true;
+    if (stream.expect({ expectation(tokenizer::l_angle).be_true() })) {
+        auto id_token = stream.read(1);
+        infer_container_from_name = false;
+        if (id_token.is(tokenizer::identifier)) {
+            id = id.with_container(id_token.string_value());
+        }
+        else {
+            id = id_token.reference_value();
+            infer_container_from_name = !id.has_container();
+        }
+        stream.ensure({ expectation(tokenizer::r_angle).be_true() });
+    }
+
     auto scene_name = stream.read();
+    if (infer_container_from_name) {
+        id = id.with_container(scene_name.string_value());
+    }
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
 
     // Setup the scene instance.
-    auto ref = id.reference_value()
-        .with_container(scene_name.string_value())
-        .with_type_name("SceneInterface");
+    auto ref = id.with_type_name("SceneInterface");
     resource::instance scene(ref);
     scene.set_name(scene_name.string_value());
     std::uint16_t element_count = 0;
@@ -67,6 +85,11 @@ auto kdl::sema::scene::parse(foundation::stream<tokenizer::token>& stream, conte
             scope->add_variable("ImGuiCloseButton", 0x0004LL);
             scope->add_variable("ScenePassthrough", 0x0010LL);
             scope->add_variable("VerticalFlowLayout", 0x0020LL);
+            scope->add_variable("IsDialog", 0x0040LL);
+
+            if (is_dialog) {
+                stream.push({ { "IsDialog", tokenizer::identifier}, { "|", tokenizer::pipe } });
+            }
 
             parse_value("Flags", interpreter::token::integer, stream, ctx, scope, scene);
         }
@@ -174,6 +197,16 @@ auto kdl::sema::scene::parse_element(foundation::stream<tokenizer::token> &strea
             stream.advance();
             stream.ensure({ expectation(tokenizer::equals).be_true() });
             parse_value("ElementAction" + std::to_string(element), interpreter::token::string, stream, ctx, nullptr, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "Y").be_true() }) && element_type.is("Position")) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementY" + std::to_string(element), interpreter::token::integer, stream, ctx, nullptr, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "Height").be_true() }) && element_type.is("Spacer")) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementHeight" + std::to_string(element), interpreter::token::integer, stream, ctx, nullptr, scene_instance);
         }
 
         stream.ensure({ expectation(tokenizer::semi).be_true() });

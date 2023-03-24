@@ -63,9 +63,9 @@ auto kestrel::sandbox::mod_reference::path() const -> std::string
     return m_path;
 }
 
-auto kestrel::sandbox::mod_reference::primary_namespace() const -> std::string
+auto kestrel::sandbox::mod_reference::primary_container() const -> std::string
 {
-    return m_primary_namespace;
+    return m_primary_container;
 }
 
 auto kestrel::sandbox::mod_reference::description() const -> std::string
@@ -176,7 +176,7 @@ auto kestrel::sandbox::mod_reference::parse_modpackage() -> void
     m_name = kmod_reader.read_cstr();
     m_version = kmod_reader.read_cstr(0x040);
     m_author = kmod_reader.read_cstr();
-    m_primary_namespace = kmod_reader.read_cstr();
+    m_primary_container = kmod_reader.read_cstr();
     m_lua_entry_script = kmod_reader.read_signed_quad();
     m_description = kmod_reader.read_cstr();
     m_category = kmod_reader.read_cstr();
@@ -222,7 +222,7 @@ auto kestrel::sandbox::mod_reference::parse_simplemod() -> void
     m_name = kmod_reader.read_cstr();
     m_version = kmod_reader.read_cstr(0x040);
     m_author = kmod_reader.read_cstr();
-    m_primary_namespace = kmod_reader.read_cstr();
+    m_primary_container = kmod_reader.read_cstr();
     m_lua_entry_script = kmod_reader.read_signed_quad();
     m_description = kmod_reader.read_cstr();
     m_parsed = true;
@@ -237,7 +237,7 @@ auto kestrel::sandbox::mod_reference::construct_simplemod() -> void
     m_name = m_path.substr(m_path.find_last_of('/') + 1);
     m_version = "1.0";
     m_author = "Unknown Author";
-    m_primary_namespace = m_name;
+    m_primary_container = m_name;
     m_parsed = true;
     m_description = "No Description";
     m_category = "plugin";
@@ -323,7 +323,7 @@ auto kestrel::sandbox::mod_reference::execute() -> void
     // Try and find the initial script that was requested.
     const auto& file = m_mod_files.at(0);
     std::unordered_map<std::string, std::string> namespace_attributes({
-        std::pair(resource::resource_namespace::attribute_name, m_primary_namespace)
+        std::pair(resource::container::attribute_name, m_primary_container)
     });
 
     if (auto script_resource = file->find(lua::script::resource_type::code, m_lua_entry_script, namespace_attributes)) {

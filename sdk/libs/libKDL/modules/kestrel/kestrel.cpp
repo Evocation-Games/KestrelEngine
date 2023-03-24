@@ -34,11 +34,11 @@ namespace kdl::modules::kestrel
         resource::definition::type::instance lua_script("LuaScript", "LuaS");
 
         resource::definition::binary_template::instance tmpl;
-        tmpl.add_field(resource::definition::binary_template::type::CSTR, "Source");
+        tmpl.add_field(resource::definition::binary_template::type::LUA_BYTE_CODE, "Data");
         lua_script.set_binary_template(tmpl);
 
         resource::definition::type::field source_field("Source");
-        resource::definition::type::field_value source_value(&lua_script.binary_template()->field_named("Source"));
+        resource::definition::type::field_value source_value(&lua_script.binary_template()->field_named("Data"));
         source_field.add_value(source_value);
         lua_script.add_field(source_field);
 
@@ -149,7 +149,7 @@ namespace kdl::modules::kestrel
         resource::definition::type::instance scene_interface("SceneInterface", "scïn");
 
         resource::definition::binary_template::instance tmpl;
-        tmpl.add_field(resource::definition::binary_template::type::HWRD, "Flags");
+        tmpl.add_field(resource::definition::binary_template::type::HLNG, "Flags");
         tmpl.add_field(resource::definition::binary_template::type::PSTR, "Title");
         tmpl.add_field(resource::definition::binary_template::type::DWRD, "SceneWidth");
         tmpl.add_field(resource::definition::binary_template::type::DWRD, "SceneHeight");
@@ -163,7 +163,6 @@ namespace kdl::modules::kestrel
         elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementHeight");
         elements.add_list_field(resource::definition::binary_template::type::CSTR, "ElementValue");
         elements.add_list_field(resource::definition::binary_template::type::CSTR, "ElementAction");
-        elements.add_list_field(resource::definition::binary_template::type::HLNG, "ElementChildCount");
         tmpl.add_field(elements);
         scene_interface.set_binary_template(tmpl);
 
@@ -175,11 +174,13 @@ namespace kdl::modules::kestrel
         flags_value.add_symbol("ImGuiCloseButton", resource::value_container(0x0004));
         flags_value.add_symbol("ScenePassthrough", resource::value_container(0x0010));
         flags_value.add_symbol("VerticalFlowLayout", resource::value_container(0x0020));
+        flags_value.add_symbol("IsDialog", resource::value_container(0x0040));
         flags_field.add_value(flags_value);
         scene_interface.add_field(flags_field);
 
         resource::definition::type::field title_field("Title");
         resource::definition::type::field_value title_value(&scene_interface.binary_template()->field_named("Title"));
+        title_value.set_type(resource::definition::type::descriptor(false, spec::types::string), true);
         title_field.add_value(title_value);
         scene_interface.add_field(title_field);
 
@@ -226,7 +227,6 @@ namespace kdl::modules::kestrel
         resource::definition::type::field_value element_height_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementHeight" })));
         resource::definition::type::field_value element_value_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementValue" })));
         resource::definition::type::field_value element_action_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementAction" })));
-        resource::definition::type::field_value element_child_count_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementChildCount" })));
 
         element_field.add_value(element_id_value);
         element_field.add_value(element_x_value);
@@ -235,9 +235,92 @@ namespace kdl::modules::kestrel
         element_field.add_value(element_height_value);
         element_field.add_value(element_value_value);
         element_field.add_value(element_action_value);
-        element_field.add_value(element_child_count_value);
 
         ctx.register_type(scene_interface);
+    }
+
+    static inline auto construct_scene_definition(sema::context& ctx) -> void
+    {
+        auto scene = ctx.register_type(resource::definition::type::instance("SceneDefinition", "scën"));
+        ctx.root_scope()->add_variable("SceneDefinitionID", 0LL);
+
+        resource::definition::binary_template::instance tmpl;
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "Script");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "Interface");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "DLOG");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "Background");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "BackgroundTop");
+        tmpl.add_field(resource::definition::binary_template::type::RSRC, "BackgroundBottom");
+
+        resource::definition::binary_template::field ditl_elements(resource::definition::binary_template::type::OCNT, "DITLElementNames");
+        ditl_elements.add_list_field(resource::definition::binary_template::type::DWRD, "Index");
+        ditl_elements.add_list_field(resource::definition::binary_template::type::PSTR, "Name");
+        ditl_elements.add_list_field(resource::definition::binary_template::type::DWRD, "Type");
+        tmpl.add_field(ditl_elements);
+        scene->set_binary_template(tmpl);
+
+        resource::definition::type::field script_field("Script");
+        resource::definition::type::field_value script_value(&scene->binary_template()->field_named("Script"));
+        script_value.set_type(resource::definition::type::descriptor(true, "LuaScript"), true);
+        script_field.add_value(script_value);
+        scene->add_field(script_field);
+
+        resource::definition::type::field interface_field("Interface");
+        resource::definition::type::field_value interface_value(&scene->binary_template()->field_named("Interface"));
+        interface_value.set_type(resource::definition::type::descriptor(true, "SceneInterface"), true);
+        interface_field.add_value(interface_value);
+        scene->add_field(interface_field);
+
+        resource::definition::type::field dlog_field("DLOG");
+        resource::definition::type::field_value dlog_value(&scene->binary_template()->field_named("DLOG"));
+        dlog_value.set_type(resource::definition::type::descriptor(true), true);
+        dlog_field.add_value(dlog_value);
+        scene->add_field(dlog_field);
+
+        resource::definition::type::field bg_field("Background");
+        resource::definition::type::field_value bg_value(&scene->binary_template()->field_named("Background"));
+        bg_value.set_type(resource::definition::type::descriptor(true), true);
+        bg_field.add_value(bg_value);
+        scene->add_field(bg_field);
+
+        resource::definition::type::field elements_field("DITLElement");
+        elements_field.make_repeatable(0, 32767);
+        elements_field.repeatable().set_count_field(&scene->binary_template()->field_named("DITLElementNames"));
+        resource::definition::type::field_value index_value(&scene->binary_template()->field_named(std::vector<std::string>({ "DITLElementNames", "Index" })));
+        index_value.set_type(resource::definition::type::descriptor(false, spec::types::integer), false);
+        elements_field.add_value(index_value);
+
+        resource::definition::type::field_value name_value(&scene->binary_template()->field_named(std::vector<std::string>({ "DITLElementNames", "Name" })));
+        name_value.set_type(resource::definition::type::descriptor(false, spec::types::string), false);
+        elements_field.add_value(name_value);
+
+        resource::definition::type::field_value type_value(&scene->binary_template()->field_named(std::vector<std::string>({ "DITLElementNames", "Type" })));
+        type_value.set_type(resource::definition::type::descriptor(false, spec::types::integer), false);
+        type_value.add_symbol("None", resource::value_container(0));
+        type_value.add_symbol("Button", resource::value_container(1));
+        type_value.add_symbol("Label", resource::value_container(2));
+        type_value.add_symbol("TextArea", resource::value_container(3));
+        type_value.add_symbol("Image", resource::value_container(4));
+        type_value.add_symbol("TextField", resource::value_container(5));
+        type_value.add_symbol("Checkbox", resource::value_container(6));
+        type_value.add_symbol("List", resource::value_container(7));
+        type_value.add_symbol("ScrollArea", resource::value_container(8));
+        type_value.add_symbol("Grid", resource::value_container(9));
+        type_value.add_symbol("LabeledList", resource::value_container(10));
+        type_value.add_symbol("Canvas", resource::value_container(11));
+        type_value.add_symbol("Sprite", resource::value_container(12));
+        type_value.add_symbol("PopupButton", resource::value_container(13));
+        type_value.add_symbol("Slider", resource::value_container(14));
+        type_value.add_symbol("Table", resource::value_container(15));
+        type_value.add_symbol("Box", resource::value_container(16));
+        type_value.add_symbol("Radio", resource::value_container(17));
+        type_value.add_symbol("TabBar", resource::value_container(18));
+        type_value.add_symbol("Separator", resource::value_container(19));
+        type_value.add_symbol("Spacer", resource::value_container(20));
+        type_value.add_symbol("Position", resource::value_container(21));
+        elements_field.add_value(type_value);
+
+        scene->add_field(elements_field);
     }
 
     static inline auto construct_package(sema::context& ctx) -> void
@@ -344,6 +427,7 @@ auto kdl::modules::kestrel::construct(sema::context& ctx) -> void
     construct_shader_set(ctx);
     construct_sprite_set(ctx);
     construct_scene_interface(ctx);
+    construct_scene_definition(ctx);
     construct_package(ctx);
     construct_static_image(ctx);
 }

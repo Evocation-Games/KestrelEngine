@@ -26,8 +26,8 @@
 
 // MARK: - Construction
 
-kdl::unit::file::file(graphite::rsrc::file& output)
-    : m_output(&output)
+kdl::unit::file::file(graphite::rsrc::file& output, sema::context& ctx)
+    : m_output(&output), m_context(&ctx)
 {}
 
 // MARK: - Helpers
@@ -36,14 +36,14 @@ static inline auto setup_attributes(const resource::reference& reference) -> std
 {
     std::unordered_map<std::string, std::string> attributes;
     if (reference.has_container()) {
-        attributes.emplace("ns", reference.container_name());
+        attributes.emplace("container", reference.container_name());
     }
     return attributes;
 }
 
 // MARK: - File Import
 
-auto kdl::unit::file::import_and_tokenize_file(const std::string &path, const std::vector<std::string> &definitions) -> foundation::stream<kdl::tokenizer::token>
+auto kdl::unit::file::import_and_tokenize_file(const std::string &path, const std::vector<std::string> &definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>
 {
     foundation::filesystem::path fs_path(path);
     if (!fs_path.exists()) {
@@ -54,6 +54,7 @@ auto kdl::unit::file::import_and_tokenize_file(const std::string &path, const st
     if (!file->exists()) {
         return {};
     }
+    ctx.files.emplace_back(file);
 
     // We now have a successfully imported textual file. Perform lexical
     // analysis upon it, and then pass it to the tokenizer.
@@ -74,7 +75,7 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
         // TODO: Error correctly here
         return;
     }
-    m_imported_files.emplace_back(file);
+    m_context->files.emplace_back(file);
 
     // We now have a successfully imported textual file. Perform lexical
     // analysis upon it, and then pass it to the tokenizer.
@@ -82,7 +83,7 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
     auto token_stream = tokenizer::tokenizer(lexical_result).process();
 
     // Now that we have a token stream, we are ready to begin semantic analysis
-    auto analysis_context = sema::analyser(token_stream, definitions).process();
+    sema::analyser(token_stream, definitions).process(*m_context);
 
     // Using the result of the analysis, we now need to encode each of the resources
     // that have been generated.
@@ -91,7 +92,7 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
         return;
     }
 
-    for (const auto& instance : analysis_context.resources) {
+    for (const auto& instance : m_context->resources) {
         // Make sure the resource reference has a type name. If there is no type name,
         // then this can not be considered valid.
         const auto& ref = instance.reference();
@@ -99,7 +100,7 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
             continue;
         }
 
-        const auto *type = analysis_context.type_named(ref.type_name());
+        const auto *type = m_context->type_named(ref.type_name());
         if (!type) {
             // TODO: Report an error regarding the missing type.
             throw std::runtime_error("");
@@ -110,7 +111,7 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
             m_output->add_resource(type->code(), ref.id(), instance.name(), instance.data(), setup_attributes(ref));
         }
         else {
-            assembler::encoder encoder(instance, type);
+            assembler::encoder encoder(instance, type, definitions);
             m_output->add_resource(type->code(), ref.id(), instance.name(), encoder.encode(), setup_attributes(ref));
         }
     }

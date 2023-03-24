@@ -23,6 +23,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <libResource/reference.hpp>
 
 namespace interpreter
 {
@@ -34,7 +35,7 @@ namespace interpreter
             constructor_result, integer, decimal, string, boolean, reference,
             plus, minus, multiply, divide, amp, pipe, tilde, carat, exclaim,
             left_shift, right_shift, identifier, identifier_path, l_paren, r_paren,
-            comma, semi, equals
+            comma, semi, equals, increment, decrement
         };
 
     public:
@@ -44,6 +45,7 @@ namespace interpreter
         explicit token(std::int64_t value) : m_type(integer), m_value(value) {}
         explicit token(bool value) : m_type(boolean), m_value(value) {}
         explicit token(double value) : m_type(decimal), m_value(value) {}
+        explicit token(resource::reference value) : m_type(reference), m_value(value) {}
 
         static auto id(const std::string& str) -> token
         {
@@ -83,6 +85,11 @@ namespace interpreter
             else {
                 return "";
             }
+        }
+
+        [[nodiscard]] auto reference_value() const -> resource::reference
+        {
+            return std::get<resource::reference>(m_value);
         }
 
         [[nodiscard]] auto integer_value() const -> std::int64_t
@@ -144,6 +151,8 @@ namespace interpreter
                 case token::right_shift:return op_prec::shift;
                 case token::pipe:       return op_prec::exclusive_or;
                 case token::amp:        return op_prec::logical_and;
+                case token::decrement:
+                case token::increment:  return op_prec::unary;
                 default:                return op_prec::unknown;
             }
         }
@@ -162,8 +171,25 @@ namespace interpreter
                 else if (rhs.m_type == token::decimal) {
                     return token(static_cast<std::int64_t>(integer_value() + rhs.decimal_value()));
                 }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(integer_value() + rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
                 else if (rhs.m_type == token::boolean) {
                     return token(integer_value() + (rhs.bool_value() ? 1 : 0));
+                }
+            }
+            else if (m_type == token::reference) {
+                if (rhs.m_type == token::integer) {
+                    return token(resource::reference(reference_value().id() + rhs.integer_value(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(reference_value().id() + rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
                 }
             }
             else if (m_type == token::string) {
@@ -203,8 +229,25 @@ namespace interpreter
                 else if (rhs.m_type == token::decimal) {
                     return token(static_cast<std::int64_t>(integer_value() - rhs.decimal_value()));
                 }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(integer_value() - rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
                 else if (rhs.m_type == token::boolean) {
                     return token(integer_value() - (rhs.bool_value() ? 1 : 0));
+                }
+            }
+            else if (m_type == token::reference) {
+                if (rhs.m_type == token::integer) {
+                    return token(resource::reference(reference_value().id() - rhs.integer_value(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(reference_value().id() - rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
                 }
             }
             else if (m_type == token::decimal) {
@@ -230,8 +273,25 @@ namespace interpreter
                 else if (rhs.m_type == token::decimal) {
                     return token(static_cast<std::int64_t>(integer_value() * rhs.decimal_value()));
                 }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(integer_value() * rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
                 else if (rhs.m_type == token::boolean) {
                     return token(integer_value() * (rhs.bool_value() ? 1 : 0));
+                }
+            }
+            else if (m_type == token::reference) {
+                if (rhs.m_type == token::integer) {
+                    return token(resource::reference(reference_value().id() * rhs.integer_value(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(reference_value().id() * rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
                 }
             }
             else if (m_type == token::decimal) {
@@ -257,8 +317,25 @@ namespace interpreter
                 else if (rhs.m_type == token::decimal) {
                     return token(static_cast<std::int64_t>(integer_value() / rhs.decimal_value()));
                 }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(integer_value() / rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
                 else if (rhs.m_type == token::boolean) {
                     return token(integer_value() / (rhs.bool_value() ? 1 : 0));
+                }
+            }
+            else if (m_type == token::reference) {
+                if (rhs.m_type == token::integer) {
+                    return token(resource::reference(reference_value().id() / rhs.integer_value(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
+                }
+                else if (rhs.m_type == token::reference) {
+                    return token(resource::reference(reference_value().id() / rhs.reference_value().id(),
+                                                     reference_value().type_name(),
+                                                     reference_value().container_name()));
                 }
             }
             else if (m_type == token::decimal) {
@@ -355,9 +432,35 @@ namespace interpreter
             throw std::logic_error("");
         }
 
+        auto operator++() const -> token
+        {
+            if (m_type == token::integer) {
+                return token(integer_value() + 1);
+            }
+            else if (m_type == token::reference) {
+                return token(resource::reference(reference_value().id() + 1,
+                                                 reference_value().type_name(),
+                                                 reference_value().container_name()));
+            }
+            throw std::logic_error("");
+        }
+
+        auto operator--() const -> token
+        {
+            if (m_type == token::integer) {
+                return token(integer_value() - 1);
+            }
+            else if (m_type == token::reference) {
+                return token(resource::reference(reference_value().id() - 1,
+                                                 reference_value().type_name(),
+                                                 reference_value().container_name()));
+            }
+            throw std::logic_error("");
+        }
+
     private:
         enum type m_type;
-        std::variant<std::string, bool, __int128, double, std::vector<std::string>> m_value;
+        std::variant<std::string, bool, __int128, double, std::vector<std::string>, resource::reference> m_value;
 
         struct op_prec
         {
@@ -368,6 +471,7 @@ namespace interpreter
             static constexpr std::int8_t shift = 5;
             static constexpr std::int8_t exclusive_or = 6;
             static constexpr std::int8_t logical_and = 7;
+            static constexpr std::int8_t unary = 13;
         };
     };
 }

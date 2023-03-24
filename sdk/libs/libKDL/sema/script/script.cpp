@@ -52,8 +52,11 @@ auto kdl::sema::script::parse_statement(foundation::stream<tokenizer::token> &st
         if (tk.is(tokenizer::integer)) {
             statement_tokens.append(interpreter::token(tk.value<std::int64_t>()));
         }
-        else if (tk.is(tokenizer::reference)) {
+        else if (tk.is(tokenizer::percentage)) {
             statement_tokens.append(interpreter::token(tk.value<std::int64_t>()));
+        }
+        else if (tk.is(tokenizer::reference)) {
+            statement_tokens.append(interpreter::token(tk.reference_value()));
         }
         else if (tk.is(tokenizer::string)) {
             statement_tokens.append(interpreter::token(tk.string_value()));
@@ -69,6 +72,12 @@ auto kdl::sema::script::parse_statement(foundation::stream<tokenizer::token> &st
         }
         else if (tk.is(tokenizer::minus)) {
             statement_tokens.append(interpreter::token(interpreter::token::minus));
+        }
+        else if (tk.is(tokenizer::increment)) {
+            statement_tokens.append(interpreter::token(interpreter::token::increment));
+        }
+        else if (tk.is(tokenizer::decrement)) {
+            statement_tokens.append(interpreter::token(interpreter::token::decrement));
         }
         else if (tk.is(tokenizer::star)) {
             statement_tokens.append(interpreter::token(interpreter::token::multiply));
@@ -94,7 +103,7 @@ auto kdl::sema::script::parse_statement(foundation::stream<tokenizer::token> &st
         else if (tk.is(tokenizer::right_shift)) {
             statement_tokens.append(interpreter::token(interpreter::token::right_shift));
         }
-        else if (tk.is(tokenizer::identifier)) {
+        else if (tk.is(tokenizer::identifier) || tk.is(tokenizer::variable)) {
             statement_tokens.append(interpreter::token::id(tk.string_value()));
         }
         else if (tk.is(tokenizer::identifier_path)) {
@@ -125,6 +134,12 @@ auto kdl::sema::script::parse_statement(foundation::stream<tokenizer::token> &st
             break;
         }
         else if (stream.expect({ expectation(tokenizer::r_paren).be_true() }) && nesting == 0) {
+            break;
+        }
+        else if (stream.expect({ expectation(tokenizer::l_bracket).be_true() }) && nesting == 0) {
+            break;
+        }
+        else if (stream.expect({ expectation(tokenizer::r_bracket).be_true() }) && nesting == 0) {
             break;
         }
     }

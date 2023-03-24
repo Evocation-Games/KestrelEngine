@@ -22,7 +22,7 @@
 
 #include <stdexcept>
 #include <utility>
-#include <libKDL/lexer/lexeme.hpp>
+#include <libLexer/lexeme.hpp>
 
 namespace kdl
 {
@@ -30,7 +30,7 @@ namespace kdl
     {
     public:
         explicit incompatible_conversion_exception(std::string reason)
-            : m_reason(std::move(reason)), m_input("none", lexer::lexeme::any), m_output("none", lexer::lexeme::any)
+            : m_reason(std::move(reason)), m_input("none", lexer::lexeme_type::any), m_output("none", lexer::lexeme_type::any)
         {}
 
         incompatible_conversion_exception(std::string reason, lexer::lexeme input, lexer::lexeme output)

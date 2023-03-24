@@ -51,9 +51,9 @@ kestrel::image::static_image::static_image(const resource::descriptor::lua_refer
     auto descriptor = ref;
     if (!ref->has_type()) {
         std::vector<graphite::rsrc::attribute> attributes;
-        if (ref->is_namespaced()) {
-            if (!ref->namespaces.front().empty()) {
-                attributes.emplace_back("namespace", ref->namespaces.front());
+        if (ref->has_container()) {
+            if (!ref->containers.front().empty()) {
+                attributes.emplace_back(resource::container::attribute_name, ref->containers.front());
             }
         }
 

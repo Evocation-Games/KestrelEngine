@@ -30,12 +30,13 @@ namespace kdl::tokenizer
         type_keyword, declare_keyword, new_keyword, override_keyword, duplicate_keyword,
         field_keyword, template_keyword, assert_keyword, component_keyword, files_keyword,
         types_keyword, repeatable_keyword, as_keyword, constructor_keyword, import_keyword,
-        scene_keyword,
+        scene_keyword, dialog_keyword,
 
         // Directives
         project_directive, author_directive, version_directive, license_directive,
         copyright_directive, email_directive, website_directive, out_directive,
-        format_directive, import_directive,
+        format_directive, import_directive, variable_directive, constant_directive,
+        function_directive,
 
         // Decorators
         builtin_decorator, no_declaration_decorator, synthesize_decorator, constexpression_decorator,
@@ -44,14 +45,15 @@ namespace kdl::tokenizer
         // Binary Types
         DBYT, DWRD, DLNG, DQWD, HBYT, HWRD, HLNG, HQWD,
         RECT, PSTR, CSTR, Cnnn, LSTR, OSTR, CHAR, HEXD,
-        OCNT, LSTC, LSTE, BBIT, BOOL, RSRC, NESTED,
+        OCNT, LSTC, LSTE, BBIT, BOOL, RSRC, NESTED, BYTE_CODE,
 
         // High Level Types
         integer_type, string_type, bitmask_type, file_type, image_type, named_reference_type,
-        unnamed_reference_type, data_type, image_set_type, sound_type,
+        unnamed_reference_type, data_type, image_set_type, sound_type, command_encoder_type,
+        range_type, color_type,
 
         // Data Values
-        string, integer, percentage, reference, data,
+        string, integer, percentage, reference, data, default_value,
 
         // Fundamental Types
         identifier, directive, decorator, variable, expression, structure, identifier_path,
@@ -59,6 +61,7 @@ namespace kdl::tokenizer
         // Operators
         l_paren, r_paren, l_angle, r_angle, l_brace, r_brace, l_bracket, r_bracket,
         comma, dot, pipe, slash, amp, colon, semi, plus, minus, star, equals, carat,
-        left_shift, right_shift, tilde, at, hash, percent, exclaim, question, dollar
+        left_shift, right_shift, tilde, at, hash, percent, exclaim, question, dollar,
+        increment, decrement
     };
 }

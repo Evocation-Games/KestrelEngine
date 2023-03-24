@@ -38,6 +38,11 @@ resource::value_container::value_container(const std::uint8_t *bytes, std::size_
     : m_type(type::data), m_value(std::vector<std::uint8_t>(bytes, bytes+length))
 {}
 
+resource::value_container::value_container(const graphite::data::block &data)
+    : m_type(type::data),
+      m_value(std::vector<std::uint8_t>(data.get<std::uint8_t *>(), data.get<std::uint8_t *>(data.size())))
+{}
+
 // MARK: - Accessors
 
 auto resource::value_container::type() const -> enum type
@@ -51,6 +56,10 @@ auto resource::value_container::string_value() const -> std::string
         case type::string: {
             return std::get<std::string>(m_value);
         }
+        case type::data: {
+            const auto& data = this->data_value();
+            return { data.begin(), data.end() };
+        }
         default: {
             return "";
         }
@@ -60,6 +69,9 @@ auto resource::value_container::string_value() const -> std::string
 auto resource::value_container::reference_value() const -> reference
 {
     switch (m_type) {
+        case type::integer: {
+            return reference(static_cast<std::int64_t>(std::get<__int128>(m_value)));
+        }
         case type::reference: {
             return std::get<reference>(m_value);
         }

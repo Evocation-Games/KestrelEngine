@@ -42,6 +42,7 @@ namespace kestrel::ui
         luatool_type_fix(const luabridge::LuaRef&, layout)
         lua_constructor(Available_0_8) explicit dialog_configuration(const luabridge::LuaRef& layout);
 
+        auto build_into_scene(const game_scene::lua_reference& scene) -> dialog::lua_reference;
         lua_function(build, Available_0_8) auto build(const luabridge::LuaRef& configure_callback) -> dialog::lua_reference;
 
         lua_getter(size, Available_0_8) [[nodiscard]] inline auto size() const -> math::size { return m_layout.size(); }

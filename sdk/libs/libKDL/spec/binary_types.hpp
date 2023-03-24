@@ -48,6 +48,7 @@ namespace kdl::spec::binary_types
     static constexpr const char *RSRC = "RSRC";
     static constexpr const char *HEXD = "HEXD";
     static constexpr const char *NESTED = "Nested";
+    static constexpr const char *BYTE_CODE = "ByteCode";
 
     static auto vector() -> std::vector<std::string>
     {
@@ -55,7 +56,7 @@ namespace kdl::spec::binary_types
             DBYT, DWRD, DLNG, DQWD, HBYT, HWRD, HLNG,
             HQWD, RECT, PSTR, CSTR, Cnnn, LSTR, OSTR,
             CHAR, OCNT, LSTC, LSTE, BBIT, BOOL, HEXD,
-            RSRC, NESTED
+            RSRC, NESTED, BYTE_CODE
         };
     }
 }

@@ -51,7 +51,7 @@ namespace kestrel::sandbox
         lua_getter(author, Available_0_8) [[nodiscard]] auto author() const -> std::string;
         lua_getter(version, Available_0_8) [[nodiscard]] auto version() const -> std::string;
         lua_getter(path, Available_0_8) [[nodiscard]] auto path() const -> std::string;
-        lua_getter(primaryNamespace, Available_0_8) [[nodiscard]] auto primary_namespace() const -> std::string;
+        lua_getter(primaryContainer, Available_0_8) [[nodiscard]] auto primary_container() const -> std::string;
         lua_getter(description, Available_0_8) [[nodiscard]] auto description() const -> std::string;
         lua_getter(category, Available_0_8) [[nodiscard]] auto category() const -> std::string;
         lua_getter(packageID, Available_0_8) [[nodiscard]] auto package_id() const -> std::string;
@@ -71,7 +71,7 @@ namespace kestrel::sandbox
         std::string m_name;
         std::string m_version;
         std::string m_author;
-        std::string m_primary_namespace;
+        std::string m_primary_container;
         std::string m_description;
         std::string m_category;
         std::string m_package_id;

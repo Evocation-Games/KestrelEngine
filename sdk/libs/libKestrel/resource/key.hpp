@@ -43,6 +43,6 @@ namespace kestrel::resource
     private:
         std::optional<graphite::rsrc::resource::identifier> m_id;
         std::optional<std::string> m_type;
-        std::optional<std::string> m_namespace;
+        std::optional<std::string> m_container;
     };
 }

@@ -27,6 +27,13 @@ interpreter::script::statement::statement(const foundation::stream<token> &token
     : m_tokens(tokens)
 {}
 
+// MARK: - Accessors
+
+auto interpreter::script::statement::token_stream() const -> foundation::stream<token>
+{
+    return m_tokens;
+}
+
 // MARK: - Evaluation
 
 auto interpreter::script::statement::evaluate(scope *scope) -> result
@@ -37,7 +44,9 @@ auto interpreter::script::statement::evaluate(scope *scope) -> result
 
     if (m_tokens.size() == 1) {
         context.result = evaluate_single_token_statement(context);
-        goto STATEMENT_END;
+        if (context.result.status != result::error) {
+            goto STATEMENT_END;
+        }
     }
 
     if (m_tokens.expect({ expectation(token::identifier, "return").be_true() })) {
@@ -81,7 +90,8 @@ auto interpreter::script::statement::evaluate_single_token_statement(struct cont
         expectation(token::integer).be_true(),
         expectation(token::string).be_true(),
         expectation(token::decimal).be_true(),
-        expectation(token::boolean).be_true()
+        expectation(token::boolean).be_true(),
+        expectation(token::reference).be_true()
     })) {
          r.value = m_tokens.read();
          r.type = r.value.type();
@@ -159,7 +169,7 @@ auto interpreter::script::statement::evaluate_function_call(struct context& cont
 
 auto interpreter::script::statement::evaluate_variable(struct context& context) -> void
 {
-    if (m_tokens.expect({
+    if (m_tokens.expect_any({
         expectation(token::identifier).be_true()
     })) {
         // Variable
@@ -178,13 +188,13 @@ auto interpreter::script::statement::iterate_shunting_yard(struct context& conte
 {
     const auto& token = m_tokens.read();
 
-    if (token.is(token::string) || token.is(token::integer) || token.is(token::decimal) || token.is(token::boolean)) {
+    if (token.is(token::string) || token.is(token::integer) || token.is(token::decimal) || token.is(token::boolean) || token.is(token::reference)) {
         context.output_queue.emplace_back(token);
     }
     else if (
         token.is(token::plus) || token.is(token::minus) || token.is(token::multiply) || token.is(token::divide) ||
         token.is(token::carat) || token.is(token::amp) || token.is(token::pipe) || token.is(token::tilde) ||
-        token.is(token::left_shift) || token.is(token::right_shift)
+        token.is(token::left_shift) || token.is(token::right_shift) || token.is(token::increment) || token.is(token::decrement)
     ) {
         while (!context.operator_stack.empty()) {
             const auto& o2 = context.operator_stack.back();
@@ -193,7 +203,7 @@ auto interpreter::script::statement::iterate_shunting_yard(struct context& conte
                 context.operator_stack.pop_back();
             }
             else {
-                return;
+                break;
             }
         }
         context.operator_stack.emplace_back(token);
@@ -275,6 +285,14 @@ auto interpreter::script::statement::evaluate_shunting_yard(struct context &cont
             const auto rhs = working_stack.back(); working_stack.pop_back();
             const auto lhs = working_stack.back(); working_stack.pop_back();
             working_stack.emplace_back(lhs >> rhs);
+        }
+        else if (tk.is(token::increment)) {
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(lhs + token(1LL));
+        }
+        else if (tk.is(token::decrement)) {
+            const auto lhs = working_stack.back(); working_stack.pop_back();
+            working_stack.emplace_back(lhs - token(1LL));
         }
     }
 

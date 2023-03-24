@@ -21,10 +21,11 @@
 #pragma once
 
 #include <string>
-#include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
-#include <libLexer/lexeme.hpp>
+#include <libKDL/sema/context.hpp>
 #include <libFoundation/system/filesystem/file.hpp>
+#include <libFoundation/stream/stream.hpp>
+#include <libLexer/lexeme.hpp>
 #include <libGraphite/rsrc/file.hpp>
 
 namespace kdl::unit
@@ -32,13 +33,13 @@ namespace kdl::unit
     struct file
     {
     public:
-       explicit file(graphite::rsrc::file& output);
+       explicit file(graphite::rsrc::file& output, sema::context& ctx);
        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
 
-       static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions) -> foundation::stream<kdl::tokenizer::token>;
+       static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
 
     private:
-        std::vector<std::shared_ptr<foundation::filesystem::file>> m_imported_files;
         graphite::rsrc::file *m_output { nullptr };
+        sema::context *m_context { nullptr };
     };
 }

@@ -32,6 +32,11 @@ resource::definition::type::field_value::field_value(const binary_template::fiel
 {
 }
 
+resource::definition::type::field_value::field_value(const binary_template::field *field, const std::string &base_name)
+    : m_field(field), m_base_name(base_name)
+{
+}
+
 // MARK: - Name
 
 auto resource::definition::type::field_value::base_name() const -> std::string
@@ -165,4 +170,21 @@ auto resource::definition::type::field_value::joined_values() const -> const std
 auto resource::definition::type::field_value::add_joined_value(const field_value &value) -> void
 {
     m_joined_values.emplace_back(value);
+}
+
+// MARK: - Default Values
+
+auto resource::definition::type::field_value::has_default_value() const -> bool
+{
+    return m_default_value.has_value();
+}
+
+auto resource::definition::type::field_value::default_value() const -> interpreter::script::statement
+{
+    return m_default_value.value();
+}
+
+auto resource::definition::type::field_value::set_default_value(const interpreter::script::statement &stmt) -> void
+{
+    m_default_value = stmt;
 }

@@ -24,6 +24,11 @@
 #include <libKDL/sema/type/field/symbol_list.hpp>
 #include <libKDL/spec/decorators.hpp>
 #include <libKDL/spec/types.hpp>
+#include <libKDL/sema/script/script.hpp>
+#include <libKDL/exception/invalid_attribute_exception.hpp>
+#include <libKDL/exception/unexpected_token_exception.hpp>
+#include <libKDL/exception/unrecognised_variable_exception.hpp>
+#include <libKDL/exception/unrecognised_binary_template_field_exception.hpp>
 
 auto kdl::sema::type_definition::field_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -49,8 +54,81 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
     stream.ensure({ expectation(tokenizer::r_paren).be_true() });
 
     // Repeatable?
-    if (stream.expect({ expectation(tokenizer::repeatable_keyword).be_true() })) {
+    if (stream.expect({
+        expectation(tokenizer::repeatable_keyword).be_true(),
+        expectation(tokenizer::l_angle).be_true()
+    })) {
+        stream.advance(2);
 
+        if (stream.expect({
+            expectation(tokenizer::integer).be_true(), expectation(tokenizer::comma).be_true(),
+            expectation(tokenizer::integer).be_true(), expectation(tokenizer::comma).be_true(),
+            expectation(tokenizer::identifier).be_true()
+        })) {
+            auto lower = stream.read(); stream.advance();
+            auto upper = stream.read(); stream.advance();
+            auto field_list = stream.read();
+            auto tmpl = ctx.current_type->binary_template();
+            field.make_repeatable(lower.value<std::int32_t>(), upper.value<std::int32_t>());
+            field.repeatable().set_count_field(&tmpl->field_named(field_list.string_value()));
+        }
+        else if (stream.expect({
+            expectation(tokenizer::identifier).be_true(), expectation(tokenizer::comma).be_true(),
+            expectation(tokenizer::identifier).be_true(), expectation(tokenizer::comma).be_true(),
+            expectation(tokenizer::identifier).be_true()
+        })) {
+            auto lower = stream.read(); stream.advance();
+            auto upper = stream.read(); stream.advance();
+            auto field_list = stream.read();
+            auto& bin_field = ctx.current_type->binary_template()->field_named(field_list.string_value());
+
+            if (!ctx.active_scope()->has_variable(lower.string_value())) {
+                throw unrecognised_variable_exception("Unrecognised variable found.", lower.source());
+            }
+
+            if (!ctx.active_scope()->has_variable(upper.string_value())) {
+                throw unrecognised_variable_exception("Unrecognised variable found.", upper.source());
+            }
+
+            auto lower_var = ctx.active_scope()->variable(lower.string_value());
+            auto upper_var = ctx.active_scope()->variable(upper.string_value());
+
+            field.make_repeatable(lower_var.integer_value(), upper_var.integer_value());
+            field.repeatable().set_count_field(&bin_field);
+        }
+        else if (stream.expect({
+            expectation(tokenizer::integer).be_true(), expectation(tokenizer::comma).be_true(),
+            expectation(tokenizer::integer).be_true()
+        })) {
+            auto lower = stream.read(); stream.advance();
+            auto upper = stream.read();
+            field.make_repeatable(lower.value<std::int32_t>(), upper.value<std::int32_t>());
+        }
+        else if (stream.expect({
+            expectation(tokenizer::identifier).be_true(), expectation(tokenizer::comma).be_true(),
+            expectation(tokenizer::identifier).be_true()
+        })) {
+            auto lower = stream.read(); stream.advance();
+            auto upper = stream.read();
+
+            if (!ctx.active_scope()->has_variable(lower.string_value())) {
+                throw unrecognised_variable_exception("Unrecognised variable found.", lower.source());
+            }
+
+            if (!ctx.active_scope()->has_variable(upper.string_value())) {
+                throw unrecognised_variable_exception("Unrecognised variable found.", upper.source());
+            }
+
+            auto lower_var = ctx.active_scope()->variable(lower.string_value());
+            auto upper_var = ctx.active_scope()->variable(upper.string_value());
+
+            field.make_repeatable(lower_var.integer_value(), upper_var.integer_value());
+        }
+        else {
+            throw std::runtime_error("");
+        }
+
+        stream.ensure({ expectation(tokenizer::r_angle).be_true() });
     }
 
     // Body
@@ -65,14 +143,17 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
                 expectation(tokenizer::identifier).be_true(),
                 expectation(tokenizer::identifier_path).be_true()
             })) {
+                ctx.current_field = &field;
+                auto decorators = ctx.current_decorators;
                 auto value = parse_value(stream, ctx);
+                ctx.current_decorators = decorators;
                 value.add_decorators(ctx.current_decorators.decorators);
                 ctx.current_decorators.decorators.clear();
 
                 // Check if we need to merge bitmasks.
                 if (field.has_decorator(spec::decorators::merge_bitmask)) {
                     if (value.type().name() != spec::types::bitmask) {
-                        throw std::runtime_error("");
+                        throw invalid_attribute_exception("The 'MergeBitmask' attribute requires that field only contains 'Bitmask' values.", field_name.source());
                     }
 
                     if (field.value_count() == 0) {
@@ -87,7 +168,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
                 }
             }
             else {
-                throw std::runtime_error("");
+                throw unexpected_token_exception("Expected either 'Attribute' or value 'Identifier' with field body.", stream.peek());
             }
 
             stream.ensure({ expectation(tokenizer::semi).be_true() });
@@ -100,7 +181,18 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
             ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(field.name());
             resource::definition::type::field_value value(ctx.current_binary_field);
             value.set_type(descriptor::infer_type(ctx), false);
+
+            // The field was synthesized, so determine if a default value has been provided.
+            if (stream.expect({ expectation(tokenizer::equals).be_true() })) {
+                stream.advance();
+                auto default_value = script::parse_statement(stream, ctx);
+                value.set_default_value(default_value);
+            }
+
             field.add_value(value);
+        }
+        else {
+            throw unrecognised_binary_template_field_exception("Attempted to synthesize field with unknown template field.", field_name.source());
         }
     }
 
@@ -111,18 +203,17 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
 {
     const auto value_identifier = stream.read();
     resource::definition::type::descriptor explicit_type(false);
-    ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(value_identifier.path_value("."));
-    resource::definition::type::field_value value(ctx.current_binary_field);
 
+    std::vector<std::string> name_extensions;
     if (stream.expect({ expectation(tokenizer::l_angle).be_true() })) {
         // We have name extensions
         stream.advance();
         while (stream.expect({ expectation(tokenizer::r_angle).be_false() })) {
             if (stream.expect({ expectation(tokenizer::variable).be_true() })) {
-                value.add_name_extension(stream.read().string_value());
+                name_extensions.emplace_back(stream.read().string_value());
             }
             else {
-                throw std::runtime_error("");
+                throw unexpected_token_exception("'Variable' expected as name extension.");
             }
 
             if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
@@ -132,6 +223,21 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
             break;
         }
         stream.ensure({ expectation(tokenizer::r_angle).be_true() });
+    }
+
+    auto binary_field_name = value_identifier.path_value(".");
+    if (const_cast<resource::definition::type::field *>(ctx.current_field)->repeatable().enabled()) {
+        for (const auto& ext : name_extensions) {
+            if (ext == "FieldNumber") {
+                binary_field_name += std::to_string(const_cast<resource::definition::type::field *>(ctx.current_field)->repeatable().lower_bound());
+            }
+        }
+    }
+    ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(binary_field_name);
+    resource::definition::type::field_value value(ctx.current_binary_field, value_identifier.path_value("."));
+
+    for (const auto& ext : name_extensions) {
+        value.add_name_extension(ext);
     }
 
     if (stream.expect({ expectation(tokenizer::as_keyword).be_true() })) {
@@ -144,8 +250,7 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
 
     if (stream.expect({ expectation(tokenizer::equals).be_true() })) {
         stream.advance();
-
-        // We have a default value specified.
+        value.set_default_value(script::parse_statement(stream, ctx));
     }
 
     if (sema::type_definition::field_definition::symbol_list::test(stream)) {

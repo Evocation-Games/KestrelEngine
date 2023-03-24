@@ -32,7 +32,7 @@ namespace kdl::sema
     public:
         explicit analyser(const foundation::stream<tokenizer::token>& tokens, const std::vector<std::string>& definitions);
 
-        auto process() -> context;
+        auto process(context& ctx) -> void;
 
     private:
         foundation::stream<tokenizer::token> m_tokens;

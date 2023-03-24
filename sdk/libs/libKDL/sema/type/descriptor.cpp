@@ -34,6 +34,11 @@ auto kdl::sema::type_definition::descriptor::parse(foundation::stream<tokenizer:
         type_name = stream.read().string_value();
         allows_hints = true;
     }
+    else if (stream.expect({ expectation(tokenizer::named_reference_type).be_true() })) {
+        type_name = stream.read().string_value();
+        is_reference = true;
+        allows_hints = false;
+    }
     else if (stream.expect({ expectation(tokenizer::string_type).be_true() })){
         type_name = spec::types::string;
         auto tk = stream.read();
@@ -78,6 +83,24 @@ auto kdl::sema::type_definition::descriptor::parse(foundation::stream<tokenizer:
         auto tk = stream.read();
         hints = tk.associated_values();
         allows_hints = true;
+    }
+    else if (stream.expect({ expectation(tokenizer::command_encoder_type).be_true() })){
+        type_name = spec::types::command_encoder;
+        auto tk = stream.read();
+        hints = tk.associated_values();
+        allows_hints = false;
+    }
+    else if (stream.expect({ expectation(tokenizer::range_type).be_true() })){
+        type_name = spec::types::range;
+        auto tk = stream.read();
+        hints = tk.associated_values();
+        allows_hints = true;
+    }
+    else if (stream.expect({ expectation(tokenizer::color_type).be_true() })){
+        type_name = spec::types::color;
+        auto tk = stream.read();
+        hints = tk.associated_values();
+        allows_hints = false;
     }
 
     if (allows_hints && stream.expect({ expectation(tokenizer::l_angle).be_true() })) {
@@ -154,5 +177,8 @@ auto kdl::sema::type_definition::descriptor::infer_type(context &ctx) -> resourc
 
         case resource::definition::binary_template::type::NESTED:
             return { true, ctx.current_binary_field->type().nested_type_name() };
+
+        case resource::definition::binary_template::type::LUA_BYTE_CODE:
+            return { false, spec::types::string };
     }
 }

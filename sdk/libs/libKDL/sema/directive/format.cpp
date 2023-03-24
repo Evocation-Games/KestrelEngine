@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <string>
 #include <vector>
 #include <libKDL/sema/directive/format.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>

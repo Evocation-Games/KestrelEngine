@@ -94,9 +94,12 @@ namespace kestrel::ui
 
         lua_setter(disableUserInput, Available_0_8) auto set_user_input_disabled(bool disabled) -> void;
 
-        lua_function(importSupportingScripts, Available_0_8) auto import_supporting_scripts(const luabridge::LuaRef& ns) -> void;
+        lua_function(importSupportingScripts, Available_0_8) auto import_supporting_scripts(const luabridge::LuaRef& container) -> void;
 
         lua_function(drawLine, Available_0_8) auto draw_line(const math::point& p, const math::point& q, const graphics::color::lua_reference& color, float weight) -> void;
+
+        lua_function(bind, Available_0_9) auto bind(const luabridge::LuaRef& bindings) -> void;
+        lua_getter(Bindings, Available_0_9) [[nodiscard]] auto bindings() const -> luabridge::LuaRef;
 
     private:
         std::string m_name;
@@ -113,6 +116,7 @@ namespace kestrel::ui
         luabridge::LuaRef m_update_block { nullptr };
         luabridge::LuaRef m_key_event_block { nullptr };
         luabridge::LuaRef m_mouse_event_block { nullptr };
+        luabridge::LuaRef m_bindings { nullptr };
         struct responder_chain m_responder_chain;
         bool m_imgui { false };
 

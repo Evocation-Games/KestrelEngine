@@ -25,6 +25,7 @@
 #include <libInterpreter/construct/function.hpp>
 #include <libInterpreter/construct/variable.hpp>
 #include <libFoundation/hashing/hashing.hpp>
+#include <libResource/declaration/value.hpp>
 
 namespace interpreter
 {
@@ -53,6 +54,7 @@ namespace interpreter
         auto add_variable(const std::string& var, std::int64_t value) -> void;
         auto add_variable(const std::string& var, const std::string& value) -> void;
         auto add_variable(const std::string& var, const token& value) -> void;
+        auto add_variable(const std::string& var, const resource::value_container& value) -> void;
         auto add_variable(const struct variable& var) -> void;
         auto add_function(const struct function& fn) -> void;
 

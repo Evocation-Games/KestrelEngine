@@ -210,6 +210,11 @@
     }
   },
   {
+    "type": "comment",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "component",
     "named": true,
     "fields": {
@@ -561,6 +566,10 @@
         {
           "type": "field_repeatable",
           "named": true
+        },
+        {
+          "type": "field_value_default_value",
+          "named": true
         }
       ]
     }
@@ -605,20 +614,6 @@
     "type": "field_definition_values",
     "named": true,
     "fields": {
-      "default_value": {
-        "multiple": true,
-        "required": false,
-        "types": [
-          {
-            "type": "identifier_literal",
-            "named": true
-          },
-          {
-            "type": "value",
-            "named": true
-          }
-        ]
-      },
       "name": {
         "multiple": true,
         "required": false,
@@ -644,6 +639,10 @@
         },
         {
           "type": "field_explicit_type",
+          "named": true
+        },
+        {
+          "type": "field_value_default_value",
           "named": true
         }
       ]
@@ -706,6 +705,26 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "field_value_default_value",
+    "named": true,
+    "fields": {
+      "default_value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier_literal",
+            "named": true
+          },
+          {
+            "type": "value",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1086,8 +1105,12 @@
     "fields": {
       "id": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
+          {
+            "type": "identifier_literal",
+            "named": true
+          },
           {
             "type": "resource_reference_literal",
             "named": true
@@ -1322,6 +1345,10 @@
         "types": [
           {
             "type": "Flags",
+            "named": false
+          },
+          {
+            "type": "Script",
             "named": false
           },
           {
@@ -1612,6 +1639,10 @@
         "required": true,
         "types": [
           {
+            "type": "identifier_literal",
+            "named": true
+          },
+          {
             "type": "variable",
             "named": true
           }
@@ -1806,7 +1837,7 @@
     "named": false
   },
   {
-    "type": "DQAD",
+    "type": "DQWD",
     "named": false
   },
   {
@@ -1838,7 +1869,7 @@
     "named": false
   },
   {
-    "type": "HQAD",
+    "type": "HQWD",
     "named": false
   },
   {
@@ -1910,6 +1941,10 @@
     "named": false
   },
   {
+    "type": "Script",
+    "named": false
+  },
+  {
     "type": "ScrollArea",
     "named": false
   },
@@ -1970,6 +2005,10 @@
     "named": false
   },
   {
+    "type": "`",
+    "named": false
+  },
+  {
     "type": "api_export",
     "named": false
   },
@@ -1982,10 +2021,6 @@
     "named": false
   },
   {
-    "type": "comment",
-    "named": true
-  },
-  {
     "type": "component",
     "named": false
   },
@@ -1995,6 +2030,10 @@
   },
   {
     "type": "declare",
+    "named": false
+  },
+  {
+    "type": "dialog",
     "named": false
   },
   {

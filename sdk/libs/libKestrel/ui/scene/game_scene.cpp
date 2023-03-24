@@ -36,7 +36,7 @@
 #include <libKestrel/ui/widgets/sprite_widget.hpp>
 #include <libKestrel/ui/widgets/checkbox_widget.hpp>
 #include <libKestrel/ui/widgets/popup_button_widget.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
 #include <libKestrel/lua/script.hpp>
 #include <libKestrel/exceptions/invalid_scene_exception.hpp>
@@ -497,20 +497,20 @@ auto kestrel::ui::game_scene::is_key_released(std::int32_t k) const -> bool
 
 // MARK: - Script Importing
 
-static std::vector<std::string> s_imported_namespaces;
+static std::vector<std::string> s_imported_containers;
 
 auto kestrel::ui::game_scene::import_supporting_scripts(const luabridge::LuaRef& ref) -> void
 {
-    if (!lua::ref_isa<resource::resource_namespace>(ref)) {
+    if (!lua::ref_isa<resource::container>(ref)) {
         return;
     }
-    auto ns = ref.cast<resource::resource_namespace::lua_reference>();
+    auto container = ref.cast<resource::container::lua_reference>();
 
-    if (std::find(s_imported_namespaces.begin(), s_imported_namespaces.end(), ns->primary_name()) != s_imported_namespaces.end()) {
+    if (std::find(s_imported_containers.begin(), s_imported_containers.end(), container->primary_name()) != s_imported_containers.end()) {
         return;
     }
 
-    auto scripts = ns->typed_resource(lua::script::resource_type::code)->matching_resources();
+    auto scripts = container->typed_resource(lua::script::resource_type::code)->matching_resources();
     for (const auto& script_ref : scripts) {
         if (script_ref->id == initial_script_id) {
             continue;
@@ -520,7 +520,7 @@ auto kestrel::ui::game_scene::import_supporting_scripts(const luabridge::LuaRef&
         script.execute();
     }
 
-    s_imported_namespaces.emplace_back(ns->primary_name());
+    s_imported_containers.emplace_back(container->primary_name());
 }
 
 // MARK: - Direct Drawing
@@ -547,4 +547,21 @@ auto kestrel::ui::game_scene::menu_widget() const -> widgets::menu_widget::lua_r
 auto kestrel::ui::game_scene::set_menu_widget(const widgets::menu_widget::lua_reference &menu) -> void
 {
     m_menu_widget = menu;
+}
+
+// MARK: - Bindings
+
+auto kestrel::ui::game_scene::bind(const luabridge::LuaRef &bindings) -> void
+{
+    if (bindings.state() && bindings.isTable() || bindings.isUserdata()) {
+        m_bindings = bindings;
+    }
+}
+
+auto kestrel::ui::game_scene::bindings() const -> luabridge::LuaRef
+{
+    if (m_bindings.state()) {
+        return m_bindings;
+    }
+    return { nullptr };
 }

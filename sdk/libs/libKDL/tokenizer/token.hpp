@@ -48,6 +48,10 @@ namespace kdl::tokenizer
             : m_source(lx), m_value(size), m_type(type)
         {}
 
+        token(const std::string& str, token_type type)
+            : m_source(lexer::lexeme(str, lexer::identifier)), m_value(str), m_type(type)
+        {};
+
         // MARK: - Look Ups
         [[nodiscard]] auto source() const -> const lexer::lexeme&
         {
@@ -59,7 +63,7 @@ namespace kdl::tokenizer
             if (m_value.index() == value_lut::size) {
                 return std::get<std::size_t>(m_value);
             }
-            throw std::runtime_error("");
+            throw std::runtime_error("Attempted to access invalid size_value on tokenizer::token.");
         }
 
         [[nodiscard]] auto string_value() const -> std::string
@@ -70,7 +74,7 @@ namespace kdl::tokenizer
             else if (m_value.index() == value_lut::values) {
                 return std::get<std::vector<lexer::lexeme>>(m_value).back().text();
             }
-            throw std::runtime_error("");
+            throw std::runtime_error("Attempted to access invalid string_value on tokenizer::token.");
         }
 
         [[nodiscard]] auto path_value(const std::string& delimiter = "/") const -> std::string
@@ -88,7 +92,7 @@ namespace kdl::tokenizer
                 }
                 return out;
             }
-            throw std::runtime_error("");
+            throw std::runtime_error("Attempted to access invalid path_value on tokenizer::token.");
         }
 
         [[nodiscard]] auto associated_values() const -> std::vector<std::string>
@@ -110,7 +114,7 @@ namespace kdl::tokenizer
         [[nodiscard]] auto reference_value() const -> resource::reference
         {
             if (m_type != token_type::reference || m_value.index() != value_lut::reference) {
-                throw std::runtime_error("");
+                throw std::runtime_error("Attempted to access invalid reference_value on tokenizer::token.");
             }
             return std::get<resource::reference>(m_value);
         }

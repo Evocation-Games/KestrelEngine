@@ -28,6 +28,7 @@
 #include <libResource/declaration/instance.hpp>
 #include <libInterpreter/scope/scope.hpp>
 #include <libGraphite/rsrc/file.hpp>
+#include <libFoundation/system/filesystem/file.hpp>
 
 namespace kdl::sema
 {
@@ -43,10 +44,12 @@ namespace kdl::sema
         std::unordered_map<std::string, resource::definition::type::instance> registered_types;
         std::unordered_map<std::string, std::int64_t> field_repeat_counts;
         std::vector<resource::instance> resources;
+        std::vector<std::shared_ptr<foundation::filesystem::file>> files;
 
         std::vector<interpreter::scope *> scope_stack;
         const resource::definition::type::descriptor *current_type_descriptor { nullptr };
         const resource::definition::type::instance *current_type { nullptr };
+        const resource::definition::type::field *current_field { nullptr };
         const resource::definition::binary_template::field *current_binary_field { nullptr };
 
         auto register_type(const resource::definition::type::instance& type) -> resource::definition::type::instance *;
@@ -56,6 +59,7 @@ namespace kdl::sema
         auto create_scope() -> interpreter::scope *;
         auto pop_scope() -> void;
         auto active_scope() -> interpreter::scope *;
+        auto root_scope() -> interpreter::scope *;
 
         foundation::filesystem::path root_path;
         foundation::filesystem::path output_path;

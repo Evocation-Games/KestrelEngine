@@ -24,6 +24,7 @@
 #include <libKDL/spec/keywords.hpp>
 #include <libKDL/sema/script/script.hpp>
 #include <libResource/reference.hpp>
+#include <libKDL/exception/unrecognised_type_definition_exception.hpp>
 
 auto kdl::sema::declaration::resource::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -37,7 +38,7 @@ auto kdl::sema::declaration::resource::parse(foundation::stream<tokenizer::token
     stream.ensure({ expectation(tokenizer::declare_keyword).be_true() });
 
     if (!stream.expect_any({ expectation(tokenizer::identifier).be_true(), expectation(tokenizer::identifier_path).be_true() })) {
-        throw std::runtime_error("");
+        throw unrecognised_type_definition_exception("Unrecognised type for resource declaration", stream.peek().source());
     }
     auto declaration_type = stream.read();
     auto type = ctx.type_named(declaration_type.string_value());
@@ -105,6 +106,9 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
             else if (result.value.is(interpreter::token::string)) {
                 name = result.value.string_value();
             }
+            else if (result.value.is(interpreter::token::reference)) {
+                id = result.value.reference_value();
+            }
             else {
                 throw std::runtime_error("");
             }
@@ -127,10 +131,46 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
     ::resource::instance resource(id.with_type_name(ctx.current_type->name()));
     resource.set_name(name);
 
+    // Apply defaults to the resource instance.
+    for (auto& field : ctx.current_type->all_fields()) {
+        auto count = 1;
+        if (field.repeatable().enabled() && !field.repeatable().has_count_field()) {
+            count = field.repeatable().upper_bound() - (field.repeatable().lower_bound() - 1);
+        }
+
+        while (count--) {
+            stream.push({ field.name(), tokenizer::identifier });
+            stream.push({ lexer::lexeme("=", lexer::equals), tokenizer::equals });
+
+            bool first = true;
+            for (const auto& value : field.values()) {
+                if (!value.has_default_value()) {
+                    break;
+                }
+                if (!first) {
+                    stream.push({ lexer::lexeme(",", lexer::comma), tokenizer::comma });
+                }
+                first = false;
+                stream.push({ "?", tokenizer::default_value });
+            }
+
+            if (!first) {
+                stream.push({ ";", tokenizer::semi });
+                resource.set_values(field::parse(stream, ctx));
+            }
+            stream.clear_pushed_items();
+        }
+    }
+    ctx.field_repeat_counts.clear();
+
     // Start parsing the body of the declaration
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
     while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
-        if (field::test(stream)) {
+        if (sema::decorator::test(stream)) {
+            auto decorators = sema::decorator::parse(stream);
+            continue;
+        }
+        else if (field::test(stream)) {
             resource.set_values(field::parse(stream, ctx));
         }
         else {

@@ -20,7 +20,8 @@
 
 #include <libKDL/sema/context.hpp>
 #include <libKDL/spec/decorators.hpp>
-#include <iostream>
+#include <libKDL/modules/kdl/kdl.hpp>
+#include <libKDL/exception/unrecognised_type_definition_exception.hpp>
 
 // MARK: - Types
 
@@ -33,7 +34,7 @@ auto kdl::sema::context::register_type(const resource::definition::type::instanc
 
     it = registered_types.find(type.name());
     if (it == registered_types.end()) {
-        throw std::runtime_error("");
+        throw unrecognised_type_definition_exception("Unrecognised type '" + type.name() + "'");
     }
     return &it->second;
 }
@@ -42,7 +43,7 @@ auto kdl::sema::context::type_named(const std::string& name) const -> const reso
 {
     auto it = registered_types.find(name);
     if (it == registered_types.end()) {
-        throw std::runtime_error("");
+        throw unrecognised_type_definition_exception("Unrecognised type '" + name + "'");
     }
     return &it->second;
 }
@@ -63,6 +64,9 @@ auto kdl::sema::context::create_scope() -> interpreter::scope *
 
     if (scope_stack.empty()) {
         ptr = new interpreter::scope();
+
+        // Setup root functions required by the KDL Spec.
+        modules::kdl::install_functions(ptr);
     }
     else {
         ptr = new interpreter::scope(scope_stack.back());
@@ -81,6 +85,11 @@ auto kdl::sema::context::pop_scope() -> void
 auto kdl::sema::context::active_scope() -> interpreter::scope *
 {
     return scope_stack.back();
+}
+
+auto kdl::sema::context::root_scope() -> interpreter::scope *
+{
+    return scope_stack.front();
 }
 
 // MARK: - Decorator Evaluation

@@ -22,7 +22,7 @@
 
 #include <stdexcept>
 #include <utility>
-#include <libKDL/lexer/lexeme.hpp>
+#include <libLexer/lexeme.hpp>
 
 namespace kdl
 {
@@ -30,7 +30,7 @@ namespace kdl
     {
     public:
         explicit unknown_binary_conversion_format_exception(std::string reason)
-            : m_reason(std::move(reason)), m_type("none", lexer::lexeme::any)
+            : m_reason(std::move(reason)), m_type("none", lexer::lexeme_type::any)
         {}
 
         unknown_binary_conversion_format_exception(std::string reason, lexer::lexeme type)

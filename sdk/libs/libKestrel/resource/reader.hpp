@@ -25,7 +25,7 @@
 #include <libGraphite/data/reader.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/size.hpp>
@@ -82,7 +82,7 @@ namespace kestrel::resource
         std::string m_name;
         std::string m_type;
         graphite::data::reader m_reader;
-        std::string m_namespace;
+        std::string m_container;
 
     };
 

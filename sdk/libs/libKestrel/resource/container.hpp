@@ -31,15 +31,15 @@
 
 namespace kestrel::resource
 {
-    class lua_api(Namespace, Available_0_8) resource_namespace
+    class lua_api(Container, Available_0_8) container
     {
     public:
-        has_constructable_lua_api(resource_namespace);
+        has_constructable_lua_api(container);
 
-        resource_namespace() = default;
-        explicit resource_namespace(const std::vector<std::string>& names);
-        explicit resource_namespace(const lua::vector<std::string>& names);
-        lua_constructor(Available_0_8) explicit resource_namespace(const std::string& name);
+        container() = default;
+        explicit container(const std::vector<std::string>& names);
+        explicit container(const lua::vector<std::string>& names);
+        lua_constructor(Available_0_8) explicit container(const std::string& name);
 
         lua_function(global, Available_0_8) static auto global() -> lua_reference;
         lua_function(any, Available_0_8) static auto universal() -> lua_reference;
@@ -52,11 +52,11 @@ namespace kestrel::resource
         lua_getter(isGlobal, Available_0_8) [[nodiscard]] auto is_global() const -> bool;
         lua_getter(isUniversal, Available_0_8) [[nodiscard]] auto is_universal() const -> bool;
 
-        lua_function(addNamespace, Available_0_8) auto lua_add_namespace(const lua_reference& ns) -> void;
-        auto add_namespace(const resource_namespace& ns) -> void;
+        lua_function(addNamespace, Available_0_8) auto lua_add_container(const lua_reference& ns) -> void;
+        auto add_container(const container& ns) -> void;
 
         lua_function(each, Available_0_8) auto lua_each_name(luabridge::LuaRef body) const -> void;
-        auto each_name(const std::function<auto(const resource_namespace&)->void>& body) const -> void;
+        auto each_name(const std::function<auto(const container&)->void>& body) const -> void;
 
         [[nodiscard]] auto file_constraint(const graphite::rsrc::file *file) -> descriptor::lua_reference;
         lua_function(identifiedResource, Available_0_8) [[nodiscard]] auto identified_resource(graphite::rsrc::resource::identifier id) const -> descriptor::lua_reference;
@@ -74,12 +74,14 @@ namespace kestrel::resource
         lua_getter(scene, Available_0_8) [[nodiscard]]  auto scene() const -> ui::game_scene::lua_reference;
         lua_function(pushScene, Available_0_8) auto push_scene() const -> void;
 
-    public:
-        constexpr static const char *attribute_name = "namespace";
 
-    private:
+
+    public:
+        constexpr static const char *attribute_name = "container";
         constexpr static const char *universal_name = "*";
         constexpr static const char *global_name = "";
+
+    private:
         std::vector<std::string> m_names;
 
     };

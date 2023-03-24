@@ -20,8 +20,6 @@
 
 #include <libKestrel/exceptions/lua_runtime_exception.hpp>
 #include <libKestrel/lua/script.hpp>
-#include <libKestrel/resource/namespace.hpp>
-#include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
 
 #include <stdexcept>
@@ -45,7 +43,7 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const reso
         if (lua_magic == 0x1B4C4A00) {
             // Bytecode
             m_bytecode = reader.data()->get<void *>();
-            m_bytecode_size = reader.size() - 1;
+            m_bytecode_size = reader.size();
             m_bytecode_offset = 0;
             m_format = format::bytecode;
         }

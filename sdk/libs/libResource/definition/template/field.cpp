@@ -36,6 +36,11 @@ resource::definition::binary_template::field::field(enum type::$type type, std::
 
 // MARK: - Nested Types
 
+auto resource::definition::binary_template::field::has_lua_byte_code_type() const -> bool
+{
+    return (m_type.value() == type::LUA_BYTE_CODE);
+}
+
 auto resource::definition::binary_template::field::has_nested_type() const -> bool
 {
     return (m_type.nested_type() != nullptr) && (m_type.value() == type::NESTED);

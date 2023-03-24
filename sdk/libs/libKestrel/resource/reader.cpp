@@ -20,7 +20,7 @@
 
 #include <unordered_map>
 #include <libKestrel/resource/reader.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 #include <libGraphite/rsrc/manager.hpp>
 
 // MARK: - Construction
@@ -36,9 +36,9 @@ kestrel::resource::reader::reader(const std::string &type, graphite::rsrc::resou
 
         if (const auto& type = res->type()) {
             const auto& attributes = type->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                m_namespace = it->second.string_value();
+                m_container = it->second.string_value();
             }
         }
     }
@@ -55,9 +55,9 @@ kestrel::resource::reader::reader(const descriptor::lua_reference& ref)
 
         if (const auto& type = resource->type()) {
             const auto& attributes = type->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource_namespace::attribute_name));
+            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
-                m_namespace = it->second.string_value();
+                m_container = it->second.string_value();
             }
         }
     }
@@ -87,11 +87,11 @@ auto kestrel::resource::reader::type() const -> std::string
 
 auto kestrel::resource::reader::reference() const -> descriptor::lua_reference
 {
-    if (m_namespace.empty()) {
+    if (m_container.empty()) {
         return descriptor::typed_identified(type(), id());
     }
     else {
-        return resource_namespace(m_namespace).typed_identified_resource(type(), id());
+        return resource::container(m_container).typed_identified_resource(type(), id());
     }
 }
 
@@ -202,7 +202,7 @@ auto kestrel::resource::reader::read_resource_reference() -> descriptor::lua_ref
         auto descriptor = reference()->ignoring_id()->ignoring_name()->ignoring_type();
 
         if (flags & has_namespace) {
-            descriptor = resource_namespace(read_pstr()).identified_resource(0);
+            descriptor = resource::container(read_pstr()).identified_resource(0);
         }
         if (flags & has_type) {
             descriptor = descriptor->with_type(read_cstr_width(4));
@@ -215,7 +215,7 @@ auto kestrel::resource::reader::read_resource_reference() -> descriptor::lua_ref
         return descriptor;
     }
     else {
-        return resource_namespace::global()->identified_resource(read_signed_short());
+        return resource::container::global()->identified_resource(read_signed_short());
     }
 }
 
@@ -236,7 +236,7 @@ auto kestrel::resource::reader::switch_on_resource_reference(const luabridge::Lu
 
     // TODO: Logic to determine what the namespace is
 
-    body(value, resource_namespace::universal());
+    body(value, resource::container::universal());
 }
 
 auto kestrel::resource::reader::skip(int delta) -> void

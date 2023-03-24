@@ -43,6 +43,10 @@ namespace kestrel::ui
         // Scene
         scene_passthrough = 0x0010,
         vertical_flow_layout = 0x0020,
+        is_dialog = 0x0040,
+
+        // Misc
+        force_macintosh_dialog = 0xF00F,
     };
 
     struct lua_api(UI.SceneInterfaceItem, Available_0_8) scene_interface_item

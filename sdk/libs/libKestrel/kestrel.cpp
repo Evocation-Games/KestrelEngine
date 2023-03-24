@@ -377,6 +377,12 @@ auto kestrel::audio_driver_name() -> std::string
     }
 }
 
+auto kestrel::configure_window(const std::string &title, const math::size &size) -> void
+{
+    renderer::set_window_title(title);
+    renderer::set_window_size(size);
+}
+
 auto kestrel::set_game_window_title(const std::string &title) -> void
 {
     renderer::set_window_title(title);
@@ -493,6 +499,18 @@ auto kestrel::run_script(const std::string &script_str) -> void
 }
 
 // MARK: - Scenes
+
+auto kestrel::get_scene_container(const std::string &name) -> resource::container::lua_reference
+{
+    // TODO: Check for a valid scene container?
+    return { new resource::container(name) };
+}
+
+auto kestrel::get_scene_definition(const std::string &name) -> ui::scene_definition::lua_reference
+{
+    // TODO: Check for a valid scene container?
+    return { new ui::scene_definition(name) };
+}
 
 auto kestrel::current_scene() -> ui::game_scene::lua_reference
 {

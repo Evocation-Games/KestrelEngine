@@ -24,8 +24,8 @@
 
 // MARK: - Construction
 
-kestrel::resource::writer::writer(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name, const resource_namespace::lua_reference& ns)
-    : m_type(type), m_id(id), m_name(name), m_namespace(ns)
+kestrel::resource::writer::writer(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name, const resource::container::lua_reference& container)
+    : m_type(type), m_id(id), m_name(name), m_container(container)
 {
 }
 
@@ -123,8 +123,8 @@ auto kestrel::resource::writer::commit() -> void
 {
     // Construct a list of attributes for the resource.
     std::unordered_map<std::string, std::string> attributes;
-    if (!m_namespace->is_global() && !m_namespace->is_universal()) {
-        attributes[resource_namespace::attribute_name] = m_namespace->primary_name();
+    if (!m_container->is_global() && !m_container->is_universal()) {
+        attributes[resource::container::attribute_name] = m_container->primary_name();
     }
 
     // Find the appropriate file in the resource manager, and add the resource.
@@ -167,9 +167,9 @@ auto kestrel::resource::writer::id() const -> graphite::rsrc::resource::identifi
     return m_id;
 }
 
-auto kestrel::resource::writer::ns() const -> resource_namespace::lua_reference
+auto kestrel::resource::writer::container() const -> resource::container::lua_reference
 {
-    return m_namespace;
+    return m_container;
 }
 
 auto kestrel::resource::writer::data() const -> const graphite::data::block *

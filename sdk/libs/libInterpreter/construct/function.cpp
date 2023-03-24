@@ -21,6 +21,7 @@
 #include <libInterpreter/construct/function.hpp>
 #include <libInterpreter/token/token.hpp>
 #include <libInterpreter/scope/scope.hpp>
+#include <libInterpreter/script/statement.hpp>
 
 // MARK: - Construction
 
@@ -79,6 +80,10 @@ auto interpreter::function::execute(scope &scope, const std::vector<token> &argu
         function_scope.add_variable(argument_name_at(i), arguments.at(i));
     }
 
+    for (auto i = 0; i < arguments.size(); ++i) {
+        function_scope.add_variable(std::to_string(i + 1), arguments.at(i));
+    }
+
     if (m_commit_variables) {
         function_scope.notify_changes([&] (const variable& var, scope::notify_reason reason) {
             scope.add_variable(var);
@@ -87,10 +92,13 @@ auto interpreter::function::execute(scope &scope, const std::vector<token> &argu
 
     if (m_body.index() == 0) {
         // Native Function
-        return std::get<native_function_body>(m_body)(&scope, arguments);
+        return std::get<native_function_body>(m_body)(&function_scope, arguments);
     }
     else if (m_body.index() == 1) {
         // Token Stream
+        auto stream = std::get<foundation::stream<token>>(m_body);
+        interpreter::script::statement stmt(stream);
+        return stmt.evaluate(&function_scope).value;
     }
 
     return token(0LL);

@@ -99,6 +99,26 @@ auto interpreter::scope::add_variable(const std::string &var, const token &value
     add_variable({ var, value });
 }
 
+auto interpreter::scope::add_variable(const std::string& var, const resource::value_container& value) -> void
+{
+    switch (value.type()) {
+        case resource::value_container::type::integer: {
+            add_variable({ var, value.integer_value<std::int64_t>() });
+            break;
+        }
+        case resource::value_container::type::string: {
+            add_variable({ var, value.string_value() });
+            break;
+        }
+        case resource::value_container::type::reference: {
+            add_variable({ var, value.reference_value().id() });
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 auto interpreter::scope::add_variable(const struct variable &var) -> void
 {
     if (!has_variable(var.name())) {

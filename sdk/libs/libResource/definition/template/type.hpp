@@ -37,6 +37,7 @@ namespace resource::definition::binary_template
             LSTR = 'LSTR', OSTR = 'OSTR', CHAR = 'CHAR', OCNT = 'OCNT',
             LSTC = 'LSTC', LSTE = 'LSTE', BBIT = 'BBIT', BOOL = 'BOOL',
             HEXD = 'HEXD', RSRC = 'RSRC', NESTED = 'Nnnn',
+            LUA_BYTE_CODE = 'BLua',
         };
 
     public:

@@ -32,4 +32,13 @@ namespace kdl::sema::declaration::resource::field
 {
     auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
     auto parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> std::unordered_map<std::string, ::resource::value_container>;
+
+    auto parse_value(
+        foundation::stream<tokenizer::token>& stream,
+        context& ctx,
+        interpreter::scope *scope,
+        std::unordered_map<std::string, ::resource::value_container>& values,
+        const ::resource::definition::type::field_value& value,
+        const std::string& value_name
+    ) -> void;
 }

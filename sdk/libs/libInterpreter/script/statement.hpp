@@ -40,6 +40,8 @@ namespace interpreter::script
         statement() = default;
         explicit statement(const foundation::stream<token>& tokens);
 
+        [[nodiscard]] auto token_stream() const -> foundation::stream<token>;
+
         auto evaluate(scope *scope) -> result;
 
     private:

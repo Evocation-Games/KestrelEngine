@@ -26,6 +26,7 @@
 #include <libResource/definition/type/symbol.hpp>
 #include <libResource/declaration/value.hpp>
 #include <libInterpreter/scope/scope.hpp>
+#include <libInterpreter/script/statement.hpp>
 
 namespace resource::definition::type
 {
@@ -34,6 +35,7 @@ namespace resource::definition::type
     public:
         explicit field_value(const std::string& base_name);
         explicit field_value(const binary_template::field *field);
+        field_value(const binary_template::field *field, const std::string& base_name);
 
         [[nodiscard]] auto base_name() const -> std::string;
         [[nodiscard]] auto extended_name(const interpreter::scope& scope) const -> std::string;
@@ -59,6 +61,10 @@ namespace resource::definition::type
         [[nodiscard]] auto joined_values() const -> const std::vector<field_value>&;
         auto add_joined_value(const field_value& value) -> void;
 
+        [[nodiscard]] auto has_default_value() const -> bool;
+        [[nodiscard]] auto default_value() const -> interpreter::script::statement;
+        auto set_default_value(const interpreter::script::statement& stmt) -> void;
+
     private:
         const binary_template::field *m_field { nullptr };
         descriptor m_type_descriptor;
@@ -66,5 +72,6 @@ namespace resource::definition::type
         std::vector<std::string> m_name_extensions;
         std::unordered_map<std::string, symbol> m_symbols;
         std::vector<field_value> m_joined_values;
+        std::optional<interpreter::script::statement> m_default_value;
     };
 }

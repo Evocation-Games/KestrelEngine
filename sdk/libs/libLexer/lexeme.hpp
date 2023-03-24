@@ -193,6 +193,14 @@ namespace lexer
         }
 
         /**
+         *
+         */
+        [[nodiscard]] auto owner() const -> std::weak_ptr<foundation::filesystem::file>
+        {
+            return m_owner;
+        }
+
+        /**
          * The numeric value of the lexeme.
          *
          * If the lexeme is not a numeric type or an operator then the value returned will be 0.

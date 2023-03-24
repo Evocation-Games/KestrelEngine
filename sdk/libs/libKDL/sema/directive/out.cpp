@@ -21,13 +21,14 @@
 #include <iostream>
 #include <libKDL/sema/directive/out.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/exception/unexpected_token_exception.hpp>
 
 auto kdl::sema::directive::out::parse(foundation::stream<tokenizer::token> &stream) -> void
 {
     stream.ensure({ expectation(tokenizer::out_directive).be_true() });
 
-    if (stream.expect({ expectation(tokenizer::string).be_false() })) {
-        throw std::runtime_error("");
+    if (!stream.expect({ expectation(tokenizer::string).be_true() })) {
+        throw unexpected_token_exception("Unexpected token encountered for '@out' directive. Expected string.", stream.peek());
     }
 
     auto str = stream.read();

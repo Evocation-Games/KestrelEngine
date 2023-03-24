@@ -44,6 +44,7 @@ namespace kdl::modules::macintosh
         strings_field.make_repeatable(0, 32767);
         strings_field.repeatable().set_count_field(&string_list->binary_template()->field_named("Strings"));
         resource::definition::type::field_value strings_value(&string_list->binary_template()->field_named(std::vector<std::string>({ "Strings", "String" })));
+        strings_value.set_type(resource::definition::type::descriptor(false, spec::types::string), false);
         strings_field.add_value(strings_value);
         string_list->add_field(strings_field);
     }

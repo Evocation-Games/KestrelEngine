@@ -46,6 +46,8 @@ namespace resource::definition::binary_template
         [[nodiscard]] auto has_nested_type() const -> bool;
         [[nodiscard]] auto nested_type() const -> const instance *;
 
+        [[nodiscard]] auto has_lua_byte_code_type() const -> bool;
+
         [[nodiscard]] auto type() const -> const struct type&;
         [[nodiscard]] auto label() const -> std::string;
 

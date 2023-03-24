@@ -28,7 +28,7 @@ namespace kdl::assembler
 {
     struct encoder
     {
-        explicit encoder(const resource::instance& instance, const resource::definition::type::instance *type);
+        explicit encoder(const resource::instance& instance, const resource::definition::type::instance *type, const std::vector<std::string>& definitions);
 
         auto encode() -> const graphite::data::block&;
 
@@ -36,6 +36,7 @@ namespace kdl::assembler
         const resource::instance *m_instance_ref { nullptr };
         const resource::definition::type::instance *m_type { nullptr };
         graphite::data::writer m_writer;
+        bool m_use_extended_resource_id { true };
 
         auto encode_binary_template(const std::string& prefix, const resource::definition::binary_template::instance *binary_template) -> void;
         auto encode_binary_field(const std::string& prefix, const resource::definition::binary_template::field& field, std::optional<std::uint16_t> index = {}) -> void;
