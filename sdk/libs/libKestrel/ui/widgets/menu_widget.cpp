@@ -284,7 +284,7 @@ auto kestrel::ui::widgets::menu_widget::receive_event(const event &e) -> bool
         const auto point = e.location() - entity()->position();
         const auto hover_row = static_cast<std::int32_t>((point.y() - m_vertical_padding) / m_row_height);
 
-        if (!m_mouse_over && e.has(event_type::mouse_move) && entity()->hit_test(point)) {
+        if (!m_mouse_over && e.has(::ui::event::mouse_move) && entity()->hit_test(point)) {
             m_mouse_over = true;
             if (m_hover_item != hover_row) {
                 m_hover_item = hover_row;
@@ -292,12 +292,12 @@ auto kestrel::ui::widgets::menu_widget::receive_event(const event &e) -> bool
                 redraw_entity();
             }
         }
-        else if (m_mouse_over && !e.has(event_type::mouse_move) && !entity()->hit_test(point)) {
+        else if (m_mouse_over && !e.has(::ui::event::mouse_move) && !entity()->hit_test(point)) {
             m_mouse_over = false;
             m_dirty = true;
             redraw_entity();
         }
-        else if (m_mouse_over && e.has(event_type::mouse_move) && entity()->hit_test(point)) {
+        else if (m_mouse_over && e.has(::ui::event::mouse_move) && entity()->hit_test(point)) {
             m_mouse_over = true;
             m_dirty = true;
             if (m_hover_item != hover_row) {
@@ -307,7 +307,7 @@ auto kestrel::ui::widgets::menu_widget::receive_event(const event &e) -> bool
             }
         }
 
-        if (m_mouse_over && e.has(event_type::any_mouse_down)) {
+        if (m_mouse_over && e.has(::ui::event::any_mouse_down)) {
             m_selected_item = hover_row;
             m_hover_item = -1;
             m_dirty = true;

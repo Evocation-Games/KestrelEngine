@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <algorithm>
+#include <libKestrel/kestrel.hpp>
 #include <libKestrel/ui/widgets/list_widget.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
 #include <libKestrel/font/manager.hpp>
@@ -27,39 +28,35 @@
 
 namespace kestrel::ui::widgets::constants
 {
-    constexpr std::size_t default_row_height = 14;
+    constexpr std::size_t default_row_height = 25;
 }
 
 // MARK: - Construction
 
 kestrel::ui::widgets::list_widget::list_widget(const math::rect& frame)
-    : m_visible_rows(frame.size().height() / constants::default_row_height), m_column_widths({ 1.0 })
 {
-    m_hilite_color = { new graphics::color(255, 0, 150) };
-    m_text_color = { new graphics::color(255, 255, 255) };
-    m_background_color = { new graphics::color(0, 0, 0) };
-    m_outline_color = { new graphics::color(220, 220, 220) };
+    m_appearance.hilite_color = { new graphics::color(255, 0, 150) };
+    m_appearance.text_color = { new graphics::color(255, 255, 255) };
+    m_appearance.background_color = { new graphics::color(0, 0, 0) };
+    m_appearance.outline_color = { new graphics::color(220, 220, 220) };
 
-    m_label_font = font::manager::shared_manager().default_font();
-    m_label_font->load_for_graphics();
+    m_appearance.label_font = font::manager::shared_manager().default_font();
+    m_appearance.label_font->load_for_graphics();
 
     setup(frame);
 }
 
 auto kestrel::ui::widgets::list_widget::setup(const math::rect& frame) -> void
 {
-    m_row_size = math::size(frame.size().width(), constants::default_row_height);
+    m_entity.canvas = std::make_shared<graphics::canvas>(frame.size());
+    m_entity.entity = { new scene_entity(m_entity.canvas->spawn_entity(frame.origin())) };
+    m_entity.entity->set_clipping_area(frame.size());
 
-    m_canvas = std::make_shared<graphics::canvas>(frame.size());
-    m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin())) };
-    m_entity->set_clipping_area(frame.size());
+    m_entity.entity->internal_entity()->set_position(frame.origin());
+    m_entity.entity->set_position(frame.origin());
 
-    m_entity->internal_entity()->set_position(frame.origin());
-    m_entity->set_position(frame.origin());
-
-    m_label_font = font::manager::shared_manager().default_font();
-    m_label_font->load_for_graphics();
-    m_row_size = math::size(frame.size().width(), m_label_font->graphics_font()->line_height() * 6.f);
+    m_appearance.label_font = font::manager::shared_manager().default_font();
+    m_appearance.label_font->load_for_graphics();
 
     redraw_entity();
     bind_internal_events();
@@ -77,42 +74,32 @@ auto kestrel::ui::widgets::list_widget::headers() const -> bool
     return m_has_header;
 }
 
-auto kestrel::ui::widgets::list_widget::current_row() const -> list_row::lua_reference
-{
-    if (m_selected_row < 1 || m_selected_row >= m_rows.size()) {
-        return { nullptr };
-    }
-    else {
-        return m_rows.at(m_selected_row - 1);
-    }
-}
-
 auto kestrel::ui::widgets::list_widget::selected_row() const -> std::int32_t
 {
-    return m_selected_row;
+    return m_state.selection.row;
 }
 
 auto kestrel::ui::widgets::list_widget::frame() const -> math::rect
 {
-    return { m_entity->position(), m_entity->size() };
+    return { m_entity.entity->position(), m_entity.entity->size() };
 }
 
 auto kestrel::ui::widgets::list_widget::set_borders(bool f) -> void
 {
     m_borders = f;
-    m_dirty = true;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_headers(bool f) -> void
 {
     m_has_header = f;
-    m_dirty = true;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::select_row(std::int32_t row) -> void
 {
-    m_selected_row = row;
-    m_dirty = true;
+    m_state.selection.row = row;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_frame(const math::rect &frame) -> void
@@ -120,136 +107,96 @@ auto kestrel::ui::widgets::list_widget::set_frame(const math::rect &frame) -> vo
     setup(frame);
 }
 
-auto kestrel::ui::widgets::list_widget::set_column_widths(const luabridge::LuaRef &columns) -> void
-{
-    if (columns.state() && columns.isTable()) {
-        m_column_widths.clear();
-        for (auto i = 1; i <= columns.length(); ++i) {
-            auto column = columns[i];
-            if (column.isNumber()) {
-                m_column_widths.emplace_back(column.cast<double>());
-            }
-            else {
-                m_column_widths.emplace_back(1.0 / columns.length());
-            }
-        }
-    }
-}
-
-auto kestrel::ui::widgets::list_widget::set_column_headings(const luabridge::LuaRef &columns) -> void
-{
-    if (columns.state() && columns.isTable()) {
-        m_headings.clear();
-        for (auto i = 1; i <= columns.length(); ++i) {
-            auto column = columns[i];
-            if (column.isString()) {
-                m_headings.emplace_back(column.tostring());
-            }
-            else {
-                m_headings.emplace_back("");
-            }
-        }
-        m_has_header = !m_headings.empty();
-    }
-}
-
-auto kestrel::ui::widgets::list_widget::set_row_items(const luabridge::LuaRef &rows) -> void
-{
-    if (rows.state() && rows.isTable()) {
-        m_rows.clear();
-        for (auto i = 1; i <= rows.length(); ++i) {
-            auto row = rows[i];
-            if (row.isUserdata()) {
-                auto list_row = row.cast<ui::widgets::list_row::lua_reference>();
-                m_rows.emplace_back(list_row);
-            }
-        }
-    }
-}
-
 auto kestrel::ui::widgets::list_widget::entity() const -> scene_entity::lua_reference
 {
-    return m_entity;
+    return m_entity.entity;
 }
 
 auto kestrel::ui::widgets::list_widget::scroll_up() -> void
 {
-    m_scroll_offset.set_y(m_scroll_offset.y() - m_row_size.height());
-    m_entity->set_clipping_offset(m_scroll_offset);
+    if (m_state.scroll.first_visible_row <= 1) {
+        return;
+    }
+    const auto height = static_cast<float>(height_for_row(m_state.scroll.first_visible_row--));
+    m_state.scroll.offset.set_y(m_state.scroll.offset.y() - height);
+    m_entity.entity->set_clipping_offset(m_state.scroll.offset);
 }
 
 auto kestrel::ui::widgets::list_widget::scroll_down() -> void
 {
-    m_scroll_offset.set_y(m_scroll_offset.y() + m_row_size.height());
-    m_entity->set_clipping_offset(m_scroll_offset);
+    if (m_state.scroll.first_visible_row >= number_of_rows()) {
+        return;
+    }
+    const auto height = static_cast<float>(height_for_row(m_state.scroll.first_visible_row++));
+    m_state.scroll.offset.set_y(m_state.scroll.offset.y() + height);
+    m_entity.entity->set_clipping_offset(m_state.scroll.offset);
 }
-
 
 auto kestrel::ui::widgets::list_widget::set_text_color(const graphics::color::lua_reference& color) -> void
 {
-    m_text_color = color;
-    m_dirty = true;
+    m_appearance.text_color = color;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_background_color(const graphics::color::lua_reference& color) -> void
 {
-    m_background_color = color;
-    m_dirty = true;
+    m_appearance.background_color = color;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_hilite_color(const graphics::color::lua_reference& color) -> void
 {
-    m_hilite_color = color;
-    m_dirty = true;
+    m_appearance.hilite_color = color;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_outline_color(const graphics::color::lua_reference& color) -> void
 {
-    m_outline_color = color;
-    m_dirty = true;
+    m_appearance.outline_color = color;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_heading_text_color(const graphics::color::lua_reference& color) -> void
 {
-    m_heading_text_color = color;
-    m_dirty = true;
+    m_appearance.heading_text_color = color;
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::set_font(const font::reference::lua_reference& font) -> void
 {
-    m_label_font = font;
-    m_row_size = math::size(m_row_size.width(), m_label_font->graphics_font()->line_height() + 6.f);
-    m_dirty = true;
+    m_appearance.label_font = font;
+    m_appearance.label_font->load_for_graphics();
+    m_state.dirty = true;
 }
 
 auto kestrel::ui::widgets::list_widget::font() const -> font::reference::lua_reference
 {
-    return m_label_font;
+    return m_appearance.label_font;
 }
 
 auto kestrel::ui::widgets::list_widget::text_color() const -> graphics::color::lua_reference
 {
-    return m_text_color;
+    return m_appearance.text_color;
 }
 
 auto kestrel::ui::widgets::list_widget::background_color() const -> graphics::color::lua_reference
 {
-    return m_background_color;
+    return m_appearance.background_color;
 }
 
 auto kestrel::ui::widgets::list_widget::hilite_color() const -> graphics::color::lua_reference
 {
-    return m_hilite_color;
+    return m_appearance.hilite_color;
 }
 
 auto kestrel::ui::widgets::list_widget::outline_color() const -> graphics::color::lua_reference
 {
-    return m_outline_color;
+    return m_appearance.outline_color;
 }
 
 auto kestrel::ui::widgets::list_widget::heading_text_color() const -> graphics::color::lua_reference
 {
-    return m_heading_text_color;
+    return m_appearance.heading_text_color;
 }
 
 
@@ -257,166 +204,168 @@ auto kestrel::ui::widgets::list_widget::heading_text_color() const -> graphics::
 
 auto kestrel::ui::widgets::list_widget::draw() -> void
 {
-    if (m_dirty) {
+    if (m_state.dirty) {
         redraw_entity();
     }
 }
 
 auto kestrel::ui::widgets::list_widget::redraw_entity() -> void
 {
-    m_canvas->clear();
-    m_canvas->set_font(m_label_font);
+    auto& canvas = m_entity.canvas;
+    canvas->clear();
+    canvas->set_font(m_appearance.label_font);
+
+    const auto row_x = 1.f;
+    const auto row_width = frame().size().width() - (row_x * 2.f);
+    const auto column_count = number_of_columns();
+    const auto heading_height = static_cast<float>(height_of_header());
 
     math::point row_offset(0);
     if (m_has_header) {
-        m_canvas->set_pen_color(*m_background_color);
-        m_canvas->fill_rect({ { 1, 0 }, { m_row_size.width() - 2, m_row_size.height() } });
-        m_canvas->set_pen_color(*m_heading_text_color);
+        canvas->set_pen_color(*m_appearance.background_color);
+        canvas->fill_rect({ { row_x, 0 }, { row_width, heading_height } });
+        canvas->set_pen_color(*m_appearance.heading_text_color);
 
         math::point row_position(0);
-        for (auto j = 1; j <= m_headings.size(); ++j) {
-            const auto& column = m_headings[j - 1];
-            auto column_width = this->column_width(j);
+        for (auto j = 1; j <= column_count; ++j) {
+            const auto& heading_text = column_heading(j);
+            const auto column_width = static_cast<float>(width_for_column(j));
 
-            auto text_size = m_canvas->layout_text(column);
-            m_canvas->draw_text({
-               row_position.x() + 5,
-               row_position.y() + ((m_row_size.height() - text_size.height()) / 2)
+            const auto text_size = canvas->layout_text(heading_text);
+            canvas->draw_text({
+               row_position.x() + 5.f,
+               row_position.y() + ((heading_height - text_size.height()) / 2.f)
            });
 
             row_position.set_x(row_position.x() + column_width);
         }
     }
 
-    for (auto i = 0; i < m_rows.size(); ++i) {
-        const auto& row = m_rows.at(i);
+    const auto row_count = number_of_rows();
+    for (auto i = 1; i <= row_count; ++i) {
+        const auto row_height = static_cast<float>(height_for_row(i));
+        math::point row_position(row_x, static_cast<float>(i - 1) * row_height);
 
-        if (m_selected_row == (i + 1)) {
-            // Draw selection background
-            m_canvas->set_pen_color(*m_hilite_color);
-        }
-        else {
-            m_canvas->set_pen_color(*m_background_color);
-        }
+        canvas->set_pen_color(
+            (m_state.selection.row == i) ? *m_appearance.hilite_color : m_appearance.background_color
+        );
 
-        math::point row_position(0, i * m_row_size.height());
         if (m_has_header) {
-            row_position.set_y(row_position.y() + m_row_size.height());
+            row_position.set_y(row_position.y() + heading_height);
         }
 
-        m_canvas->fill_rect({
-            { row_position.x() + 1, row_position.y() },
-            { m_row_size.width() - 2, m_row_size.height() }
+        canvas->fill_rect({
+            { row_position.x(), row_position.y() },
+            { row_width, row_height }
         });
 
-        m_canvas->set_pen_color(*m_text_color);
-        m_canvas->set_font(m_label_font);
+        canvas->set_pen_color(*m_appearance.text_color);
+        canvas->set_font(m_appearance.label_font);
 
-        if (m_column_widths.empty()) {
-            const auto& column = row->column_value(1);
-            auto text_size = m_canvas->layout_text(column);
-            m_canvas->draw_text({
+        for (auto j = 1; j <= column_count; ++j) {
+            const auto column_width = static_cast<float>(width_for_column(j));
+            const auto value = value_for_cell(i, j);
+            const auto text_size = canvas->layout_text(value);
+
+            canvas->draw_text({
                 row_position.x() + 5,
-                row_position.y() + ((m_row_size.height() - text_size.height()) / 2.f)
+                row_position.y() + ((row_height - text_size.height()) / 2.f)
             });
-        }
-        else {
-            for (auto j = 1; j <= m_column_widths.size(); ++j) {
-                const auto& column = row->column_value(j);
-                auto column_width = this->column_width(j);
 
-                auto text_size = m_canvas->layout_text(column);
-                m_canvas->draw_text({
-                    row_position.x() + 5,
-                    row_position.y() + ((m_row_size.height() - text_size.height()) / 2.f)
-                });
-
-                row_position.set_x(row_position.x() + column_width);
-            }
+            row_position.set_x(row_position.x() + column_width);
         }
 
-
-        row_position.set_y(row_position.y() + m_row_size.height());
+        row_position.set_y(row_position.y() + row_height);
     }
 
     if (m_borders) {
-        m_canvas->set_pen_color(*m_outline_color);
+        canvas->set_pen_color(*m_appearance.outline_color);
 
         if (m_has_header) {
-            m_canvas->draw_line({ 0, m_row_size.height() - 1.f }, { m_entity->size().width(), m_row_size.height() - 1.f }, 1);
+            canvas->draw_line({ 0, heading_height - 1.f }, { m_entity.entity->size().width(), heading_height - 1.f }, 1.f);
         }
         else {
-            m_canvas->draw_line({ 0, 0 }, { m_entity->size().width(), 0 }, 1);
+            canvas->draw_line({ 0, 0 }, { m_entity.entity->size().width(), 0 }, 1);
         }
 
-        m_canvas->draw_line({ 0, m_entity->size().height() - 1.f }, { m_entity->size().width(), m_entity->size().height() - 1.f }, 1);
+        canvas->draw_line({ 0, m_entity.entity->size().height() - 1.f },
+                          { m_entity.entity->size().width(), m_entity.entity->size().height() - 1.f }, 1);
     }
 
-    m_canvas->rebuild_texture();
+    canvas->rebuild_texture();
 }
 
 // MARK: - Calculations
 
 auto kestrel::ui::widgets::list_widget::row_index_at_point(const math::point &p) -> std::int32_t
 {
-    auto y = p.y();
+    // Add the scroll offset to the point provided to find the absolute position.
+    // Then step through each of the rows (excluding the header) and determine what row the point
+    // falls into.
+    // TODO: Memoize the outputs of row heights??
+    auto q = p + m_state.scroll.offset;
+
+    // If we have a header to consider, then add the height of the header to the position.
     if (m_has_header) {
-        y -= m_row_size.height();
+        q.set_y(q.y() - static_cast<float>(height_of_header()));
     }
-    return static_cast<std::int32_t>(std::floor(y / m_row_size.height()) + 1);
+
+    const auto& row_count = number_of_rows();
+    for (auto n = 1; n <= row_count; ++n) {
+        q.set_y(q.y() - static_cast<float>(height_for_row(n)));
+        if (q.y() <= 0) {
+            // We have found the row.
+            return n;
+        }
+    }
+
+    // We could not identify the row.
+    return -1;
 }
 
-auto kestrel::ui::widgets::list_widget::row_at_point(const math::point &p) -> list_row::lua_reference
+
+auto kestrel::ui::widgets::list_widget::column_width(std::int32_t column) const -> std::int32_t
 {
-    auto index = row_index_at_point(p);
-    return m_rows.at(index);
+    return width_for_column(column);
 }
 
-auto kestrel::ui::widgets::list_widget::column_width(int column) const -> std::int32_t
+auto kestrel::ui::widgets::list_widget::column_heading(std::int32_t column) const -> std::string
 {
-    return m_column_widths.at(column - 1) * m_entity->size().width();
+    return heading_for_column(column);
 }
 
-auto kestrel::ui::widgets::list_widget::column_heading(int column) const -> std::string
+auto kestrel::ui::widgets::list_widget::reload_data() -> void
 {
-    return m_headings.at(column);
-}
-
-auto kestrel::ui::widgets::list_widget::on_row_select(const luabridge::LuaRef &callback) -> void
-{
-    m_row_select_callback = callback;
+    m_state.dirty = true;
+    redraw_entity();
 }
 
 // MARK: - Events
 
+auto kestrel::ui::widgets::list_widget::lua_receive_event(const event::lua_reference &e) -> void
+{
+    if (e.get()) {
+        receive_event(*e.get());
+    }
+}
+
 auto kestrel::ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location() - entity()->position();
+    auto local_position = e.location() - entity()->draw_position();
     if (e.is_mouse_event() && entity()->hit_test(local_position)) {
-        if (e.has(event_type::any_mouse_down) && !m_pressed) {
+        if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;
         }
 
-        if (e.has(event_type::any_mouse_up) && m_pressed) {
+        if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             auto row_number = row_index_at_point(local_position);
-            if (row_number > m_rows.size()) {
-                row_number = m_rows.size();
+            if (row_number > number_of_rows()) {
+                row_number = number_of_rows();
             }
 
-            auto row = m_rows[row_number - 1];
-            m_dirty = true;
-
-            if (!row.get() || row->column_value(1).empty()) {
-                m_selected_row = -1;
-            }
-            else {
-                m_selected_row = row_number;
-            }
-
-            if (m_row_select_callback.state() && m_row_select_callback.isFunction()) {
-                m_row_select_callback(m_selected_row);
-            }
-
+            m_state.dirty = true;
+            m_state.selection.row = should_select_row(row_number) ? row_number : -1;
+            row_selected(row_number);
             redraw_entity();
             m_pressed = false;
         }
@@ -430,19 +379,185 @@ auto kestrel::ui::widgets::list_widget::bind_internal_events() -> void
 {
 }
 
-// MARK: - Rows
+// MARK: - Data Source
 
-kestrel::ui::widgets::list_row::list_row(const luabridge::LuaRef &values)
+auto kestrel::ui::widgets::list_widget::data_source() const -> luabridge::LuaRef
 {
-    if (values.state() && values.isTable()) {
-        for (auto i = 1; i <= values.length(); ++i) {
-            auto str = values[i].tostring();
-            m_columns.emplace_back(str);
+    // Create a blank table to pass as the data source.
+    return luabridge::LuaRef::newTable(kestrel::lua_runtime()->internal_state());
+}
+
+auto kestrel::ui::widgets::list_widget::set_data_source(const luabridge::LuaRef &data_source) -> void
+{
+    if (!data_source.state() || !data_source.isTable()) {
+        return;
+    }
+
+    const auto& number_of_rows = data_source["numberOfRows"];
+    const auto& number_of_columns = data_source["numberOfColumns"];
+    const auto& heading_for_column = data_source["headingForColumn"];
+    const auto& value_for_cell = data_source["valueForCell"];
+
+    if (number_of_rows.isFunction() || number_of_rows.isNumber()) {
+        m_data_source.number_of_rows = number_of_rows;
+    }
+
+    if (number_of_columns.isFunction() || number_of_columns.isNumber()) {
+        m_data_source.number_of_columns = number_of_columns;
+    }
+
+    if (heading_for_column.isFunction() || value_for_cell.isString()) {
+        m_data_source.heading_for_column = heading_for_column;
+    }
+
+    if (value_for_cell.isFunction() || value_for_cell.isString()) {
+        m_data_source.value_for_cell = value_for_cell;
+    }
+
+    m_state.dirty = true;
+}
+
+auto kestrel::ui::widgets::list_widget::number_of_rows() const -> std::int32_t
+{
+    if (m_data_source.number_of_rows.state() && m_data_source.number_of_rows.isFunction()) {
+        auto count = m_data_source.number_of_rows();
+        if (count.state() && count.isNumber()) {
+            return count.cast<std::int32_t>();
         }
+    }
+    else if (m_data_source.number_of_rows.state() && m_data_source.number_of_rows.isNumber()) {
+        return m_data_source.number_of_rows.cast<std::int32_t>();
+    }
+    return 0;
+}
+
+auto kestrel::ui::widgets::list_widget::number_of_columns() const -> std::int32_t
+{
+    if (m_data_source.number_of_columns.state() && m_data_source.number_of_columns.isFunction()) {
+        auto count = m_data_source.number_of_columns();
+        if (count.state() && count.isNumber()) {
+            return count.cast<std::int32_t>();
+        }
+    }
+    else if (m_data_source.number_of_columns.state() && m_data_source.number_of_columns.isNumber()) {
+        return m_data_source.number_of_columns.cast<std::int32_t>();
+    }
+    return 1;
+}
+
+auto kestrel::ui::widgets::list_widget::value_for_cell(std::int32_t row, std::int32_t column) const -> std::string
+{
+    if (m_data_source.value_for_cell.state() && m_data_source.value_for_cell.isFunction()) {
+        auto value = m_data_source.value_for_cell(row, column);
+        if (value.state() && (value.isString() || value.isNumber())) {
+            return value.tostring();
+        }
+    }
+    else if (m_data_source.value_for_cell.state() && m_data_source.value_for_cell.isString()) {
+        return m_data_source.value_for_cell.tostring();
+    }
+    return "";
+}
+
+auto kestrel::ui::widgets::list_widget::heading_for_column(std::int32_t column) const -> std::string
+{
+    if (m_data_source.heading_for_column.state() && m_data_source.heading_for_column.isFunction()) {
+        auto value = m_data_source.heading_for_column(column);
+        if (value.state() && (value.isString() || value.isNumber())) {
+            return value.tostring();
+        }
+    }
+    else if (m_data_source.heading_for_column.state() && m_data_source.heading_for_column.isString()) {
+        return m_data_source.heading_for_column.tostring();
+    }
+    return "";
+}
+
+// MARK: - Delegate
+
+auto kestrel::ui::widgets::list_widget::delegate() const -> luabridge::LuaRef
+{
+    // Create a blank table to pass as the delegate.
+    return luabridge::LuaRef::newTable(kestrel::lua_runtime()->internal_state());
+}
+
+auto kestrel::ui::widgets::list_widget::set_delegate(const luabridge::LuaRef &delegate) -> void
+{
+    if (!delegate.state() || !delegate.isTable()) {
+        return;
+    }
+
+    const auto& on_row_select = delegate["onRowSelected"];
+    const auto& should_select_row = delegate["shouldSelectRow"];
+    const auto& width_for_column = delegate["widthForColumn"];
+    const auto& height_for_row = delegate["heightForRow"];
+
+    if (on_row_select.isFunction()) {
+        m_delegate.on_row_select = on_row_select;
+    }
+
+    if (should_select_row.isFunction() || should_select_row.isBool()) {
+        m_delegate.should_select_row = should_select_row;
+    }
+
+    if (width_for_column.isFunction() || should_select_row.isNumber()) {
+        m_delegate.width_for_column = width_for_column;
+    }
+
+    if (height_for_row.isFunction() || should_select_row.isNumber()) {
+        m_delegate.height_for_row = height_for_row;
+    }
+
+    m_state.dirty = true;
+}
+
+auto kestrel::ui::widgets::list_widget::should_select_row(std::int32_t row) const -> bool
+{
+    if (m_delegate.should_select_row.state() && m_delegate.should_select_row.isFunction()) {
+        return m_delegate.should_select_row(row).cast<bool>();
+    }
+    else if (m_delegate.should_select_row.state() && m_delegate.should_select_row.isBool()) {
+        return m_delegate.should_select_row.cast<bool>();
+    }
+    return true;
+}
+
+auto kestrel::ui::widgets::list_widget::row_selected(std::int32_t i) -> void
+{
+    if (m_delegate.on_row_select.state() && m_delegate.on_row_select.isFunction()) {
+        m_delegate.on_row_select(i);
     }
 }
 
-auto kestrel::ui::widgets::list_row::column_value(std::int32_t column) const -> std::string
+auto kestrel::ui::widgets::list_widget::width_for_column(std::int32_t column) const -> std::int32_t
 {
-    return m_columns.at(column - 1);
+    if (m_delegate.width_for_column.state() && m_delegate.width_for_column.isFunction()) {
+        return m_delegate.width_for_column(column).cast<std::int32_t>();
+    }
+    else if (m_delegate.width_for_column.state() && m_delegate.width_for_column.isNumber()) {
+        return m_delegate.width_for_column.cast<std::int32_t>();
+    }
+    return static_cast<std::int32_t>(m_entity.entity->size().width() / static_cast<double>(number_of_columns()));
+}
+
+auto kestrel::ui::widgets::list_widget::height_for_row(std::int32_t row) const -> std::int32_t
+{
+    if (m_delegate.height_for_row.state() && m_delegate.height_for_row.isFunction()) {
+        return m_delegate.height_for_row(row).cast<std::int32_t>();
+    }
+    else if (m_delegate.height_for_row.state() && m_delegate.height_for_row.isNumber()) {
+        return m_delegate.height_for_row.cast<std::int32_t>();
+    }
+    return constants::default_row_height;
+}
+
+auto kestrel::ui::widgets::list_widget::height_of_header() const -> std::int32_t
+{
+    if (m_delegate.height_of_header.state() && m_delegate.height_of_header.isFunction()) {
+        return m_delegate.height_of_header().cast<std::int32_t>();
+    }
+    else if (m_delegate.height_of_header.state() && m_delegate.height_of_header.isNumber()) {
+        return m_delegate.height_of_header.cast<std::int32_t>();
+    }
+    return constants::default_row_height;
 }

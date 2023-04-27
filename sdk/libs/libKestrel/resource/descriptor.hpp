@@ -24,6 +24,7 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/lua/support/vector.hpp>
 #include <libGraphite/rsrc/file.hpp>
+#include <libResource/reference.hpp>
 
 namespace kestrel::resource
 {
@@ -41,6 +42,7 @@ namespace kestrel::resource
         explicit descriptor() = default;
         descriptor(descriptor&) = default;
         descriptor(const descriptor&) = default;
+        explicit descriptor(const ::resource::reference& reference);
 
         static auto file_constrained(const graphite::rsrc::file *file) -> lua_reference;
 

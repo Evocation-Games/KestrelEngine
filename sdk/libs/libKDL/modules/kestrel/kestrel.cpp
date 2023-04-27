@@ -119,124 +119,43 @@ namespace kdl::modules::kestrel
 
     static inline auto construct_sprite_set(sema::context& ctx) -> void
     {
-        resource::definition::type::instance sprite_set("SpriteSet", "rlëX");
+        auto sprite_set = ctx.register_type(resource::definition::type::instance("SpriteSet", "rlëX"));
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
-        sprite_set.set_binary_template(tmpl);
+        sprite_set->set_binary_template(tmpl);
 
         resource::definition::type::field png_field("PNG");
-        resource::definition::type::field_value png_value(&sprite_set.binary_template()->field_named("Data"));
+        resource::definition::type::field_value png_value(&sprite_set->binary_template()->field_named("Data"));
         png_value.set_type(resource::definition::type::descriptor(false, spec::types::image_set, std::vector<std::string>({
             image::conversion::format::png, image::conversion::format::rlex
         })), true);
         png_field.add_value(png_value);
-        sprite_set.add_field(png_field);
+        sprite_set->add_field(png_field);
 
         resource::definition::type::field tga_field("TGA");
-        resource::definition::type::field_value tga_value(&sprite_set.binary_template()->field_named("Data"));
+        resource::definition::type::field_value tga_value(&sprite_set->binary_template()->field_named("Data"));
         tga_value.set_type(resource::definition::type::descriptor(false, spec::types::image_set, std::vector<std::string>({
             image::conversion::format::tga, image::conversion::format::rlex
         })), true);
         tga_field.add_value(tga_value);
-        sprite_set.add_field(tga_field);
+        sprite_set->add_field(tga_field);
 
-        ctx.register_type(sprite_set);
     }
 
     static inline auto construct_scene_interface(sema::context& ctx) -> void
     {
-        resource::definition::type::instance scene_interface("SceneInterface", "scïn");
+        auto scene_interface = ctx.register_type(resource::definition::type::instance("SceneInterface", "scïn"));
 
         resource::definition::binary_template::instance tmpl;
-        tmpl.add_field(resource::definition::binary_template::type::HLNG, "Flags");
-        tmpl.add_field(resource::definition::binary_template::type::PSTR, "Title");
-        tmpl.add_field(resource::definition::binary_template::type::DWRD, "SceneWidth");
-        tmpl.add_field(resource::definition::binary_template::type::DWRD, "SceneHeight");
+        tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
+        scene_interface->set_binary_template(tmpl);
 
-        resource::definition::binary_template::field elements(resource::definition::binary_template::type::OCNT, "Elements");
-        elements.add_list_field(resource::definition::binary_template::type::HBYT, "ElementType");
-        elements.add_list_field(resource::definition::binary_template::type::PSTR, "ElementId");
-        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementX");
-        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementY");
-        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementWidth");
-        elements.add_list_field(resource::definition::binary_template::type::DWRD, "ElementHeight");
-        elements.add_list_field(resource::definition::binary_template::type::CSTR, "ElementValue");
-        elements.add_list_field(resource::definition::binary_template::type::CSTR, "ElementAction");
-        tmpl.add_field(elements);
-        scene_interface.set_binary_template(tmpl);
-
-        resource::definition::type::field flags_field("Flags");
-        resource::definition::type::field_value flags_value(&scene_interface.binary_template()->field_named("Flags"));
-        flags_value.set_type(resource::definition::type::descriptor(false, spec::types::bitmask), true);
-        flags_value.add_symbol("UseImGui", resource::value_container(0x0001));
-        flags_value.add_symbol("ImGuiShowTitle", resource::value_container(0x0002));
-        flags_value.add_symbol("ImGuiCloseButton", resource::value_container(0x0004));
-        flags_value.add_symbol("ScenePassthrough", resource::value_container(0x0010));
-        flags_value.add_symbol("VerticalFlowLayout", resource::value_container(0x0020));
-        flags_value.add_symbol("IsDialog", resource::value_container(0x0040));
-        flags_field.add_value(flags_value);
-        scene_interface.add_field(flags_field);
-
-        resource::definition::type::field title_field("Title");
-        resource::definition::type::field_value title_value(&scene_interface.binary_template()->field_named("Title"));
-        title_value.set_type(resource::definition::type::descriptor(false, spec::types::string), true);
-        title_field.add_value(title_value);
-        scene_interface.add_field(title_field);
-
-        resource::definition::type::field size_field("Size");
-        resource::definition::type::field_value size_width_value(&scene_interface.binary_template()->field_named("SceneWidth"));
-        resource::definition::type::field_value size_height_value(&scene_interface.binary_template()->field_named("SceneHeight"));
-        size_field.add_value(size_width_value);
-        size_field.add_value(size_height_value);
-        scene_interface.add_field(size_field);
-
-        resource::definition::type::field element_field("Element");
-        element_field.make_repeatable(0, 100);
-        element_field.repeatable().set_count_field(&scene_interface.binary_template()->field_named("Elements"));
-
-        resource::definition::type::field_value element_type_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({"Elements", "ElementType"})));
-        element_type_value.add_symbol("None", resource::value_container(0));
-        element_type_value.add_symbol("Button", resource::value_container(1));
-        element_type_value.add_symbol("Label", resource::value_container(2));
-        element_type_value.add_symbol("TextArea", resource::value_container(3));
-        element_type_value.add_symbol("Image", resource::value_container(4));
-        element_type_value.add_symbol("TextField", resource::value_container(5));
-        element_type_value.add_symbol("Checkbox", resource::value_container(6));
-        element_type_value.add_symbol("List", resource::value_container(7));
-        element_type_value.add_symbol("ScrollArea", resource::value_container(8));
-        element_type_value.add_symbol("Grid", resource::value_container(9));
-        element_type_value.add_symbol("LabeledList", resource::value_container(10));
-        element_type_value.add_symbol("Canvas", resource::value_container(11));
-        element_type_value.add_symbol("Sprite", resource::value_container(12));
-        element_type_value.add_symbol("PopupButton", resource::value_container(13));
-        element_type_value.add_symbol("Slider", resource::value_container(14));
-        element_type_value.add_symbol("Table", resource::value_container(15));
-        element_type_value.add_symbol("Box", resource::value_container(16));
-        element_type_value.add_symbol("Radio", resource::value_container(17));
-        element_type_value.add_symbol("TabBar", resource::value_container(18));
-        element_type_value.add_symbol("Separator", resource::value_container(19));
-        element_type_value.add_symbol("Spacer", resource::value_container(20));
-        element_type_value.add_symbol("Position", resource::value_container(21));
-        element_field.add_value(element_type_value);
-
-        resource::definition::type::field_value element_id_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementId" })));
-        resource::definition::type::field_value element_x_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementX" })));
-        resource::definition::type::field_value element_y_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementY" })));
-        resource::definition::type::field_value element_width_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementWidth" })));
-        resource::definition::type::field_value element_height_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementHeight" })));
-        resource::definition::type::field_value element_value_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementValue" })));
-        resource::definition::type::field_value element_action_value(&scene_interface.binary_template()->field_named(std::vector<std::string>({ "Elements", "ElementAction" })));
-
-        element_field.add_value(element_id_value);
-        element_field.add_value(element_x_value);
-        element_field.add_value(element_y_value);
-        element_field.add_value(element_width_value);
-        element_field.add_value(element_height_value);
-        element_field.add_value(element_value_value);
-        element_field.add_value(element_action_value);
-
-        ctx.register_type(scene_interface);
+        resource::definition::type::field data_field("Data");
+        resource::definition::type::field_value data_value(&scene_interface->binary_template()->field_named("Data"));
+        data_value.set_type(resource::definition::type::descriptor(false, spec::types::data), true);
+        data_field.add_value(data_value);
+        scene_interface->add_field(data_field);
     }
 
     static inline auto construct_scene_definition(sema::context& ctx) -> void
@@ -248,9 +167,6 @@ namespace kdl::modules::kestrel
         tmpl.add_field(resource::definition::binary_template::type::RSRC, "Script");
         tmpl.add_field(resource::definition::binary_template::type::RSRC, "Interface");
         tmpl.add_field(resource::definition::binary_template::type::RSRC, "DLOG");
-        tmpl.add_field(resource::definition::binary_template::type::RSRC, "Background");
-        tmpl.add_field(resource::definition::binary_template::type::RSRC, "BackgroundTop");
-        tmpl.add_field(resource::definition::binary_template::type::RSRC, "BackgroundBottom");
 
         resource::definition::binary_template::field ditl_elements(resource::definition::binary_template::type::OCNT, "DITLElementNames");
         ditl_elements.add_list_field(resource::definition::binary_template::type::DWRD, "Index");
@@ -276,12 +192,6 @@ namespace kdl::modules::kestrel
         dlog_value.set_type(resource::definition::type::descriptor(true), true);
         dlog_field.add_value(dlog_value);
         scene->add_field(dlog_field);
-
-        resource::definition::type::field bg_field("Background");
-        resource::definition::type::field_value bg_value(&scene->binary_template()->field_named("Background"));
-        bg_value.set_type(resource::definition::type::descriptor(true), true);
-        bg_field.add_value(bg_value);
-        scene->add_field(bg_field);
 
         resource::definition::type::field elements_field("DITLElement");
         elements_field.make_repeatable(0, 32767);
@@ -390,30 +300,43 @@ namespace kdl::modules::kestrel
 
     static inline auto construct_static_image(sema::context& ctx) -> void
     {
-        resource::definition::type::instance static_image("StaticImage", "sïmg");
+        auto static_image = ctx.register_type(resource::definition::type::instance("StaticImage", "sïmg"));
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::Cnnn, 0x004, "ImageFormat");
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
-        static_image.set_binary_template(tmpl);
+        static_image->set_binary_template(tmpl);
 
         resource::definition::type::field png_field("PNG");
-        resource::definition::type::field_value png_value(&static_image.binary_template()->field_named("Data"));
+        resource::definition::type::field_value png_value(&static_image->binary_template()->field_named("Data"));
         png_value.set_type(resource::definition::type::descriptor(false, spec::types::image, std::vector<std::string>({
             image::conversion::format::png, image::conversion::format::tga
         })), true);
         png_field.add_value(png_value);
-        static_image.add_field(png_field);
+
+        resource::definition::type::field_value png_format_value(&static_image->binary_template()->field_named("ImageFormat"));
+        png_format_value.set_type(resource::definition::type::descriptor(false, spec::types::string, {}), true);
+        png_format_value.set_default_value(interpreter::script::statement({
+            interpreter::token(std::string("TGA "))
+        }));
+        png_field.add_value(png_format_value);
+        static_image->add_field(png_field);
 
         resource::definition::type::field tga_field("TGA");
-        resource::definition::type::field_value tga_value(&static_image.binary_template()->field_named("Data"));
+        resource::definition::type::field_value tga_value(&static_image->binary_template()->field_named("Data"));
         tga_value.set_type(resource::definition::type::descriptor(false, spec::types::image, std::vector<std::string>({
             image::conversion::format::tga, image::conversion::format::tga
         })), true);
         tga_field.add_value(tga_value);
-        static_image.add_field(tga_field);
 
-        ctx.register_type(static_image);
+        resource::definition::type::field_value tga_format_value(&static_image->binary_template()->field_named("ImageFormat"));
+        tga_format_value.set_type(resource::definition::type::descriptor(false, spec::types::string, {}), true);
+        tga_format_value.set_default_value(interpreter::script::statement({
+            interpreter::token(std::string("TGA "))
+        }));
+        tga_field.add_value(tga_format_value);
+
+        static_image->add_field(tga_field);
     }
 }
 

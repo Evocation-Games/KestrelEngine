@@ -45,8 +45,9 @@ static auto inline extend_prefix(const std::string& prefix, const std::string& a
     }
 }
 
-auto kdl::assembler::encoder::encode() -> const graphite::data::block&
+auto kdl::assembler::encoder::encode(const sema::context *ctx) -> const graphite::data::block&
 {
+    m_context = ctx;
     encode_binary_template("", m_type->binary_template());
     return *m_writer.data();
 }
@@ -136,6 +137,7 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
             break;
         }
         case resource::definition::binary_template::type::RECT: {
+            m_writer.write_quad(value.integer_value<std::uint64_t>());
             break;
         }
         case resource::definition::binary_template::type::PSTR: {
@@ -156,28 +158,7 @@ auto kdl::assembler::encoder::encode_value(const resource::value_container &valu
         }
         case resource::definition::binary_template::type::RSRC: {
             if (m_use_extended_resource_id) {
-                std::uint8_t flags = 0;
-                std::string container;
-                std::string type_name;
-
-                if (value.reference_value().has_container()) {
-                    container = value.reference_value().container_name();
-                    flags |= 0x01;
-                }
-
-                if (value.reference_value().has_type_name()) {
-                    type_name = value.reference_value().type_name();
-                    flags |= 0x02;
-                }
-
-                m_writer.write_integer<std::uint8_t>(flags);
-                if (!container.empty()) {
-                    m_writer.write_pstr(container);
-                }
-                if (!type_name.empty()) {
-                    m_writer.write_cstr(type_name, 4);
-                }
-                m_writer.write_integer<std::int64_t>(value.reference_value().id());
+                value.reference_value().encode_into(m_writer);
             }
             else {
                 const auto& ref = value.reference_value();

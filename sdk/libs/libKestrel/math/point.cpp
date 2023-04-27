@@ -40,6 +40,10 @@ kestrel::math::point::point(simd::float32 v)
     : m_value(v)
 {}
 
+kestrel::math::point::point(const ui::point &p)
+    : m_value(static_cast<float>(p.x), static_cast<float>(p.y), static_cast<float>(p.x), static_cast<float>(p.y))
+{}
+
 // MARK: - Accessors
 
 auto kestrel::math::point::x() const -> float
@@ -62,6 +66,11 @@ auto kestrel::math::point::set_y(float y) -> void
 {
     m_value.set(1, y);
     m_value.set(3, y);
+}
+
+auto kestrel::math::point::ui_point() const -> ui::point
+{
+    return ui::point(static_cast<std::int32_t>(x()), static_cast<std::int32_t>(y()));
 }
 
 // MARK: - Operators

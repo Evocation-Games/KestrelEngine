@@ -53,6 +53,19 @@ auto kestrel::lua::runtime::lua_print(lua_State *L) -> int
     return 0;
 }
 
+// MARK: - Abort
+
+auto kestrel::lua::runtime::lua_abort(lua_State *L) -> int
+{
+    auto argc = lua_gettop(L);
+    for (auto i = 1; i <= argc; ++i) {
+        if (lua_isstring(L, i)) {
+            device::console::write(std::string("ABORT: ") + lua_tostring(L, i), device::console::status::error);
+        }
+    }
+    throw std::runtime_error("LUA EXCEPTION: Aborted");
+}
+
 // MARK: - Lua
 
 auto kestrel::lua::runtime::prepare_lua_runtime() -> void
@@ -62,10 +75,11 @@ auto kestrel::lua::runtime::prepare_lua_runtime() -> void
     install_internal_lua_overrides();
 }
 
-auto kestrel::lua::runtime::install_internal_lua_overrides() -> void
+auto kestrel::lua::runtime::install_internal_lua_overrides() const -> void
 {
     global_namespace()
-        .addFunction("print", &runtime::lua_print);
+        .addFunction("print", &runtime::lua_print)
+        .addFunction("abort", &runtime::lua_abort);
 }
 
 // MARK: - Accessors
@@ -144,7 +158,16 @@ auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const s
 
 auto kestrel::lua::runtime::execute(graphite::rsrc::resource::identifier id, const std::string &name) -> void
 {
-    if (lua_pcall(m_state, 0, LUA_MULTRET, 0) != LUA_OK) {
+    int result = LUA_OK;
+    try {
+        result = lua_pcall(m_state, 0, LUA_MULTRET, 0);
+    }
+    catch (const luabridge::LuaException& e) {
+        device::console::write(e.what(), device::console::status::error);
+        result = LUA_ERRRUN;
+    }
+
+    if (result != LUA_OK) {
         std::string stack_string;
         auto error_string = this->error_string();
 
@@ -162,6 +185,24 @@ auto kestrel::lua::runtime::execute(graphite::rsrc::resource::identifier id, con
         }
 
         throw lua_runtime_exception(error_string + "\nSTACK:\n" + stack_string);
+    }
+}
+
+auto kestrel::lua::runtime::dump() -> void
+{
+    lua_Debug info;
+    int level = 0;
+    while (lua_getstack(m_state, level, &info)) {
+        lua_getinfo(m_state, "nSl", &info);
+
+        std::string stack_string;
+        stack_string += "  [" + std::to_string(level) + "] ";
+        stack_string += std::string(info.short_src) + ":L" + std::to_string(info.currentline) + " -- ";
+        stack_string += std::string(info.name ? info.name : "<unknown>");
+        stack_string += " [" + std::string(info.what) + "]";
+        std::cout << stack_string << std::endl;
+
+        ++level;
     }
 }
 

@@ -25,6 +25,7 @@
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/ui/imgui/imgui.hpp>
 #include <libKestrel/ui/dialog/dialog_layout.hpp>
+#include <libKestrel/ui/types/value/value.hpp>
 
 // MARK: - Construction
 
@@ -106,15 +107,6 @@ auto kestrel::ui::control_definition::name() const -> std::string
     return m_name;
 }
 
-auto kestrel::ui::control_definition::suggested_value() const -> std::string
-{
-    if (m_element_index_vec.empty()) {
-        return "";
-    }
-    auto element = m_layout->element_at(m_element_index_vec[0]);
-    return element->value;
-}
-
 auto kestrel::ui::control_definition::anchor() const -> std::uint8_t
 {
     return static_cast<std::uint8_t>(m_anchor);
@@ -144,4 +136,94 @@ auto kestrel::ui::control_definition::set_anchor(std::uint8_t anchor) -> void
 auto kestrel::ui::control_definition::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
+}
+
+auto kestrel::ui::control_definition::set_script_action(const ui::action& script) -> void
+{
+    m_script_action = script;
+}
+
+auto kestrel::ui::control_definition::script_action() const -> ui::action
+{
+    return m_script_action;
+}
+
+auto kestrel::ui::control_definition::background_color() const -> graphics::color::lua_reference
+{
+    return m_background_color;
+}
+
+auto kestrel::ui::control_definition::border_color() const -> graphics::color::lua_reference
+{
+    return m_border_color;
+}
+
+auto kestrel::ui::control_definition::text_color() const -> graphics::color::lua_reference
+{
+    return m_text_color;
+}
+
+auto kestrel::ui::control_definition::secondary_text_color() const -> graphics::color::lua_reference
+{
+    return m_secondary_text_color;
+}
+
+auto kestrel::ui::control_definition::selection_color() const -> graphics::color::lua_reference
+{
+    return m_selection_color;
+}
+
+auto kestrel::ui::control_definition::font() const -> font::reference::lua_reference
+{
+    return m_font;
+}
+
+auto kestrel::ui::control_definition::value() const -> ui::value
+{
+    return m_value;
+}
+
+auto kestrel::ui::control_definition::set_background_color(const graphics::color::lua_reference& value) -> void
+{
+    m_background_color = value;
+}
+
+auto kestrel::ui::control_definition::set_border_color(const graphics::color::lua_reference& value) -> void
+{
+   m_border_color = value;
+}
+
+auto kestrel::ui::control_definition::set_text_color(const graphics::color::lua_reference& value) -> void
+{
+    m_text_color = value;
+}
+
+auto kestrel::ui::control_definition::set_secondary_text_color(const graphics::color::lua_reference& value) -> void
+{
+    m_secondary_text_color = value;
+}
+
+auto kestrel::ui::control_definition::set_selection_color(const graphics::color::lua_reference& value) -> void
+{
+    m_selection_color = value;
+}
+
+auto kestrel::ui::control_definition::alignment() const -> ui::horizontal_alignment
+{
+    return m_alignment;
+}
+
+auto kestrel::ui::control_definition::set_alignment(ui::horizontal_alignment alignment) -> void
+{
+    m_alignment = alignment;
+}
+
+auto kestrel::ui::control_definition::set_font(const font::reference::lua_reference &font) -> void
+{
+    m_font = font;
+}
+
+auto kestrel::ui::control_definition::set_value(const ui::value& value) -> void
+{
+    m_value = value;
 }

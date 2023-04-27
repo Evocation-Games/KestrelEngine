@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include <libGraphite/rsrc/file.hpp>
-#include <libGraphite/data/reader.hpp>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libKestrel/sandbox/file/mod_reference.hpp>
 #include <libKestrel/sandbox/file/file_reference.hpp>
@@ -28,6 +27,7 @@
 #include <libKestrel/sandbox/file/files.hpp>
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/lua/script.hpp>
+#include <libKestrel/resource/reader.hpp>
 
 // MARK: - Construction
 
@@ -40,7 +40,7 @@ kestrel::sandbox::mod_reference::mod_reference(const std::string &path, bundle_o
 
 auto kestrel::sandbox::mod_reference::has_initial_script() const -> bool
 {
-    return m_lua_entry_script != INT64_MIN;
+    return m_lua_entry_script.get() && (m_lua_entry_script->id != INT64_MIN);
 }
 
 auto kestrel::sandbox::mod_reference::name() const -> std::string
@@ -172,12 +172,12 @@ auto kestrel::sandbox::mod_reference::parse_modpackage() -> void
     // Load the mod meta data...
     m_mod_files.emplace_back(package_rsrc);
 
-    graphite::data::reader kmod_reader(&kmod->data());
+    kestrel::resource::reader kmod_reader(&kmod->data());
     m_name = kmod_reader.read_cstr();
-    m_version = kmod_reader.read_cstr(0x040);
+    m_version = kmod_reader.read_cstr_width(0x040);
     m_author = kmod_reader.read_cstr();
     m_primary_container = kmod_reader.read_cstr();
-    m_lua_entry_script = kmod_reader.read_signed_quad();
+    m_lua_entry_script = kmod_reader.read_resource_reference();
     m_description = kmod_reader.read_cstr();
     m_category = kmod_reader.read_cstr();
     m_package_id = kmod_reader.read_cstr();
@@ -218,12 +218,12 @@ auto kestrel::sandbox::mod_reference::parse_simplemod() -> void
     // Load the mod meta data...
     m_mod_files.emplace_back(rsrc);
 
-    graphite::data::reader kmod_reader(&kmod->data());
+    kestrel::resource::reader kmod_reader(&kmod->data());
     m_name = kmod_reader.read_cstr();
-    m_version = kmod_reader.read_cstr(0x040);
+    m_version = kmod_reader.read_cstr_width(0x040);
     m_author = kmod_reader.read_cstr();
     m_primary_container = kmod_reader.read_cstr();
-    m_lua_entry_script = kmod_reader.read_signed_quad();
+    m_lua_entry_script = kmod_reader.read_resource_reference();
     m_description = kmod_reader.read_cstr();
     m_parsed = true;
 }
@@ -326,11 +326,11 @@ auto kestrel::sandbox::mod_reference::execute() -> void
         std::pair(resource::container::attribute_name, m_primary_container)
     });
 
-    if (auto script_resource = file->find(lua::script::resource_type::code, m_lua_entry_script, namespace_attributes)) {
+    if (auto script_resource = file->find(lua::script::resource_type::code, m_lua_entry_script->id, namespace_attributes)) {
         lua::script script(kestrel::lua_runtime(), script_resource);
         script.execute();
     }
-    else if (auto script_resource = file->find(lua::script::resource_type::code, m_lua_entry_script)) {
+    else if (auto script_resource = file->find(lua::script::resource_type::code, m_lua_entry_script->id)) {
         lua::script script(kestrel::lua_runtime(), script_resource);
         script.execute();
     }

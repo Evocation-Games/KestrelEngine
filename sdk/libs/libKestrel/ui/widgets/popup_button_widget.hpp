@@ -69,6 +69,8 @@ namespace kestrel::ui::widgets
         lua_setter(frame, Available_0_9) auto set_frame(const math::rect& v) -> void;
         lua_setter(items, Available_0_9) auto set_items(const luabridge::LuaRef& items) -> void;
 
+        auto synthesize_items(const std::string& item_string) -> void;
+
         auto receive_event(const event& e) -> bool override;
 
     private:

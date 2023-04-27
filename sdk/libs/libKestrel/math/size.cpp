@@ -28,12 +28,23 @@ kestrel::math::size::size(float v)
 
 kestrel::math::size::size(float w, float h)
     : m_value(w, h, w, h)
-{
-}
+{}
 
 kestrel::math::size::size(simd::float32 v)
     : m_value(v)
 {}
+
+kestrel::math::size::size(const ::ui::size& size)
+    : m_value(
+        static_cast<float>(size.width), static_cast<float>(size.height),
+        static_cast<float>(size.width), static_cast<float>(size.height)
+    )
+{}
+
+auto kestrel::math::size::ui_size() const -> ::ui::size
+{
+    return { static_cast<std::int32_t>(width()), static_cast<std::int32_t>(height()) };
+}
 
 // MARK: - Operators
 

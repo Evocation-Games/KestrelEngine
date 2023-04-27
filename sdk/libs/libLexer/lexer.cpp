@@ -38,6 +38,11 @@ lexer::lexer::lexer(const std::shared_ptr<foundation::filesystem::file>& source)
 {
 }
 
+lexer::lexer::lexer(const std::string& str)
+    : m_source(std::make_shared<foundation::filesystem::file>("", str))
+{
+}
+
 // MARK: - Comments
 
 auto lexer::lexer::set_comment_style(enum comment_style style) -> void
@@ -99,6 +104,14 @@ auto lexer::lexer::analyze() -> lexical_result
             // The string continues until a corresponding '"' is found.
             advance();
             consume_while(condition::match<'"'>::no);
+            m_lexemes.emplace_back(m_slice, lexeme_type::string, m_pos, m_offset, m_line, m_source);
+            advance();
+        }
+        else if (test_if(condition::match<'\''>::yes)) {
+            // We're looking at a string literal.
+            // The string continues until a corresponding ' is found.
+            advance();
+            consume_while(condition::match<'\''>::no);
             m_lexemes.emplace_back(m_slice, lexeme_type::string, m_pos, m_offset, m_line, m_source);
             advance();
         }

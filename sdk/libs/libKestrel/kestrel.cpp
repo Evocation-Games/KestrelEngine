@@ -506,10 +506,43 @@ auto kestrel::get_scene_container(const std::string &name) -> resource::containe
     return { new resource::container(name) };
 }
 
-auto kestrel::get_scene_definition(const std::string &name) -> ui::scene_definition::lua_reference
+auto kestrel::get_scene_definition(const luabridge::LuaRef &name) -> ui::scene_definition::lua_reference
+{
+    if (!name.state() || name.isNil()) {
+        return { nullptr };
+    }
+
+    if (lua::ref_isa<resource::container>(name)) {
+        auto container = name.cast<resource::container::lua_reference>();
+        return scene_definition(container->primary_name());
+    }
+    else if (name.isString()) {
+        return scene_definition(name.tostring());
+    }
+    else {
+        return { nullptr };
+    }
+}
+
+auto kestrel::scene_definition(const std::string &name) -> ui::scene_definition::lua_reference
 {
     // TODO: Check for a valid scene container?
     return { new ui::scene_definition(name) };
+}
+
+auto kestrel::scene_definition(const resource::descriptor::lua_reference &ref) -> ui::scene_definition::lua_reference
+{
+    // TODO: Check for a valid scene container?
+    if (!ref->has_container()) {
+        throw std::runtime_error("");
+    }
+
+    if (ref->has_id()) {
+        return { new ui::scene_definition(ref->container()->name, ref->id) };
+    }
+    else {
+        return { new ui::scene_definition(ref->container()->name) };
+    }
 }
 
 auto kestrel::current_scene() -> ui::game_scene::lua_reference

@@ -48,14 +48,14 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
     stream.advance();
     auto reference = stream.read().reference_value();
     if (component_type.associated_values().size() == 1) {
-        reference = reference.with_type_name(component_type.associated_values()[0]);
+        reference = reference.with_type_name(component_type.associated_values()[0], "????");
     }
     else if (component_type.is(tokenizer::identifier)) {
-        reference = reference.with_type_name(component_type.string_value());
+        reference = reference.with_type_name(component_type.string_value(), "????");
     }
     else if (component_type.associated_values().size() == 2) {
         reference = reference
-            .with_type_name(component_type.associated_values().back())
+            .with_type_name(component_type.associated_values().back(), "????")
             .with_container(component_type.associated_values().front());
     }
     else {
@@ -121,14 +121,15 @@ auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference
     auto output_type = ctx.type_named(ref.type_name());
     auto tmpl = output_type->binary_template();
 
-    graphite::data::block block(content.size() + 1);
-    graphite::data::writer writer(&block);
+    graphite::data::block block;
 
     if (tmpl && (tmpl->field_count() == 1) && (tmpl->all_fields().front().has_lua_byte_code_type())) {
         auto byte_code = assembler::compiler::lua::compile(content, name);
-        writer.write_data(&byte_code);
+        block = byte_code;
     }
     else {
+        block = graphite::data::block(content.size() + 1);
+        graphite::data::writer writer(&block);
         writer.write_cstr(content);
     }
 
@@ -200,7 +201,7 @@ auto kdl::sema::component::parse_types(foundation::stream<tokenizer::token> &str
     while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
         if (stream.expect({ expectation(tokenizer::identifier).be_true() })) {
             auto type_name = stream.read();
-            if (auto type = ctx.type_named(type_name.string_value())) {
+            if (auto type = ctx.type_named(type_name.source())) {
                 codegen::lua::exporter exporter(type, ctx.create_scope());
                 synthesize_resource(ctx, ref, exporter.generate(), type_name.string_value());
             }

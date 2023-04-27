@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <libKDL/codegen/lua/exporter.hpp>
 #include <libKDL/spec/types.hpp>
 #include <libKDL/spec/decorators.hpp>
@@ -217,7 +218,7 @@ auto kdl::codegen::lua::exporter::prepare_template_read_calls(ast::symbol *resou
 
             for (auto i = 0; i < field.value_count(); ++i) {
                 const auto& value = field.value_at(i);
-                binary_field = &tmpl->field_named(value.base_name());
+                binary_field = &tmpl->field_named(field.repeatable().count_field()->label() + "." + value.base_name());
                 auto value_reader = produce_read_call(binary_field, &value, data);
                 m_type.binary_fields.emplace(binary_field->label(), value_reader);
 
@@ -269,12 +270,14 @@ auto kdl::codegen::lua::exporter::prepare_template_read_calls(ast::symbol *resou
         auto it = m_type.binary_fields.find(binary_field.label());
         if (it == m_type.binary_fields.end()) {
             auto skip_length = static_cast<std::int64_t>(binary_field.skip_length());
-            m_generator.call(m_generator.symbol("data"), m_api.skip, { m_generator.number(skip_length) });
+            m_generator.emit(
+                m_generator.call(m_generator.symbol("data"), m_api.skip, { m_generator.number(skip_length) })
+            );
             continue;
         }
 
         auto resource_member = m_generator.member(m_generator.private_symbol(m_generator.camel_case(binary_field.label())), resource);
-        if (binary_field.is_list()) {
+        if (!binary_field.is_list()) {
             m_generator.assign(resource_member, it->second);
         }
         else {
@@ -609,14 +612,26 @@ auto kdl::codegen::lua::exporter::produce_type_constants() -> void
 {
     m_generator.add_comment("Constants");
 
-    auto produce_constants_for_value = [&] (const resource::definition::type::field_value& value, std::int64_t lower_bound) {
+    auto produce_constants_for_value = [&] (const resource::definition::type::field_value& value, std::int64_t lower_bound, const std::string& prefix) {
         if (!value.has_symbols()) {
             return;
         }
 
         auto scope = m_scope->subscope();
-        scope.add_variable("FieldNumber", lower_bound);
-        auto binary_field = m_type_definition->binary_template()->field_named(value.extended_name(scope));
+        if (lower_bound != std::numeric_limits<std::int64_t>::max()) {
+            scope.add_variable("FieldNumber", lower_bound);
+        }
+
+        auto name = value.extended_name(*m_scope);
+        auto extended_name = value.extended_name(scope);
+        if (m_type_definition->binary_template()->has_field_named(extended_name)) {
+            name = extended_name;
+        }
+
+        if (!prefix.empty()) {
+            name = prefix + "." + name;
+        }
+        auto binary_field = m_type_definition->binary_template()->field_named(name);
 
         auto constants_metadata = reinterpret_cast<ast::userdata_literal *>(m_generator.userdata_literal());
         m_generator.assign(m_generator.symbol(value.base_name()), m_generator.comma(constants_metadata));
@@ -627,58 +642,56 @@ auto kdl::codegen::lua::exporter::produce_type_constants() -> void
                 auto symbol_value = symbol.second.value();
 
                 ast::node *constant = m_generator.nil();
-                if (value.is_type_explicit()) {
-                    if (value.type().is_reference()) {
-                        auto global = m_generator.call(m_api.namespace_global);
-                        constant = m_generator.call(global, m_api.identified_resource, {
-                            m_generator.number(symbol_value.integer_value<std::int64_t>())
+                if (value.type().is_reference()) {
+                    auto global = m_generator.call(m_api.container_global);
+                    constant = m_generator.call(global, m_api.identified_resource, {
+                        m_generator.number(symbol_value.integer_value<std::int64_t>())
+                    });
+                }
+                else if (value.type().has_name()) {
+                    if (value.type().name() == spec::types::color) {
+                        constant = m_generator.call(m_api.color_klass_color_value, {
+                            m_generator.number(symbol_value.integer_value<std::uint32_t>())
                         });
                     }
-                    else if (value.type().has_name()) {
-                        if (value.type().name() == spec::types::color) {
-                            constant = m_generator.call(m_api.color_klass_color_value, {
-                                m_generator.number(symbol_value.integer_value<std::uint32_t>())
-                            });
-                        }
-                        else if (
-                            value.type().name() == spec::types::bitmask ||
-                            value.type().name() == spec::types::range ||
-                            value.type().name() == spec::types::integer
+                    else if (
+                        value.type().name() == spec::types::bitmask ||
+                        value.type().name() == spec::types::range ||
+                        value.type().name() == spec::types::integer
                         ) {
-                            constant = m_generator.number(symbol_value.integer_value<std::int64_t>());
-                        }
-                        else if (
-                            value.type().name() == spec::types::file ||
-                            value.type().name() == spec::types::string
-                        ) {
-                            constant = m_generator.string(symbol_value.string_value());
-                        }
+                        constant = m_generator.number(symbol_value.integer_value<std::int64_t>());
                     }
-                    else {
-                        switch (binary_field.type().value()) {
-                            case resource::definition::binary_template::type::DBYT:
-                            case resource::definition::binary_template::type::DWRD:
-                            case resource::definition::binary_template::type::DLNG:
-                            case resource::definition::binary_template::type::DQWD:
-                            case resource::definition::binary_template::type::HBYT:
-                            case resource::definition::binary_template::type::HWRD:
-                            case resource::definition::binary_template::type::HLNG:
-                            case resource::definition::binary_template::type::HQWD:
-                            case resource::definition::binary_template::type::OCNT:
-                            case resource::definition::binary_template::type::CHAR: {
-                                constant = m_generator.number(symbol_value.integer_value<std::int64_t>());
-                                break;
-                            }
+                    else if (
+                        value.type().name() == spec::types::file ||
+                        value.type().name() == spec::types::string
+                        ) {
+                        constant = m_generator.string(symbol_value.string_value());
+                    }
+                }
+                else {
+                    switch (binary_field.type().value()) {
+                        case resource::definition::binary_template::type::DBYT:
+                        case resource::definition::binary_template::type::DWRD:
+                        case resource::definition::binary_template::type::DLNG:
+                        case resource::definition::binary_template::type::DQWD:
+                        case resource::definition::binary_template::type::HBYT:
+                        case resource::definition::binary_template::type::HWRD:
+                        case resource::definition::binary_template::type::HLNG:
+                        case resource::definition::binary_template::type::HQWD:
+                        case resource::definition::binary_template::type::OCNT:
+                        case resource::definition::binary_template::type::CHAR: {
+                            constant = m_generator.number(symbol_value.integer_value<std::int64_t>());
+                            break;
+                        }
 
-                            case resource::definition::binary_template::type::PSTR:
-                            case resource::definition::binary_template::type::CSTR:
-                            case resource::definition::binary_template::type::Cnnn: {
-                                constant = m_generator.string(symbol_value.string_value());
-                                break;
-                            }
-                            default: {
-                                break;
-                            }
+                        case resource::definition::binary_template::type::PSTR:
+                        case resource::definition::binary_template::type::CSTR:
+                        case resource::definition::binary_template::type::Cnnn: {
+                            constant = m_generator.string(symbol_value.string_value());
+                            break;
+                        }
+                        default: {
+                            break;
                         }
                     }
                 }
@@ -693,10 +706,19 @@ auto kdl::codegen::lua::exporter::produce_type_constants() -> void
     m_generator.push(userdata->block());
     {
         for (auto& field : m_type_definition->all_fields()) {
+            std::string prefix;
+            std::int64_t lower_bound = std::numeric_limits<std::int64_t>::max();
+            if (field.repeatable().enabled()) {
+                lower_bound = field.repeatable().lower_bound();
+                if (field.repeatable().has_count_field()) {
+                    prefix = field.repeatable().count_field()->label();
+                }
+            }
+
             for (const auto& value : field.values()) {
-                produce_constants_for_value(value, field.repeatable().lower_bound());
+                produce_constants_for_value(value, lower_bound, prefix);
                 for (const auto& joined : value.joined_values()) {
-                    produce_constants_for_value(joined, field.repeatable().lower_bound());
+                    produce_constants_for_value(joined, lower_bound, prefix);
                 }
             }
         }
@@ -735,7 +757,7 @@ auto kdl::codegen::lua::exporter::produce_property_setter(ast::property_definiti
     m_generator.synthesize_setter(property);
 }
 
-// MNARK: - Code Generator
+// MARK: - Code Generator
 
 auto kdl::codegen::lua::exporter::generate() -> std::string
 {

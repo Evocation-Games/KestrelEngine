@@ -46,8 +46,11 @@ auto kestrel::ui::imgui::button::internal_draw() -> void
     }
 
     if (ImGui::Button(m_label.c_str())) {
-        if (m_action.isFunction()) {
-            m_action();
+        if (m_action.index() == 2 && std::get<luabridge::LuaRef>(m_action).isFunction()) {
+            std::get<luabridge::LuaRef>(m_action)();
+        }
+        else if (m_action.index() == 1) {
+            std::get<ui::action>(m_action).execute();
         }
     }
 }

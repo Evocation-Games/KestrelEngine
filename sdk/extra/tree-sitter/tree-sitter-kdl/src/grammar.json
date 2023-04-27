@@ -2091,6 +2091,10 @@
                   {
                     "type": "SYMBOL",
                     "name": "scene_element"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "scene_background"
                   }
                 ]
               },
@@ -2126,11 +2130,11 @@
               },
               {
                 "type": "STRING",
-                "value": "Size"
+                "value": "Frame"
               },
               {
                 "type": "STRING",
-                "value": "Script"
+                "value": "Size"
               }
             ]
           }
@@ -2170,6 +2174,95 @@
         }
       ]
     },
+    "scene_background": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "Background"
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "expression"
+            },
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "{"
+                },
+                {
+                  "type": "REPEAT",
+                  "content": {
+                    "type": "SEQ",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "scene_background_component"
+                      },
+                      {
+                        "type": "STRING",
+                        "value": ";"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "STRING",
+                  "value": "}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "scene_background_component": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "Top"
+              },
+              {
+                "type": "STRING",
+                "value": "Fill"
+              },
+              {
+                "type": "STRING",
+                "value": "Bottom"
+              }
+            ]
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "expression"
+          }
+        }
+      ]
+    },
     "scene_element": {
       "type": "SEQ",
       "members": [
@@ -2189,43 +2282,7 @@
               },
               {
                 "type": "STRING",
-                "value": "TextArea"
-              },
-              {
-                "type": "STRING",
-                "value": "Image"
-              },
-              {
-                "type": "STRING",
-                "value": "TextField"
-              },
-              {
-                "type": "STRING",
                 "value": "Checkbox"
-              },
-              {
-                "type": "STRING",
-                "value": "List"
-              },
-              {
-                "type": "STRING",
-                "value": "ScrollArea"
-              },
-              {
-                "type": "STRING",
-                "value": "Grid"
-              },
-              {
-                "type": "STRING",
-                "value": "LabeledList"
-              },
-              {
-                "type": "STRING",
-                "value": "Canvas"
-              },
-              {
-                "type": "STRING",
-                "value": "Sprite"
               },
               {
                 "type": "STRING",
@@ -2233,23 +2290,31 @@
               },
               {
                 "type": "STRING",
-                "value": "Slider"
+                "value": "Canvas"
               },
               {
                 "type": "STRING",
-                "value": "Table"
+                "value": "Image"
               },
               {
                 "type": "STRING",
-                "value": "Box"
+                "value": "Sprite"
               },
               {
                 "type": "STRING",
-                "value": "Radio"
+                "value": "TextField"
               },
               {
                 "type": "STRING",
-                "value": "TabBar"
+                "value": "TextArea"
+              },
+              {
+                "type": "STRING",
+                "value": "Grid"
+              },
+              {
+                "type": "STRING",
+                "value": "List"
               },
               {
                 "type": "STRING",
@@ -2257,7 +2322,27 @@
               },
               {
                 "type": "STRING",
-                "value": "Spacer"
+                "value": "Slider"
+              },
+              {
+                "type": "STRING",
+                "value": "RadioButton"
+              },
+              {
+                "type": "STRING",
+                "value": "TimedTrigger"
+              },
+              {
+                "type": "STRING",
+                "value": "KeyTrigger"
+              },
+              {
+                "type": "STRING",
+                "value": "VerticalSpacer"
+              },
+              {
+                "type": "STRING",
+                "value": "HorizontalSpacer"
               },
               {
                 "type": "STRING",
@@ -2332,19 +2417,83 @@
             "members": [
               {
                 "type": "STRING",
+                "value": "ID"
+              },
+              {
+                "type": "STRING",
                 "value": "Frame"
               },
               {
                 "type": "STRING",
-                "value": "Label"
+                "value": "Y"
               },
               {
                 "type": "STRING",
-                "value": "Value"
+                "value": "X"
+              },
+              {
+                "type": "STRING",
+                "value": "Size"
+              },
+              {
+                "type": "STRING",
+                "value": "Color"
+              },
+              {
+                "type": "STRING",
+                "value": "BackgroundColor"
+              },
+              {
+                "type": "STRING",
+                "value": "SelectionColor"
+              },
+              {
+                "type": "STRING",
+                "value": "BorderColor"
+              },
+              {
+                "type": "STRING",
+                "value": "SecondaryColor"
+              },
+              {
+                "type": "STRING",
+                "value": "Font"
+              },
+              {
+                "type": "STRING",
+                "value": "FontSize"
+              },
+              {
+                "type": "STRING",
+                "value": "Hidden"
+              },
+              {
+                "type": "STRING",
+                "value": "Disabled"
+              },
+              {
+                "type": "STRING",
+                "value": "Weight"
+              },
+              {
+                "type": "STRING",
+                "value": "HorizontalAlignment"
+              },
+              {
+                "type": "STRING",
+                "value": "VerticalAlignment"
+              },
+              {
+                "type": "STRING",
+                "value": "AxisOrigin"
               },
               {
                 "type": "STRING",
                 "value": "Action"
+              },
+              {
+                "type": "STRING",
+                "value": "Value"
               }
             ]
           }

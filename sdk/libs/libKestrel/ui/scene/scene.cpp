@@ -162,7 +162,7 @@ auto kestrel::ui::scene::render() -> void
 
 auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity) const -> void
 {
-    if (entity->sprite_sheet()->sprite_count() == 0) {
+    if (entity->sprite_sheet() == nullptr || entity->sprite_sheet()->sprite_count() == 0) {
         return;
     }
 

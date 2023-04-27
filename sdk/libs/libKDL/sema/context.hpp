@@ -20,9 +20,10 @@
 
 #pragma once
 
+#include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
+#include <libLexer/lexeme.hpp>
 #include <libKDL/sema/decorator/decorator.hpp>
 #include <libResource/definition/type/instance.hpp>
 #include <libResource/declaration/instance.hpp>
@@ -54,6 +55,7 @@ namespace kdl::sema
 
         auto register_type(const resource::definition::type::instance& type) -> resource::definition::type::instance *;
         [[nodiscard]] auto type_named(const std::string& name) const -> const resource::definition::type::instance *;
+        [[nodiscard]] auto type_named(const lexer::lexeme& lx) const -> const resource::definition::type::instance *;
         [[nodiscard]] auto type(const resource::definition::type::descriptor& descriptor) const -> const resource::definition::type::instance *;
 
         auto create_scope() -> interpreter::scope *;

@@ -91,11 +91,11 @@ auto kestrel::ui::widgets::scrollview_widget::bind_internal_events() -> void
 auto kestrel::ui::widgets::scrollview_widget::receive_event(const event &e) -> bool
 {
     if (e.is_mouse_event()) {
-        if (e.has(event_type::mouse_drag)) {
+        if (e.has(::ui::event::mouse_drag)) {
             auto delta = e.location() - m_drag_mouse_origin;
             set_scroll_offset(m_drag_scroll_origin - delta);
         }
-        else if (e.has(event_type::any_mouse_down)) {
+        else if (e.has(::ui::event::any_mouse_down)) {
             m_drag_mouse_origin = e.location();
             m_drag_scroll_origin = m_scroll_offset;
         }

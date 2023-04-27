@@ -219,7 +219,7 @@ auto kestrel::ui::widgets::text_widget::did_resign_first_responder() -> void
 
 auto kestrel::ui::widgets::text_widget::receive_event(const event& e) -> bool
 {
-    if (e.has(event_type::any_mouse_down)) {
+    if (e.has(::ui::event::any_mouse_down)) {
         if (entity()->hit_test(e.location() - entity()->position())) {
             auto& chain = ui::game_scene::current()->responder_chain();
             chain.set_first_responder(this);

@@ -40,6 +40,7 @@ namespace kestrel::resource
         has_constructable_lua_api(reader);
 
         reader(const std::string& type, graphite::rsrc::resource::identifier id);
+        explicit reader(const graphite::data::block *data);
         lua_constructor(Available_0_8) explicit reader(const descriptor::lua_reference& ref);
 
         lua_getter(isValid, Available_0_8) [[nodiscard]] auto valid() const -> bool;
@@ -76,6 +77,8 @@ namespace kestrel::resource
         lua_function(switchOnResourceReference, Available_0_8) auto switch_on_resource_reference(const luabridge::LuaRef& body) -> void;
 
         lua_function(skip, Available_0_8) auto skip(int delta) -> void;
+
+        auto read_remaining_data() -> graphite::data::block;
 
     private:
         graphite::rsrc::resource::identifier m_id;

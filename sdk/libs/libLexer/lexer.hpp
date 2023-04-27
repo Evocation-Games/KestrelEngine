@@ -47,6 +47,7 @@ namespace lexer
          * @param source The source file
          */
         explicit lexer(const std::shared_ptr<foundation::filesystem::file>& source);
+        explicit lexer(const std::string& str);
 
         auto add_keyword(const std::string& keyword) -> void;
 

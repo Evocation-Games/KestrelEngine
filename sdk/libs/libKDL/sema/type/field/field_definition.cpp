@@ -143,9 +143,14 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
                 expectation(tokenizer::identifier).be_true(),
                 expectation(tokenizer::identifier_path).be_true()
             })) {
+                std::string prefix;
+                if (field.repeatable().enabled() && field.repeatable().has_count_field()) {
+                    prefix = field.repeatable().count_field()->label();
+                }
+
                 ctx.current_field = &field;
                 auto decorators = ctx.current_decorators;
-                auto value = parse_value(stream, ctx);
+                auto value = parse_value(stream, ctx, prefix);
                 ctx.current_decorators = decorators;
                 value.add_decorators(ctx.current_decorators.decorators);
                 ctx.current_decorators.decorators.clear();
@@ -199,7 +204,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
     return field;
 }
 
-auto kdl::sema::type_definition::field_definition::parse_value(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field_value
+auto kdl::sema::type_definition::field_definition::parse_value(foundation::stream<tokenizer::token> &stream, context &ctx, const std::string& prefix) -> resource::definition::type::field_value
 {
     const auto value_identifier = stream.read();
     resource::definition::type::descriptor explicit_type(false);
@@ -233,6 +238,11 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
             }
         }
     }
+
+    if (!prefix.empty()) {
+        binary_field_name = prefix + "." + binary_field_name;
+    }
+
     ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(binary_field_name);
     resource::definition::type::field_value value(ctx.current_binary_field, value_identifier.path_value("."));
 

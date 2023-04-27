@@ -21,11 +21,14 @@
 #pragma once
 
 #include <string>
+#include <variant>
 #include <imgui/imgui.h>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
+#include <libKestrel/lua/script.hpp>
 #include <libKestrel/font/manager.hpp>
 #include <libKestrel/ui/imgui/widget.hpp>
+#include <libKestrel/ui/types/action/action.hpp>
 
 namespace kestrel::ui::imgui
 {
@@ -43,6 +46,7 @@ namespace kestrel::ui::imgui
         lua_setter(label, Available_0_8) auto set_label(const std::string& label) -> void { m_label = label; }
 
         lua_function(setAction, Available_0_8) auto set_action(luabridge::LuaRef action) -> void { m_action = action; }
+        auto set_script_action(const ui::action& action) -> void { m_action = action; }
 
         lua_getter(position, Available_0_8) [[nodiscard]] auto position() const -> math::point override { return widget::position(); }
         lua_setter(position, Available_0_8) auto set_position(const math::point &position) -> void override { widget::set_position(position); }
@@ -57,7 +61,7 @@ namespace kestrel::ui::imgui
 
     private:
         std::string m_label;
-        luabridge::LuaRef m_action { nullptr };
+        std::variant<int, ui::action, luabridge::LuaRef> m_action { 0 };
         kestrel::font::reference::lua_reference m_font { nullptr };
 
         auto internal_draw() -> void;

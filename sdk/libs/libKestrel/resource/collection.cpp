@@ -43,7 +43,12 @@ auto kestrel::resource::collection::add_resource(const descriptor::lua_reference
     }
 
     // Not found, so add new entry.
-    m_resources.emplace_back(std::pair(key, resource));
+    m_resources.emplace_back(key, resource);
+}
+
+auto kestrel::resource::collection::remove_resource(const descriptor::lua_reference &descriptor) -> void
+{
+
 }
 
 auto kestrel::resource::collection::random() const -> luabridge::LuaRef

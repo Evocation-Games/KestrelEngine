@@ -36,15 +36,15 @@ auto kestrel::text_entry_event::receive(const event& e) -> void
 {
     if (e.is_key_event()) {
         switch (e.key()) {
-            case hid::enter:
-            case hid::kp_enter: {
-                if (e.has(event_type::key_up)) {
+            case ui::hid::enter:
+            case ui::hid::kp_enter: {
+                if (e.has(ui::event::type::key_up)) {
                     m_on_enter(m_value);
                 }
                 return;
             }
-            case hid::escape: {
-                if (e.has(event_type::key_up)) {
+            case ui::hid::escape: {
+                if (e.has(ui::event::type::key_up)) {
                     m_on_escape();
                 }
                 return;
@@ -55,24 +55,24 @@ auto kestrel::text_entry_event::receive(const event& e) -> void
         }
 
         // We don't want to deal with general key events, only pressed keys.
-        if (!e.has(event_type::key_down)) {
+        if (!e.has(ui::event::type::key_down)) {
             return;
         }
 
         switch (e.key()) {
-            case hid::left: {
+            case ui::hid::left: {
                 if (m_cursor > 0) {
                     m_cursor--;
                 }
                 break;
             }
-            case  hid::right: {
+            case  ui::hid::right: {
                 if (m_cursor < m_value.size()) {
                     m_cursor++;
                 }
                 break;
             }
-            case hid::backspace: {
+            case ui::hid::backspace: {
                 if (m_cursor == 0) {
                     return;
                 }
@@ -84,7 +84,7 @@ auto kestrel::text_entry_event::receive(const event& e) -> void
             // The general handler will default to the keymap.
             default: {
                 const auto& mapping = m_keymap[static_cast<int>(e.key())];
-                char c[2] = { e.has(event_type::has_shift_modifier) ? mapping.shifted : mapping.base, '\0' };
+                char c[2] = { e.has(ui::event::type::has_shift_modifier) ? mapping.shifted : mapping.base, '\0' };
                 if (c[0] != '\0') {
                     m_value.insert(m_cursor, c);
                     m_cursor++;
@@ -121,42 +121,42 @@ auto kestrel::text_entry_event::set_cursor_position(const int& position) -> void
 
 auto kestrel::text_entry_event::load_default_keymap() -> void
 {
-    for (int k = hid::a; k <= hid::z; ++k) {
+    for (int k = ui::hid::a; k <= ui::hid::z; ++k) {
         m_keymap[k] = { static_cast<char>((k - 'A') + 'a'), static_cast<char>(k) };
         m_keymap[m_keymap[k].base] = m_keymap[k];
     }
 
-    m_keymap[hid::num1] = { '1', '!' };
-    m_keymap[hid::num2] = { '2', '@' };
-    m_keymap[hid::num3] = { '3', '#' };
-    m_keymap[hid::num4] = { '4', '$' };
-    m_keymap[hid::num5] = { '5', '%' };
-    m_keymap[hid::num6] = { '6', '^' };
-    m_keymap[hid::num7] = { '7', '&' };
-    m_keymap[hid::num8] = { '8', '*' };
-    m_keymap[hid::num9] = { '9', '(' };
-    m_keymap[hid::num0] = { '0', ')' };
+    m_keymap[ui::hid::num1] = { '1', '!' };
+    m_keymap[ui::hid::num2] = { '2', '@' };
+    m_keymap[ui::hid::num3] = { '3', '#' };
+    m_keymap[ui::hid::num4] = { '4', '$' };
+    m_keymap[ui::hid::num5] = { '5', '%' };
+    m_keymap[ui::hid::num6] = { '6', '^' };
+    m_keymap[ui::hid::num7] = { '7', '&' };
+    m_keymap[ui::hid::num8] = { '8', '*' };
+    m_keymap[ui::hid::num9] = { '9', '(' };
+    m_keymap[ui::hid::num0] = { '0', ')' };
 
-    for (int n = hid::num0; n <= hid::num9; ++n) {
-        m_keymap[hid::kp_0 + (n - hid::num0)] = m_keymap[n];
+    for (int n = ui::hid::num0; n <= ui::hid::num9; ++n) {
+        m_keymap[ui::hid::kp_0 + (n - ui::hid::num0)] = m_keymap[n];
     }
 
-    m_keymap[hid::apostrophe] = { '\'', '"' };
-    m_keymap[hid::semi_colon] = { ';', ':' };
-    m_keymap[hid::backslash] = { '\\', '|' };
-    m_keymap[hid::grave_accent] = { '`', '~' };
-    m_keymap[hid::left_bracket] = { '[', '{' };
-    m_keymap[hid::right_bracket] = { ']', '}' };
-    m_keymap[hid::comma] = { ',', '<' };
-    m_keymap[hid::period] = { '.', '>' };
-    m_keymap[hid::slash] = { '/', '?' };
-    m_keymap[hid::equal] = { '=', '+' };
-    m_keymap[hid::minus] = { '-', '_' };
-    m_keymap[hid::tab] = { '\t', '\t' };
-    m_keymap[hid::space] = { ' ', ' ' };
-    m_keymap[hid::apostrophe] = { '\'', '"' };
-    m_keymap[hid::left_bracket] = { '[', '{' };
-    m_keymap[hid::right_bracket] = { ']', '}' };
+    m_keymap[ui::hid::apostrophe] = { '\'', '"' };
+    m_keymap[ui::hid::semi_colon] = { ';', ':' };
+    m_keymap[ui::hid::backslash] = { '\\', '|' };
+    m_keymap[ui::hid::grave_accent] = { '`', '~' };
+    m_keymap[ui::hid::left_bracket] = { '[', '{' };
+    m_keymap[ui::hid::right_bracket] = { ']', '}' };
+    m_keymap[ui::hid::comma] = { ',', '<' };
+    m_keymap[ui::hid::period] = { '.', '>' };
+    m_keymap[ui::hid::slash] = { '/', '?' };
+    m_keymap[ui::hid::equal] = { '=', '+' };
+    m_keymap[ui::hid::minus] = { '-', '_' };
+    m_keymap[ui::hid::tab] = { '\t', '\t' };
+    m_keymap[ui::hid::space] = { ' ', ' ' };
+    m_keymap[ui::hid::apostrophe] = { '\'', '"' };
+    m_keymap[ui::hid::left_bracket] = { '[', '{' };
+    m_keymap[ui::hid::right_bracket] = { ']', '}' };
 }
 
 // MARK: - Callbacks

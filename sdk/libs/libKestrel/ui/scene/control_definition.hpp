@@ -22,7 +22,13 @@
 
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
+#include <libKestrel/lua/script.hpp>
 #include <libKestrel/math/rect.hpp>
+#include <libKestrel/ui/types/action/action.hpp>
+#include <libKestrel/ui/types/value/value.hpp>
+#include <libKestrel/ui/alignment.hpp>
+#include <libKestrel/graphics/types/color.hpp>
+#include <libKestrel/font/font.hpp>
 
 namespace kestrel::ui
 {
@@ -78,13 +84,31 @@ namespace kestrel::ui
         lua_getter(anchor, Available_0_8) [[nodiscard]] auto anchor() const -> std::uint8_t;
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(type, Available_0_8) [[nodiscard]] auto type() const -> std::uint8_t;
-        lua_getter(suggestedValue, Available_0_8) [[nodiscard]] auto suggested_value() const -> std::string;
+        lua_getter(backgroundColor, Available_0_9) [[nodiscard]] auto background_color() const -> graphics::color::lua_reference;
+        lua_getter(borderColor, Available_0_9) [[nodiscard]] auto border_color() const -> graphics::color::lua_reference;
+        lua_getter(textColor, Available_0_9) [[nodiscard]] auto text_color() const -> graphics::color::lua_reference;
+        lua_getter(secondaryTextColor, Available_0_9) [[nodiscard]] auto secondary_text_color() const -> graphics::color::lua_reference;
+        lua_getter(selectionColor, Available_0_9) [[nodiscard]] auto selection_color() const -> graphics::color::lua_reference;
+        lua_getter(alignment, Available_0_9) [[nodiscard]] auto alignment() const -> ui::horizontal_alignment;
+        lua_getter(font, Available_0_9) [[nodiscard]] auto font() const -> font::reference::lua_reference;
+        lua_getter(value, Available_0_9) [[nodiscard]] auto value() const -> ui::value;
 
         lua_setter(anchor, Available_0_8) auto set_anchor(std::uint8_t anchor) -> void;
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& frame) -> void;
         lua_setter(type, Available_0_8) auto set_type(std::uint8_t type) -> void;
+        lua_setter(backgroundColor, Available_0_9) auto set_background_color(const graphics::color::lua_reference& value) -> void;
+        lua_setter(borderColor, Available_0_9) auto set_border_color(const graphics::color::lua_reference& value) -> void;
+        lua_setter(textColor, Available_0_9) auto set_text_color(const graphics::color::lua_reference& value) -> void;
+        lua_setter(secondaryTextColor, Available_0_9) auto set_secondary_text_color(const graphics::color::lua_reference& value) -> void;
+        lua_setter(selectionColor, Available_0_9) auto set_selection_color(const graphics::color::lua_reference& value) -> void;
+        lua_setter(alignment, Available_0_9) auto set_alignment(ui::horizontal_alignment alignment) -> void;
+        lua_setter(font, Available_0_9) auto set_font(const font::reference::lua_reference& font) -> void;
+        lua_setter(value, Available_0_9) auto set_value(const ui::value& value) -> void;
 
         auto recalculate_frame() -> void;
+
+        auto set_script_action(const ui::action& action) -> void;
+        [[nodiscard]] auto script_action() const -> ui::action;
 
     private:
         const dialog_layout *m_layout { nullptr };
@@ -93,7 +117,15 @@ namespace kestrel::ui
         enum anchor m_anchor { 0 };
         math::rect m_frame;
         std::vector<std::uint16_t> m_element_index_vec;
+        ui::action m_script_action;
+        ui::value m_value;
+        graphics::color::lua_reference m_background_color { nullptr };
+        graphics::color::lua_reference m_border_color { nullptr };
+        graphics::color::lua_reference m_text_color { nullptr };
+        graphics::color::lua_reference m_secondary_text_color { nullptr };
+        graphics::color::lua_reference m_selection_color { nullptr };
+        ui::horizontal_alignment m_alignment { ui::horizontal_alignment::left };
+        font::reference::lua_reference m_font { nullptr };
     };
-
 
 }

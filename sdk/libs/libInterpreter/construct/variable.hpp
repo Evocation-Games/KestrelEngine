@@ -39,6 +39,8 @@ namespace interpreter
         [[nodiscard]] auto hash() const -> foundation::hashing::value;
         [[nodiscard]] auto value() const -> const token&;
 
+        auto set_value(const token& tk) -> void;
+
     private:
         std::string m_name;
         token m_token;

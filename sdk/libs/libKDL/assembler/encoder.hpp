@@ -23,6 +23,7 @@
 #include <libResource/declaration/instance.hpp>
 #include <libResource/definition/type/instance.hpp>
 #include <libGraphite/data/writer.hpp>
+#include <libKDL/sema/context.hpp>
 
 namespace kdl::assembler
 {
@@ -30,12 +31,13 @@ namespace kdl::assembler
     {
         explicit encoder(const resource::instance& instance, const resource::definition::type::instance *type, const std::vector<std::string>& definitions);
 
-        auto encode() -> const graphite::data::block&;
+        auto encode(const sema::context *ctx) -> const graphite::data::block&;
 
     private:
         const resource::instance *m_instance_ref { nullptr };
         const resource::definition::type::instance *m_type { nullptr };
         graphite::data::writer m_writer;
+        const sema::context *m_context { nullptr };
         bool m_use_extended_resource_id { true };
 
         auto encode_binary_template(const std::string& prefix, const resource::definition::binary_template::instance *binary_template) -> void;

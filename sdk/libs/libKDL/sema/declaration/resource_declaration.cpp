@@ -128,7 +128,7 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
     }
 
     // Setup the resource instance
-    ::resource::instance resource(id.with_type_name(ctx.current_type->name()));
+    ::resource::instance resource(id.with_type_name(ctx.current_type->name(), ctx.current_type->code()));
     resource.set_name(name);
 
     // Apply defaults to the resource instance.
@@ -144,9 +144,6 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
 
             bool first = true;
             for (const auto& value : field.values()) {
-                if (!value.has_default_value()) {
-                    break;
-                }
                 if (!first) {
                     stream.push({ lexer::lexeme(",", lexer::comma), tokenizer::comma });
                 }

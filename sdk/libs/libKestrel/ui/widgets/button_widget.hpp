@@ -33,6 +33,8 @@
 #include <libKestrel/ui/entity/scene_entity.hpp>
 #include <libKestrel/font/manager.hpp>
 #include <libKestrel/font/font.hpp>
+#include <libKestrel/ui/types/action/action.hpp>
+#include <libUI/controls/button.hpp>
 
 namespace kestrel::ui::widgets
 {
@@ -68,6 +70,7 @@ namespace kestrel::ui::widgets
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(disabled, Available_0_8) [[nodiscard]] auto disabled() const -> bool;
         lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous() const -> bool;
+        lua_getter(hidden, Available_0_9) [[nodiscard]] auto hidden() const -> bool;
 
         lua_setter(normalStencil, Available_0_8) auto set_normal_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
         lua_setter(pressedStencil, Available_0_8) auto set_pressed_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
@@ -85,6 +88,9 @@ namespace kestrel::ui::widgets
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& r) -> void;
         lua_setter(disabled, Available_0_8) auto set_disabled(bool disabled) -> void;
         lua_setter(continuous, Available_0_8) auto set_continuous_action(bool continuous) -> void;
+        lua_setter(hidden, Available_0_9) auto set_hidden(bool hidden) -> void;
+
+        auto set_ui_action(const ui::action& action) -> void;
 
         auto receive_event(const event& e) -> bool override;
         auto mouse_down() -> void;
@@ -107,6 +113,7 @@ namespace kestrel::ui::widgets
         scene_entity::lua_reference m_entity { nullptr };
         image::static_image::lua_reference m_icon { nullptr };
         luabridge::LuaRef m_action { nullptr };
+        ui::action m_ui_action;
         luabridge::LuaRef m_mouse_enter { nullptr };
         luabridge::LuaRef m_mouse_exit { nullptr };
         luabridge::LuaRef m_user_info { nullptr };

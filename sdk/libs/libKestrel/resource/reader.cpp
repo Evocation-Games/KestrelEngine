@@ -18,12 +18,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <limits>
 #include <unordered_map>
 #include <libKestrel/resource/reader.hpp>
 #include <libKestrel/resource/container.hpp>
 #include <libGraphite/rsrc/manager.hpp>
 
 // MARK: - Construction
+
+kestrel::resource::reader::reader(const graphite::data::block *data)
+    : m_reader(data)
+{}
 
 kestrel::resource::reader::reader(const std::string &type, graphite::rsrc::resource::identifier id)
     : m_reader(nullptr)
@@ -211,7 +216,12 @@ auto kestrel::resource::reader::read_resource_reference() -> descriptor::lua_ref
             // TODO: Constrain to the same file as this data originates from.
         }
 
-        descriptor = descriptor->with_id(read_signed_quad());
+        auto id = read_signed_quad();
+        if (id == std::numeric_limits<std::int64_t>::min() + 1) {
+            return { nullptr };
+        }
+
+        descriptor = descriptor->with_id(id);
         return descriptor;
     }
     else {
@@ -242,4 +252,9 @@ auto kestrel::resource::reader::switch_on_resource_reference(const luabridge::Lu
 auto kestrel::resource::reader::skip(int delta) -> void
 {
     m_reader.move(delta);
+}
+
+auto kestrel::resource::reader::read_remaining_data() -> graphite::data::block
+{
+    return m_reader.read_data(m_reader.size() - m_reader.position());
 }

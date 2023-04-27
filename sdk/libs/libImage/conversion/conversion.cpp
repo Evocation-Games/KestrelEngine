@@ -94,6 +94,14 @@ auto image::conversion::data(const std::string& result, const std::vector<graphi
             auto ptr = std::make_unique<codec::ppat>(surface);
             data = std::move(ptr->data());
         }
+        else if (result == format::rled) {
+            auto ptr = std::make_unique<codec::rled>(surfaces);
+            data = std::move(ptr->data());
+        }
+        else if (result == format::rlex) {
+            auto ptr = std::make_unique<codec::rlex>(surfaces);
+            data = std::move(ptr->data());
+        }
     }
     else if (surfaces.size() > 1) {
         if (result == format::rled) {

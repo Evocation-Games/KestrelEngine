@@ -32,14 +32,14 @@ kestrel::math::line::line(const point &p, const point &q)
 
 auto kestrel::math::line::operator*(float f) const -> line
 {
-    auto x = (p.m_value.lower() + q.m_value.upper()) * f;
-    return { point(x.lower() + x.lower().swapped()), point(x.upper() + x.upper().swapped()) };
+    auto x = simd::float32::lower_upper_merge(p.m_value.lower(), q.m_value.upper()) * f;
+    return { point(x.lower().swapped()), point(x.upper().swapped()) };
 }
 
 auto kestrel::math::line::operator/(float f) const -> line
 {
-    auto x = (p.m_value.lower() + q.m_value.upper()) / f;
-    return { point(x.lower() + x.lower().swapped()), point(x.upper() + x.upper().swapped()) };
+    auto x = simd::float32::lower_upper_merge(p.m_value.lower(), q.m_value.upper()) / f;
+    return { point(x.lower().swapped()), point(x.upper().swapped()) };
 }
 
 // MARK: - Operations

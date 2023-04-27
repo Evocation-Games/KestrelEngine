@@ -30,8 +30,6 @@
 namespace kdl::sema::type_definition::field_definition
 {
     auto test(const foundation::stream<tokenizer::token> &stream) -> bool;
-
     auto parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field;
-
-    auto parse_value(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field_value;
+    auto parse_value(foundation::stream<tokenizer::token> &stream, context &ctx, const std::string& prefix = "") -> resource::definition::type::field_value;
 }

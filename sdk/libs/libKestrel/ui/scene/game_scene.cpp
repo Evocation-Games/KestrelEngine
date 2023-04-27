@@ -78,13 +78,13 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
                 m_menu_widget = { nullptr };
                 return;
             }
-            else if (e.has(event_type::any_mouse_down)) {
+            else if (e.has(::ui::event::any_mouse_down)) {
                 m_menu_widget->will_close();
                 m_menu_widget = { nullptr };
             }
         }
 
-        for (auto entity_ref : m_entities) {
+        for (const auto& entity_ref : m_entities) {
             if (lua::ref_isa<scene_entity>(entity_ref)) {
                 auto entity = entity_ref.cast<scene_entity::lua_reference>();
                 entity->send_event(event::mouse(e.type(), local_point - entity->position()));
@@ -154,7 +154,7 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
 
         // Remove any of the "up" states.
         for (auto it = m_key_states.begin(); it != m_key_states.end();) {
-            if (it->second->is_key_event() && it->second->has(event_type::key_up)) {
+            if (it->second->is_key_event() && it->second->has(::ui::event::key_up)) {
                 it = m_key_states.erase(it);
             }
             else {
@@ -478,7 +478,7 @@ auto kestrel::ui::game_scene::draw_widgets() const -> void
 auto kestrel::ui::game_scene::key(std::int32_t k) const -> event::lua_reference
 {
     if (m_key_states.find(k) == m_key_states.end()) {
-        return { new event(event::key(event_type::none, static_cast<hid::key>(k))) };
+        return { new event(event::key(::ui::event::none, static_cast<::ui::hid::key>(k))) };
     }
     return m_key_states.at(k);
 }
@@ -486,13 +486,13 @@ auto kestrel::ui::game_scene::key(std::int32_t k) const -> event::lua_reference
 auto kestrel::ui::game_scene::is_key_down(std::int32_t k) const -> bool
 {
     const auto& key = this->key(k);
-    return key->has(event_type::key_down) || key->has(event_type::key_repeat);
+    return key->has(::ui::event::key_down) || key->has(::ui::event::key_repeat);
 }
 
 auto kestrel::ui::game_scene::is_key_released(std::int32_t k) const -> bool
 {
     const auto& key = this->key(k);
-    return key->has(event_type::key_up);
+    return key->has(::ui::event::key_up);
 }
 
 // MARK: - Script Importing
@@ -564,4 +564,30 @@ auto kestrel::ui::game_scene::bindings() const -> luabridge::LuaRef
         return m_bindings;
     }
     return { nullptr };
+}
+
+auto kestrel::ui::game_scene::find_function(const std::string &name) const -> luabridge::LuaRef
+{
+    if (m_bindings.isUserdata()) {
+
+    }
+    else if (m_bindings.isTable()) {
+        auto item = m_bindings[name];
+        if (item.isFunction()) {
+            return item;
+        }
+    }
+    return { nullptr };
+}
+
+// MARK: - Dialog
+
+auto kestrel::ui::game_scene::dialog() const -> ui::dialog::lua_reference
+{
+    return m_dialog;
+}
+
+auto kestrel::ui::game_scene::set_dialog(const ui::dialog::lua_reference& dialog) -> void
+{
+    m_dialog = dialog;
 }

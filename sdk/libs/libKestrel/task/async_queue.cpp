@@ -20,6 +20,7 @@
 
 #include <libKestrel/task/async_queue.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
+#include <libKestrel/device/console.hpp>
 
 // MARK: - Task Management
 

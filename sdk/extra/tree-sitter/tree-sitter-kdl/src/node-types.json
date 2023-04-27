@@ -1144,6 +1144,59 @@
     }
   },
   {
+    "type": "scene_background",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "expression",
+          "named": true
+        },
+        {
+          "type": "scene_background_component",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "scene_background_component",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "Bottom",
+            "named": false
+          },
+          {
+            "type": "Fill",
+            "named": false
+          },
+          {
+            "type": "Top",
+            "named": false
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "scene_body",
     "named": true,
     "fields": {},
@@ -1151,6 +1204,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "scene_background",
+          "named": true
+        },
         {
           "type": "scene_element",
           "named": true
@@ -1181,10 +1238,6 @@
         "required": true,
         "types": [
           {
-            "type": "Box",
-            "named": false
-          },
-          {
             "type": "Button",
             "named": false
           },
@@ -1201,15 +1254,19 @@
             "named": false
           },
           {
+            "type": "HorizontalSpacer",
+            "named": false
+          },
+          {
             "type": "Image",
             "named": false
           },
           {
-            "type": "Label",
+            "type": "KeyTrigger",
             "named": false
           },
           {
-            "type": "LabeledList",
+            "type": "Label",
             "named": false
           },
           {
@@ -1225,11 +1282,7 @@
             "named": false
           },
           {
-            "type": "Radio",
-            "named": false
-          },
-          {
-            "type": "ScrollArea",
+            "type": "RadioButton",
             "named": false
           },
           {
@@ -1241,19 +1294,7 @@
             "named": false
           },
           {
-            "type": "Spacer",
-            "named": false
-          },
-          {
             "type": "Sprite",
-            "named": false
-          },
-          {
-            "type": "TabBar",
-            "named": false
-          },
-          {
-            "type": "Table",
             "named": false
           },
           {
@@ -1262,6 +1303,14 @@
           },
           {
             "type": "TextField",
+            "named": false
+          },
+          {
+            "type": "TimedTrigger",
+            "named": false
+          },
+          {
+            "type": "VerticalSpacer",
             "named": false
           }
         ]
@@ -1306,15 +1355,79 @@
             "named": false
           },
           {
+            "type": "AxisOrigin",
+            "named": false
+          },
+          {
+            "type": "BackgroundColor",
+            "named": false
+          },
+          {
+            "type": "BorderColor",
+            "named": false
+          },
+          {
+            "type": "Color",
+            "named": false
+          },
+          {
+            "type": "Disabled",
+            "named": false
+          },
+          {
+            "type": "Font",
+            "named": false
+          },
+          {
+            "type": "FontSize",
+            "named": false
+          },
+          {
             "type": "Frame",
             "named": false
           },
           {
-            "type": "Label",
+            "type": "Hidden",
+            "named": false
+          },
+          {
+            "type": "HorizontalAlignment",
+            "named": false
+          },
+          {
+            "type": "ID",
+            "named": false
+          },
+          {
+            "type": "SecondaryColor",
+            "named": false
+          },
+          {
+            "type": "SelectionColor",
+            "named": false
+          },
+          {
+            "type": "Size",
             "named": false
           },
           {
             "type": "Value",
+            "named": false
+          },
+          {
+            "type": "VerticalAlignment",
+            "named": false
+          },
+          {
+            "type": "Weight",
+            "named": false
+          },
+          {
+            "type": "X",
+            "named": false
+          },
+          {
+            "type": "Y",
             "named": false
           }
         ]
@@ -1348,7 +1461,7 @@
             "named": false
           },
           {
-            "type": "Script",
+            "type": "Frame",
             "named": false
           },
           {
@@ -1797,6 +1910,10 @@
     "named": false
   },
   {
+    "type": "AxisOrigin",
+    "named": false
+  },
+  {
     "type": "BBIT",
     "named": false
   },
@@ -1805,7 +1922,19 @@
     "named": false
   },
   {
-    "type": "Box",
+    "type": "Background",
+    "named": false
+  },
+  {
+    "type": "BackgroundColor",
+    "named": false
+  },
+  {
+    "type": "BorderColor",
+    "named": false
+  },
+  {
+    "type": "Bottom",
     "named": false
   },
   {
@@ -1829,6 +1958,10 @@
     "named": false
   },
   {
+    "type": "Color",
+    "named": false
+  },
+  {
     "type": "DBYT",
     "named": false
   },
@@ -1845,7 +1978,23 @@
     "named": false
   },
   {
+    "type": "Disabled",
+    "named": false
+  },
+  {
+    "type": "Fill",
+    "named": false
+  },
+  {
     "type": "Flags",
+    "named": false
+  },
+  {
+    "type": "Font",
+    "named": false
+  },
+  {
+    "type": "FontSize",
     "named": false
   },
   {
@@ -1877,7 +2026,27 @@
     "named": false
   },
   {
+    "type": "Hidden",
+    "named": false
+  },
+  {
+    "type": "HorizontalAlignment",
+    "named": false
+  },
+  {
+    "type": "HorizontalSpacer",
+    "named": false
+  },
+  {
+    "type": "ID",
+    "named": false
+  },
+  {
     "type": "Image",
+    "named": false
+  },
+  {
+    "type": "KeyTrigger",
     "named": false
   },
   {
@@ -1894,10 +2063,6 @@
   },
   {
     "type": "Label",
-    "named": false
-  },
-  {
-    "type": "LabeledList",
     "named": false
   },
   {
@@ -1933,7 +2098,7 @@
     "named": false
   },
   {
-    "type": "Radio",
+    "type": "RadioButton",
     "named": false
   },
   {
@@ -1941,11 +2106,11 @@
     "named": false
   },
   {
-    "type": "Script",
+    "type": "SecondaryColor",
     "named": false
   },
   {
-    "type": "ScrollArea",
+    "type": "SelectionColor",
     "named": false
   },
   {
@@ -1961,19 +2126,7 @@
     "named": false
   },
   {
-    "type": "Spacer",
-    "named": false
-  },
-  {
     "type": "Sprite",
-    "named": false
-  },
-  {
-    "type": "TabBar",
-    "named": false
-  },
-  {
-    "type": "Table",
     "named": false
   },
   {
@@ -1985,11 +2138,39 @@
     "named": false
   },
   {
+    "type": "TimedTrigger",
+    "named": false
+  },
+  {
     "type": "Title",
     "named": false
   },
   {
+    "type": "Top",
+    "named": false
+  },
+  {
     "type": "Value",
+    "named": false
+  },
+  {
+    "type": "VerticalAlignment",
+    "named": false
+  },
+  {
+    "type": "VerticalSpacer",
+    "named": false
+  },
+  {
+    "type": "Weight",
+    "named": false
+  },
+  {
+    "type": "X",
+    "named": false
+  },
+  {
+    "type": "Y",
     "named": false
   },
   {

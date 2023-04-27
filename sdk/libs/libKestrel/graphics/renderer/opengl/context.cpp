@@ -261,7 +261,7 @@ auto kestrel::renderer::opengl::context::viewport_title() const -> std::string
 
 auto kestrel::renderer::opengl::context::character_typed_event(GLFWwindow *window, unsigned int c) -> void
 {
-    auto e = event::key(event_type::key_typed, hid::key::unknown, c);
+    auto e = event::key(::ui::event::type::key_typed, ::ui::hid::key::unknown, c);
     kestrel::post_event(e);
 }
 
@@ -272,17 +272,17 @@ auto kestrel::renderer::opengl::context::key_event(GLFWwindow *window, int code,
 
     switch (action) {
         case GLFW_PRESS: {
-            auto e = event::key(static_cast<enum event_type>(event_type::key_down | modifier_flags), key);
+            auto e = event::key(static_cast<enum ::ui::event::type>(::ui::event::type::key_down | modifier_flags), key);
             kestrel::post_event(e);
             break;
         }
         case GLFW_RELEASE: {
-            auto e = event::key(static_cast<enum event_type>(event_type::key_up | modifier_flags), key);
+            auto e = event::key(static_cast<enum ::ui::event::type>(::ui::event::type::key_up | modifier_flags), key);
             kestrel::post_event(e);
             break;
         }
         case GLFW_REPEAT: {
-            auto e = event::key(static_cast<enum event_type>(event_type::key_repeat | modifier_flags), key);
+            auto e = event::key(static_cast<enum ::ui::event::type>(::ui::event::type::key_repeat | modifier_flags), key);
             kestrel::post_event(e);
             break;
         }
@@ -292,7 +292,7 @@ auto kestrel::renderer::opengl::context::key_event(GLFWwindow *window, int code,
 
 auto kestrel::renderer::opengl::context::mouse_moved_event(GLFWwindow *window, double x, double y) -> void
 {
-    auto e = event::mouse(event_type::mouse_move, { static_cast<float>(x), static_cast<float>(y) });
+    auto e = event::mouse(::ui::event::type::mouse_move, { static_cast<float>(x), static_cast<float>(y) });
     kestrel::post_event(e);
 }
 
@@ -306,17 +306,17 @@ auto kestrel::renderer::opengl::context::mouse_button_event(GLFWwindow *window, 
         case GLFW_PRESS: {
             switch (button) {
                 case GLFW_MOUSE_BUTTON_LEFT: {
-                    auto e = event::mouse(event_type::lmb_down, { static_cast<float>(x), static_cast<float>(y) });
+                    auto e = event::mouse(::ui::event::type::lmb_down, { static_cast<float>(x), static_cast<float>(y) });
                     kestrel::post_event(e);
                     break;
                 }
                 case GLFW_MOUSE_BUTTON_MIDDLE: {
-                    auto e = event::mouse(event_type::mmb_down, { static_cast<float>(x), static_cast<float>(y) });
+                    auto e = event::mouse(::ui::event::type::mmb_down, { static_cast<float>(x), static_cast<float>(y) });
                     kestrel::post_event(e);
                     break;
                 }
                 case GLFW_MOUSE_BUTTON_RIGHT: {
-                    auto e = event::mouse(event_type::rmb_down, { static_cast<float>(x), static_cast<float>(y) });
+                    auto e = event::mouse(::ui::event::type::rmb_down, { static_cast<float>(x), static_cast<float>(y) });
                     kestrel::post_event(e);
                     break;
                 }
@@ -327,17 +327,17 @@ auto kestrel::renderer::opengl::context::mouse_button_event(GLFWwindow *window, 
         case GLFW_RELEASE: {
             switch (button) {
                 case GLFW_MOUSE_BUTTON_LEFT: {
-                    auto e = event::mouse(event_type::lmb_up, { static_cast<float>(x), static_cast<float>(y) });
+                    auto e = event::mouse(::ui::event::type::lmb_up, { static_cast<float>(x), static_cast<float>(y) });
                     kestrel::post_event(e);
                     break;
                 }
                 case GLFW_MOUSE_BUTTON_MIDDLE: {
-                    auto e = event::mouse(event_type::mmb_up, { static_cast<float>(x), static_cast<float>(y) });
+                    auto e = event::mouse(::ui::event::type::mmb_up, { static_cast<float>(x), static_cast<float>(y) });
                     kestrel::post_event(e);
                     break;
                 }
                 case GLFW_MOUSE_BUTTON_RIGHT: {
-                    auto e = event::mouse(event_type::rmb_up, { static_cast<float>(x), static_cast<float>(y) });
+                    auto e = event::mouse(::ui::event::type::rmb_up, { static_cast<float>(x), static_cast<float>(y) });
                     kestrel::post_event(e);
                     break;
                 }
@@ -546,131 +546,131 @@ auto kestrel::renderer::opengl::context::tick() -> void
 
 // MARK: - Key Mappings
 
-auto kestrel::renderer::opengl::context::map_keycode(int scancode) -> hid::key
+auto kestrel::renderer::opengl::context::map_keycode(int scancode) -> ::ui::hid::key
 {
     switch (scancode) {
         // Special Keys
-        case GLFW_KEY_ESCAPE:               return hid::key::escape;
-        case GLFW_KEY_ENTER:                return hid::key::enter;
-        case GLFW_KEY_BACKSPACE:            return hid::key::backspace;
-        case GLFW_KEY_TAB:                  return hid::key::tab;
+        case GLFW_KEY_ESCAPE:               return ::ui::hid::key::escape;
+        case GLFW_KEY_ENTER:                return ::ui::hid::key::enter;
+        case GLFW_KEY_BACKSPACE:            return ::ui::hid::key::backspace;
+        case GLFW_KEY_TAB:                  return ::ui::hid::key::tab;
 
         // Cursor Keys
-        case GLFW_KEY_LEFT:                 return hid::key::left;
-        case GLFW_KEY_RIGHT:                return hid::key::right;
-        case GLFW_KEY_UP:                   return hid::key::up;
-        case GLFW_KEY_DOWN:                 return hid::key::down;
+        case GLFW_KEY_LEFT:                 return ::ui::hid::key::left;
+        case GLFW_KEY_RIGHT:                return ::ui::hid::key::right;
+        case GLFW_KEY_UP:                   return ::ui::hid::key::up;
+        case GLFW_KEY_DOWN:                 return ::ui::hid::key::down;
 
         // Letters
-        case GLFW_KEY_A:                    return hid::key::a;
-        case GLFW_KEY_B:                    return hid::key::b;
-        case GLFW_KEY_C:                    return hid::key::c;
-        case GLFW_KEY_D:                    return hid::key::d;
-        case GLFW_KEY_E:                    return hid::key::e;
-        case GLFW_KEY_F:                    return hid::key::f;
-        case GLFW_KEY_G:                    return hid::key::g;
-        case GLFW_KEY_H:                    return hid::key::h;
-        case GLFW_KEY_I:                    return hid::key::i;
-        case GLFW_KEY_J:                    return hid::key::j;
-        case GLFW_KEY_K:                    return hid::key::k;
-        case GLFW_KEY_L:                    return hid::key::l;
-        case GLFW_KEY_M:                    return hid::key::m;
-        case GLFW_KEY_N:                    return hid::key::n;
-        case GLFW_KEY_O:                    return hid::key::o;
-        case GLFW_KEY_P:                    return hid::key::p;
-        case GLFW_KEY_Q:                    return hid::key::q;
-        case GLFW_KEY_R:                    return hid::key::r;
-        case GLFW_KEY_S:                    return hid::key::s;
-        case GLFW_KEY_T:                    return hid::key::t;
-        case GLFW_KEY_U:                    return hid::key::u;
-        case GLFW_KEY_V:                    return hid::key::v;
-        case GLFW_KEY_W:                    return hid::key::w;
-        case GLFW_KEY_X:                    return hid::key::x;
-        case GLFW_KEY_Y:                    return hid::key::y;
-        case GLFW_KEY_Z:                    return hid::key::z;
+        case GLFW_KEY_A:                    return ::ui::hid::key::a;
+        case GLFW_KEY_B:                    return ::ui::hid::key::b;
+        case GLFW_KEY_C:                    return ::ui::hid::key::c;
+        case GLFW_KEY_D:                    return ::ui::hid::key::d;
+        case GLFW_KEY_E:                    return ::ui::hid::key::e;
+        case GLFW_KEY_F:                    return ::ui::hid::key::f;
+        case GLFW_KEY_G:                    return ::ui::hid::key::g;
+        case GLFW_KEY_H:                    return ::ui::hid::key::h;
+        case GLFW_KEY_I:                    return ::ui::hid::key::i;
+        case GLFW_KEY_J:                    return ::ui::hid::key::j;
+        case GLFW_KEY_K:                    return ::ui::hid::key::k;
+        case GLFW_KEY_L:                    return ::ui::hid::key::l;
+        case GLFW_KEY_M:                    return ::ui::hid::key::m;
+        case GLFW_KEY_N:                    return ::ui::hid::key::n;
+        case GLFW_KEY_O:                    return ::ui::hid::key::o;
+        case GLFW_KEY_P:                    return ::ui::hid::key::p;
+        case GLFW_KEY_Q:                    return ::ui::hid::key::q;
+        case GLFW_KEY_R:                    return ::ui::hid::key::r;
+        case GLFW_KEY_S:                    return ::ui::hid::key::s;
+        case GLFW_KEY_T:                    return ::ui::hid::key::t;
+        case GLFW_KEY_U:                    return ::ui::hid::key::u;
+        case GLFW_KEY_V:                    return ::ui::hid::key::v;
+        case GLFW_KEY_W:                    return ::ui::hid::key::w;
+        case GLFW_KEY_X:                    return ::ui::hid::key::x;
+        case GLFW_KEY_Y:                    return ::ui::hid::key::y;
+        case GLFW_KEY_Z:                    return ::ui::hid::key::z;
 
         // Numbers
         case GLFW_KEY_0:
-        case GLFW_KEY_KP_0:                 return hid::key::kp_0;
+        case GLFW_KEY_KP_0:                 return ::ui::hid::key::kp_0;
         case GLFW_KEY_1:
-        case GLFW_KEY_KP_1:                 return hid::key::kp_1;
+        case GLFW_KEY_KP_1:                 return ::ui::hid::key::kp_1;
         case GLFW_KEY_2:
-        case GLFW_KEY_KP_2:                 return hid::key::kp_2;
+        case GLFW_KEY_KP_2:                 return ::ui::hid::key::kp_2;
         case GLFW_KEY_3:
-        case GLFW_KEY_KP_3:                 return hid::key::kp_3;
+        case GLFW_KEY_KP_3:                 return ::ui::hid::key::kp_3;
         case GLFW_KEY_4:
-        case GLFW_KEY_KP_4:                 return hid::key::kp_4;
+        case GLFW_KEY_KP_4:                 return ::ui::hid::key::kp_4;
         case GLFW_KEY_5:
-        case GLFW_KEY_KP_5:                 return hid::key::kp_5;
+        case GLFW_KEY_KP_5:                 return ::ui::hid::key::kp_5;
         case GLFW_KEY_6:
-        case GLFW_KEY_KP_6:                 return hid::key::kp_6;
+        case GLFW_KEY_KP_6:                 return ::ui::hid::key::kp_6;
         case GLFW_KEY_7:
-        case GLFW_KEY_KP_7:                 return hid::key::kp_7;
+        case GLFW_KEY_KP_7:                 return ::ui::hid::key::kp_7;
         case GLFW_KEY_8:
-        case GLFW_KEY_KP_8:                 return hid::key::kp_8;
+        case GLFW_KEY_KP_8:                 return ::ui::hid::key::kp_8;
         case GLFW_KEY_9:
-        case GLFW_KEY_KP_9:                 return hid::key::kp_9;
+        case GLFW_KEY_KP_9:                 return ::ui::hid::key::kp_9;
 
         // Function Keys
-        case GLFW_KEY_F1:                   return hid::key::f1;
-        case GLFW_KEY_F2:                   return hid::key::f2;
-        case GLFW_KEY_F3:                   return hid::key::f3;
-        case GLFW_KEY_F4:                   return hid::key::f4;
-        case GLFW_KEY_F5:                   return hid::key::f5;
-        case GLFW_KEY_F6:                   return hid::key::f6;
-        case GLFW_KEY_F7:                   return hid::key::f7;
-        case GLFW_KEY_F8:                   return hid::key::f8;
-        case GLFW_KEY_F9:                   return hid::key::f9;
-        case GLFW_KEY_F10:                  return hid::key::f10;
-        case GLFW_KEY_F11:                  return hid::key::f11;
-        case GLFW_KEY_F12:                  return hid::key::f12;
+        case GLFW_KEY_F1:                   return ::ui::hid::key::f1;
+        case GLFW_KEY_F2:                   return ::ui::hid::key::f2;
+        case GLFW_KEY_F3:                   return ::ui::hid::key::f3;
+        case GLFW_KEY_F4:                   return ::ui::hid::key::f4;
+        case GLFW_KEY_F5:                   return ::ui::hid::key::f5;
+        case GLFW_KEY_F6:                   return ::ui::hid::key::f6;
+        case GLFW_KEY_F7:                   return ::ui::hid::key::f7;
+        case GLFW_KEY_F8:                   return ::ui::hid::key::f8;
+        case GLFW_KEY_F9:                   return ::ui::hid::key::f9;
+        case GLFW_KEY_F10:                  return ::ui::hid::key::f10;
+        case GLFW_KEY_F11:                  return ::ui::hid::key::f11;
+        case GLFW_KEY_F12:                  return ::ui::hid::key::f12;
 
         // Misc
-        case GLFW_KEY_SPACE:                return hid::key::space;
-        case GLFW_KEY_LEFT_BRACKET:         return hid::key::left_bracket;
-        case GLFW_KEY_RIGHT_BRACKET:        return hid::key::right_bracket;
-        case GLFW_KEY_APOSTROPHE:           return hid::key::apostrophe;
-        case GLFW_KEY_PERIOD:               return hid::key::period;
-        case GLFW_KEY_COMMA:                return hid::key::comma;
-        case GLFW_KEY_MINUS:                return hid::key::minus;
-        case GLFW_KEY_EQUAL:                return hid::key::equal;
+        case GLFW_KEY_SPACE:                return ::ui::hid::key::space;
+        case GLFW_KEY_LEFT_BRACKET:         return ::ui::hid::key::left_bracket;
+        case GLFW_KEY_RIGHT_BRACKET:        return ::ui::hid::key::right_bracket;
+        case GLFW_KEY_APOSTROPHE:           return ::ui::hid::key::apostrophe;
+        case GLFW_KEY_PERIOD:               return ::ui::hid::key::period;
+        case GLFW_KEY_COMMA:                return ::ui::hid::key::comma;
+        case GLFW_KEY_MINUS:                return ::ui::hid::key::minus;
+        case GLFW_KEY_EQUAL:                return ::ui::hid::key::equal;
 
         // Modifiers
-        case GLFW_KEY_LEFT_SHIFT:           return hid::key::left_shift;
-        case GLFW_KEY_RIGHT_SHIFT:          return hid::key::right_shift;
-        case GLFW_KEY_LEFT_ALT:             return hid::key::left_alt;
-        case GLFW_KEY_RIGHT_ALT:            return hid::key::right_alt;
-        case GLFW_KEY_LEFT_CONTROL:         return hid::key::left_control;
-        case GLFW_KEY_RIGHT_CONTROL:        return hid::key::right_control;
-        case GLFW_KEY_LEFT_SUPER:           return hid::key::left_super;
-        case GLFW_KEY_RIGHT_SUPER:          return hid::key::right_super;
+        case GLFW_KEY_LEFT_SHIFT:           return ::ui::hid::key::left_shift;
+        case GLFW_KEY_RIGHT_SHIFT:          return ::ui::hid::key::right_shift;
+        case GLFW_KEY_LEFT_ALT:             return ::ui::hid::key::left_alt;
+        case GLFW_KEY_RIGHT_ALT:            return ::ui::hid::key::right_alt;
+        case GLFW_KEY_LEFT_CONTROL:         return ::ui::hid::key::left_control;
+        case GLFW_KEY_RIGHT_CONTROL:        return ::ui::hid::key::right_control;
+        case GLFW_KEY_LEFT_SUPER:           return ::ui::hid::key::left_super;
+        case GLFW_KEY_RIGHT_SUPER:          return ::ui::hid::key::right_super;
 
         // Unknown
-        default:                            return hid::key::unknown;
+        default:                            return ::ui::hid::key::unknown;
     }
 }
 
-auto kestrel::renderer::opengl::context::map_modifiers(int modifiers) -> enum event_type
+auto kestrel::renderer::opengl::context::map_modifiers(int modifiers) -> enum ::ui::event::type
 {
     std::uint32_t modifier_flags = 0;
 
     if (modifiers & GLFW_MOD_SHIFT) {
-        modifier_flags |= static_cast<std::uint32_t>(event_type::has_shift_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_shift_modifier);
     }
     else if (modifiers & GLFW_MOD_ALT) {
-        modifier_flags |= static_cast<std::uint32_t>(event_type::has_alt_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_alt_modifier);
     }
     else if (modifiers & GLFW_MOD_CAPS_LOCK) {
-        modifier_flags |= static_cast<std::uint32_t>(event_type::has_caps_lock_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_caps_lock_modifier);
     }
     else if (modifiers & GLFW_MOD_CONTROL) {
-        modifier_flags |= static_cast<std::uint32_t>(event_type::has_control_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_control_modifier);
     }
     else if (modifiers & GLFW_MOD_SUPER) {
-        modifier_flags |= static_cast<std::uint32_t>(event_type::has_super_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_super_modifier);
     }
 
-    return static_cast<enum event_type>(modifier_flags);
+    return static_cast<enum ::ui::event::type>(modifier_flags);
 }
 
 // MARK: - Screen

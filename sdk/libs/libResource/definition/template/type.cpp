@@ -24,7 +24,9 @@
 
 resource::definition::binary_template::type::type(enum $type type)
     : m_base(type), m_nested({ .definition = nullptr })
-{}
+{
+    calculate_size();
+}
 
 resource::definition::binary_template::type::type(enum $type type, std::size_t size)
     : m_base(type), m_nested({ .definition = nullptr }), m_size(size)
@@ -90,4 +92,30 @@ auto resource::definition::binary_template::type::nested_type_name() const -> st
 auto resource::definition::binary_template::type::size() const -> std::size_t
 {
     return m_size;
+}
+
+auto resource::definition::binary_template::type::calculate_size() -> void
+{
+    switch (m_base) {
+        case $type::CHAR:
+        case $type::HBYT:
+        case $type::DBYT:
+        case $type::BBIT:
+            m_size = 1;
+            break;
+        case $type::DWRD:
+        case $type::HWRD:
+        case $type::OCNT:
+            m_size = 2;
+            break;
+        case $type::DLNG:
+        case $type::HLNG:
+            m_size = 4;
+            break;
+        case $type::HQWD:
+        case $type::DQWD:
+        case $type::RECT:
+            m_size = 8;
+            break;
+    }
 }

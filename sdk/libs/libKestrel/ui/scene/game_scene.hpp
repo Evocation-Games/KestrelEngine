@@ -35,6 +35,7 @@
 #include <libKestrel/event/event.hpp>
 #include <libKestrel/physics/world.hpp>
 #include <libKestrel/ui/widgets/menu_widget.hpp>
+#include <libKestrel/ui/dialog/dialog.hpp>
 
 namespace kestrel::ui
 {
@@ -101,6 +102,11 @@ namespace kestrel::ui
         lua_function(bind, Available_0_9) auto bind(const luabridge::LuaRef& bindings) -> void;
         lua_getter(Bindings, Available_0_9) [[nodiscard]] auto bindings() const -> luabridge::LuaRef;
 
+        lua_getter(Dialog, Available_0_9) [[nodiscard]] auto dialog() const -> ui::dialog::lua_reference;
+        auto set_dialog(const ui::dialog::lua_reference& dialog) -> void;
+
+        [[nodiscard]] auto find_function(const std::string& name) const -> luabridge::LuaRef;
+
     private:
         std::string m_name;
         physics::world m_world;
@@ -117,8 +123,8 @@ namespace kestrel::ui
         luabridge::LuaRef m_key_event_block { nullptr };
         luabridge::LuaRef m_mouse_event_block { nullptr };
         luabridge::LuaRef m_bindings { nullptr };
+        ui::dialog::lua_reference m_dialog { nullptr };
         struct responder_chain m_responder_chain;
-        bool m_imgui { false };
 
         auto draw_widgets() const -> void;
     };

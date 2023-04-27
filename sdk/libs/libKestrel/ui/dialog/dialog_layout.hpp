@@ -22,13 +22,16 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 #include <libKestrel/lua/script.hpp>
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/ui/scene/control_definition.hpp>
 #include <libKestrel/ui/scene/interface.hpp>
+#include <libKestrel/ui/alignment.hpp>
 #include <libGraphite/toolbox/dialog_item_list.hpp>
 #include <libGraphite/toolbox/dialog.hpp>
 #include <libKestrel/ui/dialog/dialog_render_mode.hpp>
+#include <libKestrel/ui/types/action/action.hpp>
 
 namespace kestrel::ui
 {
@@ -37,10 +40,19 @@ namespace kestrel::ui
     public:
         struct element
         {
+            std::string name;
             std::uint8_t type { 0 };
             math::rect frame;
-            std::string value;
-            lua::script script;
+            ui::value value;
+            ui::action action;
+            graphics::color::lua_reference background_color { graphics::color::black_color_ref() };
+            graphics::color::lua_reference border_color { graphics::color::white_color_ref() };
+            graphics::color::lua_reference text_color { graphics::color::white_color_ref() };
+            graphics::color::lua_reference secondary_color { graphics::color::white_color_ref() };
+            graphics::color::lua_reference selection_color  { graphics::color::grey_color_ref() };
+            std::string font_name;
+            std::int16_t font_size { 12 };
+            ui::horizontal_alignment alignment { ui::horizontal_alignment::left };
         };
 
     public:
@@ -49,9 +61,16 @@ namespace kestrel::ui
 
         [[nodiscard]] auto mode() const -> enum dialog_render_mode;
         [[nodiscard]] auto element_count() const -> std::size_t;
+        [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto frame() const -> math::rect;
         [[nodiscard]] auto size() const -> math::size;
         [[nodiscard]] auto flags() const -> enum scene_interface_flags;
+        [[nodiscard]] auto is_legacy_dialog() const -> bool;
+
+        [[nodiscard]] auto has_stretched_background() const -> bool;
+        [[nodiscard]] auto background() const -> resource::descriptor::lua_reference;
+        [[nodiscard]] auto background_top() const -> resource::descriptor::lua_reference;
+        [[nodiscard]] auto background_bottom() const -> resource::descriptor::lua_reference;
 
         auto set_frame(const math::rect& frame) -> void;
         auto set_size(const math::size& size) -> void;
@@ -59,10 +78,16 @@ namespace kestrel::ui
         [[nodiscard]] auto element_at(std::int16_t idx) const -> const struct element *;
 
     private:
+        bool m_is_dlog { false };
         enum dialog_render_mode m_mode { dialog_render_mode::scene };
         enum scene_interface_flags m_flags { scene_interface_flags::scene_passthrough };
         math::rect m_frame;
+        std::string m_name;
         std::vector<struct element> m_elements;
+        bool m_stretched_background { false };
+        resource::descriptor::lua_reference m_background { nullptr };
+        resource::descriptor::lua_reference m_background_top { nullptr };
+        resource::descriptor::lua_reference m_background_bottom { nullptr };
 
         auto build_scene_interface_layout(const scene_interface *scin) -> void;
         auto build_dialog_layout(const graphite::toolbox::dialog *dlog) -> void;

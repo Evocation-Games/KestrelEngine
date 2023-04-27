@@ -91,6 +91,7 @@ add_subdirectory(sdk/libs/libSound)
 add_subdirectory(sdk/libs/libImage)
 add_subdirectory(sdk/libs/libLexer)
 add_subdirectory(sdk/libs/libKDL)
+add_subdirectory(sdk/libs/libUI)
 add_subdirectory(sdk/bin/kdl)
 
 add_subdirectory(sdk/libs/libKestrel)

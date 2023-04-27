@@ -26,6 +26,7 @@
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libGraphite/quickdraw/type/rect.hpp>
+#include <libUI/types/rect.hpp>
 
 namespace kestrel::math
 {
@@ -40,11 +41,14 @@ namespace kestrel::math
         rect();
         rect(const struct point& o, const struct size& s);
         rect(const rect& r) = default;
+        explicit rect(const ::ui::rect& r);
         rect(rect&& r) noexcept = default;
         explicit rect(simd::float32 v);
         explicit rect(const graphite::quickdraw::rect<std::int16_t>& r);
 
         auto operator=(const rect&) -> rect& = default;
+
+        auto ui_rect() const -> ::ui::rect;
 
         lua_constructor(Available_0_8) rect(float x, float y, float w, float h);
         lua_function(macintosh, Available_0_8) static auto macintosh_rect(float top, float left, float bottom, float right) -> rect;

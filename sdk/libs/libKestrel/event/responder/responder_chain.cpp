@@ -83,7 +83,7 @@ auto kestrel::responder_chain::add_mouse_responder(mouse_responder *responder) -
 
 auto kestrel::responder_chain::send_event(const event &e) -> bool
 {
-    if (e.has(event_type::any_mouse_down) || e.has(event_type::any_mouse_up)) {
+    if (e.has(ui::event::type::any_mouse_down) || e.has(ui::event::type::any_mouse_up)) {
         for (auto receiver: m_mouse_responders) {
             if (receiver->receive_event(e)) {
                 return true;

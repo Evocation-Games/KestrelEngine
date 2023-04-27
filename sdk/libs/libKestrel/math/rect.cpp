@@ -47,9 +47,26 @@ kestrel::math::rect::rect(const graphite::quickdraw::rect<std::int16_t> &r)
     )
 {}
 
+kestrel::math::rect::rect(const ui::rect& r)
+    : m_value(
+        static_cast<float>(r.origin.x), static_cast<float>(r.origin.y),
+        static_cast<float>(r.size.width), static_cast<float>(r.size.height)
+    )
+{}
+
 auto kestrel::math::rect::macintosh_rect(float top, float left, float bottom, float right) -> rect
 {
     return { left, top, right - left, bottom - top };
+}
+
+auto kestrel::math::rect::ui_rect() const -> ui::rect
+{
+    return {
+        static_cast<std::int32_t>(x()),
+        static_cast<std::int32_t>(y()),
+        static_cast<std::int32_t>(width()),
+        static_cast<std::int32_t>(height())
+    };
 }
 
 // MARK: - Operators
@@ -154,11 +171,19 @@ auto kestrel::math::rect::contains_rect(const rect& r) const -> bool
 
 auto kestrel::math::rect::intersects(const rect& r) const -> bool
 {
-    auto r1 = m_value + m_value.lower().swapped();
-    auto r2 = r.m_value + r.m_value.lower().swapped();
-    auto rr = r1 - r2;
-    return (rr[0] >= 0) && (rr[1] < 0) && (rr[2] >= 0) && (rr[3] < 0);
+    auto r1 = simd::float32::lower_upper_merge(m_value.lower(), m_value.upper() + m_value.lower().swapped());
+    auto r2 = simd::float32::lower_upper_merge(m_value.lower(), m_value.upper() + m_value.lower().swapped());
+    auto rr = r2 - r1;
+    return (rr[0] >= 0) && (rr[1] <= 0) && (rr[2] >= 0) && (rr[3] <= 0);
 }
+
+/*
+ return ! ( r2->left > r1->right
+        || r2->right < r1->left
+        || r2->top > r1->bottom
+        || r2->bottom < r1->top
+        );
+ */
 
 // MARK: - Lua Accessors
 

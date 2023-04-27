@@ -45,6 +45,7 @@ namespace kestrel::lua
         script() = default;
         script(const std::shared_ptr<runtime>& runtime, const resource::descriptor::lua_reference &ref);
         script(const std::shared_ptr<runtime>& runtime, const graphite::rsrc::resource *resource);
+        script(const std::shared_ptr<runtime>& runtime, const graphite::data::block& data);
         script(const std::shared_ptr<runtime>& runtime, const std::string& script);
 
         [[nodiscard]] auto id() const -> graphite::rsrc::resource::identifier;

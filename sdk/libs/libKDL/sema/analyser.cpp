@@ -27,7 +27,7 @@
 #include <libKDL/sema/type/type_definition.hpp>
 #include <libKDL/sema/declaration/resource_declaration.hpp>
 #include <libKDL/sema/components/component.hpp>
-#include <libKDL/sema/scene/scene.hpp>
+#include <libKDL/sema/scene/interface.hpp>
 #include <libKDL/sema/context.hpp>
 #include <libKDL/spec/decorators.hpp>
 
@@ -71,9 +71,9 @@ auto kdl::sema::analyser::process(context& ctx) -> void
             sema::component::parse(m_tokens, ctx);
             ctx.flags.surpress_resource_creation = false;
         }
-        else if (sema::scene::test(m_tokens)) {
+        else if (sema::scene_interface::test(m_tokens)) {
             ctx.flags.surpress_resource_creation = !ctx.evaluate_decorators();
-            sema::scene::parse(m_tokens, ctx);
+            sema::scene_interface::parse(m_tokens, ctx);
             ctx.flags.surpress_resource_creation = false;
         }
 

@@ -103,6 +103,11 @@ namespace kestrel::memory
             return m_pool[m_queue.allocated_base[item]];
         }
 
+        inline auto available() noexcept -> bool
+        {
+            return (m_pool != nullptr);
+        }
+
     private:
         T *m_pool { new T[C] };
 

@@ -34,7 +34,7 @@ auto kdl::sema::context::register_type(const resource::definition::type::instanc
 
     it = registered_types.find(type.name());
     if (it == registered_types.end()) {
-        throw unrecognised_type_definition_exception("Unrecognised type '" + type.name() + "'");
+        throw unrecognised_type_definition_exception("Failed to create type '" + type.name() + "'");
     }
     return &it->second;
 }
@@ -44,6 +44,15 @@ auto kdl::sema::context::type_named(const std::string& name) const -> const reso
     auto it = registered_types.find(name);
     if (it == registered_types.end()) {
         throw unrecognised_type_definition_exception("Unrecognised type '" + name + "'");
+    }
+    return &it->second;
+}
+
+auto kdl::sema::context::type_named(const lexer::lexeme& lx) const -> const resource::definition::type::instance *
+{
+    auto it = registered_types.find(lx.text());
+    if (it == registered_types.end()) {
+        throw unrecognised_type_definition_exception("Unrecognised type '" + lx.text() + "'", lx);
     }
     return &it->second;
 }

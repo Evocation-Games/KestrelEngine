@@ -23,6 +23,7 @@
 #include <libSIMD/float32.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
+#include <libUI/types/size.hpp>
 
 namespace kestrel::math
 {
@@ -39,9 +40,11 @@ namespace kestrel::math
         explicit size(float v);
         size(size&& v) noexcept = default;
         size(const size& v) = default;
+        explicit size(const ::ui::size& v);
         explicit size(simd::float32 v);
 
         auto operator=(const size&) -> size& = default;
+        auto ui_size() const -> ::ui::size;
 
         lua_constructor(Available_0_8) size(float w, float h);
 

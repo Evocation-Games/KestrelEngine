@@ -42,7 +42,7 @@ find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 
 set(KESTREL_LIBS
-    SIMD Graphite ImGUI Foundation
+    SIMD Graphite ImGUI Foundation Lexer UI
     ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
     png bz2 z
 )

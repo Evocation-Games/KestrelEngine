@@ -32,18 +32,41 @@ auto kdl::sema::type_definition::template_definition::test(const foundation::str
 auto kdl::sema::type_definition::template_definition::parse(foundation::stream<tokenizer::token> &stream, context& ctx) -> resource::definition::binary_template::instance
 {
     stream.ensure({ expectation(tokenizer::template_keyword).be_true(), expectation(tokenizer::l_brace).be_true() });
-
     resource::definition::binary_template::instance tmpl;
-
     while (test_binary_type(stream)) {
-        auto type = binary_type(stream.read(), ctx);
-        auto field_name = stream.read();
-        stream.ensure({ expectation(tokenizer::semi).be_true() });
-        tmpl.add_field(type, field_name.string_value());
+        auto field = parse_field(stream, ctx);
+        tmpl.add_field(field);
     }
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
-
     return tmpl;
+}
+
+auto kdl::sema::type_definition::template_definition::parse_field(foundation::stream<tokenizer::token> &stream, kdl::sema::context &ctx) -> resource::definition::binary_template::field
+{
+    auto type = binary_type(stream.read(), ctx);
+    auto field_name = stream.read();
+    stream.ensure({ expectation(tokenizer::semi).be_true() });
+
+    resource::definition::binary_template::field field(type, field_name.string_value());
+    switch (type.value()) {
+        case resource::definition::binary_template::type::OCNT: {
+            // OCNT must be followed by a LSTC. Check the upcoming type and validate it.
+            if (stream.expect({ expectation(tokenizer::LSTC).be_false() })) {
+                throw std::runtime_error("OCNT binary field must be followed by an LSTC binary field.");
+            }
+            parse_field(stream, ctx);
+            while (true) {
+                auto child = parse_field(stream, ctx);
+                if (child.type().value() == resource::definition::binary_template::type::LSTE) {
+                    break;
+                }
+                field.add_list_field(child);
+            }
+            break;
+        }
+        default: break;
+    }
+    return field;
 }
 
 // MARK: - Binary Types

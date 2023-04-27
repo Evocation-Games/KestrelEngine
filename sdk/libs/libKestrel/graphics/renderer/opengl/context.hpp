@@ -91,8 +91,8 @@ namespace kestrel::renderer::opengl
         static auto mouse_moved_event(GLFWwindow *window, double x, double y) -> void;
         static auto mouse_button_event(GLFWwindow *window, int button, int action, int mods) -> void;
 
-        static auto map_keycode(int scancode) -> hid::key;
-        static auto map_modifiers(int modifiers) -> enum event_type;
+        static auto map_keycode(int scancode) -> ::ui::hid::key;
+        static auto map_modifiers(int modifiers) -> enum ::ui::event::type;
 
     private:
         struct {

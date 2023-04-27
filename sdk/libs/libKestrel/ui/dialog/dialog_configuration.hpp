@@ -68,7 +68,7 @@ namespace kestrel::ui
         std::vector<std::pair<std::string, control_definition::lua_reference>> m_element_definitions;
         dialog_layout m_layout;
         ui::dialog::lua_reference m_dialog { nullptr };
-        bool m_passthrough { true };
+        bool m_passthrough { false };
 
         image::static_image::lua_reference m_background_image { nullptr };
         image::static_image::lua_reference m_background_stretch_image { nullptr };

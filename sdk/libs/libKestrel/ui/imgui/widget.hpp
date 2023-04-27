@@ -71,7 +71,7 @@ namespace kestrel::ui::imgui
             m_has_size = true;
         }
 
-        auto has_size() const -> bool
+        [[nodiscard]] auto has_size() const -> bool
         {
             return m_has_size;
         }

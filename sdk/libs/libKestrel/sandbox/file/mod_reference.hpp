@@ -24,6 +24,7 @@
 #include <libGraphite/rsrc/file.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
+#include <libKestrel/resource/descriptor.hpp>
 
 namespace kestrel::sandbox
 {
@@ -76,7 +77,7 @@ namespace kestrel::sandbox
         std::string m_category;
         std::string m_package_id;
         std::string m_scenario_id;
-        graphite::rsrc::resource::identifier m_lua_entry_script { INT64_MIN };
+        resource::descriptor::lua_reference m_lua_entry_script { nullptr };
         std::string m_path;
         bundle_type m_bundle;
         bundle_origin m_origin;

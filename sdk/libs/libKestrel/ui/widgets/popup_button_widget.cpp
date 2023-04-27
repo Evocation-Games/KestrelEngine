@@ -175,6 +175,30 @@ auto kestrel::ui::widgets::popup_button_widget::set_items(const luabridge::LuaRe
     redraw_entity();
 }
 
+auto kestrel::ui::widgets::popup_button_widget::synthesize_items(const std::string &item_string) -> void
+{
+    m_menu.items.clear();
+    std::string buffer;
+    for (const auto c : item_string) {
+        if (c == ';') {
+            m_menu.items.emplace_back(buffer);
+            buffer.clear();
+        }
+        else {
+            buffer += c;
+        }
+    }
+
+    if (!buffer.empty()) {
+        m_menu.items.emplace_back(buffer);
+    }
+
+    m_menu.widget->set_items(m_menu.items);
+    m_menu.widget->set_index_of_selected_item(m_menu.items.empty() ? -1 : 0);
+    m_dirty = true;
+    redraw_entity();
+}
+
 // MARK: - Drawing
 
 auto kestrel::ui::widgets::popup_button_widget::redraw_entity() -> void
@@ -223,7 +247,7 @@ auto kestrel::ui::widgets::popup_button_widget::draw() -> void
 
 auto kestrel::ui::widgets::popup_button_widget::receive_event(const event& e) -> bool
 {
-    if (e.has(event_type::any_mouse_down)) {
+    if (e.has(::ui::event::any_mouse_down)) {
         if (entity()->hit_test(e.location() - entity()->position())) {
             present_menu();
             return true;

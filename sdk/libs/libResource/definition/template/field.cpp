@@ -31,7 +31,7 @@ resource::definition::binary_template::field::field(enum type::$type type, const
 {}
 
 resource::definition::binary_template::field::field(enum type::$type type, std::uint16_t size, const std::string& label)
-    : m_type(type), m_label(label)
+    : m_type(type, size), m_label(label), m_size(size)
 {}
 
 // MARK: - Nested Types
@@ -65,8 +65,7 @@ auto resource::definition::binary_template::field::label() const -> std::string
 
 auto resource::definition::binary_template::field::skip_length() const -> std::size_t
 {
-    // TODO: Calculate this...
-    return 0;
+    return m_type.size();
 }
 
 // MARK: - Lists

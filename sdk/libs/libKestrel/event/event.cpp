@@ -19,24 +19,20 @@
 // SOFTWARE.
 
 #include <libKestrel/event/event.hpp>
-#include <libKestrel/event/key.hpp>
 
 // MARK: - Construction
 
-auto kestrel::event::mouse(enum event_type type, const math::point &point) -> event
+auto kestrel::event::mouse(enum ui::event::type type, const math::point &point) -> event
 {
     event e;
-    e.m_type = type;
-    e.m_location = point;
+    e.m_event = ui::event::mouse(type, point.ui_point());
     return e;
 }
 
-auto kestrel::event::key(enum event_type type, hid::key key, unsigned int c) -> event
+auto kestrel::event::key(enum ::ui::event::type type, enum ::ui::hid::key key, unsigned int c) -> event
 {
     event e;
-    e.m_type = type;
-    e.m_key = key;
-    e.m_char = c;
+    e.m_event = ui::event::key(type, key, c);
     return e;
 }
 

@@ -19,10 +19,10 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libKestrel/kestrel.hpp>
 #include <libKestrel/ui/dialog/dialog_layout.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
-#include <libKestrel/lua/scripting.hpp>
+#include <libKestrel/ui/types/value/value.hpp>
+#include <libKestrel/ui/types/action/action.hpp>
 #include <libGraphite/rsrc/manager.hpp>
 
 // MARK: - Construction
@@ -74,6 +74,11 @@ kestrel::ui::dialog_layout::dialog_layout(const luabridge::LuaRef &ref, const ma
 auto kestrel::ui::dialog_layout::build_scene_interface_layout(const scene_interface *scin) -> void
 {
     m_mode = scin->flags() & scene_interface_flags::use_imgui ? dialog_render_mode::imgui : dialog_render_mode::scene;
+    m_name = scin->name();
+    m_background = scin->background();
+    m_background_top = scin->background_top();
+    m_background_bottom = scin->background_bottom();
+    m_stretched_background = scin->has_stretch_background();
 
     m_flags = scin->flags();
     m_frame.set_size(scin->scene_size());
@@ -85,9 +90,16 @@ auto kestrel::ui::dialog_layout::build_scene_interface_layout(const scene_interf
         element.type = static_cast<std::uint8_t>(item->type());
         element.frame = item->frame();
         element.value = item->value();
-
-        // TODO: Handle being able to load linked scripts...
-        element.script = lua::script(kestrel::lua_runtime(), item->lua_script());
+        element.name = item->identifier();
+        element.background_color = item->background_color();
+        element.border_color = item->border_color();
+        element.text_color = item->color();
+        element.selection_color = item->selection_color();
+        element.secondary_color = item->secondary_color();
+        element.font_name = item->font();
+        element.font_size = item->font_size();
+        element.alignment = item->alignment();
+        element.action = item->action();
 
         m_elements.emplace_back(std::move(element));
     }
@@ -99,6 +111,7 @@ auto kestrel::ui::dialog_layout::build_dialog_layout(const graphite::toolbox::di
         throw std::runtime_error("Failed to find DITL resource referenced by DLOG.");
     }
 
+    m_is_dlog = true;
     m_frame = math::rect(dlog->bounds());
 
     auto ditl = graphite::rsrc::manager::shared_manager().load<graphite::toolbox::dialog_item_list>(dlog->interface_list());
@@ -106,12 +119,17 @@ auto kestrel::ui::dialog_layout::build_dialog_layout(const graphite::toolbox::di
         struct element element;
         element.type = static_cast<std::uint8_t>(item.type);
         element.frame = math::rect(item.frame);
-        element.value = item.info;
+        element.value = ui::value(item.info);
         m_elements.emplace_back(std::move(element));
     }
 }
 
 // MARK: - Accessors
+
+auto kestrel::ui::dialog_layout::name() const -> std::string
+{
+    return m_name;
+}
 
 auto kestrel::ui::dialog_layout::frame() const -> math::rect
 {
@@ -153,3 +171,27 @@ auto kestrel::ui::dialog_layout::element_at(std::int16_t idx) const -> const str
     return &m_elements[idx - 1];
 }
 
+auto kestrel::ui::dialog_layout::is_legacy_dialog() const -> bool
+{
+    return m_is_dlog;
+}
+
+auto kestrel::ui::dialog_layout::has_stretched_background() const -> bool
+{
+    return m_stretched_background;
+}
+
+auto kestrel::ui::dialog_layout::background() const -> resource::descriptor::lua_reference
+{
+    return m_background;
+}
+
+auto kestrel::ui::dialog_layout::background_top() const -> resource::descriptor::lua_reference
+{
+    return m_background_top;
+}
+
+auto kestrel::ui::dialog_layout::background_bottom() const -> resource::descriptor::lua_reference
+{
+    return m_background_bottom;
+}

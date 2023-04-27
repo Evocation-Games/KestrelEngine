@@ -61,7 +61,7 @@ namespace kestrel::lua
             return m_items.size();
         }
 
-        lua_function(at, Available_0_8) [[nodiscard]] auto lua_at(const int& i) const -> T
+        lua_function(at, Available_0_8) [[nodiscard]] auto lua_at(std::int32_t i) const -> T
         {
             return at(i - 1);
         }
@@ -71,7 +71,7 @@ namespace kestrel::lua
             m_items.clear();
         }
 
-        [[nodiscard]] auto at(const int& i) const -> T
+        [[nodiscard]] auto at(std::int32_t i) const -> T
         {
             return m_items.at(i);
         }

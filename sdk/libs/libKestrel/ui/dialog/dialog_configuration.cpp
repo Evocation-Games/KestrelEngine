@@ -22,15 +22,29 @@
 #include <libGraphite/rsrc/manager.hpp>
 #include <libKestrel/ui/dialog/dialog_configuration.hpp>
 #include <libKestrel/ui/scene/interface.hpp>
-#include <libKestrel/ui/legacy/macintosh/item_list.hpp>
 #include <libKestrel/ui/dialog/dialog.hpp>
 #include <libKestrel/kestrel.hpp>
+#include <libKestrel/lua/script.hpp>
 
 // MARK: - Construction
 
 kestrel::ui::dialog_configuration::dialog_configuration(const luabridge::LuaRef &layout)
     : m_layout(layout, {})
 {
+    if (m_layout.has_stretched_background()) {
+        set_stretched_background(
+            { layout.state(), m_layout.background_top() },
+            { layout.state(), m_layout.background() },
+            { layout.state(), m_layout.background_bottom() }
+        );
+    }
+    else {
+        set_background({ layout.state(), m_layout.background() });
+    }
+
+    if (m_layout.flags() & scene_interface_flags::scene_passthrough) {
+        m_passthrough = true;
+    }
 }
 
 // MARK: - Configuration
@@ -53,7 +67,7 @@ auto kestrel::ui::dialog_configuration::set_background(const luabridge::LuaRef &
 {
     m_background_image = nullptr;
 
-    if (!background.state()) {
+    if (!background.state() || background.isNil()) {
         return;
     }
 
@@ -66,15 +80,15 @@ auto kestrel::ui::dialog_configuration::set_stretched_background(const luabridge
     m_background_bottom_image = nullptr;
     m_background_stretch_image = nullptr;
 
-    if (top.state()) {
+    if (top.state() && !top.isNil()) {
         m_background_image = load_image_asset(top);
     }
 
-    if (fill.state()) {
+    if (fill.state() && !fill.isNil()) {
         m_background_stretch_image = load_image_asset(fill);
     }
 
-    if (bottom.state()) {
+    if (bottom.state() && !bottom.isNil()) {
         m_background_bottom_image = load_image_asset(bottom);
     }
 }
@@ -93,7 +107,7 @@ auto kestrel::ui::dialog_configuration::define_element(const luabridge::LuaRef& 
         }
     }
 
-    m_element_definitions.emplace_back(std::pair(name, def));
+    m_element_definitions.emplace_back(name, def);
     return def;
 }
 
@@ -126,8 +140,10 @@ auto kestrel::ui::dialog_configuration::build_into_scene( const game_scene::lua_
         throw std::runtime_error("Dialog has already been built.");
     }
 
-    m_dialog = { new dialog(this) };
-    m_dialog->present_into_scene(scene);
+    m_dialog = { new dialog(this, scene.get()) };
+    m_dialog->present_into_scene(scene.get());
+    scene->set_passthrough_render(passthrough());
+    scene->set_dialog(m_dialog);
     return m_dialog;
 }
 

@@ -85,7 +85,9 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
 
     // MARK: - Scene Management
     lua_function(SceneContainer, Available_0_9) auto get_scene_container(const std::string& name) -> resource::container::lua_reference;
-    lua_function(Scene, Available_0_9) auto get_scene_definition(const std::string& name) -> ui::scene_definition::lua_reference;
+    lua_function(Scene, Available_0_9) auto get_scene_definition(const luabridge::LuaRef& name) -> ui::scene_definition::lua_reference;
+    auto scene_definition(const std::string& name) -> ui::scene_definition::lua_reference;
+    auto scene_definition(const resource::descriptor::lua_reference& ref) -> ui::scene_definition::lua_reference;
     auto current_scene() -> ui::game_scene::lua_reference;
     auto create_backing_scene(const lua::script& script, const std::string& name = "untitled-scene") -> std::shared_ptr<ui::scene>;
     lua_function(presentScene, Available_0_8) auto push_scene(const ui::game_scene::lua_reference& scene) -> void;

@@ -166,6 +166,11 @@ auto kestrel::ui::widgets::button_widget::continuous() const -> bool
     return m_continuous;
 }
 
+auto kestrel::ui::widgets::button_widget::hidden() const -> bool
+{
+    return m_entity->hidden();
+}
+
 // MARK: - Setters
 
 auto kestrel::ui::widgets::button_widget::set_label(const std::string& label) -> void
@@ -268,12 +273,23 @@ auto kestrel::ui::widgets::button_widget::set_continuous_action(bool continuous)
     m_entity->set_continuous_mouse_down_action(continuous);
 }
 
+auto kestrel::ui::widgets::button_widget::set_ui_action(const ui::action &action) -> void
+{
+    m_ui_action = action;
+}
+
+auto kestrel::ui::widgets::button_widget::set_hidden(bool hidden) -> void
+{
+    m_entity->set_hidden(hidden);
+    m_dirty = true;
+}
+
 // MARK: - Internal Events
 
 auto kestrel::ui::widgets::button_widget::bind_internal_events() -> void
 {
     m_entity->on_mouse_down_internal([&] (const event& e) {
-        if (m_disabled) {
+        if (m_disabled || m_entity->hidden()) {
             return;
         }
 
@@ -290,7 +306,7 @@ auto kestrel::ui::widgets::button_widget::bind_internal_events() -> void
     });
 
     m_entity->on_mouse_release_internal([&] (const event& e) {
-        if (m_disabled) {
+        if (m_disabled || m_entity->hidden()) {
             return;
         }
 
@@ -300,6 +316,9 @@ auto kestrel::ui::widgets::button_widget::bind_internal_events() -> void
         if (m_action.state() && m_action.isFunction() && !m_continuous) {
             m_action();
         }
+        else {
+            m_ui_action.execute();
+        }
     });
 }
 
@@ -307,7 +326,7 @@ auto kestrel::ui::widgets::button_widget::bind_internal_events() -> void
 
 auto kestrel::ui::widgets::button_widget::draw() -> void
 {
-    if (m_dirty) {
+    if (m_dirty && !m_entity->hidden()) {
         redraw_entity();
     }
     if (m_continuous && m_pressed) {
@@ -356,22 +375,22 @@ auto kestrel::ui::widgets::button_widget::redraw_entity() -> void
 auto kestrel::ui::widgets::button_widget::receive_event(const event &e) -> bool
 {
     if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
-        if (e.has(event_type::mouse_move) && !m_inside) {
+        if (e.has(::ui::event::mouse_move) && !m_inside) {
             m_inside = true;
             mouse_enter();
         }
 
-        if (e.has(event_type::any_mouse_down) && !m_pressed) {
+        if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             mouse_down();
         }
 
-        if (e.has(event_type::any_mouse_up) && m_pressed) {
+        if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             mouse_up();
         }
         return true;
     }
     else if (e.is_mouse_event()) {
-        if (e.has(event_type::mouse_move) && m_inside) {
+        if (e.has(::ui::event::mouse_move) && m_inside) {
             m_inside = false;
             mouse_exit();
             return true;
@@ -397,6 +416,9 @@ auto kestrel::ui::widgets::button_widget::mouse_up() -> void
 
     if (m_pressed && m_action.state() && m_action.isFunction()) {
         m_action();
+    }
+    else {
+        m_ui_action.execute();
     }
 
     m_pressed = false;

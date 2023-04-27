@@ -63,7 +63,7 @@ namespace kestrel::ui::imgui
         std::vector<window::lua_reference> m_windows;
 
     private:
-        auto map_key(hid::key k) -> ImGuiKey;
+        auto map_key(::ui::hid::key k) -> ImGuiKey;
         auto internal_draw() -> void;
 
     };

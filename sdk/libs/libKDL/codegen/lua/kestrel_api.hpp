@@ -50,8 +50,8 @@ namespace kdl::codegen::lua
         ast::function_definition *skip { nullptr };
         ast::class_definition *color_klass { nullptr };
         ast::function_definition *color_klass_color_value { nullptr };
-        ast::class_definition *namespace_klass { nullptr };
-        ast::function_definition *namespace_global { nullptr };
+        ast::class_definition *container_klass { nullptr };
+        ast::function_definition *container_global { nullptr };
         ast::function_definition *identified_resource { nullptr };
         ast::class_definition *command_decoder { nullptr };
         ast::function_definition *command_decoder_from { nullptr };

@@ -54,11 +54,17 @@ auto resource::definition::type::field_value::add_name_extension(const std::stri
 auto resource::definition::type::field_value::extended_name(const interpreter::scope &scope) const -> std::string
 {
     auto name = m_base_name;
-    for (const auto& extension : m_name_extensions) {
-        if (!scope.has_variable(extension)) {
-            continue;
+    if (!m_name_extensions.empty()) {
+        for (const auto& extension : m_name_extensions) {
+            if (!scope.has_variable(extension)) {
+                continue;
+            }
+            const auto& extension_replacement = scope.variable(extension);
+            name += extension_replacement.string_value();
         }
-        const auto& extension_replacement = scope.variable(extension);
+    }
+    else if (scope.has_variable("FieldNumber")) {
+        const auto& extension_replacement = scope.variable("FieldNumber");
         name += extension_replacement.string_value();
     }
     return name;

@@ -93,8 +93,11 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const grap
 
 kestrel::lua::script::script(const std::shared_ptr<runtime> &runtime, const std::string& code)
     : m_runtime(runtime), m_script(code), m_format(format::source), m_name("console.input"), m_id(-1)
-{
-}
+{}
+
+kestrel::lua::script::script(const std::shared_ptr<runtime> &runtime, const graphite::data::block &data)
+    : m_runtime(runtime), m_bytecode(data.get<void *>()), m_bytecode_size(data.size() - 1), m_bytecode_offset(0), m_format(format::bytecode)
+{}
 
 // MARK: - Accessor
 

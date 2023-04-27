@@ -390,4 +390,7 @@ auto foundation::filesystem::path::replace_component(std::int32_t i, const path 
         result.insert(result.end() - 1, replacement.m_components.begin(), replacement.m_components.end());
         return { result };
     }
+    else {
+        {};
+    }
 }

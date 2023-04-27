@@ -60,3 +60,7 @@ auto interpreter::variable::value() const -> const token&
     return m_token;
 }
 
+auto interpreter::variable::set_value(const interpreter::token &tk) -> void
+{
+    m_token = tk;
+}

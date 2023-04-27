@@ -24,6 +24,7 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/math/angle.hpp>
+#include <libUI/types/point.hpp>
 
 namespace kestrel::math
 {
@@ -34,6 +35,7 @@ namespace kestrel::math
         point() = default;
         explicit point(float v);
         point(const point& p);
+        explicit point(const ::ui::point& p);
         point(point&&) noexcept = default;
         explicit point(simd::float32 v);
 
@@ -45,6 +47,8 @@ namespace kestrel::math
         lua_setter(x, Available_0_8) auto set_x(float x) -> void;
         lua_getter(y, Available_0_8) [[nodiscard]] auto y() const -> float;
         lua_setter(y, Available_0_8) auto set_y(float y) -> void;
+
+        [[nodiscard]] auto ui_point() const -> ::ui::point;
 
         auto operator+(const point& p) const -> point;
         auto operator-(const point& p) const -> point;

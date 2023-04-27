@@ -36,6 +36,7 @@ namespace kestrel::resource
         lua_constructor(Avavailable_0_8) collection() = default;
 
         lua_function(add, Available_0_8) auto add_resource(const descriptor::lua_reference& descriptor, const luabridge::LuaRef& resource) -> void;
+        lua_function(remove, Available_0_9) auto remove_resource(const descriptor::lua_reference& descriptor) -> void;
 
         lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> std::size_t;
         lua_getter(randomItem, Available_0_8) [[nodiscard]] auto random() const -> luabridge::LuaRef;

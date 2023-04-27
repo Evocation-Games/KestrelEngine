@@ -59,5 +59,7 @@ namespace resource::definition::binary_template
             const instance *definition { nullptr };
             std::string name;
         } m_nested;
+
+        auto calculate_size() -> void;
     };
 }

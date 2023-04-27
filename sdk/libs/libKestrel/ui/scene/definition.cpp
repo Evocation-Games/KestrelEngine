@@ -25,7 +25,7 @@
 
 // MARK: - Construction
 
-kestrel::ui::scene_definition::scene_definition(const std::string &name)
+kestrel::ui::scene_definition::scene_definition(const std::string &name, std::int64_t id)
     : m_name(name)
 {
     // Get the container that the scene exists within.
@@ -100,7 +100,9 @@ auto kestrel::ui::scene_definition::construct_scene() -> ui::game_scene::lua_ref
     }
 
     // Return a scene that isn't a dialog...
-    return { new game_scene(m_main_script) };
+    ui::game_scene::lua_reference scene(new game_scene(m_main_script));
+
+    return scene;
 }
 
 auto kestrel::ui::scene_definition::construct_interface() -> ui::game_scene::lua_reference
@@ -108,9 +110,20 @@ auto kestrel::ui::scene_definition::construct_interface() -> ui::game_scene::lua
     auto *L = kestrel::lua_runtime()->internal_state();
     dialog_configuration cfg({ L, m_interface->with_type(scene_interface::resource_type::code) });
 
-    // Do we have an image to apply to the background?
-    if (m_background.get() && m_background->valid()) {
-        cfg.set_background({ L, m_background });
+    // We now need to try and define all the appropriate elements in the dialog configuration
+    for (auto i = 1; i <= cfg.layout()->element_count(); ++i) {
+        auto element = cfg.layout()->element_at(i);
+
+        auto definition = cfg.define_element({ L, i }, element->name, element->type);
+        definition->set_script_action(element->action);
+        definition->set_value(element->value);
+        definition->set_background_color(element->background_color);
+        definition->set_border_color(element->border_color);
+        definition->set_text_color(element->text_color);
+        definition->set_secondary_text_color(element->secondary_color);
+        definition->set_selection_color(element->selection_color);
+        definition->set_alignment(element->alignment);
+        definition->set_font({ new font::reference(element->font_name, element->font_size ?: 12) });
     }
 
     // SceneInterface does not require elements to be defined, so proceed straight to constructing the scene.
@@ -123,11 +136,6 @@ auto kestrel::ui::scene_definition::construct_macintosh_dialog() -> ui::game_sce
 {
     auto *L = kestrel::lua_runtime()->internal_state();
     dialog_configuration cfg({ L, m_dialog->with_type(legacy::macintosh::toolbox::dialog::resource_type::code) });
-
-    // Do we have an image to apply to the background?
-    if (m_background.get() && m_background->valid()) {
-        cfg.set_background({ L, m_background });
-    }
 
     // Macintosh Dialog needs to have elements defined and mapped correctly.
     for (const auto& element : m_ditl_map) {
@@ -147,7 +155,6 @@ auto kestrel::ui::scene_definition::push() -> void
         // TODO: Log and error in loading the scene.
         return;
     }
-
     kestrel::push_scene(scene);
 }
 
@@ -161,9 +168,6 @@ auto kestrel::ui::scene_definition::load() -> void
         m_main_script = reader.read_resource_reference();
         m_interface = reader.read_resource_reference();
         m_dialog = reader.read_resource_reference();
-        m_background = reader.read_resource_reference();
-        m_background_top = reader.read_resource_reference();
-        m_background_bottom = reader.read_resource_reference();
 
         // Construct a mapping for the elements in the DITL.
         auto count = reader.read_short();

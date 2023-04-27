@@ -24,15 +24,16 @@
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/math/rect.hpp>
-#include <libKestrel/ui/scene/game_scene.hpp>
 #include <libKestrel/ui/imgui/imgui.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
 #include <libKestrel/ui/scene/control_definition.hpp>
 #include <libKestrel/ui/legacy/macintosh/item_list.hpp>
 #include <libKestrel/ui/dialog/dialog_render_mode.hpp>
+#include <libKestrel/ui/entity/scene_entity.hpp>
 
 namespace kestrel::ui
 {
+    struct game_scene;
     class dialog_configuration;
 
     class lua_api(UI.Dialog, Available_0_8) dialog
@@ -40,15 +41,16 @@ namespace kestrel::ui
     public:
         has_constructable_lua_api(dialog);
 
-        explicit dialog(dialog_configuration* config);
+        explicit dialog(dialog_configuration* config, ui::game_scene *scene = nullptr);
 
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_function(present, Available_0_8) auto present() -> void;
-        auto present_into_scene(const game_scene::lua_reference& scene) -> void;
+        auto present_into_scene(ui::game_scene *scene) -> void;
 
         lua_function(setBackground, Available_0_8) auto set_background(const luabridge::LuaRef& background) -> void;
         lua_function(setStretchableBackground, Available_0_8) auto set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void;
 
+        lua_function(configureElementsOnOpen, Available_0_9) auto configure_elements_on_open(const luabridge::LuaRef& configure) -> void;
         lua_function(configureElement, Available_0_8) auto configure_element(const std::string& name, const luabridge::LuaRef& configure) -> void;
         lua_function(elementNamed, Available_0_8) auto named_element(const std::string& name) -> luabridge::LuaRef;
 
@@ -58,11 +60,13 @@ namespace kestrel::ui
         enum dialog_render_mode m_mode { dialog_render_mode::scene };
         dialog_configuration *m_configuration { nullptr };
         std::unordered_map<std::string, luabridge::LuaRef> m_elements;
+        luabridge::LuaRef m_configure_elements { nullptr };
 
         math::size m_positioning_offset;
         math::rect m_frame;
         std::string m_name;
-        ui::game_scene::lua_reference m_owner_scene { nullptr };
+        ui::game_scene *m_owner_scene { nullptr };
+        bool m_open { false };
 
         struct {
             image::static_image::lua_reference top { nullptr };
@@ -81,12 +85,14 @@ namespace kestrel::ui
             math::size frame_size;
         } m_scene_ui;
 
-        auto load_contents(dialog_configuration *config) -> void;
-        auto load_imgui_contents(dialog_configuration *config) -> void;
-        auto load_scene_contents(dialog_configuration *config) -> void;
-        auto present_imgui(const ui::game_scene::lua_reference& scene) -> void;
-        auto present_scene(const ui::game_scene::lua_reference& scene) -> void;
+        auto load_contents(dialog_configuration *config, ui::game_scene *scene) -> void;
+        auto load_imgui_contents(dialog_configuration *config, const ui::game_scene *scene) -> void;
+        auto load_scene_contents(dialog_configuration *config, const ui::game_scene *scene) -> void;
+        auto present_imgui(ui::game_scene *scene) -> void;
+        auto present_scene(ui::game_scene *scene) -> void;
 
-        auto add_to_scene(const ui::game_scene::lua_reference& scene) -> void;
+        auto add_to_scene(ui::game_scene *scene) -> void;
+
+        auto configure_elements() -> void;
     };
 }

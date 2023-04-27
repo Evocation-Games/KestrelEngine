@@ -42,6 +42,7 @@ auto interpreter::script::statement::evaluate(scope *scope) -> result
     struct context context { .scope = scope };
     auto assignment_var = token::id("");
 
+
     if (m_tokens.size() == 1) {
         context.result = evaluate_single_token_statement(context);
         if (context.result.status != result::error) {
@@ -68,7 +69,6 @@ auto interpreter::script::statement::evaluate(scope *scope) -> result
 
         iterate_shunting_yard(context);
     }
-
     evaluate_shunting_yard(context);
 
 STATEMENT_END:
@@ -96,6 +96,21 @@ auto interpreter::script::statement::evaluate_single_token_statement(struct cont
          r.value = m_tokens.read();
          r.type = r.value.type();
          r.status = result::ok;
+    }
+    else if (m_tokens.expect({
+        expectation(token::identifier).be_true()
+    })) {
+        evaluate_variable(context);
+        r.value = m_tokens.read();
+        r.type = r.value.type();
+        r.status = result::ok;
+    }
+    else if (m_tokens.expect({
+        expectation(token::function_result).be_true()
+    })) {
+        r.value = m_tokens.read();
+        r.type = r.value.type();
+        r.status = r.value.bool_value() ? result::ok : result::error;
     }
 
     return r;
@@ -176,6 +191,7 @@ auto interpreter::script::statement::evaluate_variable(struct context& context) 
         const auto variable = m_tokens.peek();
         if (context.scope->has_variable(variable.string_value(), true)) {
             auto value = context.scope->variable(variable.string_value());
+            value.set_source_variable(variable.string_value());
             m_tokens.advance();
             m_tokens.push(value);
         }
@@ -189,6 +205,9 @@ auto interpreter::script::statement::iterate_shunting_yard(struct context& conte
     const auto& token = m_tokens.read();
 
     if (token.is(token::string) || token.is(token::integer) || token.is(token::decimal) || token.is(token::boolean) || token.is(token::reference)) {
+        context.output_queue.emplace_back(token);
+    }
+    else if (token.is(token::function_result)) {
         context.output_queue.emplace_back(token);
     }
     else if (
@@ -234,7 +253,10 @@ auto interpreter::script::statement::evaluate_shunting_yard(struct context &cont
 
     std::vector<token> working_stack;
     for (const auto& tk : context.output_queue) {
-        if (tk.is(token::integer) || tk.is(token::string) || tk.is(token::decimal) || tk.is(token::boolean)) {
+        if (tk.is(token::integer) || tk.is(token::string) || tk.is(token::decimal) || tk.is(token::boolean) || tk.is(token::reference)) {
+            working_stack.emplace_back(tk);
+        }
+        else if (tk.is(token::function_result)) {
             working_stack.emplace_back(tk);
         }
         else if (tk.is(token::plus)) {
@@ -288,10 +310,18 @@ auto interpreter::script::statement::evaluate_shunting_yard(struct context &cont
         }
         else if (tk.is(token::increment)) {
             const auto lhs = working_stack.back(); working_stack.pop_back();
+            if (lhs.is_variable()) {
+                auto& var = context.scope->get_variable(lhs.source_variable());
+                var.set_value(lhs + token(1LL));
+            }
             working_stack.emplace_back(lhs + token(1LL));
         }
         else if (tk.is(token::decrement)) {
             const auto lhs = working_stack.back(); working_stack.pop_back();
+            if (lhs.is_variable()) {
+                auto& var = context.scope->get_variable(lhs.source_variable());
+                var.set_value(lhs - token(1LL));
+            }
             working_stack.emplace_back(lhs - token(1LL));
         }
     }

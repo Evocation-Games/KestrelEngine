@@ -30,6 +30,7 @@ namespace kdl::sema::type_definition::template_definition
 {
     auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
     auto parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> resource::definition::binary_template::instance;
+    auto parse_field(foundation::stream<tokenizer::token>& stream, context& ctx) -> resource::definition::binary_template::field;
 
     auto test_binary_type(const foundation::stream<tokenizer::token>& stream) -> bool;
     auto binary_type(const tokenizer::token& token, context& ctx) -> resource::definition::binary_template::type;

@@ -226,7 +226,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                 auto type_name = m_input.read(); m_input.advance();
                 auto id = m_input.read();
                 output.append(token(hash, resource::reference(
-                    id.value<resource::reference::identifier>(), type_name.text(), container.text()
+                    id.value<resource::reference::identifier>(), type_name.text(), "????", container.text()
                 )));
             }
             else if (m_input.expect({

@@ -26,6 +26,17 @@
 
 // MARK: - Construction
 
+kestrel::resource::descriptor::descriptor(const ::resource::reference &reference)
+    : id(reference.id()), type(reference.type_code()), containers({ reference.container_name() })
+{
+    if (reference.has_type_code()) {
+        m_variant = variant::typed_identified;
+    }
+    else {
+        m_variant = variant::identified;
+    }
+}
+
 auto kestrel::resource::descriptor::file_constrained(const graphite::rsrc::file* file) -> lua_reference
 {
     auto r = lua_reference(new descriptor());

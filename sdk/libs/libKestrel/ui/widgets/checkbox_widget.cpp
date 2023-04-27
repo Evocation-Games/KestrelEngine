@@ -122,22 +122,22 @@ auto kestrel::ui::widgets::checkbox_widget::set_border_color(const graphics::col
 auto kestrel::ui::widgets::checkbox_widget::receive_event(const event &e) -> bool
 {
     if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
-        if (e.has(event_type::mouse_move) && !m_inside) {
+        if (e.has(::ui::event::mouse_move) && !m_inside) {
             m_inside = true;
             mouse_enter();
         }
 
-        if (e.has(event_type::any_mouse_down) && !m_pressed) {
+        if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             mouse_down();
         }
 
-        if (e.has(event_type::any_mouse_up) && m_pressed) {
+        if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             mouse_up();
         }
         return true;
     }
     else if (e.is_mouse_event()) {
-        if (e.has(event_type::mouse_move) && m_inside) {
+        if (e.has(::ui::event::mouse_move) && m_inside) {
             m_inside = false;
             mouse_exit();
             return true;

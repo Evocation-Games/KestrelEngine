@@ -49,12 +49,12 @@ auto kestrel::physics::world::add_physics_body(body::lua_reference ref) -> void
 
 auto kestrel::physics::world::destroy_physics_body(body *ref) -> void
 {
-    if (ref == nullptr) {
+    if (ref == nullptr || !m_bodies.available()) {
         return;
     }
 
     auto& body = m_bodies[ref->id()];
-    if (body.ref.get() == ref) {
+    if (body.ref.use_count() > 0 && body.ref.get() == ref) {
         // This is actually the correct reference, and not chance.
         body.ref = { nullptr };
         m_bodies.release(ref->id());

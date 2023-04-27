@@ -54,10 +54,10 @@ auto kdl::codegen::lua::kestrel_api::create(ast::generator *gen) -> kestrel_api
         api.color_klass = gen->declare_class("Color", true);
         api.color_klass_color_value = gen->declare_static_function(true, gen->symbol("colorValue"), api.color_klass);
 
-        // Namespace
-        api.namespace_klass = gen->declare_class("Namespace", true);
-        api.namespace_global = gen->declare_static_function(true, gen->symbol("global"), api.namespace_klass);
-        api.identified_resource = gen->declare_function(true, gen->symbol("identifiedResource"), api.namespace_klass);
+        // Container
+        api.container_klass = gen->declare_class("Container", true);
+        api.container_global = gen->declare_static_function(true, gen->symbol("global"), api.container_klass);
+        api.identified_resource = gen->declare_function(true, gen->symbol("identifiedResource"), api.container_klass);
 
         // Command Decoder
         api.command_decoder = gen->declare_class("Kestrel.Command.Decoder", true);

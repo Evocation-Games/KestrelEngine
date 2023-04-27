@@ -594,7 +594,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
             }
         }
 
-        if (m_mouse_over && e.has(event_type::any_mouse_down) && !m_pressed) {
+        if (m_mouse_over && e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;
             m_mouse_down_event = e;
 
@@ -606,7 +606,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
                 m_on_mouse_down_internal(e);
             }
         }
-        else if (e.has(event_type::any_mouse_up) && m_pressed) {
+        else if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             m_pressed = false;
             if (m_on_mouse_release.state() && m_on_mouse_release.isFunction()) {
                 m_on_mouse_release(event::lua_reference { new event(e) });
@@ -617,7 +617,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
             }
         }
 
-        if (m_on_mouse_drag.state() && m_on_mouse_drag.isFunction() && e.has(event_type::any_mouse_down) && e.has(event_type::mouse_move)) {
+        if (m_on_mouse_drag.state() && m_on_mouse_drag.isFunction() && e.has(::ui::event::any_mouse_down) && e.has(::ui::event::mouse_move)) {
             m_on_mouse_drag(event::lua_reference { new event(e) });
             m_mouse_dragged = true;
             if (m_on_mouse_drag_internal) {

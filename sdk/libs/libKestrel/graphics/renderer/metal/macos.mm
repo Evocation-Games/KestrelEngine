@@ -27,6 +27,8 @@
 #include <libKestrel/kestrel.hpp>
 #include <LuaBridge/detail/LuaException.h>
 #include <libKestrel/cache/cache.hpp>
+#include <libUI/event/event.hpp>
+#include <libUI/hid/key.hpp>
 
 @interface KestrelApplication() <NSApplicationDelegate>
 - (void)runWithContinuation:(const std::function<auto(KestrelApplication *)->void>&)continuation;
@@ -219,7 +221,7 @@ auto kestrel::platform::macos::start_application(const std::function<auto(Kestre
 
     if (down && is_typed([e characters])) {
         auto new_event = kestrel::event::key(
-            static_cast<enum kestrel::event_type>(kestrel::event_type::key_down | kestrel::event_type::key_typed | static_cast<std::uint32_t>(flags)),
+            static_cast<enum ::ui::event::type>(::ui::event::type::key_down | ::ui::event::type::key_typed | flags),
             [self translateKeycodeForEvent:e],
             [[e characters] characterAtIndex:0]
         );
@@ -227,7 +229,7 @@ auto kestrel::platform::macos::start_application(const std::function<auto(Kestre
     }
     else if (down) {
         auto new_event = kestrel::event::key(
-            static_cast<enum kestrel::event_type>(kestrel::event_type::key_down | static_cast<std::uint32_t>(flags)),
+            static_cast<enum ::ui::event::type>(::ui::event::type::key_down | flags),
             [self translateKeycodeForEvent:e],
             [[e characters] characterAtIndex:0]
         );
@@ -235,7 +237,7 @@ auto kestrel::platform::macos::start_application(const std::function<auto(Kestre
     }
     else {
         auto new_event = kestrel::event::key(
-            static_cast<enum kestrel::event_type>(kestrel::event_type::key_up | static_cast<std::uint32_t>(flags)),
+            static_cast<enum ::ui::event::type>(::ui::event::type::key_up | flags),
             [self translateKeycodeForEvent:e],
             [[e characters] characterAtIndex:0]
         );
@@ -263,176 +265,176 @@ auto kestrel::platform::macos::start_application(const std::function<auto(Kestre
 - (void)mouseDown:(NSEvent *)event
 {
     auto p = [self convertPoint:event.locationInWindow fromView:nil];
-    auto e = kestrel::event::mouse(kestrel::event_type::lmb_down, { static_cast<float>(p.x), static_cast<float>(p.y) });
+    auto e = kestrel::event::mouse(::ui::event::type::lmb_down, { static_cast<float>(p.x), static_cast<float>(p.y) });
     kestrel::post_event(e);
 }
 
 - (void)rightMouseDown:(NSEvent *)event
 {
     auto p = [self convertPoint:event.locationInWindow fromView:nil];
-    auto e = kestrel::event::mouse(kestrel::event_type::rmb_down, { static_cast<float>(p.x), static_cast<float>(p.y) });
+    auto e = kestrel::event::mouse(::ui::event::type::rmb_down, { static_cast<float>(p.x), static_cast<float>(p.y) });
     kestrel::post_event(e);
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
     auto p = [self convertPoint:event.locationInWindow fromView:nil];
-    auto e = kestrel::event::mouse(kestrel::event_type::lmb_up, { static_cast<float>(p.x), static_cast<float>(p.y) });
+    auto e = kestrel::event::mouse(::ui::event::type::lmb_up, { static_cast<float>(p.x), static_cast<float>(p.y) });
     kestrel::post_event(e);
 }
 
 - (void)rightMouseUp:(NSEvent *)event
 {
     auto p = [self convertPoint:event.locationInWindow fromView:nil];
-    auto e = kestrel::event::mouse(kestrel::event_type::rmb_up, { static_cast<float>(p.x), static_cast<float>(p.y) });
+    auto e = kestrel::event::mouse(::ui::event::type::rmb_up, { static_cast<float>(p.x), static_cast<float>(p.y) });
     kestrel::post_event(e);
 }
 
 - (void)mouseMoved:(NSEvent *)event
 {
     auto p = [self convertPoint:event.locationInWindow fromView:nil];
-    auto e = kestrel::event::mouse(kestrel::event_type::mouse_move, { static_cast<float>(p.x), static_cast<float>(p.y) });
+    auto e = kestrel::event::mouse(::ui::event::type::mouse_move, { static_cast<float>(p.x), static_cast<float>(p.y) });
     kestrel::post_event(e);
 }
 
 - (void)mouseDragged:(NSEvent *)event
 {
     auto p = [self convertPoint:event.locationInWindow fromView:nil];
-    auto e = kestrel::event::mouse(kestrel::event_type::mouse_drag, { static_cast<float>(p.x), static_cast<float>(p.y) });
+    auto e = kestrel::event::mouse(::ui::event::type::mouse_drag, { static_cast<float>(p.x), static_cast<float>(p.y) });
     kestrel::post_event(e);
 }
 
 // MARK: - HID
 
-- (kestrel::hid::key)translateKeycodeForEvent:(NSEvent *)event
+- (enum ::ui::hid::key)translateKeycodeForEvent:(NSEvent *)event
 {
     switch ([event keyCode]) {
         // Special Keys
         case kVK_ANSI_KeypadEnter:
-        case kVK_Return:                return kestrel::hid::key::enter;
-        case kVK_Tab:                   return kestrel::hid::key::tab;
-        case kVK_Delete:                return kestrel::hid::key::backspace;
-        case kVK_Escape:                return kestrel::hid::key::escape;
+        case kVK_Return:                return ::ui::hid::key::enter;
+        case kVK_Tab:                   return ::ui::hid::key::tab;
+        case kVK_Delete:                return ::ui::hid::key::backspace;
+        case kVK_Escape:                return ::ui::hid::key::escape;
 
         // Cursor Keys
-        case kVK_LeftArrow:             return kestrel::hid::key::left;
-        case kVK_RightArrow:            return kestrel::hid::key::right;
-        case kVK_DownArrow:             return kestrel::hid::key::down;
-        case kVK_UpArrow:               return kestrel::hid::key::up;
+        case kVK_LeftArrow:             return ::ui::hid::key::left;
+        case kVK_RightArrow:            return ::ui::hid::key::right;
+        case kVK_DownArrow:             return ::ui::hid::key::down;
+        case kVK_UpArrow:               return ::ui::hid::key::up;
 
         // Letters
-        case kVK_ANSI_A:                return kestrel::hid::key::a;
-        case kVK_ANSI_S:                return kestrel::hid::key::s;
-        case kVK_ANSI_D:                return kestrel::hid::key::d;
-        case kVK_ANSI_F:                return kestrel::hid::key::f;
-        case kVK_ANSI_H:                return kestrel::hid::key::h;
-        case kVK_ANSI_G:                return kestrel::hid::key::g;
-        case kVK_ANSI_Z:                return kestrel::hid::key::z;
-        case kVK_ANSI_X:                return kestrel::hid::key::x;
-        case kVK_ANSI_C:                return kestrel::hid::key::c;
-        case kVK_ANSI_V:                return kestrel::hid::key::v;
-        case kVK_ANSI_B:                return kestrel::hid::key::b;
-        case kVK_ANSI_Q:                return kestrel::hid::key::q;
-        case kVK_ANSI_W:                return kestrel::hid::key::w;
-        case kVK_ANSI_E:                return kestrel::hid::key::e;
-        case kVK_ANSI_R:                return kestrel::hid::key::r;
-        case kVK_ANSI_Y:                return kestrel::hid::key::y;
-        case kVK_ANSI_T:                return kestrel::hid::key::t;
-        case kVK_ANSI_O:                return kestrel::hid::key::o;
-        case kVK_ANSI_U:                return kestrel::hid::key::u;
-        case kVK_ANSI_I:                return kestrel::hid::key::i;
-        case kVK_ANSI_P:                return kestrel::hid::key::p;
-        case kVK_ANSI_L:                return kestrel::hid::key::l;
-        case kVK_ANSI_J:                return kestrel::hid::key::j;
-        case kVK_ANSI_K:                return kestrel::hid::key::k;
-        case kVK_ANSI_N:                return kestrel::hid::key::n;
-        case kVK_ANSI_M:                return kestrel::hid::key::m;
+        case kVK_ANSI_A:                return ::ui::hid::key::a;
+        case kVK_ANSI_S:                return ::ui::hid::key::s;
+        case kVK_ANSI_D:                return ::ui::hid::key::d;
+        case kVK_ANSI_F:                return ::ui::hid::key::f;
+        case kVK_ANSI_H:                return ::ui::hid::key::h;
+        case kVK_ANSI_G:                return ::ui::hid::key::g;
+        case kVK_ANSI_Z:                return ::ui::hid::key::z;
+        case kVK_ANSI_X:                return ::ui::hid::key::x;
+        case kVK_ANSI_C:                return ::ui::hid::key::c;
+        case kVK_ANSI_V:                return ::ui::hid::key::v;
+        case kVK_ANSI_B:                return ::ui::hid::key::b;
+        case kVK_ANSI_Q:                return ::ui::hid::key::q;
+        case kVK_ANSI_W:                return ::ui::hid::key::w;
+        case kVK_ANSI_E:                return ::ui::hid::key::e;
+        case kVK_ANSI_R:                return ::ui::hid::key::r;
+        case kVK_ANSI_Y:                return ::ui::hid::key::y;
+        case kVK_ANSI_T:                return ::ui::hid::key::t;
+        case kVK_ANSI_O:                return ::ui::hid::key::o;
+        case kVK_ANSI_U:                return ::ui::hid::key::u;
+        case kVK_ANSI_I:                return ::ui::hid::key::i;
+        case kVK_ANSI_P:                return ::ui::hid::key::p;
+        case kVK_ANSI_L:                return ::ui::hid::key::l;
+        case kVK_ANSI_J:                return ::ui::hid::key::j;
+        case kVK_ANSI_K:                return ::ui::hid::key::k;
+        case kVK_ANSI_N:                return ::ui::hid::key::n;
+        case kVK_ANSI_M:                return ::ui::hid::key::m;
 
         // Numbers
         case kVK_ANSI_Keypad0:
-        case kVK_ANSI_0:                return kestrel::hid::key::kp_0;
+        case kVK_ANSI_0:                return ::ui::hid::key::kp_0;
         case kVK_ANSI_Keypad1:
-        case kVK_ANSI_1:                return kestrel::hid::key::kp_1;
+        case kVK_ANSI_1:                return ::ui::hid::key::kp_1;
         case kVK_ANSI_Keypad2:
-        case kVK_ANSI_2:                return kestrel::hid::key::kp_2;
+        case kVK_ANSI_2:                return ::ui::hid::key::kp_2;
         case kVK_ANSI_Keypad3:
-        case kVK_ANSI_3:                return kestrel::hid::key::kp_3;
+        case kVK_ANSI_3:                return ::ui::hid::key::kp_3;
         case kVK_ANSI_Keypad4:
-        case kVK_ANSI_4:                return kestrel::hid::key::kp_4;
+        case kVK_ANSI_4:                return ::ui::hid::key::kp_4;
         case kVK_ANSI_Keypad5:
-        case kVK_ANSI_5:                return kestrel::hid::key::kp_5;
+        case kVK_ANSI_5:                return ::ui::hid::key::kp_5;
         case kVK_ANSI_Keypad6:
-        case kVK_ANSI_6:                return kestrel::hid::key::kp_6;
+        case kVK_ANSI_6:                return ::ui::hid::key::kp_6;
         case kVK_ANSI_Keypad7:
-        case kVK_ANSI_7:                return kestrel::hid::key::kp_7;
+        case kVK_ANSI_7:                return ::ui::hid::key::kp_7;
         case kVK_ANSI_Keypad8:
-        case kVK_ANSI_8:                return kestrel::hid::key::kp_8;
+        case kVK_ANSI_8:                return ::ui::hid::key::kp_8;
         case kVK_ANSI_Keypad9:
-        case kVK_ANSI_9:                return kestrel::hid::key::kp_9;
+        case kVK_ANSI_9:                return ::ui::hid::key::kp_9;
 
         // Special
-        case kVK_Space:                 return kestrel::hid::key::space;
-        case kVK_ANSI_Period:           return kestrel::hid::key::period;
-        case kVK_ANSI_Comma:            return kestrel::hid::key::comma;
-        case kVK_ANSI_Semicolon:        return kestrel::hid::key::semi_colon;
-        case kVK_ANSI_Quote:            return kestrel::hid::key::apostrophe;
-        case kVK_ANSI_LeftBracket:      return kestrel::hid::key::left_bracket;
-        case kVK_ANSI_RightBracket:     return kestrel::hid::key::right_bracket;
-        case kVK_ANSI_Grave:            return kestrel::hid::key::grave_accent;
-        case kVK_ANSI_Backslash:        return kestrel::hid::key::backslash;
-        case kVK_ANSI_Slash:            return kestrel::hid::key::slash;
-        case kVK_ANSI_Minus:            return kestrel::hid::key::minus;
-        case kVK_ANSI_Equal:            return kestrel::hid::key::equal;
+        case kVK_Space:                 return ::ui::hid::key::space;
+        case kVK_ANSI_Period:           return ::ui::hid::key::period;
+        case kVK_ANSI_Comma:            return ::ui::hid::key::comma;
+        case kVK_ANSI_Semicolon:        return ::ui::hid::key::semi_colon;
+        case kVK_ANSI_Quote:            return ::ui::hid::key::apostrophe;
+        case kVK_ANSI_LeftBracket:      return ::ui::hid::key::left_bracket;
+        case kVK_ANSI_RightBracket:     return ::ui::hid::key::right_bracket;
+        case kVK_ANSI_Grave:            return ::ui::hid::key::grave_accent;
+        case kVK_ANSI_Backslash:        return ::ui::hid::key::backslash;
+        case kVK_ANSI_Slash:            return ::ui::hid::key::slash;
+        case kVK_ANSI_Minus:            return ::ui::hid::key::minus;
+        case kVK_ANSI_Equal:            return ::ui::hid::key::equal;
 
-        case kVK_F1:                    return kestrel::hid::key::f1;
-        case kVK_F2:                    return kestrel::hid::key::f2;
-        case kVK_F3:                    return kestrel::hid::key::f3;
-        case kVK_F4:                    return kestrel::hid::key::f4;
-        case kVK_F5:                    return kestrel::hid::key::f5;
-        case kVK_F6:                    return kestrel::hid::key::f6;
-        case kVK_F7:                    return kestrel::hid::key::f7;
-        case kVK_F8:                    return kestrel::hid::key::f8;
-        case kVK_F9:                    return kestrel::hid::key::f9;
-        case kVK_F10:                   return kestrel::hid::key::f10;
-        case kVK_F11:                   return kestrel::hid::key::f11;
-        case kVK_F12:                   return kestrel::hid::key::f12;
+        case kVK_F1:                    return ::ui::hid::key::f1;
+        case kVK_F2:                    return ::ui::hid::key::f2;
+        case kVK_F3:                    return ::ui::hid::key::f3;
+        case kVK_F4:                    return ::ui::hid::key::f4;
+        case kVK_F5:                    return ::ui::hid::key::f5;
+        case kVK_F6:                    return ::ui::hid::key::f6;
+        case kVK_F7:                    return ::ui::hid::key::f7;
+        case kVK_F8:                    return ::ui::hid::key::f8;
+        case kVK_F9:                    return ::ui::hid::key::f9;
+        case kVK_F10:                   return ::ui::hid::key::f10;
+        case kVK_F11:                   return ::ui::hid::key::f11;
+        case kVK_F12:                   return ::ui::hid::key::f12;
 
         // Modifiers
-        case kVK_Command:               return kestrel::hid::key::left_super;
-        case kVK_RightCommand:          return kestrel::hid::key::right_super;
-        case kVK_Control:               return kestrel::hid::key::left_control;
-        case kVK_RightControl:          return kestrel::hid::key::right_control;
-        case kVK_Option:                return kestrel::hid::key::left_alt;
-        case kVK_RightOption:           return kestrel::hid::key::right_alt;
-        case kVK_Shift:                 return kestrel::hid::key::left_shift;
-        case kVK_RightShift:            return kestrel::hid::key::right_shift;
+        case kVK_Command:               return ::ui::hid::key::left_super;
+        case kVK_RightCommand:          return ::ui::hid::key::right_super;
+        case kVK_Control:               return ::ui::hid::key::left_control;
+        case kVK_RightControl:          return ::ui::hid::key::right_control;
+        case kVK_Option:                return ::ui::hid::key::left_alt;
+        case kVK_RightOption:           return ::ui::hid::key::right_alt;
+        case kVK_Shift:                 return ::ui::hid::key::left_shift;
+        case kVK_RightShift:            return ::ui::hid::key::right_shift;
 
         // Unknown
-        default:                        return kestrel::hid::key::unknown;
+        default:                        return ::ui::hid::key::unknown;
     }
 }
 
-- (enum kestrel::event_type)translateKeyModifiersForEvent:(NSEvent *)event
+- (enum ::ui::event::type)translateKeyModifiersForEvent:(NSEvent *)event
 {
     std::uint32_t modifier_flags = 0;
 
     if ([event modifierFlags] & NSEventModifierFlagShift) {
-        modifier_flags |= static_cast<std::uint32_t>(kestrel::event_type::has_shift_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_shift_modifier);
     }
     else if ([event modifierFlags] & NSEventModifierFlagOption) {
-        modifier_flags |= static_cast<std::uint32_t>(kestrel::event_type::has_alt_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_alt_modifier);
     }
     else if ([event modifierFlags] & NSEventModifierFlagCapsLock) {
-        modifier_flags |= static_cast<std::uint32_t>(kestrel::event_type::has_caps_lock_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_caps_lock_modifier);
     }
     else if ([event modifierFlags] & NSEventModifierFlagControl) {
-        modifier_flags |= static_cast<std::uint32_t>(kestrel::event_type::has_control_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_control_modifier);
     }
     else if ([event modifierFlags] & NSEventModifierFlagCommand) {
-        modifier_flags |= static_cast<std::uint32_t>(kestrel::event_type::has_super_modifier);
+        modifier_flags |= static_cast<std::uint32_t>(::ui::event::type::has_super_modifier);
     }
 
-    return static_cast<enum kestrel::event_type>(modifier_flags);
+    return static_cast<enum ::ui::event::type>(modifier_flags);
 }
 
 @end

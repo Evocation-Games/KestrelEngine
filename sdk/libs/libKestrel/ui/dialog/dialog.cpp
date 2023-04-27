@@ -27,6 +27,7 @@
 #include <libKestrel/ui/scene/control_definition.hpp>
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/graphics/canvas/canvas.hpp>
+#include <libKestrel/ui/scene/game_scene.hpp>
 
 // Widgets
 #include <libKestrel/ui/widgets/button_widget.hpp>
@@ -47,30 +48,33 @@
 
 // MARK: - Construction
 
-kestrel::ui::dialog::dialog(dialog_configuration *config)
+kestrel::ui::dialog::dialog(dialog_configuration *config, ui::game_scene *scene)
 {
-    load_contents(config);
+    load_contents(config, scene ?: kestrel::current_scene().get());
 }
 
-auto kestrel::ui::dialog::load_contents(dialog_configuration *config) -> void
+auto kestrel::ui::dialog::load_contents(dialog_configuration *config, ui::game_scene *scene) -> void
 {
     m_configuration = config;
+    m_owner_scene = scene;
 
     switch (config->layout()->mode()) {
         case dialog_render_mode::scene: {
-            load_scene_contents(config);
+            load_scene_contents(config, scene);
             break;
         }
         case dialog_render_mode::imgui: {
-            load_imgui_contents(config);
+            load_imgui_contents(config, scene);
             break;
         }
     }
 }
 
-auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config) -> void
+auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config, const ui::game_scene *scene) -> void
 {
     auto L = kestrel::lua_runtime()->internal_state();
+    m_frame = math::rect(math::point(0), config->size());
+    m_name = config->layout()->name();
 
     // We're working with ImGUI, so use the ImGUI Controls
     for (const auto& element_name : config->all_elements()) {
@@ -78,14 +82,15 @@ auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config) -> v
 
         switch (static_cast<enum control_type>(element->type())) {
             case control_type::button: {
-                auto button = imgui::button::lua_reference(new imgui::button(element->suggested_value()));
+                auto button = imgui::button::lua_reference(new imgui::button(element->value().string(0)));
                 button->set_position(element->frame().origin());
                 button->set_size(element->frame().size());
+                button->set_script_action(element->script_action().bind_to_scene(scene));
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
                 break;
             }
             case control_type::checkbox: {
-                auto checkbox = imgui::checkbox::lua_reference(new imgui::checkbox(element->suggested_value(), false));
+                auto checkbox = imgui::checkbox::lua_reference(new imgui::checkbox(element->value().string(0), false));
                 checkbox->set_position(element->frame().origin());
                 checkbox->set_size(element->frame().size());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, checkbox)));
@@ -96,6 +101,13 @@ auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config) -> v
                 auto combo = imgui::combo::lua_reference(new imgui::combo({ nullptr }));
                 combo->set_position(element->frame().origin());
                 combo->set_size(element->frame().size());
+
+                auto items = luabridge::LuaRef::newTable(kestrel::lua_runtime()->internal_state());
+                for (auto n = 0; n < element->value().count(); ++n) {
+                    items[n + 1] = luabridge::LuaRef(items.state(), element->value().string(n));
+                }
+                combo->set_items(items);
+
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, combo)));
                 break;
             }
@@ -107,14 +119,14 @@ auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config) -> v
                 break;
             }
             case control_type::label: {
-                auto label = imgui::label::lua_reference(new imgui::label(element->suggested_value()));
+                auto label = imgui::label::lua_reference(new imgui::label(element->value().string(0)));
                 label->set_position(element->frame().origin());
                 label->set_size(element->frame().size());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, label)));
                 break;
             }
             case control_type::text_field: {
-                auto value = element->suggested_value();
+                auto value = element->value().string(0);
                 auto text_field = imgui::textfield::lua_reference(new imgui::textfield(value.size(), value));
                 text_field->set_position(element->frame().origin());
                 text_field->set_size(element->frame().size());
@@ -122,7 +134,8 @@ auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config) -> v
                 break;
             }
             case control_type::slider: {
-                auto slider = imgui::slider::lua_reference(new imgui::slider(50, 0, 100));
+                auto value = static_cast<std::int32_t>(element->value().count() == 0 ? 50 : element->value().integer(0));
+                auto slider = imgui::slider::lua_reference(new imgui::slider(value, 0, 100));
                 slider->set_position(element->frame().origin());
                 slider->set_size(element->frame().size());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, slider)));
@@ -149,64 +162,96 @@ auto kestrel::ui::dialog::load_imgui_contents(dialog_configuration *config) -> v
     }
 }
 
-auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config) -> void
+auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, const ui::game_scene *scene) -> void
 {
     auto L = kestrel::lua_runtime()->internal_state();
 
     // Adopt any additional aspects of layout and configuration information provided.
     m_scene_ui.frame_size = config->size();
+    m_name = config->layout()->name();
 
     // We're working with the native kestrel scene, so use the widgets
-    for (auto element_name : config->all_elements()) {
+    for (const auto& element_name : config->all_elements()) {
         const auto& element = config->element(element_name);
 
         switch (static_cast<enum control_type>(element->type())) {
             case control_type::button: {
-                auto button = widgets::button_widget::lua_reference(new widgets::button_widget(element->suggested_value()));
+                auto button = widgets::button_widget::lua_reference(new widgets::button_widget(element->value().string(0)));
                 button->set_frame(element->frame());
+                button->set_label_color(element->text_color());
+                button->set_font(element->font());
+                button->set_ui_action(element->script_action().bind_to_scene(scene));
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
                 break;
             }
             case control_type::sprite: {
-                auto image = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
-                image->set_frame(element->frame());
-                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
+                auto sprite = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
+                sprite->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
                 break;
             }
             case control_type::image: {
-                auto sprite = widgets::image_widget::lua_reference(new widgets::image_widget({ nullptr }));
-                sprite->set_frame(element->frame());
-                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
+                auto image = widgets::image_widget::lua_reference(new widgets::image_widget({ L, element->value().descriptor(0) }));
+                image->set_frame(element->frame());
+                m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
                 break;
             }
             case control_type::checkbox: {
                 auto checkbox = widgets::checkbox_widget::lua_reference(new widgets::checkbox_widget());
                 checkbox->set_frame(element->frame());
+                checkbox->set_color(element->text_color());
+                checkbox->set_background_color(element->background_color());
+                checkbox->set_border_color(element->border_color());
+                checkbox->set_value(element->value().boolean(0));
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, checkbox)));
                 break;
             }
             case control_type::label: {
-                auto label = widgets::label_widget::lua_reference(new widgets::label_widget(element->suggested_value()));
+                auto label = widgets::label_widget::lua_reference(new widgets::label_widget(element->value().string(0)));
                 label->set_frame(element->frame());
+                label->set_color(element->text_color());
+                label->set_background_color(element->background_color());
+                label->set_horizontal_alignment(element->alignment());
+                label->set_font(element->font());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, label)));
                 break;
             }
             case control_type::text_field: {
                 auto text = widgets::text_widget::lua_reference(new widgets::text_widget(element->frame().width()));
-                text->set_text(element->suggested_value());
+                text->set_text(element->value().string(0));
                 text->set_frame(element->frame());
+                text->set_background_color(element->background_color());
+                text->set_border_color(element->border_color());
+                text->set_color(element->text_color());
+                text->set_cursor_color(element->text_color());
+                text->set_selection_color(element->selection_color());
+                text->set_font(element->font());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
                 break;
             }
             case control_type::text_area: {
-                auto text = widgets::textarea_widget::lua_reference(new widgets::textarea_widget(element->suggested_value()));
+                auto text = widgets::textarea_widget::lua_reference(new widgets::textarea_widget(element->value().string(0)));
                 text->set_frame(element->frame());
+                text->set_background_color(element->background_color());
+                text->set_color(element->text_color());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
                 break;
             }
             case control_type::popup_button: {
                 auto popup = widgets::popup_button_widget::lua_reference(new widgets::popup_button_widget(element->frame().width()));
                 popup->set_frame(element->frame());
+                popup->set_background_color(element->background_color());
+                popup->set_border_color(element->border_color());
+                popup->set_color(element->text_color());
+                popup->set_selection_color(element->selection_color());
+
+                auto items = luabridge::LuaRef::newTable(kestrel::lua_runtime()->internal_state());
+                for (auto n = 0; n < element->value().count(); ++n) {
+                    items[n + 1] = luabridge::LuaRef(items.state(), element->value().string(n));
+                }
+                popup->set_items(items);
+
+                popup->set_font(element->font());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, popup)));
                 break;
             }
@@ -214,12 +259,23 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config) -> v
             case control_type::list: {
                 auto list = widgets::list_widget::lua_reference(new widgets::list_widget());
                 list->set_frame(element->frame());
+                list->set_background_color(element->background_color());
+                list->set_outline_color(element->border_color());
+                list->set_text_color(element->text_color());
+                list->set_hilite_color(element->selection_color());
+                list->set_font(element->font());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, list)));
                 break;
             }
             case control_type::grid: {
                 auto grid = widgets::grid_widget::lua_reference(new widgets::grid_widget());
                 grid->set_frame(element->frame());
+                grid->set_background_color(element->background_color());
+                grid->set_outline_color(element->border_color());
+                grid->set_text_color(element->text_color());
+                grid->set_secondary_text_color(element->text_color());
+                grid->set_hilite_color(element->selection_color());
+                grid->set_font(element->font());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, grid)));
                 break;
             }
@@ -253,11 +309,12 @@ auto kestrel::ui::dialog::frame() const -> math::rect
 
 auto kestrel::ui::dialog::present() -> void
 {
-    present_into_scene(kestrel::session().current_scene());
+    present_into_scene(kestrel::session().current_scene().get());
 }
 
-auto kestrel::ui::dialog::present_into_scene(const game_scene::lua_reference &scene) -> void
+auto kestrel::ui::dialog::present_into_scene(ui::game_scene *scene) -> void
 {
+    m_open = true;
     switch (m_configuration->layout()->mode()) {
         case dialog_render_mode::scene: {
             present_scene(scene);
@@ -268,9 +325,10 @@ auto kestrel::ui::dialog::present_into_scene(const game_scene::lua_reference &sc
             break;
         }
     }
+    configure_elements();
 }
 
-auto kestrel::ui::dialog::present_imgui(const ui::game_scene::lua_reference& scene) -> void
+auto kestrel::ui::dialog::present_imgui(ui::game_scene *scene) -> void
 {
     auto& presentation_scene = scene;
     auto layout = m_configuration->layout();
@@ -298,7 +356,7 @@ auto kestrel::ui::dialog::present_imgui(const ui::game_scene::lua_reference& sce
     m_imgui.window->show();
 }
 
-auto kestrel::ui::dialog::present_scene(const ui::game_scene::lua_reference& scene) -> void
+auto kestrel::ui::dialog::present_scene(ui::game_scene *scene) -> void
 {
     auto& presentation_scene = scene;
     add_to_scene(presentation_scene);
@@ -331,7 +389,7 @@ auto kestrel::ui::dialog::present_scene(const ui::game_scene::lua_reference& sce
 
 // MARK: - Functions
 
-auto kestrel::ui::dialog::add_to_scene(const ui::game_scene::lua_reference &scene) -> void
+auto kestrel::ui::dialog::add_to_scene(ui::game_scene *scene) -> void
 {
     m_owner_scene = scene;
     scene->set_passthrough_render(m_configuration->passthrough());
@@ -407,6 +465,37 @@ auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, con
     m_owner_scene->add_scene_entity(m_background.fill_entity);
     m_owner_scene->add_scene_entity(m_background.top_entity);
     m_owner_scene->add_scene_entity(m_background.bottom_entity);
+}
+
+
+auto kestrel::ui::dialog::configure_elements_on_open(const luabridge::LuaRef& configure) -> void
+{
+    if (configure.state()) {
+        m_configure_elements = configure;
+    }
+
+    if (m_open) {
+        configure_elements();
+    }
+}
+
+auto kestrel::ui::dialog::configure_elements() -> void
+{
+    if (!m_open || !m_configure_elements.state() || m_configure_elements.isNil()) {
+        return;
+    }
+
+    if (m_configure_elements.isTable()) {
+        for (const auto& element : m_elements) {
+            auto item = m_configure_elements[element.first];
+            if (item.state() && item.isFunction()) {
+                item(element.second);
+            }
+        }
+    }
+    else if (m_configure_elements.isFunction()) {
+        m_configure_elements();
+    }
 }
 
 auto kestrel::ui::dialog::configure_element(const std::string &name, const luabridge::LuaRef &configure) -> void

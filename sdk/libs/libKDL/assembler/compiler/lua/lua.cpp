@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <libKDL/assembler/compiler/lua/lua.hpp>
 #include <libGraphite/data/writer.hpp>
 #include <libKDL/exception/lua_exception.hpp>
@@ -56,21 +57,46 @@ static auto lua_writer(lua_State *L, const void *p, std::size_t sz, void *ud) ->
     return LUA_OK;
 }
 
+static auto ldump_writer(lua_State *L, const void *p, std::size_t sz, void *ud) -> int
+{
+    (void)L;
+    luaL_addlstring((luaL_Buffer*)ud, (const char *)p, sz);
+    return LUA_OK;
+}
+
+static auto strmemdup(const char *s, std::size_t n) -> char *
+{
+    char *res;
+    if (s == nullptr) {
+        return nullptr;
+    }
+    res = (char *)calloc(n + 1, 1);
+    memcpy(res, s, n);
+    res[n] = '\0';
+    return res;
+}
+
 auto kdl::assembler::compiler::lua::compile(const std::string &source, const std::string& path) -> graphite::data::block
 {
     auto L = luaL_newstate();
+    lua_gc(L, LUA_GCSTOP, 0);
+    luaL_openlibs(L);
+
     struct source src;
     src.code = source;
     if (lua_load(L, lua_reader, &src, "") != LUA_OK) {
         auto reason = lua_tostring(L, -1);
+        std::cerr << std::endl << "LUA_EXCEPTION @ " << path << std::endl << reason << std::endl;
         throw lua_exception(reason, path);
     }
 
     struct compilation_result result;
     if (lua_dump(L, lua_writer, &result) != LUA_OK) {
         auto reason = lua_tostring(L, -1);
+        std::cerr << std::endl << "LUA_EXCEPTION @ " << path << std::endl << reason << std::endl;
         throw lua_exception(reason, path);
     }
 
+    lua_close(L);
     return { *result.buffer.data() };
 }

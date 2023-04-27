@@ -22,9 +22,28 @@
 
 // MARK: - Construction
 
-resource::reference::reference(identifier id, const std::string& type_name, const std::string& container)
-    : m_id(id), m_type_name(type_name), m_container(container)
+resource::reference::reference(identifier id, const std::string& type_name, const std::string& type_code, const std::string& container)
+    : m_id(id), m_type_name(type_name), m_type_code(type_code), m_container(container)
 {}
+
+auto resource::reference::decode_from(graphite::data::reader &reader) -> reference
+{
+    auto flags = static_cast<enum encoding_flags>(reader.read_byte());
+
+    std::string container;
+    if (flags & encoding_flags::container) {
+        container = reader.read_pstr();
+    }
+
+    std::string code;
+    if (flags & encoding_flags::typed) {
+        code = reader.read_cstr(4);
+    }
+
+    auto id = reader.read_signed_quad();
+
+    return reference(id, "", code, container);
+}
 
 auto resource::reference::auto_assigning() -> reference
 {
@@ -48,6 +67,11 @@ auto resource::reference::type_name() const -> std::string
     return m_type_name;
 }
 
+auto resource::reference::type_code() const -> std::string
+{
+    return m_type_code;
+}
+
 auto resource::reference::container_name() const -> std::string
 {
     return m_container;
@@ -57,6 +81,11 @@ auto resource::reference::container_name() const -> std::string
 auto resource::reference::has_type_name() const -> bool
 {
     return !m_type_name.empty();
+}
+
+auto resource::reference::has_type_code() const -> bool
+{
+    return !m_type_code.empty() && m_type_code != "????";
 }
 
 auto resource::reference::has_container() const -> bool
@@ -74,9 +103,9 @@ auto resource::reference::is_any() const -> bool
     return m_id == any_value;
 }
 
-auto resource::reference::is_type_name(const std::string& type_name) const -> bool
+auto resource::reference::is_type(const std::string& type) const -> bool
 {
-    return type_name == m_type_name;
+    return (type == m_type_name) || (type == m_type_code);
 }
 
 auto resource::reference::is_container(const std::string& container) const -> bool
@@ -87,15 +116,34 @@ auto resource::reference::is_container(const std::string& container) const -> bo
 
 auto resource::reference::with_id(identifier id) const -> reference
 {
-    return reference(id, m_type_name, m_container);
+    return reference(id, m_type_name, m_type_code, m_container);
 }
 
-auto resource::reference::with_type_name(const std::string& type_name) const -> reference
+auto resource::reference::with_type_name(const std::string& type_name, const std::string& type_code) const -> reference
 {
-    return reference(m_id, type_name, m_container);
+    return reference(m_id, type_name, type_code, m_container);
 }
 
 auto resource::reference::with_container(const std::string& container) const -> reference
 {
-    return reference(m_id, m_type_name, container);
+    return reference(m_id, m_type_name, m_type_code, container);
+}
+
+// MARK: - Encoding
+
+auto resource::reference::encode_into(graphite::data::writer &writer) const -> void
+{
+    std::uint8_t flags = 0x00;
+    flags |= (has_container() ? encoding_flags::container : 0);
+    flags |= (has_type_code() ? encoding_flags::typed : 0);
+
+    writer.write_byte(flags);
+    if (flags & encoding_flags::container) {
+        writer.write_pstr(container_name());
+    }
+    if (flags & encoding_flags::typed) {
+        writer.write_cstr(type_code(), 4);
+    }
+
+    writer.write_signed_quad(id());
 }

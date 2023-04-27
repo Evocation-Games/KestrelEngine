@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <libKDL/unit/file.hpp>
 #include <libLexer/lexer.hpp>
 #include <libKDL/tokenizer/tokenizer.hpp>
@@ -112,7 +113,8 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
         }
         else {
             assembler::encoder encoder(instance, type, definitions);
-            m_output->add_resource(type->code(), ref.id(), instance.name(), encoder.encode(), setup_attributes(ref));
+            const auto& data = encoder.encode(m_context);
+            m_output->add_resource(type->code(), ref.id(), instance.name(), data, setup_attributes(ref));
         }
     }
 }

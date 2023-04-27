@@ -69,13 +69,16 @@ namespace kestrel::lua
         auto run(graphite::rsrc::resource::identifier id, const std::string& name,const std::string& script) -> void;
         auto run(graphite::rsrc::resource::identifier id, const std::string& name, const script &script) -> void;
 
+        auto dump() -> void;
+
         auto purge() -> void;
 
     private:
         auto prepare_lua_runtime() -> void;
-        auto install_internal_lua_overrides() -> void;
+        auto install_internal_lua_overrides() const -> void;
 
         static auto lua_print(lua_State *L) -> int;
+        static auto lua_abort(lua_State *L) -> int;
 
         auto execute(graphite::rsrc::resource::identifier id, const std::string& name) -> void;
 

@@ -40,9 +40,7 @@ module.exports = grammar({
         ),
 
         // Comments
-        comment: $ => token(seq(
-            /`.*/
-        )),
+        comment: $ => seq('`', /(`(.|\r?\n)|[^`\n])*/),
         
         // Decorators
         decorator: $ => seq(
@@ -96,7 +94,7 @@ module.exports = grammar({
         
         variable_directive: $ => seq(
             choice('@var', '@const'),
-            field('name', $.variable),
+            field('name', choice($.variable, $.identifier_literal)),
             '=',
             $.expression
         ),
@@ -169,7 +167,10 @@ module.exports = grammar({
             optional(repeat($.decorator)),
             'field', '(', field('name', $.string_literal), ')',
             optional($.field_repeatable),
-            optional(field('values', $.field_definition_values)),
+            optional(choice(
+                field('values', $.field_definition_values),
+                $.field_value_default_value,
+            )),
             ';'
         ),
 
@@ -209,14 +210,16 @@ module.exports = grammar({
                 optional(repeat($.decorator)),
                 field('name', $.identifier_literal),
                 optional($.field_explicit_type),
-                optional(seq(
-                    '=',
-                    field('default_value', choice($.value, $.identifier_literal)),
-                )),
+                optional($.field_value_default_value),
                 optional($.field_definition_value_symbol_list),
                 ';'
             )),
             '}'
+        ),
+
+        field_value_default_value: $ => seq(
+            '=',
+            field('default_value', choice($.value, $.identifier_literal)),
         ),
         
         field_definition_value_symbol_list: $ => seq(
@@ -381,7 +384,7 @@ module.exports = grammar({
         // Scenes
         scene: $ => seq(
             optional(repeat($.decorator)),
-            'scene', '<', field('id', $.resource_reference_literal), '>',
+            choice('scene', 'dialog'), optional(seq('<', field('id', choice($.resource_reference_literal, $.identifier_literal)), '>')),
             field('name', $.identifier_literal),
             $.scene_body,
             ';'
@@ -391,23 +394,38 @@ module.exports = grammar({
           '{',
           repeat(seq(choice(
               $.scene_property,
-              $.scene_element
+              $.scene_element,
+              $.scene_background
           ), ';')),
           '}'
         ),
 
         scene_property: $ => seq(
-            field('name', choice('Title', 'Flags', 'Size')),
+            field('name', choice('Title', 'Flags', 'Frame', 'Size')),
             '=',
             field('value', seq($.expression, repeat(seq(',', $.expression))))
         ),
 
+        scene_background: $ => seq(
+            'Background', '=',
+            choice($.expression, seq(
+                '{',
+                repeat(seq($.scene_background_component, ';')),
+                '}'
+            ))
+        ),
+
+        scene_background_component: $ => seq(
+            field('name', choice('Top', 'Fill', 'Bottom')),
+            '=',
+            field('value', $.expression)
+        ),
+
         scene_element: $ => seq(
             field('type', choice(
-                'Button', 'Label', 'TextArea', 'Image', 'TextField', 'Checkbox',
-                'List', 'ScrollArea', 'Grid', 'LabeledList', 'Canvas', 'Sprite',
-                'PopupButton', 'Slider', 'Table', 'Box', 'Radio', 'TabBar', 'Separator',
-                'Spacer', 'Position'
+                'Button', 'Label', 'Checkbox', 'PopupButton', 'Canvas', 'Image', 'Sprite',
+                'TextField', 'TextArea', 'Grid', 'List', 'Separator', 'Slider', 'RadioButton',
+                'TimedTrigger', 'KeyTrigger', 'VerticalSpacer', 'HorizontalSpacer', 'Position'
             )),
             '(', field('name', $.string_literal), ')',
             $.scene_element_body,
@@ -421,7 +439,11 @@ module.exports = grammar({
         ),
 
         scene_element_property: $ => seq(
-            field('name', choice('Frame', 'Label', 'Value', 'Action')),
+            field('name', choice(
+                'ID', 'Frame', 'Y', 'X', 'Size', 'Color', 'BackgroundColor', 'SelectionColor', 'BorderColor',
+                'SecondaryColor', 'Font', 'FontSize', 'Hidden', 'Disabled', 'Weight', 'HorizontalAlignment',
+                'VerticalAlignment', 'AxisOrigin', 'Action', 'Value'
+            )),
             '=',
             field('value', seq($.expression, repeat(seq(',', $.expression))))
         ),

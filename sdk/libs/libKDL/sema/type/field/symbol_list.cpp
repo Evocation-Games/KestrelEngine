@@ -62,7 +62,7 @@ auto kdl::sema::type_definition::field_definition::symbol_list::parse(foundation
                     break;
                 }
                 case interpreter::token::reference: {
-                    symbol = &field.add_symbol(name.string_value(), resource::value_container(resource::reference(value_result.value.integer_value())));
+                    symbol = &field.add_symbol(name.string_value(), resource::value_container(value_result.value.reference_value()));
                     break;
                 }
                 default: break;

@@ -32,10 +32,14 @@ namespace kestrel::ui
     struct lua_api(UI.SceneDefinition, Available_0_9) scene_definition
     {
     public:
+        struct constants {
+            static constexpr std::int64_t definition_id = 0;
+        };
+
         has_constructable_lua_api(scene_definition);
         is_resource_type("scën");
 
-        lua_constructor(Available_0_9) explicit scene_definition(const std::string& name);
+        lua_constructor(Available_0_9) explicit scene_definition(const std::string& name, std::int64_t id = constants::definition_id);
 
         lua_getter(name, Available_0_9) [[nodiscard]] auto name() const -> std::string;
         lua_getter(valid, Available_0_9) [[nodiscard]] auto valid() const -> bool;
@@ -50,9 +54,6 @@ namespace kestrel::ui
         lua_function(push, Available_0_9) auto push() -> void;
 
     private:
-        struct constants {
-            static constexpr std::int64_t definition_id = 0;
-        };
 
         struct ditl_element_mapping {
             std::uint16_t index;
@@ -66,9 +67,6 @@ namespace kestrel::ui
         resource::descriptor::lua_reference m_main_script { nullptr };
         resource::descriptor::lua_reference m_interface { nullptr };
         resource::descriptor::lua_reference m_dialog { nullptr };
-        resource::descriptor::lua_reference m_background { nullptr };
-        resource::descriptor::lua_reference m_background_top { nullptr };
-        resource::descriptor::lua_reference m_background_bottom { nullptr };
         bool m_valid { false };
 
         auto load() -> void;

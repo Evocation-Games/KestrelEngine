@@ -168,10 +168,10 @@ static auto install_rect_functions(kdl::sema::context &ctx) -> void
         union {
             std::uint64_t value { 0 };
             struct {
-                std::int16_t top;
-                std::int16_t left;
-                std::int16_t bottom;
                 std::int16_t right;
+                std::int16_t bottom;
+                std::int16_t left;
+                std::int16_t top;
             } fields;
         } rect;
 
@@ -196,22 +196,17 @@ static auto install_rect_functions(kdl::sema::context &ctx) -> void
         union {
             std::uint64_t value { 0 };
             struct {
-                std::int16_t a;
-                std::int16_t b;
-                std::int16_t c;
                 std::int16_t d;
+                std::int16_t c;
+                std::int16_t b;
+                std::int16_t a;
             } fields;
         } rect;
 
-        auto a = static_cast<std::int16_t>(arguments.at(0).integer_value());
-        auto b = static_cast<std::int16_t>(arguments.at(1).integer_value());
-        auto c = static_cast<std::int16_t>(arguments.at(2).integer_value());
-        auto d = static_cast<std::int16_t>(arguments.at(3).integer_value());
-
-        rect.fields.a = a;
-        rect.fields.b = b;
-        rect.fields.c = c;
-        rect.fields.d = d;
+        rect.fields.a = static_cast<std::int16_t>(arguments.at(0).integer_value());
+        rect.fields.b = static_cast<std::int16_t>(arguments.at(1).integer_value());
+        rect.fields.c = static_cast<std::int16_t>(arguments.at(2).integer_value());
+        rect.fields.d = static_cast<std::int16_t>(arguments.at(3).integer_value());
 
         return interpreter::token(static_cast<std::int64_t>(rect.value));
     });
@@ -410,12 +405,6 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
             const auto& value = field.value_at(value_index);
             auto value_name = value.extended_name(*field_scope);
 
-            if (field.repeatable().enabled() && field.repeatable().has_count_field()) {
-                if (field_scope->has_variable("FieldNumber", false)) {
-                    value_name += std::to_string(field_scope->get_variable("FieldNumber").value().integer_value());
-                }
-            }
-
             ctx.current_type_descriptor = &value.type();
             ctx.current_type = nullptr;
             if (!is_builtin_type(ctx.current_type_descriptor)) {
@@ -434,6 +423,19 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
             // If we hit this point, then we can not accept another parameter.
             break;
         }
+
+        // Apply defaults...
+        for (auto n = value_index + 1; n < field.value_count(); ++n) {
+            const auto& value = field.value_at(n);
+            auto value_name = value.extended_name(*field_scope);
+            if (!value.has_default_value()) {
+                continue;
+            }
+            stream.push(tokenizer::token(tokenizer::default_value));
+            parse_value(stream, ctx, field_scope, values, value, value_name);
+            stream.clear_pushed_items();
+        }
+
     }
 
     ctx.current_type = current_type;
@@ -454,8 +456,10 @@ auto kdl::sema::declaration::resource::field::parse_value(
 {
     // Determine what type of value parser to load up.
     if (value.type().name() == spec::types::command_encoder) {
-        auto data = sema::command_encoder::parse(stream, ctx);
-        values.emplace(value_name, ::resource::value_container(data));
+        if (!stream.peek().is(tokenizer::default_value)) {
+            auto data = sema::command_encoder::parse(stream, ctx);
+            values.emplace(value_name, ::resource::value_container(data));
+        }
     }
     else if (value.has_joined_values() && (value.type().name() == spec::types::bitmask)) {
         std::vector<std::uint64_t> masks(value.joined_values().size() + 1, 0);
@@ -467,7 +471,7 @@ auto kdl::sema::declaration::resource::field::parse_value(
                         masks[0] |= value.symbol_named(symbol.string_value())
                             .value().integer_value<std::uint64_t>();
                     }
-                    else if (n == 0 && symbol.is(tokenizer::default_value)) {
+                    else if (n == 0 && symbol.is(tokenizer::default_value) && value.has_default_value()) {
                         masks[0] |= static_cast<std::uint64_t>(value.default_value()
                             .evaluate(scope).value.integer_value());
                     }
@@ -476,7 +480,7 @@ auto kdl::sema::declaration::resource::field::parse_value(
                             .symbol_named(symbol.string_value())
                             .value().integer_value<std::uint64_t>();
                     }
-                    else if (n > 0 && symbol.is(tokenizer::default_value)) {
+                    else if (n > 0 && symbol.is(tokenizer::default_value) && value.has_default_value()) {
                         masks[n] |= static_cast<std::uint64_t>(value.joined_values()[n - 1].default_value()
                             .evaluate(scope).value.integer_value());
                     }
@@ -574,6 +578,9 @@ auto kdl::sema::declaration::resource::field::parse_value(
         // Expression based argument (single value, constructor, etc)
         interpreter::script::statement value_expression;
         if (stream.expect({ expectation(tokenizer::default_value).be_true() })) {
+            if (!value.has_default_value()) {
+                return;
+            }
             value_expression = value.default_value();
         }
         else {
@@ -608,6 +615,23 @@ auto kdl::sema::declaration::resource::field::parse_value(
         }
 
         auto result = value_expression.evaluate(value_scope);
+
+        // If the result is a reference, we need to try and resolve the type code.
+        switch (result.type) {
+            case interpreter::token::reference: {
+                auto ref = result.value.reference_value();
+                if (ref.has_type_name() && !ref.has_type_code()) {
+                    const auto& type_name = ref.type_name();
+                    if (auto type = ctx.type_named(type_name)) {
+                        ref = ref.with_type_name(type_name, type->code());
+                    }
+                }
+                result.value = interpreter::token(ref);
+                break;
+            }
+            default: break;
+        }
+
         write_value(values, value_name, convert_token(result.value));
     }
 }

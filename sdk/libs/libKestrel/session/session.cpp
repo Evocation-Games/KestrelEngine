@@ -138,11 +138,11 @@ auto kestrel::ui::session::tick(bool render, bool update) -> void
 auto kestrel::ui::session::receive_event(const event &e) -> void
 {
     if (e.is_key_event()) {
-        if (e.has(event_type::key_up) && e.is(hid::f1)) {
+        if (e.has(::ui::event::type::key_up) && e.is(::ui::hid::f1)) {
             device::console::toggle_console();
             return;
         }
-        if (e.has(event_type::key_up) && e.is(hid::f2)) {
+        if (e.has(::ui::event::type::key_up) && e.is(::ui::hid::f2)) {
             renderer::toggle_hitbox_debug();
             return;
         }

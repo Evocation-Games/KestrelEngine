@@ -64,7 +64,7 @@ auto kdl::sema::scene::parse(foundation::stream<tokenizer::token>& stream, conte
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
 
     // Setup the scene instance.
-    auto ref = id.with_type_name("SceneInterface");
+    auto ref = id.with_type_name("SceneInterface", "scïn");
     resource::instance scene(ref);
     scene.set_name(scene_name.string_value());
     std::uint16_t element_count = 0;
@@ -99,6 +99,37 @@ auto kdl::sema::scene::parse(foundation::stream<tokenizer::token>& stream, conte
             parse_value("SceneWidth", interpreter::token::integer, stream, ctx, nullptr, scene);
             stream.ensure({ expectation(tokenizer::comma).be_true() });
             parse_value("SceneHeight", interpreter::token::integer, stream, ctx, nullptr, scene);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "Background").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            if (stream.expect({ expectation(tokenizer::l_brace).be_true() })) {
+                stream.advance();
+                scene.set_value("BackgroundType", resource::value_container(static_cast<std::uint8_t>(1)));
+                while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
+                    if (stream.expect({ expectation(tokenizer::identifier, "Top").be_true() })) {
+                        stream.advance(); stream.ensure({ expectation(tokenizer::equals).be_true() });
+                        parse_value("BackgroundTop", interpreter::token::reference, stream, ctx, nullptr, scene);
+                    }
+                    else if (stream.expect({ expectation(tokenizer::identifier, "Bottom").be_true() })) {
+                        stream.advance(); stream.ensure({ expectation(tokenizer::equals).be_true() });
+                        parse_value("BackgroundBottom", interpreter::token::reference, stream, ctx, nullptr, scene);
+                    }
+                    else if (stream.expect({ expectation(tokenizer::identifier, "Fill").be_true() })) {
+                        stream.advance(); stream.ensure({ expectation(tokenizer::equals).be_true() });
+                        parse_value("Background", interpreter::token::reference, stream, ctx, nullptr, scene);
+                    }
+                    else {
+                        throw std::runtime_error("");
+                    }
+                    stream.ensure({ expectation(tokenizer::semi).be_true() });
+                }
+                stream.ensure({ expectation(tokenizer::r_brace).be_true() });
+            }
+            else {
+                scene.set_value("BackgroundType", resource::value_container(static_cast<std::uint8_t>(0)));
+                parse_value("Background", interpreter::token::reference, stream, ctx, nullptr, scene);
+            }
         }
         else if (stream.expect({
             expectation(tokenizer::identifier, {
@@ -149,7 +180,7 @@ auto kdl::sema::scene::parse_value(
         scene_instance.set_value(name, resource::value_container(result.value.integer_value()));
     }
     else if (result.value.is(interpreter::token::reference) && result.value.is(expected_type)) {
-        scene_instance.set_value(name, resource::value_container(resource::reference(result.value.integer_value())));
+        scene_instance.set_value(name, resource::value_container(result.value.reference_value()));
     }
     else {
         throw std::runtime_error("");
@@ -160,6 +191,24 @@ auto kdl::sema::scene::parse_element(foundation::stream<tokenizer::token> &strea
 {
     element++;
     scene_instance.set_value("Elements" + std::to_string(element), resource::value_container(element));
+
+    // Setup some helper functions in the scope.
+    auto scope = ctx.create_scope();
+    scope->add_function({"rgba", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& arguments) -> interpreter::token {
+        std::int64_t value = static_cast<std::uint8_t>(arguments.at(0).integer_value()) << 16;
+        value |= static_cast<std::uint8_t>(arguments.at(1).integer_value()) << 8;
+        value |= static_cast<std::uint8_t>(arguments.at(2).integer_value());
+        value |= static_cast<std::uint8_t>(arguments.at(3).integer_value()) << 24;
+        return interpreter::token(value);
+    }});
+
+    scope->add_function({"rgb", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& arguments) -> interpreter::token {
+        std::int64_t value = static_cast<std::uint8_t>(arguments.at(0).integer_value()) << 16;
+        value |= static_cast<std::uint8_t>(arguments.at(1).integer_value()) << 8;
+        value |= static_cast<std::uint8_t>(arguments.at(2).integer_value());
+        value |= 0xFF000000;
+        return interpreter::token(value);
+    }});
 
     std::vector<std::string> types({
         "None",
@@ -191,12 +240,56 @@ auto kdl::sema::scene::parse_element(foundation::stream<tokenizer::token> &strea
         else if (stream.expect({ expectation(tokenizer::identifier, { "Value", "Label", "Title" }).be_true() })) {
             stream.advance();
             stream.ensure({ expectation(tokenizer::equals).be_true() });
-            parse_value("ElementValue" + std::to_string(element), interpreter::token::string, stream, ctx, nullptr, scene_instance);
+
+            scope->add_function({ "Value", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& args) -> interpreter::token {
+                std::string result = "%REF:" + std::to_string(args.size() - 1) + ":";
+
+                // Encode the reference into the string.
+                auto reference = args[0].reference_value();
+                if (reference.has_container()) {
+                    result += "C=" + reference.container_name() + ",";
+                }
+                if (reference.has_type_name()) {
+                    if (auto type = ctx.type_named(reference.type_name())) {
+                        result += "T='" + type->code() + "',";
+                    }
+                }
+                result += std::to_string(reference.id());
+
+                // If there are more fields, then encode those.
+                for (auto i = 1; i < args.size(); ++i) {
+                    auto& v = args[i];
+                    if (v.is(interpreter::token::string)) {
+                        result += ":f=" + v.string_value();
+                    }
+                    else if (v.is(interpreter::token::integer)) {
+                        result += ":#=" + std::to_string(v.integer_value());
+                    }
+                }
+
+                return interpreter::token(result);
+            }});
+
+            parse_value("ElementValue" + std::to_string(element), interpreter::token::string, stream, ctx, scope, scene_instance);
         }
         else if (stream.expect({ expectation(tokenizer::identifier, "Action").be_true() })) {
             stream.advance();
             stream.ensure({ expectation(tokenizer::equals).be_true() });
-            parse_value("ElementAction" + std::to_string(element), interpreter::token::string, stream, ctx, nullptr, scene_instance);
+
+            scope->add_function({ "Function", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& args) -> interpreter::token {
+                std::string result = "FUNCTION:" + args.at(0).string_value();
+                return interpreter::token(result);
+            }});
+            scope->add_function({ "Lua", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& args) -> interpreter::token {
+                std::string result = "LUA:" + args.at(0).string_value();
+                return interpreter::token(result);
+            }});
+            scope->add_function({ "Push", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& args) -> interpreter::token {
+                std::string result = "PUSH:" + args.at(0).string_value();
+                return interpreter::token(result);
+            }});
+
+            parse_value("ElementAction" + std::to_string(element), interpreter::token::string, stream, ctx, scope, scene_instance);
         }
         else if (stream.expect({ expectation(tokenizer::identifier, "Y").be_true() }) && element_type.is("Position")) {
             stream.advance();
@@ -207,6 +300,62 @@ auto kdl::sema::scene::parse_element(foundation::stream<tokenizer::token> &strea
             stream.advance();
             stream.ensure({ expectation(tokenizer::equals).be_true() });
             parse_value("ElementHeight" + std::to_string(element), interpreter::token::integer, stream, ctx, nullptr, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "AxisOrigin").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+
+            scope->add_variable("TopLeft", 0x00LL);
+            scope->add_variable("TopCenter", 0x01LL);
+            scope->add_variable("TopRight", 0x02LL);
+            scope->add_variable("MiddleLeft", 0x10LL);
+            scope->add_variable("Center", 0x11LL);
+            scope->add_variable("MiddleRight", 0x12LL);
+            scope->add_variable("BottomLeft", 0x20LL);
+            scope->add_variable("BottomCenter", 0x21LL);
+            scope->add_variable("BottomRight", 0x22LL);
+
+            parse_value("ElementAxisOrigin" + std::to_string(element), interpreter::token::integer, stream, ctx, scope, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "BackgroundColor").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementBackgroundColor" + std::to_string(element), interpreter::token::integer, stream, ctx, scope, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "Color").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementColor" + std::to_string(element), interpreter::token::integer, stream, ctx, scope, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "BorderColor").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementBorderColor" + std::to_string(element), interpreter::token::integer, stream, ctx, scope, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "SelectionColor").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementSelectionColor" + std::to_string(element), interpreter::token::integer, stream, ctx, scope, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "Font").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementFont" + std::to_string(element), interpreter::token::string, stream, ctx, nullptr, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "FontSize").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+            parse_value("ElementFontSize" + std::to_string(element), interpreter::token::integer, stream, ctx, nullptr, scene_instance);
+        }
+        else if (stream.expect({ expectation(tokenizer::identifier, "Alignment").be_true() })) {
+            stream.advance();
+            stream.ensure({ expectation(tokenizer::equals).be_true() });
+
+            scope->add_variable("Left", 0x00LL);
+            scope->add_variable("Center", 0x01LL);
+            scope->add_variable("Right", 0x02LL);
+
+            parse_value("ElementAlignment" + std::to_string(element), interpreter::token::integer, stream, ctx, scope, scene_instance);
         }
 
         stream.ensure({ expectation(tokenizer::semi).be_true() });

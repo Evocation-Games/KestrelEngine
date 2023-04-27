@@ -32,7 +32,7 @@ namespace interpreter
     public:
         enum type
         {
-            constructor_result, integer, decimal, string, boolean, reference,
+            constructor_result, function_result, integer, decimal, string, boolean, reference,
             plus, minus, multiply, divide, amp, pipe, tilde, carat, exclaim,
             left_shift, right_shift, identifier, identifier_path, l_paren, r_paren,
             comma, semi, equals, increment, decrement
@@ -46,6 +46,13 @@ namespace interpreter
         explicit token(bool value) : m_type(boolean), m_value(value) {}
         explicit token(double value) : m_type(decimal), m_value(value) {}
         explicit token(resource::reference value) : m_type(reference), m_value(value) {}
+
+        static auto result(bool result) -> token
+        {
+            token tk(type::function_result);
+            tk.m_value = result;
+            return tk;
+        }
 
         static auto id(const std::string& str) -> token
         {
@@ -94,7 +101,12 @@ namespace interpreter
 
         [[nodiscard]] auto integer_value() const -> std::int64_t
         {
-            return static_cast<std::int64_t>(std::get<__int128>(m_value));
+            if (m_type == token::reference) {
+                return std::get<resource::reference>(m_value).id();
+            }
+            else {
+                return static_cast<std::int64_t>(std::get<__int128>(m_value));
+            }
         }
 
         [[nodiscard]] auto decimal_value() const -> double
@@ -104,7 +116,10 @@ namespace interpreter
 
         [[nodiscard]] auto bool_value() const -> bool
         {
-            return std::get<bool>(m_value);
+            if (m_value.index() == 1) {
+                return std::get<bool>(m_value);
+            }
+            return false;
         }
 
         [[nodiscard]] auto is(enum type type) const -> bool
@@ -115,6 +130,11 @@ namespace interpreter
         [[nodiscard]] auto is(const std::string& value) const -> bool
         {
             return string_value() == value;
+        }
+
+        [[nodiscard]] auto is(bool value) const -> bool
+        {
+            return bool_value() == value;
         }
 
         [[nodiscard]] auto is(const std::vector<std::string>& options) const -> bool
@@ -458,9 +478,25 @@ namespace interpreter
             throw std::logic_error("");
         }
 
+        [[nodiscard]] auto is_variable() const -> bool
+        {
+            return !m_source_variable.empty();
+        }
+
+        [[nodiscard]] auto source_variable() const -> std::string
+        {
+            return m_source_variable;
+        }
+
+        auto set_source_variable(const std::string& var) -> void
+        {
+            m_source_variable = var;
+        }
+
     private:
         enum type m_type;
         std::variant<std::string, bool, __int128, double, std::vector<std::string>, resource::reference> m_value;
+        std::string m_source_variable;
 
         struct op_prec
         {
