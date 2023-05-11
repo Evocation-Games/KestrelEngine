@@ -1286,6 +1286,10 @@
             "named": false
           },
           {
+            "type": "ScrollArea",
+            "named": false
+          },
+          {
             "type": "Separator",
             "named": false
           },
@@ -2103,6 +2107,10 @@
   },
   {
     "type": "Reference",
+    "named": false
+  },
+  {
+    "type": "ScrollArea",
     "named": false
   },
   {

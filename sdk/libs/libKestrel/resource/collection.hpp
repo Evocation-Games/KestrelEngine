@@ -34,6 +34,7 @@ namespace kestrel::resource
         has_constructable_lua_api(collection);
 
         lua_constructor(Avavailable_0_8) collection() = default;
+        collection(const std::vector<std::pair<key, luabridge::LuaRef>>& resources);
 
         lua_function(add, Available_0_8) auto add_resource(const descriptor::lua_reference& descriptor, const luabridge::LuaRef& resource) -> void;
         lua_function(remove, Available_0_9) auto remove_resource(const descriptor::lua_reference& descriptor) -> void;
@@ -44,6 +45,9 @@ namespace kestrel::resource
         lua_function(get, Available_0_8) [[nodiscard]] auto get(const descriptor::lua_reference& descriptor) const -> luabridge::LuaRef;
         lua_function(at, Available_0_8) [[nodiscard]] auto at(std::int32_t idx) const -> luabridge::LuaRef;
         lua_function(each, Available_0_8) auto each(const luabridge::LuaRef& block) const -> void;
+        lua_function(filter, Available_0_9) auto filter(const luabridge::LuaRef& block) -> void;
+        lua_function(filtered, Available_0_9) auto filtered(const luabridge::LuaRef& block) -> lua_reference;
+        lua_function(mapValues, Available_0_9) auto map_values(const luabridge::LuaRef& block) -> lua_reference;
 
     private:
         std::vector<std::pair<key, luabridge::LuaRef>> m_resources;

@@ -113,6 +113,7 @@ auto kestrel::graphics::canvas::spawn_entity(const math::point& position) -> std
     m_entity->set_sprite_sheet(std::make_shared<graphics::sprite_sheet>(m_linked_tex, m_scaled_size));
     m_entity->set_position(position);
     m_entity->set_render_size(m_size);
+    m_entity->set_name(m_name);
 
     return m_entity;
 }

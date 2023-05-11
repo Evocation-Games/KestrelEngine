@@ -77,6 +77,8 @@ auto kestrel::task::async_queue::execute_next_task() -> void
     m_tasks.erase(m_tasks.begin());
 
     if (task.block.state() && task.block.isFunction()) {
+//        device::console::write("[TASK] Starting " + task.name);
         task.block();
+//        device::console::write("[TASK] Finished " + task.name);
     }
 }

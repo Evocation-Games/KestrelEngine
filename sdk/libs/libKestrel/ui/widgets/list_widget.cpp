@@ -351,13 +351,13 @@ auto kestrel::ui::widgets::list_widget::lua_receive_event(const event::lua_refer
 
 auto kestrel::ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location() - entity()->draw_position();
+    auto local_position = e.location();// - entity()->draw_position();
     if (e.is_mouse_event() && entity()->hit_test(local_position)) {
         if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;
+            return true;
         }
-
-        if (e.has(::ui::event::any_mouse_up) && m_pressed) {
+        else if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             auto row_number = row_index_at_point(local_position);
             if (row_number > number_of_rows()) {
                 row_number = number_of_rows();
@@ -368,9 +368,8 @@ auto kestrel::ui::widgets::list_widget::receive_event(const event &e) -> bool
             row_selected(row_number);
             redraw_entity();
             m_pressed = false;
+            return true;
         }
-
-        return true;
     }
     return false;
 }

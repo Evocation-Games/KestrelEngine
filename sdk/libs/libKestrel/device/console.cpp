@@ -171,7 +171,7 @@ auto kestrel::device::console::redraw() -> void
     s_console.canvas->fill_rect({ 5 + inset.width() + cursor.x(), y + cursor.y(), 2, size.height() });
 
     // Draw the output and history...
-    for (auto it = s_console.history.rbegin(); it != s_console.history.rend(); ++it) {
+    for (auto it = s_console.history.rbegin(); it != s_console.history.rend() && y >= 0; ++it) {
         inset = math::size(0);
 
         if (it->status == device::console::status::error) {

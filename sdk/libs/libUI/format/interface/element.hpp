@@ -46,6 +46,7 @@ namespace ui::format
             separator = 0x000c,
             slider = 0x000d,
             radio_button = 0x000e,
+            scroll_area = 0x000f,
             timed_trigger = 0x1000,
             key_trigger = 0x1001,
             vertical_spacer = 0x2000,

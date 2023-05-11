@@ -71,6 +71,11 @@ namespace kestrel::lua
             m_items.clear();
         }
 
+        lua_function(remove, Available_0_9) auto remove(std::int32_t i) -> void
+        {
+            m_items.erase(m_items.begin() + (i - 1));
+        }
+
         [[nodiscard]] auto at(std::int32_t i) const -> T
         {
             return m_items.at(i);

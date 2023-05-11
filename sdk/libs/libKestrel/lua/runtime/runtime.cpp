@@ -111,6 +111,11 @@ static auto lua_runtime_reader(lua_State *L, void *data, size_t *size) -> const 
 
 // MARK: - Lua Interaction
 
+auto kestrel::lua::runtime::null() const -> luabridge::LuaRef
+{
+    return { m_state };
+}
+
 auto kestrel::lua::runtime::function(const std::string& name) const -> luabridge::LuaRef
 {
     return function(name.c_str());
@@ -131,7 +136,7 @@ auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const s
     int result = LUA_OK;
 
     if (script.format() == script::format::bytecode) {
-        auto chunk_name = "LuaS:#" + std::to_string(id) + ":" + name;
+        auto chunk_name = "@LuaS:#" + std::to_string(id) + ":" + name;
         result = lua_load(m_state, lua_runtime_reader, const_cast<lua::script *>(&script), chunk_name.c_str());
     }
     else {

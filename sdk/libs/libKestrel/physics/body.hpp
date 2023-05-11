@@ -79,6 +79,7 @@ namespace kestrel::physics
         lua_getter(hasCollisions, Available_0_8) [[nodiscard]] auto has_collisions() const -> bool;
         lua_getter(allCollisions, Available_0_8) [[nodiscard]] auto all_collisions() const -> lua::vector<lua_reference>;
 
+        lua_function(simulateForce, Available_0_9) auto simulate_force(const math::point& velocity, const math::point& force, bool ignore_maximum) -> math::point;
         lua_function(applyForce, Available_0_8) auto apply_force(const math::point& force, bool ignore_maximum) -> void;
         lua_function(forceVectorValue, Available_0_8) [[nodiscard]] auto force_value(double value) const -> math::point;
         lua_getter(inverseForce, Available_0_8) [[nodiscard]] auto inverse_force() const -> math::point;

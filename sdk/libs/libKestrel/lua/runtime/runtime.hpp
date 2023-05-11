@@ -70,8 +70,8 @@ namespace kestrel::lua
         auto run(graphite::rsrc::resource::identifier id, const std::string& name, const script &script) -> void;
 
         auto dump() -> void;
-
         auto purge() -> void;
+        [[nodiscard]] auto null() const -> luabridge::LuaRef;
 
     private:
         auto prepare_lua_runtime() -> void;

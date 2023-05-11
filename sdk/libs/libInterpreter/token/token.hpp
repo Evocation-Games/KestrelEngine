@@ -194,6 +194,7 @@ namespace interpreter
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() + rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::boolean) {
@@ -204,11 +205,13 @@ namespace interpreter
                 if (rhs.m_type == token::integer) {
                     return token(resource::reference(reference_value().id() + rhs.integer_value(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(reference_value().id() + rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
             }
@@ -252,6 +255,7 @@ namespace interpreter
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() - rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::boolean) {
@@ -262,11 +266,13 @@ namespace interpreter
                 if (rhs.m_type == token::integer) {
                     return token(resource::reference(reference_value().id() - rhs.integer_value(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(reference_value().id() - rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
             }
@@ -296,6 +302,7 @@ namespace interpreter
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() * rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::boolean) {
@@ -306,11 +313,13 @@ namespace interpreter
                 if (rhs.m_type == token::integer) {
                     return token(resource::reference(reference_value().id() * rhs.integer_value(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(reference_value().id() * rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
             }
@@ -340,6 +349,7 @@ namespace interpreter
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() / rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::boolean) {
@@ -350,11 +360,13 @@ namespace interpreter
                 if (rhs.m_type == token::integer) {
                     return token(resource::reference(reference_value().id() / rhs.integer_value(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(reference_value().id() / rhs.reference_value().id(),
                                                      reference_value().type_name(),
+                                                     reference_value().type_code(),
                                                      reference_value().container_name()));
                 }
             }
@@ -460,6 +472,7 @@ namespace interpreter
             else if (m_type == token::reference) {
                 return token(resource::reference(reference_value().id() + 1,
                                                  reference_value().type_name(),
+                                                 reference_value().type_code(),
                                                  reference_value().container_name()));
             }
             throw std::logic_error("");
@@ -473,6 +486,7 @@ namespace interpreter
             else if (m_type == token::reference) {
                 return token(resource::reference(reference_value().id() - 1,
                                                  reference_value().type_name(),
+                                                 reference_value().type_code(),
                                                  reference_value().container_name()));
             }
             throw std::logic_error("");

@@ -375,6 +375,16 @@ auto kestrel::ui::scene_entity::each_child(const luabridge::LuaRef& body) const 
     }
 }
 
+auto kestrel::ui::scene_entity::remove_entity(const kestrel::ui::scene_entity::lua_reference &child) -> void
+{
+    for (auto i = 0; i < m_children.size(); ++i) {
+        if (m_children.at(i) == child) {
+            m_children.remove(i + 1);
+            return;
+        }
+    }
+}
+
 // MARK: - Animation Management
 
 auto kestrel::ui::scene_entity::configure_animation_frames(std::int32_t frame_count) -> void

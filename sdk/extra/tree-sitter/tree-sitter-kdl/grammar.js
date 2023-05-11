@@ -425,7 +425,8 @@ module.exports = grammar({
             field('type', choice(
                 'Button', 'Label', 'Checkbox', 'PopupButton', 'Canvas', 'Image', 'Sprite',
                 'TextField', 'TextArea', 'Grid', 'List', 'Separator', 'Slider', 'RadioButton',
-                'TimedTrigger', 'KeyTrigger', 'VerticalSpacer', 'HorizontalSpacer', 'Position'
+                'TimedTrigger', 'KeyTrigger', 'VerticalSpacer', 'HorizontalSpacer', 'Position',
+                'ScrollArea'
             )),
             '(', field('name', $.string_literal), ')',
             $.scene_element_body,

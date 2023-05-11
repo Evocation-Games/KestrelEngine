@@ -78,6 +78,7 @@ namespace kdl::sema::scene_interface
         static constexpr const char *separator = "Separator";
         static constexpr const char *slider = "Slider";
         static constexpr const char *radio = "RadioButton";
+        static constexpr const char *scroll_area = "ScrollArea";
         static constexpr const char *timed_trigger = "TimedTrigger";
         static constexpr const char *key_trigger = "KeyTrigger";
         static constexpr const char *vertical_spacer = "VerticalSpacer";

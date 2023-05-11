@@ -90,21 +90,31 @@ auto kestrel::ui::widgets::scrollview_widget::bind_internal_events() -> void
 
 auto kestrel::ui::widgets::scrollview_widget::receive_event(const event &e) -> bool
 {
+    bool result = false;
+
     if (e.is_mouse_event()) {
         if (e.has(::ui::event::mouse_drag)) {
             auto delta = e.location() - m_drag_mouse_origin;
             set_scroll_offset(m_drag_scroll_origin - delta);
+            return true;
         }
         else if (e.has(::ui::event::any_mouse_down)) {
             m_drag_mouse_origin = e.location();
             m_drag_scroll_origin = m_scroll_offset;
+
+            result = true;
         }
-        return true;
+        else if (e.has(::ui::event::any_mouse_up)) {
+            auto delta = e.location() - m_drag_mouse_origin;
+            if (delta.magnitude() > 2.0) {
+                return true;
+            }
+        }
     }
 
     if (m_content_entity.get()) {
         m_content_entity->send_event(e);
-        return true;
+        result = true;
     }
 
     return false;
@@ -114,7 +124,10 @@ auto kestrel::ui::widgets::scrollview_widget::receive_event(const event &e) -> b
 
 auto kestrel::ui::widgets::scrollview_widget::set_content_entity(const scene_entity::lua_reference &entity) -> void
 {
-    // TODO: Remove current child entity
+    if (m_content_entity.get()) {
+        m_entity->remove_entity(m_content_entity);
+    }
+
     m_content_entity = entity;
     m_entity->add_child_entity(m_content_entity);
     m_dirty = true;

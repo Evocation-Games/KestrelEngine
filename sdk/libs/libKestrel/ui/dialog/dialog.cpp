@@ -300,12 +300,45 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
 
 // MARK: - Accessors
 
+auto kestrel::ui::dialog::is_imgui() const -> bool
+{
+    return (m_imgui.window.get() != nullptr);
+}
+
 auto kestrel::ui::dialog::frame() const -> math::rect
 {
-    return m_frame;
+    if (is_imgui()) {
+        return m_frame;
+    }
+    else {
+        return { {}, m_scene_ui.frame_size };
+    }
+}
+
+auto kestrel::ui::dialog::set_frame(const math::rect &frame) -> void
+{
+    if (is_imgui()) {
+        m_frame = frame;
+        m_imgui.window->set_size(frame.size());
+    }
+    else {
+        m_scene_ui.frame_size = frame.size();
+        reconfigure_background();
+    }
 }
 
 // MARK: - Presentation
+
+auto kestrel::ui::dialog::reconfigure_background() -> void
+{
+    if (
+        m_background.top_entity.get() &&
+        m_background.fill_entity.get() &&
+        m_background.bottom_entity.get()
+    ) {
+        resize_stretchable_background(frame().size());
+    }
+}
 
 auto kestrel::ui::dialog::present() -> void
 {
@@ -465,6 +498,37 @@ auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, con
     m_owner_scene->add_scene_entity(m_background.fill_entity);
     m_owner_scene->add_scene_entity(m_background.top_entity);
     m_owner_scene->add_scene_entity(m_background.bottom_entity);
+}
+
+auto kestrel::ui::dialog::resize_stretchable_background(const math::size& size) -> void
+{
+    m_owner_scene->set_positioning_frame({
+        new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
+    });
+    m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
+
+    m_background.top_entity->set_position({ 0, 0 });
+    m_background.top_entity->set_anchor_point(layout::axis_origin::top_left);
+
+    m_background.bottom_entity->set_position({ 0 , size.height() - m_background.bottom_entity->size().height() });
+    m_background.bottom_entity->set_anchor_point(layout::axis_origin::top_left);
+
+    auto height = size.height();
+    auto y = 0.f;
+    if (m_background.top_entity.get()) {
+        height -= m_background.top_entity->size().height();
+        y = m_background.top_entity->size().height();
+    }
+    if (m_background.bottom_entity.get()) {
+        height -= m_background.bottom_entity->size().height();
+    }
+
+    graphics::canvas::lua_reference canvas(new graphics::canvas({ size.width(), height }) );
+    math::rect fill_rect { 0, 0, m_background.fill->size().width(), height };
+    canvas->draw_static_image(m_background.fill, fill_rect);
+    m_background.fill_entity->change_internal_entity(canvas->entity());
+    m_background.fill_entity->set_position({ 0, y });
+    m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
 }
 
 

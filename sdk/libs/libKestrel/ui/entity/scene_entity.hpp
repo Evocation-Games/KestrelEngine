@@ -103,6 +103,7 @@ namespace kestrel::ui
 
         lua_function(addChildEntity, Available_0_8) auto add_child_entity(const lua_reference& child) -> void;
         lua_function(eachChild, Available_0_8) auto each_child(const luabridge::LuaRef& body) const -> void;
+        lua_function(removeChildEntity, Available_0_9) auto remove_entity(const lua_reference& child) -> void;
 
         lua_function(configureAnimation, Available_0_8) auto configure_animation_frames(std::int32_t frame_count) -> void;
         lua_function(nextFrame, Available_0_8) auto next_frame() -> void;

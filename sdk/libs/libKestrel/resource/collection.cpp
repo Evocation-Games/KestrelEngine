@@ -19,9 +19,16 @@
 // SOFTWARE.
 
 #include <random>
+#include <libKestrel/kestrel.hpp>
 #include <libKestrel/resource/collection.hpp>
 
-// MARK: - Accesors
+// MARK: - Construction
+
+kestrel::resource::collection::collection(const std::vector<std::pair<key, luabridge::LuaRef>> &resources)
+    : m_resources(resources)
+{}
+
+// MARK: - Accessors
 
 auto kestrel::resource::collection::size() const -> std::size_t
 {
@@ -32,6 +39,11 @@ auto kestrel::resource::collection::size() const -> std::size_t
 
 auto kestrel::resource::collection::add_resource(const descriptor::lua_reference &descriptor, const luabridge::LuaRef &resource) -> void
 {
+    if (!descriptor.get()) {
+        // TODO: Warning?
+        return;
+    }
+
     key key(*descriptor.get());
 
     // Find an existing entry and replace it...
@@ -48,7 +60,13 @@ auto kestrel::resource::collection::add_resource(const descriptor::lua_reference
 
 auto kestrel::resource::collection::remove_resource(const descriptor::lua_reference &descriptor) -> void
 {
-
+    key key(*descriptor.get());
+    for (auto it = m_resources.begin(); it != m_resources.end(); it++) {
+        if (it->first == key) {
+            m_resources.erase(it);
+            return;
+        }
+    }
 }
 
 auto kestrel::resource::collection::random() const -> luabridge::LuaRef
@@ -64,15 +82,15 @@ auto kestrel::resource::collection::random() const -> luabridge::LuaRef
 
 auto kestrel::resource::collection::get(const descriptor::lua_reference &descriptor) const -> luabridge::LuaRef
 {
-    key key(*descriptor.get());
-
-    for (auto& it : m_resources) {
-        if (it.first == key) {
-            return it.second;
+    if (descriptor.get()) {
+        key key(*descriptor.get());
+        for (auto& it : m_resources) {
+            if (it.first == key) {
+                return it.second;
+            }
         }
     }
-
-    return { nullptr };
+    return kestrel::lua_runtime()->null();
 }
 
 auto kestrel::resource::collection::at(std::int32_t idx) const -> luabridge::LuaRef
@@ -80,20 +98,19 @@ auto kestrel::resource::collection::at(std::int32_t idx) const -> luabridge::Lua
     if (idx >= 1 && idx <= m_resources.size()) {
         return m_resources.at(idx - 1).second;
     }
-
-    return { nullptr };
+    return kestrel::lua_runtime()->null();
 }
 
 auto kestrel::resource::collection::has(const descriptor::lua_reference &descriptor) const -> bool
 {
-    key key(*descriptor.get());
-
-    for (const auto& it : m_resources) {
-        if (it.first == key) {
-            return true;
+    if (descriptor.get()) {
+        key key(*descriptor.get());
+        for (const auto& it : m_resources) {
+            if (it.first == key) {
+                return true;
+            }
         }
     }
-
     return false;
 }
 
@@ -104,4 +121,38 @@ auto kestrel::resource::collection::each(const luabridge::LuaRef& block) const -
             block(it.second);
         }
     }
+}
+
+auto kestrel::resource::collection::filter(const luabridge::LuaRef &block) -> void
+{
+    if (!block.state() || !block.isFunction()) {
+        return;
+    }
+
+    for (auto it = m_resources.begin(); it != m_resources.end(); it++) {
+        if (!block(it->second)) {
+            m_resources.erase(it);
+        }
+    }
+}
+
+auto kestrel::resource::collection::filtered(const luabridge::LuaRef &block) -> lua_reference
+{
+    lua_reference result(new collection(m_resources));
+    result->filter(block);
+    return result;
+}
+
+auto kestrel::resource::collection::map_values(const luabridge::LuaRef &block) -> lua_reference
+{
+    lua_reference result(new collection());
+    if (block.state() && block.isFunction()) {
+        for (const auto& it : m_resources) {
+            auto mapped_value = block(it.second);
+            if (mapped_value.state() && !mapped_value.isNil()) {
+                result->m_resources.emplace_back(it.first, it.second);
+            }
+        }
+    }
+    return result;
 }

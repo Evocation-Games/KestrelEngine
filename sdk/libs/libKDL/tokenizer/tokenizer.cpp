@@ -217,6 +217,23 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
             else if (m_input.expect({
                 lexer::expectation(lexer::identifier).be_true(),
                 lexer::expectation(lexer::dot).be_true(),
+                lexer::expectation(lexer::question).be_true(),
+                lexer::expectation(lexer::question).be_true(),
+                lexer::expectation(lexer::question).be_true(),
+                lexer::expectation(lexer::question).be_true(),
+                lexer::expectation(lexer::dot).be_true(),
+                lexer::expectation(lexer::integer).be_true()
+            })) {
+                // Reference: #Container.????.id
+                auto container = m_input.read(); m_input.advance(6);
+                auto id = m_input.read();
+                output.append(token(hash, resource::reference(
+                    id.value<resource::reference::identifier>(), "", "????", container.text()
+                )));
+            }
+            else if (m_input.expect({
+                lexer::expectation(lexer::identifier).be_true(),
+                lexer::expectation(lexer::dot).be_true(),
                 lexer::expectation(lexer::identifier).be_true(),
                 lexer::expectation(lexer::dot).be_true(),
                 lexer::expectation(lexer::integer).be_true()

@@ -42,7 +42,6 @@ auto interpreter::script::statement::evaluate(scope *scope) -> result
     struct context context { .scope = scope };
     auto assignment_var = token::id("");
 
-
     if (m_tokens.size() == 1) {
         context.result = evaluate_single_token_statement(context);
         if (context.result.status != result::error) {

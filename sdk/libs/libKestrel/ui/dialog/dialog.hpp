@@ -44,6 +44,7 @@ namespace kestrel::ui
         explicit dialog(dialog_configuration* config, ui::game_scene *scene = nullptr);
 
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
+        lua_setter(frame, Available_0_9) auto set_frame(const math::rect& frame) -> void;
         lua_function(present, Available_0_8) auto present() -> void;
         auto present_into_scene(ui::game_scene *scene) -> void;
 
@@ -84,6 +85,11 @@ namespace kestrel::ui
         struct {
             math::size frame_size;
         } m_scene_ui;
+
+        [[nodiscard]] auto is_imgui() const -> bool;
+
+        auto reconfigure_background() -> void;
+        auto resize_stretchable_background(const math::size& size) -> void;
 
         auto load_contents(dialog_configuration *config, ui::game_scene *scene) -> void;
         auto load_imgui_contents(dialog_configuration *config, const ui::game_scene *scene) -> void;

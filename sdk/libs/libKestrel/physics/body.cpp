@@ -221,6 +221,28 @@ auto kestrel::physics::body::all_collisions() const -> lua::vector<lua_reference
 
 // MARK: - Forces
 
+auto kestrel::physics::body::simulate_force(const math::point &velocity, const math::point &force, bool ignore_maximum) -> math::point
+{
+    auto new_velocity = velocity;
+
+    if (m_has_inertia) {
+        new_velocity = new_velocity + force;
+        if (!ignore_maximum && (new_velocity.magnitude() > m_maximum_speed)) {
+            new_velocity = new_velocity.angle().vector(m_maximum_speed);
+        }
+    }
+    else if (!ignore_maximum) {
+//        m_current_speed = std::min(m_current_speed + force.magnitude(), m_maximum_speed);
+//        m_velocity = m_rotation.vector(m_current_speed);
+    }
+    else {
+//        m_current_speed += force.magnitude();
+//        m_velocity = m_rotation.vector(m_current_speed);
+    }
+
+    return new_velocity;
+}
+
 auto kestrel::physics::body::apply_force(const math::point& force, bool ignore_maximum) -> void
 {
     if (m_has_inertia) {

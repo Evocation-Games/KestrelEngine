@@ -98,7 +98,9 @@ auto kestrel::math::angular_difference::is_opposing(const angular_difference& to
 
 auto kestrel::math::angular_difference::is_equal(const angular_difference& tolerance) const -> bool
 {
-    return std::fabs(m_phi) <= tolerance.phi();
+    const auto phi = std::fabs(m_phi);
+    const auto tol = std::fabs(tolerance.phi());
+    return phi <= tol;
 }
 
 // MARK: - Accessors
