@@ -9,7 +9,7 @@
 .idea/
 
 # Build
-bin/
+./bin/
 cmake-*-debug/
 cmake-*-release/
 cmake-*-asan/
