@@ -21,16 +21,10 @@
 #pragma once
 
 extern "C" {
-#if defined(USE_LUA_JIT)
 #   include "LuaJIT/src/lua.h"
 #   include "LuaJIT/src/lauxlib.h"
 #   include "LuaJIT/src/lualib.h"
 #   include "LuaJIT/src/luajit.h"
-#else
-#   include "lua/lua.h"
-#   include "lua/lualib.h"
-#   include "lua/lauxlib.h"
-#endif
 }
 
 #include <string>
