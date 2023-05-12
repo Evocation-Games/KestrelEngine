@@ -45,6 +45,7 @@ set(KESTREL_LIBS
     SIMD Graphite ImGUI Foundation Lexer UI
     ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
     png bz2 z
+    libluajit.a
 )
 set(KESTREL_INC_DIRS
     "${OPENGL_INCLUDE_DIRS}"
@@ -54,14 +55,7 @@ set(KESTREL_INC_DIRS
     "${PROJECT_SUBMODULE_DIR}"
     ${PROJECT_SDK_LIBS}
 )
-set(KESTREL_LIBS_DIR )
-
-if (USE_LUA_JIT)
-    set(KESTREL_LIBS ${KESTREL_LIBS} libluajit.a)
-    set(KESTREL_LIBS_DIR ${KESTREL_LIBS_DIR} ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
-else()
-    set(KESTREL_LIBS ${KESTREL_LIBS} Lua)
-endif()
+set(KESTREL_LIBS_DIR ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
 
 if (APPLE)
     set(KESTREL_LIBS ${KESTREL_LIBS}

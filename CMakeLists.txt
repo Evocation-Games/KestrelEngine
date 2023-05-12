@@ -24,9 +24,6 @@ if (APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.14" CACHE STRING "Minimum OS X deployment version")
 endif()
 
-set(USE_LUA_JIT true)
-add_definitions(-DUSE_LUA_JIT)
-
 ########################################################################################################################
 ## Kestrel Game Engine Project Configuration
 project(KestrelGameEngine LANGUAGES CXX)
@@ -71,7 +68,6 @@ set(PROJECT_TARGETS_DIR ${CMAKE_SOURCE_DIR}/targets)
 
 ########################################################################################################################
 
-add_subdirectory(sdk/vendor/lua)
 add_subdirectory(sdk/vendor/LuaJIT)
 add_subdirectory(sdk/vendor/imgui)
 add_subdirectory(submodules/graphite)
