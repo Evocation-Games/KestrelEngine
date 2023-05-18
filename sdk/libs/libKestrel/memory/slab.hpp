@@ -43,6 +43,7 @@ namespace kestrel::memory
             
             m_queue.item_stack_top = --m_queue.next_item;
             m_queue.allocated_ptr = m_queue.allocated_base;
+            m_queue.allocated = 0;
         }
 
         ~slab()
@@ -64,6 +65,16 @@ namespace kestrel::memory
         inline auto first() noexcept -> T&
         {
             return m_pool[*m_queue.allocated_base];
+        }
+
+        inline auto begin() noexcept -> reference
+        {
+            return *(m_queue.allocated_ptr - 1);
+        }
+
+        inline auto end() noexcept -> reference
+        {
+            return *m_queue.allocated_base;
         }
 
         inline auto purge() -> void

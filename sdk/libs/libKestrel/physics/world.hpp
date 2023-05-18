@@ -27,15 +27,18 @@
 
 namespace kestrel::physics
 {
-    class world
+    class world: public std::enable_shared_from_this<world>
     {
     public:
         world();
+        ~world();
 
         [[nodiscard]] auto create_physics_body() -> body::lua_reference;
         [[nodiscard]] auto get_physics_body(body *ref) -> body::lua_reference;
-        auto add_physics_body(body::lua_reference ref) -> void;
+        auto add_physics_body(const body::lua_reference& ref) -> void;
         auto destroy_physics_body(body *ref) -> void;
+
+        auto purge_all_bodies() -> void;
 
         auto update() -> void;
 
@@ -49,6 +52,7 @@ namespace kestrel::physics
             std::int64_t radius;
         };
 
+        bool m_destroyed { false };
         memory::slab<fast_body, arena_count> m_bodies;
         physics::quad_tree<std::uint64_t, 5, 20> m_collision_tree;
     };

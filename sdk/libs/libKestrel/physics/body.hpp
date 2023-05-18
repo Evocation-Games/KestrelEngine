@@ -43,7 +43,7 @@ namespace kestrel::physics
 
         typedef std::uint64_t identifier;
 
-        explicit body(physics::world *world = nullptr, identifier id = 0);
+        explicit body(std::weak_ptr<physics::world> world = {}, identifier id = 0);
 
         lua_getter(id, Available_0_8) [[nodiscard]] auto id() const -> std::uint64_t;
         auto force_id_change(identifier id) -> void;
@@ -102,7 +102,7 @@ namespace kestrel::physics
         auto update() -> void;
 
         auto destroy() -> void;
-        auto migrate_to_world(physics::world *new_world) -> void;
+        auto migrate_to_world(std::weak_ptr<physics::world> new_world) -> void;
 
         auto reset_collisions() -> void;
         auto add_detected_collision(lua_reference collided) -> void;
@@ -112,7 +112,7 @@ namespace kestrel::physics
 
     private:
         identifier m_id { 0 };
-        physics::world *m_world { nullptr };
+        std::weak_ptr<physics::world> m_world {};
         std::unordered_map<identifier, lua_reference> m_collisions;
         std::uint32_t m_collision_type { 0 };
         std::unordered_set<std::uint32_t> m_rejected_collision_types;

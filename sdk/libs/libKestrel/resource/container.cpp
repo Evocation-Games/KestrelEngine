@@ -27,18 +27,15 @@
 
 kestrel::resource::container::container(const std::string &name)
     : m_names({ name })
-{
-}
+{}
 
 kestrel::resource::container::container(const std::vector<std::string>& names)
-    : m_names(names.empty() ? std::vector<std::string>({ universal_name }) : names)
-{
-}
+    : m_names(names.empty() ? std::vector<std::string>({ global_name }) : names)
+{}
 
 kestrel::resource::container::container(const lua::vector<std::string>& names)
-    : m_names(names.empty() ? std::vector<std::string>({ universal_name }) : names.to_vector())
-{
-}
+    : m_names(names.empty() ? std::vector<std::string>({ global_name }) : names.to_vector())
+{}
 
 auto kestrel::resource::container::global() -> lua_reference
 {

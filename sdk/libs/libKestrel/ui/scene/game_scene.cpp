@@ -41,11 +41,13 @@
 #include <libKestrel/lua/script.hpp>
 #include <libKestrel/exceptions/invalid_scene_exception.hpp>
 
+static std::uint32_t scene_counter = 0;
+
 // MARK: - Construction
 
 static inline auto default_scene_name(const std::string& name) -> std::string
 {
-    return name.empty() ? "untitled-scene" : name;
+    return (name.empty() ? "untitled-scene" : name) + " " + std::to_string(scene_counter++);
 }
 
 kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &script_ref)
@@ -144,7 +146,7 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
     });
 
     m_backing_scene->add_update_block([&, this] {
-        m_world.update();
+        m_world->update();
 
         if (m_update_block.state() && m_update_block.isFunction()) {
             m_update_block();
@@ -162,12 +164,40 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
             }
         }
     });
-
 }
 
 auto kestrel::ui::game_scene::current() -> lua_reference
 {
     return kestrel::session().current_scene();
+}
+
+// MARK: - Destruction
+
+
+auto kestrel::ui::game_scene::will_close() -> void
+{
+    if (m_on_close.state() && m_on_close.isFunction()) {
+        m_on_close();
+    }
+
+    m_world->purge_all_bodies();
+
+    m_entities.clear();
+    m_widgets.clear();
+    m_render_block = kestrel::lua_runtime()->null();
+    m_update_block = kestrel::lua_runtime()->null();
+    m_key_event_block = kestrel::lua_runtime()->null();
+    m_mouse_event_block = kestrel::lua_runtime()->null();
+    m_bindings = kestrel::lua_runtime()->null();
+    m_on_close = kestrel::lua_runtime()->null();
+    m_dialog = nullptr;
+    m_positioning_frame = nullptr;
+    m_backing_scene = nullptr;
+}
+
+auto kestrel::ui::game_scene::on_close(const luabridge::LuaRef &ref) -> void
+{
+    m_on_close = ref;
 }
 
 // MARK: - Management
@@ -204,7 +234,7 @@ auto kestrel::ui::game_scene::internal_scene() -> std::shared_ptr<ui::scene>
     return m_backing_scene;
 }
 
-auto kestrel::ui::game_scene::physics_world() -> physics::world&
+auto kestrel::ui::game_scene::physics_world() -> std::shared_ptr<physics::world>
 {
     return m_world;
 }
@@ -534,7 +564,7 @@ auto kestrel::ui::game_scene::draw_line(const math::point &p, const math::point 
 
 auto kestrel::ui::game_scene::adopt_physics_body(physics::body::lua_reference body) -> void
 {
-    body->migrate_to_world(&m_world);
+    body->migrate_to_world(m_world);
 }
 
 // MARK: - Menu Widgets

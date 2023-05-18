@@ -28,17 +28,24 @@ kestrel::physics::world::world()
     : m_collision_tree(0, math::rect(math::point(0), kestrel::session().size()))
 {}
 
+// MARK: - Destruction
+
+kestrel::physics::world::~world()
+{
+    m_destroyed =  true;
+}
+
 // MARK: - Physics Bodies Management
 
 auto kestrel::physics::world::create_physics_body() -> body::lua_reference
 {
     auto id = m_bodies.request();
     auto& body = m_bodies[id];
-    body.ref = body::lua_reference(new physics::body(this, id));
+    body.ref = { new physics::body(shared_from_this(), id) };
     return body.ref;
 }
 
-auto kestrel::physics::world::add_physics_body(body::lua_reference ref) -> void
+auto kestrel::physics::world::add_physics_body(const body::lua_reference& ref) -> void
 {
     if (ref.get() && ref->collision_type() > 0) {
         auto id = m_bodies.request();
@@ -71,6 +78,19 @@ auto kestrel::physics::world::get_physics_body(body *ref) -> body::lua_reference
         }
     }
     return { nullptr };
+}
+
+auto kestrel::physics::world::purge_all_bodies() -> void
+{
+    if (m_bodies.allocated() > 0) {
+        for (auto ref = m_bodies.begin(); ref <= m_bodies.end(); ++ref) {
+            auto body = m_bodies.get_allocated(ref);
+            if (body.ref.get()) {
+                body.ref->migrate_to_world({});
+            }
+            m_bodies.release(ref);
+        }
+    }
 }
 
 // MARK: - Updates

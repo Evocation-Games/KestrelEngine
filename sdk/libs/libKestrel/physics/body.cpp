@@ -22,13 +22,14 @@
 #include <libKestrel/physics/body.hpp>
 #include <libKestrel/math/angular_difference.hpp>
 #include <libKestrel/physics/hitbox.hpp>
+#include <utility>
 
 static std::uint64_t s_next_body_id = 1;
 
 // MARK: - Construction
 
-kestrel::physics::body::body(physics::world *world, identifier id)
-    : m_world(world), m_id(id == 0 ? s_next_body_id++ : id)
+kestrel::physics::body::body(std::weak_ptr<physics::world> world, identifier id)
+    : m_world(std::move(world)), m_id(id == 0 ? s_next_body_id++ : id)
 {}
 
 // MARK: - ID
@@ -348,20 +349,27 @@ auto kestrel::physics::body::update() -> void
 
 auto kestrel::physics::body::destroy() -> void
 {
-    if (m_world) {
-        m_world->destroy_physics_body(this);
+    if (auto world = m_world.lock()) {
+        world->destroy_physics_body(this);
     }
 }
 
 // MARK: - Migration
 
-auto kestrel::physics::body::migrate_to_world(physics::world *new_world) -> void
+auto kestrel::physics::body::migrate_to_world(std::weak_ptr<physics::world> new_world) -> void
 {
-    if (m_world) {
-        auto ref = m_world->get_physics_body(this);
-        m_world->destroy_physics_body(this);
-        m_world = new_world;
-        m_world->add_physics_body(ref);
+    body::lua_reference body_ref = { nullptr };
+    if (auto old_world = m_world.lock()) {
+        body_ref = old_world->get_physics_body(this);
+        old_world->destroy_physics_body(this);
+    }
+
+    if (auto world = new_world.lock()) {
+        m_world = world;
+        world->add_physics_body(body_ref);
+    }
+    else {
+        m_world = {};
     }
 }
 

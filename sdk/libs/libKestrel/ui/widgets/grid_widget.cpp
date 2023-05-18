@@ -232,6 +232,7 @@ auto kestrel::ui::widgets::grid_widget::draw() -> void
     if (m_state.dirty) {
         redraw_entity();
     }
+    m_state.dirty = false;
 }
 
 auto kestrel::ui::widgets::grid_widget::redraw_entity() -> void

@@ -26,12 +26,12 @@
 // MARK: - Construction
 
 kestrel::ecs::entity::entity(const math::size &size)
-    : m_position(0), m_size(size), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
+    : m_position(0), m_size(size), m_body(kestrel::session().current_scene()->physics_world()->create_physics_body())
 {
 }
 
 kestrel::ecs::entity::entity(const math::point& position, const math::size &size)
-    : m_position(position), m_size(size), m_body(kestrel::session().current_scene()->physics_world().create_physics_body())
+    : m_position(position), m_size(size), m_body(kestrel::session().current_scene()->physics_world()->create_physics_body())
 {
 }
 

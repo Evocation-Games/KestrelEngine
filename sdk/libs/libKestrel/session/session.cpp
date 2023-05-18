@@ -79,7 +79,9 @@ auto kestrel::ui::session::present_scene(const game_scene::lua_reference& scene)
 auto kestrel::ui::session::pop_scene() -> void
 {
     if (m_scenes.size() > 1) {
+        m_scenes.back()->will_close();
         m_scenes.pop_back();
+        kestrel::purge_garbage_collector();
     }
 }
 

@@ -49,14 +49,20 @@ namespace kestrel::ui
         lua_constructor(Available_0_8) explicit game_scene(const resource::descriptor::lua_reference& script_ref);
         lua_getter(current, Available_0_8) static auto current() -> lua_reference;
 
+        ~game_scene();
+
+        auto will_close() -> void;
+
         lua_getter(canPush, Available_0_8) [[nodiscard]] auto can_push() const -> bool;
         lua_function(start, Available_0_8) auto start() const -> void;
         lua_function(pop, Available_0_8) auto pop() const -> void;
         lua_function(back, Available_0_8) static auto back() -> void;
         lua_function(push, Available_0_8) auto push() -> void;
 
+        lua_function(onClose, Available_0_9) auto on_close(const luabridge::LuaRef& ref) -> void;
+
         auto internal_scene() -> std::shared_ptr<scene>;
-        auto physics_world() -> physics::world&;
+        auto physics_world() -> std::shared_ptr<physics::world>;
         auto responder_chain() -> responder_chain&;
 
         lua_function(adoptPhysicsBody, Available_0_8) auto adopt_physics_body(physics::body::lua_reference body) -> void;
@@ -109,7 +115,7 @@ namespace kestrel::ui
 
     private:
         std::string m_name;
-        physics::world m_world;
+        std::shared_ptr<physics::world> m_world { std::make_shared<physics::world>() };
         resource::descriptor::lua_reference m_script_descriptor { nullptr };
         std::shared_ptr<scene> m_backing_scene;
         layout::positioning_frame::lua_reference m_positioning_frame { nullptr };
@@ -123,6 +129,7 @@ namespace kestrel::ui
         luabridge::LuaRef m_key_event_block { nullptr };
         luabridge::LuaRef m_mouse_event_block { nullptr };
         luabridge::LuaRef m_bindings { nullptr };
+        luabridge::LuaRef m_on_close { nullptr };
         ui::dialog::lua_reference m_dialog { nullptr };
         struct responder_chain m_responder_chain;
 
