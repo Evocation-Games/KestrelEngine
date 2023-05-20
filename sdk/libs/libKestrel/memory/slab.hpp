@@ -48,7 +48,6 @@ namespace kestrel::memory
 
         ~slab()
         {
-            delete[] m_pool;
             delete m_queue.item_stack_base;
             delete m_queue.allocated_base;
         }
@@ -116,11 +115,11 @@ namespace kestrel::memory
 
         inline auto available() noexcept -> bool
         {
-            return (m_pool != nullptr);
+            return true;
         }
 
     private:
-        T *m_pool { new T[C] };
+        std::array<T, C> m_pool;
 
         struct {
             reference *item_stack_base { nullptr };

@@ -65,7 +65,9 @@ namespace kestrel::lua
 
         auto dump() -> void;
         auto purge() -> void;
+
         [[nodiscard]] auto null() const -> luabridge::LuaRef;
+        [[nodiscard]] auto table() const -> luabridge::LuaRef;
 
     private:
         auto prepare_lua_runtime() -> void;

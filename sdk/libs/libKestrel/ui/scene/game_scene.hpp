@@ -49,8 +49,6 @@ namespace kestrel::ui
         lua_constructor(Available_0_8) explicit game_scene(const resource::descriptor::lua_reference& script_ref);
         lua_getter(current, Available_0_8) static auto current() -> lua_reference;
 
-        ~game_scene();
-
         auto will_close() -> void;
 
         lua_getter(canPush, Available_0_8) [[nodiscard]] auto can_push() const -> bool;

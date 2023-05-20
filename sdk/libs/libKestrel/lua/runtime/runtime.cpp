@@ -116,6 +116,11 @@ auto kestrel::lua::runtime::null() const -> luabridge::LuaRef
     return { m_state };
 }
 
+auto kestrel::lua::runtime::table() const -> luabridge::LuaRef
+{
+    return luabridge::LuaRef::newTable(m_state);
+}
+
 auto kestrel::lua::runtime::function(const std::string& name) const -> luabridge::LuaRef
 {
     return function(name.c_str());

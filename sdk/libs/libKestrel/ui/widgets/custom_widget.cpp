@@ -21,11 +21,12 @@
 #include <libKestrel/ui/widgets/custom_widget.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
 #include <libKestrel/font/manager.hpp>
+#include <libKestrel/kestrel.hpp>
 
 // MARK: - Construction
 
 kestrel::ui::widgets::custom_widget::custom_widget(const luabridge::LuaRef &drawing_function)
-    : m_user_info(nullptr),
+    : m_user_info(kestrel::lua_runtime()->table()),
       m_drawing_function(!drawing_function.state() ? luabridge::LuaRef(nullptr) : drawing_function)
 {
     resize();
