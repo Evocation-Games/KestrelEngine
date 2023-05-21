@@ -150,7 +150,7 @@ auto kestrel::resource::collection::map_values(const luabridge::LuaRef &block) -
         for (const auto& it : m_resources) {
             auto mapped_value = block(it.second);
             if (mapped_value.state() && !mapped_value.isNil()) {
-                result->m_resources.emplace_back(it.first, it.second);
+                result->m_resources.emplace_back(it.first, mapped_value);
             }
         }
     }

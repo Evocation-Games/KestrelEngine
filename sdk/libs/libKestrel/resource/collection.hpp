@@ -34,7 +34,7 @@ namespace kestrel::resource
         has_constructable_lua_api(collection);
 
         lua_constructor(Avavailable_0_8) collection() = default;
-        collection(const std::vector<std::pair<key, luabridge::LuaRef>>& resources);
+        explicit collection(const std::vector<std::pair<key, luabridge::LuaRef>>& resources);
 
         lua_function(add, Available_0_8) auto add_resource(const descriptor::lua_reference& descriptor, const luabridge::LuaRef& resource) -> void;
         lua_function(remove, Available_0_9) auto remove_resource(const descriptor::lua_reference& descriptor) -> void;

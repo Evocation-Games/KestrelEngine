@@ -207,6 +207,7 @@ auto kestrel::ui::widgets::list_widget::draw() -> void
     if (m_state.dirty) {
         redraw_entity();
     }
+    m_state.dirty = false;
 }
 
 auto kestrel::ui::widgets::list_widget::redraw_entity() -> void
@@ -351,7 +352,7 @@ auto kestrel::ui::widgets::list_widget::lua_receive_event(const event::lua_refer
 
 auto kestrel::ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location();// - entity()->draw_position();
+    auto local_position = e.location() - entity()->position();
     if (e.is_mouse_event() && entity()->hit_test(local_position)) {
         if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;
