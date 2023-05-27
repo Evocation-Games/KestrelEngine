@@ -194,6 +194,7 @@ auto kestrel::lua::runtime::execute(graphite::rsrc::resource::identifier id, con
             ++level;
         }
 
+
         throw lua_runtime_exception(error_string + "\nSTACK:\n" + stack_string);
     }
 }

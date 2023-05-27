@@ -35,6 +35,11 @@ auto kestrel::resource::collection::size() const -> std::size_t
     return m_resources.size();
 }
 
+auto kestrel::resource::collection::empty() const -> bool
+{
+    return m_resources.empty();
+}
+
 // MARK: - Item Management
 
 auto kestrel::resource::collection::add_resource(const descriptor::lua_reference &descriptor, const luabridge::LuaRef &resource) -> void

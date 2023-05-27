@@ -40,6 +40,7 @@ namespace kestrel::resource
         lua_function(remove, Available_0_9) auto remove_resource(const descriptor::lua_reference& descriptor) -> void;
 
         lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> std::size_t;
+        lua_getter(empty, Available_0_8) [[nodiscard]] auto empty() const -> bool;
         lua_getter(randomItem, Available_0_8) [[nodiscard]] auto random() const -> luabridge::LuaRef;
         lua_function(has, Available_0_8) [[nodiscard]] auto has(const descriptor::lua_reference& descriptor) const -> bool;
         lua_function(get, Available_0_8) [[nodiscard]] auto get(const descriptor::lua_reference& descriptor) const -> luabridge::LuaRef;

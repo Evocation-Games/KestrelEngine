@@ -84,7 +84,7 @@ auto kestrel::physics::world::purge_all_bodies() -> void
 {
     if (m_bodies.allocated() > 0) {
         for (auto ref = m_bodies.begin(); ref <= m_bodies.end(); ++ref) {
-            auto body = m_bodies.get_allocated(ref);
+            auto body = m_bodies.get(ref);
             if (body.ref.get()) {
                 body.ref->migrate_to_world({});
             }
