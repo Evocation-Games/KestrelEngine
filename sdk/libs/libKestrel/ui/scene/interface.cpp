@@ -51,6 +51,7 @@ static inline auto convert_to_control_type(enum ::ui::format::element::type type
         case ui::format::element::type::vertical_spacer:    return kestrel::ui::control_type::spacer;
         case ui::format::element::type::horizontal_spacer:  return kestrel::ui::control_type::spacer;
         case ui::format::element::type::position:           return kestrel::ui::control_type::position;
+        default:                                            return kestrel::ui::control_type::none;
     }
 }
 

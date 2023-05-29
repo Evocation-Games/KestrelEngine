@@ -198,7 +198,7 @@ auto kestrel::graphics::canvas::draw_line(const math::point &pp, const math::poi
 
     auto set_pixel = [this] (long x, long y, double intensity) {
         m_rgba_buffer.draw_pixel(
-            m_pen_color.with_alpha(std::max(0, std::min(255, static_cast<int>(255.0 * (1.0 - intensity))))),
+            *m_pen_color.with_alpha(std::max(0, std::min(255, static_cast<int>(255.0 * (1.0 - intensity))))).get(),
             { static_cast<float>(x), static_cast<float>(y) }
         );
     };

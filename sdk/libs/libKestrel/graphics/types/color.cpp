@@ -117,9 +117,9 @@ auto kestrel::graphics::color::blend_in_place(const color &top) -> void
 //    }
 }
 
-auto kestrel::graphics::color::with_alpha(component a) const -> color
+auto kestrel::graphics::color::with_alpha(component a) const -> lua_reference
 {
-    return { rgba.components.r, rgba.components.g, rgba.components.b, a };
+    return { new color(rgba.components.r, rgba.components.g, rgba.components.b, a) };
 }
 
 

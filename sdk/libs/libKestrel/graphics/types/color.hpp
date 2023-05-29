@@ -74,7 +74,7 @@ namespace kestrel::graphics
         lua_function(rgb, Available_0_8 Deprecated_0_8) static auto rgb_ref(component r, component g, component b, component a = 255) -> lua_reference;
         lua_function(colorValue, Available_0_8) static auto color_value_ref(value value) -> lua_reference;
 
-        lua_function(withAlpha, Available_0_8) [[nodiscard]] auto with_alpha(component a) const -> color;
+        lua_function(withAlpha, Available_0_8) [[nodiscard]] auto with_alpha(component a) const -> lua_reference;
 
         [[nodiscard]] auto blend(const color& c) const -> color;
         auto blend_in_place(const color& c) -> void;
