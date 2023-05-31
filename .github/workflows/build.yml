@@ -87,8 +87,6 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
-      - name: Debug Output
-        run: cat build/libKestrel/lua_api_definition.cpp >> $GITHUB_STEP_SUMMARY
       - name: Codesign & Notarize Kestrel Engine
         env:
           DISTRIBUTION_CERTIFICATE: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE }}
