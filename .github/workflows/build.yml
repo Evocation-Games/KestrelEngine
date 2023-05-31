@@ -80,6 +80,9 @@ jobs:
         run: |
           `cd submodules/png && git apply ../../support/patches/libpng.macos.patch`
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
+      - name: Build LuaJIT
+        run: |
+          cd submodules/LuaJIT && make && sudo make install
       - name: Build Kestrel Engine
         run: |
           support/scripts/build
