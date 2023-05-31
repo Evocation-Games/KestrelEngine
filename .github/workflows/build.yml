@@ -87,7 +87,12 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
-          cat build/libKestrel/lua_api_definition.cpp
+      - name: Archive lua_api_definition.cpp
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-lua_api_definition.cpp
+          path: build/libKestrel/lua_api_definition.cpp
+          retention-days: 5
       - name: Codesign & Notarize Kestrel Engine
         env:
           DISTRIBUTION_CERTIFICATE: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE }}
