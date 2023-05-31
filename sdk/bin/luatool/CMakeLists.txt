@@ -41,10 +41,6 @@ elseif(WIN32)
     set(LLVM_DIR D:/a/_temp/msys64/mingw64)
 endif()
 
-message("LLVM_DIR = ${LLVM_DIR}")
-file(GLOB_RECURSE LLVM_FILES ${LLVM_DIR}/*)
-message(${LLVM_FILES})
-
 set(LLVM_INCLUDE_DIRS ${LLVM_DIR}/include)
 set(LLVM_LIBS_DIR ${LLVM_DIR}/lib)
 
