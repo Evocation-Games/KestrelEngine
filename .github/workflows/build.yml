@@ -82,7 +82,7 @@ jobs:
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
       - name: Build LuaJIT
         run: |
-          MACOSX_DEPLOYMENT_TARGET=10.15 cd submodules/LuaJIT && make && sudo make install
+          cd submodules/LuaJIT && MACOSX_DEPLOYMENT_TARGET=10.15 make && sudo make install
       - name: Build Kestrel Engine
         run: |
           support/scripts/build
