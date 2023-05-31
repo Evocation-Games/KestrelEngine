@@ -64,9 +64,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install Homebrew Dependencies
+      - name: Install Dependencies
         run: |
           brew install llvm@15
+          cargo install tree-sitter-cli
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
