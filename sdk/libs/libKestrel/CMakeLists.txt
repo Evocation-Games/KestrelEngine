@@ -111,8 +111,6 @@ target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR} ${KESTREL_LIBS_DIR}
 target_link_libraries(Kestrel ${KESTREL_LIBS})
 add_dependencies(Kestrel LuaTool)
 
-
-
 ########################################################################################################################
 ## libKestrel: Lua API Definition
 
@@ -132,6 +130,7 @@ add_custom_command(
                     -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
                     -lua ${KestrelAPIDefinition}
                     ${KESTREL_LIB_HEADERS}
+    COMMAND     cat ${KestrelAPIDefinition}
     DEPENDS     ${KESTREL_LIB_HEADERS}
 )
 
