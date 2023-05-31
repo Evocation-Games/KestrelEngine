@@ -87,10 +87,37 @@ namespace kestrel::device::console
      */
     auto destroy_pipe(const util::uid& uid) -> void;
 
+    /**
+     * An entity that displays the contents of the console in the renderer.
+     * @return A reference to the entity.
+     */
     [[nodiscard]] auto entity() -> std::shared_ptr<ecs::entity>;
+
+    /**
+     * Show the console in the renderer to the user.
+     */
     auto show_console() -> void;
+
+    /**
+     * Hide the console in the renderer from the user.
+     */
     auto hide_console() -> void;
+
+    /**
+     * Toggle the visibility of the console in the renderer.
+     */
     auto toggle_console() -> void;
+
+    /**
+     * Send an interaction (key only) to the console to be processed. If the event is not a key event, then
+     * it will be ignored.
+     * @param e An event structure representing a key press.
+     * @return A flag that indicates if the event was consumed or not.
+     */
     auto send_event(const event& e) -> bool;
+
+    /**
+     * Send a message to the console to force a redraw of its renderer entity.
+     */
     auto redraw() -> void;
 }
