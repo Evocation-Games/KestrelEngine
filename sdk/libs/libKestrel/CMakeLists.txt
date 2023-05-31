@@ -130,7 +130,6 @@ add_custom_command(
                     -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
                     -lua ${KestrelAPIDefinition}
                     ${KESTREL_LIB_HEADERS}
-    COMMAND     cat ${KestrelAPIDefinition}
     DEPENDS     ${KESTREL_LIB_HEADERS}
 )
 

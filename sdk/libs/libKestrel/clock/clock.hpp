@@ -24,7 +24,9 @@
 
 namespace kestrel::rtc
 {
-
+    /**
+     * The `kestrel::rtc::clock` class is responsible for managing real time events.
+     */
     class clock
     {
     public:

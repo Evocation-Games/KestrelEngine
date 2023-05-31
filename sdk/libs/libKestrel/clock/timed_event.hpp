@@ -26,18 +26,54 @@
 
 namespace kestrel::rtc
 {
-
+    /**
+     * The `kestrel::rtc::timed_event` structure keeps tracked of real time events that either fire once after
+     * a specific time period, or repeatedly fire every _n_ seconds.
+     */
     struct timed_event
     {
     public:
+        /**
+         * The mechanism by which the event will fire.
+         * - never          The event will never fire.
+         * - after_date     The event will fire after the specified date is reached.
+         * - after_duration The event will fire after the specified duration has elapsed.
+         * - repeats        The event will fire every _n_ seconds.
+         */
         enum trigger { never, after_date, after_duration, repeats };
 
+        /**
+         * Construct a new timed event that fires after a specified time. The specified callback
+         * will be executed once the timed event is fired.
+         * @param after     The time after which the event will be fired.
+         * @param callback  The callback to execute when the event fires.
+         */
         timed_event(const kestrel::rtc::clock::time& after, const luabridge::LuaRef& callback);
+
+        /**
+         * Construct a new timed event that fires after _period_ seconds. The specified callback
+         * will be executed once the timed event is fired.
+         * @param period    The number of seconds after which the event will be fired.
+         * @param callback  The callback to execute when the event fires.
+         * @param repeats   Should the event repeat?
+         */
         timed_event(const double& period, const luabridge::LuaRef& callback, const bool& repeats = false);
 
+        /**
+         * Will the event ever fire again?
+         * @return A boolean indicating if the event will never fire again.
+         */
         [[nodiscard]] auto dead() const -> bool;
+
+        /**
+         * Is the event due to fire?
+         * @return A boolean indicating if the event is due to fire.
+         */
         [[nodiscard]] auto should_fire() const -> bool;
 
+        /**
+         * Fire the event now.
+         */
         auto fire() -> void;
 
     private:
