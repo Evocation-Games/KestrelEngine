@@ -67,7 +67,6 @@ jobs:
       - name: Install Homebrew Dependencies
         run: |
           brew install llvm@15
-          ls `/usr/local/bin/brew --prefix llvm | tr -d '\n'`
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
