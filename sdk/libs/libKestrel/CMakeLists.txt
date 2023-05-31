@@ -142,8 +142,7 @@ add_dependencies(KestrelAPIDefinition LuaTool)
 add_dependencies(Kestrel KestrelAPIDefinition)
 
 add_custom_command(
-    TARGET KestrelAPIDefinition
+    TARGET Kestrel
     POST_BUILD
-    COMMAND cat
-    ARGS ${KestrelAPIDefinition}
+    COMMAND cat ${CMAKE_BUILD_DIR}/libKestrel/lua_api_definition.cpp
 )
