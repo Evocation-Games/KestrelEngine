@@ -67,7 +67,6 @@ jobs:
       - name: Install Dependencies
         run: |
           brew install llvm@15
-          cargo install tree-sitter-cli
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
@@ -81,9 +80,6 @@ jobs:
         run: |
           `cd submodules/png && git apply ../../support/patches/libpng.macos.patch`
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
-      - name: Run Tree Sitter
-        run: |
-          cd sdk/extra/tree-sitter/tree-sitter-kdl && tree-sitter generate
       - name: Build Kestrel Engine
         run: |
           support/scripts/build
