@@ -33,7 +33,7 @@ endif()
 ## Preparations
 set(KestrelAPIDefinition ${CMAKE_BUILD_DIR}/libKestrel/lua_api_definition.cpp)
 file(MAKE_DIRECTORY ${CMAKE_BUILD_DIR}/libKestrel)
-file(TOUCH ${KestrelAPIDefinition})
+#file(TOUCH ${KestrelAPIDefinition})
 
 ########################################################################################################################
 ## libKestrel
