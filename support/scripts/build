@@ -92,5 +92,3 @@ cmake -DKESTREL_NAME="$NAME" \
         -DCMAKE_BUILD_TYPE="$BUILD" \
         -H. -Bbuild
 cmake --build build -- -j$J
-
-cat build/libKestrel/lua_api_definition.cpp

@@ -87,6 +87,7 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
+          cat build/libKestrel/lua_api_definition.cpp
       - name: Codesign & Notarize Kestrel Engine
         env:
           DISTRIBUTION_CERTIFICATE: ${{ secrets.KESTREL_DISTRIBUTION_CERTIFICATE }}
