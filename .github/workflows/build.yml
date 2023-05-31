@@ -81,6 +81,9 @@ jobs:
         run: |
           `cd submodules/png && git apply ../../support/patches/libpng.macos.patch`
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
+      - name: Run Tree Sitter
+        run: |
+          cd sdk/extra/tree-sitter/tree-sitter-kdl && tree-sitter generate
       - name: Build Kestrel Engine
         run: |
           support/scripts/build
