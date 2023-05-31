@@ -140,3 +140,10 @@ add_custom_target(KestrelAPIDefinition
 )
 add_dependencies(KestrelAPIDefinition LuaTool)
 add_dependencies(Kestrel KestrelAPIDefinition)
+
+add_custom_command(
+    TARGET KestrelAPIDefinition
+    POST_BUILD
+    COMMAND cat
+    ARGS ${KestrelAPIDefinition}
+)
