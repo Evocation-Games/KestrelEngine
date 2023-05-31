@@ -29,11 +29,33 @@
 #include <libKestrel/resource/key.hpp>
 #include <libKestrel/clock/clock.hpp>
 
+/**
+ * The `kestrel::cache` namespace encapsulates functionality related to caching resource assets and data,
+ * in order to help reducing asset loading and processing times.
+ */
 namespace kestrel::cache
 {
+    /**
+     * Add the specified asset to the cache using the specified reference as an identifier.
+     * @param ref   The `resource::descriptor` that identifies the asset.
+     * @param asset The asset to cache.
+     */
     auto add(const resource::descriptor::lua_reference& ref, const std::any& asset) -> void;
+
+    /**
+     * Fetch the asset for the specified `resource::descriptor` if it exists.
+     * @param ref   The `resource::descriptor` that identifies the asset.
+     * @return      The asset if it exists.
+     */
     auto fetch(const resource::descriptor::lua_reference& ref) -> std::optional<std::any>;
 
+    /**
+     * Purge all assets from the cache regardless of current age and access time.
+     */
     auto purge_all() -> void;
+
+    /**
+     * Remove all assets from the cache that have not been accessed for at least 2 minutes.
+     */
     auto purge_unused() -> void;
 }

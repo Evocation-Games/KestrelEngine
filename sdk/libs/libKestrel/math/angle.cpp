@@ -339,7 +339,7 @@ auto kestrel::math::angle::subtract_angular_difference(const angular_difference 
 
 auto kestrel::math::angle::vector(float magnitude) const -> point
 {
-    return point(fcos(magnitude), fsin(magnitude));
+    return (point(fcos(magnitude), fsin(magnitude)) * 1000.0).round() / 1000.0;
 }
 
 auto kestrel::math::angle::opposite() const -> angle

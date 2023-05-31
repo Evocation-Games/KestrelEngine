@@ -21,7 +21,7 @@
 #pragma once
 
 #include <libGraphite/rsrc/manager.hpp>
-#include <libKestrel/resource/namespace.hpp>
+#include <libKestrel/resource/container.hpp>
 
 namespace test
 {
@@ -55,7 +55,7 @@ namespace test
             }
             else {
                 m_current_file->add_resource(type_code, id, name, graphite::data::block(), {
-                    std::pair(kestrel::resource::resource_namespace::attribute_name, namespace_name)
+                    std::pair(kestrel::resource::container::attribute_name, namespace_name)
                 });
             }
             return *this;

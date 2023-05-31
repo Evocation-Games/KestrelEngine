@@ -29,6 +29,6 @@ build_testing_library()
 ## Preparation
 
 set(TESTS ${PROJECT_SOURCE_DIR}/tests)
-add_test_target(Hashing ${TESTS}/sdk/libs/libHashing)
+add_test_target(Foundation ${TESTS}/sdk/libs/libFoundation)
 #add_test_target(KDL ${TESTS}/sdk/libs/libKDL)
 add_test_target(Kestrel ${TESTS}/sdk/libs/libKestrel)

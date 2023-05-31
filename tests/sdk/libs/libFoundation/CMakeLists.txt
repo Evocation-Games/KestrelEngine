@@ -18,8 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-test_suite(Hashing)
-    test_case(Strings)
+test_suite(Foundation)
+    test_case(Hashing)
         test(hashed_string_returnsCorrectValue)
     end_test_case()
 end_test_suite()

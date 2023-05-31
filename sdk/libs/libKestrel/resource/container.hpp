@@ -74,8 +74,6 @@ namespace kestrel::resource
         lua_getter(scene, Available_0_8) [[nodiscard]]  auto scene() const -> ui::game_scene::lua_reference;
         lua_function(pushScene, Available_0_8) auto push_scene() const -> void;
 
-
-
     public:
         constexpr static const char *attribute_name = "container";
         constexpr static const char *universal_name = "*";

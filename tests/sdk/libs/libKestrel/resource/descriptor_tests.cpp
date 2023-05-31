@@ -36,7 +36,7 @@ TEST(resource_descriptor_fileConstrainedDescriptor)
     test::equal(desc->id, INT64_MIN);
     test::is_true(desc->type.empty());
     test::is_true(desc->name.empty());
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_identifiedDescriptor)
@@ -47,7 +47,7 @@ TEST(resource_descriptor_identifiedDescriptor)
     test::equal(desc->id, 128);
     test::is_true(desc->type.empty());
     test::is_true(desc->name.empty());
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_typedDescriptor)
@@ -58,7 +58,7 @@ TEST(resource_descriptor_typedDescriptor)
     test::equal(desc->id, INT64_MIN);
     test::equal(desc->type, std::string("foo "));
     test::is_true(desc->name.empty());
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_namedDescriptor)
@@ -69,7 +69,7 @@ TEST(resource_descriptor_namedDescriptor)
     test::equal(desc->id, INT64_MIN);
     test::is_true(desc->type.empty());
     test::equal(desc->name, std::string("test"));
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_typedIdentifiedDescriptor)
@@ -80,7 +80,7 @@ TEST(resource_descriptor_typedIdentifiedDescriptor)
     test::equal(desc->id, 128);
     test::equal(desc->type, std::string("foo "));
     test::is_true(desc->name.empty());
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_identifiedNamedDescriptor)
@@ -91,7 +91,7 @@ TEST(resource_descriptor_identifiedNamedDescriptor)
     test::equal(desc->id, 128);
     test::is_true(desc->type.empty());
     test::equal(desc->name, std::string("test"));
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_typedNamedDescriptor)
@@ -102,7 +102,7 @@ TEST(resource_descriptor_typedNamedDescriptor)
     test::equal(desc->id, INT64_MIN);
     test::equal(desc->type, std::string("foo "));
     test::equal(desc->name, std::string("test"));
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 TEST(resource_descriptor_typedIdentifiedNamedDescriptor)
@@ -113,7 +113,7 @@ TEST(resource_descriptor_typedIdentifiedNamedDescriptor)
     test::equal(desc->id, 128);
     test::equal(desc->type, std::string("foo "));
     test::equal(desc->name, std::string("test"));
-    test::is_true(desc->namespaces.empty());
+    test::is_true(desc->containers.empty());
 }
 
 // MARK: - Description
@@ -162,8 +162,8 @@ TEST(resource_descriptor_typedIdentifiedNamed_descriptionHasExpectedValue)
 
 TEST(resource_descriptor_typedIdentifiedNamed_withNamespace_descriptionHasExpectedValue)
 {
-    auto desc = resource_namespace("bar").typed_identified_named_resource("foo ", 128, "test");
-    test::equal(desc->description(), std::string("foo  #128 test ns<bar>"));
+    auto desc = container("bar").typed_identified_named_resource("foo ", 128, "test");
+    test::equal(desc->description(), std::string("foo  #128 test container<bar>"));
 }
 
 // MARK: - Has Characteristics
@@ -188,8 +188,8 @@ TEST(resource_descriptor_hasName_expectedResult)
 
 TEST(resource_descriptor_isNamespaced_expectedResult)
 {
-    test::is_true(resource_namespace("foo").typed_resource("bar")->is_namespaced());
-    test::is_false(descriptor::typed("bar")->is_namespaced());
+    test::is_true(container("foo").typed_resource("bar")->has_container());
+    test::is_false(descriptor::typed("bar")->has_container());
 }
 
 // TODO: Fill out further test cases from Resource Descriptor.
