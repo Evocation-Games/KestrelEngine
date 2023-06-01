@@ -161,7 +161,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_scene_definition(sema::context& ctx) -> void
     {
         auto scene = ctx.register_type(resource::definition::type::instance("SceneDefinition", "scën"));
-        ctx.root_scope()->add_variable("SceneDefinitionID", 0LL);
+        ctx.root_scope()->add_variable("SceneDefinitionID", static_cast<std::int64_t>(0));
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::RSRC, "Script");
