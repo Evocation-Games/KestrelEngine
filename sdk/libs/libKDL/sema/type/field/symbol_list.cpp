@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <libKDL/sema/type/field/symbol_list.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/decorator/decorator.hpp>

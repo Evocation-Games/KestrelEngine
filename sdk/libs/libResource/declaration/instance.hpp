@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <string>
 #include <unordered_map>
 #include <libResource/definition/type/instance.hpp>
 #include <libResource/reference.hpp>

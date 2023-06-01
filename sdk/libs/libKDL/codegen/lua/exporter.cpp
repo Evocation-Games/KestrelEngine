@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <iostream>
+#include <stdexcept>
 #include <libKDL/codegen/lua/exporter.hpp>
 #include <libKDL/spec/types.hpp>
 #include <libKDL/spec/decorators.hpp>

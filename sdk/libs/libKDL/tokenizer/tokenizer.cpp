@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <sstream>
+#include <stdexcept>
 #include <libKDL/tokenizer/tokenizer.hpp>
 #include <libLexer/expect/expectation.hpp>
 #include <libKDL/spec/directives.hpp>

@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <utility>
+#include <stdexcept>
 #include <libKestrel/graphics/image/tga.hpp>
 
 // MARK: - Constructors

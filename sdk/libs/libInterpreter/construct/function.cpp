@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <libInterpreter/construct/function.hpp>
 #include <libInterpreter/token/token.hpp>
 #include <libInterpreter/scope/scope.hpp>

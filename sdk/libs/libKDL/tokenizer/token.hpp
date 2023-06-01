@@ -21,6 +21,7 @@
 #pragma once
 
 #include <variant>
+#include <stdexcept>
 #include <libLexer/lexeme.hpp>
 #include <libKDL/tokenizer/token_type.hpp>
 #include <libResource/reference.hpp>

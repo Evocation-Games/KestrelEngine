@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <libKDL/sema/directive/metadata.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 

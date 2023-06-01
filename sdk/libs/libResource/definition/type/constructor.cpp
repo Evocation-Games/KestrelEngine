@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <libResource/definition/type/constructor.hpp>
 #include <libInterpreter/script/script.hpp>
 #include <libResource/definition/template/instance.hpp>

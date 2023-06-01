@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <libKestrel/graphics/renderer/opengl/context.hpp>
 #include <libKestrel/util/uid.hpp>
 #include <libKestrel/kestrel.hpp>

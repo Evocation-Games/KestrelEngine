@@ -20,6 +20,7 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <stdexcept>
 #include <libKestrel/sandbox/file/directory_reference.hpp>
 
 // MARK: - Construction

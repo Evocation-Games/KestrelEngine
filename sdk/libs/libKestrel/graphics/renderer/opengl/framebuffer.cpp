@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <memory>
+#include <stdexcept>
 #include <libKestrel/graphics/renderer/opengl/framebuffer.hpp>
 #include <libKestrel/graphics/renderer/opengl/constants.hpp>
 #include <libKestrel/graphics/renderer/common/vertex.hpp>

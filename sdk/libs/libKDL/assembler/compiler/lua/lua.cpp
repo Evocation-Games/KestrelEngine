@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <iostream>
+#include <stdexcept>
 #include <libKDL/assembler/compiler/lua/lua.hpp>
 #include <libGraphite/data/writer.hpp>
 #include <libKDL/exception/lua_exception.hpp>

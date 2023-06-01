@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <stdexcept>
 #include <libGraphite/rsrc/manager.hpp>
 #include <libGraphite/data/reader.hpp>
 #include <libGraphite/quickdraw/format/pict.hpp>

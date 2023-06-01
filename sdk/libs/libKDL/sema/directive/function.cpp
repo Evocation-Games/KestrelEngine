@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <vector>
+#include <stdexcept>
 #include <libKDL/sema/directive/function.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/script/script.hpp>

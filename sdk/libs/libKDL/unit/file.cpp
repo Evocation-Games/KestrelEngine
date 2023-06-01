@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <iostream>
+#include <stdexcept>
 #include <libKDL/unit/file.hpp>
 #include <libLexer/lexer.hpp>
 #include <libKDL/tokenizer/tokenizer.hpp>
