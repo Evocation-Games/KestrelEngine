@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include <cassert>
+#include <complex>
+#include <cmath>
 #include <libKDL/modules/kdl/kdl.hpp>
 #include <libFoundation/hashing/hashing.hpp>
 
