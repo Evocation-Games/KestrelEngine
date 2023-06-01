@@ -1,4 +1,4 @@
--- Copyright (c) 2022 Tom Hancocks
+-- Copyright (c) 2023 Tom Hancocks
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy
 -- of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,10 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
+math.randomseed(os.time())
+math.random(); math.random(); math.random()
+
 Kestrel.setGameWindowTitle("Kestrel")
 Kestrel.setGameWindowSize(Size(1280, 800))
 
-Namespace("ExampleScene"):pushScene()
+Kestrel.Scene("ExampleScene"):push()

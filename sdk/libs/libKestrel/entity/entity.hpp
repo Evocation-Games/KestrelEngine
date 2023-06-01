@@ -37,39 +37,144 @@ namespace kestrel
 
 namespace kestrel::ecs
 {
+    /**
+     * The `kestrel::ecs::entity` class represents an entity that can be rendered. The entity itself
+     * manages all the information required by the renderer to add the entity to the render pipeline.
+     */
     class entity: public std::enable_shared_from_this<entity>
     {
     public:
+        /**
+         * Construct a new entity of the specified size.
+         * @param size The size of the entity in points.
+         */
         explicit entity(const math::size& size);
+
+        /**
+         * Construct a new entity of the specified size, and at the specified position.
+         * @param position  The position of the entity in points.
+         * @param size      The size of the entity in points.
+         */
         entity(const math::point& position, const math::size& size);
 
+        /**
+         * Destroy the entity.
+         */
         ~entity();
 
-        auto move_to_scene(const std::shared_ptr<class scene>& scene);
+        /**
+         * Move the entity into the specified scene's render pipeline. This changes the scene that the entity will
+         * submit its draw command to.
+         * @param scene The scene that the entity should be drawn into.
+         */
+        auto move_to_scene(const std::shared_ptr<class scene>& scene) -> void;
+
+        /**
+         * The scene that the entity currently renders into.
+         * @return  A scene reference.
+         */
         auto scene() const -> std::weak_ptr<class scene>;
 
+        /**
+         * The name of the scene that can be used for debugging.
+         * @return  The name of the scene.
+         */
         [[nodiscard]] auto name() const -> std::string;
+
+        /**
+         * Set the name of the scene to be used for debugging purposes.
+         * @param name  A scene name
+         */
         auto set_name(const std::string& name) -> void;
 
+        /**
+         * The identifier of the scene.
+         * @return  A unique identifier representing the scene
+         */
         [[nodiscard]] auto id() const -> util::uid::value;
+
+        /**
+         * Set a new identifier for the scene.
+         * @warning     This should be used cautiously as it may cause internal tracking issues.
+         * @param id    A new unique identifier for the scene.
+         */
         auto set_id(util::uid::value id) -> void;
 
+        /**
+         * The identifier of the scene.
+         * @return  A unique identifier representing the scene
+         */
         [[nodiscard]] auto uid() const -> util::uid;
+
+        /**
+         * Set a new identifier for the scene.
+         * @warning     This should be used cautiously as it may cause internal tracking issues.
+         * @param id    A new unique identifier for the scene.
+         */
         auto set_uid(util::uid id) -> void;
 
+        /**
+         * Set the sprite sheet in which sprite texture information should be taken from. An initial sprite index can
+         * also be provided to set the default/initial sprite being rendered.
+         * @param sheet             A reference to the sprite sheet to be used by the entity.
+         * @param sprite_index      The index of the sprite to be used.
+         */
         auto set_sprite_sheet(const std::shared_ptr<graphics::sprite_sheet>& sheet, std::uint32_t sprite_index = 0) -> void;
+
+        /**
+         * The current sprite sheet for the entity.
+         * @return  A reference to the current sprite sheet used by the entity.
+         */
         [[nodiscard]] auto sprite_sheet() const -> std::shared_ptr<graphics::sprite_sheet>;
+
+        /**
+         * The texture used to render the entity. The texture is managed by the sprite sheet. If not sprite sheet
+         * is bound to the entity, then it will have no texture information.
+         * @return  A reference to the texture of the current sprite sheet.
+         */
         [[nodiscard]] auto texture() const -> std::shared_ptr<graphics::texture>;
 
+        /**
+         * The index of the entities current sprite.
+         * @return  A sprite sheet index.
+         */
         [[nodiscard]] auto get_sprite_index() const -> std::uint32_t;
+
+        /**
+         * Change the current sprite index.
+         * @param index A valid sprite index for the current sprite sheet.
+         */
         auto set_sprite_index(std::uint32_t index) -> void;
 
+        /**
+         * The current position of the entity within the renderer.
+         * @return  A point structure denoting the position in points.
+         */
         [[nodiscard]] auto get_position() const -> math::point;
+
+        /**
+         * Set the current position of the entity within the renderer.
+         * @param position  A point structure denoting the position in points.
+         */
         auto set_position(const math::point& position) -> void;
 
+        /**
+         * Get the bounds of the entity within the renderer's coordinate space. This value is a combination
+         * of the size and the position.
+         * @return  A rect structure representing the bounds of the entity in points.
+         */
         [[nodiscard]] auto get_bounds() const -> math::rect;
 
+        /**
+         * The size of the entity within the renderer.
+         * @return  A size structure denoting the size in points.
+         */
         [[nodiscard]] auto get_size() const -> math::size;
+
+        /**
+         * Set the size of the entity within the renderer.
+         * @param sz  A size structure denoting the size in points.
+         */
         auto set_size(const math::size& sz) -> void;
 
         [[nodiscard]] auto get_render_size() const -> math::size;

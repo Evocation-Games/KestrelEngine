@@ -1,4 +1,4 @@
--- Copyright (c) 2022 Tom Hancocks
+-- Copyright (c) 2023 Tom Hancocks
 --
 -- Permission is hereby granted, free of charge, to any person obtaining a copy
 -- of this software and associated documentation files (the "Software"), to deal
@@ -18,13 +18,22 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-Kestrel.loadImGui(function()
+ExampleScene = Scene.current
+local dialog = ExampleScene.Dialog
 
-end)
+-- Bind the action functions defined in the scene KDL.
+ExampleScene:bind({
+	DoAction = function()
+		dialog:elementNamed("Message").value = "Doing an action!"
+	end
+})
 
-local window = ImGui.Window.create("Kestrel", Size(600, 400))
-window.hasClosedButton = false
-window.resizable = false
-window:addWidget(ImGui.Text("Hello, World!"))
-window:center()
-window:show()
+dialog:configureElementsOnOpen({
+	Message = function(label)
+		
+	end,
+	
+	Action = function(button)
+		
+	end,
+})

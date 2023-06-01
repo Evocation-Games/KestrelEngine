@@ -27,13 +27,11 @@
 
 kestrel::ecs::entity::entity(const math::size &size)
     : m_position(0), m_size(size), m_body(kestrel::session().current_scene()->physics_world()->create_physics_body())
-{
-}
+{}
 
 kestrel::ecs::entity::entity(const math::point& position, const math::size &size)
     : m_position(position), m_size(size), m_body(kestrel::session().current_scene()->physics_world()->create_physics_body())
-{
-}
+{}
 
 // MARK: - Destruction
 
@@ -45,7 +43,7 @@ kestrel::ecs::entity::~entity()
 
 // MARK: - Accessors
 
-auto kestrel::ecs::entity::move_to_scene(const std::shared_ptr<class scene>& scene)
+auto kestrel::ecs::entity::move_to_scene(const std::shared_ptr<class scene>& scene) -> void
 {
     m_scene = scene;
 }

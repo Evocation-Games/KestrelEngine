@@ -53,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: KestrelEngine-Ubuntu
-          path: ./bin
+          path: ./artifacts
 
   macOS:
     name: Build on macOS
@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: KestrelEngine-macOS
-          path: ./bin
+          path: ./artifacts
 
   windows:
     name: Build on Windows
@@ -150,4 +150,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: KestrelEngine-Windows
-          path: ./bin
+          path: ./artifacts

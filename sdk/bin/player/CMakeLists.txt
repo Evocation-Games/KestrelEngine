@@ -123,35 +123,35 @@ endif()
 
 ########################################################################################################################
 ## Player - Basic Game Placeholder
-#if (WIN32)
-#    set(KDL ${CMAKE_BUILD_DIR}/kdl.exe)
-#else()
-#    set(KDL ${CMAKE_BUILD_DIR}/kdl)
-#endif()
-#
-#add_custom_command(
-#    TARGET KestrelPlayer POST_BUILD
-#    COMMAND
-#        ${KDL} -f extended -o ${CMAKE_BUILD_DIR}/GameCore
-#        ${CMAKE_SOURCE_DIR}/projects/placeholder/placeholder.kdlproj
-#    COMMENT "Generating placeholder game for player"
-#)
+if (WIN32)
+    set(KDL ${CMAKE_BUILD_DIR}/kdl.exe)
+else()
+    set(KDL ${CMAKE_BUILD_DIR}/kdl)
+endif()
+
+add_custom_command(
+    TARGET KestrelPlayer POST_BUILD
+    COMMAND
+        ${KDL} -f extended -o ${CMAKE_BUILD_DIR}/GameCore.kdat
+        ${CMAKE_SOURCE_DIR}/projects/placeholder/placeholder.kdlproj
+    COMMENT "Generating placeholder game for player"
+)
 
 ########################################################################################################################
 ## Installation
 if (APPLE)
-    set_target_properties(KestrelPlayer PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_NAME}")
+    set_target_properties(KestrelPlayer PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_PLAYER_NAME}")
 
     install(TARGETS KestrelPlayer
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
             DESTINATION ${PROJECT_INSTALL_DIR})
 
     install(FILES ${CMAKE_BUILD_DIR}/GameCore.kdat
-            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
+            DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_PLAYER_NAME}.app/Contents/Resources)
 
     if (EXISTS ${KESTREL_DATA_FILES_PATH})
         install(DIRECTORY ${KESTREL_DATA_FILES_PATH}
-                DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_NAME}.app/Contents/Resources)
+                DESTINATION ${PROJECT_INSTALL_DIR}/${KESTREL_PLAYER_NAME}.app/Contents/Resources)
     endif()
 
 elseif(LINUX)
