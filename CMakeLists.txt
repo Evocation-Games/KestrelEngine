@@ -39,10 +39,11 @@ set(KESTREL_PLAYER_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data F
 if (APPLE)
     set(OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
     set(CMAKE_OSX_ARCHITECTURES "x86_64")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc -mavx -msse -msse2 -msse3 -mssse3 -msse4 -msse4.1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc")
 elseif (UNIX)
     set(LINUX TRUE)
 endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -msse -msse4.1")
 
 if(CMAKE_BUILD_TYPE MATCHES Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
