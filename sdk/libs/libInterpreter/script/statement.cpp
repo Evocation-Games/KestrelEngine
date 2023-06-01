@@ -311,17 +311,17 @@ auto interpreter::script::statement::evaluate_shunting_yard(struct context &cont
             const auto lhs = working_stack.back(); working_stack.pop_back();
             if (lhs.is_variable()) {
                 auto& var = context.scope->get_variable(lhs.source_variable());
-                var.set_value(lhs + token(1LL));
+                var.set_value(lhs + token(static_cast<std::int64_t>(1)));
             }
-            working_stack.emplace_back(lhs + token(1LL));
+            working_stack.emplace_back(lhs + token(static_cast<std::int64_t>(1)));
         }
         else if (tk.is(token::decrement)) {
             const auto lhs = working_stack.back(); working_stack.pop_back();
             if (lhs.is_variable()) {
                 auto& var = context.scope->get_variable(lhs.source_variable());
-                var.set_value(lhs - token(1LL));
+                var.set_value(lhs - token(static_cast<std::int64_t>(1)));
             }
-            working_stack.emplace_back(lhs - token(1LL));
+            working_stack.emplace_back(lhs - token(static_cast<std::int64_t>(1)));
         }
     }
 

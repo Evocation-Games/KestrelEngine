@@ -70,7 +70,7 @@ auto interpreter::script::script::execute(scope *scope) const -> result
 
         switch (statement_result.status) {
             case statement::result::error: {
-                result.result = token(0LL);
+                result.result = token(static_cast<std::int64_t>(0));
                 result.status = result::status::error;
                 break;
             }

@@ -113,7 +113,7 @@ static auto install_constructor(
                 values.emplace(value_id, convert_token(it.second));
             }
 
-            return interpreter::token(0LL);
+            return interpreter::token(static_cast<std::int64_t>(0));
         });
     ctx.active_scope()->add_function(constructor_function);
 

@@ -102,5 +102,5 @@ auto interpreter::function::execute(scope &scope, const std::vector<token> &argu
         return stmt.evaluate(&function_scope).value;
     }
 
-    return token(0LL);
+    return token(static_cast<std::int64_t>(0));
 }
