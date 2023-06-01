@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <vector>
+#include <optional>
 #include <libResource/decorator/decoratable.hpp>
 #include <libResource/definition/template/field.hpp>
 #include <libResource/definition/type/descriptor.hpp>

@@ -32,7 +32,7 @@ namespace interpreter::script
         struct result
         {
             enum { ok, error, returned } status { ok };
-            token value { 0LL };
+            token value { static_cast<std::int64_t>(0) };
             enum token::type type { token::integer };
         };
 
