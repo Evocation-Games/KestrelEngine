@@ -55,7 +55,7 @@ namespace foundation::filesystem
          * @param components    A list of singular path components.
          * @param is_relative   Is the path relative to the current working directory?
          */
-        path(const std::vector<std::string>& components, bool is_relative = false);
+        explicit path(const std::vector<std::string>& components, bool is_relative = false);
 
         /**]
          * Takes a host system path using slash '/' delimited path components, and breaks them apart
