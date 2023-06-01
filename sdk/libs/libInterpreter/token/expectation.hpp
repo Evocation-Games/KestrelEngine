@@ -22,7 +22,6 @@
 
 #include <string>
 #include <vector>
-#include <functional>
 #include <libInterpreter/token/token.hpp>
 #include <libFoundation/stream/expectation.hpp>
 
@@ -42,9 +41,9 @@ namespace interpreter
         [[nodiscard]] auto be_false() const -> foundation::expectation_function<token>;
 
     private:
+        static constexpr std::int32_t any = -1;
+
         enum token::type m_Ty;
         std::vector<std::string> m_Tx_options;
-
-        static constexpr std::int32_t any = -1;
     };
 }

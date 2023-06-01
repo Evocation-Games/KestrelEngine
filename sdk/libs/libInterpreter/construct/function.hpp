@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
 #include <variant>
 #include <functional>
 #include <libFoundation/hashing/hashing.hpp>

@@ -21,8 +21,8 @@
 #pragma once
 
 #include <string>
-#include <variant>
 #include <vector>
+#include <variant>
 #include <libResource/reference.hpp>
 
 namespace interpreter
@@ -189,7 +189,7 @@ namespace interpreter
                     return token(integer_value() + rhs.integer_value());
                 }
                 else if (rhs.m_type == token::decimal) {
-                    return token(static_cast<std::int64_t>(integer_value() + rhs.decimal_value()));
+                    return token(static_cast<std::int64_t>(static_cast<double>(integer_value()) + rhs.decimal_value()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() + rhs.reference_value().id(),
@@ -231,7 +231,7 @@ namespace interpreter
             }
             else if (m_type == token::decimal) {
                 if (rhs.m_type == token::integer) {
-                    return token(decimal_value() + rhs.integer_value());
+                    return token(decimal_value() + static_cast<double>(rhs.integer_value()));
                 }
                 else if (rhs.m_type == token::decimal) {
                     return token(decimal_value() + rhs.decimal_value());
@@ -250,7 +250,7 @@ namespace interpreter
                     return token(integer_value() - rhs.integer_value());
                 }
                 else if (rhs.m_type == token::decimal) {
-                    return token(static_cast<std::int64_t>(integer_value() - rhs.decimal_value()));
+                    return token(static_cast<std::int64_t>(static_cast<double>(integer_value()) - rhs.decimal_value()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() - rhs.reference_value().id(),
@@ -278,7 +278,7 @@ namespace interpreter
             }
             else if (m_type == token::decimal) {
                 if (rhs.m_type == token::integer) {
-                    return token(decimal_value() - rhs.integer_value());
+                    return token(decimal_value() - static_cast<double>(rhs.integer_value()));
                 }
                 else if (rhs.m_type == token::decimal) {
                     return token(decimal_value() - rhs.decimal_value());
@@ -297,7 +297,7 @@ namespace interpreter
                     return token(integer_value() * rhs.integer_value());
                 }
                 else if (rhs.m_type == token::decimal) {
-                    return token(static_cast<std::int64_t>(integer_value() * rhs.decimal_value()));
+                    return token(static_cast<std::int64_t>(static_cast<double>(integer_value()) * rhs.decimal_value()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() * rhs.reference_value().id(),
@@ -325,7 +325,7 @@ namespace interpreter
             }
             else if (m_type == token::decimal) {
                 if (rhs.m_type == token::integer) {
-                    return token(decimal_value() * rhs.integer_value());
+                    return token(decimal_value() * static_cast<double>(rhs.integer_value()));
                 }
                 else if (rhs.m_type == token::decimal) {
                     return token(decimal_value() * rhs.decimal_value());
@@ -344,7 +344,7 @@ namespace interpreter
                     return token(integer_value() / rhs.integer_value());
                 }
                 else if (rhs.m_type == token::decimal) {
-                    return token(static_cast<std::int64_t>(integer_value() / rhs.decimal_value()));
+                    return token(static_cast<std::int64_t>(static_cast<double>(integer_value()) / rhs.decimal_value()));
                 }
                 else if (rhs.m_type == token::reference) {
                     return token(resource::reference(integer_value() / rhs.reference_value().id(),
@@ -372,7 +372,7 @@ namespace interpreter
             }
             else if (m_type == token::decimal) {
                 if (rhs.m_type == token::integer) {
-                    return token(decimal_value() / rhs.integer_value());
+                    return token(decimal_value() / static_cast<double>(rhs.integer_value()));
                 }
                 else if (rhs.m_type == token::decimal) {
                     return token(decimal_value() / rhs.decimal_value());

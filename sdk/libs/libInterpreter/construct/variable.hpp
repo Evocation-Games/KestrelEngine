@@ -44,6 +44,5 @@ namespace interpreter
     private:
         std::string m_name;
         token m_token;
-
     };
 }

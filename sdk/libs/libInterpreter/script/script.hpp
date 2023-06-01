@@ -34,13 +34,13 @@ namespace interpreter::script
     public:
         struct result {
             enum class status { success, error } status { status::success };
-            token result { 0LL };
+            token result { static_cast<std::int64_t>(0) };
             std::unordered_map<std::string, token> variables;
         };
 
     public:
         script() = default;
-        explicit script(const std::initializer_list<statement>& statements);
+        script(const std::initializer_list<statement>& statements);
         explicit script(const std::vector<statement>& statements);
 
         auto add_statement(const statement& stmt) -> void;

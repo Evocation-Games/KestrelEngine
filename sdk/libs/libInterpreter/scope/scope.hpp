@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 #include <libInterpreter/token/token.hpp>
 #include <libInterpreter/construct/function.hpp>
