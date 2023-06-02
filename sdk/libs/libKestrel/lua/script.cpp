@@ -20,8 +20,7 @@
 
 #include <libKestrel/exceptions/lua_runtime_exception.hpp>
 #include <libKestrel/lua/script.hpp>
-#include <libGraphite/data/reader.hpp>
-
+#include <libData/reader.hpp>
 #include <stdexcept>
 
 // MARK: - Construction
@@ -34,7 +33,7 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const reso
     }
 
     if (auto script = ref->with_type(resource_type::code)->load()) {
-        graphite::data::reader reader(&script->data());
+        data::reader reader(&script->data());
 
         // Peek the first 4 bytes and determine if we're looking at raw Lua source code or byte code.
         auto lua_magic = reader.read_integer<std::uint32_t>() & 0xFFFFFF00;
@@ -61,14 +60,14 @@ kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const reso
     }
 }
 
-kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const graphite::rsrc::resource *resource)
+kestrel::lua::script::script(const std::shared_ptr<runtime>& runtime, const resource_core::instance *resource)
     : m_runtime(runtime)
 {
     if (!resource) {
         throw lua_runtime_exception("No script specified");
     }
 
-    graphite::data::reader reader(&resource->data());
+    data::reader reader(&resource->data());
 
     // Peek the first 4 bytes and determine if we're looking at raw Lua source code or byte code.
     auto lua_magic = reader.read_integer<std::uint32_t>() & 0xFFFFFF00;
@@ -95,7 +94,7 @@ kestrel::lua::script::script(const std::shared_ptr<runtime> &runtime, const std:
     : m_runtime(runtime), m_script(code), m_format(format::source), m_name("console.input"), m_id(-1)
 {}
 
-kestrel::lua::script::script(const std::shared_ptr<runtime> &runtime, const graphite::data::block &data)
+kestrel::lua::script::script(const std::shared_ptr<runtime> &runtime, const data::block &data)
     : m_runtime(runtime), m_bytecode(data.get<void *>()), m_bytecode_size(data.size() - 1), m_bytecode_offset(0), m_format(format::bytecode)
 {}
 
@@ -124,7 +123,7 @@ auto kestrel::lua::script::execute() const -> void
     state->run(*this);
 }
 
-auto kestrel::lua::script::id() const -> graphite::rsrc::resource::identifier
+auto kestrel::lua::script::id() const -> resource_core::identifier
 {
     return m_id;
 }
@@ -154,8 +153,8 @@ auto kestrel::lua::script::format() const -> enum format
 auto kestrel::lua::script::read_next_chunk() -> chunk_info
 {
     struct chunk_info info {
+        .ptr = (m_bytecode_offset >= m_bytecode_size) ? nullptr : m_bytecode,
         .size = m_bytecode_size,
-        .ptr = (m_bytecode_offset >= m_bytecode_size) ? nullptr : m_bytecode
     };
     m_bytecode_offset = m_bytecode_size;
     return info;

@@ -22,8 +22,8 @@
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/codegen/lua/exporter.hpp>
 #include <libKDL/assembler/compiler/lua/lua.hpp>
-#include <libGraphite/data/writer.hpp>
-#include <libGraphite/data/reader.hpp>
+#include <libData/writer.hpp>
+#include <libData/reader.hpp>
 
 auto kdl::sema::component::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -105,7 +105,7 @@ auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference
         }
     }
     else {
-        graphite::data::block block(path.string());
+        data::block block(path.string());
         resource::instance resource(ref, block);
         resource.set_name(name);
         if (!ctx.flags.surpress_resource_creation) {
@@ -121,15 +121,15 @@ auto kdl::sema::component::synthesize_resource(context &ctx, resource::reference
     auto output_type = ctx.type_named(ref.type_name());
     auto tmpl = output_type->binary_template();
 
-    graphite::data::block block;
+    data::block block;
 
     if (tmpl && (tmpl->field_count() == 1) && (tmpl->all_fields().front().has_lua_byte_code_type())) {
         auto byte_code = assembler::compiler::lua::compile(content, name);
         block = byte_code;
     }
     else {
-        block = graphite::data::block(content.size() + 1);
-        graphite::data::writer writer(&block);
+        block = data::block(content.size() + 1);
+        data::writer writer(&block);
         writer.write_cstr(content);
     }
 

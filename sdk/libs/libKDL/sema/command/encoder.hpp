@@ -21,10 +21,10 @@
 #pragma once
 
 #include <libKDL/sema/context.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 #include <libFoundation/stream/stream.hpp>
 
 namespace kdl::sema::command_encoder
 {
-    auto parse(foundation::stream<tokenizer::token>& stream, sema::context& ctx) -> graphite::data::block;
+    auto parse(foundation::stream<tokenizer::token>& stream, sema::context& ctx) -> data::block;
 }

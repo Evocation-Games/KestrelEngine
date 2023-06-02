@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/resource/key.hpp>
-#include <libGraphite/util/hashing.hpp>
+#include <libHashing/xxhash/xxhash.hpp>
 #include <libKestrel/resource/container.hpp>
 
 // MARK: - Construction
@@ -58,7 +58,7 @@ auto kestrel::resource::key::str() const -> std::string
 auto kestrel::resource::key::hash() const -> std::string
 {
     auto str = this->str();
-    return std::to_string(graphite::hashing::xxh64(str.c_str(), str.size()));
+    return std::to_string(hashing::xxh64(str.c_str(), str.size()));
 }
 
 // MARK: - Operators

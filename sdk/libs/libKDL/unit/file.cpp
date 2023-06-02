@@ -28,7 +28,7 @@
 
 // MARK: - Construction
 
-kdl::unit::file::file(graphite::rsrc::file& output, sema::context& ctx)
+kdl::unit::file::file(resource_core::file& output, sema::context& ctx)
     : m_output(&output), m_context(&ctx)
 {}
 

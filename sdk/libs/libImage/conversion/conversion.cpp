@@ -28,15 +28,15 @@
 #include <libImage/codecs/rled/rled.hpp>
 #include <libImage/codecs/rlex/rlex.hpp>
 
-auto image::conversion::surface(const std::string& source, const graphite::data::block& data) -> graphite::quickdraw::surface
+auto image::conversion::surface(const std::string& source, const data::block& data) -> quickdraw::surface
 {
-    auto result = surface(source, std::vector<graphite::data::block>({ data }));
+    auto result = surface(source, std::vector<data::block>({ data }));
     return std::move(result.front());
 }
 
-auto image::conversion::surface(const std::string& source, const std::vector<graphite::data::block>& data) -> std::vector<graphite::quickdraw::surface>
+auto image::conversion::surface(const std::string& source, const std::vector<data::block>& data) -> std::vector<quickdraw::surface>
 {
-    std::vector<graphite::quickdraw::surface> surfaces;
+    std::vector<quickdraw::surface> surfaces;
     for (const auto& d : data) {
         if (source == format::png) {
             auto ptr = std::make_unique<codec::png>(d);
@@ -62,15 +62,15 @@ auto image::conversion::surface(const std::string& source, const std::vector<gra
     return std::move(surfaces);
 }
 
-auto image::conversion::data(const std::string& result, graphite::quickdraw::surface& surface) -> graphite::data::block
+auto image::conversion::data(const std::string& result, quickdraw::surface& surface) -> data::block
 {
-    std::vector<graphite::quickdraw::surface> surfaces({ surface });
+    std::vector<quickdraw::surface> surfaces({ surface });
     return data(result, surfaces);
 }
 
-auto image::conversion::data(const std::string& result, const std::vector<graphite::quickdraw::surface>& surfaces) -> graphite::data::block
+auto image::conversion::data(const std::string& result, const std::vector<quickdraw::surface>& surfaces) -> data::block
 {
-    graphite::data::block data;
+    data::block data;
 
     if (surfaces.size() == 1) {
         auto surface = surfaces.front();
@@ -116,15 +116,15 @@ auto image::conversion::data(const std::string& result, const std::vector<graphi
     return std::move(data);
 }
 
-auto image::conversion::perform(const std::string& source, const std::string& result, const graphite::data::block& data) -> graphite::data::block
+auto image::conversion::perform(const std::string& source, const std::string& result, const data::block& data) -> data::block
 {
     auto source_surface = conversion::surface(source, data);
     return std::move(conversion::data(result, source_surface));
 }
 
-auto image::conversion::perform(const std::string& source, const std::string& result, const std::vector<graphite::data::block>& data) -> graphite::data::block
+auto image::conversion::perform(const std::string& source, const std::string& result, const std::vector<data::block>& data) -> data::block
 {
-    std::vector<graphite::quickdraw::surface> surfaces;
+    std::vector<quickdraw::surface> surfaces;
     for (const auto& d : data) {
         surfaces.emplace_back(surface(source, d));
     }

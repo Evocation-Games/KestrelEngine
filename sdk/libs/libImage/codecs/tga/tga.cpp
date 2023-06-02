@@ -35,26 +35,26 @@ image::codec::tga::tga(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::tga::tga(const graphite::data::block &data)
+image::codec::tga::tga(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::tga::tga(graphite::quickdraw::surface &surface)
+image::codec::tga::tga(quickdraw::surface &surface)
     : format(surface)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::tga::byte_order() const -> graphite::data::byte_order
+auto image::codec::tga::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::lsb;
+    return data::byte_order::lsb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::tga::decode(graphite::data::reader &reader) -> void
+auto image::codec::tga::decode(data::reader &reader) -> void
 {
     // Read the TGA header from the image
     tga::header header;
@@ -73,7 +73,7 @@ auto image::codec::tga::decode(graphite::data::reader &reader) -> void
 
     // Setup a QuickDraw surface for the image to be read into. The buffer should be completely
     // black by default. This will be the "default" image in the event we fail to read.
-    m_surface = graphite::quickdraw::surface(header.width, header.height);
+    m_surface = quickdraw::surface(header.width, header.height);
 
     // Make sure this is a TGA image that we can handle.
     if (header.data_type_code != 2 && header.data_type_code != 10) {
@@ -135,17 +135,17 @@ auto image::codec::tga::decode(graphite::data::reader &reader) -> void
 auto image::codec::tga::merge_bytes(std::int32_t position, const std::vector<char> &bytes, std::int32_t offset, std::size_t size) -> void
 {
     if (size == 4) {
-        m_surface.set(position, graphite::quickdraw::rgb(
+        m_surface.set(position, quickdraw::rgb(
             bytes[offset + 2], bytes[offset + 1], bytes[offset], bytes[offset + 3]
         ));
     }
     else if (size == 3) {
-        m_surface.set(position, graphite::quickdraw::rgb(
+        m_surface.set(position, quickdraw::rgb(
             bytes[offset + 2], bytes[offset + 1], bytes[offset]
         ));
     }
     else if (size == 2) {
-        m_surface.set(position, graphite::quickdraw::rgb(
+        m_surface.set(position, quickdraw::rgb(
             (bytes[offset + 1] & 0x7c) << 1,
             ((bytes[offset + 1] & 0x03) << 6) | ((bytes[offset + 0] & 0xe0) >> 2),
             (bytes[offset + 0] & 0x1f) << 3,
@@ -156,7 +156,7 @@ auto image::codec::tga::merge_bytes(std::int32_t position, const std::vector<cha
 
 // MARK: - Encoding
 
-auto image::codec::tga::encode(graphite::data::writer &writer) const -> void
+auto image::codec::tga::encode(data::writer &writer) const -> void
 {
     // Formulate a TGA header
     tga::header header;
@@ -188,7 +188,7 @@ auto image::codec::tga::encode(graphite::data::writer &writer) const -> void
 
     // Start compressing and writing the image data.
     std::int32_t run = 0;
-    std::vector<graphite::quickdraw::color> buffer;
+    std::vector<quickdraw::color> buffer;
 
     for (auto y = 0; y < header.height; ++y) {
         for (auto x = 0; x < header.width; ++x) {

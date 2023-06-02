@@ -22,9 +22,6 @@
 #include <libFoundation/string/split.hpp>
 #include <libResource/definition/template/instance.hpp>
 
-// MARK: - Construction
-
-
 // MARK: - Field Management
 
 auto resource::definition::binary_template::instance::add_field(struct field &field) -> void

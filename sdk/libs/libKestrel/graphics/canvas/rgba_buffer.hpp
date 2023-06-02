@@ -26,7 +26,7 @@
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/graphics/types/color.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 #include <libKestrel/util/availability.hpp>
 
 namespace kestrel::graphics
@@ -84,7 +84,7 @@ namespace kestrel::graphics
         [[nodiscard]] auto color(const math::point& p) const -> color;
 
         [[nodiscard]] auto data() const -> std::uint8_t *;
-        [[nodiscard]] auto data_block() const -> graphite::data::block;
+        [[nodiscard]] auto data_block() const -> data::block;
 
         auto clear(const graphics::color& c) -> void;
         auto clear_rect(const graphics::color& c, const math::rect& r) -> void;
@@ -97,7 +97,7 @@ namespace kestrel::graphics
 
         auto apply_run(const graphics::color& c, std::uint64_t start, std::uint64_t end, std::uint64_t line) -> void;
         auto apply_run(const std::vector<graphics::color>& cv, std::uint64_t start, std::uint64_t line) -> void;
-        auto apply_run(const graphite::data::block& cv, std::uint64_t start, std::uint64_t line) -> void;
+        auto apply_run(const data::block& cv, std::uint64_t start, std::uint64_t line) -> void;
 
         auto apply_mask(const rgba_buffer& buffer) -> void;
     };

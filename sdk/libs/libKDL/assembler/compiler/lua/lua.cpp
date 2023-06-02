@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <cstring>
 #include <libKDL/assembler/compiler/lua/lua.hpp>
-#include <libGraphite/data/writer.hpp>
+#include <libData/writer.hpp>
 #include <libKDL/exception/lua_exception.hpp>
 
 struct source
@@ -33,7 +33,7 @@ struct source
 
 struct compilation_result
 {
-    graphite::data::writer buffer;
+    data::writer buffer;
 };
 
 // MARK: - Compilation
@@ -78,7 +78,7 @@ static auto strmemdup(const char *s, std::size_t n) -> char *
     return res;
 }
 
-auto kdl::assembler::compiler::lua::compile(const std::string &source, const std::string& path) -> graphite::data::block
+auto kdl::assembler::compiler::lua::compile(const std::string &source, const std::string& path) -> data::block
 {
     auto L = luaL_newstate();
     lua_gc(L, LUA_GCSTOP, 0);

@@ -22,7 +22,7 @@
 #include <libSound/codecs/snd/snd.hpp>
 #include <libSound/codecs/wav/wav.hpp>
 
-auto sound::conversion::samples(const std::string& source, const graphite::data::block& data) -> sample_information
+auto sound::conversion::samples(const std::string& source, const data::block& data) -> sample_information
 {
     sample_information samples;
     if (source == format::snd) {
@@ -42,9 +42,9 @@ auto sound::conversion::samples(const std::string& source, const graphite::data:
     return std::move(samples);
 }
 
-auto sound::conversion::data(const std::string& result, const sample_information& samples) -> graphite::data::block
+auto sound::conversion::data(const std::string& result, const sample_information& samples) -> data::block
 {
-    graphite::data::block data;
+    data::block data;
     if (result == format::snd) {
         auto ptr = std::make_unique<codec::snd>(samples.rate, samples.bits, samples.channels, samples.samples);
         data = std::move(ptr->data());
@@ -56,7 +56,7 @@ auto sound::conversion::data(const std::string& result, const sample_information
     return std::move(data);
 }
 
-auto sound::conversion::perform(const std::string& source, const std::string& result, const graphite::data::block& data) -> graphite::data::block
+auto sound::conversion::perform(const std::string& source, const std::string& result, const data::block& data) -> data::block
 {
     auto source_surface = conversion::samples(source, data);
     return std::move(conversion::data(result, source_surface));

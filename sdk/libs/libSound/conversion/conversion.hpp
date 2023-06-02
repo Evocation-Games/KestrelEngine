@@ -21,7 +21,7 @@
 #pragma once
 
 #include <type_traits>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace sound::conversion
 {
@@ -31,13 +31,13 @@ namespace sound::conversion
     };
 
     struct sample_information {
-        graphite::data::block samples;
+        data::block samples;
         std::uint32_t rate;
         std::uint8_t bits;
         std::uint8_t channels;
     };
 
-    auto samples(const std::string& source, const graphite::data::block& data) -> sample_information;
-    auto data(const std::string& result, const sample_information& samples) -> graphite::data::block;
-    auto perform(const std::string& source, const std::string& result, const graphite::data::block& data) -> graphite::data::block;
+    auto samples(const std::string& source, const data::block& data) -> sample_information;
+    auto data(const std::string& result, const sample_information& samples) -> data::block;
+    auto perform(const std::string& source, const std::string& result, const data::block& data) -> data::block;
 }

@@ -31,7 +31,7 @@
 #include <libKestrel/graphics/renderer/common/shader/program.hpp>
 #include <libKestrel/graphics/renderer/common/context.hpp>
 #include <libKestrel/graphics/renderer/common/render_pass.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace kestrel::renderer::opengl
 {
@@ -56,7 +56,7 @@ namespace kestrel::renderer::opengl
         auto draw(const draw_buffer *buffer) -> void override;
 
         auto create_framebuffer(const math::size& size) -> renderer::framebuffer * override;
-        auto create_texture(const graphite::data::block& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
+        auto create_texture(const data::block& data, const math::size& size) -> std::shared_ptr<graphics::texture> override;
 
         auto set_tick_function(const std::function<auto()->void>& callback) -> void override;
         auto tick() -> void override;

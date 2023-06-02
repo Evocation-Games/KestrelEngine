@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libImage/codecs/pict/pict.hpp>
-#include <libGraphite/quickdraw/format/pict.hpp>
+#include <libQuickdraw/format/picture.hpp>
 
 // MARK: - Construction
 
@@ -36,35 +36,35 @@ image::codec::pict::pict(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::pict::pict(const graphite::data::block &data)
+image::codec::pict::pict(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::pict::pict(graphite::quickdraw::surface &surface)
+image::codec::pict::pict(quickdraw::surface &surface)
     : format(surface)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::pict::byte_order() const -> graphite::data::byte_order
+auto image::codec::pict::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::msb;
+    return data::byte_order::msb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::pict::decode(graphite::data::reader &reader) -> void
+auto image::codec::pict::decode(data::reader &reader) -> void
 {
-    graphite::quickdraw::pict pict(reader);
+    quickdraw::picture pict(reader);
     m_surface = pict.surface();
 }
 
 // MARK: - Encoding
 
-auto image::codec::pict::encode(graphite::data::writer &writer) const -> void
+auto image::codec::pict::encode(data::writer &writer) const -> void
 {
-    graphite::quickdraw::pict pict(const_cast<graphite::quickdraw::surface&>(m_surface));
+    quickdraw::picture pict(const_cast<quickdraw::surface&>(m_surface));
     pict.encode(writer);
 }

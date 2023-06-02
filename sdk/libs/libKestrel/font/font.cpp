@@ -23,7 +23,7 @@
 #include <libKestrel/font/font.hpp>
 #include <libKestrel/font/manager.hpp>
 #include <libKestrel/graphics/common/font.hpp>
-#include <libGraphite/font/manager.hpp>
+#include <libToolbox/font/manager.hpp>
 
 #if TARGET_MACOS
 #   include <libKestrel/platform/macos/font.h>

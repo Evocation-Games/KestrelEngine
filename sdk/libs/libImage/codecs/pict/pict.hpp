@@ -28,14 +28,14 @@ namespace image::codec
     {
         explicit pict(const std::string& path);
         explicit pict(const foundation::filesystem::path& path);
-        explicit pict(const graphite::data::block& data);
-        explicit pict(graphite::quickdraw::surface& surface);
+        explicit pict(const data::block& data);
+        explicit pict(quickdraw::surface& surface);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     private:
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
     };
 }
 

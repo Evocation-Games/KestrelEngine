@@ -102,7 +102,7 @@ namespace kestrel::graphics
         std::optional<math::rect> m_clipping_rect;
 
         auto raw() const -> std::uint8_t *;
-        auto data() const -> graphite::data::block;
+        auto data() const -> data::block;
         auto draw_picture_at_point(const image::legacy::macintosh::quickdraw::picture::lua_reference& pict, const math::point &point) -> void;
     };
 

@@ -28,7 +28,7 @@
 #include <libResource/definition/type/instance.hpp>
 #include <libResource/declaration/instance.hpp>
 #include <libInterpreter/scope/scope.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 #include <libFoundation/system/filesystem/file.hpp>
 
 namespace kdl::sema

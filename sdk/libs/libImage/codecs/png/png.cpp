@@ -36,26 +36,26 @@ image::codec::png::png(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::png::png(const graphite::data::block &data)
+image::codec::png::png(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::png::png(graphite::quickdraw::surface &surface)
+image::codec::png::png(quickdraw::surface &surface)
     : format(surface)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::png::byte_order() const -> graphite::data::byte_order
+auto image::codec::png::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::msb;
+    return data::byte_order::msb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::png::decode(graphite::data::reader &reader) -> void
+auto image::codec::png::decode(data::reader &reader) -> void
 {
     std::vector<std::uint8_t> image;
     std::uint32_t width, height;
@@ -68,9 +68,9 @@ auto image::codec::png::decode(graphite::data::reader &reader) -> void
 
     // Setup a quickdraw surface for the image to be read into. The buffer should be completely
     // black by default. This will be the default image in the event we fail to read.
-    m_surface = graphite::quickdraw::surface(width, height);
+    m_surface = quickdraw::surface(width, height);
     for (auto i = 0, offset = 0; i < width * height; ++i, offset += 4) {
-        m_surface.set(i, graphite::quickdraw::rgb(
+        m_surface.set(i, quickdraw::rgb(
             image[offset], image[offset + 1], image[offset + 2], image[offset + 3]
         ));
     }
@@ -78,7 +78,7 @@ auto image::codec::png::decode(graphite::data::reader &reader) -> void
 
 // MARK: - Encoding
 
-auto image::codec::png::encode(graphite::data::writer &writer) const -> void
+auto image::codec::png::encode(data::writer &writer) const -> void
 {
     auto size = m_surface.size();
     std::vector<std::uint8_t> png_data;

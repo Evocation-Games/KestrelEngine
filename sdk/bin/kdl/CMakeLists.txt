@@ -37,7 +37,7 @@ target_include_directories(KDL-Tool PUBLIC
     "${PROJECT_SUBMODULE_DIR}/graphite/libs"
     "${CMAKE_BUILD_DIR}"
 )
-target_link_libraries(KDL-Tool SIMD Graphite Foundation Resource Lexer Interpreter KDL)
+target_link_libraries(KDL-Tool KDL)
 set_target_properties(KDL-Tool PROPERTIES OUTPUT_NAME kdl)
 
 if (APPLE)

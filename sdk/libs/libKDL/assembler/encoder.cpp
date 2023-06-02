@@ -26,7 +26,7 @@
 // MARK: - Construction
 
 kdl::assembler::encoder::encoder(const resource::instance &instance, const resource::definition::type::instance *type, const std::vector<std::string>& definitions)
-    : m_instance_ref(&instance), m_type(type), m_writer(graphite::data::byte_order::msb)
+    : m_instance_ref(&instance), m_type(type), m_writer(data::byte_order::msb)
 {
     if (std::find(definitions.begin(), definitions.end(), "FORCE_UNSAFE_IDS") != definitions.end()) {
         m_use_extended_resource_id = false;
@@ -45,7 +45,7 @@ static auto inline extend_prefix(const std::string& prefix, const std::string& a
     }
 }
 
-auto kdl::assembler::encoder::encode(const sema::context *ctx) -> const graphite::data::block&
+auto kdl::assembler::encoder::encode(const sema::context *ctx) -> const data::block&
 {
     m_context = ctx;
     encode_binary_template("", m_type->binary_template());

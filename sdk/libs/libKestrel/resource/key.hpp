@@ -24,7 +24,7 @@
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/resource/descriptor.hpp>
-#include <libGraphite/rsrc/resource.hpp>
+#include <libResourceCore/structure/instance.hpp>
 
 namespace kestrel::resource
 {
@@ -41,7 +41,7 @@ namespace kestrel::resource
         auto operator==(const key& rhs) const -> bool;
 
     private:
-        std::optional<graphite::rsrc::resource::identifier> m_id;
+        std::optional<resource_core::identifier> m_id;
         std::optional<std::string> m_type;
         std::optional<std::string> m_container;
     };

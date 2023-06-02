@@ -27,7 +27,7 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/command/argument.hpp>
-#include <libGraphite/util/hashing.hpp>
+#include <libHashing/xxhash/xxhash.hpp>
 
 namespace kestrel::command
 {
@@ -44,23 +44,23 @@ namespace kestrel::command
 
 
         lua_getter(name, Available_0_9) [[nodiscard]] auto name() const -> std::string;
-        [[nodiscard]] auto name_hash() const -> graphite::hashing::value64;
+        [[nodiscard]] auto name_hash() const -> hashing::value64;
 
         lua_getter(expectedArgumentCount, Available_0_9) [[nodiscard]] auto expected_argument_count() const -> std::int32_t;
 
         [[nodiscard]] auto boolean_value() const -> bool;
-        [[nodiscard]] auto boolean_value(graphite::hashing::value64 name_hash) const -> bool;
-        [[nodiscard]] auto property_value(graphite::hashing::value64 name_hash) const -> lua_reference;
+        [[nodiscard]] auto boolean_value(hashing::value64 name_hash) const -> bool;
+        [[nodiscard]] auto property_value(hashing::value64 name_hash) const -> lua_reference;
 
     private:
         enum variant_index : std::int32_t { property_index = 0, boolean_index };
 
         bool m_raw_value { false };
         std::string m_name;
-        graphite::hashing::value64 m_name_hash;
+        hashing::value64 m_name_hash;
         std::int32_t m_expected_arguments;
-        std::unordered_map<graphite::hashing::value64, std::variant<lua_reference, bool>> m_properties;
+        std::unordered_map<hashing::value64, std::variant<lua_reference, bool>> m_properties;
 
-        static auto hash(const std::string& name) -> graphite::hashing::value64;
+        static auto hash(const std::string& name) -> hashing::value64;
     };
 }

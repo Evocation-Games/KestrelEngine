@@ -23,7 +23,7 @@
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/ui/types/value/value.hpp>
 #include <libKestrel/ui/types/action/action.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 
 // MARK: - Construction
 
@@ -39,11 +39,11 @@ kestrel::ui::dialog_layout::dialog_layout(const luabridge::LuaRef &ref, const ma
         // If there is no type, then determine the best type in the following order: scïn, DITL
         if (!descriptor->has_type()) {
             // TODO: Update scene_interface method to the newer version
-            if (graphite::rsrc::manager::shared_manager().find(scene_interface::resource_type::code, descriptor->id)) {
+            if (resource_core::manager::shared_manager().find(scene_interface::resource_type::code, descriptor->id)) {
                 descriptor = descriptor->with_type(scene_interface::resource_type::code);
             }
-            else if (graphite::rsrc::manager::shared_manager().find<graphite::toolbox::dialog>(descriptor->id)) {
-                descriptor = descriptor->with_type(graphite::toolbox::dialog::type_code());
+            else if (resource_core::manager::shared_manager().find<toolbox::dialog>(descriptor->id)) {
+                descriptor = descriptor->with_type(toolbox::dialog::type_code());
             }
             else {
                 throw std::runtime_error("No matching resource for resource descriptor passed to dialog configuration: " + descriptor->description());
@@ -55,9 +55,9 @@ kestrel::ui::dialog_layout::dialog_layout(const luabridge::LuaRef &ref, const ma
             scene_interface interface(descriptor);
             build_scene_interface_layout(&interface);
         }
-        else if (descriptor->type == graphite::toolbox::dialog::type_code()) {
+        else if (descriptor->type == toolbox::dialog::type_code()) {
             m_mode = dialog_render_mode::scene;
-            auto dlog = graphite::rsrc::manager::shared_manager().load<graphite::toolbox::dialog>(descriptor->id);
+            auto dlog = resource_core::manager::shared_manager().load<toolbox::dialog>(descriptor->id);
             build_dialog_layout(&dlog);
         }
         else {
@@ -105,16 +105,16 @@ auto kestrel::ui::dialog_layout::build_scene_interface_layout(const scene_interf
     }
 }
 
-auto kestrel::ui::dialog_layout::build_dialog_layout(const graphite::toolbox::dialog *dlog) -> void
+auto kestrel::ui::dialog_layout::build_dialog_layout(const toolbox::dialog *dlog) -> void
 {
-    if (!graphite::rsrc::manager::shared_manager().find<graphite::toolbox::dialog_item_list>(dlog->interface_list())) {
+    if (!resource_core::manager::shared_manager().find<toolbox::dialog_item_list>(dlog->interface_list())) {
         throw std::runtime_error("Failed to find DITL resource referenced by DLOG.");
     }
 
     m_is_dlog = true;
     m_frame = math::rect(dlog->bounds());
 
-    auto ditl = graphite::rsrc::manager::shared_manager().load<graphite::toolbox::dialog_item_list>(dlog->interface_list());
+    auto ditl = resource_core::manager::shared_manager().load<toolbox::dialog_item_list>(dlog->interface_list());
     for (const auto& item : ditl) {
         struct element element;
         element.type = static_cast<std::uint8_t>(item.type);

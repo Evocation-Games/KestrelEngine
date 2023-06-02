@@ -25,7 +25,7 @@
 #include <libKestrel/math/line.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
 #include <libKestrel/graphics/canvas/canvas.hpp>
-#include <libGraphite/data/writer.hpp>
+#include <libData/writer.hpp>
 
 // MARK: - Construction
 
@@ -137,7 +137,7 @@ auto kestrel::graphics::canvas::raw() const -> std::uint8_t *
     return m_rgba_buffer.data();
 }
 
-auto kestrel::graphics::canvas::data() const -> graphite::data::block
+auto kestrel::graphics::canvas::data() const -> data::block
 {
     return std::move(m_rgba_buffer.data_block());
 }
@@ -363,7 +363,7 @@ auto kestrel::graphics::canvas::draw_static_image(const image::static_image::lua
         auto img_data = image->sprite_sheet()->texture()->data();
         auto scaled_len = static_cast<std::uint32_t>(img_frame.size().area());
 
-        graphite::data::block scaled_data(scaled_len * 4);
+        data::block scaled_data(scaled_len * 4);
         scaled_data.set(static_cast<std::uint32_t>(0), scaled_data.size());
 
         // Perform some initial calculations in order to determine how the scaling should be performed
@@ -431,7 +431,7 @@ auto kestrel::graphics::canvas::draw_image(const image::legacy::macintosh::quick
         auto img_data = image->sprite_sheet()->texture()->data();
         auto scaled_len = static_cast<std::uint32_t>(img_frame.size().area());
 
-        graphite::data::block scaled_data(scaled_len * 4);
+        data::block scaled_data(scaled_len * 4);
         scaled_data.set(static_cast<std::uint32_t>(0), scaled_data.size());
 
         // Perform some initial calculations in order to determine how the scaling should be performed

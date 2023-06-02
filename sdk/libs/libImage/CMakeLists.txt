@@ -32,7 +32,7 @@ file(GLOB_RECURSE libImage_Sources
 )
 
 add_library(Image ${libImage_Sources})
-target_link_libraries(Image SIMD Graphite)
+target_link_libraries(Image SIMD Data ResourceCore QuickDraw SpriteWorld)
 target_include_directories(Image PUBLIC
     ${PROJECT_SDK_LIBS}
     ${PROJECT_SUBMODULE_DIR}/graphite/libs

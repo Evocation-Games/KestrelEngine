@@ -527,7 +527,7 @@ auto kestrel::renderer::opengl::context::create_framebuffer(const math::size &si
 
 // MARK: - Textures
 
-auto kestrel::renderer::opengl::context::create_texture(const graphite::data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
+auto kestrel::renderer::opengl::context::create_texture(const data::block& data, const math::size &size) -> std::shared_ptr<graphics::texture>
 {
     auto tex = std::make_shared<opengl::texture>(size, data);
     return std::static_pointer_cast<graphics::texture>(tex);

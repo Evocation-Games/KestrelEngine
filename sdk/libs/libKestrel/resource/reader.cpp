@@ -22,26 +22,26 @@
 #include <unordered_map>
 #include <libKestrel/resource/reader.hpp>
 #include <libKestrel/resource/container.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 
 // MARK: - Construction
 
-kestrel::resource::reader::reader(const graphite::data::block *data)
+kestrel::resource::reader::reader(const data::block *data)
     : m_reader(data)
 {}
 
-kestrel::resource::reader::reader(const std::string &type, graphite::rsrc::resource::identifier id)
+kestrel::resource::reader::reader(const std::string &type, resource_core::identifier id)
     : m_reader(nullptr)
 {
-    if (auto res = graphite::rsrc::manager::shared_manager().find(type, id)) {
+    if (auto res = resource_core::manager::shared_manager().find(type, id)) {
         m_type = type;
         m_id = id;
         m_name = res->name();
-        m_reader = graphite::data::reader(&res->data());
+        m_reader = data::reader(&res->data());
 
         if (const auto& type = res->type()) {
             const auto& attributes = type->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 m_container = it->second.string_value();
             }
@@ -56,11 +56,11 @@ kestrel::resource::reader::reader(const descriptor::lua_reference& ref)
         m_type = resource->type_code();
         m_id = resource->id();
         m_name = resource->name();
-        m_reader = graphite::data::reader(&resource->data());
+        m_reader = data::reader(&resource->data());
 
         if (const auto& type = resource->type()) {
             const auto& attributes = type->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 m_container = it->second.string_value();
             }
@@ -75,7 +75,7 @@ auto kestrel::resource::reader::valid() const -> bool
     return (m_reader.data() != nullptr);
 }
 
-auto kestrel::resource::reader::id() const -> graphite::rsrc::resource::identifier
+auto kestrel::resource::reader::id() const -> resource_core::identifier
 {
     return m_id;
 }
@@ -234,15 +234,15 @@ auto kestrel::resource::reader::read_typed_resource_reference(const std::string 
     return read_resource_reference()->with_type(type);
 }
 
-auto kestrel::resource::reader::read_resource_reference_wide_value() -> graphite::rsrc::resource::identifier
+auto kestrel::resource::reader::read_resource_reference_wide_value() -> resource_core::identifier
 {
-    return static_cast<graphite::rsrc::resource::identifier>(read_signed_short());
+    return static_cast<resource_core::identifier>(read_signed_short());
 }
 
 auto kestrel::resource::reader::switch_on_resource_reference(const luabridge::LuaRef &body) -> void
 {
     // TODO: Handle extended format.
-    auto value = m_reader.read_signed_short(0, graphite::data::reader::mode::peek);
+    auto value = m_reader.read_signed_short(0, data::reader::mode::peek);
 
     // TODO: Logic to determine what the namespace is
 
@@ -254,7 +254,7 @@ auto kestrel::resource::reader::skip(int delta) -> void
     m_reader.move(delta);
 }
 
-auto kestrel::resource::reader::read_remaining_data() -> graphite::data::block
+auto kestrel::resource::reader::read_remaining_data() -> data::block
 {
     return m_reader.read_data(m_reader.size() - m_reader.position());
 }

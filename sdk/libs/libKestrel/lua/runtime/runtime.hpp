@@ -34,7 +34,7 @@ extern "C" {
 #include "LuaBridge/RefCountedPtr.h"
 #include "LuaBridge/Vector.h"
 
-#include <libGraphite/rsrc/resource.hpp>
+#include <libResourceCore/structure/instance.hpp>
 #include <libKestrel/lua/runtime/stack.hpp>
 
 class environment;
@@ -60,8 +60,8 @@ namespace kestrel::lua
         auto function(const char *name) const -> luabridge::LuaRef;
 
         auto run(const lua::script& script) -> void;
-        auto run(graphite::rsrc::resource::identifier id, const std::string& name,const std::string& script) -> void;
-        auto run(graphite::rsrc::resource::identifier id, const std::string& name, const script &script) -> void;
+        auto run(resource_core::identifier id, const std::string& name,const std::string& script) -> void;
+        auto run(resource_core::identifier id, const std::string& name, const script &script) -> void;
 
         auto dump() -> void;
         auto purge() -> void;
@@ -76,7 +76,7 @@ namespace kestrel::lua
         static auto lua_print(lua_State *L) -> int;
         static auto lua_abort(lua_State *L) -> int;
 
-        auto execute(graphite::rsrc::resource::identifier id, const std::string& name) -> void;
+        auto execute(resource_core::identifier id, const std::string& name) -> void;
 
     private:
         lua_State *m_state { nullptr };

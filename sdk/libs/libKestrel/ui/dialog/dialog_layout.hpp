@@ -28,8 +28,8 @@
 #include <libKestrel/ui/scene/control_definition.hpp>
 #include <libKestrel/ui/scene/interface.hpp>
 #include <libKestrel/ui/alignment.hpp>
-#include <libGraphite/toolbox/dialog_item_list.hpp>
-#include <libGraphite/toolbox/dialog.hpp>
+#include <libToolbox/ui/dialog_item_list.hpp>
+#include <libToolbox/ui/dialog.hpp>
 #include <libKestrel/ui/dialog/dialog_render_mode.hpp>
 #include <libKestrel/ui/types/action/action.hpp>
 
@@ -90,6 +90,6 @@ namespace kestrel::ui
         resource::descriptor::lua_reference m_background_bottom { nullptr };
 
         auto build_scene_interface_layout(const scene_interface *scin) -> void;
-        auto build_dialog_layout(const graphite::toolbox::dialog *dlog) -> void;
+        auto build_dialog_layout(const toolbox::dialog *dlog) -> void;
     };
 }

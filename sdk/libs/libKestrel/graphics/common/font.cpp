@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <libKestrel/util/availability.hpp>
 #include <libKestrel/graphics/common/font.hpp>
-#include <libGraphite/font/manager.hpp>
+#include <libToolbox/font/manager.hpp>
 
 #if TARGET_MACOS
 #   include <libKestrel/platform/macos/font.h>
@@ -68,7 +68,7 @@ kestrel::graphics::font::font(const std::string& name, std::int16_t size, bool l
     if (load_font) {
         init_freetype();
 
-        if (auto ttf = graphite::font::manager::shared_manager().ttf_font_named(font_name)) {
+        if (auto ttf = toolbox::font::manager::shared_manager().ttf_font_named(font_name)) {
             if (FT_New_Memory_Face(ft, ttf->get<FT_Byte *>(0), ttf->size(), 0, &m_face)) {
                 throw std::logic_error("Failed to load memory font face.");
             }

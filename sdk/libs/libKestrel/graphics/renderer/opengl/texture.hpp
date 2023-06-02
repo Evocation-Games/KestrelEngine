@@ -23,7 +23,7 @@
 #include <type_traits>
 #include <libKestrel/graphics/texture/texture.hpp>
 #include <libKestrel/graphics/renderer/opengl/opengl.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace kestrel::renderer::opengl
 {
@@ -32,8 +32,8 @@ namespace kestrel::renderer::opengl
     public:
         texture(std::uint32_t width, std::uint32_t height);
         explicit texture(const math::size& size);
-        texture(std::uint32_t width, std::uint32_t height, const graphite::data::block& data);
-        texture(const math::size& size, const graphite::data::block& data);
+        texture(std::uint32_t width, std::uint32_t height, const data::block& data);
+        texture(const math::size& size, const data::block& data);
         texture(const math::size& size, const std::uint8_t *data);
         texture(GLuint handle, const math::size& sz);
 

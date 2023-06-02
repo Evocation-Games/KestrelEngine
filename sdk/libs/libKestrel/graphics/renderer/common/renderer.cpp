@@ -340,7 +340,7 @@ auto kestrel::renderer::draw_line(const math::point &p,
 
 // MARK: - Textures
 
-auto kestrel::renderer::create_texture(const math::size& size, const graphite::data::block& data) -> std::shared_ptr<graphics::texture>
+auto kestrel::renderer::create_texture(const math::size& size, const data::block& data) -> std::shared_ptr<graphics::texture>
 {
     return s_renderer_api.context->create_texture(data, size);
 }

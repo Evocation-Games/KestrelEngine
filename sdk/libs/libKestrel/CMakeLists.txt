@@ -33,7 +33,6 @@ endif()
 ## Preparations
 set(KestrelAPIDefinition ${CMAKE_BUILD_DIR}/libKestrel/lua_api_definition.cpp)
 file(MAKE_DIRECTORY ${CMAKE_BUILD_DIR}/libKestrel)
-#file(TOUCH ${KestrelAPIDefinition})
 
 ########################################################################################################################
 ## libKestrel
@@ -42,7 +41,8 @@ find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
 
 set(KESTREL_LIBS
-    SIMD Graphite ImGUI Foundation Lexer UI
+    SIMD Data ResourceCore SoundCore QuickDraw ToolBox Image
+    ImGUI Foundation Lexer UI
     ${OPENAL_LIBRARY} ${OPENGL_LIBRARIES}
     png bz2 z
     libluajit.a

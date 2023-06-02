@@ -21,9 +21,9 @@
 #pragma once
 
 #include <libUI/format/interface/interface.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace ui::format
 {
-    auto decode(const graphite::data::block& data) -> interface;
+    auto decode(const data::block& data) -> interface;
 }

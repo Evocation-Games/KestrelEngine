@@ -23,8 +23,8 @@
 #include <cstdint>
 #include <numeric>
 #include <string>
-#include <libGraphite/data/writer.hpp>
-#include <libGraphite/data/reader.hpp>
+#include <libData/writer.hpp>
+#include <libData/reader.hpp>
 
 namespace resource
 {
@@ -38,7 +38,7 @@ namespace resource
 
         explicit reference(identifier id, const std::string& type_name = "", const std::string& type_code = "", const std::string& container = "");
 
-        static auto decode_from(graphite::data::reader& reader) -> reference;
+        static auto decode_from(data::reader& reader) -> reference;
         static auto auto_assigning() -> reference;
         static auto any() -> reference;
 
@@ -59,7 +59,7 @@ namespace resource
         [[nodiscard]] auto with_type_name(const std::string& type_name, const std::string& type_code) const -> reference;
         [[nodiscard]] auto with_container(const std::string& container) const -> reference;
 
-        auto encode_into(graphite::data::writer& writer) const -> void;
+        auto encode_into(data::writer& writer) const -> void;
 
     private:
         enum encoding_flags : std::uint8_t {

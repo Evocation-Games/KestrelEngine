@@ -21,7 +21,7 @@
 #pragma once
 
 #include <memory>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/resource/descriptor.hpp>
@@ -81,7 +81,7 @@ namespace kestrel::sandbox
         std::string m_path;
         bundle_type m_bundle;
         bundle_origin m_origin;
-        std::vector<graphite::rsrc::file *> m_mod_files;
+        std::vector<resource_core::file *> m_mod_files;
         bool m_enabled { false };
         bool m_parsed { false };
         bool m_loaded { false };

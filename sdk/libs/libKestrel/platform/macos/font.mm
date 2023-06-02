@@ -20,7 +20,7 @@
 
 #include <libKestrel/platform/macos/font.h>
 #include <libKestrel/platform/macos/cocoa_utils.h>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 
 auto kestrel::platform::macos::font::path_for(const std::string &name) -> std::string
 {
@@ -36,7 +36,7 @@ auto kestrel::platform::macos::font::path_for(const std::string &name) -> std::s
             return cocoa::string::from(fontPath);
         }
         else if ([[fontPath pathExtension] isEqualToString:@"dfont"]) {
-            graphite::rsrc::manager::shared_manager().import_file(cocoa::string::from(fontPath));
+            resource_core::manager::shared_manager().import_file(cocoa::string::from(fontPath));
             return "rsrc::font_manager::" + name;
         }
     }

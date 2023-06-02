@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libImage/codecs/rlex/rlex.hpp>
-#include <libGraphite/spriteworld/rleX.hpp>
+#include <libSpriteWorld/formats/rleX.hpp>
 
 // MARK: - Construction
 
@@ -36,41 +36,41 @@ image::codec::rlex::rlex(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::rlex::rlex(const graphite::data::block &data)
+image::codec::rlex::rlex(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::rlex::rlex(graphite::quickdraw::surface &surface)
+image::codec::rlex::rlex(quickdraw::surface &surface)
     : format(surface)
 {}
 
-image::codec::rlex::rlex(const std::vector<graphite::quickdraw::surface> &surfaces)
+image::codec::rlex::rlex(const std::vector<quickdraw::surface> &surfaces)
     : format(""), m_frames(surfaces)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::rlex::byte_order() const -> graphite::data::byte_order
+auto image::codec::rlex::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::msb;
+    return data::byte_order::msb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::rlex::decode(graphite::data::reader &reader) -> void
+auto image::codec::rlex::decode(data::reader &reader) -> void
 {
     // TODO: Implement this...
 }
 
 // MARK: - Encoding
 
-auto image::codec::rlex::encode(graphite::data::writer &writer) const -> void
+auto image::codec::rlex::encode(data::writer &writer) const -> void
 {
     auto size = m_frames.front().size();
     auto frames = m_frames.size();
-    graphite::spriteworld::rleX rlex(size, frames);
+    spriteworld::rleX rlex(size, frames);
     for (auto n = 0; n < frames; ++n) {
         rlex.write_frame(n, m_frames[n]);
     }

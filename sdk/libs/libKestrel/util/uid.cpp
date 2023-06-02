@@ -40,12 +40,12 @@ kestrel::util::uid::uid(std::uint64_t v)
 }
 
 kestrel::util::uid::uid(const std::string& name)
-    : m_value(graphite::hashing::xxh64(reinterpret_cast<const std::uint8_t *>(name.c_str()), name.size()))
+    : m_value(hashing::xxh64(reinterpret_cast<const std::uint8_t *>(name.c_str()), name.size()))
 {
 }
 
-kestrel::util::uid::uid(const std::string &resource_type, std::int64_t resource_id, const std::string &ns)
+kestrel::util::uid::uid(const std::string &resource_type, std::int64_t resource_id, const std::string &container)
 {
-    std::string reference { ns + "." + resource_type + "." + std::to_string(resource_id) };
-    m_value = graphite::hashing::xxh64(reinterpret_cast<const std::uint8_t *>(reference.c_str()), reference.size());
+    std::string reference { container + "." + resource_type + "." + std::to_string(resource_id) };
+    m_value = hashing::xxh64(reinterpret_cast<const std::uint8_t *>(reference.c_str()), reference.size());
 }

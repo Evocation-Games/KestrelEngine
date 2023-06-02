@@ -19,8 +19,8 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/quickdraw/format/cicn.hpp>
+#include <libResourceCore/manager.hpp>
+#include <libQuickdraw/format/color_icon.hpp>
 #include <libKestrel/graphics/legacy/macintosh/color_icon.hpp>
 #include <libKestrel/cache/cache.hpp>
 #include <libKestrel/kestrel.hpp>
@@ -30,7 +30,7 @@
 kestrel::image::legacy::macintosh::quickdraw::color_icon::color_icon(const resource::descriptor::lua_reference &ref)
 {
     if (auto resource = ref->with_type(resource_type::code)->load()) {
-        graphite::quickdraw::cicn icon(resource->data(), resource->id(), resource->name());
+        ::quickdraw::color_icon icon(resource->data(), resource->id(), resource->name());
         const auto& surface = icon.surface();
         configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
         return;

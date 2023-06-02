@@ -28,14 +28,14 @@ namespace image::codec
     {
         explicit cicn(const std::string& path);
         explicit cicn(const foundation::filesystem::path& path);
-        explicit cicn(const graphite::data::block& data);
-        explicit cicn(graphite::quickdraw::surface& surface);
+        explicit cicn(const data::block& data);
+        explicit cicn(quickdraw::surface& surface);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     private:
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
     };
 }
 

@@ -20,14 +20,13 @@
 
 #include <libKestrel/resource/writer.hpp>
 #include <libKestrel/sandbox/file/files.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 
 // MARK: - Construction
 
-kestrel::resource::writer::writer(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name, const resource::container::lua_reference& container)
+kestrel::resource::writer::writer(const std::string& type, resource_core::identifier id, const std::string& name, const resource::container::lua_reference& container)
     : m_type(type), m_id(id), m_name(name), m_container(container)
-{
-}
+{}
 
 // MARK: - Writing
 
@@ -89,14 +88,14 @@ auto kestrel::resource::writer::write_cstr_width(std::uint32_t width, const std:
 
 auto kestrel::resource::writer::write_point(const math::point& v) -> void
 {
-    write_signed_short(static_cast<int16_t>(v.x()));
-    write_signed_short(static_cast<int16_t>(v.y()));
+    write_signed_short(static_cast<std::int16_t>(v.x()));
+    write_signed_short(static_cast<std::int16_t>(v.y()));
 }
 
 auto kestrel::resource::writer::write_size(const math::size& v) -> void
 {
-    write_signed_short(static_cast<int16_t>(v.width()));
-    write_signed_short(static_cast<int16_t>(v.height()));
+    write_signed_short(static_cast<std::int16_t>(v.width()));
+    write_signed_short(static_cast<std::int16_t>(v.height()));
 }
 
 auto kestrel::resource::writer::write_rect(const math::rect& v) -> void
@@ -107,10 +106,10 @@ auto kestrel::resource::writer::write_rect(const math::rect& v) -> void
 
 auto kestrel::resource::writer::write_macintosh_rect(const math::rect& v) -> void
 {
-    write_signed_short(static_cast<int16_t>(v.origin().y()));
-    write_signed_short(static_cast<int16_t>(v.origin().x()));
-    write_signed_short(static_cast<int16_t>(v.size().height() + v.origin().y()));
-    write_signed_short(static_cast<int16_t>(v.size().width() + v.origin().x()));
+    write_signed_short(static_cast<std::int16_t>(v.origin().y()));
+    write_signed_short(static_cast<std::int16_t>(v.origin().x()));
+    write_signed_short(static_cast<std::int16_t>(v.size().height() + v.origin().y()));
+    write_signed_short(static_cast<std::int16_t>(v.size().width() + v.origin().x()));
 }
 auto kestrel::resource::writer::write_color(const graphics::color::lua_reference& v) -> void
 {
@@ -134,7 +133,7 @@ auto kestrel::resource::writer::commit() -> void
     }
     save_file->create_parent_directory();
 
-    for (auto& file : graphite::rsrc::manager::shared_manager().file_references()) {
+    for (auto& file : resource_core::manager::shared_manager().file_references()) {
         if (file->path() == save_file->path()) {
             // We've found the correct file in the resource manager, now write the resource to it.
             file->add_resource(m_type, m_id, m_name, *m_writer.data(), attributes);
@@ -143,11 +142,11 @@ auto kestrel::resource::writer::commit() -> void
     }
 
     // No file was created, so we need to add one to the resource manager.
-    auto new_file = new graphite::rsrc::file();
+    auto new_file = new resource_core::file();
     new_file->add_resource(m_type, m_id, m_name, *m_writer.data(), attributes);
-    new_file->write(save_file->path(), graphite::rsrc::file::format::extended);
+    new_file->write(save_file->path(), resource_core::file::format::extended);
 
-    graphite::rsrc::manager::shared_manager().import_file(new_file);
+    resource_core::manager::shared_manager().import_file(new_file);
 }
 
 // MARK: - Accessors
@@ -162,7 +161,7 @@ auto kestrel::resource::writer::name() const -> std::string
     return m_name;
 }
 
-auto kestrel::resource::writer::id() const -> graphite::rsrc::resource::identifier
+auto kestrel::resource::writer::id() const -> resource_core::identifier
 {
     return m_id;
 }
@@ -172,7 +171,7 @@ auto kestrel::resource::writer::container() const -> resource::container::lua_re
     return m_container;
 }
 
-auto kestrel::resource::writer::data() const -> const graphite::data::block *
+auto kestrel::resource::writer::data() const -> const data::block *
 {
     return m_writer.data();
 }

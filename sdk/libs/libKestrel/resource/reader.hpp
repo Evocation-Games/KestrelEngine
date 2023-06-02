@@ -22,7 +22,7 @@
 
 #include <string>
 #include <optional>
-#include <libGraphite/data/reader.hpp>
+#include <libData/reader.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/resource/container.hpp>
@@ -39,13 +39,13 @@ namespace kestrel::resource
     public:
         has_constructable_lua_api(reader);
 
-        reader(const std::string& type, graphite::rsrc::resource::identifier id);
-        explicit reader(const graphite::data::block *data);
+        reader(const std::string& type, resource_core::identifier id);
+        explicit reader(const data::block *data);
         lua_constructor(Available_0_8) explicit reader(const descriptor::lua_reference& ref);
 
         lua_getter(isValid, Available_0_8) [[nodiscard]] auto valid() const -> bool;
 
-        lua_getter(id, Available_0_8) [[nodiscard]] auto id() const -> graphite::rsrc::resource::identifier;
+        lua_getter(id, Available_0_8) [[nodiscard]] auto id() const -> resource_core::identifier;
         lua_getter(name, Available_0_8) [[nodiscard]] auto name() const -> std::string;
         lua_getter(type, Available_0_8) [[nodiscard]] auto type() const -> std::string;
         lua_getter(reference, Available_0_8) [[nodiscard]] auto reference() const -> descriptor::lua_reference;
@@ -71,20 +71,20 @@ namespace kestrel::resource
 
         lua_function(readColor, Available_0_8) auto read_color() -> graphics::color::lua_reference;
 
-        lua_function(readResourceReferenceWideValue, Available_0_8) auto read_resource_reference_wide_value() -> graphite::rsrc::resource::identifier;
+        lua_function(readResourceReferenceWideValue, Available_0_8) auto read_resource_reference_wide_value() -> resource_core::identifier;
         lua_function(readResourceReference, Available_0_8) auto read_resource_reference() -> descriptor::lua_reference;
         lua_function(readTypedResourceReference, Available_0_8) auto read_typed_resource_reference(const std::string& type) -> descriptor::lua_reference;
         lua_function(switchOnResourceReference, Available_0_8) auto switch_on_resource_reference(const luabridge::LuaRef& body) -> void;
 
         lua_function(skip, Available_0_8) auto skip(int delta) -> void;
 
-        auto read_remaining_data() -> graphite::data::block;
+        auto read_remaining_data() -> data::block;
 
     private:
-        graphite::rsrc::resource::identifier m_id;
+        resource_core::identifier m_id;
         std::string m_name;
         std::string m_type;
-        graphite::data::reader m_reader;
+        data::reader m_reader;
         std::string m_container;
 
     };

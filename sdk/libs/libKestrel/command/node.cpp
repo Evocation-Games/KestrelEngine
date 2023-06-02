@@ -19,28 +19,27 @@
 // SOFTWARE.
 
 #include <libKestrel/command/node.hpp>
-#include <libGraphite/util/hashing.hpp>
 
 // MARK: - Construction
 
-kestrel::command::node::node(graphite::hashing::value64 name, node *parent)
+kestrel::command::node::node(hashing::value64 name, node *parent)
     : m_parent(parent), m_name(name)
 {
 }
 
 // MARK: - Naming
 
-auto kestrel::command::node::name_hash() const -> graphite::hashing::value64
+auto kestrel::command::node::name_hash() const -> hashing::value64
 {
     return m_name;
 }
 
 auto kestrel::command::node::is_named(const std::string &name) const -> bool
 {
-    return is_named(graphite::hashing::xxh64(name.c_str(), name.size()));
+    return is_named(hashing::xxh64(name.c_str(), name.size()));
 }
 
-auto kestrel::command::node::is_named(graphite::hashing::value64 value) const -> bool
+auto kestrel::command::node::is_named(hashing::value64 value) const -> bool
 {
     return value == m_name;
 }
@@ -57,7 +56,7 @@ auto kestrel::command::node::argument_at(std::int32_t idx) const -> const argume
     return m_arguments.at(idx);
 }
 
-auto kestrel::command::node::has_argument(graphite::hashing::value64 value, std::int32_t idx) const -> bool
+auto kestrel::command::node::has_argument(hashing::value64 value, std::int32_t idx) const -> bool
 {
     if (idx < 0) {
         for (const auto& arg : m_arguments) {

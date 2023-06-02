@@ -21,11 +21,11 @@
 #pragma once
 
 #include <memory>
-#include <libGraphite/data/reader.hpp>
+#include <libData/reader.hpp>
 #include <libKestrel/sound/codec/audio_codec_descriptor.hpp>
 #include <libKestrel/sound/player/player_item.hpp>
 
 namespace kestrel::sound::codec::ima4
 {
-    auto decode(const sound::codec::descriptor& descriptor, graphite::data::reader& r) -> std::shared_ptr<sound::player_item>;
+    auto decode(const sound::codec::descriptor& descriptor, data::reader& r) -> std::shared_ptr<sound::player_item>;
 }

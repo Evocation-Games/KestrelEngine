@@ -44,7 +44,7 @@ namespace kestrel::sound::legacy::macintosh::quicktime
     private:
         std::shared_ptr<player_item> m_item {};
         std::uint64_t m_item_reference { 0 };
-        auto parse(const graphite::data::block& data) -> bool;
+        auto parse(const data::block& data) -> bool;
     };
 
 };

@@ -21,7 +21,7 @@
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/resource/container.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 
 // MARK: - Construction
 
@@ -80,11 +80,11 @@ auto kestrel::resource::container::contains_resources() const -> bool
         return true;
     }
 
-    for (const auto& file : graphite::rsrc::manager::shared_manager().file_references()) {
+    for (const auto& file : resource_core::manager::shared_manager().file_references()) {
         for (const auto& type_hash : file->types()) {
             const auto& type = file->type(type_hash);
             const auto& attributes = type->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(attribute_name));
 
             if (has_name(it->second.string_value())) {
                 return true;
@@ -163,7 +163,7 @@ auto kestrel::resource::container::each_name(const std::function<auto(const cont
 
 // MARK: - Resources
 
-auto kestrel::resource::container::file_constraint(const graphite::rsrc::file *file) -> descriptor::lua_reference
+auto kestrel::resource::container::file_constraint(const resource_core::file *file) -> descriptor::lua_reference
 {
     auto r = descriptor::file_constrained(file);
     each_name([&] (const container& ns) {

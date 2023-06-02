@@ -26,7 +26,7 @@ resource::instance::instance(const resource::reference& reference)
     : m_reference(reference)
 {}
 
-resource::instance::instance(const resource::reference &reference, graphite::data::block &data)
+resource::instance::instance(const resource::reference &reference, data::block &data)
     : m_reference(reference), m_data(std::move(data))
 {}
 
@@ -62,7 +62,7 @@ auto resource::instance::values() const -> const std::unordered_map<std::string,
     return m_values;
 }
 
-auto resource::instance::data() const -> const graphite::data::block &
+auto resource::instance::data() const -> const data::block &
 {
     return m_data;
 }

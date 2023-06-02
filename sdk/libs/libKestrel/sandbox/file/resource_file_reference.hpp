@@ -25,7 +25,7 @@
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/resource/writer.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 
 namespace kestrel::sandbox
 {
@@ -59,6 +59,6 @@ namespace kestrel::sandbox
 
     private:
         std::string m_path;
-        graphite::rsrc::file m_file;
+        resource_core::file m_file;
     };
 }

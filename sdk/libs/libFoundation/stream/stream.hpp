@@ -23,7 +23,6 @@
 #include <cstdint>
 #include <vector>
 #include <initializer_list>
-
 #include <libFoundation/stream/expectation.hpp>
 
 namespace foundation

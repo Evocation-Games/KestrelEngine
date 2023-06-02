@@ -28,10 +28,10 @@ namespace image::codec
     {
         explicit tga(const std::string& path);
         explicit tga(const foundation::filesystem::path& path);
-        explicit tga(const graphite::data::block& data);
-        explicit tga(graphite::quickdraw::surface& surface);
+        explicit tga(const data::block& data);
+        explicit tga(quickdraw::surface& surface);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     protected:
         struct header
@@ -51,8 +51,8 @@ namespace image::codec
         };
 
     private:
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
         auto merge_bytes(std::int32_t position, const std::vector<char>& bytes, std::int32_t offset, std::size_t size) -> void;
     };
 }

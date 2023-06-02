@@ -32,7 +32,7 @@ file(GLOB_RECURSE libFoundation_Sources
 )
 
 add_library(Foundation ${libFoundation_Sources})
-target_link_libraries(Foundation SIMD Graphite)
+target_link_libraries(Foundation SIMD Data Hashing)
 target_include_directories(Foundation PUBLIC
     ${PROJECT_SDK_LIBS}
     ${PROJECT_SUBMODULE_DIR}/graphite/libs

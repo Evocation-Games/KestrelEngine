@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <libGraphite/rsrc/file.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/file.hpp>
+#include <libResourceCore/manager.hpp>
 #include <libKestrel/sandbox/file/mod_reference.hpp>
 #include <libKestrel/sandbox/file/file_reference.hpp>
 #include <libKestrel/sandbox/file/directory_reference.hpp>
@@ -40,7 +40,7 @@ kestrel::sandbox::mod_reference::mod_reference(const std::string &path, bundle_o
 
 auto kestrel::sandbox::mod_reference::has_initial_script() const -> bool
 {
-    return m_lua_entry_script.get() && (m_lua_entry_script->id != INT64_MIN);
+    return m_lua_entry_script.get() && (m_lua_entry_script->id != resource_core::auto_resource_id);
 }
 
 auto kestrel::sandbox::mod_reference::name() const -> std::string
@@ -136,7 +136,7 @@ auto kestrel::sandbox::mod_reference::validate_as_modpackage() const -> bool
     }
 
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto package_rsrc = new graphite::rsrc::file(package_rsrc_ref->path());
+    auto package_rsrc = new resource_core::file(package_rsrc_ref->path());
     auto kmod = package_rsrc->find("kmöd", 128);
     if (!kmod) {
         return false;
@@ -162,7 +162,7 @@ auto kestrel::sandbox::mod_reference::parse_modpackage() -> void
     }
 
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto package_rsrc = new graphite::rsrc::file(package_rsrc_ref->path());
+    auto package_rsrc = new resource_core::file(package_rsrc_ref->path());
     auto kmod = package_rsrc->find("kmöd", 128);
     if (!kmod) {
         m_is_active = false;
@@ -191,7 +191,7 @@ auto kestrel::sandbox::mod_reference::parse_modpackage() -> void
 auto kestrel::sandbox::mod_reference::validate_as_simplemod() const -> bool
 {
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    graphite::rsrc::file rsrc(m_path);
+    resource_core::file rsrc(m_path);
     auto kmod = rsrc.find("kmöd", 128);
     if (!kmod) {
         return false;
@@ -208,7 +208,7 @@ auto kestrel::sandbox::mod_reference::parse_simplemod() -> void
     }
 
     // We have the file, now load it and make sure we have a legit resource file, with appropriate resources.
-    auto rsrc = new graphite::rsrc::file(m_path);
+    auto rsrc = new resource_core::file(m_path);
     auto kmod = rsrc->find("kmöd", 128);
     if (!kmod) {
         m_is_active = false;
@@ -244,7 +244,7 @@ auto kestrel::sandbox::mod_reference::construct_simplemod() -> void
     m_scenario_id = "";
     m_package_id = "";
 
-    auto file = new graphite::rsrc::file(m_path);
+    auto file = new resource_core::file(m_path);
     m_mod_files.emplace_back(file);
 }
 
@@ -280,7 +280,7 @@ auto kestrel::sandbox::mod_reference::load_resources() -> void
     }
 
     for (const auto& f : m_mod_files) {
-        graphite::rsrc::manager::shared_manager().import_file(f);
+        resource_core::manager::shared_manager().import_file(f);
     }
 
     m_loaded = true;

@@ -26,7 +26,7 @@ resource::reference::reference(identifier id, const std::string& type_name, cons
     : m_id(id), m_type_name(type_name), m_type_code(type_code), m_container(container)
 {}
 
-auto resource::reference::decode_from(graphite::data::reader &reader) -> reference
+auto resource::reference::decode_from(data::reader &reader) -> reference
 {
     auto flags = static_cast<enum encoding_flags>(reader.read_byte());
 
@@ -131,7 +131,7 @@ auto resource::reference::with_container(const std::string& container) const -> 
 
 // MARK: - Encoding
 
-auto resource::reference::encode_into(graphite::data::writer &writer) const -> void
+auto resource::reference::encode_into(data::writer &writer) const -> void
 {
     std::uint8_t flags = 0x00;
     flags |= (has_container() ? encoding_flags::container : 0);

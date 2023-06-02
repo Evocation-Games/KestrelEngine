@@ -27,9 +27,9 @@ extern "C" {
 #   include "LuaJIT/src/luajit.h"
 }
 
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace kdl::assembler::compiler::lua
 {
-    auto compile(const std::string& source, const std::string& path) -> graphite::data::block;
+    auto compile(const std::string& source, const std::string& path) -> data::block;
 }

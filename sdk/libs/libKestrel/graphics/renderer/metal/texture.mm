@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <utility>
 #include <libKestrel/graphics/renderer/metal/texture.h>
 #include <libKestrel/graphics/renderer/metal/context.h>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
@@ -37,12 +36,12 @@ kestrel::renderer::metal::texture::texture(const math::size& size)
 {
 }
 
-kestrel::renderer::metal::texture::texture(uint32_t width, uint32_t height, const graphite::data::block& data)
+kestrel::renderer::metal::texture::texture(uint32_t width, uint32_t height, const data::block& data)
     : graphics::texture(width, height, data)
 {
 }
 
-kestrel::renderer::metal::texture::texture(const math::size& sz, const graphite::data::block& data)
+kestrel::renderer::metal::texture::texture(const math::size& sz, const data::block& data)
     : graphics::texture(sz, data)
 {
 }
@@ -67,7 +66,7 @@ kestrel::renderer::metal::texture::~texture()
 
 // MARK: - Accessors
 
-auto kestrel::renderer::metal::texture::set_data(const graphite::data::block &data) -> void
+auto kestrel::renderer::metal::texture::set_data(const data::block &data) -> void
 {
     graphics::texture::set_data(data);
 

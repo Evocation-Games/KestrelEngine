@@ -21,8 +21,8 @@
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/resource/container.hpp>
-#include <libGraphite/util/hashing.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libHashing/xxhash/xxhash.hpp>
+#include <libResourceCore/manager.hpp>
 
 // MARK: - Construction
 
@@ -37,14 +37,14 @@ kestrel::resource::descriptor::descriptor(const ::resource::reference &reference
     }
 }
 
-auto kestrel::resource::descriptor::file_constrained(const graphite::rsrc::file* file) -> lua_reference
+auto kestrel::resource::descriptor::file_constrained(const resource_core::file* file) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
     r->file = file;
     return r;
 }
 
-auto kestrel::resource::descriptor::identified(int64_t id) -> lua_reference
+auto kestrel::resource::descriptor::identified(resource_core::identifier id) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
     r->id = id;
@@ -68,7 +68,7 @@ auto kestrel::resource::descriptor::named(const std::string& name) -> lua_refere
     return r;
 }
 
-auto kestrel::resource::descriptor::typed_identified(const std::string& type, int64_t id) -> lua_reference
+auto kestrel::resource::descriptor::typed_identified(const std::string& type, resource_core::identifier id) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
     r->id = id;
@@ -77,7 +77,7 @@ auto kestrel::resource::descriptor::typed_identified(const std::string& type, in
     return r;
 }
 
-auto kestrel::resource::descriptor::identified_named(int64_t id, const std::string& name) -> lua_reference
+auto kestrel::resource::descriptor::identified_named(resource_core::identifier id, const std::string& name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
     r->id = id;
@@ -95,7 +95,7 @@ auto kestrel::resource::descriptor::typed_named(const std::string& type, const s
     return r;
 }
 
-auto kestrel::resource::descriptor::typed_identified_named(const std::string& type, int64_t id, const std::string& name) -> lua_reference
+auto kestrel::resource::descriptor::typed_identified_named(const std::string& type, resource_core::identifier id, const std::string& name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
     r->id = id;
@@ -107,7 +107,7 @@ auto kestrel::resource::descriptor::typed_identified_named(const std::string& ty
 
 auto kestrel::resource::descriptor::reference(const std::string &ns,
                                               const std::string &type,
-                                              std::int64_t id,
+                                              resource_core::identifier id,
                                               const std::string &name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
@@ -120,7 +120,7 @@ auto kestrel::resource::descriptor::reference(const std::string &ns,
 }
 
 auto kestrel::resource::descriptor::reference(const std::string &type,
-                                              std::int64_t id,
+                                              resource_core::identifier id,
                                               const std::string &name) -> lua_reference
 {
     auto r = lua_reference(new descriptor());
@@ -253,7 +253,7 @@ auto kestrel::resource::descriptor::with_type(const std::string& type) const -> 
     return ref;
 }
 
-auto kestrel::resource::descriptor::with_id(int64_t id) const -> lua_reference
+auto kestrel::resource::descriptor::with_id(resource_core::identifier id) const -> lua_reference
 {
     lua_reference ref;
 
@@ -276,7 +276,7 @@ auto kestrel::resource::descriptor::with_id(int64_t id) const -> lua_reference
 }
 
 
-auto kestrel::resource::descriptor::normalized_id(int64_t index_base, int64_t first_id) const -> lua_reference
+auto kestrel::resource::descriptor::normalized_id(resource_core::identifier index_base, resource_core::identifier first_id) const -> lua_reference
 {
     return with_id((id - index_base) + first_id);
 }
@@ -410,7 +410,7 @@ auto kestrel::resource::descriptor::best_resource() -> lua_reference
     }
 }
 
-auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
+auto kestrel::resource::descriptor::load() -> const resource_core::instance *
 {
     // TODO: Determine the best way of doing this check.
     if (!valid()) {
@@ -421,7 +421,7 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
     // we can just directly load it without conditions.
 
     if (m_resolved_resources.empty()) {
-        std::vector<graphite::rsrc::attribute> attributes;
+        std::vector<resource_core::attribute> attributes;
         resource::container c(containers.at(0));
         if (!(c.is_universal() || c.is_global())) {
             attributes.emplace_back(resource::container::attribute_name, c.primary_name());
@@ -431,12 +431,12 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
             return file->find(type, id, attributes);
         }
         else {
-            return graphite::rsrc::manager::shared_manager().find(type, id, attributes);
+            return resource_core::manager::shared_manager().find(type, id, attributes);
         }
     }
     else {
         auto best = m_resolved_resources.at(0);
-        std::vector<graphite::rsrc::attribute> attributes;
+        std::vector<resource_core::attribute> attributes;
         resource::container c(best->containers.at(0));
         if (!(c.is_universal() || c.is_global())) {
             attributes.emplace_back(resource::container::attribute_name, c.primary_name());
@@ -446,7 +446,7 @@ auto kestrel::resource::descriptor::load() -> const graphite::rsrc::resource *
             return file->find(best->type, best->id, attributes);
         }
         else {
-            return graphite::rsrc::manager::shared_manager().find(best->type, best->id, attributes);
+            return resource_core::manager::shared_manager().find(best->type, best->id, attributes);
         }
     }
 }
@@ -500,11 +500,11 @@ auto kestrel::resource::descriptor::resolve() -> void
 auto kestrel::resource::descriptor::resolve_identified() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -512,11 +512,11 @@ auto kestrel::resource::descriptor::resolve_identified() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<struct graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<struct resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -541,11 +541,11 @@ auto kestrel::resource::descriptor::resolve_identified() -> void
 auto kestrel::resource::descriptor::resolve_typed() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -553,11 +553,11 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -584,11 +584,11 @@ auto kestrel::resource::descriptor::resolve_typed() -> void
 auto kestrel::resource::descriptor::resolve_named() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -596,11 +596,11 @@ auto kestrel::resource::descriptor::resolve_named() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -625,11 +625,11 @@ auto kestrel::resource::descriptor::resolve_named() -> void
 auto kestrel::resource::descriptor::resolve_typed_identified() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -637,11 +637,11 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -670,11 +670,11 @@ auto kestrel::resource::descriptor::resolve_typed_identified() -> void
 auto kestrel::resource::descriptor::resolve_identified_named() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -682,11 +682,11 @@ auto kestrel::resource::descriptor::resolve_identified_named() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -711,11 +711,11 @@ auto kestrel::resource::descriptor::resolve_identified_named() -> void
 auto kestrel::resource::descriptor::resolve_typed_named() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -723,11 +723,11 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -756,11 +756,11 @@ auto kestrel::resource::descriptor::resolve_typed_named() -> void
 auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
 {
     resource::container c(containers);
-    const auto& rm = graphite::rsrc::manager::shared_manager();
+    const auto& rm = resource_core::manager::shared_manager();
 
-    std::vector<graphite::rsrc::file *> files;
+    std::vector<resource_core::file *> files;
     if (file) {
-        files.emplace_back(const_cast<graphite::rsrc::file *>(file));
+        files.emplace_back(const_cast<resource_core::file *>(file));
     }
     else {
         files = rm.file_references();
@@ -768,11 +768,11 @@ auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
 
     for (const auto& file : files) {
         for (const auto& type_hash : file->types()) {
-            const auto& t = const_cast<graphite::rsrc::type *>(file->type(type_hash));
+            const auto& t = const_cast<resource_core::type *>(file->type(type_hash));
 
             std::string type_container = resource::container::global()->primary_name();
             const auto& attributes = t->attributes();
-            const auto& it = attributes.find(graphite::rsrc::attribute::hash_for_name(resource::container::attribute_name));
+            const auto& it = attributes.find(resource_core::attribute::hash_for_name(resource::container::attribute_name));
             if (it != attributes.end()) {
                 type_container = it->second.string_value();
             }
@@ -800,32 +800,32 @@ auto kestrel::resource::descriptor::resolve_typed_identified_named() -> void
 
 // MARK: - Conditions / When
 
-auto kestrel::resource::descriptor::when_id(int64_t id) const -> bool
+auto kestrel::resource::descriptor::when_id(resource_core::identifier id) const -> bool
 {
     return (this->id == id);
 }
 
-auto kestrel::resource::descriptor::when_not_id(int64_t id) const -> bool
+auto kestrel::resource::descriptor::when_not_id(resource_core::identifier id) const -> bool
 {
     return (this->id != id);
 }
 
-auto kestrel::resource::descriptor::when_less_than_id(int64_t id) const -> bool
+auto kestrel::resource::descriptor::when_less_than_id(resource_core::identifier id) const -> bool
 {
     return (this->id < id);
 }
 
-auto kestrel::resource::descriptor::when_greater_than_id(int64_t id) const -> bool
+auto kestrel::resource::descriptor::when_greater_than_id(resource_core::identifier id) const -> bool
 {
     return (this->id > id);
 }
 
-auto kestrel::resource::descriptor::when_id_in_range(int64_t lower_id, int64_t upper_id) const -> bool
+auto kestrel::resource::descriptor::when_id_in_range(resource_core::identifier lower_id, resource_core::identifier upper_id) const -> bool
 {
     return (this->id >= lower_id && this->id <= upper_id);
 }
 
-auto kestrel::resource::descriptor::when_id_not_in_range(int64_t lower_id, int64_t upper_id) const -> bool
+auto kestrel::resource::descriptor::when_id_not_in_range(resource_core::identifier lower_id, resource_core::identifier upper_id) const -> bool
 {
     return (this->id < lower_id || this->id > upper_id);
 }

@@ -25,7 +25,7 @@
 #include <libKestrel/math/size.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
-#include <libGraphite/quickdraw/type/rect.hpp>
+#include <libQuickdraw/type/rect.hpp>
 #include <libUI/types/rect.hpp>
 
 namespace kestrel::math
@@ -44,7 +44,7 @@ namespace kestrel::math
         explicit rect(const ::ui::rect& r);
         rect(rect&& r) noexcept = default;
         explicit rect(simd::float32 v);
-        explicit rect(const graphite::quickdraw::rect<std::int16_t>& r);
+        explicit rect(const quickdraw::rect<std::int16_t>& r);
 
         auto operator=(const rect&) -> rect& = default;
 

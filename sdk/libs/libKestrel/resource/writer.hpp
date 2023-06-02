@@ -22,7 +22,7 @@
 
 #include <string>
 #include <memory>
-#include <libGraphite/data/writer.hpp>
+#include <libData/writer.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/resource/container.hpp>
@@ -37,13 +37,13 @@ namespace kestrel::resource
     public:
         has_constructable_lua_api(writer);
 
-        lua_constructor(Available_0_8) writer(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name, const resource::container::lua_reference& container);
+        lua_constructor(Available_0_8) writer(const std::string& type, resource_core::identifier id, const std::string& name, const resource::container::lua_reference& container);
 
         [[nodiscard]] auto type_code() const -> std::string;
         [[nodiscard]] auto name() const -> std::string;
-        [[nodiscard]] auto id() const -> graphite::rsrc::resource::identifier;
+        [[nodiscard]] auto id() const -> resource_core::identifier;
         [[nodiscard]] auto container() const -> resource::container::lua_reference;
-        [[nodiscard]] auto data() const -> const graphite::data::block*;
+        [[nodiscard]] auto data() const -> const data::block*;
 
         lua_function(writeSignedByte, Available_0_8) auto write_signed_byte(std::int8_t v) -> void;
         lua_function(writeSignedShort, Available_0_8) auto write_signed_short(std::int16_t v) -> void;
@@ -67,11 +67,11 @@ namespace kestrel::resource
         lua_function(commit, Available_0_8) auto commit() -> void;
 
     private:
-        graphite::rsrc::resource::identifier m_id;
+        resource_core::identifier m_id;
         std::string m_name;
         std::string m_type;
         resource::container::lua_reference m_container { nullptr };
-        graphite::data::writer m_writer;
+        data::writer m_writer;
 
     };
 }

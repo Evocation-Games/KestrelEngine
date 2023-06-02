@@ -25,33 +25,27 @@
 
 kestrel::renderer::opengl::texture::texture(std::uint32_t width, std::uint32_t height)
     : graphics::texture(width, height, true)
-{
-}
+{}
 
 kestrel::renderer::opengl::texture::texture(const math::size& size)
     : graphics::texture(size, true)
-{
-}
+{}
 
-kestrel::renderer::opengl::texture::texture(std::uint32_t width, std::uint32_t height, const graphite::data::block& data)
+kestrel::renderer::opengl::texture::texture(std::uint32_t width, std::uint32_t height, const data::block& data)
     : graphics::texture(width, height, data)
-{
-}
+{}
 
-kestrel::renderer::opengl::texture::texture(const math::size& sz, const graphite::data::block& data)
+kestrel::renderer::opengl::texture::texture(const math::size& sz, const data::block& data)
     : graphics::texture(sz, data)
-{
-}
+{}
 
 kestrel::renderer::opengl::texture::texture(const math::size& sz, const std::uint8_t *data)
     : graphics::texture(sz, data)
-{
-}
+{}
 
 kestrel::renderer::opengl::texture::texture(GLuint handle, const math::size& sz)
     : graphics::texture(sz, false), m_id(handle)
-{
-}
+{}
 
 // MARK: - Destruction
 

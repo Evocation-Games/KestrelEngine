@@ -38,7 +38,7 @@ resource::value_container::value_container(const std::uint8_t *bytes, std::size_
     : m_type(type::data), m_value(std::vector<std::uint8_t>(bytes, bytes+length))
 {}
 
-resource::value_container::value_container(const graphite::data::block &data)
+resource::value_container::value_container(const data::block &data)
     : m_type(type::data),
       m_value(std::vector<std::uint8_t>(data.get<std::uint8_t *>(), data.get<std::uint8_t *>(data.size())))
 {}

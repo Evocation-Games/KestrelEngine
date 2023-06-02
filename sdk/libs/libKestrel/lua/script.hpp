@@ -44,11 +44,11 @@ namespace kestrel::lua
 
         script() = default;
         script(const std::shared_ptr<runtime>& runtime, const resource::descriptor::lua_reference &ref);
-        script(const std::shared_ptr<runtime>& runtime, const graphite::rsrc::resource *resource);
-        script(const std::shared_ptr<runtime>& runtime, const graphite::data::block& data);
+        script(const std::shared_ptr<runtime>& runtime, const resource_core::instance *resource);
+        script(const std::shared_ptr<runtime>& runtime, const data::block& data);
         script(const std::shared_ptr<runtime>& runtime, const std::string& script);
 
-        [[nodiscard]] auto id() const -> graphite::rsrc::resource::identifier;
+        [[nodiscard]] auto id() const -> resource_core::identifier;
         [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto code() const -> std::string;
         [[nodiscard]] auto bytecode() const -> void *;
@@ -61,7 +61,7 @@ namespace kestrel::lua
 
     private:
         std::weak_ptr<runtime> m_runtime;
-        graphite::rsrc::resource::identifier m_id { INT64_MIN };
+        resource_core::identifier m_id { resource_core::auto_resource_id };
         std::string m_name;
         std::string m_script;
         void *m_bytecode { nullptr };

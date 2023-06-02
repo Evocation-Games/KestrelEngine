@@ -22,12 +22,12 @@
 
 // MARK: - Construction
 
-kestrel::graphics::texture::texture(std::uint32_t width, std::uint32_t height, const graphite::data::block &data)
+kestrel::graphics::texture::texture(std::uint32_t width, std::uint32_t height, const data::block &data)
     : m_data(data),  m_size(width, height)
 {
 }
 
-kestrel::graphics::texture::texture(const math::size &size, const graphite::data::block &data)
+kestrel::graphics::texture::texture(const math::size &size, const data::block &data)
     : m_data(data), m_size(size)
 {
 }
@@ -55,7 +55,7 @@ auto kestrel::graphics::texture::size() const -> math::size
     return m_size;
 }
 
-auto kestrel::graphics::texture::data() const -> const graphite::data::block&
+auto kestrel::graphics::texture::data() const -> const data::block&
 {
     return m_data;
 }
@@ -65,7 +65,7 @@ auto kestrel::graphics::texture::raw_data_ptr() const -> const void *
     return m_data.get<void *>();
 }
 
-auto kestrel::graphics::texture::set_data(const graphite::data::block& data) -> void
+auto kestrel::graphics::texture::set_data(const data::block& data) -> void
 {
     m_data = data;
 }

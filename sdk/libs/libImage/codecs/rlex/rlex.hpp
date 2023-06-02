@@ -28,16 +28,16 @@ namespace image::codec
     {
         explicit rlex(const std::string& path);
         explicit rlex(const foundation::filesystem::path& path);
-        explicit rlex(const graphite::data::block& data);
-        explicit rlex(graphite::quickdraw::surface& surface);
-        explicit rlex(const std::vector<graphite::quickdraw::surface>& surface);
+        explicit rlex(const data::block& data);
+        explicit rlex(quickdraw::surface& surface);
+        explicit rlex(const std::vector<quickdraw::surface>& surface);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     private:
-        std::vector<graphite::quickdraw::surface> m_frames;
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        std::vector<quickdraw::surface> m_frames;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
     };
 }
 

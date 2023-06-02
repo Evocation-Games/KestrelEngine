@@ -28,13 +28,13 @@ namespace sound::codec
     {
         explicit snd(const std::string& path);
         explicit snd(const foundation::filesystem::path& path);
-        explicit snd(const graphite::data::block& data);
-        explicit snd(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const graphite::data::block& samples);
+        explicit snd(const data::block& data);
+        explicit snd(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const data::block& samples);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     private:
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
     };
 }

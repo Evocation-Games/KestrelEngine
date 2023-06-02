@@ -19,11 +19,11 @@
 // SOFTWARE.
 
 #include <libUI/format/interface/encoder.hpp>
-#include <libGraphite/data/writer.hpp>
+#include <libData/writer.hpp>
 
 // MARK: - Header
 
-auto encode_version(const ui::format::interface::format_version& version, graphite::data::writer& writer) -> void
+auto encode_version(const ui::format::interface::format_version& version, data::writer& writer) -> void
 {
     writer.write_byte(0x00);
     writer.write_byte(version.major);
@@ -31,7 +31,7 @@ auto encode_version(const ui::format::interface::format_version& version, graphi
     writer.write_byte(version.fix);
 }
 
-auto encode_rect(const ui::rect& rect, graphite::data::writer& writer) -> void
+auto encode_rect(const ui::rect& rect, data::writer& writer) -> void
 {
     writer.write_signed_long(rect.origin.x);
     writer.write_signed_long(rect.origin.y);
@@ -39,7 +39,7 @@ auto encode_rect(const ui::rect& rect, graphite::data::writer& writer) -> void
     writer.write_signed_long(rect.size.height);
 }
 
-auto encode_background(const ui::format::background& background, graphite::data::writer& writer) -> void
+auto encode_background(const ui::format::background& background, data::writer& writer) -> void
 {
     writer.write_enum(background.type());
     background.fill().encode_into(writer);
@@ -47,7 +47,7 @@ auto encode_background(const ui::format::background& background, graphite::data:
     background.bottom().encode_into(writer);
 }
 
-auto encode_header(const ui::format::interface& interface, graphite::data::writer& writer) -> void
+auto encode_header(const ui::format::interface& interface, data::writer& writer) -> void
 {
     writer.write_pstr(interface.name());
     encode_version(interface.version(), writer);
@@ -58,7 +58,7 @@ auto encode_header(const ui::format::interface& interface, graphite::data::write
 
 // MARK: - Action
 
-auto encode_action(const ui::format::action& action, graphite::data::writer& writer) -> void
+auto encode_action(const ui::format::action& action, data::writer& writer) -> void
 {
     writer.write_enum(action.type());
     switch (action.type()) {
@@ -77,7 +77,7 @@ auto encode_action(const ui::format::action& action, graphite::data::writer& wri
             break;
         }
         case ui::format::action::type::lua_script_bytecode: {
-            auto bytecode = action.value<graphite::data::block>();
+            auto bytecode = action.value<data::block>();
             writer.write_long(bytecode.size());
             writer.write_data(&bytecode);
             break;
@@ -88,7 +88,7 @@ auto encode_action(const ui::format::action& action, graphite::data::writer& wri
 
 // MARK: - Values
 
-auto encode_value(const ui::format::value& value, graphite::data::writer& writer) -> void
+auto encode_value(const ui::format::value& value, data::writer& writer) -> void
 {
     writer.write_enum(value.type());
     switch (value.type()) {
@@ -192,7 +192,7 @@ auto encode_value(const ui::format::value& value, graphite::data::writer& writer
 
 // MARK: - Attributes
 
-auto encode_attribute_value(const ui::format::attribute_value& value, graphite::data::writer& writer) -> void
+auto encode_attribute_value(const ui::format::attribute_value& value, data::writer& writer) -> void
 {
     writer.write_enum(value.type());
     switch (value.type()) {
@@ -231,7 +231,7 @@ auto encode_attribute_value(const ui::format::attribute_value& value, graphite::
     }
 }
 
-auto encode_attribute(const ui::format::attribute& attribute, graphite::data::writer& writer) -> void
+auto encode_attribute(const ui::format::attribute& attribute, data::writer& writer) -> void
 {
     writer.write_enum(attribute.code());
     writer.write_pstr(attribute.name());
@@ -241,7 +241,7 @@ auto encode_attribute(const ui::format::attribute& attribute, graphite::data::wr
     }
 }
 
-auto encode_attributes(const ui::format::element& element, graphite::data::writer& writer) -> void
+auto encode_attributes(const ui::format::element& element, data::writer& writer) -> void
 {
     writer.write_short(static_cast<std::uint16_t>(element.attribute_count()));
     for (const auto& attribute : element.attributes()) {
@@ -251,13 +251,13 @@ auto encode_attributes(const ui::format::element& element, graphite::data::write
 
 // MARK: - Elements
 
-auto encode_element(const ui::format::element& element, graphite::data::writer& writer) -> void
+auto encode_element(const ui::format::element& element, data::writer& writer) -> void
 {
     writer.write_enum(element.type());
     encode_attributes(element, writer);
 }
 
-auto encode_elements(const ui::format::interface& interface, graphite::data::writer& writer) -> void
+auto encode_elements(const ui::format::interface& interface, data::writer& writer) -> void
 {
     writer.write_short(static_cast<std::uint16_t>(interface.element_count()));
     for (const auto& element : interface.elements()) {
@@ -267,10 +267,10 @@ auto encode_elements(const ui::format::interface& interface, graphite::data::wri
 
 // MARK: - Encoder
 
-auto ui::format::encode(const ui::format::interface &interface) -> graphite::data::block
+auto ui::format::encode(const ui::format::interface &interface) -> data::block
 {
-    graphite::data::writer writer(graphite::data::byte_order::msb);
+    data::writer writer(data::byte_order::msb);
     encode_header(interface, writer);
     encode_elements(interface, writer);
-    return std::move(*const_cast<graphite::data::block *>(writer.data()));
+    return std::move(*const_cast<data::block *>(writer.data()));
 }

@@ -41,7 +41,7 @@ static constexpr std::int32_t ima4_step_table[89] = {
 
 // MARK: - Decoder
 
-auto kestrel::sound::codec::ima4::decode(const descriptor& descriptor, graphite::data::reader& r) -> std::shared_ptr<player_item>
+auto kestrel::sound::codec::ima4::decode(const descriptor& descriptor, data::reader& r) -> std::shared_ptr<player_item>
 {
     // TODO: This is reallying on hard-coded constants and really shouldn't.
     // Determine the best way to calculate this values in the future.

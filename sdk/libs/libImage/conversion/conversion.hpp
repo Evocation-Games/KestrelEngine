@@ -21,8 +21,8 @@
 #pragma once
 
 #include <type_traits>
-#include <libGraphite/data/data.hpp>
-#include <libGraphite/quickdraw/support/surface.hpp>
+#include <libData/block.hpp>
+#include <libQuickdraw/surface/surface.hpp>
 
 namespace image::conversion
 {
@@ -36,12 +36,12 @@ namespace image::conversion
         static constexpr const char *rlex = "rleX";
     };
 
-    auto surface(const std::string& source, const graphite::data::block& data) -> graphite::quickdraw::surface;
-    auto data(const std::string& result, graphite::quickdraw::surface& surface) -> graphite::data::block;
+    auto surface(const std::string& source, const data::block& data) -> quickdraw::surface;
+    auto data(const std::string& result, quickdraw::surface& surface) -> data::block;
 
-    auto surface(const std::string& source, const std::vector<graphite::data::block>& data) -> std::vector<graphite::quickdraw::surface>;
-    auto data(const std::string& result, const std::vector<graphite::quickdraw::surface>& surface) -> graphite::data::block;
+    auto surface(const std::string& source, const std::vector<data::block>& data) -> std::vector<quickdraw::surface>;
+    auto data(const std::string& result, const std::vector<quickdraw::surface>& surface) -> data::block;
 
-    auto perform(const std::string& source, const std::string& result, const graphite::data::block& data) -> graphite::data::block;
-    auto perform(const std::string& source, const std::string& result, const std::vector<graphite::data::block>& data) -> graphite::data::block;
+    auto perform(const std::string& source, const std::string& result, const data::block& data) -> data::block;
+    auto perform(const std::string& source, const std::string& result, const std::vector<data::block>& data) -> data::block;
 }

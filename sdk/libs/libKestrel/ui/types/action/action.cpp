@@ -55,7 +55,7 @@ kestrel::ui::action::action(const ::ui::format::action &action)
         }
         case ::ui::format::action::type::lua_script_bytecode: {
             m_type = type::lua;
-            m_value = lua::script(kestrel::lua_runtime(), action.value<graphite::data::block>());
+            m_value = lua::script(kestrel::lua_runtime(), action.value<data::block>());
             break;
         }
         default:

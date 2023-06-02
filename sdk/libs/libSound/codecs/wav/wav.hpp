@@ -28,10 +28,10 @@ namespace sound::codec
     {
         explicit wav(const std::string& path);
         explicit wav(const foundation::filesystem::path& path);
-        explicit wav(const graphite::data::block& data);
-        explicit wav(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const graphite::data::block& samples);
+        explicit wav(const data::block& data);
+        explicit wav(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const data::block& samples);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     private:
         struct riff_chunk_header {
@@ -44,11 +44,11 @@ namespace sound::codec
             std::uint8_t id[4];
             std::uint32_t size;
             std::uint16_t audio_format;
-            uint16_t num_channels;
-            uint32_t sample_rate;
-            uint32_t byte_rate;
-            uint16_t block_align;
-            uint16_t bits_per_sample;
+            std::uint16_t num_channels;
+            std::uint32_t sample_rate;
+            std::uint32_t byte_rate;
+            std::uint16_t block_align;
+            std::uint16_t bits_per_sample;
         };
 
         struct data_subchunk_header {
@@ -59,9 +59,9 @@ namespace sound::codec
     private:
         std::uint32_t m_channels;
 
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
 
-        auto find_chunk(graphite::data::reader& reader, uint64_t end_position, std::string chunk_id) -> bool;
+        auto find_chunk(data::reader& reader, std::uint64_t end_position, std::string chunk_id) -> bool;
     };
 }

@@ -25,8 +25,8 @@
 #include <functional>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/resource/descriptor.hpp>
-#include <libGraphite/rsrc/resource.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/structure/instance.hpp>
+#include <libResourceCore/file.hpp>
 #include <libKestrel/ui/scene/game_scene.hpp>
 
 namespace kestrel::resource
@@ -58,17 +58,17 @@ namespace kestrel::resource
         lua_function(each, Available_0_8) auto lua_each_name(luabridge::LuaRef body) const -> void;
         auto each_name(const std::function<auto(const container&)->void>& body) const -> void;
 
-        [[nodiscard]] auto file_constraint(const graphite::rsrc::file *file) -> descriptor::lua_reference;
-        lua_function(identifiedResource, Available_0_8) [[nodiscard]] auto identified_resource(graphite::rsrc::resource::identifier id) const -> descriptor::lua_reference;
+        [[nodiscard]] auto file_constraint(const resource_core::file *file) -> descriptor::lua_reference;
+        lua_function(identifiedResource, Available_0_8) [[nodiscard]] auto identified_resource(resource_core::identifier id) const -> descriptor::lua_reference;
         lua_function(typedResource, Available_0_8) [[nodiscard]] auto typed_resource(const std::string& type) const -> descriptor::lua_reference;
         lua_function(namedResource, Available_0_8) [[nodiscard]] auto named_resource(const std::string& name) const -> descriptor::lua_reference;
-        lua_function(typedIdentifiedResource, Available_0_8) [[nodiscard]] auto typed_identified_resource(const std::string& type, graphite::rsrc::resource::identifier id) const -> descriptor::lua_reference;
-        lua_function(identifiedNamedResource, Available_0_8) [[nodiscard]] auto identified_named_resource(graphite::rsrc::resource::identifier id, const std::string& name) const -> descriptor::lua_reference;
+        lua_function(typedIdentifiedResource, Available_0_8) [[nodiscard]] auto typed_identified_resource(const std::string& type, resource_core::identifier id) const -> descriptor::lua_reference;
+        lua_function(identifiedNamedResource, Available_0_8) [[nodiscard]] auto identified_named_resource(resource_core::identifier id, const std::string& name) const -> descriptor::lua_reference;
         lua_function(typedNamedResource, Available_0_8) [[nodiscard]] auto typed_named_resource(const std::string& type, const std::string& name) const -> descriptor::lua_reference;
-        lua_function(typedIdentifiedNamedResource, Available_0_8) [[nodiscard]] auto typed_identified_named_resource(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name) const -> descriptor::lua_reference;
+        lua_function(typedIdentifiedNamedResource, Available_0_8) [[nodiscard]] auto typed_identified_named_resource(const std::string& type, resource_core::identifier id, const std::string& name) const -> descriptor::lua_reference;
 
         lua_function(firstResourceOfType, Available_0_8) [[nodiscard]] auto first_resource_of(const std::string& type) const -> descriptor::lua_reference;
-        lua_function(resource, Available_0_8) [[nodiscard]] auto resource_for_id(const std::string& type, graphite::rsrc::resource::identifier id) const -> descriptor::lua_reference;
+        lua_function(resource, Available_0_8) [[nodiscard]] auto resource_for_id(const std::string& type, resource_core::identifier id) const -> descriptor::lua_reference;
         lua_function(resourcesOfType, Available_0_8) [[nodiscard]] auto resources_of_type(const std::string& type) const -> lua::vector<descriptor::lua_reference>;
 
         lua_getter(scene, Available_0_8) [[nodiscard]]  auto scene() const -> ui::game_scene::lua_reference;

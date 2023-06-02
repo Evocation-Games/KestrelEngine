@@ -21,8 +21,8 @@
 #include <stdexcept>
 #include <libKestrel/ui/legacy/macintosh/dialog.hpp>
 #include <libKestrel/cache/cache.hpp>
-#include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/data/reader.hpp>
+#include <libResourceCore/manager.hpp>
+#include <libData/reader.hpp>
 
 // MARK: - Construction
 
@@ -30,13 +30,13 @@ kestrel::ui::legacy::macintosh::toolbox::dialog::dialog(const resource::descript
 {
     // TODO: This should be moved to libGraphite
     if (auto resource = ref->with_type(resource_type::code)->load()) {
-        graphite::data::reader reader(&resource->data());
+        data::reader reader(&resource->data());
 
         m_bounds = math::rect::macintosh_rect(
-            static_cast<double>(reader.read_signed_short()),
-            static_cast<double>(reader.read_signed_short()),
-            static_cast<double>(reader.read_signed_short()),
-            static_cast<double>(reader.read_signed_short())
+            static_cast<float>(reader.read_signed_short()),
+            static_cast<float>(reader.read_signed_short()),
+            static_cast<float>(reader.read_signed_short()),
+            static_cast<float>(reader.read_signed_short())
         );
 
         m_proc_id = reader.read_signed_short();

@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <string>
 #include <variant>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 #include <libResource/reference.hpp>
 
 namespace ui::format
@@ -45,7 +45,7 @@ namespace ui::format
         explicit action(const std::string& value, enum type type);
         explicit action(const resource::reference& value, enum type type);
         explicit action(const resource::reference& reference);
-        explicit action(const graphite::data::block& bytecode);
+        explicit action(const data::block& bytecode);
 
         [[nodiscard]] auto type() const -> enum type;
 
@@ -58,10 +58,10 @@ namespace ui::format
         auto set_type(const enum type& type) -> void;
         auto set_value(const std::string& value) -> void;
         auto set_value(const resource::reference& value) -> void;
-        auto set_value(const graphite::data::block& value) -> void;
+        auto set_value(const data::block& value) -> void;
 
     private:
         enum type m_type { type::no_action };
-        std::variant<std::string, resource::reference, graphite::data::block> m_value;
+        std::variant<std::string, resource::reference, data::block> m_value;
     };
 }

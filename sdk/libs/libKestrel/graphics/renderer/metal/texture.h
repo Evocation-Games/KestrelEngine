@@ -34,14 +34,14 @@ namespace kestrel::renderer::metal
     public:
         texture(std::uint32_t width, std::uint32_t height);
         explicit texture(const math::size& size);
-        texture(std::uint32_t width, std::uint32_t height, const graphite::data::block& data);
-        texture(const math::size& size, const graphite::data::block& data);
+        texture(std::uint32_t width, std::uint32_t height, const data::block& data);
+        texture(const math::size& size, const data::block& data);
         texture(const math::size& size, const std::uint8_t *data);
         texture(id<MTLTexture> texture, const math::size& sz);
 
         ~texture();
 
-        auto set_data(const graphite::data::block& data) -> void override;
+        auto set_data(const data::block& data) -> void override;
 
         auto handle() const -> std::uint64_t override;
         auto handle_ptr() const -> id<MTLTexture>;

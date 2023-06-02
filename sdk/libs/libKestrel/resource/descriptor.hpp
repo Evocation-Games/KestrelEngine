@@ -23,7 +23,7 @@
 #include <libKestrel/util/availability.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/lua/support/vector.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 #include <libResource/reference.hpp>
 
 namespace kestrel::resource
@@ -35,29 +35,29 @@ namespace kestrel::resource
 
         lua_data(containers, const, Available_0_8) lua::vector<std::string> containers;
         lua_data(type, const, Available_0_8) std::string type;
-        lua_data(id, const, Available_0_8) graphite::rsrc::resource::identifier id { INT64_MIN };
+        lua_data(id, const, Available_0_8) resource_core::identifier id { resource_core::auto_resource_id };
         lua_data(name, const, Available_0_8) std::string name;
-        const graphite::rsrc::file *file { nullptr };
+        const resource_core::file *file { nullptr };
 
         explicit descriptor() = default;
         descriptor(descriptor&) = default;
         descriptor(const descriptor&) = default;
         explicit descriptor(const ::resource::reference& reference);
 
-        static auto file_constrained(const graphite::rsrc::file *file) -> lua_reference;
+        static auto file_constrained(const resource_core::file *file) -> lua_reference;
 
         lua_getter(hash, Available_0_8) [[nodiscard]] auto hash() const -> std::string;
 
-        lua_function(identified, Available_0_8) static auto identified(graphite::rsrc::resource::identifier id) -> lua_reference;
+        lua_function(identified, Available_0_8) static auto identified(resource_core::identifier id) -> lua_reference;
         lua_function(typed, Available_0_8) static auto typed(const std::string& type) -> lua_reference;
         lua_function(named, Available_0_8) static auto named(const std::string& name) -> lua_reference;
         lua_function(typedIdentified, Available_0_8) static auto typed_identified(const std::string& type, int64_t id) -> lua_reference;
-        lua_function(identifiedNamed, Available_0_8) static auto identified_named(graphite::rsrc::resource::identifier id, const std::string& name) -> lua_reference;
+        lua_function(identifiedNamed, Available_0_8) static auto identified_named(resource_core::identifier id, const std::string& name) -> lua_reference;
         lua_function(typedNamed, Available_0_8) static auto typed_named(const std::string& type, const std::string& name) -> lua_reference;
-        lua_function(typedIdentifiedNamed, Available_0_8) static auto typed_identified_named(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name) -> lua_reference;
+        lua_function(typedIdentifiedNamed, Available_0_8) static auto typed_identified_named(const std::string& type, resource_core::identifier id, const std::string& name) -> lua_reference;
 
-        static auto reference(const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name) -> lua_reference;
-        static auto reference(const std::string& ns, const std::string& type, graphite::rsrc::resource::identifier id, const std::string& name) -> lua_reference;
+        static auto reference(const std::string& type, resource_core::identifier id, const std::string& name) -> lua_reference;
+        static auto reference(const std::string& ns, const std::string& type, resource_core::identifier id, const std::string& name) -> lua_reference;
 
         lua_function(hasType, Available_0_8) [[nodiscard]] auto has_type() const -> bool;
         lua_function(hasId, Available_0_8) [[nodiscard]] auto has_id() const -> bool;
@@ -67,10 +67,10 @@ namespace kestrel::resource
         lua_getter(description, Available_0_8) [[nodiscard]] auto description() const -> std::string;
 
         lua_function(withType, Available_0_8) [[nodiscard]] auto with_type(const std::string& type) const -> lua_reference;
-        lua_function(withId, Available_0_8) [[nodiscard]] auto with_id(graphite::rsrc::resource::identifier id) const -> lua_reference;
+        lua_function(withId, Available_0_8) [[nodiscard]] auto with_id(resource_core::identifier id) const -> lua_reference;
 
-        lua_function(normalizedId, Available_0_8) [[nodiscard]] auto normalized_id(graphite::rsrc::resource::identifier index_base,
-                                                                                   graphite::rsrc::resource::identifier first_id) const -> lua_reference;
+        lua_function(normalizedId, Available_0_8) [[nodiscard]] auto normalized_id(resource_core::identifier index_base,
+                                                                                   resource_core::identifier first_id) const -> lua_reference;
 
         lua_getter(ignoringType, Available_0_8) [[nodiscard]] auto ignoring_type() const -> lua_reference;
         lua_getter(ignoringId, Available_0_8) [[nodiscard]] auto ignoring_id() const -> lua_reference;
@@ -84,16 +84,16 @@ namespace kestrel::resource
         lua_function(matchingResources, Available_0_8) auto matching_resources() -> lua::vector<lua_reference>;
         lua_function(bestResource, Available_0_8) auto best_resource() -> lua_reference;
 
-        lua_function(whenId, Available_0_8) [[nodiscard]] auto when_id(graphite::rsrc::resource::identifier id) const -> bool;
-        lua_function(whenNotId, Available_0_8) [[nodiscard]] auto when_not_id(graphite::rsrc::resource::identifier id) const -> bool;
-        lua_function(whenLessThanId, Available_0_8) [[nodiscard]] auto when_less_than_id(graphite::rsrc::resource::identifier id) const -> bool;
-        lua_function(whenGreaterThanId, Available_0_8) [[nodiscard]] auto when_greater_than_id(graphite::rsrc::resource::identifier id) const -> bool;
-        lua_function(whenIdInRange, Available_0_8) [[nodiscard]] auto when_id_in_range(graphite::rsrc::resource::identifier lower_id,
-                                                                                       graphite::rsrc::resource::identifier upper_id) const -> bool;
-        lua_function(whenIdNotInRange, Available_0_8) [[nodiscard]] auto when_id_not_in_range(graphite::rsrc::resource::identifier lower_id,
-                                                                                              graphite::rsrc::resource::identifier upper_id) const -> bool;
+        lua_function(whenId, Available_0_8) [[nodiscard]] auto when_id(resource_core::identifier id) const -> bool;
+        lua_function(whenNotId, Available_0_8) [[nodiscard]] auto when_not_id(resource_core::identifier id) const -> bool;
+        lua_function(whenLessThanId, Available_0_8) [[nodiscard]] auto when_less_than_id(resource_core::identifier id) const -> bool;
+        lua_function(whenGreaterThanId, Available_0_8) [[nodiscard]] auto when_greater_than_id(resource_core::identifier id) const -> bool;
+        lua_function(whenIdInRange, Available_0_8) [[nodiscard]] auto when_id_in_range(resource_core::identifier lower_id,
+                                                                                       resource_core::identifier upper_id) const -> bool;
+        lua_function(whenIdNotInRange, Available_0_8) [[nodiscard]] auto when_id_not_in_range(resource_core::identifier lower_id,
+                                                                                              resource_core::identifier upper_id) const -> bool;
 
-        auto load() -> const graphite::rsrc::resource *;
+        auto load() -> const resource_core::instance *;
 
     private:
         enum class variant

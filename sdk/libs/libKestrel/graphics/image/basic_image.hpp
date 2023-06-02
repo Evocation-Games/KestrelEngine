@@ -21,8 +21,8 @@
 #pragma once
 
 #include <string>
-#include <libGraphite/data/data.hpp>
-#include <libGraphite/rsrc/resource.hpp>
+#include <libData/block.hpp>
+#include <libResourceCore/structure/instance.hpp>
 #include <libKestrel/graphics/types/color.hpp>
 #include <libKestrel/graphics/sprites/sprite_sheet.hpp>
 #include <libKestrel/entity/entity.hpp>
@@ -34,12 +34,12 @@ namespace kestrel::image
     public:
         basic_image() = default;
         explicit basic_image(const math::size& size, const graphics::color& color = graphics::color::white_color());
-        basic_image(graphite::rsrc::resource::identifier id, const std::string& name, const math::size& size, const graphite::data::block& data);
+        basic_image(resource_core::identifier id, const std::string& name, const math::size& size, const data::block& data);
         basic_image(const math::size& size, const graphics::color::lua_reference& color);
 
         ~basic_image();
 
-        [[nodiscard]] virtual auto id() const -> graphite::rsrc::resource::identifier;
+        [[nodiscard]] virtual auto id() const -> resource_core::identifier;
         [[nodiscard]] virtual auto name() const -> std::string;
 
         [[nodiscard]] virtual auto size() const -> math::size;
@@ -52,11 +52,11 @@ namespace kestrel::image
         [[nodiscard]] virtual auto spawn_entity(const math::point& position) const -> std::shared_ptr<ecs::entity>;
 
     protected:
-        graphite::rsrc::resource::identifier m_id { INT64_MIN };
+        resource_core::identifier m_id { resource_core::auto_resource_id };
         std::string m_name;
         std::shared_ptr<graphics::sprite_sheet> m_sheet;
 
-        auto configure(graphite::rsrc::resource::identifier id, const std::string& name, const math::size& size, const graphite::data::block& data) -> void;
-        auto configure(graphite::rsrc::resource::identifier id, const std::string& name, const std::shared_ptr<graphics::sprite_sheet>& sheet) -> void;
+        auto configure(resource_core::identifier id, const std::string& name, const math::size& size, const data::block& data) -> void;
+        auto configure(resource_core::identifier id, const std::string& name, const std::shared_ptr<graphics::sprite_sheet>& sheet) -> void;
     };
 }

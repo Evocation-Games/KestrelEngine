@@ -19,11 +19,10 @@
 // SOFTWARE.
 
 #include <libFoundation/hashing/hashing.hpp>
-#include <libGraphite/util/hashing.hpp>
 
 // MARK: - Hashing
 
 auto foundation::hashing::string(const std::string &input) -> value
 {
-    return graphite::hashing::xxh64(input.c_str(), input.size());
+    return ::hashing::xxh64(input.c_str(), input.size());
 }

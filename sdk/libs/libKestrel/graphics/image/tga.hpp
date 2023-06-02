@@ -21,8 +21,8 @@
 #pragma once
 
 #include <vector>
-#include <libGraphite/quickdraw/support/surface.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libQuickdraw/surface/surface.hpp>
+#include <libData/block.hpp>
 
 namespace kestrel::image
 {
@@ -55,18 +55,18 @@ namespace kestrel::image
 
     public:
         explicit tga(const std::string& path);
-        explicit tga(const graphite::data::block& data);
-        explicit tga(graphite::quickdraw::surface& surface);
+        explicit tga(const data::block& data);
+        explicit tga(quickdraw::surface& surface);
 
-        [[nodiscard]] auto surface() const -> const graphite::quickdraw::surface&;
+        [[nodiscard]] auto surface() const -> const quickdraw::surface&;
         auto data() -> std::vector<char>;
 
     private:
-        graphite::quickdraw::surface m_surface;
+        quickdraw::surface m_surface;
 
-        auto decode(graphite::data::reader& reader) -> bool;
-        auto merge_bytes(int position, const graphite::data::block& bytes, int offset, int size) -> void;
+        auto decode(data::reader& reader) -> bool;
+        auto merge_bytes(int position, const data::block& bytes, int offset, int size) -> void;
 
-        auto encode(graphite::data::writer& writer) -> void;
+        auto encode(data::writer& writer) -> void;
     };
 }

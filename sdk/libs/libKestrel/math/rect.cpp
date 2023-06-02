@@ -40,7 +40,7 @@ kestrel::math::rect::rect(simd::float32 v)
     : m_value(v)
 {}
 
-kestrel::math::rect::rect(const graphite::quickdraw::rect<std::int16_t> &r)
+kestrel::math::rect::rect(const quickdraw::rect<std::int16_t> &r)
     : m_value(
         static_cast<float>(r.origin.x), static_cast<float>(r.origin.y),
         static_cast<float>(r.size.width), static_cast<float>(r.size.height)

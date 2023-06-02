@@ -19,9 +19,9 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/spriteworld/rleD.hpp>
-#include <libGraphite/spriteworld/rleX.hpp>
+#include <libResourceCore/manager.hpp>
+#include <libSpriteWorld/formats/rleD.hpp>
+#include <libSpriteWorld/formats/rleX.hpp>
 #include <libKestrel/graphics/legacy/spriteworld/sprite.hpp>
 #include <libKestrel/cache/cache.hpp>
 #include <libKestrel/kestrel.hpp>
@@ -33,7 +33,7 @@ kestrel::image::legacy::spriteworld::sprite::sprite(const resource::descriptor::
     if (ref->has_type() && ref->type == resource_type::code) {
         if (auto resource = ref->with_type(resource_type::code)->load()) {
             m_source_type = std::string(resource_type::code);
-            graphite::spriteworld::rleD rle(resource->data(), resource->id(), resource->name());
+            ::spriteworld::rleD rle(resource->data(), resource->id(), resource->name());
             m_surface = rle.surface();
             configure(resource->id(),
                       resource->name(), {
@@ -51,7 +51,7 @@ kestrel::image::legacy::spriteworld::sprite::sprite(const resource::descriptor::
     else if (ref->has_type() && ref->type == alternate_type::code) {
         if (auto resource = ref->with_type(alternate_type::code)->load()) {
             m_source_type = std::string(alternate_type::code);
-            graphite::spriteworld::rleX rle(resource->data(), resource->id(), resource->name());
+            ::spriteworld::rleX rle(resource->data(), resource->id(), resource->name());
             m_surface = rle.surface();
             configure(resource->id(),
                       resource->name(), {

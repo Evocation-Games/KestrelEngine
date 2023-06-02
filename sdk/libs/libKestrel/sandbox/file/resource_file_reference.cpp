@@ -27,7 +27,7 @@
 kestrel::sandbox::resource_file_reference::resource_file_reference(const std::string &path)
     : m_path(path)
 {
-    m_file = graphite::rsrc::file(path);
+    m_file = resource_core::file(path);
 }
 
 // MARK: - File Operations
@@ -35,9 +35,9 @@ kestrel::sandbox::resource_file_reference::resource_file_reference(const std::st
 auto kestrel::sandbox::resource_file_reference::type() const -> enum resource_file_type
 {
     switch (m_file.format()) {
-        case graphite::rsrc::file::format::classic:     return resource_file_type::classic;
-        case graphite::rsrc::file::format::extended:    return resource_file_type::extended;
-        case graphite::rsrc::file::format::rez:         return resource_file_type::rez;
+        case resource_core::file::format::classic:     return resource_file_type::classic;
+        case resource_core::file::format::extended:    return resource_file_type::extended;
+        case resource_core::file::format::rez:         return resource_file_type::rez;
         default:                                        return resource_file_type::none;
     }
 };
@@ -113,20 +113,20 @@ auto kestrel::sandbox::resource_file_reference::add_resource(const resource::wri
     auto name = writer->name();
     auto container = writer->container();
 
-    std::vector<graphite::rsrc::attribute> type_attributes;
+    std::vector<resource_core::attribute> type_attributes;
     if (container.get()) {
-        type_attributes.emplace_back(graphite::rsrc::attribute(resource::container::attribute_name, container->primary_name()));
+        type_attributes.emplace_back(resource_core::attribute(resource::container::attribute_name, container->primary_name()));
     }
 
     // Do we have an existing resource already?
     if (auto resource = m_file.find(type_code, id, type_attributes)) {
-        const_cast<graphite::rsrc::resource *>(resource)->set_data(*const_cast<graphite::data::block *>(writer->data()));
+        const_cast<resource_core::instance *>(resource)->set_data(*const_cast<data::block *>(writer->data()));
         return;
     }
 
-    auto type = const_cast<graphite::rsrc::type *>(m_file.type(type_code, type_attributes));
+    auto type = const_cast<resource_core::type *>(m_file.type(type_code, type_attributes));
     if (type) {
-        auto resource = new graphite::rsrc::resource(type, id, name, *writer->data());
+        auto resource = new resource_core::instance(type, id, name, *writer->data());
         type->add_resource(resource);
     }
 }

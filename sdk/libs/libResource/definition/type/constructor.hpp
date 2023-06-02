@@ -41,7 +41,7 @@ namespace resource::definition::type
         };
 
     public:
-        constructor(const std::vector<std::string>& arguments);
+        explicit constructor(const std::vector<std::string>& arguments);
 
         [[nodiscard]] auto has_arguments() const -> bool;
         [[nodiscard]] auto argument_count() const -> std::size_t;

@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libGraphite/data/reader.hpp>
+#include <libData/reader.hpp>
 #include <libKestrel/sound/legacy/macintosh/sound.hpp>
 #include <libKestrel/cache/cache.hpp>
 #include <libKestrel/sound/audio_manager.hpp>
@@ -214,10 +214,10 @@ auto kestrel::sound::legacy::macintosh::quicktime::sound::stop() -> void
 
 // MARK: - Sound Resource Parsing
 
-auto kestrel::sound::legacy::macintosh::quicktime::sound::parse(const graphite::data::block &data) -> bool
+auto kestrel::sound::legacy::macintosh::quicktime::sound::parse(const data::block &data) -> bool
 {
     codec::descriptor descriptor;
-    graphite::data::reader r(&data);
+    data::reader r(&data);
     auto sound_format = r.read_signed_short();
 
     if (sound_format == first_sound_format) {

@@ -32,7 +32,7 @@ file(GLOB_RECURSE libSound_Sources
 )
 
 add_library(Sound ${libSound_Sources})
-target_link_libraries(Sound SIMD Graphite)
+target_link_libraries(Sound SIMD Data ResourceCore SoundCore)
 target_include_directories(Sound PUBLIC
     ${PROJECT_SDK_LIBS}
     ${PROJECT_SUBMODULE_DIR}/graphite/libs

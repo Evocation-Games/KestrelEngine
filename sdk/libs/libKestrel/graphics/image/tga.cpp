@@ -28,30 +28,28 @@
 kestrel::image::tga::tga(const std::string& path)
 {
     // TARGA images are stored in little endian, so set the byte order accordingly
-    graphite::data::block source(path);
-    graphite::data::reader reader(&source);
-    reader.change_byte_order(graphite::data::byte_order::lsb);
+    data::block source(path);
+    data::reader reader(&source);
+    reader.change_byte_order(data::byte_order::lsb);
 
     // TODO: Possibly handle any errors that occur?
     decode(reader);
 }
 
-kestrel::image::tga::tga(const graphite::data::block& data)
+kestrel::image::tga::tga(const data::block& data)
 {
-    graphite::data::reader tga_reader(&data);
-    tga_reader.change_byte_order(graphite::data::byte_order::lsb);
+    data::reader tga_reader(&data);
+    tga_reader.change_byte_order(data::byte_order::lsb);
     decode(tga_reader);
 }
 
-kestrel::image::tga::tga(graphite::quickdraw::surface& surface)
+kestrel::image::tga::tga(quickdraw::surface& surface)
     : m_surface(std::move(surface))
-{
-
-}
+{}
 
 // MARK: - Decoding
 
-auto kestrel::image::tga::decode(graphite::data::reader &reader) -> bool
+auto kestrel::image::tga::decode(data::reader &reader) -> bool
 {
     // Read the TGA header from the image
     tga::header header{};
@@ -70,7 +68,7 @@ auto kestrel::image::tga::decode(graphite::data::reader &reader) -> bool
 
     // Setup a QuickDraw surface for the image to be read into. The buffer should be completely
     // black by default. This will be the "default" image in the event we fail to read.
-    m_surface = graphite::quickdraw::surface(header.width, header.height);
+    m_surface = quickdraw::surface(header.width, header.height);
 
     // Make sure this is a TGA image that we can handle.
     if (header.data_type_code != 2 && header.data_type_code != 10) {
@@ -154,34 +152,34 @@ auto kestrel::image::tga::decode(graphite::data::reader &reader) -> bool
     return true;
 }
 
-auto kestrel::image::tga::merge_bytes(int position, const graphite::data::block& bytes, int offset, int size) -> void
+auto kestrel::image::tga::merge_bytes(int position, const data::block& bytes, int offset, int size) -> void
 {
     if (size == 4) {
         auto r = bytes.get<uint8_t>(offset + 2);
         auto g = bytes.get<uint8_t>(offset + 1);
         auto b = bytes.get<uint8_t>(offset + 0);
         auto a = bytes.get<uint8_t>(offset + 3);
-        m_surface.set(position, graphite::quickdraw::rgb(r, g, b, a));
+        m_surface.set(position, quickdraw::rgb(r, g, b, a));
     }
     else if (size == 3) {
         auto r = bytes.get<uint8_t>(offset + 2);
         auto g = bytes.get<uint8_t>(offset + 1);
         auto b = bytes.get<uint8_t>(offset + 0);
-        m_surface.set(position, graphite::quickdraw::rgb(r, g, b, 255));
+        m_surface.set(position, quickdraw::rgb(r, g, b, 255));
     }
     else if (size == 2) {
         auto f = bytes.get<uint8_t>(offset + 1);
         auto s = bytes.get<uint8_t>(offset + 0);
-        m_surface.set(position, graphite::quickdraw::rgb((s & 0x7c) << 1,
-                                                         ((s & 0x03) << 6) | ((f & 0xe0) >> 2),
-                                                         (f & 0x1f) << 3,
-                                                         s & 0x80));
+        m_surface.set(position, quickdraw::rgb((s & 0x7c) << 1,
+                                               ((s & 0x03) << 6) | ((f & 0xe0) >> 2),
+                                               (f & 0x1f) << 3,
+                                               s & 0x80));
     }
 }
 
 // MARK: - Encoding
 
-auto kestrel::image::tga::encode(graphite::data::writer &writer) -> void
+auto kestrel::image::tga::encode(data::writer &writer) -> void
 {
     // Formulate a TGA header
     tga::header header{};
@@ -214,7 +212,7 @@ auto kestrel::image::tga::encode(graphite::data::writer &writer) -> void
     // Start compressing and writing the image data.
     int run = 0;
     bool dirty = false;
-    std::vector<graphite::quickdraw::color> buffer;
+    std::vector<quickdraw::color> buffer;
 
     for (auto y = 0; y < header.height; ++y) {
         for (auto x = 0; x < header.width; ++x) {
@@ -273,15 +271,15 @@ auto kestrel::image::tga::encode(graphite::data::writer &writer) -> void
 
 // MARK: - Accessors
 
-auto kestrel::image::tga::surface() const -> const graphite::quickdraw::surface&
+auto kestrel::image::tga::surface() const -> const quickdraw::surface&
 {
     return m_surface;
 }
 
 auto kestrel::image::tga::data() -> std::vector<char>
 {
-    graphite::data::writer writer;
-    writer.change_byte_order(graphite::data::byte_order::lsb);
+    data::writer writer;
+    writer.change_byte_order(data::byte_order::lsb);
     encode(writer);
 
     std::vector<char> v;

@@ -19,8 +19,8 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/quickdraw/format/pict.hpp>
+#include <libResourceCore/manager.hpp>
+#include <libQuickdraw/format/picture.hpp>
 #include <libKestrel/graphics/legacy/macintosh/picture.hpp>
 #include <libKestrel/cache/cache.hpp>
 #include <libKestrel/kestrel.hpp>
@@ -30,7 +30,7 @@
 kestrel::image::legacy::macintosh::quickdraw::picture::picture(const resource::descriptor::lua_reference& ref)
 {
     if (auto resource = ref->with_type(resource_type::code)->load()) {
-        graphite::quickdraw::pict pict(resource->data(), resource->id(), resource->name());
+        ::quickdraw::picture pict(resource->data(), resource->id(), resource->name());
         const auto& surface = pict.surface();
         configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
         return;

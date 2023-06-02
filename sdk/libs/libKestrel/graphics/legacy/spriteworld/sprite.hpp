@@ -24,7 +24,7 @@
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
-#include <libGraphite/quickdraw/support/surface.hpp>
+#include <libQuickdraw/surface/surface.hpp>
 #include <libKestrel/resource/macro.hpp>
 
 namespace kestrel::image::legacy::spriteworld
@@ -51,6 +51,6 @@ namespace kestrel::image::legacy::spriteworld
 
     private:
         std::string m_source_type;
-        graphite::quickdraw::surface m_surface;
+        quickdraw::surface m_surface;
     };
 };

@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include <libKestrel/command/property.hpp>
-#include <libGraphite/util/hashing.hpp>
 #include <libKestrel/device/console.hpp>
 
 // MARK: - Construction
@@ -30,9 +29,9 @@ kestrel::command::property::property(const std::string &name, const std::int32_t
 
 // MARK: - Hashing
 
-auto kestrel::command::property::hash(const std::string &name) -> graphite::hashing::value64
+auto kestrel::command::property::hash(const std::string &name) -> hashing::value64
 {
-    return graphite::hashing::xxh64(name.c_str(), name.size());
+    return hashing::xxh64(name.c_str(), name.size());
 }
 
 // MARK: - Return Values
@@ -87,7 +86,7 @@ auto kestrel::command::property::boolean_value() const -> bool
     return (m_expected_arguments == 0 ? m_raw_value : false);
 }
 
-auto kestrel::command::property::boolean_value(graphite::hashing::value64 name_hash) const -> bool
+auto kestrel::command::property::boolean_value(hashing::value64 name_hash) const -> bool
 {
     const auto it = m_properties.find(name_hash);
     if (it != m_properties.end()) {
@@ -98,7 +97,7 @@ auto kestrel::command::property::boolean_value(graphite::hashing::value64 name_h
     return false;
 }
 
-auto kestrel::command::property::property_value(graphite::hashing::value64 name_hash) const -> lua_reference
+auto kestrel::command::property::property_value(hashing::value64 name_hash) const -> lua_reference
 {
     const auto it = m_properties.find(name_hash);
     if (it != m_properties.end()) {
@@ -116,7 +115,7 @@ auto kestrel::command::property::name() const -> std::string
     return m_name;
 }
 
-auto kestrel::command::property::name_hash() const -> graphite::hashing::value64
+auto kestrel::command::property::name_hash() const -> hashing::value64
 {
     return m_name_hash;
 }

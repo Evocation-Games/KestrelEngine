@@ -23,8 +23,8 @@
 #include <cstdint>
 #include <string>
 
-#include <libGraphite/util/hashing.hpp>
-#include <libGraphite/rsrc/resource.hpp>
+#include <libHashing/xxhash/xxhash.hpp>
+#include <libResourceCore/structure/instance.hpp>
 
 namespace kestrel::util
 {
@@ -41,13 +41,13 @@ namespace kestrel::util
         explicit uid(value v);
         explicit uid(const std::string& name);
 
-        uid(const std::string& resource_type, graphite::rsrc::resource::identifier resource_id, const std::string& ns = {});
+        uid(const std::string& resource_type, resource_core::identifier resource_id, const std::string& ns = {});
 
         explicit operator value() const { return m_value; }
 
         explicit operator std::uint32_t() const {
             std::string str { std::to_string(m_value) };
-            return graphite::hashing::xxh32((const std::uint8_t* )str.c_str(), str.size());
+            return hashing::xxh32((const std::uint8_t* )str.c_str(), str.size());
         }
 
         auto operator==(const uid& k) const -> bool { return m_value == k.m_value; }
@@ -65,7 +65,7 @@ namespace std
     {
         auto operator()(const kestrel::util::uid& k) const -> size_t
         {
-            return hash<uint64_t>()((uint64_t)k);
+            return hash<std::uint64_t>()((std::uint64_t)k);
         }
     };
 }

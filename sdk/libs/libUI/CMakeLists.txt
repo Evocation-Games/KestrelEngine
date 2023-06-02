@@ -32,7 +32,7 @@ file(GLOB_RECURSE libUI_Sources
 )
 
 add_library(UI ${libUI_Sources})
-target_link_libraries(UI Graphite Resource)
+target_link_libraries(UI Resource ToolBox)
 target_include_directories(UI PUBLIC
     ${PROJECT_SDK_LIBS}
     ${PROJECT_SUBMODULE_DIR}/graphite/libs

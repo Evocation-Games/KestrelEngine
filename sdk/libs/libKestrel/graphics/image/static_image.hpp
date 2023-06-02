@@ -37,7 +37,7 @@ namespace kestrel::image
         is_resource_type("sïmg");
         has_constructable_lua_api(static_image);
 
-        static_image(graphite::rsrc::resource::identifier id, const std::string& name, const std::shared_ptr<graphics::sprite_sheet>& sheet);
+        static_image(resource_core::identifier id, const std::string& name, const std::shared_ptr<graphics::sprite_sheet>& sheet);
         static_image(const math::size& size, const graphics::color::lua_reference& color);
 
         static auto from(const luabridge::LuaRef& ref) -> lua_reference;

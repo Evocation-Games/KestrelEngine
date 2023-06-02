@@ -29,7 +29,7 @@
 #include <libResource/definition/template/instance.hpp>
 #include <libInterpreter/construct/function.hpp>
 #include <libInterpreter/token/token.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 #include <libImage/conversion/conversion.hpp>
 #include <libSound/conversion/conversion.hpp>
 
@@ -260,8 +260,8 @@ static auto write_value(
         auto source = type.hints()[0];
         auto result = type.hints()[1];
 
-        graphite::data::block source_data(file.characters());
-        graphite::data::block result_data = image::conversion::perform(source, result, source_data);
+        data::block source_data(file.characters());
+        data::block result_data = image::conversion::perform(source, result, source_data);
         values.emplace(name, ::resource::value_container(result_data.get<std::uint8_t *>(), result_data.size()));
     }
     else if (type.name() == kdl::spec::types::sound) {
@@ -271,8 +271,8 @@ static auto write_value(
         auto source = type.hints()[0];
         auto result = type.hints()[1];
 
-        graphite::data::block source_data(file.characters());
-        graphite::data::block result_data = sound::conversion::perform(source, result, source_data);
+        data::block source_data(file.characters());
+        data::block result_data = sound::conversion::perform(source, result, source_data);
         values.emplace(name, ::resource::value_container(result_data.get<std::uint8_t *>(), result_data.size()));
     }
     else if (type.name() == kdl::spec::types::image_set) {
@@ -282,8 +282,8 @@ static auto write_value(
         auto source = type.hints()[0];
         auto result = type.hints()[1];
 
-        graphite::data::block source_data(file.characters());
-        graphite::data::block result_data = image::conversion::perform(source, result,{ source_data });
+        data::block source_data(file.characters());
+        data::block result_data = image::conversion::perform(source, result,{ source_data });
         values.emplace(name, ::resource::value_container(result_data.get<std::uint8_t *>(), result_data.size()));
     }
     else {
@@ -295,7 +295,7 @@ static auto write_value(
     std::unordered_map<std::string, ::resource::value_container>& values,
     const std::string& name,
     const resource::definition::type::descriptor& type,
-    const std::vector<graphite::data::block>& blocks
+    const std::vector<data::block>& blocks
 )
 -> void
 {
@@ -306,7 +306,7 @@ static auto write_value(
         auto source = type.hints()[0];
         auto result = type.hints()[1];
 
-        graphite::data::block result_data = image::conversion::perform(source, result, blocks);
+        data::block result_data = image::conversion::perform(source, result, blocks);
         values.emplace(name, ::resource::value_container(result_data.get<std::uint8_t *>(), result_data.size()));
     }
     else {
@@ -526,7 +526,7 @@ auto kdl::sema::declaration::resource::field::parse_value(
     else if (stream.expect({ expectation(tokenizer::import_keyword).be_true(), expectation(tokenizer::l_brace).be_true() }) && can_multi_import(&value.type())) {
         auto source_path = stream.peek().source().source_directory();
         stream.advance(1);
-        std::vector<graphite::data::block> files;
+        std::vector<data::block> files;
 
         if (!stream.expect({ expectation(tokenizer::l_brace).be_true() })) {
             throw std::runtime_error("");

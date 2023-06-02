@@ -24,7 +24,7 @@
 #include <vector>
 #include <type_traits>
 #include <libKestrel/math/size.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 #include <libKestrel/graphics/types/color.hpp>
 
 namespace kestrel::graphics
@@ -34,18 +34,18 @@ namespace kestrel::graphics
     public:
         typedef std::uint64_t reference;
 
-        texture(std::uint32_t width, std::uint32_t height, const graphite::data::block& data);
-        texture(const math::size& size, const graphite::data::block& data);
+        texture(std::uint32_t width, std::uint32_t height, const data::block& data);
+        texture(const math::size& size, const data::block& data);
         texture(std::uint32_t width, std::uint32_t height, bool populate = false);
         explicit texture(const math::size& size, bool populate = false);
 
         ~texture() = default;
 
         [[nodiscard]] auto size() const -> math::size;
-        [[nodiscard]] auto data() const -> const graphite::data::block&;
+        [[nodiscard]] auto data() const -> const data::block&;
         [[nodiscard]] auto raw_data_ptr() const -> const void *;
 
-        virtual auto set_data(const graphite::data::block& data) -> void;
+        virtual auto set_data(const data::block& data) -> void;
         virtual auto handle() const -> reference;
         virtual auto destroy() -> void;
 
@@ -57,7 +57,7 @@ namespace kestrel::graphics
     protected:
         bool m_uploaded { false };
         math::size m_size;
-        graphite::data::block m_data;
+        data::block m_data;
 
     };
 }

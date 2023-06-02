@@ -26,13 +26,13 @@
 
 kestrel::image::basic_image::basic_image(const math::size& size, const graphics::color& color)
 {
-    graphite::data::block data(size.area());
+    data::block data(size.area());
     data.set(color.color_value(), data.size());
     auto tex = renderer::create_texture(size, data);
     m_sheet = std::make_shared<graphics::sprite_sheet>(tex, size);
 }
 
-kestrel::image::basic_image::basic_image(int64_t id, const std::string& name, const math::size &size, const graphite::data::block& data)
+kestrel::image::basic_image::basic_image(resource_core::identifier id, const std::string& name, const math::size &size, const data::block& data)
     : m_id(id), m_name(name)
 {
     auto tex = renderer::create_texture(size, data);
@@ -41,7 +41,7 @@ kestrel::image::basic_image::basic_image(int64_t id, const std::string& name, co
 
 kestrel::image::basic_image::basic_image(const math::size &size, const graphics::color::lua_reference &color)
 {
-    graphite::data::block data(size.area());
+    data::block data(size.area());
     data.set(color->color_value(), data.size());
 
     auto tex = renderer::create_texture(size, data);
@@ -57,7 +57,7 @@ kestrel::image::basic_image::~basic_image()
 
 // MARK: - Accessors
 
-auto kestrel::image::basic_image::id() const -> graphite::rsrc::resource::identifier
+auto kestrel::image::basic_image::id() const -> resource_core::identifier
 {
     return m_id;
 }
@@ -84,7 +84,7 @@ auto kestrel::image::basic_image::sprite_sheet() const -> std::shared_ptr<graphi
 
 // MARK: - Configuration
 
-auto kestrel::image::basic_image::configure(graphite::rsrc::resource::identifier id, const std::string &name, const math::size &size, const graphite::data::block &data) -> void
+auto kestrel::image::basic_image::configure(resource_core::identifier id, const std::string &name, const math::size &size, const data::block &data) -> void
 {
     m_id = id;
     m_name = name;

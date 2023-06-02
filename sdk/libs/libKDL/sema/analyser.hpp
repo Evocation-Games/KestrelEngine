@@ -23,7 +23,6 @@
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
 #include <libKDL/sema/context.hpp>
-#include <libGraphite/rsrc/file.hpp>
 
 namespace kdl::sema
 {

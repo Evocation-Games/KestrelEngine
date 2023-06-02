@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/ui/types/value/value.hpp>
-#include <libGraphite/toolbox/string_list.hpp>
+#include <libToolbox/strings/string_list.hpp>
 
 // MARK: - Construction
 
@@ -55,10 +55,10 @@ auto kestrel::ui::value::load_values(const ::ui::format::value &value) -> void
         }
         case ::ui::format::value::type::indexed_lookup: {
             auto lookup = value.get<::ui::format::indexed_lookup>();
-            if (lookup.reference().is_type("STR#") && lookup.type() == "PSTR") {
+            if (lookup.reference().is_type(toolbox::string_list::type_code()) && lookup.type() == "PSTR") {
                 resource::descriptor ref(lookup.reference());
                 if (auto resource = ref.load()) {
-                    graphite::toolbox::string_list list(resource->data());
+                    toolbox::string_list list(resource->data());
                     add_value(list.at(lookup.index() - 1));
                 }
             }

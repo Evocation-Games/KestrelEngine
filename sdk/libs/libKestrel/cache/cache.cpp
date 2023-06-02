@@ -37,7 +37,7 @@ auto kestrel::cache::add(const resource::descriptor::lua_reference &ref, const s
         }
     }
 
-    s_cache_assets.emplace(s_cache_assets.begin(), std::tuple(key, rtc::clock::global().current(), asset));
+    s_cache_assets.emplace(s_cache_assets.begin(), key, rtc::clock::global().current(), asset);
 }
 
 auto kestrel::cache::fetch(const resource::descriptor::lua_reference &ref) -> std::optional<std::any>

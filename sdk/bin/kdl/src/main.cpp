@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <libKDL/unit/file.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 
 #include <iostream>
 #include <libKDL/exception/duplicate_type_definition_exception.hpp>
@@ -46,11 +46,11 @@ auto report_exception(const std::string& reason) -> void;
 auto main(std::int32_t argc, const char **argv) -> std::int32_t
 {
     std::string output_name = "result.kdat";
-    graphite::rsrc::file output;
+    resource_core::file output;
     kdl::sema::context context;
     kdl::unit::file session(output, context);
     std::vector<std::string> definitions;
-    auto format = graphite::rsrc::file::format::extended;
+    auto format = resource_core::file::format::extended;
 
     // Parse out the command that was used to invoke the assembler.
     try {
@@ -59,13 +59,13 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
             if (option == "-f" || option == "--format") {
                 std::string f(argv[++i]);
                 if (f == "extended" || f == "kestrel") {
-                    format = graphite::rsrc::file::format::extended;
+                    format = resource_core::file::format::extended;
                 }
                 else if (f == "classic" || f == "rsrc") {
-                    format = graphite::rsrc::file::format::classic;
+                    format = resource_core::file::format::classic;
                 }
                 else if (f == "rez") {
-                    format = graphite::rsrc::file::format::rez;
+                    format = resource_core::file::format::rez;
                 }
                 else {
                     throw std::runtime_error("");
@@ -81,15 +81,15 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
             else {
                 std::vector<std::string> file_definitions = definitions;
                 switch (format) {
-                    case graphite::rsrc::file::format::extended: {
+                    case resource_core::file::format::extended: {
                         file_definitions.emplace_back("extended");
                         break;
                     }
-                    case graphite::rsrc::file::format::classic: {
+                    case resource_core::file::format::classic: {
                         file_definitions.emplace_back("classic");
                         break;
                     }
-                    case graphite::rsrc::file::format::rez: {
+                    case resource_core::file::format::rez: {
                         file_definitions.emplace_back("rez");
                         break;
                     }

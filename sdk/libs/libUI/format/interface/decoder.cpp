@@ -19,17 +19,17 @@
 // SOFTWARE.
 
 #include <libUI/format/interface/decoder.hpp>
-#include <libGraphite/data/reader.hpp>
+#include <libData/reader.hpp>
 
 // MARK: - Header
 
-auto decode_version(ui::format::interface& an_interface, graphite::data::reader& reader) -> void
+auto decode_version(ui::format::interface& an_interface, data::reader& reader) -> void
 {
     reader.move(1);
     an_interface.set_version(reader.read_byte(), reader.read_byte(), reader.read_byte());
 }
 
-auto decode_rect(graphite::data::reader& reader) -> ui::rect
+auto decode_rect(data::reader& reader) -> ui::rect
 {
     return {
         reader.read_signed_long(), reader.read_signed_long(),
@@ -37,7 +37,7 @@ auto decode_rect(graphite::data::reader& reader) -> ui::rect
     };
 }
 
-auto decode_background(graphite::data::reader& reader) -> ui::format::background
+auto decode_background(data::reader& reader) -> ui::format::background
 {
     auto type = reader.read_enum<enum ui::format::background::type>();
     auto fill = resource::reference::decode_from(reader);
@@ -57,7 +57,7 @@ auto decode_background(graphite::data::reader& reader) -> ui::format::background
     }
 }
 
-auto decode_header(ui::format::interface& an_interface, graphite::data::reader& reader) -> void
+auto decode_header(ui::format::interface& an_interface, data::reader& reader) -> void
 {
     an_interface.set_name(reader.read_pstr());
     decode_version(an_interface, reader);
@@ -68,7 +68,7 @@ auto decode_header(ui::format::interface& an_interface, graphite::data::reader& 
 
 // MARK: - Action
 
-auto decode_action(graphite::data::reader& reader) -> ui::format::action
+auto decode_action(data::reader& reader) -> ui::format::action
 {
     auto type = reader.read_enum<enum ui::format::action::type>();
     switch (type) {
@@ -95,7 +95,7 @@ auto decode_action(graphite::data::reader& reader) -> ui::format::action
 
 // MARK: - Values
 
-auto decode_value(graphite::data::reader& reader) -> ui::format::value
+auto decode_value(data::reader& reader) -> ui::format::value
 {
     auto type = reader.read_enum<enum ui::format::value::type>();
     auto count = reader.read_short();
@@ -182,7 +182,7 @@ auto decode_value(graphite::data::reader& reader) -> ui::format::value
 
 // MARK: - Attributes
 
-auto decode_attribute_value(graphite::data::reader& reader) -> ui::format::attribute_value
+auto decode_attribute_value(data::reader& reader) -> ui::format::attribute_value
 {
     auto type = reader.read_enum<enum ui::format::attribute_value::type>();
     switch (type) {
@@ -213,7 +213,7 @@ auto decode_attribute_value(graphite::data::reader& reader) -> ui::format::attri
     }
 }
 
-auto decode_attribute(graphite::data::reader& reader) -> ui::format::attribute
+auto decode_attribute(data::reader& reader) -> ui::format::attribute
 {
     auto code = reader.read_enum<enum ui::format::attribute::code>();
     auto name = reader.read_pstr();
@@ -227,7 +227,7 @@ auto decode_attribute(graphite::data::reader& reader) -> ui::format::attribute
     return ui::format::attribute(code, name, values);
 }
 
-auto decode_attributes(ui::format::element& element, graphite::data::reader& reader) -> void
+auto decode_attributes(ui::format::element& element, data::reader& reader) -> void
 {
     auto count = reader.read_short();
     for (auto i = 0; i < count; ++i) {
@@ -237,7 +237,7 @@ auto decode_attributes(ui::format::element& element, graphite::data::reader& rea
 
 // MARK: - Elements
 
-auto decode_element(ui::format::interface& an_interface, graphite::data::reader& reader) -> void
+auto decode_element(ui::format::interface& an_interface, data::reader& reader) -> void
 {
     auto type = reader.read_enum<enum ui::format::element::type>();
     ui::format::element element(type);
@@ -245,7 +245,7 @@ auto decode_element(ui::format::interface& an_interface, graphite::data::reader&
     an_interface.add_element(element);
 }
 
-auto decode_elements(ui::format::interface& an_interface, graphite::data::reader& reader) -> void
+auto decode_elements(ui::format::interface& an_interface, data::reader& reader) -> void
 {
     auto count = reader.read_short();
     for (auto i = 0; i < count; ++i) {
@@ -255,10 +255,10 @@ auto decode_elements(ui::format::interface& an_interface, graphite::data::reader
 
 // MARK: - Decoder
 
-auto ui::format::decode(const graphite::data::block &data) -> interface
+auto ui::format::decode(const data::block &data) -> interface
 {
     struct interface an_interface;
-    graphite::data::reader reader(&data);
+    data::reader reader(&data);
 
     decode_header(an_interface, reader);
     decode_elements(an_interface, reader);

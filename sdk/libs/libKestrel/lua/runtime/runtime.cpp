@@ -23,7 +23,7 @@
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/runtime/stack.hpp>
 #include <libKestrel/lua/script.hpp>
-#include <libGraphite/rsrc/resource.hpp>
+#include <libResourceCore/structure/instance.hpp>
 #include <libKestrel/device/console.hpp>
 
 // MARK: - Construction
@@ -137,7 +137,7 @@ auto kestrel::lua::runtime::run(const lua::script& script) -> void
     run(script.id(), script.name(), script);
 }
 
-auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const script& script) -> void
+auto kestrel::lua::runtime::run(resource_core::identifier id, const std::string& name, const script& script) -> void
 {
     int result = LUA_OK;
 
@@ -157,7 +157,7 @@ auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const s
     execute(id, name);
 }
 
-auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const std::string& name, const std::string& script) -> void
+auto kestrel::lua::runtime::run(resource_core::identifier id, const std::string& name, const std::string& script) -> void
 {
     // TODO: Move this load so that it only happens once.
     if (luaL_loadstring(m_state, script.c_str()) != LUA_OK) {
@@ -167,7 +167,7 @@ auto kestrel::lua::runtime::run(graphite::rsrc::resource::identifier id, const s
     execute(id, name);
 }
 
-auto kestrel::lua::runtime::execute(graphite::rsrc::resource::identifier id, const std::string &name) -> void
+auto kestrel::lua::runtime::execute(resource_core::identifier id, const std::string &name) -> void
 {
     int result = LUA_OK;
     try {

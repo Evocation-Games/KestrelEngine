@@ -91,9 +91,9 @@ auto kestrel::graphics::rgba_buffer::data() const -> std::uint8_t *
     return m_buffer;
 }
 
-auto kestrel::graphics::rgba_buffer::data_block() const -> graphite::data::block
+auto kestrel::graphics::rgba_buffer::data_block() const -> data::block
 {
-    return std::move(graphite::data::block(m_buffer, m_count, false, graphite::data::native_byte_order()));
+    return std::move(data::block(m_buffer, m_count, false, data::native_byte_order()));
 }
 
 // MARK: - Look Up
@@ -364,7 +364,7 @@ auto kestrel::graphics::rgba_buffer::apply_run(const std::vector<graphics::color
 #endif
 }
 
-auto kestrel::graphics::rgba_buffer::apply_run(const graphite::data::block& cv, std::uint64_t start, std::uint64_t line) -> void
+auto kestrel::graphics::rgba_buffer::apply_run(const data::block& cv, std::uint64_t start, std::uint64_t line) -> void
 {
     if (line < m_clipping_rect.y() || line >= m_clipping_rect.max_y()) {
         return;

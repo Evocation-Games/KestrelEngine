@@ -20,11 +20,11 @@
 
 #pragma once
 
+#include <libData/block.hpp>
+#include <libData/reader.hpp>
+#include <libData/writer.hpp>
 #include <libFoundation/system/filesystem/path.hpp>
-#include <libGraphite/data/data.hpp>
-#include <libGraphite/data/writer.hpp>
-#include <libGraphite/data/reader.hpp>
-#include <libGraphite/quickdraw/support/surface.hpp>
+#include <libQuickdraw/surface/surface.hpp>
 
 namespace image::codec
 {
@@ -32,44 +32,43 @@ namespace image::codec
     {
         explicit format(const std::string& path) : m_path(path) {}
         explicit format(const foundation::filesystem::path& path) : m_path(path) {}
-        explicit format(const graphite::data::block& data) {}
-        explicit format(graphite::quickdraw::surface& surface) : m_surface(surface) {}
+        explicit format(const data::block& data) {}
+        explicit format(quickdraw::surface& surface) : m_surface(surface) {}
 
         [[nodiscard]] auto path() const -> foundation::filesystem::path
         {
             return m_path;
         }
 
-        [[nodiscard]] auto data() const -> graphite::data::block
+        [[nodiscard]] auto data() const -> data::block
         {
-            graphite::data::writer writer(byte_order());
+            data::writer writer(byte_order());
             encode(writer);
-            return std::move(*const_cast<graphite::data::block *>(writer.data()));
+            return std::move(*const_cast<data::block *>(writer.data()));
         }
 
-        [[nodiscard]] virtual auto byte_order() const -> graphite::data::byte_order = 0;
-        auto surface() -> graphite::quickdraw::surface& { return m_surface; }
+        [[nodiscard]] virtual auto byte_order() const -> data::byte_order = 0;
+        auto surface() -> quickdraw::surface& { return m_surface; }
 
     protected:
         foundation::filesystem::path m_path;
-        graphite::quickdraw::surface m_surface;
+        quickdraw::surface m_surface;
 
-        virtual auto decode(graphite::data::reader& reader) -> void = 0;
-        virtual auto encode(graphite::data::writer& writer) const -> void = 0;
+        virtual auto decode(data::reader& reader) -> void = 0;
+        virtual auto encode(data::writer& writer) const -> void = 0;
 
         auto load_file_contents() -> void
         {
-            auto reader = graphite::data::reader::file(m_path.string());
+            auto reader = data::reader::file(m_path.string());
             reader.change_byte_order(this->byte_order());
             decode(reader);
         }
 
-        auto load_data(const graphite::data::block& data) -> void
+        auto load_data(const data::block& data) -> void
         {
-            graphite::data::reader reader(&data);
+            data::reader reader(&data);
             reader.change_byte_order(this->byte_order());
             decode(reader);
         }
-
     };
 }

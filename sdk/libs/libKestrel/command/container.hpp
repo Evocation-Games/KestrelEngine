@@ -28,7 +28,7 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/command/program.hpp>
 #include <libKestrel/command/property.hpp>
-#include <libGraphite/util/hashing.hpp>
+#include <libHashing/xxhash/xxhash.hpp>
 
 namespace kestrel::command
 {
@@ -48,7 +48,7 @@ namespace kestrel::command
 
     private:
         std::vector<command::program::lua_reference> m_programs;
-        std::unordered_map<graphite::hashing::value64, property::lua_reference> m_properties;
+        std::unordered_map<hashing::value64, property::lua_reference> m_properties;
 
         auto execute_program(const program::lua_reference& program) -> void;
         auto execute_node(const node::lua_reference& node, const property::lua_reference& property = { nullptr }) -> bool;

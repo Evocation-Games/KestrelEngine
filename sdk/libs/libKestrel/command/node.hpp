@@ -25,7 +25,7 @@
 #include <libKestrel/lua/runtime/runtime.hpp>
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/command/argument.hpp>
-#include <libGraphite/util/hashing.hpp>
+#include <libHashing/xxhash/xxhash.hpp>
 
 namespace kestrel::command
 {
@@ -34,24 +34,24 @@ namespace kestrel::command
     public:
         has_constructable_lua_api(node);
 
-        explicit node(graphite::hashing::value64 name, node *parent = nullptr);
+        explicit node(hashing::value64 name, node *parent = nullptr);
 
         auto add_argument(argument&& arg) -> void;
 
-        [[nodiscard]] auto name_hash() const -> graphite::hashing::value64;
+        [[nodiscard]] auto name_hash() const -> hashing::value64;
         [[nodiscard]] auto is_named(const std::string& name) const -> bool;
-        [[nodiscard]] auto is_named(graphite::hashing::value64 value) const -> bool;
+        [[nodiscard]] auto is_named(hashing::value64 value) const -> bool;
 
         [[nodiscard]] auto argument_count() const -> std::int32_t;
         [[nodiscard]] auto argument_at(std::int32_t idx) const -> const argument&;
-        [[nodiscard]] auto has_argument(graphite::hashing::value64 value, std::int32_t idx = -1) const -> bool;
+        [[nodiscard]] auto has_argument(hashing::value64 value, std::int32_t idx = -1) const -> bool;
 
         [[nodiscard]] auto has_children() const -> bool;
         [[nodiscard]] auto children() const -> std::vector<node::lua_reference>;
 
     private:
         node *m_parent { nullptr };
-        graphite::hashing::value64 m_name;
+        hashing::value64 m_name;
         std::vector<argument> m_arguments;
         std::vector<node::lua_reference> m_children;
     };

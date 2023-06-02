@@ -22,13 +22,14 @@
 
 #include <string>
 #include <cstdint>
+#include <libHashing/xxhash/xxhash.hpp>
 
 namespace foundation::hashing
 {
     /**
      * Type definition to allow easy changing of hashing algorithm outputs.
      */
-    typedef std::uint64_t value;
+    typedef ::hashing::value64 value;
 
     /**
      * Take a string and generate an appropriate hash value from it.

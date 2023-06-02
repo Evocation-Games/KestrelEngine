@@ -20,10 +20,10 @@
 
 #pragma once
 
+#include <libData/block.hpp>
+#include <libData/writer.hpp>
+#include <libData/reader.hpp>
 #include <libFoundation/system/filesystem/path.hpp>
-#include <libGraphite/data/data.hpp>
-#include <libGraphite/data/writer.hpp>
-#include <libGraphite/data/reader.hpp>
 
 namespace sound::codec
 {
@@ -31,9 +31,9 @@ namespace sound::codec
     {
         explicit format(const std::string& path) : m_path(path) {}
         explicit format(const foundation::filesystem::path& path) : m_path(path) {}
-        explicit format(const graphite::data::block& data) {}
+        explicit format(const data::block& data) {}
 
-        explicit format(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const graphite::data::block& samples)
+        explicit format(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const data::block& samples)
             : m_sample_rate(sample_rate), m_sample_bits(sample_bits), m_channels(channels), m_samples(samples)
         {}
 
@@ -42,14 +42,14 @@ namespace sound::codec
             return m_path;
         }
 
-        [[nodiscard]] auto data() const -> graphite::data::block
+        [[nodiscard]] auto data() const -> data::block
         {
-            graphite::data::writer writer(byte_order());
+            data::writer writer(byte_order());
             encode(writer);
-            return std::move(*const_cast<graphite::data::block *>(writer.data()));
+            return std::move(*const_cast<data::block *>(writer.data()));
         }
 
-        [[nodiscard]] virtual auto byte_order() const -> graphite::data::byte_order = 0;
+        [[nodiscard]] virtual auto byte_order() const -> data::byte_order = 0;
 
         [[nodiscard]] auto sample_bits() const -> std::uint8_t
         {
@@ -66,7 +66,7 @@ namespace sound::codec
             return m_channels;
         }
 
-        [[nodiscard]] auto samples() -> graphite::data::block
+        [[nodiscard]] auto samples() -> data::block
         {
             return m_samples;
         }
@@ -75,22 +75,22 @@ namespace sound::codec
         std::uint8_t m_sample_bits { 8 };
         std::uint8_t m_channels { 1 };
         std::uint32_t m_sample_rate { 1 };
-        graphite::data::block m_samples;
+        data::block m_samples;
         foundation::filesystem::path m_path;
 
-        virtual auto decode(graphite::data::reader& reader) -> void = 0;
-        virtual auto encode(graphite::data::writer& writer) const -> void = 0;
+        virtual auto decode(data::reader& reader) -> void = 0;
+        virtual auto encode(data::writer& writer) const -> void = 0;
 
         auto load_file_contents() -> void
         {
-            auto reader = graphite::data::reader::file(m_path.string());
+            auto reader = data::reader::file(m_path.string());
             reader.change_byte_order(this->byte_order());
             decode(reader);
         }
 
-        auto load_data(const graphite::data::block& data) -> void
+        auto load_data(const data::block& data) -> void
         {
-            graphite::data::reader reader(&data);
+            data::reader reader(&data);
             reader.change_byte_order(this->byte_order());
             decode(reader);
         }

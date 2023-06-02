@@ -32,7 +32,7 @@
 #include <libKestrel/math/size.hpp>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/graphics/types/color.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace kestrel::graphics
 {

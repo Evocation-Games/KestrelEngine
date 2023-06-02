@@ -80,7 +80,7 @@ namespace kestrel::renderer
     auto approx_framerate() -> std::uint32_t;
     auto resync_clock() -> void;
 
-    auto create_texture(const math::size& size, const graphite::data::block& data) -> std::shared_ptr<graphics::texture>;
+    auto create_texture(const math::size& size, const data::block& data) -> std::shared_ptr<graphics::texture>;
 
     auto draw_quad(const std::shared_ptr<graphics::texture>& texture,
                    const math::rect& frame,

@@ -19,10 +19,10 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/data/reader.hpp>
-#include <libGraphite/quickdraw/format/pict.hpp>
-#include <libGraphite/quickdraw/format/cicn.hpp>
+#include <libResourceCore/manager.hpp>
+#include <libData/reader.hpp>
+#include <libQuickdraw/format/picture.hpp>
+#include <libQuickdraw/format/color_icon.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
 #include <libKestrel/cache/cache.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
@@ -31,7 +31,7 @@
 
 // MARK: - Construction
 
-kestrel::image::static_image::static_image(graphite::rsrc::resource::identifier id, const std::string& name, const std::shared_ptr<graphics::sprite_sheet>& sheet)
+kestrel::image::static_image::static_image(resource_core::identifier id, const std::string& name, const std::shared_ptr<graphics::sprite_sheet>& sheet)
 {
     configure(id, name, sheet);
 }
@@ -51,20 +51,20 @@ kestrel::image::static_image::static_image(const resource::descriptor::lua_refer
     // use the static image type.
     auto descriptor = ref;
     if (!ref->has_type()) {
-        std::vector<graphite::rsrc::attribute> attributes;
+        std::vector<resource_core::attribute> attributes;
         if (ref->has_container()) {
             if (!ref->containers.front().empty()) {
                 attributes.emplace_back(resource::container::attribute_name, ref->containers.front());
             }
         }
 
-        if (graphite::rsrc::manager::shared_manager().find(resource_type::code, descriptor->id, attributes)) {
+        if (resource_core::manager::shared_manager().find(resource_type::code, descriptor->id, attributes)) {
             descriptor = descriptor->with_type(resource_type::code);
         }
-        else if (graphite::rsrc::manager::shared_manager().find(legacy::macintosh::quickdraw::picture::resource_type::code, descriptor->id, attributes)) {
+        else if (resource_core::manager::shared_manager().find(legacy::macintosh::quickdraw::picture::resource_type::code, descriptor->id, attributes)) {
             descriptor = descriptor->with_type(legacy::macintosh::quickdraw::picture::resource_type::code);
         }
-        else if (graphite::rsrc::manager::shared_manager().find(legacy::macintosh::quickdraw::color_icon::resource_type::code, descriptor->id, attributes)) {
+        else if (resource_core::manager::shared_manager().find(legacy::macintosh::quickdraw::color_icon::resource_type::code, descriptor->id, attributes)) {
             descriptor = descriptor->with_type(legacy::macintosh::quickdraw::color_icon::resource_type::code);
         }
     }
@@ -72,20 +72,20 @@ kestrel::image::static_image::static_image(const resource::descriptor::lua_refer
     // Attempt to load the resource data in preparation for determining the correct decoding procedure.
     if (auto resource = descriptor->load()) {
         if (descriptor->type == legacy::macintosh::quickdraw::picture::resource_type::code) {
-            graphite::quickdraw::pict pict(resource->data(), resource->id(), resource->name());
+            ::quickdraw::picture pict(resource->data(), resource->id(), resource->name());
             const auto& surface = pict.surface();
             configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
             return;
         }
         else if (descriptor->type == legacy::macintosh::quickdraw::color_icon::resource_type::code) {
-            graphite::quickdraw::cicn cicn(resource->data(), resource->id(), resource->name());
+            ::quickdraw::color_icon cicn(resource->data(), resource->id(), resource->name());
             const auto& surface = cicn.surface();
             configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
             return;
         }
         else if (descriptor->type == resource_type::code) {
-            graphite::data::reader reader(&resource->data());
-            reader.change_byte_order(graphite::data::byte_order::msb);
+            data::reader reader(&resource->data());
+            reader.change_byte_order(data::byte_order::msb);
             auto format = reader.read_cstr(4);
 
             if (format == "TGA ") {

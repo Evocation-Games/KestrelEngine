@@ -26,20 +26,20 @@
 #include <libFoundation/system/filesystem/file.hpp>
 #include <libFoundation/stream/stream.hpp>
 #include <libLexer/lexeme.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 
 namespace kdl::unit
 {
     struct file
     {
     public:
-       explicit file(graphite::rsrc::file& output, sema::context& ctx);
+       explicit file(resource_core::file& output, sema::context& ctx);
        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
 
        static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
 
     private:
-        graphite::rsrc::file *m_output { nullptr };
+        resource_core::file *m_output { nullptr };
         sema::context *m_context { nullptr };
     };
 }

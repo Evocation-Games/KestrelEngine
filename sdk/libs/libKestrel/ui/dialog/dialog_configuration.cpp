@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <stdexcept>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 #include <libKestrel/ui/dialog/dialog_configuration.hpp>
 #include <libKestrel/ui/scene/interface.hpp>
 #include <libKestrel/ui/dialog/dialog.hpp>

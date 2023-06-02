@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libImage/codecs/ppat/ppat.hpp>
-#include <libGraphite/quickdraw/format/ppat.hpp>
+#include <libQuickdraw/format/pixel_pattern.hpp>
 
 // MARK: - Construction
 
@@ -36,35 +36,35 @@ image::codec::ppat::ppat(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::ppat::ppat(const graphite::data::block &data)
+image::codec::ppat::ppat(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::ppat::ppat(graphite::quickdraw::surface &surface)
+image::codec::ppat::ppat(quickdraw::surface &surface)
     : format(surface)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::ppat::byte_order() const -> graphite::data::byte_order
+auto image::codec::ppat::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::msb;
+    return data::byte_order::msb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::ppat::decode(graphite::data::reader &reader) -> void
+auto image::codec::ppat::decode(data::reader &reader) -> void
 {
-    graphite::quickdraw::ppat ppat(reader);
+    quickdraw::pixel_pattern ppat(reader);
     m_surface = ppat.surface();
 }
 
 // MARK: - Encoding
 
-auto image::codec::ppat::encode(graphite::data::writer &writer) const -> void
+auto image::codec::ppat::encode(data::writer &writer) const -> void
 {
-    graphite::quickdraw::ppat ppat(const_cast<graphite::quickdraw::surface&>(m_surface));
+    quickdraw::pixel_pattern ppat(const_cast<quickdraw::surface&>(m_surface));
     ppat.encode(writer);
 }

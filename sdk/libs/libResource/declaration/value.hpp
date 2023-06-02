@@ -25,7 +25,7 @@
 #include <variant>
 #include <vector>
 #include <libResource/reference.hpp>
-#include <libGraphite/data/data.hpp>
+#include <libData/block.hpp>
 
 namespace resource
 {
@@ -38,7 +38,7 @@ namespace resource
         explicit value_container(const std::vector<std::uint8_t>& bytes);
         explicit value_container(const std::uint8_t *bytes, std::size_t length);
         explicit value_container(const reference& value);
-        explicit value_container(const graphite::data::block& data);
+        explicit value_container(const data::block& data);
 
         value_container(const value_container&) = default;
         value_container(value_container&&) noexcept = default;

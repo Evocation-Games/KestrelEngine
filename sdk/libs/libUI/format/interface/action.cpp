@@ -22,7 +22,7 @@
 
 // MARK: - Construction
 
-ui::format::action::action(const graphite::data::block &bytecode)
+ui::format::action::action(const data::block &bytecode)
     : m_type(type::lua_script_bytecode), m_value(bytecode)
 {}
 
@@ -60,7 +60,7 @@ auto ui::format::action::set_value(const resource::reference &value) -> void
     m_value = value;
 }
 
-auto ui::format::action::set_value(const graphite::data::block &value) -> void
+auto ui::format::action::set_value(const data::block &value) -> void
 {
     m_value = value;
 }

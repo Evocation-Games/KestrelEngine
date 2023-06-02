@@ -28,16 +28,16 @@ namespace image::codec
     {
         explicit rled(const std::string& path);
         explicit rled(const foundation::filesystem::path& path);
-        explicit rled(const graphite::data::block& data);
-        explicit rled(graphite::quickdraw::surface& surface);
-        explicit rled(const std::vector<graphite::quickdraw::surface>& surface);
+        explicit rled(const data::block& data);
+        explicit rled(quickdraw::surface& surface);
+        explicit rled(const std::vector<quickdraw::surface>& surface);
 
-        [[nodiscard]] auto byte_order() const -> graphite::data::byte_order override;
+        [[nodiscard]] auto byte_order() const -> data::byte_order override;
 
     private:
-        std::vector<graphite::quickdraw::surface> m_frames;
-        auto decode(graphite::data::reader& reader) -> void override;
-        auto encode(graphite::data::writer& writer) const -> void override;
+        std::vector<quickdraw::surface> m_frames;
+        auto decode(data::reader& reader) -> void override;
+        auto encode(data::writer& writer) const -> void override;
     };
 }
 

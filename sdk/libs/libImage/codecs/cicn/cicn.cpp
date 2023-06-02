@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libImage/codecs/cicn/cicn.hpp>
-#include <libGraphite/quickdraw/format/cicn.hpp>
+#include <libQuickdraw/format/color_icon.hpp>
 
 // MARK: - Construction
 
@@ -36,35 +36,35 @@ image::codec::cicn::cicn(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::cicn::cicn(const graphite::data::block &data)
+image::codec::cicn::cicn(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::cicn::cicn(graphite::quickdraw::surface &surface)
+image::codec::cicn::cicn(quickdraw::surface &surface)
     : format(surface)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::cicn::byte_order() const -> graphite::data::byte_order
+auto image::codec::cicn::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::msb;
+    return data::byte_order::msb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::cicn::decode(graphite::data::reader &reader) -> void
+auto image::codec::cicn::decode(data::reader &reader) -> void
 {
-    graphite::quickdraw::cicn cicn(reader);
+    quickdraw::color_icon cicn(reader);
     m_surface = cicn.surface();
 }
 
 // MARK: - Encoding
 
-auto image::codec::cicn::encode(graphite::data::writer &writer) const -> void
+auto image::codec::cicn::encode(data::writer &writer) const -> void
 {
-    graphite::quickdraw::cicn cicn(const_cast<graphite::quickdraw::surface&>(m_surface));
+    quickdraw::color_icon cicn(const_cast<quickdraw::surface&>(m_surface));
     cicn.encode(writer);
 }

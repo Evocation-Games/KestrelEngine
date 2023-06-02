@@ -28,8 +28,9 @@
 #include <libKestrel/sound/audio_manager.hpp>
 #include <libKestrel/sandbox/file/files.hpp>
 #include <libKestrel/lua/support/vector.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 #include <libKestrel/shared/shared_library_manager.hpp>
+#include <libToolbox/font/manager.hpp>
 
 #if TARGET_MACOS
 #   include <libKestrel/platform/macos/application.h>
@@ -106,11 +107,6 @@ namespace kestrel::environment
         // Make sure we have configured the Lua Runtime.
         lua::enroll_lua_api(s_kestrel_session.runtime);
 
-        // Search for dynamic library extensions, and load them. These are
-        // required to inject native Lua API calls into the runtime and thus
-        // need to load now.
-        s_kestrel_session.native_extensions.load_library(s_kestrel_session.runtime, "/Users/tomhancocks/Desktop/libTest.dylib");
-
         // Configure the main tick function for the renderer
         renderer::set_tick_function(renderer::tick);
 
@@ -125,6 +121,9 @@ namespace kestrel
 {
     auto launch() -> result
     {
+        // Make sure the fonts are fully loaded.
+        toolbox::font::manager::shared_manager().update_font_table();
+
         // Configure the audio manager
         try {
             sound::manager::shared_manager().set_api(s_kestrel_session.base_configuration.audio.desired_api);
@@ -206,8 +205,9 @@ namespace kestrel::loader
             throw bad_data_file_exception("Missing game core file reference.");
         }
 
-        auto file = new graphite::rsrc::file(ref->path());
-        graphite::rsrc::manager::shared_manager().import_file(file);
+        auto file = new resource_core::file(ref->path());
+        resource_core::manager::shared_manager().import_file(file);
+        toolbox::font::manager::shared_manager().update_font_table();
     }
 
     auto load_support() -> void
@@ -216,8 +216,9 @@ namespace kestrel::loader
         if (ref.get()) {
             sandbox::file_reference file_ref(ref->path());
             if (file_ref.exists()) {
-                auto file = new graphite::rsrc::file(ref->path());
-                graphite::rsrc::manager::shared_manager().import_file(file);
+                auto file = new resource_core::file(ref->path());
+                resource_core::manager::shared_manager().import_file(file);
+                toolbox::font::manager::shared_manager().update_font_table();
             }
         }
     }
@@ -234,8 +235,8 @@ namespace kestrel::loader
 
         for (const auto& data_file_ref : files) {
             if (std::find(exts.begin(), exts.end(), data_file_ref->extension()) != exts.end()) {
-                auto file = new graphite::rsrc::file(data_file_ref->path());
-                graphite::rsrc::manager::shared_manager().import_file(file);
+                auto file = new resource_core::file(data_file_ref->path());
+                resource_core::manager::shared_manager().import_file(file);
             }
             else if (data_file_ref->extension() == "mp3") {
                 s_kestrel_session.active_configuration.audio.files.emplace_back(data_file_ref->path());
@@ -244,6 +245,8 @@ namespace kestrel::loader
                 // TODO: Issue a soft warning?
             }
         }
+
+        toolbox::font::manager::shared_manager().update_font_table();
     }
 
     auto load_fonts() -> void
@@ -260,6 +263,8 @@ namespace kestrel::loader
                 s_kestrel_session.active_configuration.fonts.files.emplace(std::pair(name, font_file_ref->path()));
             }
         }
+
+        toolbox::font::manager::shared_manager().update_font_table();
     }
 
     auto load_mods() -> void
@@ -282,6 +287,8 @@ namespace kestrel::loader
                 mod_ref->execute();
             }
         }
+
+        toolbox::font::manager::shared_manager().update_font_table();
     }
 }
 

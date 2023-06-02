@@ -21,8 +21,8 @@
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/ui/legacy/macintosh/item_list.hpp>
 #include <libKestrel/cache/cache.hpp>
-#include <libGraphite/rsrc/manager.hpp>
-#include <libGraphite/data/reader.hpp>
+#include <libResourceCore/manager.hpp>
+#include <libData/reader.hpp>
 
 // MARK: - Construction
 
@@ -30,7 +30,7 @@ kestrel::ui::legacy::macintosh::toolbox::item_list::item_list(const resource::de
 {
     // TODO: This should be moved to libGraphite
     if (auto resource = ref->with_type(resource_type::code)->load()) {
-        graphite::data::reader reader(&resource->data());
+        data::reader reader(&resource->data());
 
         m_item_count = reader.read_short();
 

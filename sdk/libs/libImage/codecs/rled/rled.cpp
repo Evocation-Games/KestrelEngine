@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <libImage/codecs/rled/rled.hpp>
-#include <libGraphite/spriteworld/rleD.hpp>
+#include <libSpriteWorld/formats/rleD.hpp>
 
 // MARK: - Construction
 
@@ -36,41 +36,41 @@ image::codec::rled::rled(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-image::codec::rled::rled(const graphite::data::block &data)
+image::codec::rled::rled(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-image::codec::rled::rled(graphite::quickdraw::surface &surface)
+image::codec::rled::rled(quickdraw::surface &surface)
     : format(surface)
 {}
 
-image::codec::rled::rled(const std::vector<graphite::quickdraw::surface> &surfaces)
+image::codec::rled::rled(const std::vector<quickdraw::surface> &surfaces)
     : format(""), m_frames(surfaces)
 {}
 
 // MARK: - Accessors
 
-auto image::codec::rled::byte_order() const -> graphite::data::byte_order
+auto image::codec::rled::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::msb;
+    return data::byte_order::msb;
 }
 
 // MARK: - Decoding
 
-auto image::codec::rled::decode(graphite::data::reader &reader) -> void
+auto image::codec::rled::decode(data::reader &reader) -> void
 {
     // TODO: Implement this...
 }
 
 // MARK: - Encoding
 
-auto image::codec::rled::encode(graphite::data::writer &writer) const -> void
+auto image::codec::rled::encode(data::writer &writer) const -> void
 {
     auto size = m_frames.front().size();
     auto frames = m_frames.size();
-    graphite::spriteworld::rleD rled(size, frames);
+    spriteworld::rleD rled(size, frames);
     for (auto n = 0; n < frames; ++n) {
         rled.write_frame(n, m_frames[n]);
     }

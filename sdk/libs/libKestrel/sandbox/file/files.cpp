@@ -20,7 +20,7 @@
 
 #include <stdexcept>
 #include <algorithm>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 #include <libKestrel/sandbox/file/files.hpp>
 #include <libKestrel/kestrel.hpp>
 
@@ -55,14 +55,14 @@ auto kestrel::sandbox::files::set_save_file_name(const std::string& name) -> voi
 {
     // If we have an existing save file then we need to remove it from the resource manager.
     if (m_current_save_file.get()) {
-        graphite::rsrc::manager::shared_manager().unload_file(m_current_save_file->path());
+        resource_core::manager::shared_manager().unload_file(m_current_save_file->path());
     }
 
     // Setup the new file and attempt to load it if it exists.
     m_current_save_file = files::user_saves()->file(name);
     if (m_current_save_file.get() && m_current_save_file->exists()) {
-        auto file = new graphite::rsrc::file(m_current_save_file->path());
-        graphite::rsrc::manager::shared_manager().import_file(file);
+        auto file = new resource_core::file(m_current_save_file->path());
+        resource_core::manager::shared_manager().import_file(file);
     }
 }
 
@@ -229,9 +229,9 @@ auto kestrel::sandbox::files::set_save_file(const std::string& name) -> void
 auto kestrel::sandbox::files::save() -> void
 {
     if (current_save_file().get()) {
-        for (auto& file : graphite::rsrc::manager::shared_manager().file_references()) {
+        for (auto& file : resource_core::manager::shared_manager().file_references()) {
             if (file->path() == current_save_file()->path()) {
-                file->write(file->path(), graphite::rsrc::file::format::extended);
+                file->write(file->path(), resource_core::file::format::extended);
                 return;
             }
         }

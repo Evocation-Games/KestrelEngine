@@ -35,26 +35,26 @@ sound::codec::wav::wav(const foundation::filesystem::path &path)
     load_file_contents();
 }
 
-sound::codec::wav::wav(const graphite::data::block &data)
+sound::codec::wav::wav(const data::block &data)
     : format(data)
 {
     load_data(data);
 }
 
-sound::codec::wav::wav(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const graphite::data::block& samples)
+sound::codec::wav::wav(std::uint32_t sample_rate, std::uint8_t sample_bits, std::uint8_t channels, const data::block& samples)
     : format(sample_rate, sample_bits, channels, samples)
 {}
 
 // MARK: - Accessors
 
-auto sound::codec::wav::byte_order() const -> graphite::data::byte_order
+auto sound::codec::wav::byte_order() const -> data::byte_order
 {
-    return graphite::data::byte_order::lsb;
+    return data::byte_order::lsb;
 }
 
 // MARK: - Decoding
 
-auto sound::codec::wav::find_chunk(graphite::data::reader &reader, uint64_t end_position, std::string chunk_id) -> bool
+auto sound::codec::wav::find_chunk(data::reader &reader, std::uint64_t end_position, std::string chunk_id) -> bool
 {
     while(reader.position() + 4 < end_position) {
         auto chunk_type = reader.read_cstr(4);
@@ -69,7 +69,7 @@ auto sound::codec::wav::find_chunk(graphite::data::reader &reader, uint64_t end_
     return false;
 }
 
-auto sound::codec::wav::decode(graphite::data::reader &reader) -> void
+auto sound::codec::wav::decode(data::reader &reader) -> void
 {
     if (reader.read_cstr(4) != "RIFF") {
         throw std::runtime_error("WAV Decoder: Expected 'RIFF' chunk");
@@ -111,8 +111,8 @@ auto sound::codec::wav::decode(graphite::data::reader &reader) -> void
 
     m_sample_bits = fmt.bits_per_sample;
     m_sample_rate = fmt.sample_rate;
-    m_samples = graphite::data::block(fmt.num_channels * num_samples * 4);
-    graphite::data::writer sample_writer(&m_samples);
+    m_samples = data::block(fmt.num_channels * num_samples * 4);
+    data::writer sample_writer(&m_samples);
 
     for (auto s = 0; s < num_samples; s++) {
         auto sample_start = reader.position();
@@ -139,9 +139,9 @@ auto sound::codec::wav::decode(graphite::data::reader &reader) -> void
 
 // MARK: - Encoding
 
-auto sound::codec::wav::encode(graphite::data::writer &writer) const -> void
+auto sound::codec::wav::encode(data::writer &writer) const -> void
 {
-    writer.change_byte_order(graphite::data::byte_order::lsb);
+    writer.change_byte_order(data::byte_order::lsb);
 
     auto sample_bytes = m_sample_bits / 8;
     auto num_samples = m_samples.size() / m_channels / sample_bytes;
@@ -165,7 +165,7 @@ auto sound::codec::wav::encode(graphite::data::writer &writer) const -> void
     // data subchunk
     writer.write_cstr("data", 4);
     writer.write_long(sample_bytes * num_samples * m_channels);
-    graphite::data::reader samples(&m_samples);
+    data::reader samples(&m_samples);
 
     for (auto s = 0; s < num_samples; ++s) {
         for (auto c = 0; c < m_channels; ++c) {

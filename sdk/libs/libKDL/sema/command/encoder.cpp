@@ -19,12 +19,12 @@
 // SOFTWARE.
 
 #include <libKDL/sema/command/encoder.hpp>
-#include <libGraphite/data/writer.hpp>
+#include <libData/writer.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 
-auto kdl::sema::command_encoder::parse(foundation::stream<tokenizer::token> &stream, sema::context &ctx) -> graphite::data::block
+auto kdl::sema::command_encoder::parse(foundation::stream<tokenizer::token> &stream, sema::context &ctx) -> data::block
 {
-    graphite::data::writer encoder(graphite::data::byte_order::msb);
+    data::writer encoder(data::byte_order::msb);
     stream.ensure({ expectation(tokenizer::l_brace).be_true() });
 
     // Consume the command and encode it as a series of "packets". These packets are then encoded as a Binary Blob.
@@ -163,5 +163,5 @@ auto kdl::sema::command_encoder::parse(foundation::stream<tokenizer::token> &str
     stream.ensure({ expectation(tokenizer::r_brace).be_true() });
 
     // We have finished encoding the command packets.
-    return std::move(*const_cast<graphite::data::block *>(encoder.data()));
+    return std::move(*const_cast<data::block *>(encoder.data()));
 }

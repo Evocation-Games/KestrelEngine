@@ -24,8 +24,7 @@
 #include <libKestrel/ui/types/action/action.hpp>
 #include <libKestrel/ui/types/value/value.hpp>
 #include <libKestrel/cache/cache.hpp>
-#include <libKestrel/kestrel.hpp>
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 #include <libUI/format/interface/decoder.hpp>
 
 // MARK: - Helpers
