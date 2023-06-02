@@ -109,22 +109,22 @@ add_library(Kestrel ${KESTREL_SOURCES} ${KestrelAPIDefinition})
 target_include_directories(Kestrel PUBLIC ${KESTREL_INC_DIRS})
 target_link_directories(Kestrel PUBLIC ${PROJECT_VENDOR_DIR} ${KESTREL_LIBS_DIR})
 target_link_libraries(Kestrel ${KESTREL_LIBS})
-add_dependencies(Kestrel LuaTool)
+add_dependencies(Kestrel kdtool)
 
 ########################################################################################################################
 ## libKestrel: Lua API Definition
 
 if(WIN32)
-    set(luatool ${CMAKE_BUILD_DIR}/luatool.exe)
+    set(kdtool ${CMAKE_BUILD_DIR}/kdtool.exe)
 else()
-    set(luatool ${CMAKE_BUILD_DIR}/luatool)
+    set(kdtool ${CMAKE_BUILD_DIR}/kdtool)
 endif()
 
 file(GLOB_RECURSE KESTREL_LIB_HEADERS *.hpp)
 
 add_custom_command(
     OUTPUT      ${KestrelAPIDefinition}
-    COMMAND     ${luatool}
+    COMMAND     ${kdtool}
                     -I ${PROJECT_SDK_LIBS} -I ${CMAKE_SOURCE_DIR}/submodules
                     -I ${CMAKE_SOURCE_DIR}/submodules/graphite/libs
                     -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
@@ -138,5 +138,5 @@ add_custom_target(KestrelAPIDefinition
     DEPENDS     ${KestrelAPIDefinition}
     COMMENT     "Generating Lua API Definition for libKestrel"
 )
-add_dependencies(KestrelAPIDefinition LuaTool)
+add_dependencies(KestrelAPIDefinition kdtool)
 add_dependencies(Kestrel KestrelAPIDefinition)

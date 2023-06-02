@@ -311,18 +311,18 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
         }
         else if (stream.expect({ expectation(attribute_names::horizontal_alignment).be_true() })) {
             stream.advance(2);
-            scope->add_variable(horizontal_alignment_names::left, -1LL);
-            scope->add_variable(horizontal_alignment_names::center, 0LL);
-            scope->add_variable(horizontal_alignment_names::right, 1LL);
+            scope->add_variable(horizontal_alignment_names::left, static_cast<std::int64_t>(-1));
+            scope->add_variable(horizontal_alignment_names::center, static_cast<std::int64_t>(0));
+            scope->add_variable(horizontal_alignment_names::right, static_cast<std::int64_t>(1));
             element.add_attribute(ui::format::attribute::code::horizontal_alignment, attribute_names::horizontal_alignment, ui::format::attribute_value(
                 parse_integer_value(stream, ctx, scope)
             ));
         }
         else if (stream.expect({ expectation(attribute_names::vertical_alignment).be_true() })) {
             stream.advance(2);
-            scope->add_variable(vertical_alignment_names::top, -1LL);
-            scope->add_variable(vertical_alignment_names::middle, 0LL);
-            scope->add_variable(vertical_alignment_names::bottom, 1LL);
+            scope->add_variable(vertical_alignment_names::top, static_cast<std::int64_t>(-1));
+            scope->add_variable(vertical_alignment_names::middle, static_cast<std::int64_t>(0));
+            scope->add_variable(vertical_alignment_names::bottom, static_cast<std::int64_t>(1));
             element.add_attribute(ui::format::attribute::code::vertical_alignment, attribute_names::vertical_alignment, ui::format::attribute_value(
                 parse_integer_value(stream, ctx, scope)
             ));
@@ -452,7 +452,7 @@ auto kdl::sema::scene_interface::parse_rect_value(foundation::stream<tokenizer::
         return interpreter::token(true);
     }});
 
-    scope->add_variable("FlexibleHeight", -1LL);
+    scope->add_variable("FlexibleHeight", static_cast<std::int64_t>(-1));
 
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());

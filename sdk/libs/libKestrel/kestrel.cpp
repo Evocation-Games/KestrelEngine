@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include <stdexcept>
+#include <cmath>
+#include <complex>
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
 #include <libKestrel/exceptions/incompatible_driver_exception.hpp>

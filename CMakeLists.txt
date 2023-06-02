@@ -75,10 +75,10 @@ add_subdirectory(submodules/graphite)
 
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCHITECTURES})
-    add_subdirectory(sdk/bin/luatool)
+    add_subdirectory(sdk/bin/kdtool)
     set(CMAKE_OSX_ARCHITECTURES "x86_64")
 else()
-    add_subdirectory(sdk/bin/luatool)
+    add_subdirectory(sdk/bin/kdtool)
 endif()
 
 add_subdirectory(sdk/libs/libFoundation)
