@@ -22,6 +22,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <stdexcept>
 #include <initializer_list>
 #include <libFoundation/stream/expectation.hpp>
 
