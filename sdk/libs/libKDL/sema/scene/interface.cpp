@@ -515,7 +515,7 @@ auto kdl::sema::scene_interface::parse_color_value(foundation::stream<tokenizer:
         auto r = static_cast<std::uint8_t>(args[0].integer_value());
         auto g = static_cast<std::uint8_t>(args[1].integer_value());
         auto b = static_cast<std::uint8_t>(args[2].integer_value());
-        return interpreter::token((r << 16) | (g << 8) | b | 0xFF000000LL);
+        return interpreter::token(static_cast<std::int64_t>((r << 16) | (g << 8) | b | 0xFF000000LL));
     }});
 
     scope->add_function({ "rgba", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& args) -> interpreter::token {
@@ -523,7 +523,7 @@ auto kdl::sema::scene_interface::parse_color_value(foundation::stream<tokenizer:
         auto g = static_cast<std::uint8_t>(args[1].integer_value());
         auto b = static_cast<std::uint8_t>(args[2].integer_value());
         auto a = static_cast<std::uint8_t>(args[3].integer_value());
-        return interpreter::token((a << 24) | (r << 16) | (g << 8) | b | 0LL);
+        return interpreter::token(static_cast<std::int64_t>((a << 24) | (r << 16) | (g << 8) | b | 0LL));
     }});
 
     auto value_stmt = sema::script::parse_statement(stream, ctx);

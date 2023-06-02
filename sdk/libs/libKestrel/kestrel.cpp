@@ -414,7 +414,7 @@ auto kestrel::effective_game_size() -> math::size
     // an appropriate game size.
     // TODO: This only works with landscape orientations
     auto width = renderer::window_size().width();
-    auto height = std::ceilf(width / 1.7777778f);
+    auto height = ceilf(width / 1.7777778f);
     return { width, height };
 }
 
