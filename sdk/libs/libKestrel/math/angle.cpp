@@ -22,6 +22,7 @@
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/angular_difference.hpp>
 #include <cmath>
+#include <math.h>
 #include <numbers>
 
 // MARK: - Trigonometric Tables
@@ -282,23 +283,23 @@ auto kestrel::math::angle::radians() const -> float
 
 auto kestrel::math::angle::sin(float magnitude) const -> float
 {
-    return std::sinf(radians()) * magnitude;
+    return ::sinf(radians()) * magnitude;
 }
 
 auto kestrel::math::angle::cos(float magnitude) const -> float
 {
-    return std::cosf(radians()) * magnitude;
+    return ::cosf(radians()) * magnitude;
 }
 
 auto kestrel::math::angle::fsin(float magnitude) const -> float
 {
-    auto i = abs(static_cast<int>(std::floorf(m_theta + 0.5f))) % 360;
+    auto i = abs(static_cast<int>(::floorf(m_theta + 0.5f))) % 360;
     return static_cast<float>(trig_table_sin[i] * magnitude);
 }
 
 auto kestrel::math::angle::fcos(float magnitude) const -> float
 {
-    auto i = abs(static_cast<int>(std::floor(m_theta + 0.5f))) % 360;
+    auto i = abs(static_cast<int>(::floor(m_theta + 0.5f))) % 360;
     return static_cast<float>(trig_table_cos[i] * magnitude);
 }
 

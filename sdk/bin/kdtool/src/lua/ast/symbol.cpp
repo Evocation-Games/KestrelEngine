@@ -329,9 +329,7 @@ auto kdtool::lua_api::ast::symbol::documentation() const -> std::string
         }
 
         trim(line);
-        if (!line.empty()) {
-            out += line + "\n";
-        }
+        out += line + "\n";
     }
 
     return out;
@@ -346,7 +344,28 @@ auto kdtool::lua_api::ast::symbol::introduced_version() const -> std::string
 
 auto kdtool::lua_api::ast::symbol::set_version_introduced(const std::string& str) -> void
 {
-    m_introduced_version = str;
+    std::string key;
+    std::string buffer;
+    for (const auto& c : str) {
+        if (c == ' ' || c == '"') {
+            continue;
+        }
+
+        if (c == '=') {
+            key = buffer;
+            buffer.clear();
+        }
+        else {
+            buffer += c;
+        }
+    }
+
+    if (key == "available") {
+        m_introduced_version = buffer;
+    }
+    else {
+        m_introduced_version = "Unknown";
+    }
 }
 
 

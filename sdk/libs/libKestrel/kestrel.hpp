@@ -31,6 +31,10 @@
 #include <libKestrel/resource/container.hpp>
 #include <libKestrel/ui/scene/definition.hpp>
 
+/**
+ * The primary Kestrel namespace is used to provide basic Kestrel environment information,
+ * configuration options and scene management
+ */
 namespace lua_api(Kestrel, Available_0_8) kestrel
 {
     has_lua_api;
@@ -45,13 +49,81 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
     };
 
     // MARK: - Configuration
+
+    /**
+     * Provides a value representing the current platform that Kestrel is running on.
+     *
+     *  - `Platform.Family.Unknown`
+     *  - `Platform.Family.MacOS`
+     *  - `Platform.Family.Windows`
+     *  - `Platform.Family.Linux`
+     *
+     * @return Platform.Family.
+     */
     lua_getter(platform, Available_0_8) auto platform_family() -> std::int32_t;
+
+    /**
+     * Provides a value representing the audio driver that is being used by Kestrel.
+     *
+     *  - `Audio.Driver.API.None`
+     *  - `Audio.Driver.API.CoreAudio`
+     *  - `Audio.Driver.API.OpenAL`
+     *
+     * @return Audio.Driver.API
+     */
     lua_getter(audioDriver, Available_0_8) auto audio_driver() -> std::int32_t;
+
+    /**
+     * Provides a value representing the graphics API that is currently being used by Kestrel.
+     *
+     *  - `Renderer.API.None`
+     *  - `Renderer.API.OpenGL`
+     *  - `Renderer.API.Metal`
+     *
+     * @return Renderer.API
+     */
     lua_getter(graphicsAPI, Available_0_8) auto renderer_api() -> std::int32_t;
+
+    /**
+     * Returns the name of the current platform that Kestrel is running on.
+     *
+     *  - `Unknown`
+     *  - `macOS`
+     *  - `Windows`
+     *  - `Linux`
+     *
+     * @return String
+     */
     lua_getter(platformName, Available_0_8) auto platform_family_name() -> std::string;
+
+    /**
+     * Returns the name of the current graphics API being used by Kestrel.
+     *
+     *  - `None`
+     *  - `OpenGL`
+     *  - `Metal`
+     *
+     * @return String
+     */
     lua_getter(graphicsLayerName, Available_0_8) auto renderer_api_name() -> std::string;
+
+    /**
+     * Returns the name of the current audio driver being used by Kestrel.
+     *
+     *  - `None`
+     *  - `OpenAL`
+     *  - `CoreAudio`
+     *
+     * @return String
+     */
     lua_getter(audioDriverName, Available_0_8) auto audio_driver_name() -> std::string;
 
+    /**
+     * Configure the main Kestrel game window with the specified title and size.
+     *
+     * @param title     The title of the game window.
+     * @param size      The size of the game window.
+     */
     lua_function(start, Available_0_9) auto configure_window(const std::string& title, const math::size& size) -> void;
 
     lua_function(setGameWindowTitle, Available_0_8) auto set_game_window_title(const std::string& title) -> void;

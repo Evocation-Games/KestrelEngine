@@ -42,6 +42,9 @@ jobs:
           chmod a+x build/appimagetool
           wget https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64 -O build/AppRun
           chmod a+x build/AppRun
+      - name: Build LuaJIT
+        run: |
+          cd submodules/LuaJIT && make && sudo make install
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
@@ -139,6 +142,9 @@ jobs:
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
+      - name: Build LuaJIT
+        run: |
+          cd submodules/LuaJIT && make && sudo make install
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}

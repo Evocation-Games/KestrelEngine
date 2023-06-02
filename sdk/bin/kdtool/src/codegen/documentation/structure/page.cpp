@@ -20,6 +20,7 @@
 
 #include "codegen/documentation/structure/page.hpp"
 #include "codegen/documentation/structure/heading.hpp"
+#include "codegen/documentation/structure/horizontal_rule.hpp"
 
 // MARK: - Construction
 

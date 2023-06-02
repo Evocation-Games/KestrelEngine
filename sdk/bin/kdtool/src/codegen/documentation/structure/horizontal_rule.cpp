@@ -20,9 +20,15 @@
 
 #include "codegen/documentation/structure/horizontal_rule.hpp"
 
+// MARK: - Construction
+
+kdtool::codegen::documentation::horizontal_rule::horizontal_rule(bool thin)
+    : m_thin(thin)
+{}
+
 // MARK: - Emit
 
 auto kdtool::codegen::documentation::horizontal_rule::value() const -> std::string
 {
-    return "---";
+    return m_thin ? "-" : "---";
 }

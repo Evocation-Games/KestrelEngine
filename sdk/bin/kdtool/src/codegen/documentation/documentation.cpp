@@ -59,7 +59,7 @@ auto kdtool::codegen::documentation::generator::compile(const std::string& path)
             page_out += line + "\n";
         }
 
-//        std::cout << page_out << std::endl;
+        std::cout << page_out << std::endl;
     }
 }
 
@@ -95,7 +95,7 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api:
     if (!variables.empty()) {
         page->add_child<horizontal_rule>();
         page->add_child<heading>("Variables", 2);
-        for (auto variable : variables) {
+        for (const auto& variable : variables) {
             compile(page, variable, ns->object_symbol());
         }
     }
@@ -104,7 +104,7 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api:
     if (!properties.empty()) {
         page->add_child<horizontal_rule>();
         page->add_child<heading>("Properties", 2);
-        for (auto property : properties) {
+        for (const auto& property : properties) {
             compile(page, property, ns->object_symbol());
         }
     }
@@ -113,7 +113,7 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api:
     if (!functions.empty()) {
         page->add_child<horizontal_rule>();
         page->add_child<heading>("Functions", 2);
-        for (auto function : functions) {
+        for (const auto& function : functions) {
             compile(page, function, ns->object_symbol());
         }
     }
@@ -187,6 +187,8 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
     else {
         page->add_child<text>(function->symbol()->documentation());
     }
+
+    page->add_child<horizontal_rule>(true);
 }
 
 auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> page, std::shared_ptr<lua_api::ast::lua_property> property, std::shared_ptr<lua_api::ast::symbol> owner) -> void
@@ -220,6 +222,8 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
         page->add_child<heading>("Setter Description", 4);
         page->add_child<text>(property->setter()->documentation());
     }
+
+    page->add_child<horizontal_rule>(true);
 }
 
 
@@ -241,4 +245,5 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
         page->add_child<text>(variable->symbol()->documentation());
     }
 
+    page->add_child<horizontal_rule>(true);
 }

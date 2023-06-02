@@ -27,6 +27,9 @@ namespace kdtool::codegen::documentation
     class horizontal_rule : public common::emit_node
     {
     public:
+        explicit horizontal_rule(bool thin = false);
         [[nodiscard]] auto value() const -> std::string override;
+    private:
+        bool m_thin { false };
     };
 }
