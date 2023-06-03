@@ -3,18 +3,40 @@
 
 | C++ Information | Value |
 | --- | --- |
-| Source File | `libKestrel/command/container.hpp` |
-| Symbol | `kestrel::command::container` |
-| Introduced | 0.9.0 |
+| Source File | `libKestrel/resource/container.hpp` |
+| Symbol | `kestrel::resource::container` |
+| Introduced | 0.8.0 |
 
 ## Constructor
 
 ---
 
+## Properties
+
+ - [scene](scene.md)
+ - [isUniversal](isUniversal.md)
+ - [count](count.md)
+ - [text](text.md)
+ - [isGlobal](isGlobal.md)
+ - [containsResources](containsResources.md)
+ - [primaryName](primaryName.md)
+
 ## Functions
 
- - [addProgram](addProgram.md)
- - [createProperty](createProperty.md)
- - [setProperty](setProperty.md)
- - [execute](execute.md)
+ - [pushScene](pushScene.md)
+ - [resourcesOfType](resourcesOfType.md)
+ - [typedIdentifiedNamedResource](typedIdentifiedNamedResource.md)
+ - [identifiedNamedResource](identifiedNamedResource.md)
+ - [typedIdentifiedResource](typedIdentifiedResource.md)
+ - [namedResource](namedResource.md)
+ - [typedResource](typedResource.md)
+ - [identifiedResource](identifiedResource.md)
+ - [addNamespace](addNamespace.md)
+ - [resource](resource.md)
+ - [hasName](hasName.md)
+ - [typedNamedResource](typedNamedResource.md)
+ - [each](each.md)
+ - [firstResourceOfType](firstResourceOfType.md)
+ - [any](any.md)
+ - [global](global.md)
 

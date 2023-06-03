@@ -87,8 +87,8 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
 
 auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api::ast::lua_namespace> ns) -> std::shared_ptr<page>
 {
-    auto name = ns->object_symbol()->lua_identifier();
-    auto page = std::make_shared<documentation::page>(name, name + "/index");
+    auto name = ns->object_symbol()->lua_resolved_identifier();
+    auto page = std::make_shared<documentation::page>(name, build_path(ns->object_symbol()));
     compile(page, ns->object_symbol());
 
     page->add_child<text>("");
@@ -139,8 +139,8 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api:
 
 auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api::ast::lua_class> klass) -> std::shared_ptr<page>
 {
-    auto name = klass->object_symbol()->lua_identifier();
-    auto page = std::make_shared<documentation::page>(name, name + "/index");
+    auto name = klass->object_symbol()->lua_resolved_identifier();
+    auto page = std::make_shared<documentation::page>(name, build_path(klass->object_symbol()));
     compile(page, klass->object_symbol());
 
     if (klass->has_constructor()) {
@@ -317,10 +317,8 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
 
 auto kdtool::codegen::documentation::generator::create_variable_page(std::shared_ptr<lua_api::ast::lua_variable> variable, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>
 {
-    auto owner_name = owner->lua_identifier();
-    auto name = variable->symbol()->lua_identifier();
     auto resolved = variable->symbol()->lua_resolved_identifier();
-    auto variable_page = std::make_shared<page>("Variable: " + resolved, owner_name + "/" + name);
+    auto variable_page = std::make_shared<page>("Variable: " + resolved, build_path(variable->symbol(), owner));
 
     compile(variable_page, variable, owner);
 
@@ -329,10 +327,8 @@ auto kdtool::codegen::documentation::generator::create_variable_page(std::shared
 
 auto kdtool::codegen::documentation::generator::create_property_page(std::shared_ptr<lua_api::ast::lua_property> property, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>
 {
-    auto owner_name = owner->lua_identifier();
-    auto name = property->getter()->lua_identifier();
     auto resolved = property->getter()->lua_resolved_identifier();
-    auto property_page = std::make_shared<page>("Property: " + resolved, owner_name + "/" + name);
+    auto property_page = std::make_shared<page>("Property: " + resolved, build_path(property->getter(), owner));
 
     compile(property_page, property, owner);
 
@@ -341,12 +337,30 @@ auto kdtool::codegen::documentation::generator::create_property_page(std::shared
 
 auto kdtool::codegen::documentation::generator::create_function_page(std::shared_ptr<lua_api::ast::lua_function> function, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>
 {
-    auto owner_name = owner->lua_identifier();
-    auto name = function->symbol()->lua_identifier();
     auto resolved = function->symbol()->lua_resolved_identifier();
-    auto function_page = std::make_shared<page>("Function: " + resolved, owner_name + "/" + name);
+    auto function_page = std::make_shared<page>("Function: " + resolved, build_path(function->symbol(), owner));
 
     compile(function_page, function, owner);
 
     return function_page;
+}
+
+// MARK: - Paths
+
+auto kdtool::codegen::documentation::generator::build_path(std::shared_ptr<lua_api::ast::symbol> symbol, std::shared_ptr<lua_api::ast::symbol> owner) -> std::string
+{
+    std::string path;
+
+    if (owner) {
+        path = owner->lua_resolved_identifier("/") + "/";
+    }
+
+    if (symbol) {
+        path += symbol->lua_resolved_identifier("/");
+        if (!owner) {
+            path += "/index";
+        }
+    }
+
+    return path;
 }

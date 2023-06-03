@@ -64,7 +64,7 @@ namespace kdtool::lua_api::ast
         [[nodiscard]] auto lua_identifier() const -> std::string;
         [[nodiscard]] auto lua_namespace_path() const -> ast::namespace_path;
         [[nodiscard]] auto lua_namespace_path_string() const -> std::string;
-        [[nodiscard]] auto lua_resolved_identifier() const -> std::string;
+        [[nodiscard]] auto lua_resolved_identifier(const char *delimiter = ast::namespace_path::lua_delimiter) const -> std::string;
 
         auto set_include_path(const std::string& path) -> void;
 

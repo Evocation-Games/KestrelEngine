@@ -179,9 +179,9 @@ auto kdtool::lua_api::ast::symbol::lua_namespace_path_string() const -> std::str
     return lua.path.path_string(ast::namespace_path::lua_delimiter);
 }
 
-auto kdtool::lua_api::ast::symbol::lua_resolved_identifier() const -> std::string
+auto kdtool::lua_api::ast::symbol::lua_resolved_identifier(const char *delimiter) const -> std::string
 {
-    return lua.path.path_string(lua.identifier, ast::namespace_path::lua_delimiter);
+    return lua.path.path_string(lua.identifier, delimiter);
 }
 
 // MARK: - Modifiers

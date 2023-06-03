@@ -110,7 +110,7 @@ auto kdtool::lua_api::ast::namespace_path::path_string(const std::string &name, 
         out += ns_name + delimiter;
     }
 
-    if (name.empty()) {
+    if (name.empty() && out.ends_with(delimiter)) {
         // Remove the trailing delimiter.
         out.erase(out.find_last_of(delimiter));
     }

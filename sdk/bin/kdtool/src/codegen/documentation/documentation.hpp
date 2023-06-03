@@ -56,5 +56,7 @@ namespace kdtool::codegen::documentation
     private:
         common::api::aggregator m_aggregator;
         std::vector<std::shared_ptr<page>> m_pages;
+
+        static auto build_path(std::shared_ptr<lua_api::ast::symbol> symbol, std::shared_ptr<lua_api::ast::symbol> owner = nullptr) -> std::string;
     };
 }
