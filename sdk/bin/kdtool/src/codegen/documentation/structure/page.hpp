@@ -27,9 +27,19 @@ namespace kdtool::codegen::documentation
     class page : public common::emit_node
     {
     public:
-        explicit page(const std::string& title);
+        explicit page(const std::string& title, const std::string& filename = "");
+
+        [[nodiscard]] auto filename() const -> std::string;
+        [[nodiscard]] auto basename() const -> std::string;
+
+        auto render(const std::string& path) -> void;
 
     private:
         std::string m_title;
+        std::string m_filename;
+
+        static auto directory_exists(const std::string& path) -> bool;
+        static auto parent(const std::string& path, char delimiter = '/') -> std::string;
+        static auto create_directory(const std::string& path, bool intermediates = true) -> void;
     };
 }

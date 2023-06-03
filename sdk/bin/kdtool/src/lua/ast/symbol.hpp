@@ -25,6 +25,7 @@
 #include <memory>
 #include <clang-c/Index.h>
 #include "lua/ast/namespace_path.hpp"
+#include "lua/ast/symbol_documentation.hpp"
 
 namespace kdtool::lua_api::ast
 {
@@ -83,7 +84,7 @@ namespace kdtool::lua_api::ast
         [[nodiscard]] auto lua_identifier_hash() const -> hash_value;
 
         [[nodiscard]] auto raw_documentation() const -> std::string;
-        [[nodiscard]] auto documentation() const -> std::string;
+        [[nodiscard]] auto documentation() const -> ast::symbol_documentation;
         auto apply_raw_documentation(const std::string& documentation) -> void;
 
         [[nodiscard]] auto introduced_version() const -> std::string;
@@ -97,6 +98,7 @@ namespace kdtool::lua_api::ast
 
     private:
         std::string m_raw_documentation;
+        ast::symbol_documentation m_documentation;
         std::string m_include_path;
         std::string m_introduced_version { "Unknown" };
         std::string m_deprecated_version;

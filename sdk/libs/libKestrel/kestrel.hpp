@@ -119,14 +119,26 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
     lua_getter(audioDriverName, Available_0_8) auto audio_driver_name() -> std::string;
 
     /**
-     * Configure the main Kestrel game window with the specified title and size.
+     * Configure the main game window with the specified title and size.
+     *
+     * @code
+     * Kestrel.start("Example Game", Size(640, 480))
      *
      * @param title     The title of the game window.
      * @param size      The size of the game window.
      */
     lua_function(start, Available_0_9) auto configure_window(const std::string& title, const math::size& size) -> void;
 
+    /**
+     * Set the title of the main game window.
+     * @param title     The title of the game window.
+     */
     lua_function(setGameWindowTitle, Available_0_8) auto set_game_window_title(const std::string& title) -> void;
+
+    /**
+     * Set the size of the main game window.
+     * @param size      The size of the game window.
+     */
     lua_function(setGameWindowSize, Available_0_8) auto set_game_window_size(const math::size& size) -> void;
     lua_function(nativeScreenSize, Available_0_8) auto native_screen_size() -> math::size;
     lua_function(effectiveGameSize, Available_0_8) auto effective_game_size() -> math::size;

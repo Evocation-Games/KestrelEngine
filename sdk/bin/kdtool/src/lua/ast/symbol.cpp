@@ -301,38 +301,12 @@ auto kdtool::lua_api::ast::symbol::raw_documentation() const -> std::string
 auto kdtool::lua_api::ast::symbol::apply_raw_documentation(const std::string &documentation) -> void
 {
     m_raw_documentation = documentation.empty() ? "" : documentation;
+    m_documentation = symbol_documentation(m_raw_documentation);
 }
 
-auto kdtool::lua_api::ast::symbol::documentation() const -> std::string
+auto kdtool::lua_api::ast::symbol::documentation() const -> ast::symbol_documentation
 {
-    std::string out;
-    std::istringstream in(m_raw_documentation);
-    std::string line;
-
-    auto trim = [] (std::string& str) {
-        while (str[0] == ' ' || str[0] == '\t') {
-            str.erase(0, 1);
-        }
-    };
-
-    while (std::getline(in, line)) {
-        trim(line);
-
-        if (line.starts_with("/**")) {
-            line.erase(0, 3);
-        }
-        if (line.starts_with("*/")) {
-            line.erase(0, 2);
-        }
-        if (line.starts_with("*")) {
-            line.erase(0, 1);
-        }
-
-        trim(line);
-        out += line + "\n";
-    }
-
-    return out;
+    return m_documentation;
 }
 
 // MARK: - Availablility

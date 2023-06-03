@@ -42,7 +42,9 @@ namespace kdtool::lua_api::ast
         };
 
         symbol_documentation() = default;
+        explicit symbol_documentation(const std::string& raw);
 
+        [[nodiscard]] auto empty() const -> bool;
         [[nodiscard]] auto description() const -> std::string;
         [[nodiscard]] auto example() const -> std::string;
         [[nodiscard]] auto warning() const -> std::string;
@@ -56,10 +58,13 @@ namespace kdtool::lua_api::ast
         auto add_parameter(const parameter& parameter) -> void;
 
     private:
+        bool m_empty { true };
         std::string m_description;
         std::string m_example;
         std::string m_warning;
         std::string m_return;
         std::vector<parameter> m_parameters;
+
+        auto parse_raw_documentation(const std::string& raw) -> void;
     };
 }

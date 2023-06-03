@@ -125,7 +125,8 @@ file(GLOB_RECURSE KESTREL_LIB_HEADERS *.hpp)
 add_custom_command(
     OUTPUT      ${KestrelAPIDefinition}
     COMMAND     ${kdtool}
-                    -I ${PROJECT_SDK_LIBS} -I ${CMAKE_SOURCE_DIR}/submodules
+                    -I ${PROJECT_SDK_LIBS}
+                    -I ${CMAKE_SOURCE_DIR}/submodules
                     -I ${CMAKE_SOURCE_DIR}/submodules/graphite/libs
                     -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
                     -lua ${KestrelAPIDefinition}
@@ -140,3 +141,22 @@ add_custom_target(KestrelAPIDefinition
 )
 add_dependencies(KestrelAPIDefinition kdtool)
 add_dependencies(Kestrel KestrelAPIDefinition)
+
+########################################################################################################################
+## libKestrel: Generate Documentation (macOS only)
+
+if(APPLE)
+    add_custom_target(KestrelLuaDocumentation
+        ALL         ${kdtool}
+                    -I ${PROJECT_SDK_LIBS}
+                    -I ${CMAKE_SOURCE_DIR}/submodules
+                    -I ${CMAKE_SOURCE_DIR}/submodules/graphite/libs
+                    -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
+                    -md ${CMAKE_SOURCE_DIR}/docs/libKestrel
+                    ${KESTREL_LIB_HEADERS}
+        DEPENDS     ${KESTREL_LIB_HEADERS}
+        COMMENT     "Generating Lua Documentation"
+    )
+    add_dependencies(KestrelLuaDocumentation KestrelAPIDefinition)
+    add_dependencies(Kestrel KestrelLuaDocumentation)
+endif()

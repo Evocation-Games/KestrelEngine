@@ -72,6 +72,7 @@ auto kdtool::codegen::documentation::table::emit() const -> std::vector<std::str
         return std::move(out);
     };
 
+    out.emplace_back("");
     if (!m_headings.empty()) {
         out.emplace_back(build_row(m_headings));
 
@@ -85,6 +86,7 @@ auto kdtool::codegen::documentation::table::emit() const -> std::vector<std::str
     for (auto& row : m_rows) {
         out.emplace_back(build_row(row));
     }
+    out.emplace_back("");
 
     return std::move(out);
 }

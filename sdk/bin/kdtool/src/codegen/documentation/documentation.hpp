@@ -49,6 +49,10 @@ namespace kdtool::codegen::documentation
 
         auto construct_availability_table(std::shared_ptr<lua_api::ast::symbol> symbol, std::shared_ptr<table> cxx_table) -> void;
 
+        auto create_variable_page(std::shared_ptr<lua_api::ast::lua_variable> variable, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>;
+        auto create_property_page(std::shared_ptr<lua_api::ast::lua_property> property, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>;
+        auto create_function_page(std::shared_ptr<lua_api::ast::lua_function> function, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>;
+
     private:
         common::api::aggregator m_aggregator;
         std::vector<std::shared_ptr<page>> m_pages;

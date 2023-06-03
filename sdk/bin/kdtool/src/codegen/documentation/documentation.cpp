@@ -24,8 +24,12 @@
 #include "codegen/documentation/documentation.hpp"
 #include "codegen/documentation/structure/page.hpp"
 #include "codegen/documentation/structure/text.hpp"
+#include "codegen/documentation/structure/code.hpp"
 #include "codegen/documentation/structure/heading.hpp"
 #include "codegen/documentation/structure/table.hpp"
+#include "codegen/documentation/structure/quote.hpp"
+#include "codegen/documentation/structure/list.hpp"
+#include "codegen/documentation/structure/link.hpp"
 #include "codegen/documentation/structure/horizontal_rule.hpp"
 
 // MARK: - Translation Unit
@@ -54,12 +58,7 @@ auto kdtool::codegen::documentation::generator::compile(const std::string& path)
     }
 
     for (auto page : m_pages) {
-        std::string page_out;
-        for (auto& line : page->emit()) {
-            page_out += line + "\n";
-        }
-
-        std::cout << page_out << std::endl;
+        page->render(path);
     }
 }
 
@@ -81,40 +80,57 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
     construct_availability_table(symbol, cxx_table);
 
     if (!symbol->raw_documentation().empty()) {
-        page->add_child<heading>("Description", 3);
-        page->add_child<text>(symbol->documentation());
+        page->add_child<heading>("Description", 2);
+        page->add_child<text>(symbol->documentation().description());
     }
 }
 
 auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api::ast::lua_namespace> ns) -> std::shared_ptr<page>
 {
-    auto page = std::make_shared<documentation::page>(ns->object_symbol()->lua_identifier());
+    auto name = ns->object_symbol()->lua_identifier();
+    auto page = std::make_shared<documentation::page>(name, name + "/index");
     compile(page, ns->object_symbol());
+
+    page->add_child<text>("");
+    page->add_child<horizontal_rule>();
+    page->add_child<text>("");
 
     auto variables = ns->variables();
     if (!variables.empty()) {
-        page->add_child<horizontal_rule>();
         page->add_child<heading>("Variables", 2);
+
+        auto variable_list = page->add_child<list>();
         for (const auto& variable : variables) {
-            compile(page, variable, ns->object_symbol());
+            auto variable_page = create_variable_page(variable, ns->object_symbol());
+            m_pages.emplace_back(variable_page);
+
+            variable_list->add_item(new link(variable->symbol()->lua_identifier(), variable_page->basename()));
         }
     }
 
     auto properties = ns->properties();
     if (!properties.empty()) {
-        page->add_child<horizontal_rule>();
         page->add_child<heading>("Properties", 2);
+
+        auto property_list = page->add_child<list>();
         for (const auto& property : properties) {
-            compile(page, property, ns->object_symbol());
+            auto property_page = create_property_page(property, ns->object_symbol());
+            m_pages.emplace_back(property_page);
+
+            property_list->add_item(new link(property->getter()->lua_identifier(), property_page->basename()));
         }
     }
 
     auto functions = ns->functions();
     if (!functions.empty()) {
-        page->add_child<horizontal_rule>();
         page->add_child<heading>("Functions", 2);
+
+        auto function_list = page->add_child<list>();
         for (const auto& function : functions) {
-            compile(page, function, ns->object_symbol());
+            auto function_page = create_function_page(function, ns->object_symbol());
+            m_pages.emplace_back(function_page);
+
+            function_list->add_item(new link(function->symbol()->lua_identifier(), function_page->basename()));
         }
     }
 
@@ -123,38 +139,55 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api:
 
 auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api::ast::lua_class> klass) -> std::shared_ptr<page>
 {
-    auto page = std::make_shared<documentation::page>(klass->object_symbol()->lua_identifier());
+    auto name = klass->object_symbol()->lua_identifier();
+    auto page = std::make_shared<documentation::page>(name, name + "/index");
     compile(page, klass->object_symbol());
 
     if (klass->has_constructor()) {
         page->add_child<heading>("Constructor", 2);
-        page->add_child<heading>("`" + klass->object_symbol()->lua_resolved_identifier() + "()`");
+//        page->add_child<heading>("`" + klass->object_symbol()->lua_resolved_identifier() + "()`");
     }
+
+    page->add_child<text>("");
+    page->add_child<horizontal_rule>();
+    page->add_child<text>("");
 
     auto variables = klass->variables();
     if (!variables.empty()) {
-        page->add_child<horizontal_rule>();
         page->add_child<heading>("Variables", 2);
-        for (auto variable : variables) {
-            compile(page, variable, klass->object_symbol());
+
+        auto variable_list = page->add_child<list>();
+        for (const auto& variable : variables) {
+            auto variable_page = create_variable_page(variable, klass->object_symbol());
+            m_pages.emplace_back(variable_page);
+
+            variable_list->add_item(new link(variable->symbol()->lua_identifier(), variable_page->basename()));
         }
     }
 
     auto properties = klass->properties();
     if (!properties.empty()) {
-        page->add_child<horizontal_rule>();
         page->add_child<heading>("Properties", 2);
-        for (auto property : properties) {
-            compile(page, property, klass->object_symbol());
+
+        auto property_list = page->add_child<list>();
+        for (const auto& property : properties) {
+            auto property_page = create_property_page(property, klass->object_symbol());
+            m_pages.emplace_back(property_page);
+
+            property_list->add_item(new link(property->getter()->lua_identifier(), property_page->basename()));
         }
     }
 
     auto functions = klass->functions();
     if (!functions.empty()) {
-        page->add_child<horizontal_rule>();
         page->add_child<heading>("Functions", 2);
-        for (auto function : functions) {
-            compile(page, function, klass->object_symbol());
+
+        auto function_list = page->add_child<list>();
+        for (const auto& function : functions) {
+            auto function_page = create_function_page(function, klass->object_symbol());
+            m_pages.emplace_back(function_page);
+
+            function_list->add_item(new link(function->symbol()->lua_identifier(), function_page->basename()));
         }
     }
 
@@ -171,8 +204,18 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
     else {
         function_label += ":";
     }
-    function_label += function->symbol()->lua_identifier() + "()";
-    // TODO: Add parameters into the documentation
+
+    std::string parameter_list;
+    auto parameter_table = std::make_shared<table>(std::initializer_list<std::string>({ "Parameter", "Description" }));
+    for (const auto& parameter : function->symbol()->documentation().parameters()) {
+        if (!parameter_list.empty()) {
+            parameter_list += ", ";
+        }
+        parameter_list += parameter.name();
+        parameter_table->add_row({ parameter.name(), parameter.description() });
+    }
+
+    function_label += function->symbol()->lua_identifier() + "(" + parameter_list + ")";
     page->add_child<heading>("`" + function_label + "`", 3);
 
     // Add some basic meta data
@@ -180,15 +223,41 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
     cxx_table->add_row({ "C++ Symbol", "`" + function->symbol()->cxx_resolved_identifier() + "()`" });
     construct_availability_table(function->symbol(), cxx_table);
 
+    // Add a warning if it exists
+    if (!function->symbol()->documentation().warning().empty()) {
+        page->add_child<text>("");
+        page->add_child<quote>("WARNING", function->symbol()->documentation().warning());
+        page->add_child<text>("");
+    }
+
     // Add some documentation for the function.
     if (function->symbol()->documentation().empty()) {
         page->add_child<text>("No description available.");
     }
     else {
-        page->add_child<text>(function->symbol()->documentation());
+        auto heading = page->add_child<text>("");
+        heading->append_text("Description", text::style::bold);
+        page->add_child<text>("");
+        page->add_child<text>(function->symbol()->documentation().description());
     }
 
-    page->add_child<horizontal_rule>(true);
+    // If there are parameters add a table for them.
+    if (!parameter_list.empty()) {
+        page->add_child<text>("");
+        auto heading = page->add_child<text>("");
+        heading->append_text("Parameters", text::style::bold);
+        page->add_child<text>("");
+        page->add_child(parameter_table);
+        page->add_child<text>("");
+    }
+
+    // Add an example if it exists
+    if (!function->symbol()->documentation().example().empty()) {
+        auto heading = page->add_child<text>("");
+        heading->append_text("Example", text::style::bold);
+        page->add_child<text>("");
+        page->add_child<code>(function->symbol()->documentation().example());
+    }
 }
 
 auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> page, std::shared_ptr<lua_api::ast::lua_property> property, std::shared_ptr<lua_api::ast::symbol> owner) -> void
@@ -215,15 +284,13 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
     // Add some documentation for the function.
     if (property->has_getter() && !property->getter()->documentation().empty()) {
         page->add_child<heading>("Getter Description", 4);
-        page->add_child<text>(property->getter()->documentation());
+        page->add_child<text>(property->getter()->documentation().description());
     }
 
     if (property->has_setter() && !property->setter()->documentation().empty()) {
         page->add_child<heading>("Setter Description", 4);
-        page->add_child<text>(property->setter()->documentation());
+        page->add_child<text>(property->setter()->documentation().description());
     }
-
-    page->add_child<horizontal_rule>(true);
 }
 
 
@@ -242,8 +309,44 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<page> pa
 
     // Add some documentation for the function.
     if (!variable->symbol()->documentation().empty()) {
-        page->add_child<text>(variable->symbol()->documentation());
+        page->add_child<text>(variable->symbol()->documentation().description());
     }
+}
 
-    page->add_child<horizontal_rule>(true);
+// MARK: - Child Pages
+
+auto kdtool::codegen::documentation::generator::create_variable_page(std::shared_ptr<lua_api::ast::lua_variable> variable, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>
+{
+    auto owner_name = owner->lua_identifier();
+    auto name = variable->symbol()->lua_identifier();
+    auto resolved = variable->symbol()->lua_resolved_identifier();
+    auto variable_page = std::make_shared<page>("Variable: " + resolved, owner_name + "/" + name);
+
+    compile(variable_page, variable, owner);
+
+    return variable_page;
+}
+
+auto kdtool::codegen::documentation::generator::create_property_page(std::shared_ptr<lua_api::ast::lua_property> property, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>
+{
+    auto owner_name = owner->lua_identifier();
+    auto name = property->getter()->lua_identifier();
+    auto resolved = property->getter()->lua_resolved_identifier();
+    auto property_page = std::make_shared<page>("Property: " + resolved, owner_name + "/" + name);
+
+    compile(property_page, property, owner);
+
+    return property_page;
+}
+
+auto kdtool::codegen::documentation::generator::create_function_page(std::shared_ptr<lua_api::ast::lua_function> function, std::shared_ptr<lua_api::ast::symbol> owner) -> std::shared_ptr<page>
+{
+    auto owner_name = owner->lua_identifier();
+    auto name = function->symbol()->lua_identifier();
+    auto resolved = function->symbol()->lua_resolved_identifier();
+    auto function_page = std::make_shared<page>("Function: " + resolved, owner_name + "/" + name);
+
+    compile(function_page, function, owner);
+
+    return function_page;
 }
