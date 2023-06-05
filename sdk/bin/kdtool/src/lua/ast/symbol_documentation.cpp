@@ -159,6 +159,11 @@ auto kdtool::lua_api::ast::symbol_documentation::parse_raw_documentation(const s
             line.erase(0, 7);
             trim(line);
         }
+        else if (line.starts_with("@example")) {
+            mode = mode::example;
+            line.erase(0, 8);
+            trim(line);
+        }
         else if (line.starts_with("@param")) {
             mode = mode::parameter_name;
             line.erase(0, 6);

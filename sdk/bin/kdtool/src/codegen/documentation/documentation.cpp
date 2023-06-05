@@ -143,14 +143,23 @@ auto kdtool::codegen::documentation::generator::compile(std::shared_ptr<lua_api:
     auto page = std::make_shared<documentation::page>(name, build_path(klass->object_symbol()));
     compile(page, klass->object_symbol());
 
-    if (klass->has_constructor()) {
-        page->add_child<heading>("Constructor", 2);
-//        page->add_child<heading>("`" + klass->object_symbol()->lua_resolved_identifier() + "()`");
-    }
 
     page->add_child<text>("");
     page->add_child<horizontal_rule>();
     page->add_child<text>("");
+
+    if (klass->has_constructor()) {
+        page->add_child<heading>("Constructor", 2);
+
+        std::string parameter_list;
+        for (const auto& parameter : klass->constructor().parameters()) {
+            if (!parameter_list.empty()) {
+                parameter_list += ", ";
+            }
+            parameter_list += parameter.symbol()->cxx_identifier();
+        }
+        page->add_child<code>("" + klass->object_symbol()->lua_resolved_identifier() + "(" + parameter_list + ")");
+    }
 
     auto variables = klass->variables();
     if (!variables.empty()) {

@@ -1,0 +1,8 @@
+[Vector](index.md)
+# count
+| Aspect | Value |
+| --- | --- |
+| Source File | `libKestrel/lua/support/vector.hpp` |
+| C++ Symbol | `kestrel::lua::size` |
+| Introduced | Version 0.8.0 |
+## Description

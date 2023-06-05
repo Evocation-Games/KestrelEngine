@@ -1,0 +1,8 @@
+[ImGui.Checkbox](index.md)
+# size
+| Aspect | Value |
+| --- | --- |
+| Source File | `libKestrel/ui/imgui/checkbox.hpp` |
+| C++ Symbol | `kestrel::ui::imgui::size` |
+| Introduced | Version 0.8.0 |
+## Description
