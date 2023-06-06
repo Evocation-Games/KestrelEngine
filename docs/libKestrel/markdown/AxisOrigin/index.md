@@ -5,7 +5,10 @@
 | C++ Symbol | `kestrel::ui::layout::axis_origin` |
 | Introduced | Version 0.8.0 |
 ## Description
-
+An enumaration that denotes how an entity should be positioned within its parent
+framing context.
+A value of `AxisOrigin.Center` will result in the center of the entity being positioned
+in relation to the center of the parent frame.
 ## Values
 
  - [BottomRight](BottomRight.md)

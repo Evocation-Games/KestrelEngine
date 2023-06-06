@@ -8,9 +8,9 @@
    
  - [Canvas](Canvas/index.md)
    
- - [ScalingMode](ScalingMode/index.md)
-   
  - **Platform**
+   
+ - [ScalingMode](ScalingMode/index.md)
    
  - [StaticImage](StaticImage/index.md)
    
@@ -21,8 +21,6 @@
  - [AsyncTaskQueue](AsyncTaskQueue/index.md)
    
  - [Animator](Animator/index.md)
-   
- - [EventType](EventType/index.md)
    
  - [Scene](Scene/index.md)
    

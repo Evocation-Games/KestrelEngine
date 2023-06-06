@@ -6,4 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::center_right` |
 | Introduced | Version 0.8.0 |
 ## Description
-
+Position the center right of the entity in relation to the center right of the parent frame.

@@ -27,17 +27,60 @@
 
 namespace kestrel::ui::layout
 {
+    /**
+     * An enumaration that denotes how an entity should be positioned within its parent
+     * framing context.
+     *
+     * A value of `AxisOrigin.Center` will result in the center of the entity being positioned
+     * in relation to the center of the parent frame.
+     */
     enum class lua_api(AxisOrigin, Available_0_8) axis_origin : std::int8_t
     {
+        /**
+         * Position the top left of the entity in relation to the top left of the parent frame.
+         */
         top_left lua_case(TopLeft, Available_0_8) = 0,
+
+        /**
+         * Position the center left of the entity in relation to the center left of the parent frame.
+         */
         center_left lua_case(CenterLeft, Available_0_8) = 1,
+
+        /**
+         * Position the bottom left of the entity in relation to the bottom left of the parent frame.
+         */
         bottom_left lua_case(BottomLeft, Available_0_8) = 2,
+
+        /**
+         * Position the top center of the entity in relation to the top center of the parent frame.
+         */
         top_center lua_case(TopCenter, Available_0_8) = 3,
+
+        /**
+         * Position the center of the entity in relation to the center of the parent frame.
+         */
         center lua_case(Center, Available_0_8) = 4,
+
+        /**
+         * Position the top left of the entity in relation to the top left of the parent frame.
+         */
         bottom_center lua_case(BottomCenter, Available_0_8) = 5,
+
+        /**
+         * Position the top right of the entity in relation to the top right of the parent frame.
+         */
         top_right lua_case(TopRight, Available_0_8) = 6,
+
+        /**
+         * Position the center right of the entity in relation to the center right of the parent frame.
+         */
         center_right lua_case(CenterRight, Available_0_8) = 7,
+
+        /**
+         * Position the bottom right of the entity in relation to the bottom right of the parent frame.
+         */
         bottom_right lua_case(BottomRight, Available_0_8) = 8,
+
     };
 
     auto origin_for_axis(const math::size& size, enum axis_origin axis) -> math::point;

@@ -6,4 +6,4 @@
 | C++ Symbol | `kestrel::is_mouse_event` |
 | Introduced | Version 0.8.0 |
 ## Description
-
+Does the receiver contain any kind of mouse event?

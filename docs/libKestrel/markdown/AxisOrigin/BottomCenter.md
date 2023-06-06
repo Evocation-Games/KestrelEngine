@@ -6,4 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::bottom_center` |
 | Introduced | Version 0.8.0 |
 ## Description
-
+Position the top left of the entity in relation to the top left of the parent frame.

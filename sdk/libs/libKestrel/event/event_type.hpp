@@ -26,7 +26,7 @@
 
 namespace kestrel
 {
-    enum lua_api(EventType, Available_0_8) event_type : std::uint32_t
+    enum lua_api(Event.Type, Available_0_8) event_type : std::uint32_t
     {
         none lua_case(None, Available_0_8) = ::ui::event::type::none,
 
