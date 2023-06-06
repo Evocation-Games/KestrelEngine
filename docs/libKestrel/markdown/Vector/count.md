@@ -1,4 +1,4 @@
-[Vector](index.md)
+[Vector](index)
 # count
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::lua::size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,8 +1,9 @@
-[ImGui.Table](index.md)
-# 
+[ImGui.Table](index)
+# row()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/ui/imgui/table.hpp` |
 | C++ Symbol | `kestrel::ui::imgui::row` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[SceneEntity](index.md)
+[SceneEntity](index)
 # drawSize
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::draw_size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

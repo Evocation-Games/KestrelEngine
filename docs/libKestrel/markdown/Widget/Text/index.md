@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::text_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Text(width)
@@ -22,8 +23,5 @@ Widget.Text(width)
  - [textColor](textColor.md)
  - [frame](frame.md)
  - [text](text.md)
-
 ## Functions
-
- - [](draw.md)
 

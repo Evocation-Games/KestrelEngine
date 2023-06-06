@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::list_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.List(frame)
@@ -24,15 +25,13 @@ Widget.List(frame)
  - [frame](frame.md)
  - [selectedRow](selectedRow.md)
  - [headers](headers.md)
-
 ## Functions
 
- - [](receiveEvent.md)
- - [](columnWidth.md)
- - [](reloadData.md)
- - [](scrollUp.md)
- - [](draw.md)
- - [](columnHeading.md)
- - [](scrollDown.md)
- - [](rowIndexAtPoint.md)
-
+ - [receiveEvent()](receiveEvent.md)
+ - [columnWidth()](columnWidth.md)
+ - [reloadData()](reloadData.md)
+ - [scrollUp()](scrollUp.md)
+ - [draw()](draw.md)
+ - [columnHeading()](columnHeading.md)
+ - [scrollDown()](scrollDown.md)
+ - [rowIndexAtPoint()](rowIndexAtPoint.md)

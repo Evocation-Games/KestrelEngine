@@ -1,4 +1,4 @@
-[ImGui.Image](index.md)
+[ImGui.Image](index)
 # frameCount
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::frame_count` |
 | Introduced | Version 0.8.0 |
 ## Description
+

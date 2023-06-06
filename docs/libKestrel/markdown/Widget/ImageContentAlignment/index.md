@@ -5,9 +5,9 @@
 | C++ Symbol | `kestrel::ui::widgets::image_content_alignment` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [Fill](Fill.md)
  - [Fit](Fit.md)
  - [Center](Center.md)
-

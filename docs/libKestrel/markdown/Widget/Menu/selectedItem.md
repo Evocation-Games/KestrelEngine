@@ -1,4 +1,4 @@
-[Widget.Menu](index.md)
+[Widget.Menu](index)
 # selectedItem
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::selected_item` |
 | Introduced | Version 0.9.0 |
 ## Description
+

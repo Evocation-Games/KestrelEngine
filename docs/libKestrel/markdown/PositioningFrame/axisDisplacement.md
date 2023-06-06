@@ -1,4 +1,4 @@
-[PositioningFrame](index.md)
+[PositioningFrame](index)
 # axisDisplacement
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::axis_displacement` |
 | Introduced | Version 0.8.0 |
 ## Description
+

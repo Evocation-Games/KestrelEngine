@@ -1,4 +1,4 @@
-[Legacy.Macintosh.Dialog](index.md)
+[Legacy.Macintosh.Dialog](index)
 # visible
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::legacy::macintosh::toolbox::visible` |
 | Introduced | Version 0.8.0 |
 ## Description
+

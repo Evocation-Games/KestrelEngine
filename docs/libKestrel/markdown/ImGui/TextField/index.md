@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::textfield` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.TextField(buffer_size, text)
@@ -15,4 +16,3 @@ ImGui.TextField(buffer_size, text)
  - [size](size.md)
  - [font](font.md)
  - [position](position.md)
-

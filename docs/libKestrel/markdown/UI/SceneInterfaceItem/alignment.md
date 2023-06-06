@@ -1,4 +1,4 @@
-[UI.SceneInterfaceItem](index.md)
+[UI.SceneInterfaceItem](index)
 # alignment
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::alignment` |
 | Introduced | Version 0.9.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[UI.SceneInterface](index.md)
+[UI.SceneInterface](index)
 # flags
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::flags` |
 | Introduced | Version 0.8.0 |
 ## Description
+

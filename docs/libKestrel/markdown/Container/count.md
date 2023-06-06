@@ -1,4 +1,4 @@
-[Container](index.md)
+[Container](index)
 # count
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::count` |
 | Introduced | Version 0.8.0 |
 ## Description
+

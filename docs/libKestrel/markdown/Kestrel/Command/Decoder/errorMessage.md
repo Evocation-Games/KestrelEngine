@@ -1,4 +1,4 @@
-[Kestrel.Command.Decoder](index.md)
+[Kestrel.Command.Decoder](index)
 # errorMessage
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::command::error_message` |
 | Introduced | Version 0.9.0 |
 ## Description
+

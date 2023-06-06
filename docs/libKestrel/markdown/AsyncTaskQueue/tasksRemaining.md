@@ -1,4 +1,4 @@
-[AsyncTaskQueue](index.md)
+[AsyncTaskQueue](index)
 # tasksRemaining
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::task::tasks_remaining` |
 | Introduced | Version 0.8.0 |
 ## Description
+

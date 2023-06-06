@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::label_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Label(text)
@@ -22,8 +23,5 @@ Widget.Label(text)
  - [horizontalAlignment](horizontalAlignment.md)
  - [frame](frame.md)
  - [text](text.md)
-
 ## Functions
-
- - [](draw.md)
 

@@ -1,4 +1,4 @@
-[ImGui.Checkbox](index.md)
+[ImGui.Checkbox](index)
 # value
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::value` |
 | Introduced | Version 0.8.0 |
 ## Description
+

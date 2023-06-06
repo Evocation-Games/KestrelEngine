@@ -1,4 +1,4 @@
-[ImGui.Style](index.md)
+[ImGui.Style](index)
 # dockingPreviewColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::style::docking_preview_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[ImGui.TextField](index.md)
+[ImGui.TextField](index)
 # text
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::text` |
 | Introduced | Version 0.8.0 |
 ## Description
+

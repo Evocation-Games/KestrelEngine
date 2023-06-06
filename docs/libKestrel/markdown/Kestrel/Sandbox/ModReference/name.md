@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.ModReference](index.md)
+[Kestrel.Sandbox.ModReference](index)
 # name
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::name` |
 | Introduced | Version 0.8.0 |
 ## Description
+

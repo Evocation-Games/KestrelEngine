@@ -1,4 +1,4 @@
-[Color](index.md)
+[Color](index)
 # blue
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::graphics::get_blue` |
 | Introduced | Version 0.8.0 |
 ## Description
+

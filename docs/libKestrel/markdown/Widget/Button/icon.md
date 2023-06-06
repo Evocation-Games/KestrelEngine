@@ -1,4 +1,4 @@
-[Widget.Button](index.md)
+[Widget.Button](index)
 # icon
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::icon` |
 | Introduced | Version 0.8.0 |
 ## Description
+

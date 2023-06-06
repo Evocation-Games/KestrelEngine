@@ -1,4 +1,4 @@
-[ImGui.TabBar](index.md)
+[ImGui.TabBar](index)
 # tabs
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::tabs` |
 | Introduced | Version 0.8.0 |
 ## Description
+

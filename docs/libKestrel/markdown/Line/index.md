@@ -5,13 +5,13 @@
 | C++ Symbol | `kestrel::math::line` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Line(p, q)
 ```
 ## Functions
 
- - [](intersects.md)
- - [](divide.md)
- - [](multiply.md)
-
+ - [intersects()](intersects.md)
+ - [divide()](divide.md)
+ - [multiply()](multiply.md)

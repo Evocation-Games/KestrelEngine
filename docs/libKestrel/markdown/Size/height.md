@@ -1,4 +1,4 @@
-[Size](index.md)
+[Size](index)
 # height
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::math::height` |
 | Introduced | Version 0.8.0 |
 ## Description
+

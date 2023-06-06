@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::table` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Table(width)
@@ -16,9 +17,7 @@ ImGui.Table(width)
  - [header](header.md)
  - [size](size.md)
  - [rowCount](rowCount.md)
-
 ## Functions
 
- - [](addRow.md)
- - [](row.md)
-
+ - [addRow()](addRow.md)
+ - [row()](row.md)

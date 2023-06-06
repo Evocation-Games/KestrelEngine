@@ -1,4 +1,4 @@
-[UI.SceneInterfaceItem](index.md)
+[UI.SceneInterfaceItem](index)
 # childCount
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::child_count` |
 | Introduced | Version 0.8.0 |
 ## Description
+

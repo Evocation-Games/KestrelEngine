@@ -1,4 +1,4 @@
-[UI.ControlDefinition](index.md)
+[UI.ControlDefinition](index)
 # secondaryTextColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::secondary_text_color` |
 | Introduced | Version 0.9.0 |
 ## Description
+

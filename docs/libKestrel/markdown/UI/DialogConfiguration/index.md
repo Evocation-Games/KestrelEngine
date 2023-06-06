@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::dialog_configuration` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 UI.DialogConfiguration(layout)
@@ -13,12 +14,10 @@ UI.DialogConfiguration(layout)
 
  - [passthrough](passthrough.md)
  - [size](size.md)
-
 ## Functions
 
- - [](defineElement.md)
- - [](setStretchedBackground.md)
- - [](setBackground.md)
- - [](element.md)
- - [](build.md)
-
+ - [defineElement()](defineElement.md)
+ - [setStretchedBackground()](setStretchedBackground.md)
+ - [setBackground()](setBackground.md)
+ - [element()](element.md)
+ - [build()](build.md)

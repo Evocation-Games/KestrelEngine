@@ -1,4 +1,4 @@
-[Resource.Descriptor](index.md)
+[Resource.Descriptor](index)
 # container
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::container` |
 | Introduced | Version 0.8.0 |
 ## Description
+

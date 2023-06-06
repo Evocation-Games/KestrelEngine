@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.FileReference](index.md)
+[Kestrel.Sandbox.FileReference](index)
 # exists
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::exists` |
 | Introduced | Version 0.8.0 |
 ## Description
+

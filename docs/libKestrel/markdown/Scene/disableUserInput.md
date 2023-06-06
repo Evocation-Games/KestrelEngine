@@ -1,4 +1,4 @@
-[Scene](index.md)
+[Scene](index)
 # disableUserInput
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::disable_user_input` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Renderer.Shader](index.md)
+[Renderer.Shader](index)
 # isLoaded
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::shader::is_loaded` |
 | Introduced | Version Unknown |
 ## Description
+

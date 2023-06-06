@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::graphics::canvas` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Canvas(size)
@@ -15,28 +16,26 @@ Canvas(size)
  - [font](font.md)
  - [penColor](penColor.md)
  - [name](name.md)
-
 ## Functions
 
- - [](applyMask.md)
- - [](drawStaticImage.md)
- - [](spawnEntity.md)
- - [](drawColorIcon.md)
- - [](rebuildEntityTexture.md)
- - [](drawImage.md)
- - [](drawText.md)
- - [](drawMacintoshPicture.md)
- - [](clearClippingRect.md)
- - [](layoutTextInBounds.md)
- - [](characterPointInText.md)
- - [](drawMask.md)
- - [](layoutText.md)
- - [](fillRect.md)
- - [](fillCircle.md)
- - [](clear.md)
- - [](drawCircle.md)
- - [](drawLine.md)
- - [](entity.md)
- - [](setClippingRect.md)
- - [](drawRect.md)
-
+ - [applyMask()](applyMask.md)
+ - [drawStaticImage()](drawStaticImage.md)
+ - [spawnEntity()](spawnEntity.md)
+ - [drawColorIcon()](drawColorIcon.md)
+ - [rebuildEntityTexture()](rebuildEntityTexture.md)
+ - [drawImage()](drawImage.md)
+ - [drawText()](drawText.md)
+ - [drawMacintoshPicture()](drawMacintoshPicture.md)
+ - [clearClippingRect()](clearClippingRect.md)
+ - [layoutTextInBounds()](layoutTextInBounds.md)
+ - [characterPointInText()](characterPointInText.md)
+ - [drawMask()](drawMask.md)
+ - [layoutText()](layoutText.md)
+ - [fillRect()](fillRect.md)
+ - [fillCircle()](fillCircle.md)
+ - [clear()](clear.md)
+ - [drawCircle()](drawCircle.md)
+ - [drawLine()](drawLine.md)
+ - [entity()](entity.md)
+ - [setClippingRect()](setClippingRect.md)
+ - [drawRect()](drawRect.md)

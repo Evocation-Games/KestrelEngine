@@ -1,4 +1,4 @@
-[UI.SceneInterfaceItem](index.md)
+[UI.SceneInterfaceItem](index)
 # disabled
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::disabled` |
 | Introduced | Version 0.9.0 |
 ## Description
+

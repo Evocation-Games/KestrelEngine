@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::math::point` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Point(x, y)
@@ -16,19 +17,17 @@ Point(x, y)
  - [magnitude](magnitude.md)
  - [y](y.md)
  - [x](x.md)
-
 ## Functions
 
- - [](rotateAround.md)
- - [](multiply.md)
- - [](normalize.md)
- - [](divide.md)
- - [](dotProduct.md)
- - [](angleTo.md)
- - [](ceil.md)
- - [](distanceTo.md)
- - [](floor.md)
- - [](add.md)
- - [](round.md)
- - [](subtract.md)
-
+ - [rotateAround()](rotateAround.md)
+ - [multiply()](multiply.md)
+ - [normalize()](normalize.md)
+ - [divide()](divide.md)
+ - [dotProduct()](dotProduct.md)
+ - [angleTo()](angleTo.md)
+ - [ceil()](ceil.md)
+ - [distanceTo()](distanceTo.md)
+ - [floor()](floor.md)
+ - [add()](add.md)
+ - [round()](round.md)
+ - [subtract()](subtract.md)

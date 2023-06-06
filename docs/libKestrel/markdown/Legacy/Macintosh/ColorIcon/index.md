@@ -5,16 +5,14 @@
 | C++ Symbol | `kestrel::image::legacy::macintosh::quickdraw::color_icon` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Legacy.Macintosh.ColorIcon(ref)
 ```
 ## Properties
 
- - [size](size.md)
-
 ## Functions
 
- - [](spawnEntity.md)
- - [](load.md)
-
+ - [spawnEntity()](spawnEntity.md)
+ - [load()](load.md)

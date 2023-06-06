@@ -1,4 +1,4 @@
-[Widget.TextArea](index.md)
+[Widget.TextArea](index)
 # offset
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::offset` |
 | Introduced | Version 0.8.0 |
 ## Description
+

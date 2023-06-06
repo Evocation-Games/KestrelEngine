@@ -1,4 +1,4 @@
-[Audio.Driver.API](index.md)
+[Audio.Driver.API](index)
 # Audio.Driver.API.CoreAudio
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sound::core_audio` |
 | Introduced | Version 0.8.0 |
 ## Description
+

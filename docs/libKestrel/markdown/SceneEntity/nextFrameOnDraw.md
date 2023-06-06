@@ -1,4 +1,4 @@
-[SceneEntity](index.md)
+[SceneEntity](index)
 # nextFrameOnDraw
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::advances_to_next_frame_on_draw` |
 | Introduced | Version 0.8.0 |
 ## Description
+

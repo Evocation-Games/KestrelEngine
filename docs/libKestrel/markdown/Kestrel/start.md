@@ -1,5 +1,5 @@
-[Kestrel](index.md)
-# 
+[Kestrel](index)
+# start(title, size)
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/kestrel.hpp` |

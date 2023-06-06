@@ -1,4 +1,4 @@
-[UI.DialogConfiguration](index.md)
+[UI.DialogConfiguration](index)
 # size
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

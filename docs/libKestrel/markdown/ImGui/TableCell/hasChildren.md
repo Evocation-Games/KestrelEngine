@@ -1,4 +1,4 @@
-[ImGui.TableCell](index.md)
+[ImGui.TableCell](index)
 # hasChildren
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::has_children` |
 | Introduced | Version 0.8.0 |
 ## Description
+

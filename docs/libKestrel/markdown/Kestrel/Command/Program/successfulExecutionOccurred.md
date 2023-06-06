@@ -1,4 +1,4 @@
-[Kestrel.Command.Program](index.md)
+[Kestrel.Command.Program](index)
 # successfulExecutionOccurred
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::command::successful_execution_occurred` |
 | Introduced | Version 0.9.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[TextEntity](index.md)
+[TextEntity](index)
 # renderSize
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::render_size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Renderer](index.md)
+[Renderer](index)
 # effectiveFrameRate
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::lua::api::effective_frame_rate` |
 | Introduced | Version 0.8.0 |
 ## Description
+

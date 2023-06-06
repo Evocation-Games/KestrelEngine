@@ -1,4 +1,4 @@
-[UI.ControlType](index.md)
+[UI.ControlType](index)
 # UI.ControlType.TextArea
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::text_area` |
 | Introduced | Version 0.8.0 |
 ## Description
+

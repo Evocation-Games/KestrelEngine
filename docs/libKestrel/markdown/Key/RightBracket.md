@@ -1,4 +1,4 @@
-[Key](index.md)
+[Key](index)
 # Key.RightBracket
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::hid::right_bracket` |
 | Introduced | Version 0.8.0 |
 ## Description
+

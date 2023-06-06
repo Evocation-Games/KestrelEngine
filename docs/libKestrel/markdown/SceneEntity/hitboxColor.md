@@ -1,4 +1,4 @@
-[SceneEntity](index.md)
+[SceneEntity](index)
 # hitboxColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::hitbox_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

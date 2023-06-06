@@ -1,5 +1,5 @@
-[Angle](index.md)
-# 
+[Angle](index)
+# cos(magnitude)
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/math/angle.hpp` |

@@ -1,4 +1,4 @@
-[UI.SceneDefinition](index.md)
+[UI.SceneDefinition](index)
 # interface
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::scene_interface` |
 | Introduced | Version 0.9.0 |
 ## Description
+

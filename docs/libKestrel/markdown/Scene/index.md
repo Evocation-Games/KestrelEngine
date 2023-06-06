@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::game_scene` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Scene(script_ref)
@@ -25,28 +26,26 @@ Scene(script_ref)
  - [Bindings](Bindings.md)
  - [name](name.md)
  - [current](current.md)
-
 ## Functions
 
- - [](keyDown.md)
- - [](key.md)
- - [](addWidget.md)
- - [](drawLine.md)
- - [](onMouseEvent.md)
- - [](after.md)
- - [](addEntity.md)
- - [](update.md)
- - [](adoptPhysicsBody.md)
- - [](importSupportingScripts.md)
- - [](onClose.md)
- - [](push.md)
- - [](onKeyEvent.md)
- - [](replaceEntity.md)
- - [](render.md)
- - [](keyReleased.md)
- - [](repeatEvery.md)
- - [](back.md)
- - [](pop.md)
- - [](bind.md)
- - [](start.md)
-
+ - [keyDown()](keyDown.md)
+ - [key()](key.md)
+ - [addWidget()](addWidget.md)
+ - [drawLine()](drawLine.md)
+ - [onMouseEvent()](onMouseEvent.md)
+ - [after()](after.md)
+ - [addEntity()](addEntity.md)
+ - [update()](update.md)
+ - [adoptPhysicsBody()](adoptPhysicsBody.md)
+ - [importSupportingScripts()](importSupportingScripts.md)
+ - [onClose()](onClose.md)
+ - [push()](push.md)
+ - [onKeyEvent()](onKeyEvent.md)
+ - [replaceEntity()](replaceEntity.md)
+ - [render()](render.md)
+ - [keyReleased()](keyReleased.md)
+ - [repeatEvery()](repeatEvery.md)
+ - [back()](back.md)
+ - [pop()](pop.md)
+ - [bind()](bind.md)
+ - [start()](start.md)

@@ -1,8 +1,9 @@
-[Kestrel.Sandbox.DirectoryReference](index.md)
-# 
+[Kestrel.Sandbox.DirectoryReference](index)
+# contents()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/sandbox/file/directory_reference.hpp` |
 | C++ Symbol | `kestrel::sandbox::contents` |
 | Introduced | Version 0.8.0 |
 ## Description
+

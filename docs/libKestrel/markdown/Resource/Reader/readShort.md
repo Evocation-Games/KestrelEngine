@@ -1,8 +1,9 @@
-[Resource.Reader](index.md)
-# 
+[Resource.Reader](index)
+# readShort()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/resource/reader.hpp` |
 | C++ Symbol | `kestrel::resource::read_short` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::layout::positioning_frame` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 PositioningFrame(target_size, origin, scaling)
@@ -15,19 +16,16 @@ PositioningFrame(target_size, origin, scaling)
  - [scalingFactor](scalingFactor.md)
  - [axisDirection](axisDirection.md)
  - [axisOrigin](axisOrigin.md)
-
 ## Functions
 
- - [](translatePointFrom.md)
- - [](translatePointTo.md)
- - [](positionEntity.md)
- - [](startPositionForLineEntity.md)
- - [](positionForEntity.md)
- - [](sizeForTextEntity.md)
- - [](positionForTextEntity.md)
- - [](positionEntityWithOffset.md)
- - [](endPositionForLineEntity.md)
- - [](positionForEntity.md)
- - [](sizeForEntity.md)
- - [](sizeForEntity.md)
-
+ - [translatePointFrom()](translatePointFrom.md)
+ - [translatePointTo()](translatePointTo.md)
+ - [positionEntity()](positionEntity.md)
+ - [startPositionForLineEntity()](startPositionForLineEntity.md)
+ - [positionForEntity()](positionForEntity.md)
+ - [sizeForTextEntity()](sizeForTextEntity.md)
+ - [positionForTextEntity()](positionForTextEntity.md)
+ - [positionEntityWithOffset()](positionEntityWithOffset.md)
+ - [endPositionForLineEntity()](endPositionForLineEntity.md)
+ - [positionForEntity()](positionForEntity.md)
+ - [sizeForEntity()](sizeForEntity.md)

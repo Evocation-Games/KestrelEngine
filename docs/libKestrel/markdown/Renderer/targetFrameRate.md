@@ -1,4 +1,4 @@
-[Renderer](index.md)
+[Renderer](index)
 # targetFrameRate
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::lua::api::target_framerate` |
 | Introduced | Version 0.8.0 |
 ## Description
+

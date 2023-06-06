@@ -1,4 +1,4 @@
-[Container](index.md)
+[Container](index)
 # containsResources
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::contains_resources` |
 | Introduced | Version 0.8.0 |
 ## Description
+

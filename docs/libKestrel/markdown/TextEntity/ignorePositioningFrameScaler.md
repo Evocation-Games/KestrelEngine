@@ -1,4 +1,4 @@
-[TextEntity](index.md)
+[TextEntity](index)
 # ignorePositioningFrameScaler
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::ignore_positioning_frame_scaler` |
 | Introduced | Version 0.8.0 |
 ## Description
+

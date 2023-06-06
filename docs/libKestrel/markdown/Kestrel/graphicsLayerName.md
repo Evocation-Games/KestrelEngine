@@ -1,4 +1,4 @@
-[Kestrel](index.md)
+[Kestrel](index)
 # graphicsLayerName
 | Aspect | Value |
 | --- | --- |

@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::image::static_image` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 StaticImage(ref)
@@ -13,12 +14,10 @@ StaticImage(ref)
 
  - [spriteCount](spriteCount.md)
  - [size](size.md)
-
 ## Functions
 
- - [](spawnEntity.md)
- - [](preferred.md)
- - [](usingLegacyMacintoshColorIcon.md)
- - [](usingLegacyMacintoshPicture.md)
- - [](load.md)
-
+ - [spawnEntity()](spawnEntity.md)
+ - [preferred()](preferred.md)
+ - [usingLegacyMacintoshColorIcon()](usingLegacyMacintoshColorIcon.md)
+ - [usingLegacyMacintoshPicture()](usingLegacyMacintoshPicture.md)
+ - [load()](load.md)

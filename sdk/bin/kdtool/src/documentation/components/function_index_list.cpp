@@ -42,7 +42,7 @@ auto kdtool::documentation::function_index_list::build(const std::shared_ptr<bui
     auto list = body->add<codegen::spec::markup::list>();
     for (const auto& fn : m_functions) {
         auto page = builder->add_function_page(fn, m_owner);
-        list->add_item(anchor(function(fn->symbol()).build(builder), page));
+        list->add_item(anchor(function(fn->symbol()).build(builder), page, true));
     }
 
     return body;

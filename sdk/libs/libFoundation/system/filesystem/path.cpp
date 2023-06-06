@@ -331,26 +331,30 @@ auto foundation::filesystem::path::make_directory(const path &path) -> void
 
 auto foundation::filesystem::path::create_directory(bool ignore_last) -> bool
 {
-    auto components = m_components;
-    if (ignore_last) {
-        components.pop_back();
+    if (is_directory(*this)) {
+        return true;
     }
 
-    std::string dir_path_str;
-    for (const auto& component : m_components) {
-        dir_path_str.append(component);
-        filesystem::path dir_path(dir_path_str);
-
-        if (is_directory(dir_path)) {
-            continue;
+    auto parent = this->parent();
+    if (!exists(parent)) {
+        if (!parent.create_directory(false)) {
+            return false;
         }
-        else if (!exists(dir_path)) {
-            make_directory(dir_path);
-            continue;
-        }
+    }
 
+    if (ignore_last) {
+        return true;
+    }
+
+#if TARGET_WINDOWS
+    if (mkdir(m_path_buffer.c_str())) {
         return false;
     }
+#else
+    if (mkdir(string().c_str(), 0755)) {
+        return false;
+    }
+#endif
 
     return true;
 }
@@ -389,7 +393,5 @@ auto foundation::filesystem::path::replace_component(std::int32_t i, const path 
         result.insert(result.end() - 1, replacement.m_components.begin(), replacement.m_components.end());
         return { result };
     }
-    else {
-        {};
-    }
+    return {};
 }

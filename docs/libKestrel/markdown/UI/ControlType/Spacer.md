@@ -1,4 +1,4 @@
-[UI.ControlType](index.md)
+[UI.ControlType](index)
 # UI.ControlType.Spacer
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::spacer` |
 | Introduced | Version 0.9.0 |
 ## Description
+

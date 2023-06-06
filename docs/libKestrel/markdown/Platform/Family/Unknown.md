@@ -1,4 +1,4 @@
-[Platform.Family](index.md)
+[Platform.Family](index)
 # Platform.Family.Unknown
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::platform::unknown` |
 | Introduced | Version 0.8.0 |
 ## Description
+

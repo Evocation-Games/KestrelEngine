@@ -1,4 +1,4 @@
-[Kestrel.ResourceFileFormat](index.md)
+[Kestrel.ResourceFileFormat](index)
 # Kestrel.ResourceFileFormat.Extended
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::extended` |
 | Introduced | Version 0.8.0 |
 ## Description
+

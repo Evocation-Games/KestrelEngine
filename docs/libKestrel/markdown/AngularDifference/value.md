@@ -1,4 +1,4 @@
-[AngularDifference](index.md)
+[AngularDifference](index)
 # value
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::math::phi` |
 | Introduced | Version 0.8.0 |
 ## Description
+

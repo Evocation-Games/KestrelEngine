@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.DirectoryReference](index.md)
+[Kestrel.Sandbox.DirectoryReference](index)
 # path
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::path` |
 | Introduced | Version 0.8.0 |
 ## Description
+

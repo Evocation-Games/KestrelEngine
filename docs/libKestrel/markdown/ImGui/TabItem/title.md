@@ -1,4 +1,4 @@
-[ImGui.TabItem](index.md)
+[ImGui.TabItem](index)
 # title
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::title` |
 | Introduced | Version 0.8.0 |
 ## Description
+

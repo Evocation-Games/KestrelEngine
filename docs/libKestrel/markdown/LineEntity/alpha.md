@@ -1,4 +1,4 @@
-[LineEntity](index.md)
+[LineEntity](index)
 # alpha
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::alpha` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Rect](index.md)
+[Rect](index)
 # y
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::math::y` |
 | Introduced | Version 0.8.0 |
 ## Description
+

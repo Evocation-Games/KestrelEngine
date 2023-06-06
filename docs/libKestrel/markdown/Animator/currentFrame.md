@@ -1,4 +1,4 @@
-[Animator](index.md)
+[Animator](index)
 # currentFrame
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::frame` |
 | Introduced | Version 0.8.0 |
 ## Description
+

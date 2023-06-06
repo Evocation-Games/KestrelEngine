@@ -1,4 +1,4 @@
-[Physics.Body](index.md)
+[Physics.Body](index)
 # maximumSpeed
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::physics::maximum_speed` |
 | Introduced | Version 0.8.0 |
 ## Description
+

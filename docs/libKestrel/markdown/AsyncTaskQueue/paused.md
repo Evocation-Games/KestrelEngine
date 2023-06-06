@@ -1,4 +1,4 @@
-[AsyncTaskQueue](index.md)
+[AsyncTaskQueue](index)
 # paused
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::task::paused` |
 | Introduced | Version 0.8.0 |
 ## Description
+

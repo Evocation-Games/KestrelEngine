@@ -1,4 +1,4 @@
-[Key](index.md)
+[Key](index)
 # Key.Insert
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::hid::insert` |
 | Introduced | Version 0.8.0 |
 ## Description
+

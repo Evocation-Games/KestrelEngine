@@ -5,7 +5,6 @@
 | C++ Symbol | `kestrel::ui::imgui::scrollarea` |
 | Introduced | Version 0.8.0 |
 ## Description
-## Functions
 
- - [](addWidget.md)
+## Functions
 

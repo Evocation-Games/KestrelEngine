@@ -1,4 +1,4 @@
-[ImGui.Table](index.md)
+[ImGui.Table](index)
 # header
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::header` |
 | Introduced | Version 0.8.0 |
 ## Description
+

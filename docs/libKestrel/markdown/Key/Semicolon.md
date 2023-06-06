@@ -1,4 +1,4 @@
-[Key](index.md)
+[Key](index)
 # Key.Semicolon
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::hid::semi_colon` |
 | Introduced | Version 0.8.0 |
 ## Description
+

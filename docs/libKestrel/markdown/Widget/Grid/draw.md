@@ -1,5 +1,5 @@
-[Widget.Grid](index.md)
-# 
+[Widget.Grid](index)
+# draw()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/ui/widgets/grid_widget.hpp` |

@@ -1,4 +1,4 @@
-[Canvas](index.md)
+[Canvas](index)
 # bounds
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::graphics::get_bounds` |
 | Introduced | Version 0.8.0 |
 ## Description
+

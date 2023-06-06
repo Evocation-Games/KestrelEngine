@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::code_editor` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.CodeEditor(text)
@@ -15,4 +16,3 @@ ImGui.CodeEditor(text)
  - [size](size.md)
  - [font](font.md)
  - [position](position.md)
-

@@ -1,4 +1,4 @@
-[Legacy.Macintosh.Dialog](index.md)
+[Legacy.Macintosh.Dialog](index)
 # title
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::legacy::macintosh::toolbox::title` |
 | Introduced | Version 0.8.0 |
 ## Description
+

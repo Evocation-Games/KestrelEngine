@@ -11,11 +11,9 @@ that Lua uses.
 
  - [count](count.md)
  - [isEmpty](isEmpty.md)
-
 ## Functions
 
- - [](remove.md)
- - [](clear.md)
- - [](at.md)
- - [](each.md)
-
+ - [remove()](remove.md)
+ - [clear()](clear.md)
+ - [at()](at.md)
+ - [each()](each.md)

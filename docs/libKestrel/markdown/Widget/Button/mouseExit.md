@@ -1,4 +1,4 @@
-[Widget.Button](index.md)
+[Widget.Button](index)
 # mouseExit
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::mouse_exit_body` |
 | Introduced | Version 0.8.0 |
 ## Description
+

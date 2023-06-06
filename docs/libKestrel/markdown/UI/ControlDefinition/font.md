@@ -1,4 +1,4 @@
-[UI.ControlDefinition](index.md)
+[UI.ControlDefinition](index)
 # font
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::font` |
 | Introduced | Version 0.9.0 |
 ## Description
+

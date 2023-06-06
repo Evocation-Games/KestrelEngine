@@ -1,4 +1,4 @@
-[AsyncTaskQueue](index.md)
+[AsyncTaskQueue](index)
 # hasTasksAvailable
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::task::has_tasks_available` |
 | Introduced | Version 0.8.0 |
 ## Description
+

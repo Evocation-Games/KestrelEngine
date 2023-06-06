@@ -1,4 +1,4 @@
-[Font](index.md)
+[Font](index)
 # lineHeight
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::font::line_height` |
 | Introduced | Version 0.8.0 |
 ## Description
+

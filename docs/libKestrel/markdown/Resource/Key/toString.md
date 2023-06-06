@@ -1,4 +1,4 @@
-[Resource.Key](index.md)
+[Resource.Key](index)
 # toString
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::str` |
 | Introduced | Version 0.8.0 |
 ## Description
+

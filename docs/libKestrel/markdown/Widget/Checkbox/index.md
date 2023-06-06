@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::checkbox_widget` |
 | Introduced | Version 0.9.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Checkbox()
@@ -18,9 +19,7 @@ Widget.Checkbox()
  - [value](value.md)
  - [frame](frame.md)
  - [userInfo](userInfo.md)
-
 ## Functions
 
- - [](entity.md)
- - [](draw.md)
-
+ - [entity()](entity.md)
+ - [draw()](draw.md)

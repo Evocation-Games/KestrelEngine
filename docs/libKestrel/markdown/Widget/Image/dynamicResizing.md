@@ -1,4 +1,4 @@
-[Widget.Image](index.md)
+[Widget.Image](index)
 # dynamicResizing
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::dynamic_resizing` |
 | Introduced | Version 0.8.0 |
 ## Description
+

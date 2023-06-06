@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::grid_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Grid(frame)
@@ -23,15 +24,13 @@ Widget.Grid(frame)
  - [secondaryTextColor](secondaryTextColor.md)
  - [dataSource](dataSource.md)
  - [frame](frame.md)
-
 ## Functions
 
- - [](cellSize.md)
- - [](cellOrigin.md)
- - [](reloadData.md)
- - [](cellIndexAtPoint.md)
- - [](scrollUp.md)
- - [](draw.md)
- - [](scrollDown.md)
- - [](cellAtPoint.md)
-
+ - [cellSize()](cellSize.md)
+ - [cellOrigin()](cellOrigin.md)
+ - [reloadData()](reloadData.md)
+ - [cellIndexAtPoint()](cellIndexAtPoint.md)
+ - [scrollUp()](scrollUp.md)
+ - [draw()](draw.md)
+ - [scrollDown()](scrollDown.md)
+ - [cellAtPoint()](cellAtPoint.md)

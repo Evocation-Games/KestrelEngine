@@ -41,10 +41,13 @@ namespace codegen::spec::markup
         auto save(const std::shared_ptr<codegen::markup_language>& language, const foundation::filesystem::path& path) const -> void
         {
             std::ofstream file(path.string(), std::ofstream::out);
-            for (const auto& line : emit(language)) {
-                file << line << std::endl;
+            if (file.is_open()) {
+                for (const auto& line : emit(language)) {
+                    file << line << std::endl;
+                }
+                file.flush();
+                file.close();
             }
-            file.close();
         }
 
     private:

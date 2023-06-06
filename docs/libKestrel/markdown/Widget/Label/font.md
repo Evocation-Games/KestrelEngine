@@ -1,4 +1,4 @@
-[Widget.Label](index.md)
+[Widget.Label](index)
 # font
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::font` |
 | Introduced | Version 0.8.0 |
 ## Description
+

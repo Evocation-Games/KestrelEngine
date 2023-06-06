@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::slider` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Slider(value, min, max)
@@ -16,8 +17,5 @@ ImGui.Slider(value, min, max)
  - [value](value.md)
  - [maximumValue](maximumValue.md)
  - [minimumValue](minimumValue.md)
-
 ## Functions
-
- - [](valueChanged.md)
 

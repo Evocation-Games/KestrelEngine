@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::image` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Image(src)
@@ -15,4 +16,3 @@ ImGui.Image(src)
  - [position](position.md)
  - [frameCount](frameCount.md)
  - [frame](frame.md)
-

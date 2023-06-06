@@ -1,4 +1,4 @@
-[UI.SceneInterfaceItem](index.md)
+[UI.SceneInterfaceItem](index)
 # condition
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::condition` |
 | Introduced | Version 0.8.0 |
 ## Description
+

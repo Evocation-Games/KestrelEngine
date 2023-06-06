@@ -1,4 +1,4 @@
-[TextEntity](index.md)
+[TextEntity](index)
 # clippingArea
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::clipping_area` |
 | Introduced | Version 0.8.0 |
 ## Description
+

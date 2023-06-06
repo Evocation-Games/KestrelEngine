@@ -1,4 +1,4 @@
-[UI.DialogConfiguration](index.md)
+[UI.DialogConfiguration](index)
 # passthrough
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::passthrough` |
 | Introduced | Version 0.8.0 |
 ## Description
+

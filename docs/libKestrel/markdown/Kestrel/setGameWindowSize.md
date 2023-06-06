@@ -1,5 +1,5 @@
-[Kestrel](index.md)
-# 
+[Kestrel](index)
+# setGameWindowSize(size)
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/kestrel.hpp` |

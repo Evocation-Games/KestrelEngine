@@ -1,4 +1,4 @@
-[Widget.ImageContentAlignment](index.md)
+[Widget.ImageContentAlignment](index)
 # Widget.ImageContentAlignment.Center
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::center` |
 | Introduced | Version 0.8.0 |
 ## Description
+

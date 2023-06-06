@@ -1,4 +1,4 @@
-[ScalingMode](index.md)
+[ScalingMode](index)
 # ScalingMode.Normal
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::normal` |
 | Introduced | Version 0.8.0 |
 ## Description
+

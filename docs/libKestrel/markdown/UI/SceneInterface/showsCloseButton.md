@@ -1,4 +1,4 @@
-[UI.SceneInterface](index.md)
+[UI.SceneInterface](index)
 # showsCloseButton
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::shows_close_button_in_imgui` |
 | Introduced | Version 0.8.0 |
 ## Description
+

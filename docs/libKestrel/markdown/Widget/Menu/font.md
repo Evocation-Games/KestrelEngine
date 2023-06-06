@@ -1,4 +1,4 @@
-[Widget.Menu](index.md)
+[Widget.Menu](index)
 # font
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::font` |
 | Introduced | Version 0.9.0 |
 ## Description
+

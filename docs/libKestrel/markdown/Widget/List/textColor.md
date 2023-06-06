@@ -1,4 +1,4 @@
-[Widget.List](index.md)
+[Widget.List](index)
 # textColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::text_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

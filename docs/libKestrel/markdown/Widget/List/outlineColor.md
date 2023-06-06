@@ -1,4 +1,4 @@
-[Widget.List](index.md)
+[Widget.List](index)
 # outlineColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::outline_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

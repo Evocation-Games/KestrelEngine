@@ -1,4 +1,4 @@
-[Animator](index.md)
+[Animator](index)
 # delay
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::delay` |
 | Introduced | Version 0.8.0 |
 ## Description
+

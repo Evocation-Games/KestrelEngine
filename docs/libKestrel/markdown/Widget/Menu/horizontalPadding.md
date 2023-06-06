@@ -1,4 +1,4 @@
-[Widget.Menu](index.md)
+[Widget.Menu](index)
 # horizontalPadding
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::horizontal_padding` |
 | Introduced | Version 0.9.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Color](index.md)
+[Color](index)
 # alpha
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::graphics::get_alpha` |
 | Introduced | Version 0.8.0 |
 ## Description
+

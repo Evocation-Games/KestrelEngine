@@ -18,14 +18,12 @@ Size(w, h)
  - [isPortrait](isPortrait.md)
  - [aspectRatio](aspectRatio.md)
  - [area](area.md)
-
 ## Functions
 
- - [](ceil.md)
- - [](floor.md)
- - [](add.md)
- - [](round.md)
- - [](subtract.md)
- - [](divide.md)
- - [](multiply.md)
-
+ - [ceil()](ceil.md)
+ - [floor()](floor.md)
+ - [add()](add.md)
+ - [round()](round.md)
+ - [subtract()](subtract.md)
+ - [divide()](divide.md)
+ - [multiply()](multiply.md)

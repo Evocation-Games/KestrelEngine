@@ -1,4 +1,4 @@
-[Vector](index.md)
+[Vector](index)
 # isEmpty
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::lua::empty` |
 | Introduced | Version 0.8.0 |
 ## Description
+

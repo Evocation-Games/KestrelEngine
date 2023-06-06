@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.FileReference](index.md)
+[Kestrel.Sandbox.FileReference](index)
 # name
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::name` |
 | Introduced | Version 0.8.0 |
 ## Description
+

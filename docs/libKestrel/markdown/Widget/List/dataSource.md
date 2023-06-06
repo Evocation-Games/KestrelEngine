@@ -1,4 +1,4 @@
-[Widget.List](index.md)
+[Widget.List](index)
 # dataSource
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::data_source` |
 | Introduced | Version 0.9.0 |
 ## Description
+

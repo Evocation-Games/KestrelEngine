@@ -33,6 +33,6 @@ namespace kdtool::documentation
     auto strikethrough(const std::string& str) -> std::shared_ptr<codegen::spec::markup::text>;
     auto inline_code(const std::string& str) -> std::shared_ptr<codegen::spec::markup::text>;
 
-    auto anchor(const std::string& str, const std::shared_ptr<codegen::spec::markup::page>& page) -> std::shared_ptr<codegen::spec::markup::anchor>;
-    auto anchor(const std::shared_ptr<codegen::spec::markup::markup_node>& body, const std::shared_ptr<codegen::spec::markup::page>& page) -> std::shared_ptr<codegen::spec::markup::anchor>;
+    auto anchor(const std::string& str, const std::shared_ptr<codegen::spec::markup::page>& page, bool wants_extension) -> std::shared_ptr<codegen::spec::markup::anchor>;
+    auto anchor(const std::shared_ptr<codegen::spec::markup::markup_node>& body, const std::shared_ptr<codegen::spec::markup::page>& page, bool wants_extension) -> std::shared_ptr<codegen::spec::markup::anchor>;
 }

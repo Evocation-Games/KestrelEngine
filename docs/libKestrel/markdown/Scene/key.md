@@ -1,8 +1,9 @@
-[Scene](index.md)
-# 
+[Scene](index)
+# key()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/ui/scene/game_scene.hpp` |
 | C++ Symbol | `kestrel::ui::key` |
 | Introduced | Version 0.8.0 |
 ## Description
+

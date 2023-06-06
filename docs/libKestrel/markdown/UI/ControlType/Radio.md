@@ -1,4 +1,4 @@
-[UI.ControlType](index.md)
+[UI.ControlType](index)
 # UI.ControlType.Radio
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::radio` |
 | Introduced | Version 0.8.0 |
 ## Description
+

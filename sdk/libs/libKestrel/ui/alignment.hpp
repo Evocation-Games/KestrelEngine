@@ -25,13 +25,30 @@
 
 namespace kestrel::ui
 {
+    /**
+     * Rperesents how content should be aligned vertically.
+     */
     enum class lua_api(UI.VerticalAlignment, Available_0_8) vertical_alignment : std::int64_t
     {
+        /**
+         * Align content to the top of the frame.
+         */
         top lua_case(Top, Available_0_8) = -1LL,
+
+        /**
+         * Align content to the middle of the frame.
+         */
         middle lua_case(Middle, Available_0_8) = 0LL,
+
+        /**
+         * Align content to the bottom of the frame.
+         */
         bottom lua_case(Bottom, Available_0_8) = 1LL
     };
 
+    /**
+     * Rperesents how content should be aligned horizontally.
+     */
     enum class lua_api(UI.HorizontalAlignment, Available_0_8) horizontal_alignment : std::int64_t
     {
         left lua_case(Left, Available_0_8) = -1LL,

@@ -1,4 +1,4 @@
-[LineEntity](index.md)
+[LineEntity](index)
 # endPosition
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::end` |
 | Introduced | Version 0.8.0 |
 ## Description
+

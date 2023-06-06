@@ -41,12 +41,12 @@ auto kdtool::documentation::inline_code(const std::string& str) -> std::shared_p
     return std::make_shared<codegen::spec::markup::text>(str, codegen::spec::markup::text::style::code);
 }
 
-auto kdtool::documentation::anchor(const std::string& str, const std::shared_ptr<codegen::spec::markup::page>& page) -> std::shared_ptr<codegen::spec::markup::anchor>
+auto kdtool::documentation::anchor(const std::string& str, const std::shared_ptr<codegen::spec::markup::page>& page, bool wants_extension) -> std::shared_ptr<codegen::spec::markup::anchor>
 {
-    return std::make_shared<codegen::spec::markup::anchor>(text(str), page ? page->filename() : "#");
+    return std::make_shared<codegen::spec::markup::anchor>(text(str), page ? page->filename() : "#", wants_extension);
 }
 
-auto kdtool::documentation::anchor(const std::shared_ptr<codegen::spec::markup::markup_node>& body, const std::shared_ptr<codegen::spec::markup::page>& page) -> std::shared_ptr<codegen::spec::markup::anchor>
+auto kdtool::documentation::anchor(const std::shared_ptr<codegen::spec::markup::markup_node>& body, const std::shared_ptr<codegen::spec::markup::page>& page, bool wants_extension) -> std::shared_ptr<codegen::spec::markup::anchor>
 {
-    return std::make_shared<codegen::spec::markup::anchor>(body, page ? page->filename() : "#");
+    return std::make_shared<codegen::spec::markup::anchor>(body, page ? page->filename() : "#", wants_extension);
 }

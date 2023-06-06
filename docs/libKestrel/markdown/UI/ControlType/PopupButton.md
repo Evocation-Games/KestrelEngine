@@ -1,4 +1,4 @@
-[UI.ControlType](index.md)
+[UI.ControlType](index)
 # UI.ControlType.PopupButton
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::popup_button` |
 | Introduced | Version 0.8.0 |
 ## Description
+

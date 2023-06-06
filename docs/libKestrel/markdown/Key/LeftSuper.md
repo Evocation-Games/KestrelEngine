@@ -1,4 +1,4 @@
-[Key](index.md)
+[Key](index)
 # Key.LeftSuper
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::hid::left_super` |
 | Introduced | Version 0.8.0 |
 ## Description
+

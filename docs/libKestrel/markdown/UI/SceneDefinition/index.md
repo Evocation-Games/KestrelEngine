@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::scene_definition` |
 | Introduced | Version 0.9.0 |
 ## Description
+
 ## Constructor
 ```
 UI.SceneDefinition(name, id)
@@ -16,9 +17,7 @@ UI.SceneDefinition(name, id)
  - [interface](interface.md)
  - [valid](valid.md)
  - [name](name.md)
-
 ## Functions
 
- - [](push.md)
- - [](constructScene.md)
-
+ - [push()](push.md)
+ - [constructScene()](constructScene.md)

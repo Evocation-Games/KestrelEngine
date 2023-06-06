@@ -1,4 +1,4 @@
-[UI.SceneInterface](index.md)
+[UI.SceneInterface](index)
 # backgroundTop
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::background_top` |
 | Introduced | Version 0.9.0 |
 ## Description
+

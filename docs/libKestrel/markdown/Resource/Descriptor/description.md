@@ -1,4 +1,4 @@
-[Resource.Descriptor](index.md)
+[Resource.Descriptor](index)
 # description
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::description` |
 | Introduced | Version 0.8.0 |
 ## Description
+

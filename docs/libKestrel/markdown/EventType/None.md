@@ -1,4 +1,4 @@
-[EventType](index.md)
+[EventType](index)
 # EventType.None
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::none` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[ImGui.Combo](index.md)
+[ImGui.Combo](index)
 # position
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::position` |
 | Introduced | Version 0.8.0 |
 ## Description
+

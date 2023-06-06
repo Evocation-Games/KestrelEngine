@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::control_definition` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [value](value.md)
@@ -19,4 +20,3 @@
  - [type](type.md)
  - [frame](frame.md)
  - [name](name.md)
-

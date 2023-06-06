@@ -1,4 +1,4 @@
-[Point](index.md)
+[Point](index)
 # normalized
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::math::normalized` |
 | Introduced | Version 0.8.0 |
 ## Description
+

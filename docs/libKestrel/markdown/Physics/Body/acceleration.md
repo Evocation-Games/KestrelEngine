@@ -1,4 +1,4 @@
-[Physics.Body](index.md)
+[Physics.Body](index)
 # acceleration
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::physics::acceleration` |
 | Introduced | Version 0.8.0 |
 ## Description
+

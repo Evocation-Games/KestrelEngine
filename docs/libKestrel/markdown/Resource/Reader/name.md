@@ -1,4 +1,4 @@
-[Resource.Reader](index.md)
+[Resource.Reader](index)
 # name
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::name` |
 | Introduced | Version 0.8.0 |
 ## Description
+

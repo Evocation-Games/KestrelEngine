@@ -1,4 +1,4 @@
-[Event](index.md)
+[Event](index)
 # location
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::location` |
 | Introduced | Version 0.8.0 |
 ## Description
+

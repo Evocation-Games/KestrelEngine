@@ -1,4 +1,4 @@
-[ImGui.Slider](index.md)
+[ImGui.Slider](index)
 # minimumValue
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::minimum` |
 | Introduced | Version 0.8.0 |
 ## Description
+

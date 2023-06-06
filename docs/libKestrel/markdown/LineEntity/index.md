@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::line_entity` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 LineEntity(start, end, width)
@@ -20,14 +21,12 @@ LineEntity(start, end, width)
  - [endPosition](endPosition.md)
  - [blend](blend.md)
  - [startPosition](startPosition.md)
-
 ## Functions
 
- - [](onLayout.md)
- - [](layout.md)
- - [](bindShaderAttachment4.md)
- - [](bindShaderAttachment3.md)
- - [](bindShaderAttachment2.md)
- - [](draw.md)
- - [](bindShaderAttachment.md)
-
+ - [onLayout()](onLayout.md)
+ - [layout()](layout.md)
+ - [bindShaderAttachment4()](bindShaderAttachment4.md)
+ - [bindShaderAttachment3()](bindShaderAttachment3.md)
+ - [bindShaderAttachment2()](bindShaderAttachment2.md)
+ - [draw()](draw.md)
+ - [bindShaderAttachment()](bindShaderAttachment.md)

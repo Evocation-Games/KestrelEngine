@@ -1,4 +1,4 @@
-[Animator](index.md)
+[Animator](index)
 # currentTime
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::time` |
 | Introduced | Version 0.8.0 |
 ## Description
+

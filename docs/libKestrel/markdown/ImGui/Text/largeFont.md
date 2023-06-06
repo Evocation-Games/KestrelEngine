@@ -1,4 +1,4 @@
-[ImGui.Text](index.md)
+[ImGui.Text](index)
 # largeFont
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::is_large_font` |
 | Introduced | Version 0.8.0 |
 ## Description
+

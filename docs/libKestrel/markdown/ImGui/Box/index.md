@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::box` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Box()
@@ -13,8 +14,5 @@ ImGui.Box()
 
  - [size](size.md)
  - [position](position.md)
-
 ## Functions
-
- - [](addWidget.md)
 

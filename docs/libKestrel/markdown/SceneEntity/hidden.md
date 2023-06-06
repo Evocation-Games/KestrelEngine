@@ -1,4 +1,4 @@
-[SceneEntity](index.md)
+[SceneEntity](index)
 # hidden
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::hidden` |
 | Introduced | Version 0.9.0 |
 ## Description
+

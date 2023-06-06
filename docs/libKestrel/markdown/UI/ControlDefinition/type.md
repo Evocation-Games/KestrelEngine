@@ -1,4 +1,4 @@
-[UI.ControlDefinition](index.md)
+[UI.ControlDefinition](index)
 # type
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::type` |
 | Introduced | Version 0.8.0 |
 ## Description
+

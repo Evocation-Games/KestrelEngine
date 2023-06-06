@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::layout::axis_origin` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [BottomRight](BottomRight.md)
@@ -16,4 +17,3 @@
  - [Center](Center.md)
  - [CenterLeft](CenterLeft.md)
  - [TopCenter](TopCenter.md)
-

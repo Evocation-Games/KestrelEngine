@@ -1,4 +1,4 @@
-[Legacy.Macintosh.Dialog](index.md)
+[Legacy.Macintosh.Dialog](index)
 # ref
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::legacy::macintosh::toolbox::ref_con` |
 | Introduced | Version 0.8.0 |
 ## Description
+

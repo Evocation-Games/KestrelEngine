@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::menu_widget` |
 | Introduced | Version 0.9.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Menu(items, selected_item)
@@ -23,8 +24,5 @@ Widget.Menu(items, selected_item)
  - [indexOfSelectedItem](indexOfSelectedItem.md)
  - [rowHeight](rowHeight.md)
  - [textColor](textColor.md)
-
 ## Functions
-
- - [](draw.md)
 

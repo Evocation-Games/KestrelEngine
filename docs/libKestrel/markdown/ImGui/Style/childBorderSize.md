@@ -1,4 +1,4 @@
-[ImGui.Style](index.md)
+[ImGui.Style](index)
 # childBorderSize
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::style::child_border_size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

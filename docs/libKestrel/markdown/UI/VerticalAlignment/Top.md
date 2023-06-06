@@ -1,4 +1,4 @@
-[UI.VerticalAlignment](index.md)
+[UI.VerticalAlignment](index)
 # UI.VerticalAlignment.Top
 | Aspect | Value |
 | --- | --- |

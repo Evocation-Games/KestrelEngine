@@ -1,4 +1,4 @@
-[UI.Anchor](index.md)
+[UI.Anchor](index)
 # UI.Anchor.Vertical
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::vertical` |
 | Introduced | Version 0.8.0 |
 ## Description
+

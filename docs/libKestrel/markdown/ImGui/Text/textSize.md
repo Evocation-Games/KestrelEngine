@@ -1,4 +1,4 @@
-[ImGui.Text](index.md)
+[ImGui.Text](index)
 # textSize
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::text_size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

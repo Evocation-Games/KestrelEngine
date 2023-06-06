@@ -1,8 +1,9 @@
-[Kestrel.Command.Container](index.md)
-# 
+[Kestrel.Command.Container](index)
+# setProperty()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/command/container.hpp` |
 | C++ Symbol | `kestrel::command::set_property` |
 | Introduced | Version 0.9.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Renderer](index.md)
+[Renderer](index)
 # targetFrameTime
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::lua::api::target_frame_time` |
 | Introduced | Version 0.8.0 |
 ## Description
+

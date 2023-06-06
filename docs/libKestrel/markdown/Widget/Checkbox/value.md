@@ -1,4 +1,4 @@
-[Widget.Checkbox](index.md)
+[Widget.Checkbox](index)
 # value
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::value` |
 | Introduced | Version 0.8.0 |
 ## Description
+

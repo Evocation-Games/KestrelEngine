@@ -1,4 +1,4 @@
-[TextEntity](index.md)
+[TextEntity](index)
 # backgroundColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::background_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

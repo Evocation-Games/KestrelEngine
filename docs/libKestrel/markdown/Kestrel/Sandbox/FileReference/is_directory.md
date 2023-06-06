@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.FileReference](index.md)
+[Kestrel.Sandbox.FileReference](index)
 # is_directory
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::is_directory` |
 | Introduced | Version 0.8.0 |
 ## Description
+

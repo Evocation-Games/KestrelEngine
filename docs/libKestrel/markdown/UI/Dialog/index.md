@@ -5,17 +5,15 @@
 | C++ Symbol | `kestrel::ui::dialog` |
 | Introduced | Version 0.8.0 |
 ## Description
-## Properties
 
- - [frame](frame.md)
+## Properties
 
 ## Functions
 
- - [](close.md)
- - [](configureElement.md)
- - [](configureElementsOnOpen.md)
- - [](setStretchableBackground.md)
- - [](setBackground.md)
- - [](elementNamed.md)
- - [](present.md)
-
+ - [close()](close.md)
+ - [configureElement()](configureElement.md)
+ - [configureElementsOnOpen()](configureElementsOnOpen.md)
+ - [setStretchableBackground()](setStretchableBackground.md)
+ - [setBackground()](setBackground.md)
+ - [elementNamed()](elementNamed.md)
+ - [present()](present.md)

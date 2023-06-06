@@ -5,10 +5,10 @@
 | C++ Symbol | `kestrel::ui::imgui::dockspace` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Functions
 
- - [](endDockspace.md)
- - [](endConsole.md)
- - [](startConsole.md)
- - [](startDockspace.md)
-
+ - [endDockspace()](endDockspace.md)
+ - [endConsole()](endConsole.md)
+ - [startConsole()](startConsole.md)
+ - [startDockspace()](startDockspace.md)

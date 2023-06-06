@@ -1,4 +1,4 @@
-[AxisOrigin](index.md)
+[AxisOrigin](index)
 # AxisOrigin.CenterLeft
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::center_left` |
 | Introduced | Version 0.8.0 |
 ## Description
+

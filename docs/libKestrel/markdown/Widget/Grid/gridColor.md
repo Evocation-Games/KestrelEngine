@@ -1,4 +1,4 @@
-[Widget.Grid](index.md)
+[Widget.Grid](index)
 # gridColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::outline_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

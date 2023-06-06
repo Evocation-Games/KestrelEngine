@@ -1,4 +1,4 @@
-[Platform.Family](index.md)
+[Platform.Family](index)
 # Platform.Family.Linux
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::platform::gnu_linux` |
 | Introduced | Version 0.8.0 |
 ## Description
+

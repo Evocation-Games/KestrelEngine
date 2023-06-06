@@ -1,116 +1,228 @@
 # Kestrel Lua API
-## Namespaces
 
- - [Kestrel](Kestrel/index.md)
- - [ImGui.Style](ImGui/Style/index.md)
- - [Renderer](Renderer/index.md)
-
-## Classes
-
- - [Widget.ScrollView](Widget/ScrollView/index.md)
- - [Widget.PopupButton](Widget/PopupButton/index.md)
- - [Widget.Menu](Widget/Menu/index.md)
- - [Widget.List](Widget/List/index.md)
- - [Widget.Label](Widget/Label/index.md)
- - [Widget.Custom](Widget/Custom/index.md)
- - [Widget.Checkbox](Widget/Checkbox/index.md)
- - [Widget.Stencil.ButtonRenderInfo](Widget/Stencil/ButtonRenderInfo/index.md)
- - [UI.SceneInterface](UI/SceneInterface/index.md)
- - [UI.SceneInterfaceItem](UI/SceneInterfaceItem/index.md)
- - [Scene](Scene/index.md)
- - [UI.ControlDefinition](UI/ControlDefinition/index.md)
- - [Legacy.Macintosh.Toolbox.DialogItem](Legacy/Macintosh/Toolbox/DialogItem/index.md)
- - [Legacy.Macintosh.Dialog](Legacy/Macintosh/Dialog/index.md)
- - [Widget.Sprite](Widget/Sprite/index.md)
- - [PositioningFrame](PositioningFrame/index.md)
- - [ImGui.Window](ImGui/Window/index.md)
- - [ImGui.TextField](ImGui/TextField/index.md)
- - [ImGui.TabBar](ImGui/TabBar/index.md)
- - [ImGui.TabItem](ImGui/TabItem/index.md)
- - [ImGui.Slider](ImGui/Slider/index.md)
- - [ImGui.Separator](ImGui/Separator/index.md)
- - [ImGui.ScrollArea](ImGui/ScrollArea/index.md)
- - [ImGui.SameLine](ImGui/SameLine/index.md)
- - [ImGui.Image](ImGui/Image/index.md)
- - [ImGui.Dockspace](ImGui/Dockspace/index.md)
- - [ImGui.Combo](ImGui/Combo/index.md)
- - [Widget.Stencil.Button](Widget/Stencil/Button/index.md)
- - [Resource.Collection](Resource/Collection/index.md)
- - [LineEntity](LineEntity/index.md)
- - [ImGui.CodeEditor](ImGui/CodeEditor/index.md)
- - [ImGui.Box](ImGui/Box/index.md)
- - [Point](Point/index.md)
- - [UI.DialogConfiguration](UI/DialogConfiguration/index.md)
- - [Kestrel.Sandbox.ResourceFileReference](Kestrel/Sandbox/ResourceFileReference/index.md)
- - [Kestrel.Sandbox.ModReference](Kestrel/Sandbox/ModReference/index.md)
- - [UI.SceneDefinition](UI/SceneDefinition/index.md)
- - [TextEntity](TextEntity/index.md)
- - [ImGui.Checkbox](ImGui/Checkbox/index.md)
- - [AngularDifference](AngularDifference/index.md)
- - [Kestrel.Sandbox.Files](Kestrel/Sandbox/Files/index.md)
- - [Kestrel.Command.Node](Kestrel/Command/Node/index.md)
- - [Kestrel.Command.Program](Kestrel/Command/Program/index.md)
- - [Kestrel.Sandbox.FileReference](Kestrel/Sandbox/FileReference/index.md)
- - [Resource.Writer](Resource/Writer/index.md)
- - [Line](Line/index.md)
- - [Color](Color/index.md)
- - [SceneEntity](SceneEntity/index.md)
- - [ImGui.Table](ImGui/Table/index.md)
- - [Resource.Reader](Resource/Reader/index.md)
- - [Legacy.Macintosh.Sound](Legacy/Macintosh/Sound/index.md)
- - [Resource.Descriptor](Resource/Descriptor/index.md)
- - [Kestrel.Sandbox.DirectoryReference](Kestrel/Sandbox/DirectoryReference/index.md)
- - [Container](Container/index.md)
- - [Audio.MP3](Audio/MP3/index.md)
- - [Resource.Key](Resource/Key/index.md)
- - [Kestrel.Command.Property](Kestrel/Command/Property/index.md)
- - [Angle](Angle/index.md)
- - [UI.Dialog](UI/Dialog/index.md)
- - [AsyncTaskQueue](AsyncTaskQueue/index.md)
- - [ImGui.TextArea](ImGui/TextArea/index.md)
- - [Animator](Animator/index.md)
- - [Widget.Button](Widget/Button/index.md)
- - [Legacy.Macintosh.Picture](Legacy/Macintosh/Picture/index.md)
- - [Widget.Image](Widget/Image/index.md)
- - [ImGui.Text](ImGui/Text/index.md)
- - [Font](Font/index.md)
- - [Legacy.SpriteWorld.Sprite](Legacy/SpriteWorld/Sprite/index.md)
- - [Rect](Rect/index.md)
- - [FontManager](FontManager/index.md)
- - [StaticImage](StaticImage/index.md)
- - [Widget.TextArea](Widget/TextArea/index.md)
- - [Kestrel.Command.Container](Kestrel/Command/Container/index.md)
- - [Canvas](Canvas/index.md)
- - [Event](Event/index.md)
- - [ImGui.Button](ImGui/Button/index.md)
- - [Widget.Text](Widget/Text/index.md)
- - [Widget.Grid](Widget/Grid/index.md)
- - [ImGui.TableCell](ImGui/TableCell/index.md)
- - [Vector](Vector/index.md)
- - [Renderer.Shader](Renderer/Shader/index.md)
- - [Legacy.Macintosh.Toolbox.DialogItemList](Legacy/Macintosh/Toolbox/DialogItemList/index.md)
- - [Kestrel.Command.Decoder](Kestrel/Command/Decoder/index.md)
- - [Physics.Body](Physics/Body/index.md)
- - [Size](Size/index.md)
- - [ImGui.WidgetContainer](ImGui/WidgetContainer/index.md)
- - [Legacy.Macintosh.ColorIcon](Legacy/Macintosh/ColorIcon/index.md)
-
-## Enums & Constants
-
- - [Widget.ImageContentAlignment](Widget/ImageContentAlignment/index.md)
- - [UI.SceneInterfaceItem.AxisOrigin](UI/SceneInterfaceItem/AxisOrigin/index.md)
- - [UI.SceneInterfaceFlags](UI/SceneInterfaceFlags/index.md)
- - [UI.ControlType](UI/ControlType/index.md)
- - [UI.Anchor](UI/Anchor/index.md)
- - [Legacy.Macintosh.Toolbox.DialogItemKind](Legacy/Macintosh/Toolbox/DialogItemKind/index.md)
- - [UI.HorizontalAlignment](UI/HorizontalAlignment/index.md)
- - [Platform.Family](Platform/Family/index.md)
- - [Kestrel.ResourceFileFormat](Kestrel/ResourceFileFormat/index.md)
  - [AxisOrigin](AxisOrigin/index.md)
- - [UI.VerticalAlignment](UI/VerticalAlignment/index.md)
- - [Audio.Driver.API](Audio/Driver/API/index.md)
- - [Renderer.BlendMode](Renderer/BlendMode/index.md)
- - [EventType](EventType/index.md)
- - [Key](Key/index.md)
+   
+ - [Vector](Vector/index.md)
+   
+ - [Event](Event/index.md)
+   
+ - [Canvas](Canvas/index.md)
+   
  - [ScalingMode](ScalingMode/index.md)
-
+   
+ - **Platform**
+   
+ - [StaticImage](StaticImage/index.md)
+   
+ - [Key](Key/index.md)
+   
+ - [FontManager](FontManager/index.md)
+   
+ - [AsyncTaskQueue](AsyncTaskQueue/index.md)
+   
+ - [Animator](Animator/index.md)
+   
+ - [EventType](EventType/index.md)
+   
+ - [Scene](Scene/index.md)
+   
+ - [Angle](Angle/index.md)
+   
+ - [Container](Container/index.md)
+   
+ - [Line](Line/index.md)
+   
+ - [Color](Color/index.md)
+   
+ - [Point](Point/index.md)
+   
+ - [LineEntity](LineEntity/index.md)
+   
+ - **Widget**
+   
+    - [Widget.Text](Widget/Text/index.md)
+      
+    - [Widget.ImageContentAlignment](Widget/ImageContentAlignment/index.md)
+      
+    - [Widget.TextArea](Widget/TextArea/index.md)
+      
+    - [Widget.Sprite](Widget/Sprite/index.md)
+      
+    - [Widget.Button](Widget/Button/index.md)
+      
+    - [Widget.Checkbox](Widget/Checkbox/index.md)
+      
+    - [Widget.Custom](Widget/Custom/index.md)
+      
+    - [Widget.Image](Widget/Image/index.md)
+      
+    - [Widget.Grid](Widget/Grid/index.md)
+      
+    - [Widget.Label](Widget/Label/index.md)
+      
+    - [Widget.Menu](Widget/Menu/index.md)
+      
+    - **Stencil**
+      
+       - [Widget.Stencil.Button](Widget/Stencil/Button/index.md)
+         
+       - [Widget.Stencil.ButtonRenderInfo](Widget/Stencil/ButtonRenderInfo/index.md)
+    - [Widget.List](Widget/List/index.md)
+      
+    - [Widget.ScrollView](Widget/ScrollView/index.md)
+      
+    - [Widget.PopupButton](Widget/PopupButton/index.md)
+      
+ - [Font](Font/index.md)
+   
+ - **Resource**
+   
+    - [Resource.Descriptor](Resource/Descriptor/index.md)
+      
+    - [Resource.Reader](Resource/Reader/index.md)
+      
+    - [Resource.Key](Resource/Key/index.md)
+      
+    - [Resource.Writer](Resource/Writer/index.md)
+      
+    - [Resource.Collection](Resource/Collection/index.md)
+      
+ - **Legacy**
+   
+    - **SpriteWorld**
+      
+    - **Macintosh**
+      
+       - [Legacy.Macintosh.ColorIcon](Legacy/Macintosh/ColorIcon/index.md)
+         
+       - [Legacy.Macintosh.Sound](Legacy/Macintosh/Sound/index.md)
+         
+       - [Legacy.Macintosh.Picture](Legacy/Macintosh/Picture/index.md)
+         
+       - [Legacy.Macintosh.Dialog](Legacy/Macintosh/Dialog/index.md)
+         
+       - **Toolbox**
+         
+          - [Legacy.Macintosh.Toolbox.DialogItemKind](Legacy/Macintosh/Toolbox/DialogItemKind/index.md)
+            
+          - [Legacy.Macintosh.Toolbox.DialogItemList](Legacy/Macintosh/Toolbox/DialogItemList/index.md)
+            
+          - [Legacy.Macintosh.Toolbox.DialogItem](Legacy/Macintosh/Toolbox/DialogItem/index.md)
+ - [TextEntity](TextEntity/index.md)
+   
+ - **UI**
+   
+    - [UI.Anchor](UI/Anchor/index.md)
+      
+    - [UI.HorizontalAlignment](UI/HorizontalAlignment/index.md)
+      
+    - [UI.ControlType](UI/ControlType/index.md)
+      
+    - [UI.SceneInterfaceFlags](UI/SceneInterfaceFlags/index.md)
+    - [UI.SceneDefinition](UI/SceneDefinition/index.md)
+      
+    - [UI.VerticalAlignment](UI/VerticalAlignment/index.md)
+      
+    - [UI.DialogConfiguration](UI/DialogConfiguration/index.md)
+      
+    - [UI.Dialog](UI/Dialog/index.md)
+      
+    - [UI.ControlDefinition](UI/ControlDefinition/index.md)
+      
+    - [UI.SceneInterfaceItem](UI/SceneInterfaceItem/index.md)
+      
+    - [UI.SceneInterface](UI/SceneInterface/index.md)
+      
+ - [PositioningFrame](PositioningFrame/index.md)
+   
+ - [AngularDifference](AngularDifference/index.md)
+   
+ - [Renderer](Renderer/index.md)
+   
+    - [Renderer.Shader](Renderer/Shader/index.md)
+      
+    - [Renderer.BlendMode](Renderer/BlendMode/index.md)
+      
+ - [Rect](Rect/index.md)
+   
+ - **Audio**
+   
+    - **Driver**
+      
+    - [Audio.MP3](Audio/MP3/index.md)
+      
+ - [SceneEntity](SceneEntity/index.md)
+   
+ - [Size](Size/index.md)
+   
+ - **ImGui**
+   
+    - [ImGui.WidgetContainer](ImGui/WidgetContainer/index.md)
+      
+    - [ImGui.Text](ImGui/Text/index.md)
+      
+    - [ImGui.TextArea](ImGui/TextArea/index.md)
+      
+    - [ImGui.Checkbox](ImGui/Checkbox/index.md)
+      
+    - [ImGui.Box](ImGui/Box/index.md)
+      
+    - [ImGui.Combo](ImGui/Combo/index.md)
+      
+    - [ImGui.TabBar](ImGui/TabBar/index.md)
+      
+    - [ImGui.Separator](ImGui/Separator/index.md)
+    - [ImGui.Dockspace](ImGui/Dockspace/index.md)
+      
+    - [ImGui.Button](ImGui/Button/index.md)
+      
+    - [ImGui.ScrollArea](ImGui/ScrollArea/index.md)
+      
+    - [ImGui.Slider](ImGui/Slider/index.md)
+      
+    - [ImGui.TableCell](ImGui/TableCell/index.md)
+      
+    - [ImGui.Table](ImGui/Table/index.md)
+      
+    - [ImGui.SameLine](ImGui/SameLine/index.md)
+    - [ImGui.CodeEditor](ImGui/CodeEditor/index.md)
+      
+    - [ImGui.TextField](ImGui/TextField/index.md)
+      
+    - [ImGui.TabItem](ImGui/TabItem/index.md)
+      
+    - [ImGui.Style](ImGui/Style/index.md)
+      
+    - [ImGui.Window](ImGui/Window/index.md)
+      
+    - [ImGui.Image](ImGui/Image/index.md)
+      
+ - **Physics**
+   
+ - [Kestrel](Kestrel/index.md)
+   
+    - **Command**
+      
+       - [Kestrel.Command.Decoder](Kestrel/Command/Decoder/index.md)
+         
+       - [Kestrel.Command.Property](Kestrel/Command/Property/index.md)
+         
+       - [Kestrel.Command.Program](Kestrel/Command/Program/index.md)
+         
+       - [Kestrel.Command.Container](Kestrel/Command/Container/index.md)
+         
+       - [Kestrel.Command.Node](Kestrel/Command/Node/index.md)
+    - **Sandbox**
+      
+       - [Kestrel.Sandbox.DirectoryReference](Kestrel/Sandbox/DirectoryReference/index.md)
+         
+       - [Kestrel.Sandbox.Files](Kestrel/Sandbox/Files/index.md)
+         
+       - [Kestrel.Sandbox.ModReference](Kestrel/Sandbox/ModReference/index.md)
+         
+       - [Kestrel.Sandbox.FileReference](Kestrel/Sandbox/FileReference/index.md)
+         
+       - [Kestrel.Sandbox.ResourceFileReference](Kestrel/Sandbox/ResourceFileReference/index.md)
+         
+    - [Kestrel.ResourceFileFormat](Kestrel/ResourceFileFormat/index.md)
+      

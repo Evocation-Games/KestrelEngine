@@ -1,4 +1,4 @@
-[UI.SceneDefinition](index.md)
+[UI.SceneDefinition](index)
 # macintoshDialog
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::macintosh_dialog` |
 | Introduced | Version 0.9.0 |
 ## Description
+

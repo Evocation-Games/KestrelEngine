@@ -1,4 +1,4 @@
-[ImGui.CodeEditor](index.md)
+[ImGui.CodeEditor](index)
 # size
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.Files](index.md)
+[Kestrel.Sandbox.Files](index)
 # gameDataDirectory
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::game_data` |
 | Introduced | Version 0.8.0 |
 ## Description
+

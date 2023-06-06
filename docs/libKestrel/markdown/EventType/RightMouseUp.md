@@ -1,4 +1,4 @@
-[EventType](index.md)
+[EventType](index)
 # EventType.RightMouseUp
 | Aspect | Value |
 | --- | --- |

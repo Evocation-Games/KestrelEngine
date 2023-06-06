@@ -1,4 +1,4 @@
-[Widget.List](index.md)
+[Widget.List](index)
 # borders
 | Aspect | Value |
 | --- | --- |

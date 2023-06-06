@@ -1,4 +1,4 @@
-[ImGui.Checkbox](index.md)
+[ImGui.Checkbox](index)
 # identifiedLabel
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::identified_label` |
 | Introduced | Version 0.8.0 |
 ## Description
+

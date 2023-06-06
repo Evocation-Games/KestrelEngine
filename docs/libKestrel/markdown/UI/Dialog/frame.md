@@ -1,4 +1,4 @@
-[UI.Dialog](index.md)
+[UI.Dialog](index)
 # frame
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::frame` |
 | Introduced | Version 0.8.0 |
 ## Description
+

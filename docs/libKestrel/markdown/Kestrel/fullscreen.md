@@ -1,4 +1,4 @@
-[Kestrel](index.md)
+[Kestrel](index)
 # fullscreen
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::is_fullscreen` |
 | Introduced | Version 0.8.0 |
 ## Description
+

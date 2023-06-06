@@ -1,4 +1,4 @@
-[ImGui.Table](index.md)
+[ImGui.Table](index)
 # rowCount
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::row_count` |
 | Introduced | Version 0.8.0 |
 ## Description
+

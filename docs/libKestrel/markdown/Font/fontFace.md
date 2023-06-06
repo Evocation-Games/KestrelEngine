@@ -1,4 +1,4 @@
-[Font](index.md)
+[Font](index)
 # fontFace
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::font::font_face` |
 | Introduced | Version 0.8.0 |
 ## Description
+

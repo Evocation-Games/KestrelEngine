@@ -1,4 +1,4 @@
-[Container](index.md)
+[Container](index)
 # primaryName
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::primary_name` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Kestrel](index.md)
+[Kestrel](index)
 # remainingTasks
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::remaining_async_tasks` |
 | Introduced | Version 0.8.0 |
 ## Description
+

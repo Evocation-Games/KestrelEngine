@@ -1,4 +1,4 @@
-[Container](index.md)
+[Container](index)
 # isGlobal
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::is_global` |
 | Introduced | Version 0.8.0 |
 ## Description
+

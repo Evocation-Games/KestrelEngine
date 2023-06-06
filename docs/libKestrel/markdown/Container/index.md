@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::resource::container` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Container(name)
@@ -18,23 +19,21 @@ Container(name)
  - [isGlobal](isGlobal.md)
  - [containsResources](containsResources.md)
  - [primaryName](primaryName.md)
-
 ## Functions
 
- - [](pushScene.md)
- - [](resourcesOfType.md)
- - [](typedIdentifiedNamedResource.md)
- - [](identifiedNamedResource.md)
- - [](typedIdentifiedResource.md)
- - [](namedResource.md)
- - [](typedResource.md)
- - [](identifiedResource.md)
- - [](addNamespace.md)
- - [](resource.md)
- - [](hasName.md)
- - [](typedNamedResource.md)
- - [](each.md)
- - [](firstResourceOfType.md)
- - [](any.md)
- - [](global.md)
-
+ - [pushScene()](pushScene.md)
+ - [resourcesOfType()](resourcesOfType.md)
+ - [typedIdentifiedNamedResource()](typedIdentifiedNamedResource.md)
+ - [identifiedNamedResource()](identifiedNamedResource.md)
+ - [typedIdentifiedResource()](typedIdentifiedResource.md)
+ - [namedResource()](namedResource.md)
+ - [typedResource()](typedResource.md)
+ - [identifiedResource()](identifiedResource.md)
+ - [addNamespace()](addNamespace.md)
+ - [resource()](resource.md)
+ - [hasName()](hasName.md)
+ - [typedNamedResource()](typedNamedResource.md)
+ - [each()](each.md)
+ - [firstResourceOfType()](firstResourceOfType.md)
+ - [any()](any.md)
+ - [global()](global.md)

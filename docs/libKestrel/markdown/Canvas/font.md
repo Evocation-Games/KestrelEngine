@@ -1,4 +1,4 @@
-[Canvas](index.md)
+[Canvas](index)
 # font
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::graphics::font` |
 | Introduced | Version 0.8.0 |
 ## Description
+

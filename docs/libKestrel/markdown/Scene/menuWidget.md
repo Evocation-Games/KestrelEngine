@@ -1,4 +1,4 @@
-[Scene](index.md)
+[Scene](index)
 # menuWidget
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::menu_widget` |
 | Introduced | Version 0.9.0 |
 ## Description
+

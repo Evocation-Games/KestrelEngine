@@ -1,8 +1,9 @@
-[Resource.Reader](index.md)
-# 
+[Resource.Reader](index)
+# readColor()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/resource/reader.hpp` |
 | C++ Symbol | `kestrel::resource::read_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

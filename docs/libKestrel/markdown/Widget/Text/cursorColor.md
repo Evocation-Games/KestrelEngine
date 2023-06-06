@@ -1,4 +1,4 @@
-[Widget.Text](index.md)
+[Widget.Text](index)
 # cursorColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::cursor_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

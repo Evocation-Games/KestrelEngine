@@ -26,17 +26,18 @@ namespace codegen::spec::markup
 {
     struct anchor : public markup_node
     {
-        explicit anchor(const std::shared_ptr<markup_node>& body, const std::string& href)
-            : m_body(body), m_href(href)
+        explicit anchor(const std::shared_ptr<markup_node>& body, const std::string& href, bool wants_extension = false)
+            : m_body(body), m_href(href), m_wants_extension(wants_extension)
         {}
 
         [[nodiscard]] auto value(const std::shared_ptr<markup_language>& language) const -> std::string override
         {
-            return language->anchor(m_body, m_href);
+            return language->anchor(m_body, m_href, m_wants_extension);
         }
 
     private:
         std::shared_ptr<markup_node> m_body;
         std::string m_href;
+        bool m_wants_extension;
     };
 }

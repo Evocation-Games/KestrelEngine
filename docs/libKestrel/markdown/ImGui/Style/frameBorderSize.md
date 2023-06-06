@@ -1,4 +1,4 @@
-[ImGui.Style](index.md)
+[ImGui.Style](index)
 # frameBorderSize
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::style::frame_border_size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

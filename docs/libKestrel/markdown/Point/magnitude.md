@@ -1,4 +1,4 @@
-[Point](index.md)
+[Point](index)
 # magnitude
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::math::magnitude` |
 | Introduced | Version 0.8.0 |
 ## Description
+

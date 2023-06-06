@@ -1,4 +1,4 @@
-[Widget.Custom](index.md)
+[Widget.Custom](index)
 # scrollOffset
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::scroll_offset` |
 | Introduced | Version 0.8.0 |
 ## Description
+

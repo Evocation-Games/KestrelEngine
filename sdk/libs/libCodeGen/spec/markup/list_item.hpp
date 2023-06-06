@@ -30,7 +30,7 @@ namespace codegen::spec::markup
             : m_body(body)
         {}
 
-        [[nodiscard]] auto value(const std::shared_ptr<markup_language>& language) const -> std::string override
+        [[nodiscard]] auto emit(const std::shared_ptr<markup_language>& language) const -> std::vector<std::string> override
         {
             return std::move(language->list_item(m_body));
         }

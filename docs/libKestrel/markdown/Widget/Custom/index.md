@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::custom_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Custom(drawing_function)
@@ -15,10 +16,8 @@ Widget.Custom(drawing_function)
  - [userInfo](userInfo.md)
  - [frame](frame.md)
  - [entity](entity.md)
-
 ## Functions
 
- - [](drawingFunction.md)
- - [](addChildEntity.md)
- - [](draw.md)
-
+ - [drawingFunction()](drawingFunction.md)
+ - [addChildEntity()](addChildEntity.md)
+ - [draw()](draw.md)

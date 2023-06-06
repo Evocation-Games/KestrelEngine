@@ -42,7 +42,7 @@ auto kdtool::documentation::case_index_list::build(const std::shared_ptr<builder
     auto list = body->add<codegen::spec::markup::list>();
     for (const auto& lua_enum_case : m_enum->all_cases()) {
         auto page = builder->add_case_page(lua_enum_case.second, m_owner);
-        list->add_item(anchor(lua_enum_case.second->object_symbol()->lua_resolved_identifier(), page));
+        list->add_item(anchor(lua_enum_case.second->object_symbol()->lua_resolved_identifier(), page, true));
     }
 
     return body;

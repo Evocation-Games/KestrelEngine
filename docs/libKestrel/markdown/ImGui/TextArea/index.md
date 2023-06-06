@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::textarea` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.TextArea(buffer_size, text)
@@ -15,4 +16,3 @@ ImGui.TextArea(buffer_size, text)
  - [size](size.md)
  - [font](font.md)
  - [position](position.md)
-

@@ -1,4 +1,4 @@
-[Widget.Grid](index.md)
+[Widget.Grid](index)
 # textColor
 | Aspect | Value |
 | --- | --- |

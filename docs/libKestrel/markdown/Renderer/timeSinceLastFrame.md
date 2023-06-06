@@ -1,4 +1,4 @@
-[Renderer](index.md)
+[Renderer](index)
 # timeSinceLastFrame
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::lua::api::time_since_last_frame` |
 | Introduced | Version 0.8.0 |
 ## Description
+

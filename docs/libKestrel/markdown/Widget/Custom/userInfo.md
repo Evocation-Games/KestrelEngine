@@ -1,4 +1,4 @@
-[Widget.Custom](index.md)
+[Widget.Custom](index)
 # userInfo
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::user_info` |
 | Introduced | Version 0.8.0 |
 ## Description
+

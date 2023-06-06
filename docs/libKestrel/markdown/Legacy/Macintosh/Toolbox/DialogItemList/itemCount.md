@@ -1,4 +1,4 @@
-[Legacy.Macintosh.Toolbox.DialogItemList](index.md)
+[Legacy.Macintosh.Toolbox.DialogItemList](index)
 # itemCount
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::legacy::macintosh::toolbox::item_count` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[ImGui.Window](index.md)
+[ImGui.Window](index)
 # isHidden
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::is_hidden` |
 | Introduced | Version 0.8.0 |
 ## Description
+

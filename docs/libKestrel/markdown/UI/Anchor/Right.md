@@ -1,4 +1,4 @@
-[UI.Anchor](index.md)
+[UI.Anchor](index)
 # UI.Anchor.Right
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::right` |
 | Introduced | Version 0.8.0 |
 ## Description
+

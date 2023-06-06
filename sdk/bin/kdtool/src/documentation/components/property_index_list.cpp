@@ -41,7 +41,7 @@ auto kdtool::documentation::property_index_list::build(const std::shared_ptr<bui
     auto list = body->add<codegen::spec::markup::list>();
     for (const auto& property : m_properties) {
         auto page = builder->add_property_page(property, m_owner);
-        list->add_item(anchor(property->getter()->lua_identifier(), page));
+        list->add_item(anchor(property->getter()->lua_identifier(), page, true));
     }
 
     return body;

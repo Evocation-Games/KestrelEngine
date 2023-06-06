@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::sprite_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Sprite(sprite)
@@ -15,8 +16,5 @@ Widget.Sprite(sprite)
  - [image](image.md)
  - [frame](frame.md)
  - [entity](entity.md)
-
 ## Functions
-
- - [](draw.md)
 

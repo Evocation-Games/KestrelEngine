@@ -1,8 +1,9 @@
-[Resource.Writer](index.md)
-# 
+[Resource.Writer](index)
+# writeColor()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/resource/writer.hpp` |
 | C++ Symbol | `kestrel::resource::write_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -11,4 +11,3 @@ Rperesents how content should be aligned horizontally.
  - [Right](Right.md)
  - [Center](Center.md)
  - [Left](Left.md)
-

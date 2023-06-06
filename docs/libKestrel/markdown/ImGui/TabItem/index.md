@@ -5,15 +5,12 @@
 | C++ Symbol | `kestrel::ui::imgui::tabbar_item` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.TabItem(title)
 ```
 ## Properties
 
- - [title](title.md)
-
 ## Functions
-
- - [](addWidget.md)
 

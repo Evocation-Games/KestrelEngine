@@ -1,4 +1,4 @@
-[Renderer.BlendMode](index.md)
+[Renderer.BlendMode](index)
 # Renderer.BlendMode.Normal
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::renderer::normal` |
 | Introduced | Version 0.8.0 |
 ## Description
+

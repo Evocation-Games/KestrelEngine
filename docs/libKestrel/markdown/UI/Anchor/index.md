@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::anchor` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [Horizontal](Horizontal.md)
@@ -13,4 +14,3 @@
  - [Vertical](Vertical.md)
  - [Top](Top.md)
  - [Left](Left.md)
-

@@ -1,4 +1,4 @@
-[Legacy.SpriteWorld.Sprite](index.md)
+[Legacy.SpriteWorld.Sprite](index)
 # type
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::image::legacy::spriteworld::type` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::tabbar` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.TabBar(tabs)
@@ -15,8 +16,5 @@ ImGui.TabBar(tabs)
  - [size](size.md)
  - [selectedTab](selectedTab.md)
  - [tabs](tabs.md)
-
 ## Functions
-
- - [](setAction.md)
 

@@ -1,4 +1,4 @@
-[Resource.Collection](index.md)
+[Resource.Collection](index)
 # empty
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::empty` |
 | Introduced | Version 0.8.0 |
 ## Description
+

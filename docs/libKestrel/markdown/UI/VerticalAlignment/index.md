@@ -11,4 +11,3 @@ Rperesents how content should be aligned vertically.
  - [Bottom](Bottom.md)
  - [Middle](Middle.md)
  - [Top](Top.md)
-

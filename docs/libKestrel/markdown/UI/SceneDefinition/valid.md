@@ -1,4 +1,4 @@
-[UI.SceneDefinition](index.md)
+[UI.SceneDefinition](index)
 # valid
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::valid` |
 | Introduced | Version 0.9.0 |
 ## Description
+

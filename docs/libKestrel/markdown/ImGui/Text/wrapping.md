@@ -1,4 +1,4 @@
-[ImGui.Text](index.md)
+[ImGui.Text](index)
 # wrapping
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::wrapping` |
 | Introduced | Version 0.8.0 |
 ## Description
+

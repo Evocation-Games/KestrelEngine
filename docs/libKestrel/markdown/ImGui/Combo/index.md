@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::combo` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Combo(items)
@@ -16,8 +17,5 @@ ImGui.Combo(items)
  - [position](position.md)
  - [selectedItem](selectedItem.md)
  - [items](items.md)
-
 ## Functions
-
- - [](setAction.md)
 

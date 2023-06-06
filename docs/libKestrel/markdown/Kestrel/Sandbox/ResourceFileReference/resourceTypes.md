@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.ResourceFileReference](index.md)
+[Kestrel.Sandbox.ResourceFileReference](index)
 # resourceTypes
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::all_types` |
 | Introduced | Version 0.8.0 |
 ## Description
+

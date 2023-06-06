@@ -1,4 +1,4 @@
-[Widget.List](index.md)
+[Widget.List](index)
 # hiliteColor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::hilite_color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

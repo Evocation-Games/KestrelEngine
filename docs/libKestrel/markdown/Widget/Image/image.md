@@ -1,4 +1,4 @@
-[Widget.Image](index.md)
+[Widget.Image](index)
 # image
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::image` |
 | Introduced | Version 0.8.0 |
 ## Description
+

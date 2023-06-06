@@ -1,4 +1,4 @@
-[Event](index.md)
+[Event](index)
 # key
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::key` |
 | Introduced | Version 0.8.0 |
 ## Description
+

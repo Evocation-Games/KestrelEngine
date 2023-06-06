@@ -1,4 +1,4 @@
-[Angle](index.md)
+[Angle](index)
 # degrees
 | Aspect | Value |
 | --- | --- |

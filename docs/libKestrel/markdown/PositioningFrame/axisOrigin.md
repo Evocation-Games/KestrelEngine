@@ -1,4 +1,4 @@
-[PositioningFrame](index.md)
+[PositioningFrame](index)
 # axisOrigin
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::lua_axis_origin` |
 | Introduced | Version 0.8.0 |
 ## Description
+

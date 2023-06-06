@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::command::property` |
 | Introduced | Version 0.9.0 |
 ## Description
+
 ## Constructor
 ```
 Kestrel.Command.Property(name, expected_arguments)
@@ -13,10 +14,8 @@ Kestrel.Command.Property(name, expected_arguments)
 
  - [expectedArgumentCount](expectedArgumentCount.md)
  - [name](name.md)
-
 ## Functions
 
- - [](setReturnedValue.md)
- - [](setReturnedValueForArgument.md)
- - [](setReturnedPropertyForArgument.md)
-
+ - [setReturnedValue()](setReturnedValue.md)
+ - [setReturnedValueForArgument()](setReturnedValueForArgument.md)
+ - [setReturnedPropertyForArgument()](setReturnedPropertyForArgument.md)

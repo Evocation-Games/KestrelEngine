@@ -1,4 +1,4 @@
-[Legacy.Macintosh.Picture](index.md)
+[Legacy.Macintosh.Picture](index)
 # size
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::image::legacy::macintosh::quickdraw::size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

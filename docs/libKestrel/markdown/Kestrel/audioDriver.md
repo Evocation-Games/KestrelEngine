@@ -1,4 +1,4 @@
-[Kestrel](index.md)
+[Kestrel](index)
 # audioDriver
 | Aspect | Value |
 | --- | --- |

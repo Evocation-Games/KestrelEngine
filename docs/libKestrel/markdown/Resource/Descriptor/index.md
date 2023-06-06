@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::resource::descriptor` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [container](container.md)
@@ -14,30 +15,28 @@
  - [hash](hash.md)
  - [description](description.md)
  - [ignoringType](ignoringType.md)
-
 ## Functions
 
- - [](whenIdNotInRange.md)
- - [](whenIdInRange.md)
- - [](matchingResources.md)
- - [](valid.md)
- - [](whenGreaterThanId.md)
- - [](whenNotId.md)
- - [](normalizedId.md)
- - [](withType.md)
- - [](hasId.md)
- - [](bestResource.md)
- - [](typed.md)
- - [](identified.md)
- - [](hasType.md)
- - [](whenLessThanId.md)
- - [](hasName.md)
- - [](typedNamed.md)
- - [](typedIdentified.md)
- - [](identifiedNamed.md)
- - [](typedIdentifiedNamed.md)
- - [](whenId.md)
- - [](named.md)
- - [](withId.md)
- - [](hasContainer.md)
-
+ - [whenIdNotInRange()](whenIdNotInRange.md)
+ - [whenIdInRange()](whenIdInRange.md)
+ - [matchingResources()](matchingResources.md)
+ - [valid()](valid.md)
+ - [whenGreaterThanId()](whenGreaterThanId.md)
+ - [whenNotId()](whenNotId.md)
+ - [normalizedId()](normalizedId.md)
+ - [withType()](withType.md)
+ - [hasId()](hasId.md)
+ - [bestResource()](bestResource.md)
+ - [typed()](typed.md)
+ - [identified()](identified.md)
+ - [hasType()](hasType.md)
+ - [whenLessThanId()](whenLessThanId.md)
+ - [hasName()](hasName.md)
+ - [typedNamed()](typedNamed.md)
+ - [typedIdentified()](typedIdentified.md)
+ - [identifiedNamed()](identifiedNamed.md)
+ - [typedIdentifiedNamed()](typedIdentifiedNamed.md)
+ - [whenId()](whenId.md)
+ - [named()](named.md)
+ - [withId()](withId.md)
+ - [hasContainer()](hasContainer.md)

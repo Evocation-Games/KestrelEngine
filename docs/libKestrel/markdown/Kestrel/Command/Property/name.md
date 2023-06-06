@@ -1,4 +1,4 @@
-[Kestrel.Command.Property](index.md)
+[Kestrel.Command.Property](index)
 # name
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::command::name` |
 | Introduced | Version 0.9.0 |
 ## Description
+

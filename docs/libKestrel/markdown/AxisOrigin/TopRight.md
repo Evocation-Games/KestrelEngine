@@ -1,4 +1,4 @@
-[AxisOrigin](index.md)
+[AxisOrigin](index)
 # AxisOrigin.TopRight
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::top_right` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[Widget.Sprite](index.md)
+[Widget.Sprite](index)
 # image
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::image` |
 | Introduced | Version 0.8.0 |
 ## Description
+

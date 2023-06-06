@@ -1,4 +1,4 @@
-[Legacy.Macintosh.ColorIcon](index.md)
+[Legacy.Macintosh.ColorIcon](index)
 # size
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::image::legacy::macintosh::quickdraw::size` |
 | Introduced | Version 0.8.0 |
 ## Description
+

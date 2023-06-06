@@ -1,4 +1,4 @@
-[Kestrel.Sandbox.Files](index.md)
+[Kestrel.Sandbox.Files](index)
 # savesDirectory
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::sandbox::user_saves` |
 | Introduced | Version 0.8.0 |
 ## Description
+

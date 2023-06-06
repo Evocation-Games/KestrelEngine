@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::label` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Text(text)
@@ -18,4 +19,3 @@ ImGui.Text(text)
  - [textSize](textSize.md)
  - [largeFont](largeFont.md)
  - [text](text.md)
-

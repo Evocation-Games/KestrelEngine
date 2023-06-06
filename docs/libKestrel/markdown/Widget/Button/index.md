@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::button_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.Button(label)
@@ -30,15 +31,13 @@ Widget.Button(label)
  - [mouseEnter](mouseEnter.md)
  - [disabledStencil](disabledStencil.md)
  - [pressedColor](pressedColor.md)
-
 ## Functions
 
- - [](setAction.md)
- - [](setMouseExit.md)
- - [](entity.md)
- - [](draw.md)
- - [](setGlobalDisabledStencil.md)
- - [](setMouseEnter.md)
- - [](setGlobalPressedStencil.md)
- - [](setGlobalNormalStencil.md)
-
+ - [setAction()](setAction.md)
+ - [setMouseExit()](setMouseExit.md)
+ - [entity()](entity.md)
+ - [draw()](draw.md)
+ - [setGlobalDisabledStencil()](setGlobalDisabledStencil.md)
+ - [setMouseEnter()](setMouseEnter.md)
+ - [setGlobalPressedStencil()](setGlobalPressedStencil.md)
+ - [setGlobalNormalStencil()](setGlobalNormalStencil.md)

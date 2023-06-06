@@ -1,4 +1,4 @@
-[Scene](index.md)
+[Scene](index)
 # canPush
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::can_push` |
 | Introduced | Version 0.8.0 |
 ## Description
+

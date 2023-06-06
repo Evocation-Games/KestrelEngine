@@ -1,4 +1,4 @@
-[TextEntity](index.md)
+[TextEntity](index)
 # axisAnchor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::lua_anchor_point` |
 | Introduced | Version 0.8.0 |
 ## Description
+

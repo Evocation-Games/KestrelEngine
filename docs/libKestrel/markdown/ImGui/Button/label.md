@@ -1,4 +1,4 @@
-[ImGui.Button](index.md)
+[ImGui.Button](index)
 # label
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::label` |
 | Introduced | Version 0.8.0 |
 ## Description
+

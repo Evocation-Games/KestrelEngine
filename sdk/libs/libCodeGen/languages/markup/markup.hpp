@@ -49,14 +49,14 @@ namespace codegen
         [[nodiscard]] virtual auto inline_code(const std::string& str) -> std::string = 0;
 
         [[nodiscard]] virtual auto heading(const node& body, std::int32_t i) -> std::string = 0;
-        [[nodiscard]] virtual auto anchor(const node& body, const std::string& href) -> std::string = 0;
+        [[nodiscard]] virtual auto anchor(const node& body, const std::string& href, bool wants_extension) -> std::string = 0;
 
         [[nodiscard]] virtual auto table(const node& body) -> std::vector<std::string> = 0;
         [[nodiscard]] virtual auto table_row(const node& body) -> std::vector<std::string> = 0;
         [[nodiscard]] virtual auto table_header_row(const node& body) -> std::vector<std::string> = 0;
 
         [[nodiscard]] virtual auto list(const node& body) -> std::vector<std::string> = 0;
-        [[nodiscard]] virtual auto list_item(const node& body) -> std::string = 0;
+        [[nodiscard]] virtual auto list_item(const node& body) -> std::vector<std::string> = 0;
 
         [[nodiscard]] virtual auto preformatted(const std::string& body) -> std::vector<std::string> = 0;
         [[nodiscard]] virtual auto blockquote(const node& body) -> std::vector<std::string> = 0;

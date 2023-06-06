@@ -1,8 +1,9 @@
-[Kestrel.Sandbox.FileReference](index.md)
-# 
+[Kestrel.Sandbox.FileReference](index)
+# openResourceFile()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/sandbox/file/file_reference.hpp` |
 | C++ Symbol | `kestrel::sandbox::open_resource_file` |
 | Introduced | Version 0.8.0 |
 ## Description
+

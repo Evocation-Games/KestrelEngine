@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::hid::key` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [N8](N8.md)
@@ -98,4 +99,3 @@
  - [Space](Space.md)
  - [C](C.md)
  - [Apostrophe](Apostrophe.md)
-

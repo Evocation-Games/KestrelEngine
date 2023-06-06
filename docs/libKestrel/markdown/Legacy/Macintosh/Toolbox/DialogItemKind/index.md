@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::legacy::macintosh::toolbox::item_type` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [EditText](EditText.md)
@@ -18,4 +19,3 @@
  - [Icon](Icon.md)
  - [HelpItem](HelpItem.md)
  - [UserItem](UserItem.md)
-

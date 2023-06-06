@@ -80,9 +80,9 @@ auto codegen::html::heading(const node& body, std::int32_t size) -> std::string
     }
 }
 
-auto codegen::html::anchor(const node& body, const std::string& href) -> std::string
+auto codegen::html::anchor(const node& body, const std::string& href, bool wants_extension) -> std::string
 {
-    return "<a href=\"" + href +  + "." + extension() + "\">" + body->value(shared_from_this()) + "</a>";
+    return "<a href=\"" + href + (wants_extension ? "." + extension() : "") + "\">" + body->value(shared_from_this()) + "</a>";
 }
 
 
@@ -99,9 +99,15 @@ auto codegen::html::list(const node& body) -> std::vector<std::string>
     return std::move(out);
 }
 
-auto codegen::html::list_item(const node& body) -> std::string
+auto codegen::html::list_item(const node& body) -> std::vector<std::string>
 {
-    return "        <li>" + body->value(shared_from_this()) + "</li>";
+    std::vector<std::string> out;
+    out.emplace_back("    <li>");
+    for (const auto& line : body->emit(shared_from_this())) {
+        out.emplace_back("    " + line);
+    }
+    out.emplace_back("    </li>");
+    return out;
 }
 
 

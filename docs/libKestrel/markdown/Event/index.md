@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::event` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [isMouseEvent](isMouseEvent.md)
@@ -13,9 +14,7 @@
  - [location](location.md)
  - [isKeyEvent](isKeyEvent.md)
  - [type](type.md)
-
 ## Functions
 
- - [](relocated.md)
- - [](hasType.md)
-
+ - [relocated()](relocated.md)
+ - [hasType()](hasType.md)

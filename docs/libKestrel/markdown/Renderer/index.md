@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::renderer::lua::api` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [timeSinceLastFrame](timeSinceLastFrame.md)
@@ -13,4 +14,3 @@
  - [requiresNewFrame](requiresNewFrame.md)
  - [effectiveFrameRate](effectiveFrameRate.md)
  - [lastFrameTime](lastFrameTime.md)
-

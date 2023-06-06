@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::sandbox::mod_reference` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [enabled](enabled.md)
@@ -22,9 +23,7 @@
  - [isLoaded](isLoaded.md)
  - [description](description.md)
  - [hasInitialScript](hasInitialScript.md)
-
 ## Functions
 
- - [](execute.md)
- - [](loadResources.md)
-
+ - [execute()](execute.md)
+ - [loadResources()](loadResources.md)

@@ -1,4 +1,4 @@
-[LineEntity](index.md)
+[LineEntity](index)
 # color
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::color` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -1,4 +1,4 @@
-[ImGui.Slider](index.md)
+[ImGui.Slider](index)
 # position
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::imgui::position` |
 | Introduced | Version 0.8.0 |
 ## Description
+

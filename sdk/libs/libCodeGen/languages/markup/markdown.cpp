@@ -80,9 +80,9 @@ auto codegen::markdown::heading(const node& body, std::int32_t size) -> std::str
     }
 }
 
-auto codegen::markdown::anchor(const node& body, const std::string& href) -> std::string
+auto codegen::markdown::anchor(const node& body, const std::string& href, bool wants_extension) -> std::string
 {
-    return "[" + body->value(shared_from_this()) + "](" + href + "." + extension() + ")";
+    return "[" + body->value(shared_from_this()) + "](" + href + (wants_extension ? "." + extension() : "") + ")";
 }
 
 
@@ -90,18 +90,27 @@ auto codegen::markdown::list(const node& body) -> std::vector<std::string>
 {
     std::vector<std::string> out;
     out.emplace_back("");
-
     for (const auto& item : body->emit(shared_from_this())) {
+        if (out.back() == item) {
+            continue;
+        }
         out.emplace_back(item);
     }
-
-    out.emplace_back("");
     return std::move(out);
 }
 
-auto codegen::markdown::list_item(const node& body) -> std::string
+auto codegen::markdown::list_item(const node& body) -> std::vector<std::string>
 {
-    return " - " + body->value(shared_from_this());
+    std::vector<std::string> out;
+    for (const auto& line : body->emit(shared_from_this())) {
+        if (out.empty()) {
+            out.emplace_back(" - " + line);
+        }
+        else {
+            out.emplace_back("   " + line);
+        }
+    }
+    return out;
 }
 
 auto codegen::markdown::preformatted(const std::string& body) -> std::vector<std::string>

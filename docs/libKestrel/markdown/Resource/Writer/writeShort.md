@@ -1,8 +1,9 @@
-[Resource.Writer](index.md)
-# 
+[Resource.Writer](index)
+# writeShort()
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/resource/writer.hpp` |
 | C++ Symbol | `kestrel::resource::write_short` |
 | Introduced | Version 0.8.0 |
 ## Description
+

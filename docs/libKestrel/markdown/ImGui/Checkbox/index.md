@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::checkbox` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Checkbox(label, value)
@@ -16,8 +17,5 @@ ImGui.Checkbox(label, value)
  - [identifiedLabel](identifiedLabel.md)
  - [size](size.md)
  - [label](label.md)
-
 ## Functions
-
- - [](onValueChanged.md)
 

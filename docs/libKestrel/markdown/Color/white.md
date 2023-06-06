@@ -1,5 +1,5 @@
-[Color](index.md)
-# 
+[Color](index)
+# white(w, a)
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/graphics/types/color.hpp` |

@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::control_type` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [Position](Position.md)
@@ -29,4 +30,3 @@
  - [ScrollArea](ScrollArea.md)
  - [PopupButton](PopupButton.md)
  - [None](None.md)
-

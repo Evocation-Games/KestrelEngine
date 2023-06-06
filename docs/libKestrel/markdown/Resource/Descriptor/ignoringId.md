@@ -1,4 +1,4 @@
-[Resource.Descriptor](index.md)
+[Resource.Descriptor](index)
 # ignoringId
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::resource::ignoring_id` |
 | Introduced | Version 0.8.0 |
 ## Description
+

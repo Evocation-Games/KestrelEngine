@@ -1,4 +1,4 @@
-[Key](index.md)
+[Key](index)
 # Key.A
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::hid::a` |
 | Introduced | Version 0.8.0 |
 ## Description
+

@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::button` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 ImGui.Button(label, action)
@@ -15,8 +16,5 @@ ImGui.Button(label, action)
  - [position](position.md)
  - [size](size.md)
  - [label](label.md)
-
 ## Functions
-
- - [](setAction.md)
 

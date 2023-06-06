@@ -5,13 +5,12 @@
 | C++ Symbol | `kestrel::command::decoder` |
 | Introduced | Version 0.9.0 |
 ## Description
+
 ## Properties
 
  - [errorMessage](errorMessage.md)
  - [didError](didError.md)
-
 ## Functions
 
- - [](compile.md)
- - [](from.md)
-
+ - [compile()](compile.md)
+ - [from()](from.md)

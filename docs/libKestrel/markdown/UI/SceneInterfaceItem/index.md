@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::scene_interface_item` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [disabled](disabled.md)
@@ -27,8 +28,5 @@
  - [condition](condition.md)
  - [identifier](identifier.md)
  - [type](type.md)
-
 ## Functions
-
- - [](childAt.md)
 

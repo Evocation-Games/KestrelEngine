@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::image::legacy::macintosh::quickdraw::picture` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Legacy.Macintosh.Picture(ref)
@@ -13,10 +14,8 @@ Legacy.Macintosh.Picture(ref)
 
  - [spriteCount](spriteCount.md)
  - [size](size.md)
-
 ## Functions
 
- - [](spawnEntity.md)
- - [](layoutSprites.md)
- - [](load.md)
-
+ - [spawnEntity()](spawnEntity.md)
+ - [layoutSprites()](layoutSprites.md)
+ - [load()](load.md)

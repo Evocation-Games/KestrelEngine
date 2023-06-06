@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::event_type` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [HasAltModifier](HasAltModifier.md)
@@ -30,4 +31,3 @@
  - [MiddleMouseDown](MiddleMouseDown.md)
  - [AnyMouseEvent](AnyMouseEvent.md)
  - [MouseScrolled](MouseScrolled.md)
-

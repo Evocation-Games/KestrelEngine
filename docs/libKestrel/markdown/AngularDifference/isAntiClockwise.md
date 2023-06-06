@@ -1,4 +1,4 @@
-[AngularDifference](index.md)
+[AngularDifference](index)
 # isAntiClockwise
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::math::is_anti_clockwise` |
 | Introduced | Version 0.8.0 |
 ## Description
+

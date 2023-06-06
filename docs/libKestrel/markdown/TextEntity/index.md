@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::text_entity` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 TextEntity(text)
@@ -28,10 +29,8 @@ TextEntity(text)
  - [font](font.md)
  - [size](size.md)
  - [textColor](textColor.md)
-
 ## Functions
 
- - [](draw.md)
- - [](onLayout.md)
- - [](layout.md)
-
+ - [draw()](draw.md)
+ - [onLayout()](onLayout.md)
+ - [layout()](layout.md)

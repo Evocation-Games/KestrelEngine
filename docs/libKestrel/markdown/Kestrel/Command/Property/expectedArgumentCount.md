@@ -1,4 +1,4 @@
-[Kestrel.Command.Property](index.md)
+[Kestrel.Command.Property](index)
 # expectedArgumentCount
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::command::expected_argument_count` |
 | Introduced | Version 0.9.0 |
 ## Description
+

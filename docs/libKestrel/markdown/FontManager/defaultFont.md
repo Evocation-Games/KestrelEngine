@@ -1,4 +1,4 @@
-[FontManager](index.md)
+[FontManager](index)
 # defaultFont
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::font::lua_default_font` |
 | Introduced | Version 0.8.0 |
 ## Description
+

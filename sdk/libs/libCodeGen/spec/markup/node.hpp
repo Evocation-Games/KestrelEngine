@@ -35,19 +35,16 @@ namespace codegen::spec::markup
     public:
         [[nodiscard]] virtual auto value(const std::shared_ptr<markup_language>& language) const -> std::string
         {
-            return "";
+            return m_children.size() == 1 ? m_children.front()->value(language) : "";
         }
 
         [[nodiscard]] virtual auto emit(const std::shared_ptr<markup_language>& language) const -> std::vector<std::string>
         {
             std::vector<std::string> out;
-
-            std::string value_out = value(language);
-            if (!value_out.empty()) {
-                out.emplace_back(value_out);
+            if (m_children.size() <= 1) {
+                out.emplace_back(value(language));
             }
-
-            if (!m_children.empty()) {
+            else {
                 for (const auto& it : m_children) {
                     auto lines = it->emit(language);
                     out.insert(out.end(), lines.begin(), lines.end());

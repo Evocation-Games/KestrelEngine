@@ -5,14 +5,12 @@
 | C++ Symbol | `kestrel::font::manager` |
 | Introduced | Version 0.8.0 |
 ## Description
-## Properties
 
- - [defaultFont](defaultFont.md)
+## Properties
 
 ## Functions
 
- - [](addFont.md)
- - [](unloadAllFontsForImGui.md)
- - [](getFont.md)
- - [](loadAllFontsForImGui.md)
-
+ - [addFont()](addFont.md)
+ - [unloadAllFontsForImGui()](unloadAllFontsForImGui.md)
+ - [getFont()](getFont.md)
+ - [loadAllFontsForImGui()](loadAllFontsForImGui.md)

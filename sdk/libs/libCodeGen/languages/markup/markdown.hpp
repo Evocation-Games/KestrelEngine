@@ -42,14 +42,14 @@ namespace codegen
         [[nodiscard]] auto inline_code(const std::string& str) -> std::string override;
 
         [[nodiscard]] auto heading(const node& body, std::int32_t size) -> std::string override;
-        [[nodiscard]] auto anchor(const node& body, const std::string& href) -> std::string override;
+        [[nodiscard]] auto anchor(const node& body, const std::string& href, bool wants_extension) -> std::string override;
 
         [[nodiscard]] auto table(const node& body) -> std::vector<std::string> override;
         [[nodiscard]] auto table_row(const node& body) -> std::vector<std::string> override;
         [[nodiscard]] auto table_header_row(const node& body) -> std::vector<std::string> override;
 
         [[nodiscard]] auto list(const node& body) -> std::vector<std::string> override;
-        [[nodiscard]] auto list_item(const node& body) -> std::string override;
+        [[nodiscard]] auto list_item(const node& body) -> std::vector<std::string> override;
 
         [[nodiscard]] auto preformatted(const std::string& body) -> std::vector<std::string> override;
         [[nodiscard]] auto blockquote(const node& body) -> std::vector<std::string> override;

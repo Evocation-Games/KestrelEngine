@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::imgui::window` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [size](size.md)
@@ -13,14 +14,12 @@
  - [hasClosedButton](hasClosedButton.md)
  - [isHidden](isHidden.md)
  - [isClosed](isClosed.md)
-
 ## Functions
 
- - [](addWidget.md)
- - [](destroy.md)
- - [](center.md)
- - [](close.md)
- - [](hide.md)
- - [](show.md)
- - [](create.md)
-
+ - [addWidget()](addWidget.md)
+ - [destroy()](destroy.md)
+ - [center()](center.md)
+ - [close()](close.md)
+ - [hide()](hide.md)
+ - [show()](show.md)
+ - [create()](create.md)

@@ -1,4 +1,4 @@
-[Scene](index.md)
+[Scene](index)
 # Bindings
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::bindings` |
 | Introduced | Version 0.9.0 |
 ## Description
+

@@ -5,10 +5,10 @@
 | C++ Symbol | `kestrel::ui::stencils::button_stencil` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Functions
 
- - [](applyStretchMask.md)
- - [](stretch.md)
- - [](applySimpleMask.md)
- - [](simple.md)
-
+ - [applyStretchMask()](applyStretchMask.md)
+ - [stretch()](stretch.md)
+ - [applySimpleMask()](applySimpleMask.md)
+ - [simple()](simple.md)

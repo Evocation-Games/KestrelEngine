@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::textarea_widget` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.TextArea(text)
@@ -23,10 +24,8 @@ Widget.TextArea(text)
  - [font](font.md)
  - [size](size.md)
  - [frame](frame.md)
-
 ## Functions
 
- - [](scrollUp.md)
- - [](scrollDown.md)
- - [](draw.md)
-
+ - [scrollUp()](scrollUp.md)
+ - [scrollDown()](scrollDown.md)
+ - [draw()](draw.md)

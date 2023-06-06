@@ -1,5 +1,5 @@
-[Kestrel](index.md)
-# 
+[Kestrel](index)
+# setGameWindowTitle(title)
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/kestrel.hpp` |

@@ -1,4 +1,4 @@
-[Legacy.Macintosh.Toolbox.DialogItemKind](index.md)
+[Legacy.Macintosh.Toolbox.DialogItemKind](index)
 # Legacy.Macintosh.Toolbox.DialogItemKind.Icon
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::legacy::macintosh::toolbox::icon` |
 | Introduced | Version 0.8.0 |
 ## Description
+

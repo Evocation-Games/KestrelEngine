@@ -1,4 +1,4 @@
-[AxisOrigin](index.md)
+[AxisOrigin](index)
 # AxisOrigin.BottomCenter
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::bottom_center` |
 | Introduced | Version 0.8.0 |
 ## Description
+

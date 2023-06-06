@@ -1,4 +1,4 @@
-[UI.HorizontalAlignment](index.md)
+[UI.HorizontalAlignment](index)
 # UI.HorizontalAlignment.Left
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::left` |
 | Introduced | Version 0.8.0 |
 ## Description
+

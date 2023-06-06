@@ -18,7 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <fstream>
+#include <chrono>
+#include <thread>
 #include <libCodeGen/spec/markup/anchor.hpp>
 #include <libCodeGen/spec/markup/list.hpp>
 #include "documentation/builder.hpp"
@@ -64,20 +65,87 @@ auto kdtool::documentation::builder::export_as(const std::shared_ptr<codegen::ma
     auto docs_root = m_path.child(language->lc_name());
     docs_root.create_directory(false);
 
-    for (const auto& page : m_pages) {
-        // Setup the directory for the page...
-        auto page_path = docs_root;
-        for (const auto& component : page.path) {
-            page_path = page_path.child(component);
-        }
-        page_path = page_path.child(page.name + "." + language->extension());
-        page_path.create_directory();
+    // Index Path
+    auto index_page = std::make_shared<codegen::spec::markup::page>("Kestrel Lua API");
+    index_page->add<codegen::spec::markup::heading>("Kestrel Lua API", 1);
 
-        // Export the page.
-        page.page->save(language, page_path);
+    auto index_list = index_page->add<codegen::spec::markup::list>();
+    for (const auto& directory : m_directories) {
+        build_directory(docs_root, language, directory.second, index_list);
     }
 
-    build_index(language)->save(language, docs_root.child("index." + language->extension()));
+    index_page->save(language, docs_root.child("index." + language->extension()));
+}
+
+auto kdtool::documentation::builder::build_directory(
+    const foundation::filesystem::path& docs_root,
+    const std::shared_ptr<codegen::markup_language>& language,
+    const std::shared_ptr<struct directory_entry>& entry,
+    std::shared_ptr<codegen::spec::markup::list>& list
+) -> void {
+    auto item_body = std::make_shared<codegen::spec::markup::markup_node>();
+
+    if (entry->page) {
+        auto path = docs_root;
+        std::string relative_path;
+        for (const auto& component : entry->path) {
+            path = path.child(component);
+            relative_path += component + "/";
+        }
+        path = path.child(entry->name + "." + language->extension());
+        relative_path += entry->name + "." + language->extension();
+
+        path.create_directory(true);
+        entry->page->save(language, path);
+
+        if (entry->name == "index") {
+            item_body->add<codegen::spec::markup::anchor>(text(entry->title), relative_path);
+        }
+        else {
+            return;
+        }
+    }
+    else {
+        item_body->add<codegen::spec::markup::text>(entry->title, codegen::spec::markup::text::style::bold);
+    }
+
+    if (!entry->children.empty()) {
+        auto sub_list = item_body->add<codegen::spec::markup::list>();
+        for (const auto& child : entry->children) {
+            build_directory(docs_root, language, child.second, sub_list);
+        }
+    }
+
+    list->add_item(item_body);
+}
+
+auto kdtool::documentation::builder::directory_entry(const std::vector<std::string>& path, std::shared_ptr<struct directory_entry> entry) -> std::shared_ptr<struct directory_entry>
+{
+    if (path.empty()) {
+        return entry;
+    }
+
+    auto& entries = entry ? entry->children : m_directories;
+    auto it = entries.find(path.front());
+    if (it != entries.end()) {
+        // Found the item
+        return directory_entry({ path.begin() + 1, path.end() }, it->second);
+    }
+    else {
+        // Not found.
+        auto new_entry = std::make_shared<struct directory_entry>();
+
+        new_entry->name = path.front();
+        new_entry->title = path.front();
+        entries.emplace(new_entry->name, new_entry);
+
+        if (path.size() == 2 && path.back() == "index") {
+            return new_entry;
+        }
+        else {
+            return directory_entry({path.begin() + 1, path.end()}, new_entry);
+        }
+    }
 }
 
 auto kdtool::documentation::builder::add_page(const std::string& title, const std::vector<std::string>& path, const std::string& name, bool no_title) -> std::shared_ptr<codegen::spec::markup::page>
@@ -88,8 +156,14 @@ auto kdtool::documentation::builder::add_page(const std::string& title, const st
         page->add<codegen::spec::markup::heading>(title, 1);
     }
 
-    struct page_reference ref(page, path, name);
-    m_pages.emplace_back(ref);
+    auto entry_path = path;
+    entry_path.emplace_back(name);
+
+    auto entry = directory_entry(entry_path);
+    entry->name = name;
+    entry->title = title.empty() ? name : title;
+    entry->path = path;
+    entry->page = page;
     return page;
 }
 

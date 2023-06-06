@@ -1,4 +1,4 @@
-[Scene](index.md)
+[Scene](index)
 # isCurrent
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::is_current` |
 | Introduced | Version 0.8.0 |
 ## Description
+

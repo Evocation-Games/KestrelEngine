@@ -1,4 +1,4 @@
-[Canvas](index.md)
+[Canvas](index)
 # name
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::graphics::get_name` |
 | Introduced | Version 0.8.0 |
 ## Description
+

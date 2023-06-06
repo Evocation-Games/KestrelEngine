@@ -1,4 +1,4 @@
-[Widget.PopupButton](index.md)
+[Widget.PopupButton](index)
 # items
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::widgets::items` |
 | Introduced | Version 0.9.0 |
 ## Description
+

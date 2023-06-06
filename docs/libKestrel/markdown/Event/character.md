@@ -1,4 +1,4 @@
-[Event](index.md)
+[Event](index)
 # character
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::character` |
 | Introduced | Version 0.8.0 |
 ## Description
+

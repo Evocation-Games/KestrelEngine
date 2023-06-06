@@ -1,4 +1,4 @@
-[UI.Anchor](index.md)
+[UI.Anchor](index)
 # UI.Anchor.Horizontal
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::horizontal` |
 | Introduced | Version 0.8.0 |
 ## Description
+

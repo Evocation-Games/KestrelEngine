@@ -1,4 +1,4 @@
-[PositioningFrame](index.md)
+[PositioningFrame](index)
 # scalingFactor
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::layout::scaling_factor` |
 | Introduced | Version 0.8.0 |
 ## Description
+

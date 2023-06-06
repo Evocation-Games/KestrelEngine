@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::widgets::popup_button_widget` |
 | Introduced | Version 0.9.0 |
 ## Description
+
 ## Constructor
 ```
 Widget.PopupButton(width)
@@ -22,8 +23,5 @@ Widget.PopupButton(width)
  - [textColor](textColor.md)
  - [frame](frame.md)
  - [text](text.md)
-
 ## Functions
-
- - [](draw.md)
 

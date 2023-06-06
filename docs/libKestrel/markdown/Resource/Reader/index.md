@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::resource::reader` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Constructor
 ```
 Resource.Reader(ref)
@@ -17,28 +18,26 @@ Resource.Reader(ref)
  - [name](name.md)
  - [type](type.md)
  - [isValid](isValid.md)
-
 ## Functions
 
- - [](skip.md)
- - [](readResourceReference.md)
- - [](readResourceReferenceWideValue.md)
- - [](readColor.md)
- - [](readMacintoshRect.md)
- - [](readTypedResourceReference.md)
- - [](readSize.md)
- - [](readSignedLong.md)
- - [](readCStr.md)
- - [](switchOnResourceReference.md)
- - [](readPStr.md)
- - [](readRect.md)
- - [](readSignedByte.md)
- - [](readQuad.md)
- - [](readShort.md)
- - [](readCStrOfLength.md)
- - [](readByte.md)
- - [](readPoint.md)
- - [](readSignedQuad.md)
- - [](readSignedShort.md)
- - [](readLong.md)
-
+ - [skip()](skip.md)
+ - [readResourceReference()](readResourceReference.md)
+ - [readResourceReferenceWideValue()](readResourceReferenceWideValue.md)
+ - [readColor()](readColor.md)
+ - [readMacintoshRect()](readMacintoshRect.md)
+ - [readTypedResourceReference()](readTypedResourceReference.md)
+ - [readSize()](readSize.md)
+ - [readSignedLong()](readSignedLong.md)
+ - [readCStr()](readCStr.md)
+ - [switchOnResourceReference()](switchOnResourceReference.md)
+ - [readPStr()](readPStr.md)
+ - [readRect()](readRect.md)
+ - [readSignedByte()](readSignedByte.md)
+ - [readQuad()](readQuad.md)
+ - [readShort()](readShort.md)
+ - [readCStrOfLength()](readCStrOfLength.md)
+ - [readByte()](readByte.md)
+ - [readPoint()](readPoint.md)
+ - [readSignedQuad()](readSignedQuad.md)
+ - [readSignedShort()](readSignedShort.md)
+ - [readLong()](readLong.md)

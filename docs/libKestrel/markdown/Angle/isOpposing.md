@@ -1,5 +1,5 @@
-[Angle](index.md)
-# 
+[Angle](index)
+# isOpposing(a, tolerance)
 | Aspect | Value |
 | --- | --- |
 | Source File | `libKestrel/math/angle.hpp` |

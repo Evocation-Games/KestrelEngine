@@ -1,4 +1,4 @@
-[LineEntity](index.md)
+[LineEntity](index)
 # weight
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::weight` |
 | Introduced | Version 0.8.0 |
 ## Description
+

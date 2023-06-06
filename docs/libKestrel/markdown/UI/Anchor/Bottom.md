@@ -1,4 +1,4 @@
-[UI.Anchor](index.md)
+[UI.Anchor](index)
 # UI.Anchor.Bottom
 | Aspect | Value |
 | --- | --- |
@@ -6,3 +6,4 @@
 | C++ Symbol | `kestrel::ui::bottom` |
 | Introduced | Version 0.8.0 |
 ## Description
+

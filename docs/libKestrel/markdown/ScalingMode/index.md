@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::ui::layout::scaling_mode` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Values
 
  - [ScaleFit](ScaleFit.md)
@@ -12,4 +13,3 @@
  - [ScaleFill](ScaleFill.md)
  - [AspectFill](AspectFill.md)
  - [Normal](Normal.md)
-

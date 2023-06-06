@@ -5,6 +5,7 @@
 | C++ Symbol | `kestrel::sandbox::files` |
 | Introduced | Version 0.8.0 |
 ## Description
+
 ## Properties
 
  - [currentSaveFile](currentSaveFile.md)
@@ -20,13 +21,11 @@
  - [modsDirectory](modsDirectory.md)
  - [gameModsDirectory](gameModsDirectory.md)
  - [__gameDir](__gameDir.md)
-
 ## Functions
 
- - [](allActiveScenarioMods.md)
- - [](save.md)
- - [](allScenarioMods.md)
- - [](allScenarios.md)
- - [](setSaveFileName.md)
- - [](setActiveScenario.md)
-
+ - [allActiveScenarioMods()](allActiveScenarioMods.md)
+ - [save()](save.md)
+ - [allScenarioMods()](allScenarioMods.md)
+ - [allScenarios()](allScenarios.md)
+ - [setSaveFileName()](setSaveFileName.md)
+ - [setActiveScenario()](setActiveScenario.md)

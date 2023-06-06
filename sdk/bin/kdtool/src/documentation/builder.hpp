@@ -26,6 +26,7 @@
 #include <libCodeGen/spec/markup/page.hpp>
 #include <libCodeGen/spec/markup/table.hpp>
 #include <libCodeGen/spec/markup/heading.hpp>
+#include <libCodeGen/spec/markup/list.hpp>
 #include <libCodeGen/languages/markup/markup.hpp>
 #include "project/project.hpp"
 
@@ -46,30 +47,35 @@ namespace kdtool::documentation
         auto add_case_page(const std::shared_ptr<lua_api::ast::lua_enum_case>& lua_function, const std::shared_ptr<lua_api::ast::symbol>& owner) -> std::shared_ptr<codegen::spec::markup::page>;
 
     private:
+        struct directory_entry
+        {
+            std::string name;
+            std::string title;
+            std::vector<std::string> path;
+            std::shared_ptr<codegen::spec::markup::page> page;
+            std::unordered_map<std::string, std::shared_ptr<struct directory_entry>> children;
+        };
+
+    private:
         auto build(const std::shared_ptr<lua_api::ast::lua_namespace>& lua_namespace) -> std::shared_ptr<codegen::spec::markup::page>;
         auto build(const std::shared_ptr<lua_api::ast::lua_class>& lua_class) -> std::shared_ptr<codegen::spec::markup::page>;
         auto build(const std::shared_ptr<lua_api::ast::lua_enum>& lua_enum) -> std::shared_ptr<codegen::spec::markup::page>;
 
         auto index_for(const std::shared_ptr<lua_api::ast::symbol>& symbol, const std::shared_ptr<codegen::markup_language>& language) -> std::string;
         auto build_index(const std::shared_ptr<codegen::markup_language>& language) -> std::shared_ptr<codegen::spec::markup::page>;
+        auto build_directory(const foundation::filesystem::path& docs_root,
+                             const std::shared_ptr<codegen::markup_language>& language,
+                             const std::shared_ptr<struct directory_entry>& entry,
+                             std::shared_ptr<codegen::spec::markup::list>& list) -> void;
 
     private:
+        auto directory_entry(const std::vector<std::string>& path, std::shared_ptr<struct directory_entry> entry = nullptr) -> std::shared_ptr<struct directory_entry>;
         auto add_page(const std::string& title, const std::vector<std::string>& path, const std::string& name = "index", bool no_title = false) -> std::shared_ptr<codegen::spec::markup::page>;
 
     private:
-        struct page_reference
-        {
-            std::shared_ptr<codegen::spec::markup::page> page;
-            std::vector<std::string> path;
-            std::string name;
-
-            page_reference(const std::shared_ptr<codegen::spec::markup::page>& page, const std::vector<std::string>& path, const std::string& name)
-                : page(page), path(path), name(name)
-            {}
-        };
 
         foundation::filesystem::path m_path;
         std::shared_ptr<kdtool::project> m_project;
-        std::vector<page_reference> m_pages;
+        std::unordered_map<std::string, std::shared_ptr<struct directory_entry>> m_directories;
     };
 }
