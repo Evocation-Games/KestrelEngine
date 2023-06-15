@@ -89,7 +89,7 @@ auto lexer::lexer::analyze() -> lexical_result
             consume_while(condition::match<'\n'>::no);
             continue;
         }
-        else if (test_if(condition::sequence<'/', '/'>::yes, 0, 2) && m_comment_style == comment_style::KSL) {
+        else if (test_if(condition::sequence<'/', '/'>::yes, 0, 2) && m_comment_style == comment_style::CXX) {
             consume_while(condition::match<'\n'>::no);
             continue;
         }

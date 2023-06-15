@@ -1,9 +1,0 @@
-[Scene](index)
-# drawLine()
-| Aspect | Value |
-| --- | --- |
-| Source File | `libKestrel/ui/scene/game_scene.hpp` |
-| C++ Symbol | `kestrel::ui::draw_line` |
-| Introduced | Version 0.8.0 |
-## Description
-

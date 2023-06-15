@@ -20,38 +20,162 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory>
-#include <libCodeGen/languages/markup/markup.hpp>
+#include <libCodeGen/languages/language.hpp>
 
-namespace codegen
+namespace codegen::language
 {
-    struct html : public markup_language, public std::enable_shared_from_this<html>
+    struct html
     {
-        [[nodiscard]] auto lc_name() const -> std::string override;
-        [[nodiscard]] auto extension() const -> std::string override;
+        // Helpers
+        [[nodiscard]] static inline auto tag(const std::string& name, bool close = false) -> std::string
+        {
+            return close ? "</" + name + ">"
+                         : "<" + name + ">";
+        }
 
-        [[nodiscard]] auto line_break() -> std::string override;
-        [[nodiscard]] auto horizontal_rule() -> std::string override;
+        [[nodiscard]] static inline auto heading_tag_name(std::int32_t level) -> std::string
+        {
+            switch (level) {
+                case 1:     return "h1";
+                case 2:     return "h2";
+                case 4:     return "h4";
+                case 5:     return "h5";
+                case 6:     return "h6";
+                default:    return "h3";
+            }
+        }
 
-        [[nodiscard]] auto plain(const std::string& str) -> std::string override;
-        [[nodiscard]] auto bold(const std::string& str) -> std::string override;
-        [[nodiscard]] auto italic(const std::string& str) -> std::string override;
-        [[nodiscard]] auto strikethrough(const std::string& str) -> std::string override;
-        [[nodiscard]] auto inline_code(const std::string& str) -> std::string override;
+        // Metadata
+        [[nodiscard]] static auto name() -> std::string { return "HTML"; }
+        [[nodiscard]] static auto lc_name() -> std::string { return "html"; };
+        [[nodiscard]] static auto extension() -> std::string { return "html"; };
 
-        [[nodiscard]] auto heading(const node& body, std::int32_t size) -> std::string override;
-        [[nodiscard]] auto anchor(const node& body, const std::string& href, bool wants_extension) -> std::string override;
+        // Mark-up Support
+        [[nodiscard]] static auto text(const std::string& str) -> emit::segment
+        {
+            return emit::segment(str);
+        }
 
-        [[nodiscard]] auto table(const node& body) -> std::vector<std::string> override;
-        [[nodiscard]] auto table_row(const node& body) -> std::vector<std::string> override;
-        [[nodiscard]] auto table_header_row(const node& body) -> std::vector<std::string> override;
+        [[nodiscard]] static auto bold(const std::string& str) -> emit::segment
+        {
+            return emit::segment("<b>" + str + "</b>");
+        }
 
-        [[nodiscard]] auto list(const node& body) -> std::vector<std::string> override;
-        [[nodiscard]] auto list_item(const node& body) -> std::vector<std::string> override;
+        [[nodiscard]] static auto italic(const std::string& str) -> emit::segment
+        {
+            return emit::segment("<i>" + str + "</i>");
+        }
 
-        [[nodiscard]] auto preformatted(const std::string& body) -> std::vector<std::string> override;
-        [[nodiscard]] auto blockquote(const node& body) -> std::vector<std::string> override;
+        [[nodiscard]] static auto strikethrough(const std::string& str) -> emit::segment
+        {
+            return emit::segment("<s>" + str + "</s>");
+        }
+
+        [[nodiscard]] static auto inline_code(const std::string& str) -> emit::segment
+        {
+            return emit::segment("<code>" + str + "</code>");
+        }
+
+        // Headings
+
+        [[nodiscard]] static auto heading(const std::string& heading, std::int32_t level) -> emit::segment
+        {
+            const auto tag_name = heading_tag_name(level);
+            return emit::segment(tag(tag_name) + heading + tag(tag_name, true), emit::line_break_mode::full);
+        }
+
+        // Formatting
+
+        [[nodiscard]] static auto preformatted(const std::string& text) -> emit::segment
+        {
+            return {
+                emit::segment("<pre>", emit::line_break_mode::full, emit::indentation_mode::indent_after),
+                emit::segment(text),
+                emit::segment("</pre>", emit::line_break_mode::full, emit::indentation_mode::outdent_before)
+            };
+        }
+
+        [[nodiscard]] static auto blockquote(const std::string& text) -> emit::segment
+        {
+            return {
+                emit::segment("<blockquote>", emit::line_break_mode::full, emit::indentation_mode::indent_after),
+                emit::segment(text),
+                emit::segment("</blockquote>", emit::line_break_mode::full, emit::indentation_mode::outdent_before)
+            };
+        }
+
+        // Lists
+
+        [[nodiscard]] static auto begin_list() -> emit::segment
+        {
+            return emit::segment("<ul>", emit::line_break_mode::full, emit::indentation_mode::indent_after);
+        }
+
+        [[nodiscard]] static auto begin_list_item() -> emit::segment
+        {
+            return emit::segment("<li>", emit::line_break_mode::full, emit::indentation_mode::indent_after);
+        }
+
+        [[nodiscard]] static auto end_list_item() -> emit::segment
+        {
+            return emit::segment("</li>", emit::line_break_mode::full, emit::indentation_mode::outdent_before);
+        }
+
+        [[nodiscard]] static auto end_list() -> emit::segment
+        {
+            return emit::segment("</ul>", emit::line_break_mode::full, emit::indentation_mode::outdent_before);
+        }
+
+        // Tables
+
+        [[nodiscard]] static auto begin_table() -> emit::segment
+        {
+            return emit::segment("<table>", emit::line_break_mode::before, emit::indentation_mode::indent_after);
+        }
+
+        [[nodiscard]] static auto begin_table_header() -> emit::segment
+        {
+            return begin_table_row();
+        }
+
+        [[nodiscard]] static auto end_table_header() -> emit::segment
+        {
+            return end_table_row();
+        }
+
+        [[nodiscard]] static auto begin_table_row() -> emit::segment
+        {
+            return emit::segment("<tr>", emit::line_break_mode::before, emit::indentation_mode::indent_after);
+        }
+
+        [[nodiscard]] static auto end_table_row() -> emit::segment
+        {
+            return emit::segment("</tr>", emit::line_break_mode::before, emit::indentation_mode::outdent_before);
+        }
+
+        [[nodiscard]] static auto begin_table_cell() -> emit::segment
+        {
+            return emit::segment("<td>", emit::line_break_mode::before, emit::indentation_mode::indent_after);
+        }
+
+        [[nodiscard]] static auto end_table_cell() -> emit::segment
+        {
+            return emit::segment("</td>", emit::line_break_mode::before, emit::indentation_mode::outdent_before);
+        }
+
+        [[nodiscard]] static auto begin_table_header_cell() -> emit::segment
+        {
+            return emit::segment("<th>", emit::line_break_mode::before, emit::indentation_mode::indent_after);
+        }
+
+        [[nodiscard]] static auto end_table_header_cell() -> emit::segment
+        {
+            return emit::segment("</th>", emit::line_break_mode::before, emit::indentation_mode::outdent_before);
+        }
+
+        [[nodiscard]] static auto end_table() -> emit::segment
+        {
+            return emit::segment("</table>", emit::line_break_mode::full, emit::indentation_mode::outdent_before);
+        }
     };
 }

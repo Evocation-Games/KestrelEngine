@@ -1,9 +1,0 @@
-[Kestrel.Sandbox.ResourceFileReference](index)
-# writeResource()
-| Aspect | Value |
-| --- | --- |
-| Source File | `libKestrel/sandbox/file/resource_file_reference.hpp` |
-| C++ Symbol | `kestrel::sandbox::add_resource` |
-| Introduced | Version 0.8.0 |
-## Description
-

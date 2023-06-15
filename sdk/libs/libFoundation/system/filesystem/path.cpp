@@ -329,7 +329,7 @@ auto foundation::filesystem::path::make_directory(const path &path) -> void
 #endif
 }
 
-auto foundation::filesystem::path::create_directory(bool ignore_last) -> bool
+auto foundation::filesystem::path::create_directory(bool ignore_last) const -> bool
 {
     if (is_directory(*this)) {
         return true;

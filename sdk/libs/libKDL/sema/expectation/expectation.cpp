@@ -20,7 +20,6 @@
 
 #include <libKDL/sema/expectation/expectation.hpp>
 
-
 // MARK: - Construction
 
 kdl::sema::expectation::expectation(enum tokenizer::token_type Ty)

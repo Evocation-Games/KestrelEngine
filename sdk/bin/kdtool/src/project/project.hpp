@@ -22,34 +22,33 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <unordered_map>
-#include "lua/ast/translation_unit.hpp"
-#include "lua/ast/lua_namespace.hpp"
-#include "lua/ast/lua_class.hpp"
-#include "lua/ast/lua_enum.hpp"
+#include "project/structure/symbol.hpp"
+#include "project/structure/construct_definition.hpp"
 
-namespace kdtool
+namespace kdtool::project
 {
-    struct project
+    struct index : public std::enable_shared_from_this<index>
     {
-        project() = default;
+        index() = default;
 
-        auto add_include_path(const std::string& path) -> void;
+        auto add_include_path(const std::string& path, bool scanned = false) -> void;
         auto add_translation_unit(const std::string& path) -> void;
 
-        auto add(const std::shared_ptr<lua_api::ast::lua_namespace>& lua_namespace) -> void;
-        auto add(const std::shared_ptr<lua_api::ast::lua_class>& lua_class) -> void;
-        auto add(const std::shared_ptr<lua_api::ast::lua_enum>& lua_enum) -> void;
+        auto add_symbol(const std::shared_ptr<structure::symbol>& symbol) -> std::shared_ptr<structure::symbol>;
+        auto add_definition(const std::shared_ptr<structure::construct_definition>& definition) -> void;
 
-        [[nodiscard]] auto include_paths() const -> std::vector<std::string>;
-        [[nodiscard]] auto all_namespaces() const -> std::vector<std::shared_ptr<lua_api::ast::lua_namespace>>;
-        [[nodiscard]] auto all_classes() const -> std::vector<std::shared_ptr<lua_api::ast::lua_class>>;
-        [[nodiscard]] auto all_enums() const -> std::vector<std::shared_ptr<lua_api::ast::lua_enum>>;
+        [[nodiscard]] auto include_paths() const -> const std::vector<std::string>&;
+        [[nodiscard]] auto scanned_include_paths() const -> const std::vector<std::string>&;
+        [[nodiscard]] auto all_definitions() const -> std::vector<std::shared_ptr<structure::construct_definition>>;
+        [[nodiscard]] auto symbol_named(const std::string& name) -> std::shared_ptr<structure::symbol>;
 
     private:
-        std::vector<std::string> m_include_dirs;
-        std::unordered_map<lua_api::ast::lua_namespace::key, std::shared_ptr<lua_api::ast::lua_namespace>> m_namespaces;
-        std::unordered_map<lua_api::ast::lua_class::key, std::shared_ptr<lua_api::ast::lua_class>> m_classes;
-        std::unordered_map<lua_api::ast::lua_enum::key, std::shared_ptr<lua_api::ast::lua_enum>> m_enums;
+        std::vector<std::string> m_include_paths;
+        std::vector<std::string> m_scanned_include_paths;
+        std::unordered_map<std::string, std::shared_ptr<structure::symbol>> m_symbols;
+        std::unordered_map<std::string, std::shared_ptr<structure::construct_definition>> m_definitions;
+
     };
 }

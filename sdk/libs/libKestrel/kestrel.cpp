@@ -109,6 +109,9 @@ namespace kestrel::environment
         // Make sure we have configured the Lua Runtime.
         lua::enroll_lua_api(s_kestrel_session.runtime);
 
+        s_kestrel_session.runtime->global_namespace()
+            .
+
         // Configure the main tick function for the renderer
         renderer::set_tick_function(renderer::tick);
 

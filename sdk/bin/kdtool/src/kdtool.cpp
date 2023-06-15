@@ -18,18 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include "project/project.hpp"
-#include "documentation/builder.hpp"
+#include "builder/api/api.hpp"
+#include "builder/documentation/documentation.hpp"
 #include <libCodeGen/languages/markup/markdown.hpp>
 #include <libCodeGen/languages/markup/html.hpp>
+#include <libCodeGen/languages/procedural/cxx.hpp>
 
 auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
 {
-    auto project = std::make_shared<kdtool::project>();
+    auto project = std::make_shared<kdtool::project::index>();
+    bool verbose_mode = false;
 
     struct {
         std::string path;
-        bool generate { false };
+        bool cxx { false };
     } lua_api;
 
     struct {
@@ -45,9 +49,8 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
                 std::string path(argv[++n]);
                 project->add_include_path(path);
             }
-            else if (arg == "-lua") {
+            else if (arg == "-api") {
                 lua_api.path = argv[++n];
-                lua_api.generate = true;
             }
             else if (arg == "-documentation") {
                 documentation.path = argv[++n];
@@ -58,26 +61,46 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             else if (arg == "-html") {
                 documentation.html = true;
             }
+            else if (arg == "-cxx") {
+                lua_api.cxx = true;
+            }
+            else if (arg == "-v" || arg == "--verbose") {
+                verbose_mode = true;
+            }
         }
         else {
+            if (verbose_mode) {
+                std::cout << "Add TU: " << argv[n] << std::endl;
+            }
             project->add_translation_unit(argv[n]);
         }
     }
 
-    if (!lua_api.generate) {
-//        project.generate_cxx_source(lua_api_path);
+    if (!lua_api.path.empty()) {
+        if (lua_api.cxx) {
+            if (verbose_mode) {
+                std::cout << "Build C++ API to: " << lua_api.path << std::endl;
+            }
+            auto api = std::make_shared<kdtool::builder::api<codegen::language::cxx>>(project, lua_api.path);
+            api->build();
+        }
     }
 
     if (!documentation.path.empty()) {
-        auto docs = std::make_shared<kdtool::documentation::builder>(project, documentation.path);
-        docs->build();
-
         if (documentation.markdown) {
-            docs->export_as(std::make_shared<codegen::markdown>());
+            if (verbose_mode) {
+                std::cout << "Build Markdown Documentation to: " << documentation.path << std::endl;
+            }
+            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::markdown>>(project, documentation.path);
+            api->build();
         }
 
         if (documentation.html) {
-            docs->export_as(std::make_shared<codegen::html>());
+            if (verbose_mode) {
+                std::cout << "Build HTML Documentation to: " << documentation.path << std::endl;
+            }
+            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, documentation.path);
+            api->build();
         }
     }
 

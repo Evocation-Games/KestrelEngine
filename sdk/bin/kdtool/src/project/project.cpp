@@ -18,82 +18,93 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
+#include <libFoundation/string/split.hpp>
 #include "project/project.hpp"
-#include "lua/ast/translation_unit.hpp"
+#include "analyzer/cxx/cxx_analyzer.hpp"
 
-// MARK: - Merging
+// MARK: - Includes
 
-auto kdtool::project::add_include_path(const std::string& path) -> void
+auto kdtool::project::index::add_include_path(const std::string& path, bool scanned) -> void
 {
-    m_include_dirs.emplace_back(path);
-}
-
-auto kdtool::project::add_translation_unit(const std::string& path) -> void
-{
-    auto tu = std::make_shared<lua_api::ast::translation_unit>(path, true, include_paths());
-    tu->process();
-
-    for (const auto& lua_namespace : tu->namespaces()) {
-        add(lua_namespace);
+    if (scanned) {
+        auto it = std::find(m_scanned_include_paths.begin(), m_scanned_include_paths.end(), path);
+        if (it == m_scanned_include_paths.end()) {
+            m_scanned_include_paths.emplace_back(path);
+        }
     }
-
-    for (const auto& lua_class : tu->classes()) {
-        add(lua_class);
-    }
-
-    for (const auto& lua_enum : tu->enums()) {
-        add(lua_enum);
+    else {
+        auto it = std::find(m_include_paths.begin(), m_include_paths.end(), path);
+        if (it == m_include_paths.end()) {
+            m_include_paths.emplace_back(path);
+        }
     }
 }
 
-auto kdtool::project::add(const std::shared_ptr<lua_api::ast::lua_namespace>& lua_namespace) -> void
+auto kdtool::project::index::include_paths() const -> const std::vector<std::string>&
 {
-    m_namespaces.emplace(lua_namespace->hash_key(), lua_namespace);
+    return m_include_paths;
 }
 
-auto kdtool::project::add(const std::shared_ptr<lua_api::ast::lua_class>& lua_class) -> void
+auto kdtool::project::index::scanned_include_paths() const -> const std::vector<std::string>&
 {
-    m_classes.emplace(lua_class->hash_key(), lua_class);
+    return m_scanned_include_paths;
 }
 
-auto kdtool::project::add(const std::shared_ptr<lua_api::ast::lua_enum>& lua_enum) -> void
+// MARK: - Translation Unit
+
+auto kdtool::project::index::add_translation_unit(const std::string &path) -> void
 {
-    m_enums.emplace(lua_enum->hash_key(), lua_enum);
+    cxx::analyzer unit(shared_from_this(), foundation::filesystem::path(path));
+    unit.run();
 }
 
-// MARK: - Access
+// MARK: - Symbol Management
 
-auto kdtool::project::include_paths() const -> std::vector<std::string>
+auto kdtool::project::index::symbol_named(const std::string& resolved_name) -> std::shared_ptr<structure::symbol>
 {
-    return m_include_dirs;
-}
-
-auto kdtool::project::all_namespaces() const -> std::vector<std::shared_ptr<lua_api::ast::lua_namespace>>
-{
-    std::vector<std::shared_ptr<lua_api::ast::lua_namespace>> namespaces;
-    namespaces.reserve(m_namespaces.size());
-    for (const auto& it : m_namespaces) {
-        namespaces.emplace_back(it.second);
+    const auto name_stack = foundation::string::split(resolved_name, ".");
+    std::shared_ptr<structure::symbol> symbol;
+    for (const auto& name : name_stack) {
+        auto new_symbol = std::make_shared<structure::symbol>(name, symbol);
+        symbol = add_symbol(new_symbol);
     }
-    return namespaces;
+    return symbol;
 }
 
-auto kdtool::project::all_classes() const -> std::vector<std::shared_ptr<lua_api::ast::lua_class>>
+auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>& symbol) -> std::shared_ptr<structure::symbol>
 {
-    std::vector<std::shared_ptr<lua_api::ast::lua_class>> classes;
-    classes.reserve(m_classes.size());
-    for (const auto& it : m_classes) {
-        classes.emplace_back(it.second);
+    // Check for the existance of the symbol.
+    const auto name = symbol->resolved_name();
+    auto it = m_symbols.find(name);
+    if (it == m_symbols.end()) {
+        m_symbols.emplace(name, symbol);
+
+        // If we have added the symbol, then try and add the parents if required.
+        if (auto parent = symbol->parent().lock()) {
+            add_symbol(parent);
+        }
+        return symbol;
     }
-    return classes;
+    else {
+        return it->second;
+    }
 }
 
-auto kdtool::project::all_enums() const -> std::vector<std::shared_ptr<lua_api::ast::lua_enum>>
+// MARK: - Definition Management
+
+auto kdtool::project::index::all_definitions() const -> std::vector<std::shared_ptr<structure::construct_definition>>
 {
-    std::vector<std::shared_ptr<lua_api::ast::lua_enum>> enums;
-    enums.reserve(m_enums.size());
-    for (const auto& it : m_enums) {
-        enums.emplace_back(it.second);
+    std::vector<std::shared_ptr<structure::construct_definition>> out;
+    out.reserve(m_definitions.size());
+    for (const auto& it : m_definitions) {
+        out.emplace_back(it.second);
     }
-    return enums;
+    return std::move(out);
+}
+
+auto kdtool::project::index::add_definition(const std::shared_ptr<structure::construct_definition>& definition) -> void
+{
+    add_symbol(definition->symbol());
+    m_definitions.emplace(definition->symbol()->resolved_name(), definition);
 }

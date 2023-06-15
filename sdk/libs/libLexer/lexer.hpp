@@ -39,7 +39,7 @@ namespace lexer
     public:
         typedef foundation::stream<lexeme> lexical_result;
 
-        enum class comment_style { none, KDL, KSL, LUA };
+        enum class comment_style { none, KDL, LUA, CXX };
 
     public:
         /**

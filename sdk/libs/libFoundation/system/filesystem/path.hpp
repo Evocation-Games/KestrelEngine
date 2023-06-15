@@ -142,7 +142,7 @@ namespace foundation::filesystem
          * @param ignore_last       Should the last component in the path be ignored?
          * @return                  Could the directory at path be successfully created?
          */
-        auto create_directory(bool ignore_last = true) -> bool;
+        auto create_directory(bool ignore_last = true) const -> bool;
 
         /**
          * Create a new path for the child specified.

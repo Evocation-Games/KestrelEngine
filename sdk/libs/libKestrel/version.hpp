@@ -20,13 +20,11 @@
 
 #pragma once
 
-#if !defined(LIB_BUILD_VERSION)
-#   define LIB_BUILD_VERSION(_major, _minor, _fix)  _major._minor._fix
-#endif
+#include <libScripting/annotations/macro.hpp>
 
-#define LIB_KESTREL_VERSION_LEGACY  LIB_BUILD_VERSION(0,0,0)
-#define LIB_KESTREL_VERSION_0_8     LIB_BUILD_VERSION(0,8,0)
-#define LIB_KESTREL_VERSION_0_9     LIB_BUILD_VERSION(0,9,0)
-#define LIB_KESTREL_VERSION_1_0     LIB_BUILD_VERSION(1,0,0)
+#define LIB_KESTREL_VERSION_LEGACY  Version(0,0,0)
+#define LIB_KESTREL_VERSION_0_8     Version(0,8,0)
+#define LIB_KESTREL_VERSION_0_9     Version(0,9,0)
+#define LIB_KESTREL_VERSION_1_0     Version(1,0,0)
 
-#define LIB_KESTREL_VERSION_CURRENT LIB_KESTREL_VERSION_0_8
+#define LIB_KESTREL_VERSION_CURRENT LIB_KESTREL_VERSION_0_9
