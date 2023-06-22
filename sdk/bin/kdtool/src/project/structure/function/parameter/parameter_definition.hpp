@@ -32,10 +32,14 @@ namespace kdtool::project::structure
             : construct_definition(symbol)
         {}
 
-        auto type() const -> std::shared_ptr<struct structure::type::base>;
+        [[nodiscard]] auto type() const -> std::shared_ptr<struct structure::type::base>;
         auto set_type(const std::shared_ptr<struct structure::type::base>& type) -> void;
+
+        [[nodiscard]] auto description() const -> std::string;
+        auto set_description(const std::string& description) -> void;
 
     private:
         std::shared_ptr<struct structure::type::base> m_type { structure::type::void_type() };
+        std::string m_description;
     };
 }

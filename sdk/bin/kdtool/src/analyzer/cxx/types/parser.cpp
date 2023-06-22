@@ -69,7 +69,7 @@ auto kdtool::cxx::type_parser::type_for(const std::string& str) -> std::shared_p
     type_parser parser(type_str);
     auto result = parser.parse();
 
-    return project::structure::type::error_type();
+    return result;
 }
 
 auto kdtool::cxx::type_parser::construct_type_for(const std::string& type_str, struct context *ctx) -> std::shared_ptr<struct project::structure::type::base>

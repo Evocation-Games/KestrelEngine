@@ -20,42 +20,17 @@
 
 #pragma once
 
-#include <vector>
-#include <optional>
-#include <libDocumentation/parser/type/section.hpp>
-#include <libDocumentation/parser/type/parameter.hpp>
+#include <string>
+#include <libCodeGen/ast/core/node.hpp>
 
-namespace documentation
+namespace codegen::ast
 {
-    struct object
+    template<language::markup_support L>
+    struct divider : public node
     {
-        object() = default;
-
-        [[nodiscard]] auto sections() const -> const std::vector<struct section>& { return m_sections; }
-        [[nodiscard]] auto parameters() const -> const std::vector<struct parameter>& { return m_parameters; }
-
-        [[nodiscard]] auto section(const std::string& name) const -> std::optional<struct section>
+        [[nodiscard]] auto emit() const -> emit::segment override
         {
-            for (const auto& section : m_sections) {
-                if (section.name() == name) {
-                    return { section };
-                }
-            }
-            return {};
+            return L::divider();
         }
-
-        auto add(const struct section& section) -> void
-        {
-            m_sections.emplace_back(section);
-        }
-
-        auto add(const struct parameter& parameter) -> void
-        {
-            m_parameters.emplace_back(parameter);
-        }
-
-    private:
-        std::vector<struct section> m_sections;
-        std::vector<struct parameter> m_parameters;
     };
 }

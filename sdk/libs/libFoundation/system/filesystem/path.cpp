@@ -20,6 +20,8 @@
 
 #include <libFoundation/availability.hpp>
 #include <libFoundation/system/filesystem/path.hpp>
+#include <libFoundation/string/split.hpp>
+
 
 #if TARGET_WINDOWS
 #include <windows.h>
@@ -221,9 +223,14 @@ auto foundation::filesystem::path::empty() const -> bool
 
 auto foundation::filesystem::path::child(const std::string &name) const -> path
 {
+    auto name_components = string::split(name, "/");
+    if (name_components.front().empty()) {
+        name_components.erase(name_components.begin());
+    }
     auto components = m_components;
-    components.insert(components.end(), name);
+    components.insert(components.end(), name_components.begin(), name_components.end());
     return { components, m_relative };
+
 }
 
 auto foundation::filesystem::path::parent() const -> path

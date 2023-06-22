@@ -31,7 +31,9 @@ namespace kdtool::project::structure
     {
         explicit function_definition(const std::shared_ptr<struct symbol>& symbol)
             : construct_definition(symbol)
-        {}
+        {
+            update_display_name();
+        }
 
         static auto type() -> enum type
         {
@@ -46,9 +48,13 @@ namespace kdtool::project::structure
         [[nodiscard]] auto is_static() const -> bool { return symbol()->is_static(); }
 
         auto add(const std::shared_ptr<struct parameter_definition>& parameter) -> void;
+        [[nodiscard]] auto all_parameters() const -> const std::vector<std::shared_ptr<struct parameter_definition>>&;
 
         [[nodiscard]] auto return_type() const -> std::shared_ptr<struct structure::type::base>;
         auto set_return_type(const std::shared_ptr<struct structure::type::base>& type) -> void;
+
+    private:
+        auto update_display_name() -> void;
 
     private:
         std::vector<std::shared_ptr<struct parameter_definition>> m_parameters;

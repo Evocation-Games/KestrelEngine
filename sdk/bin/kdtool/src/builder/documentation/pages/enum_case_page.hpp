@@ -20,42 +20,29 @@
 
 #pragma once
 
-#include <vector>
-#include <optional>
-#include <libDocumentation/parser/type/section.hpp>
-#include <libDocumentation/parser/type/parameter.hpp>
+#include <memory>
+#include <libCodeGen/builder/builder.hpp>
+#include <libCodeGen/ast/markup.hpp>
+#include "project/structure/enum/enum_definition.hpp"
+#include "project/structure/enum/enum_case_definition.hpp"
+#include "project/structure/symbol.hpp"
+#include "builder/documentation/pages/basic_page.hpp"
+#include "builder/documentation/components/availability_table.hpp"
+#include "builder/documentation/components/description.hpp"
+#include "builder/documentation/pages/layout_decider.hpp"
 
-namespace documentation
+namespace kdtool::builder::page
 {
-    struct object
+    template<codegen::language::markup_support L>
+    struct enum_case_page : public basic<L>
     {
-        object() = default;
+        enum_case_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
+            : basic<L>(definition, root_dir)
+        {}
 
-        [[nodiscard]] auto sections() const -> const std::vector<struct section>& { return m_sections; }
-        [[nodiscard]] auto parameters() const -> const std::vector<struct parameter>& { return m_parameters; }
-
-        [[nodiscard]] auto section(const std::string& name) const -> std::optional<struct section>
+        [[nodiscard]] auto filename() const -> foundation::filesystem::path override
         {
-            for (const auto& section : m_sections) {
-                if (section.name() == name) {
-                    return { section };
-                }
-            }
-            return {};
+            return basic<L>::filename();
         }
-
-        auto add(const struct section& section) -> void
-        {
-            m_sections.emplace_back(section);
-        }
-
-        auto add(const struct parameter& parameter) -> void
-        {
-            m_parameters.emplace_back(parameter);
-        }
-
-    private:
-        std::vector<struct section> m_sections;
-        std::vector<struct parameter> m_parameters;
     };
 }

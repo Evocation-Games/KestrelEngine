@@ -36,12 +36,13 @@ namespace kdtool::project
         auto add_include_path(const std::string& path, bool scanned = false) -> void;
         auto add_translation_unit(const std::string& path) -> void;
 
-        auto add_symbol(const std::shared_ptr<structure::symbol>& symbol) -> std::shared_ptr<structure::symbol>;
+        auto add_symbol(const std::shared_ptr<structure::symbol>& symbol, int indent = 0) -> std::shared_ptr<structure::symbol>;
         auto add_definition(const std::shared_ptr<structure::construct_definition>& definition) -> void;
 
         [[nodiscard]] auto include_paths() const -> const std::vector<std::string>&;
         [[nodiscard]] auto scanned_include_paths() const -> const std::vector<std::string>&;
         [[nodiscard]] auto all_definitions() const -> std::vector<std::shared_ptr<structure::construct_definition>>;
+        [[nodiscard]] auto all_root_symbols() const -> std::vector<std::shared_ptr<structure::symbol>>;
         [[nodiscard]] auto symbol_named(const std::string& name) -> std::shared_ptr<structure::symbol>;
 
     private:

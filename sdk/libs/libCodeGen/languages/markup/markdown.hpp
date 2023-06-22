@@ -27,6 +27,8 @@ namespace codegen::language
 {
     struct markdown
     {
+        static std::int32_t column_counter;
+
         // Helpers
         [[nodiscard]] static inline auto heading_prefix(std::int32_t level) -> std::string
         {
@@ -71,6 +73,20 @@ namespace codegen::language
             return emit::segment("`" + str + "`");
         }
 
+        // Dividers
+
+        [[nodiscard]] static auto divider() -> emit::segment
+        {
+            return emit::segment("---", emit::line_break_mode::full);
+        }
+
+        // Anchors
+
+        [[nodiscard]] static auto anchor(const std::string& str, const std::string& link) -> emit::segment
+        {
+            return emit::segment("[" + str + "](" + link + ")");
+        }
+
         // Headings
 
         [[nodiscard]] static auto heading(const std::string& heading, std::int32_t level) -> emit::segment
@@ -102,6 +118,11 @@ namespace codegen::language
 
         [[nodiscard]] static auto begin_list() -> emit::segment
         {
+            return emit::segment("");
+        }
+
+        [[nodiscard]] static auto begin_sublist() -> emit::segment
+        {
             return emit::segment("", emit::line_break_mode::after, emit::indentation_mode::indent_after);
         }
 
@@ -115,9 +136,14 @@ namespace codegen::language
             return emit::segment("", emit::line_break_mode::after);
         }
 
+        [[nodiscard]] static auto end_sublist() -> emit::segment
+        {
+            return emit::segment("", emit::line_break_mode::none, emit::indentation_mode::outdent_after);
+        }
+
         [[nodiscard]] static auto end_list() -> emit::segment
         {
-            return emit::segment("", emit::line_break_mode::before, emit::indentation_mode::outdent_before);
+            return emit::segment("");
         }
 
         // Tables
@@ -139,7 +165,7 @@ namespace codegen::language
             for (auto n = 0; n < column_counter; ++n) {
                 out += " --- |";
             }
-            return emit::segment(out, emit::line_break_mode::full);
+            return emit::segment(out, emit::line_break_mode::before);
         }
 
         [[nodiscard]] static auto begin_table_row() -> emit::segment
@@ -177,8 +203,5 @@ namespace codegen::language
         {
             return emit::segment("", emit::line_break_mode::after);
         }
-
-    private:
-        static std::int32_t column_counter;
     };
 }

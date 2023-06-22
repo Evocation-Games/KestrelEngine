@@ -30,11 +30,21 @@ namespace kdtool::project::structure
             : construct_definition(symbol)
         {}
 
+        static auto type() -> enum type
+        {
+            return type::is_enum_case;
+        }
+
+        [[nodiscard]] auto instance_type() const -> enum type override
+        {
+            return type();
+        }
+
         [[nodiscard]] auto static_symbol_suggestion(const std::string& prefix = "") const -> std::string;
         [[nodiscard]] auto value() const -> std::int64_t;
         auto set_value(std::int64_t value) -> void;
 
     private:
-        std::int64_t m_value;
+        std::int64_t m_value { 0 };
     };
 }

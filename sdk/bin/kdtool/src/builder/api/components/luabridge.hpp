@@ -157,6 +157,23 @@ namespace kdtool::builder
             return *this;
         }
 
+        auto add_static_property(const std::string& name, const std::string& getter_symbol, const std::string& setter_symbol = "") -> luabridge<L>&
+        {
+            add(codegen::emit::segment({
+                codegen::emit::segment(L::reference_member_operator_string()),
+                codegen::ast::function_call<L>(m_symbols.addStaticProperty, {
+                    std::make_shared<codegen::ast::string_statement<L>>(name),
+                    std::make_shared<codegen::ast::address_of_statement<L>>(
+                        std::make_shared<codegen::ast::symbol<L>>(getter_symbol)
+                    ),
+                    setter_symbol.empty() ? nullptr : std::make_shared<codegen::ast::address_of_statement<L>>(
+                        std::make_shared<codegen::ast::symbol<L>>(setter_symbol)
+                    )
+                }).emit()
+            }, codegen::emit::line_break_mode::before));
+            return *this;
+        }
+
         auto add_variable() -> luabridge<L>&
         {
             return *this;
@@ -167,6 +184,20 @@ namespace kdtool::builder
             add(codegen::emit::segment({
                 codegen::emit::segment(L::reference_member_operator_string()),
                 codegen::ast::function_call<L>(m_symbols.addFunction, {
+                    std::make_shared<codegen::ast::string_statement<L>>(name),
+                    std::make_shared<codegen::ast::address_of_statement<L>>(
+                        std::make_shared<codegen::ast::symbol<L>>(symbol)
+                    ),
+                }).emit()
+            }, codegen::emit::line_break_mode::before));
+            return *this;
+        }
+
+        auto add_static_function(const std::string& name, const std::string& symbol) -> luabridge<L>&
+        {
+            add(codegen::emit::segment({
+                codegen::emit::segment(L::reference_member_operator_string()),
+                codegen::ast::function_call<L>(m_symbols.addStaticFunction, {
                     std::make_shared<codegen::ast::string_statement<L>>(name),
                     std::make_shared<codegen::ast::address_of_statement<L>>(
                         std::make_shared<codegen::ast::symbol<L>>(symbol)
@@ -258,20 +289,37 @@ namespace kdtool::builder
 
         auto add_property(const std::shared_ptr<project::structure::property_definition>& definition) -> luabridge<L>&
         {
-            add_property(
-                definition->symbol()->name(),
-                definition->getter()->symbol()->source_resolved_identifier(),
-                definition->setter() ? definition->setter()->symbol()->source_resolved_identifier() : ""
-            );
+            if (definition->is_static()) {
+                add_static_property(
+                    definition->symbol()->name(),
+                    definition->getter()->symbol()->source_resolved_identifier(),
+                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier() : ""
+                );
+            }
+            else {
+                add_property(
+                    definition->symbol()->name(),
+                    definition->getter()->symbol()->source_resolved_identifier(),
+                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier() : ""
+                );
+            }
             return *this;
         }
 
         auto add_function(const std::shared_ptr<project::structure::function_definition>& definition) -> luabridge<L>&
         {
-            add_function(
-                definition->symbol()->name(),
-                definition->symbol()->source_resolved_identifier()
-            );
+            if (definition->is_static()) {
+                add_function(
+                    definition->symbol()->name(),
+                    definition->symbol()->source_resolved_identifier()
+                );
+            }
+            else {
+                add_function(
+                    definition->symbol()->name(),
+                    definition->symbol()->source_resolved_identifier()
+                );
+            }
             return *this;
         }
 
@@ -295,6 +343,7 @@ namespace kdtool::builder
             std::shared_ptr<codegen::ast::symbol<L>> addVariable { std::make_shared<codegen::ast::symbol<L>>("addVariable") };
             std::shared_ptr<codegen::ast::symbol<L>> addFunction { std::make_shared<codegen::ast::symbol<L>>("addFunction") };
             std::shared_ptr<codegen::ast::symbol<L>> addStaticFunction { std::make_shared<codegen::ast::symbol<L>>("addStaticFunction") };
+            std::shared_ptr<codegen::ast::symbol<L>> addStaticPropery { std::make_shared<codegen::ast::symbol<L>>("addStaticProperty") };
         } m_symbols;
         std::vector<codegen::emit::segment> m_segment_sequence;
     };

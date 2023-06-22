@@ -59,6 +59,8 @@ auto kdtool::project::structure::class_definition::property(const std::shared_pt
     auto it = m_properties.find(symbol->name());
     if (it == m_properties.end()) {
         auto property = std::make_shared<struct property_definition>(symbol);
+        symbol->set_definition(property);
+        symbol->set_display_name(symbol->name());
         m_properties.emplace(symbol->name(), property);
         return property;
     }

@@ -44,6 +44,7 @@ namespace kdtool::project::structure
         [[nodiscard]] auto filename() const -> foundation::filesystem::path;
         [[nodiscard]] auto resolved_name(const std::string& delimiter = ".") const -> std::string;
 
+        [[nodiscard]] auto display_name() const -> std::string;
         [[nodiscard]] auto is_static() const -> bool;
         [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto is_root() const -> bool;
@@ -55,27 +56,37 @@ namespace kdtool::project::structure
         [[nodiscard]] auto source_identifier() const -> std::string;
         [[nodiscard]] auto source_resolved_identifier(const std::string& scope_resolution_operator = "", const std::string& join_delimiter = "") const -> std::string;
         [[nodiscard]] auto source_resolved_identifier(bool including_identifier, const std::string& scope_resolution_operator) const -> std::string;
+        [[nodiscard]] auto all_source_resolved_identifiers() const -> std::vector<std::string>;
+        [[nodiscard]] auto children() const -> std::vector<std::weak_ptr<struct symbol>>;
 
         auto make_static() -> void;
 
         auto set_documentation(const std::shared_ptr<struct documentation::object>& documentation) -> void;
         auto set_definition(const std::shared_ptr<struct construct_definition>& definition) -> void;
         auto set_source_identifier(const std::string& identifier, const std::string& resolved = "") -> void;
+        auto add_source_identifier(const std::string& identifier, const std::string& resolved = "") -> void;
+        auto set_display_name(const std::string& display_name) -> void;
 
         auto set_available(const struct version& version) -> void;
         auto set_deprecated(const struct version& version) -> void;
 
+        auto add_child(const std::weak_ptr<struct symbol>& symbol) -> void;
+
     private:
+        struct source_symbol {
+            std::string identifier;
+            std::string resolved;
+        };
         bool m_static { false };
+        std::string m_display_name;
         std::string m_name;
         std::weak_ptr<struct symbol> m_parent;
+        std::vector<std::weak_ptr<struct symbol>> m_children;
         std::shared_ptr<struct documentation::object> m_documentation;
         std::weak_ptr<struct construct_definition> m_definition;
         std::optional<struct version> m_available;
         std::optional<struct version> m_deprecated;
-        struct {
-            std::string identifier;
-            std::string resolved;
-        } m_source_symbol;
+        std::vector<struct source_symbol> m_source_symbols;
+        bool m_added_source_symbols { false };
     };
 }

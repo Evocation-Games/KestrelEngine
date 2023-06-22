@@ -316,13 +316,27 @@ auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::a
     if (!annotations.has(scripting::annotation::tag::symbol)) {
         return nullptr;
     }
-    symbol = m_index->symbol_named(annotations.attachment(scripting::annotation::tag::symbol).value());
-
-    // Generate the source CXX symbol
-    symbol->set_source_identifier(clang::spelling(cursor), foundation::string::joined(m_state.name_stack, "::"));
 
     // Is the symbol static?
+    bool is_static = false;
     if (clang::is_static(cursor)) {
+        is_static = true;
+    }
+
+    std::string symbol_name;
+    for (const auto& node : m_state.definition_stack) {
+        if (!node) {
+            continue;
+        }
+        symbol_name += node->symbol()->resolved_name() + ".";
+    }
+    symbol_name += annotations.attachment(scripting::annotation::tag::symbol).value();
+    symbol = m_index->symbol_named(symbol_name);
+
+    // Generate the source CXX symbol
+    symbol->add_source_identifier(clang::spelling(cursor), foundation::string::joined(m_state.name_stack, "::"));
+
+    if (is_static) {
         symbol->make_static();
     }
 

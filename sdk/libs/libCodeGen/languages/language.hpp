@@ -195,13 +195,18 @@ namespace codegen::language
         { L::strikethrough(str) } -> std::same_as<emit::segment>;
         { L::inline_code(str) } -> std::same_as<emit::segment>;
 
+        { L::anchor(str, str) } -> std::same_as<emit::segment>;
+
         { L::heading(str, i32) } -> std::same_as<emit::segment>;
         { L::preformatted(str) } -> std::same_as<emit::segment>;
         { L::blockquote(str) } -> std::same_as<emit::segment>;
+        { L::divider() } -> std::same_as<emit::segment>;
 
         { L::begin_list() } -> std::same_as<emit::segment>;
+        { L::begin_sublist() } -> std::same_as<emit::segment>;
         { L::begin_list_item() } -> std::same_as<emit::segment>;
         { L::end_list_item() } -> std::same_as<emit::segment>;
+        { L::end_sublist() } -> std::same_as<emit::segment>;
         { L::end_list() } -> std::same_as<emit::segment>;
 
         { L::begin_table() } -> std::same_as<emit::segment>;

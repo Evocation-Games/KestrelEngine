@@ -121,7 +121,7 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
     /**
      * Configure the main game window with the specified title and size.
      *
-     * @code
+     * @example
      * Kestrel.start("Example Game", Size(640, 480))
      *
      * @param title     The title of the game window.

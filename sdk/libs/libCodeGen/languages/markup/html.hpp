@@ -76,6 +76,20 @@ namespace codegen::language
             return emit::segment("<code>" + str + "</code>");
         }
 
+        // Dividers
+
+        [[nodiscard]] static auto divider() -> emit::segment
+        {
+            return emit::segment("<hr/>", emit::line_break_mode::full);
+        }
+
+        // Anchors
+
+        [[nodiscard]] static auto anchor(const std::string& str, const std::string& link) -> emit::segment
+        {
+            return emit::segment("<a href=\"" + link + "\">" + str + "</a>");
+        }
+
         // Headings
 
         [[nodiscard]] static auto heading(const std::string& heading, std::int32_t level) -> emit::segment
@@ -111,6 +125,11 @@ namespace codegen::language
             return emit::segment("<ul>", emit::line_break_mode::full, emit::indentation_mode::indent_after);
         }
 
+        [[nodiscard]] static auto begin_sublist() -> emit::segment
+        {
+            return begin_list();
+        }
+
         [[nodiscard]] static auto begin_list_item() -> emit::segment
         {
             return emit::segment("<li>", emit::line_break_mode::full, emit::indentation_mode::indent_after);
@@ -119,6 +138,11 @@ namespace codegen::language
         [[nodiscard]] static auto end_list_item() -> emit::segment
         {
             return emit::segment("</li>", emit::line_break_mode::full, emit::indentation_mode::outdent_before);
+        }
+
+        [[nodiscard]] static auto end_sublist() -> emit::segment
+        {
+            return end_list();
         }
 
         [[nodiscard]] static auto end_list() -> emit::segment

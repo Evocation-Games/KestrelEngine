@@ -19,3 +19,57 @@
 // SOFTWARE.
 
 #pragma once
+
+#include <libCodeGen/builder/component.hpp>
+#include <libCodeGen/languages/language.hpp>
+#include <libCodeGen/ast/markup.hpp>
+#include "builder/buffer.hpp"
+
+namespace kdtool::builder::component
+{
+    template<codegen::language::metadata L>
+    struct availability_table : public codegen::component
+    {
+        explicit availability_table(const std::shared_ptr<project::structure::symbol>& symbol)
+            : m_symbol(symbol)
+        {}
+
+        [[nodiscard]] auto emit() const -> codegen::emit::segment override
+        {
+            buffer<L> buffer;
+
+            auto table = std::make_shared<codegen::ast::table<L>>();
+            table->add_column("Aspect");
+            table->add_column("Value");
+
+            if (auto definition = m_symbol->definition().lock()) {
+                table->add_row({
+                    std::make_shared<codegen::ast::text<L>>("File"),
+                    std::make_shared<codegen::ast::inline_code<L>>(definition->location())
+                });
+            }
+
+            bool is_first_symbol = true;
+            for (const auto& symbol : m_symbol->all_source_resolved_identifiers()) {
+                table->add_row({
+                    std::make_shared<codegen::ast::text<L>>(is_first_symbol ? "C++ Symbol" : ""),
+                    std::make_shared<codegen::ast::inline_code<L>>(symbol)
+                });
+                is_first_symbol = false;
+            }
+
+            if (m_symbol->available().has_value()) {
+                table->add_row({ "Available", m_symbol->available()->string() });
+            }
+            if (m_symbol->deprecated().has_value()) {
+                table->add_row({ "Deprecated", m_symbol->deprecated()->string() });
+            }
+
+            buffer.add(table);
+            return buffer.segments();
+        }
+
+    private:
+        std::shared_ptr<project::structure::symbol> m_symbol;
+    };
+}

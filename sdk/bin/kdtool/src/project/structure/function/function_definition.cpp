@@ -24,7 +24,23 @@
 
 auto kdtool::project::structure::function_definition::add(const std::shared_ptr<struct parameter_definition> &parameter) -> void
 {
+    // Check for documentation on the function, and see if it includes the parameter.
+    // If it does, then apply the parameter description.
+    if (auto docs = symbol()->documentation().lock()) {
+        for (const auto& param_doc : docs->parameters()) {
+            if (param_doc.name() == parameter->symbol()->name()) {
+                parameter->set_description(param_doc.description());
+                break;
+            }
+        }
+    }
     m_parameters.emplace_back(parameter);
+    update_display_name();
+}
+
+auto kdtool::project::structure::function_definition::all_parameters() const -> const std::vector<std::shared_ptr<struct parameter_definition>>&
+{
+    return m_parameters;
 }
 
 // MARK: - Return Type
@@ -37,4 +53,19 @@ auto kdtool::project::structure::function_definition::return_type() const -> std
 auto kdtool::project::structure::function_definition::set_return_type(const std::shared_ptr<struct structure::type::base>& type) -> void
 {
     m_return_type = type;
+    update_display_name();
+}
+
+// MARK: - Display Name
+
+auto kdtool::project::structure::function_definition::update_display_name() -> void
+{
+    std::string name = symbol()->name() + "(";
+    for (const auto& param : m_parameters) {
+        if (name.back() != '(') {
+            name += ", ";
+        }
+        name += param->symbol()->display_name();
+    }
+    symbol()->set_display_name(name + ")");
 }

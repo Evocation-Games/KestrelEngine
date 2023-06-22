@@ -20,6 +20,11 @@
 
 #include <fstream>
 #include <libCodeGen/builder/emit/buffer.hpp>
+#include <libCodeGen/languages/markup/markdown.hpp>
+
+// MARK: - Helpers
+
+std::int32_t codegen::language::markdown::column_counter = 0;
 
 // MARK: - Saving
 

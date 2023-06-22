@@ -32,32 +32,28 @@ namespace kdtool::builder
     template<codegen::language::markup_support L>
     struct documentation : public std::enable_shared_from_this<documentation<L>>, public codegen::builder<L>, public base
     {
-        documentation(const std::shared_ptr<project::index>& project, const std::string& root)
-            : base(project), codegen::builder<L>(root)
+        documentation(const std::shared_ptr<project::index>& project, const foundation::filesystem::path& root)
+            : base(project), codegen::builder<L>(root.child(L::lc_name()))
         {}
 
         auto build() -> void override
         {
             codegen::builder<L>::build();
 
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Hello, World", 1);
+            // TODO: Make the documentation title configurable.
+            codegen::builder<L>::template add<codegen::ast::heading<L>>("Kestrel Lua Documentation", 1);
 
-            auto root = std::make_shared<directory::entry>("Root Element");
-            root->add(std::make_shared<directory::entry>("Foo"));
-            root->add(std::make_shared<directory::entry>("Bar"));
-            root->add(std::make_shared<directory::entry>("Baz"));
-            root->add(std::make_shared<directory::entry>("Fubar"));
+            std::vector<std::shared_ptr<directory::entry>> root_entries;
+            for (const auto& symbol : project()->all_root_symbols()) {
+                root_entries.emplace_back(std::make_shared<directory::entry>(symbol));
+            }
 
-            auto dir = std::make_shared<component::directory<L>>(root);
-
-            codegen::builder<L>::template add<codegen::ast::begin_list<L>>();
+            auto dir = std::make_shared<component::directory<L>>(root_entries, codegen::builder<L>::root().string(), true);
             codegen::builder<L>::add_component(dir);
-            codegen::builder<L>::template add<codegen::ast::end_list<L>>();
 
-            codegen::builder<L>::save("test");
+            codegen::builder<L>::save("index");
         }
 
     private:
-
     };
 }

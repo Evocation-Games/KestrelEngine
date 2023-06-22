@@ -31,7 +31,7 @@ namespace kdtool::project::structure
     {
         explicit version(const std::string& str)
         {
-            const auto components = foundation::string::split(str);
+            const auto components = foundation::string::split(str, ".");
             if (components.size() >= 1) {
                 m_major = std::stoi(components[0]);
 
@@ -47,7 +47,12 @@ namespace kdtool::project::structure
 
         [[nodiscard]] auto string() const -> std::string
         {
-            return foundation::string::joined<std::uint16_t, std::uint16_t, std::uint16_t>(".", m_major, m_minor, m_fix);
+            if (m_fix != 0) {
+                return "Version " + foundation::string::joined<std::uint16_t, std::uint16_t, std::uint16_t>(".", m_major, m_minor, m_fix);
+            }
+            else {
+                return "Version " + foundation::string::joined<std::uint16_t, std::uint16_t>(".", m_major, m_minor);
+            }
         }
 
     private:

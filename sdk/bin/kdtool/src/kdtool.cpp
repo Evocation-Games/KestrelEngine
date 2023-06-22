@@ -52,7 +52,7 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             else if (arg == "-api") {
                 lua_api.path = argv[++n];
             }
-            else if (arg == "-documentation") {
+            else if (arg == "-documentation" || arg == "-docs") {
                 documentation.path = argv[++n];
             }
             else if (arg == "-md") {
@@ -87,11 +87,13 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
     }
 
     if (!documentation.path.empty()) {
+        foundation::filesystem::path path(documentation.path);
+
         if (documentation.markdown) {
             if (verbose_mode) {
                 std::cout << "Build Markdown Documentation to: " << documentation.path << std::endl;
             }
-            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::markdown>>(project, documentation.path);
+            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::markdown>>(project, path);
             api->build();
         }
 
@@ -99,7 +101,7 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             if (verbose_mode) {
                 std::cout << "Build HTML Documentation to: " << documentation.path << std::endl;
             }
-            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, documentation.path);
+            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, path);
             api->build();
         }
     }

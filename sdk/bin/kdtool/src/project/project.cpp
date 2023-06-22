@@ -72,23 +72,45 @@ auto kdtool::project::index::symbol_named(const std::string& resolved_name) -> s
     return symbol;
 }
 
-auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>& symbol) -> std::shared_ptr<structure::symbol>
+auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>& symbol, int indent) -> std::shared_ptr<structure::symbol>
 {
+    std::string indent_str;
+    for (int i = 0; i < indent; ++i) {
+        indent_str += "    ";
+    }
+
     // Check for the existance of the symbol.
     const auto name = symbol->resolved_name();
     auto it = m_symbols.find(name);
     if (it == m_symbols.end()) {
         m_symbols.emplace(name, symbol);
+        std::cout << indent_str << "  + create symbol: " << name << std::endl;
+
+        if (auto parent = symbol->parent().lock()) {
+            parent->add_child(symbol);
+        }
 
         // If we have added the symbol, then try and add the parents if required.
         if (auto parent = symbol->parent().lock()) {
-            add_symbol(parent);
+            add_symbol(parent, indent + 1);
         }
         return symbol;
     }
     else {
+        std::cout << indent_str << "  + existing symbol: " << name << std::endl;
         return it->second;
     }
+}
+
+auto kdtool::project::index::all_root_symbols() const -> std::vector<std::shared_ptr<structure::symbol>>
+{
+    std::vector<std::shared_ptr<structure::symbol>> out;
+    for (const auto& sym : m_symbols) {
+        if (sym.second->is_root()) {
+            out.emplace_back(sym.second);
+        }
+    }
+    return out;
 }
 
 // MARK: - Definition Management

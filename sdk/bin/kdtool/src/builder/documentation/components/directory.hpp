@@ -25,36 +25,63 @@
 #include <libCodeGen/ast/markup.hpp>
 #include "builder/buffer.hpp"
 #include "builder/documentation/directory/entry.hpp"
+#include "builder/documentation/pages/layout_decider.hpp"
 
 namespace kdtool::builder::component
 {
     template<codegen::language::metadata L>
     struct directory : public codegen::component
     {
-        explicit directory(const std::shared_ptr<struct builder::directory::entry>& entry)
-            : m_entry(entry)
+        explicit directory(const std::shared_ptr<struct builder::directory::entry>& entry, const std::string& root_dir, bool is_root = false)
+            : m_entries({ entry }), m_root(is_root), m_root_dir(root_dir)
+        {}
+
+        explicit directory(const std::vector<std::shared_ptr<struct builder::directory::entry>>& entry, const std::string& root_dir, bool is_root = false)
+            : m_entries(entry), m_root(is_root), m_root_dir(root_dir)
         {}
 
         [[nodiscard]] auto emit() const -> codegen::emit::segment override
         {
             buffer<L> buffer;
-            buffer.template add<codegen::ast::begin_list_item<L>>();
-            buffer.template add<codegen::ast::text<L>>(m_entry->name());
+            buffer.template add<codegen::ast::begin_list<L>>(!m_root);
+            for (const auto& entry : m_entries) {
+                if (entry->is_leaf()) {
+                    continue;
+                }
 
-            if (!m_entry->is_leaf()) {
-                buffer.template add<codegen::ast::begin_list<L>>();
-                m_entry->each([&] (const auto& child) {
-                    auto dir = std::make_shared<directory<L>>(child);
-                    buffer.add(dir);
-                });
-                buffer.template add<codegen::ast::end_list<L>>();
+                buffer.template add<codegen::ast::begin_list_item<L>>();
+
+                if (entry->has_file() && entry->symbol()->definition().lock()) {
+                    auto path = entry->path().string();
+                    if (path.starts_with("/")) {
+                        path.erase(0, 1);
+                    }
+                    buffer.template add<codegen::ast::anchor<L>>(entry->name(), path + "." + L::extension());
+
+                    // Synthesize the page for this entry.
+                    page::layout_decider<L>::using_definition(entry->symbol()->definition(), m_root_dir);
+                }
+                else {
+                    buffer.template add<codegen::ast::text<L>>(entry->name());
+                }
+
+                if (!entry->is_leaf()) {
+                    decltype(m_entries) children;
+                    entry->each([&] (const auto& child) {
+                        children.emplace_back(std::make_shared<builder::directory::entry>(child));
+                    });
+                    buffer.add(std::make_shared<directory<L>>(children, m_root_dir));
+                }
+
+                buffer.template add<codegen::ast::end_list_item<L>>();
             }
-
-            buffer.template add<codegen::ast::end_list_item<L>>();
+            buffer.template add<codegen::ast::end_list<L>>(!m_root);
             return buffer.segments();
         }
 
     private:
-        std::shared_ptr<struct builder::directory::entry> m_entry;
+        bool m_root { false };
+        std::string m_root_dir;
+        std::vector<std::shared_ptr<struct builder::directory::entry>> m_entries;
     };
 }

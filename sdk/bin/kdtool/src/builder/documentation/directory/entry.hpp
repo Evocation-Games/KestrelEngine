@@ -25,37 +25,47 @@
 #include <optional>
 #include <functional>
 #include <libFoundation/system/filesystem/path.hpp>
+#include "project/structure/symbol.hpp"
 
 namespace kdtool::builder::directory
 {
     struct entry
     {
-        explicit entry(const std::string& name)
-            : m_name(name)
+        explicit entry(const std::shared_ptr<project::structure::symbol>& symbol)
+            : m_symbol(symbol), m_path(m_symbol->filename())
         {}
 
-        [[nodiscard]] auto name() const -> std::string { return m_name; }
+        [[nodiscard]] auto name() const -> std::string { return m_symbol->display_name(); }
+        [[nodiscard]] auto symbol() const -> std::shared_ptr<project::structure::symbol> { return m_symbol; }
         [[nodiscard]] auto has_file() const -> bool { return m_path.has_value(); }
-        [[nodiscard]] auto path() const -> foundation::filesystem::path { return m_path.value(); }
-        [[nodiscard]] auto is_leaf() const -> bool { return m_children.empty(); }
+        [[nodiscard]] auto is_leaf() const -> bool { return m_symbol->children().empty(); }
 
-        auto each(const std::function<auto(const std::shared_ptr<entry>&)->void>& callback) -> void
+        [[nodiscard]] auto path() const -> foundation::filesystem::path
         {
-            for (const auto& it : m_children) {
-                callback(it.second);
+            if (auto definition = symbol()->definition().lock()) {
+                switch (definition->instance_type()) {
+                    case project::structure::construct_definition::type::is_namespace:
+                    case project::structure::construct_definition::type::is_class:
+                    case project::structure::construct_definition::type::is_enum:
+                        return m_path->child("index");
+                    default:
+                        break;
+                }
             }
+            return m_path.value();
         }
 
-        auto add(const std::shared_ptr<entry>& entry) -> void
+        auto each(const std::function<auto(const std::shared_ptr<project::structure::symbol>&)->void>& callback) -> void
         {
-            if (entry) {
-                m_children.emplace(entry->name(), entry);
+            for (const auto& it : m_symbol->children()) {
+                if (auto child = it.lock()) {
+                    callback(child);
+                }
             }
         }
 
     private:
-        std::string m_name;
+        std::shared_ptr<project::structure::symbol> m_symbol;
         std::optional<foundation::filesystem::path> m_path;
-        std::map<std::string, std::shared_ptr<struct entry>> m_children;
     };
 }

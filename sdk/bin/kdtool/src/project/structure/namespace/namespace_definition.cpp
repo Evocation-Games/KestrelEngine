@@ -40,6 +40,7 @@ auto kdtool::project::structure::namespace_definition::property(const std::share
     if (it == m_properties.end()) {
         auto property = std::make_shared<struct property_definition>(symbol);
         m_properties.emplace(symbol->name(), property);
+        symbol->set_definition(property);
         return property;
     }
     return it->second;

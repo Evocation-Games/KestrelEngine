@@ -33,11 +33,20 @@ kdtool::project::structure::symbol::symbol(
 )
     : m_name(name), m_parent(parent), m_definition(definition), m_documentation(documentation)
 {
-    m_source_symbol.identifier = foundation::string::trim(name);
-    m_source_symbol.resolved = name;
+    add_source_identifier(foundation::string::trim(name), name);
 }
 
 // MARK: - Accessors
+
+auto kdtool::project::structure::symbol::display_name() const -> std::string
+{
+    return m_display_name.empty() ? name() : m_display_name;
+}
+
+auto kdtool::project::structure::symbol::set_display_name(const std::string& display_name) -> void
+{
+    m_display_name = display_name;
+}
 
 auto kdtool::project::structure::symbol::name() const -> std::string
 {
@@ -47,11 +56,6 @@ auto kdtool::project::structure::symbol::name() const -> std::string
 auto kdtool::project::structure::symbol::is_root() const -> bool
 {
     return m_parent.lock() == nullptr;
-}
-
-auto kdtool::project::structure::symbol::parent() const -> std::weak_ptr<struct symbol>
-{
-    return m_parent;
 }
 
 auto kdtool::project::structure::symbol::definition() const -> std::weak_ptr<struct construct_definition>
@@ -76,30 +80,52 @@ auto kdtool::project::structure::symbol::set_documentation(const std::shared_ptr
 
 auto kdtool::project::structure::symbol::set_source_identifier(const std::string &identifier, const std::string &resolved) -> void
 {
-    m_source_symbol.identifier = identifier;
-    m_source_symbol.resolved = resolved.empty() ? identifier : resolved;
+    add_source_identifier(identifier, resolved);
+}
+
+auto kdtool::project::structure::symbol::add_source_identifier(const std::string &identifier, const std::string &resolved) -> void
+{
+    struct source_symbol symbol;
+    symbol.identifier = identifier;
+    symbol.resolved = resolved.empty() ? identifier : resolved;
+
+    if (!m_source_symbols.empty() && !m_added_source_symbols) {
+        m_added_source_symbols = true;
+        m_source_symbols.clear();
+    }
+
+    m_source_symbols.emplace_back(std::move(symbol));
 }
 
 auto kdtool::project::structure::symbol::source_identifier() const -> std::string
 {
-    return m_source_symbol.identifier;
+    return m_source_symbols.front().identifier;
 }
 
 auto kdtool::project::structure::symbol::source_resolved_identifier(const std::string& scope_resolution_operator, const std::string& joined_delimiter) const -> std::string
 {
     if (!scope_resolution_operator.empty() && !joined_delimiter.empty()) {
-        return foundation::string::joined(foundation::string::split(m_source_symbol.resolved, scope_resolution_operator), joined_delimiter);
+        return foundation::string::joined(foundation::string::split(m_source_symbols.front().resolved, scope_resolution_operator), joined_delimiter);
     }
-    return m_source_symbol.resolved;
+    return m_source_symbols.front().resolved;
 }
 
 auto kdtool::project::structure::symbol::source_resolved_identifier(bool including_identifier, const std::string& scope_resolution_operator) const -> std::string
 {
-    auto out = m_source_symbol.resolved;
+    auto out = m_source_symbols.front().resolved;
     if (!out.empty()) {
         out += scope_resolution_operator;
     }
-    return out + m_source_symbol.identifier;
+    return out + m_source_symbols.front().identifier;
+}
+
+auto kdtool::project::structure::symbol::all_source_resolved_identifiers() const -> std::vector<std::string>
+{
+    std::vector<std::string> out;
+    for (const auto& symbol : m_source_symbols) {
+        out.emplace_back(symbol.resolved);
+    }
+    return std::move(out);
 }
 
 auto kdtool::project::structure::symbol::is_static() const -> bool
@@ -117,10 +143,10 @@ auto kdtool::project::structure::symbol::make_static() -> void
 auto kdtool::project::structure::symbol::resolved_name(const std::string &delimiter) const -> std::string
 {
     if (is_root()) {
-        return name();
+        return display_name();
     }
     else {
-        return parent().lock()->resolved_name(delimiter) + delimiter + name();
+        return parent().lock()->resolved_name(delimiter) + delimiter + display_name();
     }
 }
 
@@ -154,4 +180,21 @@ auto kdtool::project::structure::symbol::deprecated() const -> std::optional<str
 auto kdtool::project::structure::symbol::set_deprecated(const struct kdtool::project::structure::version &version) -> void
 {
     m_deprecated = version;
+}
+
+// MARK: - Children
+
+auto kdtool::project::structure::symbol::parent() const -> std::weak_ptr<struct symbol>
+{
+    return m_parent;
+}
+
+auto kdtool::project::structure::symbol::add_child(const std::weak_ptr<struct symbol> &symbol) -> void
+{
+    m_children.emplace_back(symbol);
+}
+
+auto kdtool::project::structure::symbol::children() const -> std::vector<std::weak_ptr<struct symbol>>
+{
+    return m_children;
 }

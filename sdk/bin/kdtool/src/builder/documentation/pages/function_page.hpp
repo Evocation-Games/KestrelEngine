@@ -21,43 +21,37 @@
 #pragma once
 
 #include <memory>
-#include <libCodeGen/builder/component.hpp>
-#include <libCodeGen/languages/language.hpp>
+#include <libCodeGen/builder/builder.hpp>
 #include <libCodeGen/ast/markup.hpp>
-#include "builder/buffer.hpp"
+#include "project/structure/function/function_definition.hpp"
 #include "project/structure/function/parameter/parameter_definition.hpp"
+#include "project/structure/symbol.hpp"
+#include "builder/documentation/pages/basic_page.hpp"
+#include "builder/documentation/components/availability_table.hpp"
+#include "builder/documentation/components/parameter_table.hpp"
+#include "builder/documentation/components/description.hpp"
+#include "builder/documentation/pages/layout_decider.hpp"
 
-namespace kdtool::builder::component
+namespace kdtool::builder::page
 {
-    template<codegen::language::metadata L>
-    struct parameter_table : public codegen::component
+    template<codegen::language::markup_support L>
+    struct function_page : public basic<L>
     {
-        explicit parameter_table(const std::vector<std::shared_ptr<struct project::structure::parameter_definition>>& parameters)
-            : m_parameters(parameters)
+        function_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
+            : basic<L>(definition, root_dir)
         {}
 
-        [[nodiscard]] auto emit() const -> codegen::emit::segment override
+        auto build_content() -> void override
         {
-            buffer<L> buffer;
+            const auto& fn = basic<L>::template definition<project::structure::function_definition>();
 
-            auto table = std::make_shared<codegen::ast::table<L>>();
-            table->add_column("Name");
-            table->add_column("Type");
-            table->add_column("Description");
-
-            for (const auto& param : m_parameters) {
-                table->add_row({
-                    param->symbol()->display_name(),
-                    param->type()->name(),
-                    param->description()
-                });
+            // Parameters
+            const auto& parameters = fn->all_parameters();
+            if (!parameters.empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Parameters", 2);
+                codegen::builder<L>::template add_component<component::parameter_table<L>>(parameters);
             }
-
-            buffer.add(table);
-            return buffer.segments();
         }
 
-    private:
-        std::vector<std::shared_ptr<struct project::structure::parameter_definition>> m_parameters;
     };
 }

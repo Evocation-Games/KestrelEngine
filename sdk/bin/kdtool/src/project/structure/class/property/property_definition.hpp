@@ -35,6 +35,21 @@ namespace kdtool::project::structure
             : construct_definition(symbol)
         {}
 
+        static auto type() -> enum type
+        {
+            return type::is_property;
+        }
+
+        [[nodiscard]] auto instance_type() const -> enum type override
+        {
+            return type();
+        }
+
+        [[nodiscard]] auto name() const -> std::string { return symbol()->name(); }
+        [[nodiscard]] auto filename() const -> foundation::filesystem::path { return symbol()->filename(); }
+
+        [[nodiscard]] auto is_static() const -> bool { return getter()->is_static(); }
+
         [[nodiscard]] auto getter() const -> std::shared_ptr<struct function_definition>;
         [[nodiscard]] auto setter() const -> std::shared_ptr<struct function_definition>;
 

@@ -19,3 +19,39 @@
 // SOFTWARE.
 
 #pragma once
+
+#include <libCodeGen/builder/component.hpp>
+#include <libCodeGen/languages/language.hpp>
+#include <libCodeGen/ast/markup.hpp>
+#include <libDocumentation/parser/type/documentation.hpp>
+#include "builder/buffer.hpp"
+
+namespace kdtool::builder::component
+{
+    template<codegen::language::metadata L>
+    struct documentation_section : public codegen::component
+    {
+        explicit documentation_section(const documentation::section& section)
+            : m_section(section)
+        {}
+
+        [[nodiscard]] auto emit() const -> codegen::emit::segment override
+        {
+            buffer<L> buffer;
+
+            buffer.template add<codegen::ast::heading<L>>(m_section.title(), 2);
+
+            if (m_section.name() == documentation::section::name::example) {
+                buffer.template add<codegen::ast::preformatted<L>>(m_section.body());
+            }
+            else {
+                buffer.template add<codegen::ast::text<L>>(m_section.body());
+            }
+
+            return buffer.segments();
+        }
+
+    private:
+        documentation::section m_section;
+    };
+}

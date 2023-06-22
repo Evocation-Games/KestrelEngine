@@ -21,16 +21,28 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <libFoundation/system/filesystem/path.hpp>
+#include <libCodeGen/ast/core/node.hpp>
 
-namespace kdtool::builder::store
+namespace codegen::ast
 {
-    struct symbol_reference
+    template<language::markup_support L>
+    struct preformatted : public node
     {
-        symbol_reference() = default;
+        explicit preformatted(const std::string &text)
+            : m_text(text)
+        {}
+
+        [[nodiscard]] virtual auto value() const -> std::string
+        {
+            return m_text;
+        }
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return {L::preformatted(value())};
+        }
 
     private:
-        std::unordered_map<std::string, foundation::filesystem::path> m_symbols;
+        std::string m_text;
     };
 }

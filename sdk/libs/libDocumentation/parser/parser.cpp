@@ -58,9 +58,7 @@ auto documentation::parser::parse_line(const std::string &line) -> void
         str.erase(0, 1);
     }
 
-    if (str.empty()) {
-        str = "\n";
-    }
+    str += "\n";
 
     // Consume the line and switch states appropriately.
     str = foundation::string::trim(str);
@@ -117,7 +115,7 @@ auto documentation::parser::parse_section_name(const std::string &line) -> std::
     std::string buffer;
     if (str[0] == '@') {
         for (auto i = 0; i <= str.size(); ++i) {
-            if (str[i] == ' ' || str[i]== '\t') {
+            if (str[i] == ' ' || str[i]== '\t' || str[i] == '\n' || str[i] == '\0') {
                 break;
             }
             buffer += str[i];

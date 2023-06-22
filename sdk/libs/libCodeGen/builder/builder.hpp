@@ -43,7 +43,7 @@ namespace codegen
             : m_root(root)
         {}
 
-        [[nodiscard]] auto root() const -> foundation::filesystem::path { return m_root; }
+        [[nodiscard]] virtual auto root() const -> foundation::filesystem::path { return m_root; }
 
         virtual auto build() -> void {};
 

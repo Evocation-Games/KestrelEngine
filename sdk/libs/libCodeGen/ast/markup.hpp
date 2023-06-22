@@ -26,3 +26,7 @@
 #include <libCodeGen/ast/markup/lists.hpp>
 #include <libCodeGen/ast/markup/text.hpp>
 #include <libCodeGen/ast/markup/heading.hpp>
+#include <libCodeGen/ast/markup/anchor.hpp>
+#include <libCodeGen/ast/markup/table.hpp>
+#include <libCodeGen/ast/markup/divider.hpp>
+#include <libCodeGen/ast/markup/preformatted.hpp>

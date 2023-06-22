@@ -31,3 +31,15 @@ auto kdtool::project::structure::parameter_definition::set_type(const std::share
 {
     m_type = type;
 }
+
+// MARK: - Descriptions
+
+auto kdtool::project::structure::parameter_definition::description() const -> std::string
+{
+    return m_description;
+}
+
+auto kdtool::project::structure::parameter_definition::set_description(const std::string &description) -> void
+{
+    m_description = description;
+}

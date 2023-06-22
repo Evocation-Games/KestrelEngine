@@ -29,19 +29,29 @@ namespace codegen::ast
     template<language::markup_support L>
     struct begin_list : public node
     {
+        explicit begin_list(bool sublist = false) : node(), m_sublist(sublist) {}
+
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return L::begin_list();
+            return m_sublist ? L::begin_sublist() : L::begin_list();
         }
+
+    private:
+        bool m_sublist { false };
     };
 
     template<language::markup_support L>
     struct end_list : public node
     {
+        explicit end_list(bool sublist = false) : node(), m_sublist(sublist) {}
+
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return L::end_list();
+            return m_sublist ? L::end_sublist() : L::end_list();
         }
+
+    private:
+        bool m_sublist { false };
     };
 
     template<language::markup_support L>

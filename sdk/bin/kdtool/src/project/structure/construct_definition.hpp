@@ -43,7 +43,7 @@ namespace kdtool::project::structure
 
         enum class type
         {
-            none, is_namespace, is_class, is_enum, is_function, is_constructor
+            none, is_namespace, is_class, is_enum, is_function, is_constructor, is_property, is_enum_case
         };
 
         static auto type() -> enum type

@@ -32,12 +32,31 @@ namespace codegen::ast
             : m_text(text)
         {}
 
+        [[nodiscard]] virtual auto value() const -> std::string
+        {
+            return m_text;
+        }
+
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { L::text(m_text) };
+            return { L::text(value()) };
         }
 
     private:
         std::string m_text;
+    };
+
+    template<language::markup_support L>
+    struct inline_code : public text<L>
+    {
+        explicit inline_code(const std::string& code)
+            : text<L>(code)
+        {}
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return { L::inline_code(text<L>::value()) };
+        }
+
     };
 }
