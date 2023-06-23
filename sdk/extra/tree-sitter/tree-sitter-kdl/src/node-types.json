@@ -210,11 +210,6 @@
     }
   },
   {
-    "type": "comment",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "component",
     "named": true,
     "fields": {
@@ -1503,10 +1498,6 @@
       "required": false,
       "types": [
         {
-          "type": "comment",
-          "named": true
-        },
-        {
           "type": "component",
           "named": true
         },
@@ -2194,10 +2185,6 @@
     "named": false
   },
   {
-    "type": "`",
-    "named": false
-  },
-  {
     "type": "api_export",
     "named": false
   },
@@ -2208,6 +2195,10 @@
   {
     "type": "classic",
     "named": false
+  },
+  {
+    "type": "comment",
+    "named": true
   },
   {
     "type": "component",

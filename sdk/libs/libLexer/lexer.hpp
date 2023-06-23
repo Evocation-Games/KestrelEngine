@@ -39,7 +39,7 @@ namespace lexer
     public:
         typedef foundation::stream<lexeme> lexical_result;
 
-        enum class comment_style { none, KDL, LUA, CXX };
+        enum class comment_style { none, LUA, CXX };
 
     public:
         /**
@@ -65,9 +65,10 @@ namespace lexer
         std::size_t m_offset { 0 };
         std::size_t m_pos { 0 };
         std::string m_slice;
+        std::string m_documentation;
         std::vector<lexeme> m_lexemes;
         std::unordered_set<std::string> m_keywords;
-        enum comment_style m_comment_style { comment_style::KDL };
+        enum comment_style m_comment_style { comment_style::CXX };
 
         /**
          * Generates a dummy lexeme based on the current lexer position. This is used for

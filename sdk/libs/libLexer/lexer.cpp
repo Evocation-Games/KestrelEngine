@@ -85,12 +85,26 @@ auto lexer::lexer::analyze() -> lexical_result
 
         // Check for a comment. If we're looking at a comment then we need to consume the entire line. We need to
         // advance past the character at the end of the match.
-        if (test_if(condition::match<'`'>::yes) && m_comment_style == comment_style::KDL) {
+        if (test_if(condition::sequence<'/', '/', '/'>::yes, 0, 3) && m_comment_style == comment_style::CXX) {
+            // Documentation comment
             consume_while(condition::match<'\n'>::no);
+            if (!m_documentation.empty()) {
+                m_documentation += "\n";
+            }
+            m_documentation += m_slice;
             continue;
         }
         else if (test_if(condition::sequence<'/', '/'>::yes, 0, 2) && m_comment_style == comment_style::CXX) {
             consume_while(condition::match<'\n'>::no);
+            continue;
+        }
+        else if (test_if(condition::sequence<'-', '-', '-'>::yes, 0, 3) && m_comment_style == comment_style::LUA) {
+            // Documentation comment
+            consume_while(condition::match<'\n'>::no);
+            if (!m_documentation.empty()) {
+                m_documentation += "\n";
+            }
+            m_documentation += m_slice;
             continue;
         }
         else if (test_if(condition::sequence<'-', '-'>::yes, 0, 2) && m_comment_style == comment_style::LUA) {
@@ -143,7 +157,11 @@ auto lexer::lexer::analyze() -> lexical_result
                 m_lexemes.emplace_back(m_slice, lexeme_type::keyword, m_pos, m_offset, m_line, m_source);
             }
             else {
-                m_lexemes.emplace_back(m_slice, lexeme_type::identifier, m_pos, m_offset, m_line, m_source);
+                // Check if we have a documentation comment to attach to the identifier.
+                lexeme lx(m_slice, lexeme_type::identifier, m_pos, m_offset, m_line, m_source);
+                lx.add_documentation(m_documentation);
+                m_documentation.clear();
+                m_lexemes.emplace_back(std::move(lx));
             }
         }
 

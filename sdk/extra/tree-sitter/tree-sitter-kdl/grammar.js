@@ -11,18 +11,25 @@ const PREC = {
 
 module.exports = grammar({
     name: 'KDL',
+
+    extras: $ => [
+        /\s|\\\r?\n/,
+        $.comment,
+    ],
+
     rules: {
         source_file: $ => repeat($._top_level),
-        
+
         _top_level: $ => choice(
-            $.comment,
             $.directive,
             $.type_definition,
             $.resource_declaration,
             $.component,
             $.scene
         ),
-        
+
+        comment: _ => token(seq('//', /(\\+(.|\r?\n)|[^\\\n])*/)),
+
         binary_type: $ => choice(
             'CSTR', 'PSTR', 'CHAR',
             'DBYT', 'DWRD', 'DLNG', 'DQWD',
@@ -39,9 +46,6 @@ module.exports = grammar({
             )
         ),
 
-        // Comments
-        comment: $ => seq('`', /(`(.|\r?\n)|[^`\n])*/),
-        
         // Decorators
         decorator: $ => seq(
             field('name', /@[A-Za-z_][A-Za-z0-9_]*/),

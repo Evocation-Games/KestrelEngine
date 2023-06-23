@@ -48,7 +48,7 @@ namespace lexer
         {
         }
 
-        lexeme(std::int64_t value)
+        explicit lexeme(std::int64_t value)
             : m_text(std::to_string(value)), m_type(integer), m_pos(0), m_offset(0), m_line(0), m_owner({})
         {}
 
@@ -201,6 +201,20 @@ namespace lexer
         }
 
         /**
+         * Documentation that has been attached/associated to the lexeme. Will be an empty
+         * string if no documentation is available
+         */
+        [[nodiscard]] auto documentation() const -> std::string
+        {
+            return m_documentation;
+        }
+
+        auto add_documentation(const std::string& documentation) -> void
+        {
+            m_documentation = documentation;
+        }
+
+        /**
          * The numeric value of the lexeme.
          *
          * If the lexeme is not a numeric type or an operator then the value returned will be 0.
@@ -246,6 +260,7 @@ namespace lexer
         std::size_t m_pos;
         std::size_t m_offset;
         std::size_t m_line;
+        std::string m_documentation;
         enum lexeme_type m_type;
     };
 };
