@@ -22,6 +22,7 @@
 #include <libFoundation/string/split.hpp>
 #include "project/project.hpp"
 #include "analyzer/cxx/cxx_analyzer.hpp"
+#include "analyzer/kdl/kdl_analyzer.hpp"
 
 // MARK: - Includes
 
@@ -51,12 +52,44 @@ auto kdtool::project::index::scanned_include_paths() const -> const std::vector<
     return m_scanned_include_paths;
 }
 
+// MARK: - Paths
+
+auto kdtool::project::index::path_is_cxx(const std::string &path) -> bool
+{
+    return path.ends_with(".cpp")
+           || path.ends_with(".hpp")
+           || path.ends_with(".cc")
+           || path.ends_with(".mm")
+           || path.ends_with(".hh");
+}
+
+auto kdtool::project::index::path_is_lua(const std::string &path) -> bool
+{
+    return path.ends_with(".lua");
+}
+
+auto kdtool::project::index::path_is_kdl(const std::string &path) -> bool
+{
+    return path.ends_with(".kdl")
+           || path.ends_with(".kdlproj")
+           || path.ends_with(".kdlmodule");
+}
+
 // MARK: - Translation Unit
 
 auto kdtool::project::index::add_translation_unit(const std::string &path) -> void
 {
-    cxx::analyzer unit(shared_from_this(), foundation::filesystem::path(path));
-    unit.run();
+    if (path_is_cxx(path)) {
+        cxx::analyzer unit(shared_from_this(), foundation::filesystem::path(path));
+        unit.run();
+    }
+    else if (path_is_kdl(path)) {
+        kdl::analyzer unit(shared_from_this(), foundation::filesystem::path(path));
+        unit.run();
+    }
+    else if (path_is_lua(path)) {
+
+    }
 }
 
 // MARK: - Symbol Management

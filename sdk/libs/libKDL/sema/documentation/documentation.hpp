@@ -22,21 +22,9 @@
 
 #include <libFoundation/stream/stream.hpp>
 #include <libKDL/tokenizer/token.hpp>
-#include <libResource/decorator/decorator.hpp>
 
-namespace kdl::sema::decorator
+namespace kdl::sema::documentation
 {
-    struct collection
-    {
-        std::vector<resource::decorator> decorators;
-        [[nodiscard]] auto has_decorator(const std::string& name, const std::vector<std::string>& hints = {}) const -> bool;
-    };
-
-    struct name
-    {
-        static constexpr const char *documentation = "documentation";
-    };
-
     auto test(foundation::stream<tokenizer::token>& stream) -> bool;
-    auto parse(foundation::stream<tokenizer::token>& stream) -> collection;
+    auto parse(foundation::stream<tokenizer::token>& stream) -> std::string;
 }

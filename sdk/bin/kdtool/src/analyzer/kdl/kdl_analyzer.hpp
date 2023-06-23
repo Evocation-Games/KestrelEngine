@@ -20,23 +20,22 @@
 
 #pragma once
 
-#include <libFoundation/stream/stream.hpp>
-#include <libKDL/tokenizer/token.hpp>
-#include <libResource/decorator/decorator.hpp>
+#include <memory>
+#include "project/project.hpp"
+#include "project/structure/construct_definition.hpp"
+#include <libFoundation/system/filesystem/path.hpp>
+#include <libKDL/unit/file.hpp>
 
-namespace kdl::sema::decorator
+namespace kdtool::kdl
 {
-    struct collection
+    struct analyzer
     {
-        std::vector<resource::decorator> decorators;
-        [[nodiscard]] auto has_decorator(const std::string& name, const std::vector<std::string>& hints = {}) const -> bool;
-    };
+        analyzer(const std::shared_ptr<project::index>& project, const foundation::filesystem::path& path);
 
-    struct name
-    {
-        static constexpr const char *documentation = "documentation";
-    };
+        auto run() -> void;
 
-    auto test(foundation::stream<tokenizer::token>& stream) -> bool;
-    auto parse(foundation::stream<tokenizer::token>& stream) -> collection;
+    private:
+        ::kdl::sema::context m_context;
+        std::shared_ptr<project::index> m_index;
+    };
 }

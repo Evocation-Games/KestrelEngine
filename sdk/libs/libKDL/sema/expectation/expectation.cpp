@@ -61,6 +61,11 @@ auto kdl::sema::expectation::to_be(bool r) const -> foundation::expectation_func
     });
 }
 
+auto kdl::sema::expectation::optional() const -> foundation::expectation_function<tokenizer::token>
+{
+    return to_be(true).optional();
+}
+
 auto kdl::sema::expectation::be_true() const -> foundation::expectation_function<tokenizer::token>
 {
     return to_be(true);

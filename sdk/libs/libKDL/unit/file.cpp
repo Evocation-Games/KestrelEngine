@@ -28,6 +28,10 @@
 
 // MARK: - Construction
 
+kdl::unit::file::file(sema::context& ctx)
+    : m_context(&ctx)
+{}
+
 kdl::unit::file::file(resource_core::file& output, sema::context& ctx)
     : m_output(&output), m_context(&ctx)
 {}
@@ -90,7 +94,7 @@ auto kdl::unit::file::import_file(const std::string &path, const std::vector<std
     // Using the result of the analysis, we now need to encode each of the resources
     // that have been generated.
     if (!m_output) {
-        // TODO: Record an error that there is no output file for the resources to be written to.
+        // There is no output file, therefore we do not need to generate resources.
         return;
     }
 

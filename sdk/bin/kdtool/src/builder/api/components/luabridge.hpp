@@ -343,7 +343,7 @@ namespace kdtool::builder
             std::shared_ptr<codegen::ast::symbol<L>> addVariable { std::make_shared<codegen::ast::symbol<L>>("addVariable") };
             std::shared_ptr<codegen::ast::symbol<L>> addFunction { std::make_shared<codegen::ast::symbol<L>>("addFunction") };
             std::shared_ptr<codegen::ast::symbol<L>> addStaticFunction { std::make_shared<codegen::ast::symbol<L>>("addStaticFunction") };
-            std::shared_ptr<codegen::ast::symbol<L>> addStaticPropery { std::make_shared<codegen::ast::symbol<L>>("addStaticProperty") };
+            std::shared_ptr<codegen::ast::symbol<L>> addStaticProperty { std::make_shared<codegen::ast::symbol<L>>("addStaticProperty") };
         } m_symbols;
         std::vector<codegen::emit::segment> m_segment_sequence;
     };

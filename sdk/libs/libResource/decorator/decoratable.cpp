@@ -22,6 +22,11 @@
 
 // MARK: - Decorator Management
 
+auto resource::decoratable::add_decorator(const std::string& name, const std::string& value) -> void
+{
+    add_decorator(name, std::vector<std::string>({value}) );
+}
+
 auto resource::decoratable::add_decorator(const std::string &name, const std::vector<std::string> &values) -> void
 {
     add_decorator(decorator(name, values));

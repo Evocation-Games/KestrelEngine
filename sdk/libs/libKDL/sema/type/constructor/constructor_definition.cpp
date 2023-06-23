@@ -26,6 +26,7 @@
 auto kdl::sema::type_definition::constructor::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
     return stream.expect({
+        expectation(tokenizer::documentation).optional(),
         expectation(tokenizer::constructor_keyword).be_true(),
         expectation(tokenizer::l_paren).be_true(),
     });
@@ -33,6 +34,11 @@ auto kdl::sema::type_definition::constructor::test(const foundation::stream<toke
 
 auto kdl::sema::type_definition::constructor::parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::constructor
 {
+    std::string documentation;
+    if (stream.expect({ expectation(tokenizer::documentation).be_true() })) {
+        documentation = stream.read().string_value();
+    }
+
     stream.ensure({ expectation(tokenizer::constructor_keyword).be_true(), expectation(tokenizer::l_paren).be_true() });
 
     // Get parameter names.
@@ -58,6 +64,7 @@ auto kdl::sema::type_definition::constructor::parse(foundation::stream<tokenizer
 
     // Read out the expressions/statements from the body of the constructor
     auto constructor = resource::definition::type::constructor(parameter_names);
+    constructor.add_decorator(decorator::name::documentation, documentation);
     constructor.set_script(sema::script::parse(stream, ctx));
     return constructor;
 }

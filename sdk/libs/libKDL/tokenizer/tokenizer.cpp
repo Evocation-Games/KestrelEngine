@@ -114,6 +114,18 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
             output.append(token(decorator_name, arguments, decorator_named(decorator_name)));
         }
 
+        // Documentation -----------------------------------------------------------------------------------------------
+        else if (m_input.expect({ lexer::expectation(lexer::documentation).be_true() })) {
+            std::string documentation_text;
+            while (m_input.expect({ lexer::expectation(lexer::documentation).be_true() })) {
+                if (!documentation_text.empty()) {
+                    documentation_text += "\n";
+                }
+                documentation_text += m_input.read().text();
+            }
+            output.append(token(documentation_text, documentation));
+        }
+
         // Types -------------------------------------------------------------------------------------------------------
         else if (m_input.expect({ lexer::expectation(lexer::identifier, spec::binary_types::vector()).be_true() })) {
             auto binary_type = m_input.read();

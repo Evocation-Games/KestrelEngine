@@ -18,25 +18,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include <string>
+#include <vector>
+#include "analyzer/kdl/kdl_analyzer.hpp"
 
-#include <libFoundation/stream/stream.hpp>
-#include <libKDL/tokenizer/token.hpp>
-#include <libResource/decorator/decorator.hpp>
+// MARK: - Construction
 
-namespace kdl::sema::decorator
+kdtool::kdl::analyzer::analyzer(const std::shared_ptr<project::index> &project, const foundation::filesystem::path &path)
+    : m_index(project)
 {
-    struct collection
-    {
-        std::vector<resource::decorator> decorators;
-        [[nodiscard]] auto has_decorator(const std::string& name, const std::vector<std::string>& hints = {}) const -> bool;
+    ::kdl::unit::file session(m_context);
+    std::vector<std::string> definitions {
+        "extended"
     };
+    session.import_file(path.string(), definitions);
+}
 
-    struct name
-    {
-        static constexpr const char *documentation = "documentation";
-    };
+// MARK: - Traversal
 
-    auto test(foundation::stream<tokenizer::token>& stream) -> bool;
-    auto parse(foundation::stream<tokenizer::token>& stream) -> collection;
+auto kdtool::kdl::analyzer::run() -> void
+{
+    for (const auto& type : m_context.registered_types) {
+
+    }
 }

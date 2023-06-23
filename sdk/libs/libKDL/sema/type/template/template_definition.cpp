@@ -25,6 +25,7 @@
 auto kdl::sema::type_definition::template_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
     return stream.expect({
+        expectation(tokenizer::documentation).optional(),
         expectation(tokenizer::template_keyword).be_true(),
         expectation(tokenizer::l_brace).be_true()
     });
@@ -32,6 +33,11 @@ auto kdl::sema::type_definition::template_definition::test(const foundation::str
 
 auto kdl::sema::type_definition::template_definition::parse(foundation::stream<tokenizer::token> &stream, context& ctx) -> resource::definition::binary_template::instance
 {
+    std::string documentation;
+    if (stream.expect({ expectation(tokenizer::documentation).be_true() })) {
+        documentation = stream.read().string_value();
+    }
+
     stream.ensure({ expectation(tokenizer::template_keyword).be_true(), expectation(tokenizer::l_brace).be_true() });
     resource::definition::binary_template::instance tmpl;
     while (test_binary_type(stream)) {

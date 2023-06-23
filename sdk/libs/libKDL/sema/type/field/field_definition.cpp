@@ -34,6 +34,7 @@
 auto kdl::sema::type_definition::field_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
     return stream.expect({
+        expectation(tokenizer::documentation).optional(),
         expectation(tokenizer::field_keyword).be_true(),
         expectation(tokenizer::l_paren).be_true(),
         expectation(tokenizer::string).be_true(),
@@ -43,13 +44,20 @@ auto kdl::sema::type_definition::field_definition::test(const foundation::stream
 
 auto kdl::sema::type_definition::field_definition::parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::field
 {
+    std::string documentation;
+    if (stream.expect({ expectation(tokenizer::documentation).be_true() })) {
+        documentation = stream.read().string_value();
+    }
+
     stream.ensure({
         expectation(tokenizer::field_keyword).be_true(),
         expectation(tokenizer::l_paren).be_true(),
     });
+    auto field_keyword = stream.read(-2);
     auto field_name = stream.read();
     resource::definition::type::field field(field_name.string_value());
     field.add_decorators(ctx.current_decorators.decorators);
+    field.add_decorator(decorator::name::documentation, documentation);
     ctx.current_decorators.decorators.clear();
 
     stream.ensure({ expectation(tokenizer::r_paren).be_true() });
@@ -207,6 +215,11 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
 
 auto kdl::sema::type_definition::field_definition::parse_value(foundation::stream<tokenizer::token> &stream, context &ctx, const std::string& prefix) -> resource::definition::type::field_value
 {
+    std::string documentation;
+    if (stream.expect({ expectation(tokenizer::documentation).be_true() })) {
+        documentation = stream.read().string_value();
+    }
+
     const auto value_identifier = stream.read();
     resource::definition::type::descriptor explicit_type(false);
 
@@ -246,6 +259,7 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
 
     ctx.current_binary_field = &ctx.current_type->binary_template()->field_named(binary_field_name);
     resource::definition::type::field_value value(ctx.current_binary_field, value_identifier.path_value("."));
+    value.add_decorator(decorator::name::documentation, documentation);
 
     for (const auto& ext : name_extensions) {
         value.add_name_extension(ext);

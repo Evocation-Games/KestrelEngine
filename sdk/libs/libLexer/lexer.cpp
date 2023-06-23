@@ -88,10 +88,7 @@ auto lexer::lexer::analyze() -> lexical_result
         if (test_if(condition::sequence<'/', '/', '/'>::yes, 0, 3) && m_comment_style == comment_style::CXX) {
             // Documentation comment
             consume_while(condition::match<'\n'>::no);
-            if (!m_documentation.empty()) {
-                m_documentation += "\n";
-            }
-            m_documentation += m_slice;
+            m_lexemes.emplace_back(m_slice, lexeme_type::documentation, m_pos, m_offset, m_line, m_source);
             continue;
         }
         else if (test_if(condition::sequence<'/', '/'>::yes, 0, 2) && m_comment_style == comment_style::CXX) {
@@ -101,10 +98,7 @@ auto lexer::lexer::analyze() -> lexical_result
         else if (test_if(condition::sequence<'-', '-', '-'>::yes, 0, 3) && m_comment_style == comment_style::LUA) {
             // Documentation comment
             consume_while(condition::match<'\n'>::no);
-            if (!m_documentation.empty()) {
-                m_documentation += "\n";
-            }
-            m_documentation += m_slice;
+            m_lexemes.emplace_back(m_slice, lexeme_type::documentation, m_pos, m_offset, m_line, m_source);
             continue;
         }
         else if (test_if(condition::sequence<'-', '-'>::yes, 0, 2) && m_comment_style == comment_style::LUA) {
@@ -159,8 +153,6 @@ auto lexer::lexer::analyze() -> lexical_result
             else {
                 // Check if we have a documentation comment to attach to the identifier.
                 lexeme lx(m_slice, lexeme_type::identifier, m_pos, m_offset, m_line, m_source);
-                lx.add_documentation(m_documentation);
-                m_documentation.clear();
                 m_lexemes.emplace_back(std::move(lx));
             }
         }

@@ -42,9 +42,15 @@ auto kdl::sema::type_definition::field_definition::symbol_list::parse(foundation
             continue;
         }
         else if (stream.expect({
+            expectation(tokenizer::documentation).optional(),
             expectation(tokenizer::identifier).be_true(),
             expectation(tokenizer::equals).be_true()
         })) {
+            std::string documentation;
+            if (stream.expect({ expectation(tokenizer::documentation).be_true() })) {
+                documentation = stream.read().string_value();
+            }
+
             auto name = stream.read(); stream.advance();
             auto value_statement = script::parse_statement(stream, ctx);
             auto value_result = value_statement.evaluate(scope);
@@ -71,6 +77,7 @@ auto kdl::sema::type_definition::field_definition::symbol_list::parse(foundation
 
             if (symbol) {
                 symbol->add_decorators(ctx.current_decorators.decorators);
+                symbol->add_decorator(decorator::name::documentation, documentation);
             }
             ctx.current_decorators.decorators.clear();
         }

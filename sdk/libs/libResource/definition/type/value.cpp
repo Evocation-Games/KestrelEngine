@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include <libResource/definition/type/value.hpp>
-
 // MARK: - Construction
 
 resource::definition::type::field_value::field_value(const std::string &base_name)
@@ -113,7 +112,7 @@ auto resource::definition::type::field_value::set_type(const descriptor& type, b
     m_type_descriptor = type;
 
     if (is_explicit) {
-        add_decorator("__explicit", {});
+        add_decorator("__explicit", std::vector<std::string>({}));
     }
 }
 

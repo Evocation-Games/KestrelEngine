@@ -37,6 +37,7 @@ namespace kdl::sema
         [[nodiscard]] auto to_be(bool r) const -> foundation::expectation_function<tokenizer::token>;
         [[nodiscard]] auto be_true() const -> foundation::expectation_function<tokenizer::token>;
         [[nodiscard]] auto be_false() const -> foundation::expectation_function<tokenizer::token>;
+        [[nodiscard]] auto optional() const -> foundation::expectation_function<tokenizer::token>;
 
     private:
         tokenizer::token_type m_Ty;
@@ -44,4 +45,5 @@ namespace kdl::sema
 
         static constexpr std::int32_t any = -1;
     };
+
 }

@@ -201,20 +201,6 @@ namespace lexer
         }
 
         /**
-         * Documentation that has been attached/associated to the lexeme. Will be an empty
-         * string if no documentation is available
-         */
-        [[nodiscard]] auto documentation() const -> std::string
-        {
-            return m_documentation;
-        }
-
-        auto add_documentation(const std::string& documentation) -> void
-        {
-            m_documentation = documentation;
-        }
-
-        /**
          * The numeric value of the lexeme.
          *
          * If the lexeme is not a numeric type or an operator then the value returned will be 0.

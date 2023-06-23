@@ -18,25 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include <libKDL/sema/documentation/documentation.hpp>
+#include <libKDL/sema/expectation/expectation.hpp>
 
-#include <libFoundation/stream/stream.hpp>
-#include <libKDL/tokenizer/token.hpp>
-#include <libResource/decorator/decorator.hpp>
-
-namespace kdl::sema::decorator
+auto kdl::sema::documentation::test(foundation::stream<tokenizer::token> &stream) -> bool
 {
-    struct collection
-    {
-        std::vector<resource::decorator> decorators;
-        [[nodiscard]] auto has_decorator(const std::string& name, const std::vector<std::string>& hints = {}) const -> bool;
-    };
+    return stream.expect({
+        expectation(tokenizer::documentation).be_true()
+    });
+}
 
-    struct name
-    {
-        static constexpr const char *documentation = "documentation";
-    };
-
-    auto test(foundation::stream<tokenizer::token>& stream) -> bool;
-    auto parse(foundation::stream<tokenizer::token>& stream) -> collection;
+auto kdl::sema::documentation::parse(foundation::stream<tokenizer::token> &stream) -> std::string
+{
+    stream.ensure({ expectation(tokenizer::documentation).be_true() });
+    return stream.read().string_value();
 }

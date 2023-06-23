@@ -45,10 +45,19 @@ namespace foundation
         [[nodiscard]] auto be_true() const -> expectation_function<T> { return to_be(true); }
         [[nodiscard]] auto be_false() const -> expectation_function<T> { return to_be(false); }
 
+        [[nodiscard]] auto optional() const -> expectation_function<T>
+        {
+            expectation_function<T> fn(m_fn);
+            fn.m_optional = true;
+            return fn;
+        }
+        [[nodiscard]] auto is_optional() const -> bool { return m_optional; }
+
         auto operator()(T t) const -> bool { return m_fn(t); }
 
     private:
         inner_function m_fn;
+        bool m_optional { false };
     };
 
 }

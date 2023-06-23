@@ -33,10 +33,11 @@ namespace kdl::unit
     struct file
     {
     public:
-       explicit file(resource_core::file& output, sema::context& ctx);
-       auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
+        explicit file(sema::context& ctx);
+        explicit file(resource_core::file& output, sema::context& ctx);
+        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
 
-       static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
+        static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
 
     private:
         resource_core::file *m_output { nullptr };

@@ -46,6 +46,11 @@ namespace kdtool::project
         [[nodiscard]] auto symbol_named(const std::string& name) -> std::shared_ptr<structure::symbol>;
 
     private:
+        static auto path_is_cxx(const std::string& path) -> bool;
+        static auto path_is_lua(const std::string& path) -> bool;
+        static auto path_is_kdl(const std::string& path) -> bool;
+
+    private:
         std::vector<std::string> m_include_paths;
         std::vector<std::string> m_scanned_include_paths;
         std::unordered_map<std::string, std::shared_ptr<structure::symbol>> m_symbols;

@@ -69,7 +69,7 @@ endif()
 file(GLOB_RECURSE kdtool_Sources src/*.cpp)
 add_executable(kdtool ${kdtool_Sources})
 set_target_properties(kdtool PROPERTIES OUTPUT_NAME kdtool)
-target_link_libraries(kdtool ${LIBCLANG_LIBRARY} CodeGen Foundation Scripting Documentation Lexer)
+target_link_libraries(kdtool ${LIBCLANG_LIBRARY} CodeGen Foundation Scripting Documentation Lexer KDL)
 target_include_directories(kdtool PUBLIC
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src

@@ -65,7 +65,6 @@ namespace lexer
         std::size_t m_offset { 0 };
         std::size_t m_pos { 0 };
         std::string m_slice;
-        std::string m_documentation;
         std::vector<lexeme> m_lexemes;
         std::unordered_set<std::string> m_keywords;
         enum comment_style m_comment_style { comment_style::CXX };

@@ -117,9 +117,16 @@ namespace foundation
         {
             auto ptr = offset;
             for (const auto& f : expect) {
-                if (m_ptr + ptr >= size() || !f(peek(ptr++))) {
+                if (m_ptr + ptr >= size()) {
                     return false;
                 }
+                if (!f(peek(ptr))) {
+                    if (!f.is_optional()) {
+                        return false;
+                    }
+                    continue;
+                }
+                ++ptr;
             }
             return true;
         }
@@ -145,7 +152,10 @@ namespace foundation
             for (const auto& f : expect) {
                 auto item = read();
                 if (!f(item)) {
-                    throw std::logic_error("[stream] Could not ensure the correctness of the item.");
+                    if (!f.is_optional()) {
+                        throw std::logic_error("[stream] Could not ensure the correctness of the item.");
+                    }
+                    continue;
                 }
                 items.emplace_back(item);
             }

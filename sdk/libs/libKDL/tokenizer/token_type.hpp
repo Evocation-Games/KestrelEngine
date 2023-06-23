@@ -32,6 +32,9 @@ namespace kdl::tokenizer
         types_keyword, repeatable_keyword, as_keyword, constructor_keyword, import_keyword,
         scene_keyword, dialog_keyword,
 
+        // Documentation
+        documentation,
+
         // Directives
         project_directive, author_directive, version_directive, license_directive,
         copyright_directive, email_directive, website_directive, out_directive,
