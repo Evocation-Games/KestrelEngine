@@ -45,7 +45,7 @@ namespace kdtool::builder::component
             buffer<L> buffer;
             buffer.template add<codegen::ast::begin_list<L>>(!m_root);
             for (const auto& entry : m_entries) {
-                if (entry->is_leaf()) {
+                if (entry->is_leaf() && !entry->is_root()) {
                     continue;
                 }
 

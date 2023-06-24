@@ -18,31 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "project/structure/resource_type/resource_type_definition.hpp"
 
-#include <memory>
-#include "project/project.hpp"
-#include "project/structure/construct_definition.hpp"
-#include <libFoundation/system/filesystem/path.hpp>
-#include <libKDL/unit/file.hpp>
-#include <libResource/definition/type/instance.hpp>
+// MARK: - Resource Type
 
-namespace kdtool::kdl
+auto kdtool::project::structure::resource_type_definition::set_instance(const ::resource::definition::type::instance& instance) -> void
 {
-    struct analyzer
-    {
-        analyzer(const std::shared_ptr<project::index>& project, const foundation::filesystem::path& path);
+    m_instance = instance;
+}
 
-        auto run() -> void;
-
-    private:
-        auto construct_symbol(const std::string& name, const std::string& code) -> std::shared_ptr<project::structure::symbol>;
-        auto construct_documentation(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void;
-        auto construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::construct_definition>;
-
-    private:
-        foundation::filesystem::path m_path;
-        ::kdl::sema::context m_context;
-        std::shared_ptr<project::index> m_index;
-    };
+auto kdtool::project::structure::resource_type_definition::instance() const -> const ::resource::definition::type::instance&
+{
+    return m_instance;
 }

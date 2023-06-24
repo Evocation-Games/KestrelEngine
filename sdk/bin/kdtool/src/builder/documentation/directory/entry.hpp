@@ -39,6 +39,7 @@ namespace kdtool::builder::directory
         [[nodiscard]] auto symbol() const -> std::shared_ptr<project::structure::symbol> { return m_symbol; }
         [[nodiscard]] auto has_file() const -> bool { return m_path.has_value(); }
         [[nodiscard]] auto is_leaf() const -> bool { return m_symbol->children().empty(); }
+        [[nodiscard]] auto is_root() const -> bool { return m_symbol->parent().lock() == nullptr; }
 
         [[nodiscard]] auto path() const -> foundation::filesystem::path
         {

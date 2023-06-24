@@ -57,6 +57,12 @@ auto documentation::parser::parse_line(const std::string &line) -> void
     if (str.starts_with("*")) {
         str.erase(0, 1);
     }
+    if (str.starts_with("///")) {
+        str.erase(0, 3);
+    }
+    if (str.starts_with("---")) {
+        str.erase(0, 3);
+    }
 
     str += "\n";
 

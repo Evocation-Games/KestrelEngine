@@ -31,6 +31,7 @@
 #include "builder/documentation/pages/function_page.hpp"
 #include "builder/documentation/pages/enum_page.hpp"
 #include "builder/documentation/pages/enum_case_page.hpp"
+#include "builder/documentation/pages/resource_type_page.hpp"
 
 namespace kdtool::builder::page
 {
@@ -86,6 +87,11 @@ namespace kdtool::builder::page
                 }
                 case project::structure::construct_definition::type::is_constructor: {
                     page::basic<L>(definition, root_dir).build();
+                    break;
+                }
+
+                case project::structure::construct_definition::type::is_resource_type: {
+                    page::resource_type_page<L>(definition, root_dir).build();
                     break;
                 }
 

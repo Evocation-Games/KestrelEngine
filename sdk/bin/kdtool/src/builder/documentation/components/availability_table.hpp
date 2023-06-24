@@ -42,17 +42,25 @@ namespace kdtool::builder::component
             table->add_column("Aspect");
             table->add_column("Value");
 
+            std::string source_symbol_name = "C++ Symbol";
             if (auto definition = m_symbol->definition().lock()) {
                 table->add_row({
                     std::make_shared<codegen::ast::text<L>>("File"),
                     std::make_shared<codegen::ast::inline_code<L>>(definition->location())
                 });
+
+                switch (definition->instance_type()) {
+                    case project::structure::construct_definition::type::is_resource_type:
+                        source_symbol_name = "Resource Type Code";
+                        break;
+                    default: break;
+                }
             }
 
             bool is_first_symbol = true;
             for (const auto& symbol : m_symbol->all_source_resolved_identifiers()) {
                 table->add_row({
-                    std::make_shared<codegen::ast::text<L>>(is_first_symbol ? "C++ Symbol" : ""),
+                    std::make_shared<codegen::ast::text<L>>(is_first_symbol ? source_symbol_name : ""),
                     std::make_shared<codegen::ast::inline_code<L>>(symbol)
                 });
                 is_first_symbol = false;

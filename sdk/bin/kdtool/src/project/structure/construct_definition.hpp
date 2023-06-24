@@ -43,7 +43,10 @@ namespace kdtool::project::structure
 
         enum class type
         {
-            none, is_namespace, is_class, is_enum, is_function, is_constructor, is_property, is_enum_case
+            // CXX
+            none, is_namespace, is_class, is_enum, is_function, is_constructor, is_property, is_enum_case,
+            // KDL
+            is_resource_type, is_resource_field, is_resource_field_symbol, is_resource_constructor, is_resource_tmpl,
         };
 
         static auto type() -> enum type

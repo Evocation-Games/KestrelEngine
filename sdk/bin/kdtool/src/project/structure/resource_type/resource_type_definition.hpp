@@ -20,29 +20,34 @@
 
 #pragma once
 
+#include <vector>
 #include <memory>
-#include "project/project.hpp"
+#include <string>
 #include "project/structure/construct_definition.hpp"
-#include <libFoundation/system/filesystem/path.hpp>
-#include <libKDL/unit/file.hpp>
 #include <libResource/definition/type/instance.hpp>
 
-namespace kdtool::kdl
+namespace kdtool::project::structure
 {
-    struct analyzer
+    struct resource_type_definition : public construct_definition
     {
-        analyzer(const std::shared_ptr<project::index>& project, const foundation::filesystem::path& path);
+        explicit resource_type_definition(const std::shared_ptr<struct symbol>& symbol)
+            : construct_definition(symbol)
+        {}
 
-        auto run() -> void;
+        static auto type() -> enum type
+        {
+            return type::is_resource_type;
+        }
+
+        [[nodiscard]] auto instance_type() const -> enum type override
+        {
+            return type();
+        }
+
+        auto set_instance(const ::resource::definition::type::instance& instance) -> void;
+        [[nodiscard]] auto instance() const -> const ::resource::definition::type::instance&;
 
     private:
-        auto construct_symbol(const std::string& name, const std::string& code) -> std::shared_ptr<project::structure::symbol>;
-        auto construct_documentation(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void;
-        auto construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::construct_definition>;
-
-    private:
-        foundation::filesystem::path m_path;
-        ::kdl::sema::context m_context;
-        std::shared_ptr<project::index> m_index;
+        ::resource::definition::type::instance m_instance { "????", "????" };
     };
 }
