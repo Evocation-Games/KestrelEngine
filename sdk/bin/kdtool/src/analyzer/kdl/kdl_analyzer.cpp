@@ -52,6 +52,7 @@ auto kdtool::kdl::analyzer::construct_symbol(const std::string& name, const std:
     std::shared_ptr<project::structure::symbol> symbol;
     auto symbol_name = "rsrc-type:" + name + "<" + code + ">";
     symbol = m_index->symbol_named(symbol_name);
+    symbol->set_basename(name);
     symbol->set_display_name(name);
     symbol->set_source_identifier(code);
     return symbol;

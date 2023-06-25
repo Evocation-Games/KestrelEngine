@@ -47,6 +47,7 @@ namespace kdtool::project::structure
         [[nodiscard]] auto display_name() const -> std::string;
         [[nodiscard]] auto is_static() const -> bool;
         [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto basename() const -> std::string;
         [[nodiscard]] auto is_root() const -> bool;
         [[nodiscard]] auto parent() const -> std::weak_ptr<struct symbol>;
         [[nodiscard]] auto documentation() const -> std::weak_ptr<struct documentation::object>;
@@ -66,6 +67,7 @@ namespace kdtool::project::structure
         auto set_source_identifier(const std::string& identifier, const std::string& resolved = "") -> void;
         auto add_source_identifier(const std::string& identifier, const std::string& resolved = "") -> void;
         auto set_display_name(const std::string& display_name) -> void;
+        auto set_basename(const std::string& basename) -> void;
 
         auto set_available(const struct version& version) -> void;
         auto set_deprecated(const struct version& version) -> void;
@@ -80,6 +82,7 @@ namespace kdtool::project::structure
         bool m_static { false };
         std::string m_display_name;
         std::string m_name;
+        std::string m_basename;
         std::weak_ptr<struct symbol> m_parent;
         std::vector<std::weak_ptr<struct symbol>> m_children;
         std::shared_ptr<struct documentation::object> m_documentation;

@@ -48,6 +48,16 @@ auto kdtool::project::structure::symbol::set_display_name(const std::string& dis
     m_display_name = display_name;
 }
 
+auto kdtool::project::structure::symbol::set_basename(const std::string& basename) -> void
+{
+    m_basename = basename;
+}
+
+auto kdtool::project::structure::symbol::basename() const -> std::string
+{
+    return m_basename.empty() ? m_name : m_basename;
+}
+
 auto kdtool::project::structure::symbol::name() const -> std::string
 {
     return m_name;
@@ -153,10 +163,10 @@ auto kdtool::project::structure::symbol::resolved_name(const std::string &delimi
 auto kdtool::project::structure::symbol::filename() const -> foundation::filesystem::path
 {
     if (is_root()) {
-        return { name() };
+        return { basename() };
     }
     else {
-        return parent().lock()->filename().child(name());
+        return parent().lock()->filename().child(basename());
     }
 }
 
