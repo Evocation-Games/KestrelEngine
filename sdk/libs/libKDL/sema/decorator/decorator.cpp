@@ -24,6 +24,7 @@
 auto kdl::sema::decorator::test(foundation::stream<tokenizer::token> &stream) -> bool
 {
     return stream.expect_any({
+        expectation(tokenizer::documentation).be_true(),
         expectation(tokenizer::builtin_decorator).be_true(),
         expectation(tokenizer::no_declaration_decorator).be_true(),
         expectation(tokenizer::synthesize_decorator).be_true(),
@@ -51,10 +52,16 @@ auto kdl::sema::decorator::parse(foundation::stream<tokenizer::token> &stream) -
         expectation(tokenizer::example_decorator).be_true(),
         expectation(tokenizer::deprecated_decorator).be_true(),
         expectation(tokenizer::condition_decorator).be_true(),
-        expectation(tokenizer::decorator).be_true()
+        expectation(tokenizer::decorator).be_true(),
+        expectation(tokenizer::documentation).be_true()
     })) {
         auto token = stream.read();
-        collection.decorators.emplace_back(token.source().text(), token.associated_values());
+        if (token.is(tokenizer::documentation)) {
+            collection.decorators.emplace_back(decorator::name::documentation, std::vector<std::string>({ token.string_value() }));
+        }
+        else {
+            collection.decorators.emplace_back(token.source().text(), token.associated_values());
+        }
     }
     return collection;
 }
