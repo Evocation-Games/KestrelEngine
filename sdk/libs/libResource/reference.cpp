@@ -147,3 +147,24 @@ auto resource::reference::encode_into(data::writer &writer) const -> void
 
     writer.write_signed_quad(id());
 }
+
+// MARK: - Description
+
+auto resource::reference::description() const -> std::string
+{
+    std::string out = "#";
+
+    if (has_container()) {
+        out += container_name() + ".";
+    }
+    if (has_type_name()) {
+        out += type_name();
+        if (has_type_code()) {
+            out += "<" + type_code() + ">";
+        }
+        out += ".";
+    }
+    out += std::to_string(id());
+
+    return std::move(out);
+}

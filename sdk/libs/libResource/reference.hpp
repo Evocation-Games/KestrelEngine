@@ -47,6 +47,8 @@ namespace resource
         [[nodiscard]] auto type_code() const -> std::string;
         [[nodiscard]] auto container_name() const -> std::string;
 
+        [[nodiscard]] auto description() const -> std::string;
+
         [[nodiscard]] auto has_type_name() const -> bool;
         [[nodiscard]] auto has_type_code() const -> bool;
         [[nodiscard]] auto has_container() const -> bool;

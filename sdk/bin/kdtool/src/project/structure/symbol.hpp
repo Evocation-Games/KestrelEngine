@@ -30,7 +30,7 @@ namespace kdtool::project::structure
 {
     struct construct_definition;
 
-    struct symbol
+    struct symbol: public std::enable_shared_from_this<symbol>
     {
         symbol() = default;
 

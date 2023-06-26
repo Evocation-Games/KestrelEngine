@@ -18,37 +18,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "project/structure/resource_type/resource_field_definition.hpp"
+#include "project/structure/symbol.hpp"
 
-#include <string>
-#include <vector>
+// MARK: - Accessors
 
-namespace resource::definition::type
+auto kdtool::project::structure::resource_field_definition::name() const -> std::string
 {
-    struct descriptor
-    {
-    public:
-        descriptor() = default;
+    return symbol()->display_name();
+}
 
-        explicit descriptor(bool is_reference);
-        descriptor(bool is_reference, const std::string& name);
-        descriptor(bool is_reference, const std::string& name, const std::vector<std::string>& hints);
+auto kdtool::project::structure::resource_field_definition::basename() const -> std::string
+{
+    return symbol()->basename();
+}
 
-        [[nodiscard]] auto is_reference() const -> bool;
-        auto set_reference(bool ref) -> void;
+// MARK: - Instance
 
-        [[nodiscard]] auto has_name() const -> bool;
-        [[nodiscard]] auto name() const -> std::string;
-        auto set_name(const std::string& name) -> void;
+auto kdtool::project::structure::resource_field_definition::set_instance(const ::resource::definition::type::field &instance) -> void
+{
+    m_instance = instance;
+}
 
-        [[nodiscard]] auto has_hints() const -> bool;
-        [[nodiscard]] auto hints() const -> std::vector<std::string>;
+auto kdtool::project::structure::resource_field_definition::instance() const -> const ::resource::definition::type::field &
+{
+    return m_instance;
+}
 
-        [[nodiscard]] auto spelling() const -> std::string;
+// MARK: - Value Management
 
-    private:
-        bool m_reference { false };
-        std::string m_type;
-        std::vector<std::string> m_hints;
-    };
+auto kdtool::project::structure::resource_field_definition::add_value(const std::shared_ptr<resource_value_definition> &value) -> void
+{
+    m_values.emplace_back(value);
+}
+
+auto kdtool::project::structure::resource_field_definition::all_values() const -> std::vector<std::shared_ptr<resource_value_definition>>
+{
+    return m_values;
 }

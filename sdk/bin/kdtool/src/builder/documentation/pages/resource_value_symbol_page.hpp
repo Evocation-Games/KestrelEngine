@@ -20,35 +20,28 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <memory>
+#include <libCodeGen/builder/builder.hpp>
+#include <libCodeGen/ast/markup.hpp>
+#include "project/structure/resource_type/resource_value_symbol_definition.hpp"
+#include "project/structure/symbol.hpp"
+#include <libResource/definition/template/instance.hpp>
+#include <libResource/definition/template/field.hpp>
 
-namespace resource::definition::type
+namespace kdtool::builder::page
 {
-    struct descriptor
+    template<codegen::language::markup_support L>
+    struct resource_value_symbol_page : public basic<L>
     {
-    public:
-        descriptor() = default;
+        resource_value_symbol_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
+            : basic<L>(definition, root_dir)
+        {}
 
-        explicit descriptor(bool is_reference);
-        descriptor(bool is_reference, const std::string& name);
-        descriptor(bool is_reference, const std::string& name, const std::vector<std::string>& hints);
+        auto build_content() -> void override
+        {
+            const auto& value = basic<L>::template definition<project::structure::resource_value_symbol_definition>();
 
-        [[nodiscard]] auto is_reference() const -> bool;
-        auto set_reference(bool ref) -> void;
+        }
 
-        [[nodiscard]] auto has_name() const -> bool;
-        [[nodiscard]] auto name() const -> std::string;
-        auto set_name(const std::string& name) -> void;
-
-        [[nodiscard]] auto has_hints() const -> bool;
-        [[nodiscard]] auto hints() const -> std::vector<std::string>;
-
-        [[nodiscard]] auto spelling() const -> std::string;
-
-    private:
-        bool m_reference { false };
-        std::string m_type;
-        std::vector<std::string> m_hints;
     };
 }

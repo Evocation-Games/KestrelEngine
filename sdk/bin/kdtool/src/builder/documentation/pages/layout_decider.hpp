@@ -32,6 +32,9 @@
 #include "builder/documentation/pages/enum_page.hpp"
 #include "builder/documentation/pages/enum_case_page.hpp"
 #include "builder/documentation/pages/resource_type_page.hpp"
+#include "builder/documentation/pages/resource_field_page.hpp"
+#include "builder/documentation/pages/resource_value_page.hpp"
+#include "builder/documentation/pages/resource_value_symbol_page.hpp"
 
 namespace kdtool::builder::page
 {
@@ -91,7 +94,35 @@ namespace kdtool::builder::page
                 }
 
                 case project::structure::construct_definition::type::is_resource_type: {
-                    page::resource_type_page<L>(definition, root_dir).build();
+                    auto resource_type_page = page::resource_type_page<L>(definition, root_dir);
+                    resource_type_page.handle_layout_decision([&] (const auto& construct) {
+                        using_definition(construct, root_dir);
+                    });
+                    resource_type_page.build();
+                    break;
+                }
+                case project::structure::construct_definition::type::is_resource_field: {
+                    auto resource_field_page = page::resource_field_page<L>(definition, root_dir);
+                    resource_field_page.handle_layout_decision([&] (const auto& construct) {
+                        using_definition(construct, root_dir);
+                    });
+                    resource_field_page.build();
+                    break;
+                }
+                case project::structure::construct_definition::type::is_resource_value: {
+                    auto resource_value_page = page::resource_value_page<L>(definition, root_dir);
+                    resource_value_page.handle_layout_decision([&] (const auto& construct) {
+                        using_definition(construct, root_dir);
+                    });
+                    resource_value_page.build();
+                    break;
+                }
+                case project::structure::construct_definition::type::is_resource_value_symbol: {
+                    auto resource_value_symbol_page = page::resource_value_symbol_page<L>(definition, root_dir);
+                    resource_value_symbol_page.handle_layout_decision([&] (const auto& construct) {
+                        using_definition(construct, root_dir);
+                    });
+                    resource_value_symbol_page.build();
                     break;
                 }
 

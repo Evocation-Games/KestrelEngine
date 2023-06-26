@@ -92,3 +92,21 @@ auto resource::value_container::data_value() const -> std::vector<std::uint8_t>
         }
     }
 }
+
+// MARK: - Description
+
+auto resource::value_container::description() const -> std::string
+{
+    switch (m_type) {
+        case type::nil:
+            return "nil";
+        case type::integer:
+            return std::to_string(integer_value<std::int64_t>());
+        case type::string:
+            return string_value();
+        case type::reference:
+            return reference_value().description();
+        case type::data:
+            return "{}";
+    }
+}

@@ -201,7 +201,10 @@ auto kdtool::project::structure::symbol::parent() const -> std::weak_ptr<struct 
 
 auto kdtool::project::structure::symbol::add_child(const std::weak_ptr<struct symbol> &symbol) -> void
 {
-    m_children.emplace_back(symbol);
+    if (auto sym = symbol.lock()) {
+        sym->m_parent = shared_from_this();
+        m_children.emplace_back(sym);
+    }
 }
 
 auto kdtool::project::structure::symbol::children() const -> std::vector<std::weak_ptr<struct symbol>>

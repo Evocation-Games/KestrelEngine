@@ -58,10 +58,14 @@ namespace kdtool::builder::page
             // Fields
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Fields", 2);
             codegen::builder<L>::template add<codegen::ast::begin_list<L>>();
-            for (const auto& field : instance.all_fields()) {
+            for (const auto& field : type->all_fields()) {
                 codegen::builder<L>::template add<codegen::ast::begin_list_item<L>>();
-                codegen::builder<L>::template add<codegen::ast::text<L>>(field.name());
+                codegen::builder<L>::template add<codegen::ast::anchor<L>>(
+                    field->basename(),
+                    field->basename() + "/index." + L::extension()
+                );
                 codegen::builder<L>::template add<codegen::ast::end_list_item<L>>();
+                basic<L>::layout_decision(field);
             }
             codegen::builder<L>::template add<codegen::ast::end_list<L>>();
 

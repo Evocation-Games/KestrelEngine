@@ -23,6 +23,7 @@
 #include <memory>
 #include "project/project.hpp"
 #include "project/structure/construct_definition.hpp"
+#include "project/structure/resource_type/resource_type_definition.hpp"
 #include <libFoundation/system/filesystem/path.hpp>
 #include <libKDL/unit/file.hpp>
 #include <libResource/definition/type/instance.hpp>
@@ -37,8 +38,21 @@ namespace kdtool::kdl
 
     private:
         auto construct_symbol(const std::string& name, const std::string& code) -> std::shared_ptr<project::structure::symbol>;
+        auto construct_symbol(const std::string& type_name, const std::string& code, const std::string& field) -> std::shared_ptr<project::structure::symbol>;
+        auto construct_symbol(const std::string& type_name, const std::string& code, const std::string& field, const std::string& value) -> std::shared_ptr<project::structure::symbol>;
+        auto construct_symbol(const std::string& type_name, const std::string& code, const std::string& field, const std::string& value, const std::string& symbol) -> std::shared_ptr<project::structure::symbol>;
         auto construct_documentation(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void;
-        auto construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::construct_definition>;
+        auto construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::resource_type_definition>;
+        auto construct_resource_field(const resource::definition::type::instance& type,
+                                      const resource::definition::type::field& field) -> std::shared_ptr<project::structure::resource_field_definition>;
+        auto construct_resource_value(const resource::definition::type::instance& type,
+                                      const resource::definition::type::field& field,
+                                      const resource::definition::type::field_value& field_value) -> std::shared_ptr<project::structure::resource_value_definition>;
+        auto construct_resource_value_symbol(const resource::definition::type::instance& type,
+                                             const resource::definition::type::field& field,
+                                             const resource::definition::type::field_value& field_value,
+                                             const resource::definition::type::symbol& symbol) -> std::shared_ptr<project::structure::resource_value_symbol_definition>;
+
 
     private:
         foundation::filesystem::path m_path;

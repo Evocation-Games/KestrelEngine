@@ -20,35 +20,38 @@
 
 #pragma once
 
-#include <string>
 #include <vector>
+#include <memory>
+#include <string>
+#include "project/structure/construct_definition.hpp"
+#include <libResource/definition/type/symbol.hpp>
 
-namespace resource::definition::type
+namespace kdtool::project::structure
 {
-    struct descriptor
+    struct resource_value_symbol_definition : public construct_definition
     {
-    public:
-        descriptor() = default;
+        explicit resource_value_symbol_definition(const std::shared_ptr<struct symbol>& symbol)
+            : construct_definition(symbol)
+        {}
 
-        explicit descriptor(bool is_reference);
-        descriptor(bool is_reference, const std::string& name);
-        descriptor(bool is_reference, const std::string& name, const std::vector<std::string>& hints);
+        static auto type() -> enum type
+        {
+            return type::is_resource_value_symbol;
+        }
 
-        [[nodiscard]] auto is_reference() const -> bool;
-        auto set_reference(bool ref) -> void;
+        [[nodiscard]] auto instance_type() const -> enum type override
+        {
+            return type();
+        }
 
-        [[nodiscard]] auto has_name() const -> bool;
         [[nodiscard]] auto name() const -> std::string;
-        auto set_name(const std::string& name) -> void;
+        [[nodiscard]] auto basename() const -> std::string;
+        [[nodiscard]] auto value() const -> std::string;
 
-        [[nodiscard]] auto has_hints() const -> bool;
-        [[nodiscard]] auto hints() const -> std::vector<std::string>;
-
-        [[nodiscard]] auto spelling() const -> std::string;
+        auto set_instance(const ::resource::definition::type::symbol& instance) -> void;
+        [[nodiscard]] auto instance() const -> const ::resource::definition::type::symbol&;
 
     private:
-        bool m_reference { false };
-        std::string m_type;
-        std::vector<std::string> m_hints;
+        ::resource::definition::type::symbol m_instance { "", {} };
     };
 }

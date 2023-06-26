@@ -70,6 +70,8 @@ namespace resource
         [[nodiscard]] auto reference_value() const -> reference;
         [[nodiscard]] auto data_value() const -> std::vector<std::uint8_t>;
 
+        [[nodiscard]] auto description() const -> std::string;
+
     private:
         enum type m_type { type::nil };
         std::variant<char, __int128, std::string, reference, std::vector<std::uint8_t>> m_value { '\0' };

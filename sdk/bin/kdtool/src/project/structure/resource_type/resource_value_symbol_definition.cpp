@@ -18,37 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "project/structure/resource_type/resource_value_symbol_definition.hpp"
+#include "project/structure/symbol.hpp"
 
-#include <string>
-#include <vector>
 
-namespace resource::definition::type
+// MARK: - Accessors
+
+auto kdtool::project::structure::resource_value_symbol_definition::name() const -> std::string
 {
-    struct descriptor
-    {
-    public:
-        descriptor() = default;
+    return symbol()->display_name();
+}
 
-        explicit descriptor(bool is_reference);
-        descriptor(bool is_reference, const std::string& name);
-        descriptor(bool is_reference, const std::string& name, const std::vector<std::string>& hints);
+auto kdtool::project::structure::resource_value_symbol_definition::basename() const -> std::string
+{
+    return symbol()->basename();
+}
 
-        [[nodiscard]] auto is_reference() const -> bool;
-        auto set_reference(bool ref) -> void;
+auto kdtool::project::structure::resource_value_symbol_definition::value() const -> std::string
+{
+    return m_instance.value().description();
+}
 
-        [[nodiscard]] auto has_name() const -> bool;
-        [[nodiscard]] auto name() const -> std::string;
-        auto set_name(const std::string& name) -> void;
+//MARK: - Instance
 
-        [[nodiscard]] auto has_hints() const -> bool;
-        [[nodiscard]] auto hints() const -> std::vector<std::string>;
+auto kdtool::project::structure::resource_value_symbol_definition::set_instance(const ::resource::definition::type::symbol& instance) -> void
+{
+    m_instance = instance;
+}
 
-        [[nodiscard]] auto spelling() const -> std::string;
-
-    private:
-        bool m_reference { false };
-        std::string m_type;
-        std::vector<std::string> m_hints;
-    };
+auto kdtool::project::structure::resource_value_symbol_definition::instance() const -> const ::resource::definition::type::symbol&
+{
+    return m_instance;
 }

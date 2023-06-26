@@ -31,8 +31,15 @@ resource::definition::type::descriptor::descriptor(bool is_reference, const std:
 {}
 
 resource::definition::type::descriptor::descriptor(bool is_reference, const std::string &name, const std::vector<std::string> &hints)
-    : m_reference(is_reference), m_type(name), m_hints(hints)
-{}
+    : m_reference(is_reference), m_type(name)
+{
+    for (const auto& hint : hints) {
+        if (hint.empty()) {
+            continue;
+        }
+        m_hints.emplace_back(hint);
+    }
+}
 
 // MARK: - Accessors
 
@@ -69,4 +76,34 @@ auto resource::definition::type::descriptor::has_hints() const -> bool
 auto resource::definition::type::descriptor::hints() const -> std::vector<std::string>
 {
     return m_hints;
+}
+
+// MARK: - Spelling
+
+auto resource::definition::type::descriptor::spelling() const -> std::string
+{
+    std::string out;
+
+    if (has_name()) {
+        out += name();
+    }
+
+    if (has_hints()) {
+        out += "<";
+        bool first = true;
+        for (const auto& hint : hints()) {
+            if (!first) {
+                out += ", ";
+            }
+            out += hint;
+            first = false;
+        }
+        out += ">";
+    }
+
+    if (is_reference()) {
+        out += "&";
+    }
+
+    return out;
 }

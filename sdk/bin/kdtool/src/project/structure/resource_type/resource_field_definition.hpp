@@ -24,21 +24,20 @@
 #include <memory>
 #include <string>
 #include "project/structure/construct_definition.hpp"
-#include "project/structure/resource_type/resource_field_definition.hpp"
-#include <libResource/definition/type/instance.hpp>
+#include "project/structure/resource_type/resource_value_definition.hpp"
+#include <libResource/definition/type/field.hpp>
 
 namespace kdtool::project::structure
 {
-
-    struct resource_type_definition : public construct_definition
+    struct resource_field_definition : public construct_definition
     {
-        explicit resource_type_definition(const std::shared_ptr<struct symbol>& symbol)
+        explicit resource_field_definition(const std::shared_ptr<struct symbol>& symbol)
             : construct_definition(symbol)
         {}
 
         static auto type() -> enum type
         {
-            return type::is_resource_type;
+            return type::is_resource_field;
         }
 
         [[nodiscard]] auto instance_type() const -> enum type override
@@ -46,14 +45,17 @@ namespace kdtool::project::structure
             return type();
         }
 
-        auto set_instance(const ::resource::definition::type::instance& instance) -> void;
-        [[nodiscard]] auto instance() const -> const ::resource::definition::type::instance&;
+        [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto basename() const -> std::string;
 
-        auto add_field(const std::shared_ptr<resource_field_definition>& field) -> void;
-        [[nodiscard]] auto all_fields() const -> std::vector<std::shared_ptr<resource_field_definition>>;
+        auto set_instance(const ::resource::definition::type::field& instance) -> void;
+        [[nodiscard]] auto instance() const -> const ::resource::definition::type::field&;
+
+        auto add_value(const std::shared_ptr<resource_value_definition>& value) -> void;
+        [[nodiscard]] auto all_values() const -> std::vector<std::shared_ptr<resource_value_definition>>;
 
     private:
-        ::resource::definition::type::instance m_instance { "????", "????" };
-        std::vector<std::shared_ptr<resource_field_definition>> m_fields;
+        ::resource::definition::type::field m_instance { "????" };
+        std::vector<std::shared_ptr<resource_value_definition>> m_values;
     };
 }

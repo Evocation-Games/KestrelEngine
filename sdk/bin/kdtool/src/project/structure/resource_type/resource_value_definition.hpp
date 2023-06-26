@@ -24,21 +24,20 @@
 #include <memory>
 #include <string>
 #include "project/structure/construct_definition.hpp"
-#include "project/structure/resource_type/resource_field_definition.hpp"
-#include <libResource/definition/type/instance.hpp>
+#include "project/structure/resource_type/resource_value_symbol_definition.hpp"
+#include <libResource/definition/type/value.hpp>
 
 namespace kdtool::project::structure
 {
-
-    struct resource_type_definition : public construct_definition
+    struct resource_value_definition : public construct_definition
     {
-        explicit resource_type_definition(const std::shared_ptr<struct symbol>& symbol)
+        explicit resource_value_definition(const std::shared_ptr<struct symbol>& symbol)
             : construct_definition(symbol)
         {}
 
         static auto type() -> enum type
         {
-            return type::is_resource_type;
+            return type::is_resource_value;
         }
 
         [[nodiscard]] auto instance_type() const -> enum type override
@@ -46,14 +45,19 @@ namespace kdtool::project::structure
             return type();
         }
 
-        auto set_instance(const ::resource::definition::type::instance& instance) -> void;
-        [[nodiscard]] auto instance() const -> const ::resource::definition::type::instance&;
+        [[nodiscard]] auto name() const -> std::string;
+        [[nodiscard]] auto basename() const -> std::string;
+        [[nodiscard]] auto type_name() const -> std::string;
+        [[nodiscard]] auto has_default_value() const -> bool;
 
-        auto add_field(const std::shared_ptr<resource_field_definition>& field) -> void;
-        [[nodiscard]] auto all_fields() const -> std::vector<std::shared_ptr<resource_field_definition>>;
+        auto set_instance(const ::resource::definition::type::field_value& instance) -> void;
+        [[nodiscard]] auto instance() const -> const ::resource::definition::type::field_value&;
+
+        auto add_symbol(const std::shared_ptr<resource_value_symbol_definition>& symbol) -> void;
+        [[nodiscard]] auto all_symbols() const -> std::vector<std::shared_ptr<resource_value_symbol_definition>>;
 
     private:
-        ::resource::definition::type::instance m_instance { "????", "????" };
-        std::vector<std::shared_ptr<resource_field_definition>> m_fields;
+        ::resource::definition::type::field_value m_instance { "" };
+        std::vector<std::shared_ptr<resource_value_symbol_definition>> m_symbols;
     };
 }

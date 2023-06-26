@@ -53,17 +53,24 @@ namespace kdtool::builder::component
                     case project::structure::construct_definition::type::is_resource_type:
                         source_symbol_name = "Resource Type Code";
                         break;
+                    case project::structure::construct_definition::type::is_resource_field:
+                    case project::structure::construct_definition::type::is_resource_value:
+                    case project::structure::construct_definition::type::is_resource_value_symbol:
+                        source_symbol_name = "";
+                        break;
                     default: break;
                 }
             }
 
             bool is_first_symbol = true;
-            for (const auto& symbol : m_symbol->all_source_resolved_identifiers()) {
-                table->add_row({
-                    std::make_shared<codegen::ast::text<L>>(is_first_symbol ? source_symbol_name : ""),
-                    std::make_shared<codegen::ast::inline_code<L>>(symbol)
-                });
-                is_first_symbol = false;
+            if (!source_symbol_name.empty()) {
+                for (const auto &symbol: m_symbol->all_source_resolved_identifiers()) {
+                    table->add_row({
+                        std::make_shared<codegen::ast::text<L>>(is_first_symbol ? source_symbol_name : ""),
+                        std::make_shared<codegen::ast::inline_code<L>>(symbol)
+                    });
+                    is_first_symbol = false;
+                }
             }
 
             if (m_symbol->available().has_value()) {

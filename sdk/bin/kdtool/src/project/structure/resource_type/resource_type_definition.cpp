@@ -31,3 +31,15 @@ auto kdtool::project::structure::resource_type_definition::instance() const -> c
 {
     return m_instance;
 }
+
+// MARK: - Field Management
+
+auto kdtool::project::structure::resource_type_definition::add_field(const std::shared_ptr<resource_field_definition> &field) -> void
+{
+    m_fields.emplace_back(field);
+}
+
+auto kdtool::project::structure::resource_type_definition::all_fields() const -> std::vector<std::shared_ptr<resource_field_definition>>
+{
+    return m_fields;
+}
