@@ -48,27 +48,48 @@ namespace codegen::language
         [[nodiscard]] static auto extension() -> std::string { return "md"; };
 
         // Mark-up Support
-        [[nodiscard]] static auto text(const std::string& str) -> emit::segment
+        [[nodiscard]] static auto prologue(const std::string& title, const std::string& style) -> emit::segment
+        {
+            return emit::segment("");
+        }
+
+        [[nodiscard]] static auto epilogue() -> emit::segment
+        {
+            return emit::segment("");
+        }
+
+        [[nodiscard]] static auto identifier_attribute(const std::string& id) -> std::string
+        {
+            return "";
+        }
+
+        [[nodiscard]] static auto style_classes_attribute(const std::vector<std::string>& styles) -> std::string
+        {
+            return "";
+        }
+
+
+        [[nodiscard]] static auto text(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment(str);
         }
 
-        [[nodiscard]] static auto bold(const std::string& str) -> emit::segment
+        [[nodiscard]] static auto bold(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("**" + str + "**");
         }
 
-        [[nodiscard]] static auto italic(const std::string& str) -> emit::segment
+        [[nodiscard]] static auto italic(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("_" + str + "_");
         }
 
-        [[nodiscard]] static auto strikethrough(const std::string& str) -> emit::segment
+        [[nodiscard]] static auto strikethrough(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("~~" + str + "~~");
         }
 
-        [[nodiscard]] static auto inline_code(const std::string& str) -> emit::segment
+        [[nodiscard]] static auto inline_code(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("`" + str + "`");
         }
@@ -82,26 +103,26 @@ namespace codegen::language
 
         // Anchors
 
-        [[nodiscard]] static auto anchor(const std::string& str, const std::string& link) -> emit::segment
+        [[nodiscard]] static auto anchor(const std::string& str, const std::string& link, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("[" + str + "](" + link + ")");
         }
 
         // Headings
 
-        [[nodiscard]] static auto heading(const std::string& heading, std::int32_t level) -> emit::segment
+        [[nodiscard]] static auto heading(const std::string& heading, std::int32_t level, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment(heading_prefix(level) + " " + heading, emit::line_break_mode::full);
         }
 
         // Formatting
 
-        [[nodiscard]] static auto preformatted(const std::string& text) -> emit::segment
+        [[nodiscard]] static auto preformatted(const std::string& text, const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("```\n" + text + "\n```", emit::line_break_mode::full);
         }
 
-        [[nodiscard]] static auto blockquote(const std::string& text) -> emit::segment
+        [[nodiscard]] static auto blockquote(const std::string& text, const std::vector<std::string>& styles) -> emit::segment
         {
             std::string out;
             std::string line;
@@ -116,17 +137,17 @@ namespace codegen::language
 
         // Lists
 
-        [[nodiscard]] static auto begin_list() -> emit::segment
+        [[nodiscard]] static auto begin_list(const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("");
         }
 
-        [[nodiscard]] static auto begin_sublist() -> emit::segment
+        [[nodiscard]] static auto begin_sublist(const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("", emit::line_break_mode::after, emit::indentation_mode::indent_after);
         }
 
-        [[nodiscard]] static auto begin_list_item() -> emit::segment
+        [[nodiscard]] static auto begin_list_item(const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("- ", emit::line_break_mode::none);
         }
@@ -148,15 +169,15 @@ namespace codegen::language
 
         // Tables
 
-        [[nodiscard]] static auto begin_table() -> emit::segment
+        [[nodiscard]] static auto begin_table(const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("", emit::line_break_mode::before);
         }
 
-        [[nodiscard]] static auto begin_table_header() -> emit::segment
+        [[nodiscard]] static auto begin_table_header(const std::vector<std::string>& styles) -> emit::segment
         {
             column_counter = 0;
-            return begin_table_row();
+            return begin_table_row(styles);
         }
 
         [[nodiscard]] static auto end_table_header() -> emit::segment
@@ -168,7 +189,7 @@ namespace codegen::language
             return emit::segment(out, emit::line_break_mode::before);
         }
 
-        [[nodiscard]] static auto begin_table_row() -> emit::segment
+        [[nodiscard]] static auto begin_table_row(const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment("|", emit::line_break_mode::before);
         }
@@ -178,7 +199,7 @@ namespace codegen::language
             return emit::segment();
         }
 
-        [[nodiscard]] static auto begin_table_cell() -> emit::segment
+        [[nodiscard]] static auto begin_table_cell(const std::vector<std::string>& styles) -> emit::segment
         {
             return emit::segment(" ");
         }
@@ -188,9 +209,9 @@ namespace codegen::language
             return emit::segment(" |");
         }
 
-        [[nodiscard]] static auto begin_table_header_cell() -> emit::segment
+        [[nodiscard]] static auto begin_table_header_cell(const std::vector<std::string>& styles) -> emit::segment
         {
-            return begin_table_cell();
+            return begin_table_cell(styles);
         }
 
         [[nodiscard]] static auto end_table_header_cell() -> emit::segment

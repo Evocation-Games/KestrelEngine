@@ -39,11 +39,34 @@
 
 // MARK: - Helpers
 
+auto foundation::filesystem::path::path_scheme(const std::string& path) -> std::string
+{
+    if (path.starts_with("http://")) {
+        return "http";
+    }
+    else if (path.starts_with("https://")) {
+        return "https";
+    }
+    else if (path.starts_with("file://")) {
+        return "file";
+    }
+    else {
+        return "";
+    }
+}
+
 auto foundation::filesystem::path::path_components(const std::string& path, char separator) -> std::vector<std::string>
 {
     std::vector<std::string> components;
     std::string component;
     std::string p(path);
+
+    if (p.starts_with("http://") || p.starts_with("file://")) {
+        p.erase(0, 7);
+    }
+    else if (p.starts_with("https://")) {
+        p.erase(0, 8);
+    }
 
     while (!p.empty()) {
         if (p.back() == separator) {
@@ -67,19 +90,19 @@ auto foundation::filesystem::path::path_components(const std::string& path, char
 // MARK: - Constructors
 
 foundation::filesystem::path::path(const std::string& str)
-    : m_components(path_components(str)), m_relative(!is_absolute_path(str))
+    : m_components(path_components(str)), m_relative(!is_absolute_path(str)), m_scheme(path_scheme(str))
 {
     convert_to_absolute();
 }
 
-foundation::filesystem::path::path(const std::initializer_list<std::string>& components, bool is_relative)
-    : m_components(components), m_relative(is_relative)
+foundation::filesystem::path::path(const std::initializer_list<std::string>& components, bool is_relative, const std::string& scheme)
+    : m_components(components), m_relative(is_relative), m_scheme(scheme)
 {
     convert_to_absolute();
 }
 
-foundation::filesystem::path::path(const std::vector<std::string>& components, bool is_relative)
-    : m_components(components), m_relative(is_relative)
+foundation::filesystem::path::path(const std::vector<std::string>& components, bool is_relative, const std::string& scheme)
+    : m_components(components), m_relative(is_relative), m_scheme(scheme)
 {
     convert_to_absolute();
 }
@@ -89,6 +112,10 @@ foundation::filesystem::path::path(const std::vector<std::string>& components, b
 auto foundation::filesystem::path::convert_to_absolute() -> void
 {
     if (!m_relative) {
+        return;
+    }
+
+    if (!m_scheme.empty()) {
         return;
     }
 
@@ -134,7 +161,7 @@ auto foundation::filesystem::path::appending_path_component(const std::string &c
 {
     auto components = m_components;
     components.emplace_back(component);
-    return { components, m_relative };
+    return path(components, m_relative, m_scheme);
 }
 
 // MARK: - Accessors
@@ -143,6 +170,15 @@ auto foundation::filesystem::path::string() const -> std::string
 {
     if (m_path_buffer.empty()) {
         std::string result;
+        if (!m_scheme.empty()) {
+            if (m_scheme == "file") {
+                result = "file://";
+            }
+            else {
+                result += m_scheme + ":/";
+            }
+        }
+
         for (const auto& component : m_components) {
             result.insert(result.end(), '/');
             result.insert(result.end(), component.begin(), component.end());
@@ -229,7 +265,7 @@ auto foundation::filesystem::path::child(const std::string &name) const -> path
     }
     auto components = m_components;
     components.insert(components.end(), name_components.begin(), name_components.end());
-    return { components, m_relative };
+    return path(components, m_relative, m_scheme);
 
 }
 
@@ -240,7 +276,7 @@ auto foundation::filesystem::path::parent() const -> path
     }
     auto components = m_components;
     components.pop_back();
-    return { components, m_relative };
+    return path(components, m_relative, m_scheme);
 }
 
 // MARK: - Static Helpers
@@ -392,13 +428,13 @@ auto foundation::filesystem::path::replace_component(std::int32_t i, const path 
         std::vector<std::string> slice(m_components.begin() + i + 1, m_components.end());
         auto result = replacement.m_components;
         result.insert(result.end(), slice.begin(), slice.end());
-        return { result };
+        return path(result, false, m_scheme);
     }
     else if (i == m_components.size() - 1) {
         auto result = m_components;
         result.pop_back();
         result.insert(result.end() - 1, replacement.m_components.begin(), replacement.m_components.end());
-        return { result };
+        return path(result, false, m_scheme);
     }
     return {};
 }

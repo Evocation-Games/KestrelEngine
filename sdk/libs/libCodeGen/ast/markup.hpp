@@ -30,3 +30,4 @@
 #include <libCodeGen/ast/markup/table.hpp>
 #include <libCodeGen/ast/markup/divider.hpp>
 #include <libCodeGen/ast/markup/preformatted.hpp>
+#include <libCodeGen/ast/markup/prologue.hpp>

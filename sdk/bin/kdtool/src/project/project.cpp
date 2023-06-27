@@ -75,6 +75,18 @@ auto kdtool::project::index::path_is_kdl(const std::string &path) -> bool
            || path.ends_with(".kdlmodule");
 }
 
+// MARK: - Title
+
+auto kdtool::project::index::title() const -> std::string
+{
+    return m_title;
+}
+
+auto kdtool::project::index::set_title(const std::string &title) -> void
+{
+    m_title = title;
+}
+
 // MARK: - Translation Unit
 
 auto kdtool::project::index::add_translation_unit(const std::string &path) -> void
@@ -107,17 +119,11 @@ auto kdtool::project::index::symbol_named(const std::string& resolved_name) -> s
 
 auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>& symbol, int indent) -> std::shared_ptr<structure::symbol>
 {
-    std::string indent_str;
-    for (int i = 0; i < indent; ++i) {
-        indent_str += "    ";
-    }
-
     // Check for the existance of the symbol.
-    const auto name = symbol->resolved_name();
+    const auto name = symbol->name();
     auto it = m_symbols.find(name);
     if (it == m_symbols.end()) {
         m_symbols.emplace(name, symbol);
-        std::cout << indent_str << "  + create symbol: " << name << std::endl;
 
         if (auto parent = symbol->parent().lock()) {
             parent->add_child(symbol);
@@ -130,7 +136,6 @@ auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>
         return symbol;
     }
     else {
-        std::cout << indent_str << "  + existing symbol: " << name << std::endl;
         return it->second;
     }
 }

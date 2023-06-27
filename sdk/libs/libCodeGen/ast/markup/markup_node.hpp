@@ -20,29 +20,47 @@
 
 #pragma once
 
-#include <memory>
-#include <libCodeGen/builder/builder.hpp>
-#include <libCodeGen/ast/markup.hpp>
-#include "project/structure/enum/enum_definition.hpp"
-#include "project/structure/enum/enum_case_definition.hpp"
-#include "project/structure/symbol.hpp"
-#include "builder/documentation/pages/basic_page.hpp"
-#include "builder/documentation/components/availability_table.hpp"
-#include "builder/documentation/components/description.hpp"
-#include "builder/documentation/pages/layout_decider.hpp"
+#include <string>
+#include <libCodeGen/ast/core/node.hpp>
+#include <libFoundation/string/joined.hpp>
 
-namespace kdtool::builder::page
+namespace codegen::ast
 {
-    template<codegen::language::markup_support L>
-    struct enum_case_page : public basic<L>
+    template<language::markup_support L>
+    struct markup_node : public node
     {
-        enum_case_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
-            : basic<L>(definition, root_dir, reference_root)
-        {}
-
-        [[nodiscard]] auto filename() const -> foundation::filesystem::path override
+        auto add_style_class(const std::string& name) -> void
         {
-            return basic<L>::filename();
+            m_style_classes.emplace_back(name);
         }
+
+        auto set_id(const std::string& id) -> void
+        {
+            m_id = id;
+        }
+
+        [[nodiscard]] auto style_classes() const -> std::vector<std::string>
+        {
+            return m_style_classes;
+        }
+
+        [[nodiscard]] auto style_class_attribute() const -> std::string
+        {
+            return L::style_classes_attribute(style_classes());
+        }
+
+        [[nodiscard]] auto id() const -> std::string
+        {
+            return m_id;
+        }
+
+        [[nodiscard]] auto id_attribute() const -> std::string
+        {
+            return L::identifier_attribute(id());
+        }
+
+    private:
+        std::string m_id;
+        std::vector<std::string> m_style_classes;
     };
 }

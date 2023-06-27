@@ -32,25 +32,33 @@ namespace kdtool::builder
     template<codegen::language::markup_support L>
     struct documentation : public std::enable_shared_from_this<documentation<L>>, public codegen::builder<L>, public base
     {
-        documentation(const std::shared_ptr<project::index>& project, const foundation::filesystem::path& root)
-            : base(project), codegen::builder<L>(root.child(L::lc_name()))
+        documentation(const std::shared_ptr<project::index>& project, const foundation::filesystem::path& root, const foundation::filesystem::path& reference_root = {})
+            : base(project), codegen::builder<L>(root.child(L::lc_name()), reference_root)
         {}
 
         auto build() -> void override
         {
             codegen::builder<L>::build();
 
-            // TODO: Make the documentation title configurable.
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Kestrel Lua Documentation", 1);
+            codegen::builder<L>::template add<codegen::ast::prologue<L>>(
+                project()->title(),
+                codegen::builder<L>::reference_root().child("style.css").string()
+            );
+            codegen::builder<L>::template add<codegen::ast::heading<L>>(project()->title(), 1);
 
             std::vector<std::shared_ptr<directory::entry>> root_entries;
             for (const auto& symbol : project()->all_root_symbols()) {
+                if (symbol->is_built_in()) {
+                    // Skip build in
+                    continue;
+                }
                 root_entries.emplace_back(std::make_shared<directory::entry>(symbol));
             }
 
-            auto dir = std::make_shared<component::directory<L>>(root_entries, codegen::builder<L>::root().string(), true);
+            auto dir = std::make_shared<component::directory<L>>(root_entries, codegen::builder<L>::root().string(), codegen::builder<L>::reference_root().string(), true);
             codegen::builder<L>::add_component(dir);
 
+            codegen::builder<L>::template add<codegen::ast::epilogue<L>>();
             codegen::builder<L>::save("index");
         }
 

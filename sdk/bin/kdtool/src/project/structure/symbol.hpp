@@ -48,6 +48,7 @@ namespace kdtool::project::structure
         [[nodiscard]] auto is_static() const -> bool;
         [[nodiscard]] auto name() const -> std::string;
         [[nodiscard]] auto basename() const -> std::string;
+        [[nodiscard]] auto is_built_in() const -> bool;
         [[nodiscard]] auto is_root() const -> bool;
         [[nodiscard]] auto parent() const -> std::weak_ptr<struct symbol>;
         [[nodiscard]] auto documentation() const -> std::weak_ptr<struct documentation::object>;
@@ -61,6 +62,7 @@ namespace kdtool::project::structure
         [[nodiscard]] auto children() const -> std::vector<std::weak_ptr<struct symbol>>;
 
         auto make_static() -> void;
+        auto make_built_in() -> void;
 
         auto set_documentation(const std::shared_ptr<struct documentation::object>& documentation) -> void;
         auto set_definition(const std::shared_ptr<struct construct_definition>& definition) -> void;
@@ -80,6 +82,7 @@ namespace kdtool::project::structure
             std::string resolved;
         };
         bool m_static { false };
+        bool m_built_in { false };
         std::string m_display_name;
         std::string m_name;
         std::string m_basename;

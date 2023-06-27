@@ -32,6 +32,7 @@ namespace kdl::modules::spriteworld
     static inline auto construct_sprite_set(sema::context& ctx) -> void
     {
         resource::definition::type::instance sprite_set("SpriteWorldSprite", "rlëD");
+        sprite_set.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");

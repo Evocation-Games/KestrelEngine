@@ -36,8 +36,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct enum_page : public basic<L>
     {
-        enum_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : basic<L>(definition, root_dir)
+        enum_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
         {}
 
         [[nodiscard]] auto filename() const -> foundation::filesystem::path override
@@ -51,17 +51,17 @@ namespace kdtool::builder::page
 
             // Properties
             codegen::builder<L>::template add<codegen::ast::heading<L>>("All Cases", 2);
-            codegen::builder<L>::template add<codegen::ast::begin_list<L>>();
+            auto case_list = std::make_shared<codegen::ast::list<L>>();
             for (const auto& enum_case : enum_definition->all_cases()) {
-                codegen::builder<L>::template add<codegen::ast::begin_list_item<L>>();
-                codegen::builder<L>::template add<codegen::ast::anchor<L>>(
-                    enum_case->symbol()->display_name(),
-                    enum_case->symbol()->filename().name() + "." + L::extension()
+                case_list->template add_item<codegen::ast::list_item<L>>(
+                    std::make_shared<codegen::ast::anchor<L>>(
+                        enum_case->symbol()->display_name(),
+                        enum_case->symbol()->filename().name() + "." + L::extension()
+                    )
                 );
-                codegen::builder<L>::template add<codegen::ast::end_list_item<L>>();
                 basic<L>::layout_decision(enum_case);
             }
-            codegen::builder<L>::template add<codegen::ast::end_list<L>>();
+            codegen::builder<L>::add(case_list);
         }
     };
 }

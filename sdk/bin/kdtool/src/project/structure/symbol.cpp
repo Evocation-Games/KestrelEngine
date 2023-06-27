@@ -170,6 +170,18 @@ auto kdtool::project::structure::symbol::filename() const -> foundation::filesys
     }
 }
 
+// MARK: - Built in
+
+auto kdtool::project::structure::symbol::is_built_in() const -> bool
+{
+    return m_built_in;
+}
+
+auto kdtool::project::structure::symbol::make_built_in() -> void
+{
+    m_built_in = true;
+}
+
 // MARK: - Versions
 
 auto kdtool::project::structure::symbol::available() const -> std::optional<struct version>

@@ -33,8 +33,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct resource_value_page : public basic<L>
     {
-        resource_value_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : basic<L>(definition, root_dir)
+        resource_value_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
         {}
 
         [[nodiscard]] auto filename() const -> foundation::filesystem::path override
@@ -55,17 +55,18 @@ namespace kdtool::builder::page
             if (instance.has_symbols()) {
                 codegen::builder<L>::template add<codegen::ast::heading<L>>("Symbols / Constants", 2);
                 auto table = std::make_shared<codegen::ast::table<L>>();
-                table->add_column("Symbol Identifier");
-                table->add_column("Value");
+                table->header_row()->add_cell()->add_content("Symbol Identifier");
+                table->header_row()->add_cell()->add_content("Value");
 
                 for (const auto& symbol : value->all_symbols()) {
-                    table->add_row({
+                    const auto& row = table->add_row();
+                    row->add_cell()->add_content(
                         std::make_shared<codegen::ast::anchor<L>>(
                             symbol->name(),
                             symbol->name() + "." + L::extension()
-                        ),
-                        std::make_shared<codegen::ast::inline_code<L>>(symbol->value())
-                    });
+                        )
+                    );
+                    row->add_cell()->add_content(std::make_shared<codegen::ast::inline_code<L>>(symbol->value()));
                     basic<L>::layout_decision(symbol);
                 }
 

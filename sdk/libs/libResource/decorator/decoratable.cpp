@@ -24,7 +24,7 @@
 
 auto resource::decoratable::add_decorator(const std::string& name, const std::string& value) -> void
 {
-    if (value.empty()) {
+    if (value.empty() && !name.starts_with("__")) {
         return;
     }
     add_decorator(name, std::vector<std::string>({value}));

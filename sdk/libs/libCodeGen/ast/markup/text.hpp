@@ -21,12 +21,12 @@
 #pragma once
 
 #include <string>
-#include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/markup/markup_node.hpp>
 
 namespace codegen::ast
 {
     template<language::markup_support L>
-    struct text : public node
+    struct text : public markup_node<L>
     {
         explicit text(const std::string& text)
             : m_text(text)
@@ -39,7 +39,7 @@ namespace codegen::ast
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { L::text(value()) };
+            return { L::text(value(), markup_node<L>::style_classes()) };
         }
 
     private:
@@ -55,8 +55,7 @@ namespace codegen::ast
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { L::inline_code(text<L>::value()) };
+            return { L::inline_code(text<L>::value(), markup_node<L>::style_classes()) };
         }
-
     };
 }

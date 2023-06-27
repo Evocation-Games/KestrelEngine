@@ -48,16 +48,16 @@ namespace foundation::filesystem
          * @param components    A list of singular path components.
          * @param is_relative   Is the path relative to the current working directory?
          */
-        path(const std::initializer_list<std::string>& components, bool is_relative = false);
+        path(const std::initializer_list<std::string>& components, bool is_relative = false, const std::string& scheme = "");
 
         /**
          * Construct a new path.
          * @param components    A list of singular path components.
          * @param is_relative   Is the path relative to the current working directory?
          */
-        path(const std::vector<std::string>& components, bool is_relative = false);
+        explicit path(const std::vector<std::string>& components, bool is_relative = false, const std::string& scheme = "");
 
-        /**]
+        /**
          * Takes a host system path using slash '/' delimited path components, and breaks them apart
          * into a vector of path components.
          * @param path      Host system path using slash '/' delimited path components.
@@ -65,6 +65,14 @@ namespace foundation::filesystem
          * @return          Vector of path components
          */
         static auto path_components(const std::string& path, char separator = '/') -> std::vector<std::string>;
+
+        /**
+         * Takes a host system path, and determines if either an http://, https:// or file:// scheme is prefixed
+         * to it, and then returns the scheme.
+         * @param path      Host system path using slash '/' delimited path components.
+         * @return          The scheme present in the path (empty string if no scheme)
+         */
+        static auto path_scheme(const std::string& path) -> std::string;
 
         /**
          * Creates a new string by appending the specified path component to it.
@@ -211,6 +219,7 @@ namespace foundation::filesystem
         bool m_relative { false };
         std::string m_path_buffer;
         std::vector<std::string> m_components;
+        std::string m_scheme;
     };
 
 }

@@ -33,6 +33,7 @@ namespace kdl::modules::macintosh
     static inline auto construct_string_list(sema::context &ctx) -> void
     {
         auto string_list = ctx.register_type(resource::definition::type::instance("StringList", "STR#"));
+        string_list->add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         resource::definition::binary_template::field strings_binary_field(resource::definition::binary_template::type::OCNT, "Strings");
@@ -52,6 +53,7 @@ namespace kdl::modules::macintosh
     static inline auto construct_string_resource(sema::context& ctx) -> void
     {
         resource::definition::type::instance string("StringResource", "STR ");
+        string.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::CSTR, "String");
@@ -70,6 +72,7 @@ namespace kdl::modules::macintosh
     static inline auto construct_picture(sema::context& ctx) -> void
     {
         resource::definition::type::instance pict("Picture", "PICT");
+        pict.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
@@ -97,6 +100,7 @@ namespace kdl::modules::macintosh
     static inline auto construct_color_icon(sema::context& ctx) -> void
     {
         resource::definition::type::instance cicn("ColorIcon", "cicn");
+        cicn.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
@@ -124,6 +128,7 @@ namespace kdl::modules::macintosh
     static inline auto construct_sound(sema::context& ctx) -> void
     {
         resource::definition::type::instance snd("Sound", "snd ");
+        snd.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");

@@ -21,12 +21,12 @@
 #pragma once
 
 #include <string>
-#include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/markup/markup_node.hpp>
 
 namespace codegen::ast
 {
     template<language::markup_support L>
-    struct divider : public node
+    struct divider : public markup_node<L>
     {
         [[nodiscard]] auto emit() const -> emit::segment override
         {

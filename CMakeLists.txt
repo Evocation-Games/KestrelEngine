@@ -97,7 +97,7 @@ add_subdirectory(sdk/bin/kdl)
 add_subdirectory(sdk/libs/libKestrel)
 add_subdirectory(sdk/bin/player)
 
-#add_subdirectory(sdk/extra/tree-sitter/tree-sitter-kdl)
+add_subdirectory(sdk/extra/tree-sitter/tree-sitter-kdl)
 
 ########################################################################################################################
 

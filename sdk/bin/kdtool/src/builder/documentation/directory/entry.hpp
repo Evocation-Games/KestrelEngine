@@ -31,14 +31,20 @@ namespace kdtool::builder::directory
 {
     struct entry
     {
-        explicit entry(const std::shared_ptr<project::structure::symbol>& symbol)
-            : m_symbol(symbol), m_path(m_symbol->filename())
-        {}
+        explicit entry(const std::shared_ptr<project::structure::symbol>& symbol, bool allow_children = true)
+            : m_symbol(symbol), m_path(m_symbol->filename()), m_allow_children(allow_children)
+        {
+            if (auto definition = m_symbol->definition().lock()) {
+                if (definition->instance_type() == project::structure::construct_definition::type::is_resource_type) {
+                    m_allow_children = false;
+                }
+            }
+        }
 
         [[nodiscard]] auto name() const -> std::string { return m_symbol->display_name(); }
         [[nodiscard]] auto symbol() const -> std::shared_ptr<project::structure::symbol> { return m_symbol; }
         [[nodiscard]] auto has_file() const -> bool { return m_path.has_value(); }
-        [[nodiscard]] auto is_leaf() const -> bool { return m_symbol->children().empty(); }
+        [[nodiscard]] auto is_leaf() const -> bool { return !m_allow_children || m_symbol->children().empty(); }
         [[nodiscard]] auto is_root() const -> bool { return m_symbol->parent().lock() == nullptr; }
 
         [[nodiscard]] auto path() const -> foundation::filesystem::path
@@ -48,6 +54,7 @@ namespace kdtool::builder::directory
                     case project::structure::construct_definition::type::is_namespace:
                     case project::structure::construct_definition::type::is_class:
                     case project::structure::construct_definition::type::is_enum:
+                    case project::structure::construct_definition::type::is_resource_type:
                         return m_path->child("index");
                     default:
                         break;
@@ -66,6 +73,7 @@ namespace kdtool::builder::directory
         }
 
     private:
+        bool m_allow_children { true };
         std::shared_ptr<project::structure::symbol> m_symbol;
         std::optional<foundation::filesystem::path> m_path;
     };

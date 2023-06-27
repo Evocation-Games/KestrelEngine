@@ -38,6 +38,8 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
 
     struct {
         std::string path;
+        std::string ref_root;
+        std::string title;
         bool markdown { false };
         bool html { false };
     } documentation;
@@ -55,6 +57,9 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             else if (arg == "-documentation" || arg == "-docs") {
                 documentation.path = argv[++n];
             }
+            else if (arg == "-root") {
+                documentation.ref_root = argv[++n];
+            }
             else if (arg == "-md") {
                 documentation.markdown = true;
             }
@@ -66,6 +71,10 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             }
             else if (arg == "-v" || arg == "--verbose") {
                 verbose_mode = true;
+            }
+            else if (arg == "-doctitle") {
+                documentation.title = argv[++n];
+                project->set_title(documentation.title);
             }
         }
         else {
@@ -88,12 +97,13 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
 
     if (!documentation.path.empty()) {
         foundation::filesystem::path path(documentation.path);
+        foundation::filesystem::path root(documentation.ref_root);
 
         if (documentation.markdown) {
             if (verbose_mode) {
                 std::cout << "Build Markdown Documentation to: " << documentation.path << std::endl;
             }
-            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::markdown>>(project, path);
+            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::markdown>>(project, path, root);
             api->build();
         }
 
@@ -101,7 +111,7 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             if (verbose_mode) {
                 std::cout << "Build HTML Documentation to: " << documentation.path << std::endl;
             }
-            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, path);
+            auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, path, root);
             api->build();
         }
     }

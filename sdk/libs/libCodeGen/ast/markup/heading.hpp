@@ -21,12 +21,12 @@
 #pragma once
 
 #include <string>
-#include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/markup/markup_node.hpp>
 
 namespace codegen::ast
 {
     template<language::markup_support L>
-    struct heading : public node
+    struct heading : public markup_node<L>
     {
         explicit heading(const std::string& text, std::int32_t level = 3)
             : m_text(text), m_level(level)
@@ -36,7 +36,7 @@ namespace codegen::ast
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { L::heading(text(), m_level) };
+            return { L::heading(text(), m_level, markup_node<L>::style_classes()) };
         }
 
     private:

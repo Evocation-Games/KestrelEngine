@@ -21,12 +21,12 @@
 #pragma once
 
 #include <string>
-#include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/markup/markup_node.hpp>
 
 namespace codegen::ast
 {
     template<language::markup_support L>
-    struct anchor : public node
+    struct anchor : public markup_node<L>
     {
         explicit anchor(const std::string& text, const std::string& link)
             : m_text(text), m_link(link)
@@ -34,7 +34,7 @@ namespace codegen::ast
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { L::anchor(m_text, m_link) };
+            return { L::anchor(m_text, m_link, markup_node<L>::style_classes()) };
         }
 
     private:

@@ -20,29 +20,37 @@
 
 #pragma once
 
-#include <memory>
-#include <libCodeGen/builder/builder.hpp>
-#include <libCodeGen/ast/markup.hpp>
-#include "project/structure/enum/enum_definition.hpp"
-#include "project/structure/enum/enum_case_definition.hpp"
-#include "project/structure/symbol.hpp"
-#include "builder/documentation/pages/basic_page.hpp"
-#include "builder/documentation/components/availability_table.hpp"
-#include "builder/documentation/components/description.hpp"
-#include "builder/documentation/pages/layout_decider.hpp"
+#include <string>
+#include <libCodeGen/ast/core/node.hpp>
 
-namespace kdtool::builder::page
+namespace codegen::ast
 {
-    template<codegen::language::markup_support L>
-    struct enum_case_page : public basic<L>
+    template<language::markup_support L>
+    struct prologue : public node
     {
-        enum_case_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
-            : basic<L>(definition, root_dir, reference_root)
+        explicit prologue(const std::string& title, const std::string& style)
+            : m_title(title), m_style(style)
         {}
 
-        [[nodiscard]] auto filename() const -> foundation::filesystem::path override
+        [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return basic<L>::filename();
+            return { L::prologue(m_title, m_style) };
         }
+
+    private:
+        std::string m_title;
+        std::string m_style;
+    };
+
+    template<language::markup_support L>
+    struct epilogue : public node
+    {
+        epilogue() = default;
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return { L::epilogue() };
+        }
+
     };
 }

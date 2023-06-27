@@ -38,23 +38,19 @@ namespace kdtool::builder::component
 
         [[nodiscard]] auto emit() const -> codegen::emit::segment override
         {
-            buffer<L> buffer;
-
             auto table = std::make_shared<codegen::ast::table<L>>();
-            table->add_column("Name");
-            table->add_column("Type");
-            table->add_column("Description");
+            table->header_row()->add_cell()->add_content("Name");
+            table->header_row()->add_cell()->add_content("Type");
+            table->header_row()->add_cell()->add_content("Description");
 
             for (const auto& param : m_parameters) {
-                table->add_row({
-                    param->symbol()->display_name(),
-                    param->type()->name(),
-                    param->description()
-                });
+                const auto& row = table->add_row();
+                row->add_cell()->add_content(param->symbol()->display_name());
+                row->add_cell()->add_content(param->type()->name());
+                row->add_cell()->add_content(param->description());
             }
 
-            buffer.add(table);
-            return buffer.segments();
+            return table->emit();
         }
 
     private:

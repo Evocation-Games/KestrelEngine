@@ -43,7 +43,8 @@ namespace kdtool::builder::page
     {
         static auto using_definition(
             const std::weak_ptr<project::structure::construct_definition>& weak_definition,
-            const std::string& root_dir
+            const std::string& root_dir,
+            const std::string& reference_root
         ) -> void {
             auto definition = weak_definition.lock();
             if (!definition) {
@@ -53,74 +54,74 @@ namespace kdtool::builder::page
 
             switch (definition->instance_type()) {
                 case project::structure::construct_definition::type::is_namespace: {
-                    auto ns_page = page::namespace_page<L>(definition, root_dir);
+                    auto ns_page = page::namespace_page<L>(definition, root_dir, reference_root);
                     ns_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     ns_page.build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_class: {
-                    auto class_page = page::class_page<L>(definition, root_dir);
+                    auto class_page = page::class_page<L>(definition, root_dir, reference_root);
                     class_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     class_page.build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_enum: {
-                    auto enum_page = page::enum_page<L>(definition, root_dir);
+                    auto enum_page = page::enum_page<L>(definition, root_dir, reference_root);
                     enum_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     enum_page.build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_enum_case: {
-                    page::enum_case_page<L>(definition, root_dir).build();
+                    page::enum_case_page<L>(definition, root_dir, reference_root).build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_property: {
-                    page::basic<L>(definition, root_dir).build();
+                    page::basic<L>(definition, root_dir, reference_root).build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_function: {
-                    page::function_page<L>(definition, root_dir).build();
+                    page::function_page<L>(definition, root_dir, reference_root).build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_constructor: {
-                    page::basic<L>(definition, root_dir).build();
+                    page::basic<L>(definition, root_dir, reference_root).build();
                     break;
                 }
 
                 case project::structure::construct_definition::type::is_resource_type: {
-                    auto resource_type_page = page::resource_type_page<L>(definition, root_dir);
+                    auto resource_type_page = page::resource_type_page<L>(definition, root_dir, reference_root);
                     resource_type_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     resource_type_page.build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_resource_field: {
-                    auto resource_field_page = page::resource_field_page<L>(definition, root_dir);
+                    auto resource_field_page = page::resource_field_page<L>(definition, root_dir, reference_root);
                     resource_field_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     resource_field_page.build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_resource_value: {
-                    auto resource_value_page = page::resource_value_page<L>(definition, root_dir);
+                    auto resource_value_page = page::resource_value_page<L>(definition, root_dir, reference_root);
                     resource_value_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     resource_value_page.build();
                     break;
                 }
                 case project::structure::construct_definition::type::is_resource_value_symbol: {
-                    auto resource_value_symbol_page = page::resource_value_symbol_page<L>(definition, root_dir);
+                    auto resource_value_symbol_page = page::resource_value_symbol_page<L>(definition, root_dir, reference_root);
                     resource_value_symbol_page.handle_layout_decision([&] (const auto& construct) {
-                        using_definition(construct, root_dir);
+                        using_definition(construct, root_dir, reference_root);
                     });
                     resource_value_symbol_page.build();
                     break;

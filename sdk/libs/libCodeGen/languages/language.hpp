@@ -186,36 +186,42 @@ namespace codegen::language
     // MARK: - Markup Languages
 
     template<class L>
-    concept markup_support = requires(const L& lang, const std::string& str, std::int32_t i32) {
+    concept markup_support = requires(const L& lang, const std::string& str, std::int32_t i32, const std::vector<std::string>& styles) {
         requires metadata<L>;
 
-        { L::text(str) } -> std::same_as<emit::segment>;
-        { L::bold(str) } -> std::same_as<emit::segment>;
-        { L::italic(str) } -> std::same_as<emit::segment>;
-        { L::strikethrough(str) } -> std::same_as<emit::segment>;
-        { L::inline_code(str) } -> std::same_as<emit::segment>;
+        { L::prologue(NamedArgument(Title, str), NamedArgument(StyleSheet, str)) } -> std::same_as<emit::segment>;
+        { L::epilogue() } -> std::same_as<emit::segment>;
 
-        { L::anchor(str, str) } -> std::same_as<emit::segment>;
+        { L::identifier_attribute(str) } -> std::same_as<std::string>;
+        { L::style_classes_attribute(styles) } -> std::same_as<std::string>;
 
-        { L::heading(str, i32) } -> std::same_as<emit::segment>;
-        { L::preformatted(str) } -> std::same_as<emit::segment>;
-        { L::blockquote(str) } -> std::same_as<emit::segment>;
+        { L::text(str, styles) } -> std::same_as<emit::segment>;
+        { L::bold(str, styles) } -> std::same_as<emit::segment>;
+        { L::italic(str, styles) } -> std::same_as<emit::segment>;
+        { L::strikethrough(str, styles) } -> std::same_as<emit::segment>;
+        { L::inline_code(str, styles) } -> std::same_as<emit::segment>;
+
+        { L::anchor(str, str, styles) } -> std::same_as<emit::segment>;
+
+        { L::heading(str, i32, styles) } -> std::same_as<emit::segment>;
+        { L::preformatted(str, styles) } -> std::same_as<emit::segment>;
+        { L::blockquote(str, styles) } -> std::same_as<emit::segment>;
         { L::divider() } -> std::same_as<emit::segment>;
 
-        { L::begin_list() } -> std::same_as<emit::segment>;
-        { L::begin_sublist() } -> std::same_as<emit::segment>;
-        { L::begin_list_item() } -> std::same_as<emit::segment>;
+        { L::begin_list(styles) } -> std::same_as<emit::segment>;
+        { L::begin_sublist(styles) } -> std::same_as<emit::segment>;
+        { L::begin_list_item(styles) } -> std::same_as<emit::segment>;
         { L::end_list_item() } -> std::same_as<emit::segment>;
         { L::end_sublist() } -> std::same_as<emit::segment>;
         { L::end_list() } -> std::same_as<emit::segment>;
 
-        { L::begin_table() } -> std::same_as<emit::segment>;
-        { L::begin_table_header() } -> std::same_as<emit::segment>;
-        { L::begin_table_header_cell() } -> std::same_as<emit::segment>;
+        { L::begin_table(styles) } -> std::same_as<emit::segment>;
+        { L::begin_table_header(styles) } -> std::same_as<emit::segment>;
+        { L::begin_table_header_cell(styles) } -> std::same_as<emit::segment>;
         { L::end_table_header_cell() } -> std::same_as<emit::segment>;
         { L::end_table_header() } -> std::same_as<emit::segment>;
-        { L::begin_table_row() } -> std::same_as<emit::segment>;
-        { L::begin_table_cell() } -> std::same_as<emit::segment>;
+        { L::begin_table_row(styles) } -> std::same_as<emit::segment>;
+        { L::begin_table_cell(styles) } -> std::same_as<emit::segment>;
         { L::end_table_cell() } -> std::same_as<emit::segment>;
         { L::end_table_row() } -> std::same_as<emit::segment>;
         { L::end_table() } -> std::same_as<emit::segment>;

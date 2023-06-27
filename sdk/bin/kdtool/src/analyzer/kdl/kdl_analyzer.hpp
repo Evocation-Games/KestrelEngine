@@ -42,6 +42,8 @@ namespace kdtool::kdl
         auto construct_symbol(const std::string& type_name, const std::string& code, const std::string& field, const std::string& value) -> std::shared_ptr<project::structure::symbol>;
         auto construct_symbol(const std::string& type_name, const std::string& code, const std::string& field, const std::string& value, const std::string& symbol) -> std::shared_ptr<project::structure::symbol>;
         auto construct_documentation(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void;
+        auto construct_available(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void;
+        auto construct_deprecated(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void;
         auto construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::resource_type_definition>;
         auto construct_resource_field(const resource::definition::type::instance& type,
                                       const resource::definition::type::field& field) -> std::shared_ptr<project::structure::resource_field_definition>;

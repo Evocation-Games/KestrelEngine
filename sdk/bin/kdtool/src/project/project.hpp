@@ -39,11 +39,14 @@ namespace kdtool::project
         auto add_symbol(const std::shared_ptr<structure::symbol>& symbol, int indent = 0) -> std::shared_ptr<structure::symbol>;
         auto add_definition(const std::shared_ptr<structure::construct_definition>& definition) -> void;
 
+        auto set_title(const std::string& title) -> void;
+
         [[nodiscard]] auto include_paths() const -> const std::vector<std::string>&;
         [[nodiscard]] auto scanned_include_paths() const -> const std::vector<std::string>&;
         [[nodiscard]] auto all_definitions() const -> std::vector<std::shared_ptr<structure::construct_definition>>;
         [[nodiscard]] auto all_root_symbols() const -> std::vector<std::shared_ptr<structure::symbol>>;
         [[nodiscard]] auto symbol_named(const std::string& name) -> std::shared_ptr<structure::symbol>;
+        [[nodiscard]] auto title() const -> std::string;
 
     private:
         static auto path_is_cxx(const std::string& path) -> bool;
@@ -51,6 +54,7 @@ namespace kdtool::project
         static auto path_is_kdl(const std::string& path) -> bool;
 
     private:
+        std::string m_title { "Untitled Documentation" };
         std::vector<std::string> m_include_paths;
         std::vector<std::string> m_scanned_include_paths;
         std::unordered_map<std::string, std::shared_ptr<structure::symbol>> m_symbols;

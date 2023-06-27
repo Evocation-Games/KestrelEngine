@@ -21,55 +21,101 @@
 #pragma once
 
 #include <string>
-#include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/markup/markup_node.hpp>
 #include <libCodeGen/ast/markup/text.hpp>
 
 namespace codegen::ast
 {
     template<language::markup_support L>
-    struct begin_list : public node
+    struct abstract_list : markup_node<L>
     {
-        explicit begin_list(bool sublist = false) : node(), m_sublist(sublist) {}
+
+    };
+
+    template<language::markup_support L>
+    struct abstract_list_item : markup_node<L>
+    {
+        virtual auto add_content(const std::shared_ptr<markup_node<L>>& node) -> void = 0;
+        virtual auto add_sublist() -> std::shared_ptr<abstract_list<L>> = 0;
+    };
+
+    template<language::markup_support L>
+    struct list : public abstract_list<L>
+    {
+        explicit list(bool sublist = false)
+            : m_sublist(sublist)
+        {}
+
+        template<typename T, typename std::enable_if<std::is_base_of<abstract_list_item<L>, T>::value>::type* = nullptr>
+        auto add_item(const std::string& item) -> std::shared_ptr<T>
+        {
+            return add_item<T>(std::make_shared<ast::text<L>>(item));
+        }
+
+        template<typename T, typename std::enable_if<std::is_base_of<abstract_list_item<L>, T>::value>::type* = nullptr>
+        auto add_item(const std::shared_ptr<markup_node<L>>& item) -> std::shared_ptr<T>
+        {
+            auto item_node = std::make_shared<T>();
+            item_node->add_content(item);
+            m_items.emplace_back(item_node);
+            return item_node;
+        }
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return m_sublist ? L::begin_sublist() : L::begin_list();
+            std::vector<emit::segment> segments;
+
+            if (m_sublist) {
+                segments.emplace_back(L::begin_list(markup_node<L>::style_classes()));
+                for (const auto& item : m_items) {
+                    segments.emplace_back(item->emit());
+                }
+                segments.emplace_back(L::end_list());
+            }
+            else {
+                segments.emplace_back(L::begin_sublist(markup_node<L>::style_classes()));
+                for (const auto& item : m_items) {
+                    segments.emplace_back(item->emit());
+                }
+                segments.emplace_back(L::end_sublist());
+            }
+
+            return emit::segment(segments);
         }
 
     private:
         bool m_sublist { false };
+        std::vector<std::shared_ptr<abstract_list_item<L>>> m_items;
     };
 
     template<language::markup_support L>
-    struct end_list : public node
+    struct list_item : public abstract_list_item<L>
     {
-        explicit end_list(bool sublist = false) : node(), m_sublist(sublist) {}
+        auto add_content(const std::shared_ptr<markup_node<L>>& node) -> void override
+        {
+            m_content.emplace_back(node);
+        }
+
+        auto add_sublist() -> std::shared_ptr<abstract_list<L>> override
+        {
+            auto list = std::make_shared<ast::list<L>>(true);
+            m_content.emplace_back(list);
+            return list;
+        }
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return m_sublist ? L::end_sublist() : L::end_list();
+            std::vector<emit::segment> segments;
+            segments.emplace_back(L::begin_list_item(markup_node<L>::style_classes()));
+            for (const auto& node : m_content) {
+                segments.emplace_back(node->emit());
+            }
+            segments.emplace_back(L::end_list_item());
+            return emit::segment(segments);
         }
 
     private:
-        bool m_sublist { false };
-    };
-
-    template<language::markup_support L>
-    struct begin_list_item : public node
-    {
-        [[nodiscard]] auto emit() const -> emit::segment override
-        {
-            return L::begin_list_item();
-        }
-    };
-
-    template<language::markup_support L>
-    struct end_list_item : public node
-    {
-        [[nodiscard]] auto emit() const -> emit::segment override
-        {
-            return L::end_list_item();
-        }
+        std::vector<std::shared_ptr<markup_node<L>>> m_content;
     };
 
 }

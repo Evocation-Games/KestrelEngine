@@ -21,12 +21,12 @@
 #pragma once
 
 #include <string>
-#include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/markup/markup_node.hpp>
 
 namespace codegen::ast
 {
     template<language::markup_support L>
-    struct preformatted : public node
+    struct preformatted : public markup_node<L>
     {
         explicit preformatted(const std::string &text)
             : m_text(text)
@@ -39,7 +39,7 @@ namespace codegen::ast
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return {L::preformatted(value())};
+            return { L::preformatted(value(), markup_node<L>::style_classes()) };
         }
 
     private:

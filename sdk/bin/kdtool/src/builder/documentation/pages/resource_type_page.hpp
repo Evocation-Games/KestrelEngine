@@ -38,8 +38,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct resource_type_page : public basic<L>
     {
-        resource_type_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : basic<L>(definition, root_dir)
+        resource_type_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
         {}
 
         [[nodiscard]] auto filename() const -> foundation::filesystem::path override
@@ -57,36 +57,37 @@ namespace kdtool::builder::page
 
             // Fields
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Fields", 2);
-            codegen::builder<L>::template add<codegen::ast::begin_list<L>>();
+            auto field_list = std::make_shared<codegen::ast::list<L>>();
+            field_list->add_style_class("resource-fields");
             for (const auto& field : type->all_fields()) {
-                codegen::builder<L>::template add<codegen::ast::begin_list_item<L>>();
-                codegen::builder<L>::template add<codegen::ast::anchor<L>>(
-                    field->basename(),
-                    field->basename() + "/index." + L::extension()
+                field_list->template add_item<codegen::ast::list_item<L>>(
+                    std::make_shared<codegen::ast::anchor<L>>(
+                        field->basename(),
+                        field->basename() + "/index." + L::extension()
+                    )
                 );
-                codegen::builder<L>::template add<codegen::ast::end_list_item<L>>();
                 basic<L>::layout_decision(field);
             }
-            codegen::builder<L>::template add<codegen::ast::end_list<L>>();
+            codegen::builder<L>::add(field_list);
+
 
             // Template
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Resource Template", 2);
-            auto table = std::make_shared<codegen::ast::table<L>>();
-            table->add_column("Field Name");
-            table->add_column("Binary Type");
-            table->add_column("Size");
+            const auto& table = std::make_shared<codegen::ast::table<L>>();
+            const auto& header = table->header_row();
+            header->add_cell()->add_content("Field Name");
+            header->add_cell()->add_content("Binary Type");
+            header->add_cell()->add_content("Size");
 
             const auto *tmpl = instance.binary_template();
             for (const auto& field : tmpl->all_fields()) {
-                table->add_row({
-                    field.label(),
-                    field.type().name(),
-                    "-"
-                });
+                const auto& row = table->add_row();
+                row->add_cell()->add_content(field.label());
+                row->add_cell()->add_content(std::make_shared<codegen::ast::inline_code<L>>(field.type().name()));
+                row->add_cell()->add_content("-");
             }
 
             codegen::builder<L>::add(table);
-
         }
     };
 }

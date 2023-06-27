@@ -35,15 +35,16 @@ namespace codegen
     template<language::metadata L>
     struct builder
     {
-        explicit builder(const std::string& path)
-            : m_root(path)
+        explicit builder(const std::string& path, const std::string& reference_root = "")
+            : m_root(path), m_ref_root(reference_root.empty() ? path : reference_root)
         {}
 
-        explicit builder(const foundation::filesystem::path& root)
-            : m_root(root)
+        explicit builder(const foundation::filesystem::path& root, const foundation::filesystem::path& reference_root)
+            : m_root(root), m_ref_root(reference_root.empty() ? root : reference_root)
         {}
 
         [[nodiscard]] virtual auto root() const -> foundation::filesystem::path { return m_root; }
+        [[nodiscard]] virtual auto reference_root() const -> foundation::filesystem::path { return m_ref_root; }
 
         virtual auto build() -> void {};
 
@@ -91,6 +92,7 @@ namespace codegen
 
     private:
         foundation::filesystem::path m_root;
+        foundation::filesystem::path m_ref_root;
         std::vector<emit::segment> m_segments;
     };
 

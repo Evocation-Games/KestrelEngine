@@ -56,8 +56,8 @@ namespace kdtool::project::structure
         }
 
     private:
-        std::uint16_t m_major;
-        std::uint16_t m_minor;
-        std::uint16_t m_fix;
+        std::uint16_t m_major { 0 };
+        std::uint16_t m_minor { 0 };
+        std::uint16_t m_fix { 0 };
     };
 }

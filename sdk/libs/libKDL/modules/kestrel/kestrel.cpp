@@ -48,6 +48,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_glsl(sema::context& ctx) -> void
     {
         resource::definition::type::instance glsl_shader("GLSLShader", "glsl");
+        glsl_shader.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::CSTR, "VertexFunction");
@@ -72,6 +73,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_mlsl(sema::context& ctx) -> void
     {
         resource::definition::type::instance mlsl_shader("MetalShader", "mlsl");
+        mlsl_shader.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::CSTR, "VertexFunction");
@@ -96,6 +98,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_shader_set(sema::context& ctx) -> void
     {
         resource::definition::type::instance shader_set("ShaderSet", "shdr");
+        shader_set.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::RSRC, "glsl");
@@ -120,6 +123,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_sprite_set(sema::context& ctx) -> void
     {
         auto sprite_set = ctx.register_type(resource::definition::type::instance("SpriteSet", "rlëX"));
+        sprite_set->add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
@@ -146,6 +150,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_scene_interface(sema::context& ctx) -> void
     {
         auto scene_interface = ctx.register_type(resource::definition::type::instance("SceneInterface", "scïn"));
+        scene_interface->add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::HEXD, "Data");
@@ -162,6 +167,7 @@ namespace kdl::modules::kestrel
     {
         auto scene = ctx.register_type(resource::definition::type::instance("SceneDefinition", "scën"));
         ctx.root_scope()->add_variable("SceneDefinitionID", static_cast<std::int64_t>(0));
+        scene->add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::RSRC, "Script");
@@ -236,6 +242,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_package(sema::context& ctx) -> void
     {
         resource::definition::type::instance package("KestrelPackage", "kmöd");
+        package.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::CSTR, "Name");
@@ -301,6 +308,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_static_image(sema::context& ctx) -> void
     {
         auto static_image = ctx.register_type(resource::definition::type::instance("StaticImage", "sïmg"));
+        static_image->add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::Cnnn, 0x004, "ImageFormat");

@@ -35,8 +35,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct namespace_page : public basic<L>
     {
-        namespace_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : basic<L>(definition, root_dir)
+        namespace_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
         {}
 
         [[nodiscard]] auto filename() const -> foundation::filesystem::path override
@@ -50,31 +50,32 @@ namespace kdtool::builder::page
 
             // Properties
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Properties", 2);
-            codegen::builder<L>::template add<codegen::ast::begin_list<L>>();
+            auto properties_list = std::make_shared<codegen::ast::list<L>>();
             for (const auto& property : ns->all_properties()) {
-                codegen::builder<L>::template add<codegen::ast::begin_list_item<L>>();
-                codegen::builder<L>::template add<codegen::ast::anchor<L>>(
-                    property->name(),
-                    property->symbol()->filename().name() + "." + L::extension()
+                properties_list->template add_item<codegen::ast::list_item<L>>(
+                    std::make_shared<codegen::ast::anchor<L>>(
+                        property->name(),
+                        property->symbol()->filename().name() + "." + L::extension()
+                    )
                 );
-                codegen::builder<L>::template add<codegen::ast::end_list_item<L>>();
                 basic<L>::layout_decision(property);
             }
-            codegen::builder<L>::template add<codegen::ast::end_list<L>>();
+            codegen::builder<L>::add(properties_list);
 
             // Functions
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Functions", 2);
-            codegen::builder<L>::template add<codegen::ast::begin_list<L>>();
+            auto functions_list = std::make_shared<codegen::ast::list<L>>();
             for (const auto& function : ns->all_functions()) {
-                codegen::builder<L>::template add<codegen::ast::begin_list_item<L>>();
-                codegen::builder<L>::template add<codegen::ast::anchor<L>>(
-                    function->symbol()->display_name(),
-                    function->symbol()->filename().name() + "." + L::extension()
+                functions_list->template add_item<codegen::ast::list_item<L>>(
+                    std::make_shared<codegen::ast::anchor<L>>(
+                        function->symbol()->display_name(),
+                        function->symbol()->filename().name() + "." + L::extension()
+                    )
                 );
-                codegen::builder<L>::template add<codegen::ast::end_list_item<L>>();
                 basic<L>::layout_decision(function);
             }
-            codegen::builder<L>::template add<codegen::ast::end_list<L>>();
+            codegen::builder<L>::add(functions_list);
+
         }
     };
 }

@@ -36,18 +36,17 @@ namespace kdtool::builder::component
 
         [[nodiscard]] auto emit() const -> codegen::emit::segment override
         {
-            buffer<L> buffer;
-
             auto table = std::make_shared<codegen::ast::table<L>>();
-            table->add_column("Aspect");
-            table->add_column("Value");
+            table->header_row()->add_cell()->add_content("Aspect");
+            table->header_row()->add_cell()->add_content("Value");
 
             std::string source_symbol_name = "C++ Symbol";
             if (auto definition = m_symbol->definition().lock()) {
-                table->add_row({
-                    std::make_shared<codegen::ast::text<L>>("File"),
+                const auto& row = table->add_row();
+                row->add_cell()->add_content("File");
+                row->add_cell()->add_content(
                     std::make_shared<codegen::ast::inline_code<L>>(definition->location())
-                });
+                );
 
                 switch (definition->instance_type()) {
                     case project::structure::construct_definition::type::is_resource_type:
@@ -65,23 +64,27 @@ namespace kdtool::builder::component
             bool is_first_symbol = true;
             if (!source_symbol_name.empty()) {
                 for (const auto &symbol: m_symbol->all_source_resolved_identifiers()) {
-                    table->add_row({
-                        std::make_shared<codegen::ast::text<L>>(is_first_symbol ? source_symbol_name : ""),
+                    const auto& row = table->add_row();
+                    row->add_cell()->add_content(is_first_symbol ? source_symbol_name : "");
+                    row->add_cell()->add_content(
                         std::make_shared<codegen::ast::inline_code<L>>(symbol)
-                    });
+                    );
                     is_first_symbol = false;
                 }
             }
 
             if (m_symbol->available().has_value()) {
-                table->add_row({ "Available", m_symbol->available()->string() });
+                const auto& row = table->add_row();
+                row->add_cell()->add_content("Available");
+                row->add_cell()->add_content(m_symbol->available()->string());
             }
             if (m_symbol->deprecated().has_value()) {
-                table->add_row({ "Deprecated", m_symbol->deprecated()->string() });
+                const auto& row = table->add_row();
+                row->add_cell()->add_content("Deprecated");
+                row->add_cell()->add_content(m_symbol->deprecated()->string());
             }
 
-            buffer.add(table);
-            return buffer.segments();
+            return table->emit();
         }
 
     private:

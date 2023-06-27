@@ -32,56 +32,58 @@ namespace kdtool::builder::component
     template<codegen::language::metadata L>
     struct directory : public codegen::component
     {
-        explicit directory(const std::shared_ptr<struct builder::directory::entry>& entry, const std::string& root_dir, bool is_root = false)
-            : m_entries({ entry }), m_root(is_root), m_root_dir(root_dir)
+        explicit directory(const std::shared_ptr<struct builder::directory::entry>& entry, const std::string& root_dir, const std::string& reference_root, bool is_root = false)
+            : m_entries({ entry }), m_root(is_root), m_root_dir(root_dir), m_reference_root(reference_root)
         {}
 
-        explicit directory(const std::vector<std::shared_ptr<struct builder::directory::entry>>& entry, const std::string& root_dir, bool is_root = false)
-            : m_entries(entry), m_root(is_root), m_root_dir(root_dir)
+        explicit directory(const std::vector<std::shared_ptr<struct builder::directory::entry>>& entry, const std::string& root_dir, const std::string& reference_root, bool is_root = false)
+            : m_entries(entry), m_root(is_root), m_root_dir(root_dir), m_reference_root(reference_root)
         {}
 
         [[nodiscard]] auto emit() const -> codegen::emit::segment override
         {
-            buffer<L> buffer;
-            buffer.template add<codegen::ast::begin_list<L>>(!m_root);
+            auto list = std::make_shared<codegen::ast::list<L>>();
             for (const auto& entry : m_entries) {
                 if (entry->is_leaf() && !entry->is_root()) {
                     continue;
                 }
-
-                buffer.template add<codegen::ast::begin_list_item<L>>();
 
                 if (entry->has_file() && entry->symbol()->definition().lock()) {
                     auto path = entry->path().string();
                     if (path.starts_with("/")) {
                         path.erase(0, 1);
                     }
-                    buffer.template add<codegen::ast::anchor<L>>(entry->name(), path + "." + L::extension());
+
+                    list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            entry->name(),
+                            path + "." + L::extension()
+                        )
+                    );
 
                     // Synthesize the page for this entry.
-                    page::layout_decider<L>::using_definition(entry->symbol()->definition(), m_root_dir);
+                    page::layout_decider<L>::using_definition(entry->symbol()->definition(), m_root_dir, m_reference_root);
                 }
                 else {
-                    buffer.template add<codegen::ast::text<L>>(entry->name());
+                    list->template add_item<codegen::ast::list_item<L>>(entry->name());
                 }
 
-                if (!entry->is_leaf()) {
-                    decltype(m_entries) children;
-                    entry->each([&] (const auto& child) {
-                        children.emplace_back(std::make_shared<builder::directory::entry>(child));
-                    });
-                    buffer.add(std::make_shared<directory<L>>(children, m_root_dir));
-                }
-
-                buffer.template add<codegen::ast::end_list_item<L>>();
+                // TODO: Fix this...
+//                if (!entry->is_leaf()) {
+//                    decltype(m_entries) children;
+//                    entry->each([&] (const auto& child) {
+//                        children.emplace_back(std::make_shared<builder::directory::entry>(child));
+//                    });
+//                    buffer.add(std::make_shared<directory<L>>(children, m_root_dir, m_reference_root));
+//                }
             }
-            buffer.template add<codegen::ast::end_list<L>>(!m_root);
-            return buffer.segments();
+            return list->emit();
         }
 
     private:
         bool m_root { false };
         std::string m_root_dir;
+        std::string m_reference_root;
         std::vector<std::shared_ptr<struct builder::directory::entry>> m_entries;
     };
 }

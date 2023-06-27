@@ -97,6 +97,8 @@ auto kdtool::kdl::analyzer::construct_symbol(
     return symbol;
 }
 
+
+
 auto kdtool::kdl::analyzer::construct_documentation(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void
 {
     if (decorators.empty()) {
@@ -112,12 +114,49 @@ auto kdtool::kdl::analyzer::construct_documentation(const std::shared_ptr<projec
     symbol->set_documentation(documentation::parser(raw_documentation).build());
 }
 
+auto kdtool::kdl::analyzer::construct_available(const std::shared_ptr<project::structure::symbol> &symbol, const std::vector<resource::decorator> &decorators) -> void
+{
+    if (decorators.empty()) {
+        return;
+    }
+
+    const auto& available = decorators.at(0);
+    if (!available.has_associated_values()) {
+        return;
+    }
+
+    symbol->set_available(project::structure::version(available.associated_value_at(0)));
+}
+
+auto kdtool::kdl::analyzer::construct_deprecated(const std::shared_ptr<project::structure::symbol> &symbol, const std::vector<resource::decorator> &decorators) -> void
+{
+    if (decorators.empty()) {
+        return;
+    }
+
+    const auto& deprecated = decorators.at(0);
+    if (!deprecated.has_associated_values()) {
+        return;
+    }
+
+    symbol->set_deprecated(project::structure::version(deprecated.associated_value_at(0)));
+}
+
 auto kdtool::kdl::analyzer::construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::resource_type_definition>
 {
     auto symbol = construct_symbol(type.name(), type.code());
 
     if (type.has_decorator("documentation")) {
         construct_documentation(symbol, type.decorators_named("documentation"));
+    }
+    if (type.has_decorator("available")) {
+        construct_available(symbol, type.decorators_named("available"));
+    }
+    if (type.has_decorator("deprecated")) {
+        construct_deprecated(symbol, type.decorators_named("deprecated"));
+    }
+    if (type.has_decorator("__builtin")) {
+        symbol->make_built_in();
     }
 
     auto resource_type_definition = std::make_shared<struct project::structure::resource_type_definition>(symbol);
@@ -144,6 +183,15 @@ auto kdtool::kdl::analyzer::construct_resource_field(
     if (field.has_decorator("documentation")) {
         construct_documentation(symbol, field.decorators_named("documentation"));
     }
+    if (type.has_decorator("available")) {
+        construct_available(symbol, type.decorators_named("available"));
+    }
+    if (type.has_decorator("deprecated")) {
+        construct_deprecated(symbol, type.decorators_named("deprecated"));
+    }
+    if (type.has_decorator("__builtin")) {
+        symbol->make_built_in();
+    }
 
     auto resource_field_definition = std::make_shared<struct project::structure::resource_field_definition>(symbol);
     resource_field_definition->set_location(m_path.name());
@@ -166,8 +214,18 @@ auto kdtool::kdl::analyzer::construct_resource_value(
     const resource::definition::type::field_value &field_value
 ) -> std::shared_ptr<project::structure::resource_value_definition> {
     auto symbol = construct_symbol(type.name(), type.code(), field.name(), field_value.export_name());
+
     if (field_value.has_decorator("documentation")) {
         construct_documentation(symbol, field_value.decorators_named("documentation"));
+    }
+    if (type.has_decorator("available")) {
+        construct_available(symbol, type.decorators_named("available"));
+    }
+    if (type.has_decorator("deprecated")) {
+        construct_deprecated(symbol, type.decorators_named("deprecated"));
+    }
+    if (type.has_decorator("__builtin")) {
+        symbol->make_built_in();
     }
 
     auto resource_value_definition = std::make_shared<struct project::structure::resource_value_definition>(symbol);
@@ -192,8 +250,18 @@ auto kdtool::kdl::analyzer::construct_resource_value_symbol(
     const resource::definition::type::symbol &value_symbol
 ) -> std::shared_ptr<project::structure::resource_value_symbol_definition> {
     auto symbol = construct_symbol(type.name(), type.code(), field.name(), field_value.export_name(), value_symbol.name());
+
     if (field_value.has_decorator("documentation")) {
         construct_documentation(symbol, field_value.decorators_named("documentation"));
+    }
+    if (type.has_decorator("available")) {
+        construct_available(symbol, type.decorators_named("available"));
+    }
+    if (type.has_decorator("deprecated")) {
+        construct_deprecated(symbol, type.decorators_named("deprecated"));
+    }
+    if (type.has_decorator("__builtin")) {
+        symbol->make_built_in();
     }
 
     auto resource_value_symbol_definition = std::make_shared<struct project::structure::resource_value_symbol_definition>(symbol);

@@ -33,8 +33,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct basic : public codegen::builder<L>
     {
-        basic(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : codegen::builder<L>(root_dir), m_definition(definition)
+        basic(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : codegen::builder<L>(root_dir, reference_root), m_definition(definition)
         {}
 
         template<typename T, typename std::enable_if<std::is_base_of<project::structure::construct_definition, T>::value>::type* = nullptr>
@@ -65,6 +65,10 @@ namespace kdtool::builder::page
 
         virtual auto build_header() -> void
         {
+            codegen::builder<L>::template add<codegen::ast::prologue<L>>(
+                symbol()->resolved_name(),
+                codegen::builder<L>::reference_root().child("css").child("style.css").string()
+            );
             codegen::builder<L>::template add<codegen::ast::heading<L>>(symbol()->resolved_name(), 1);
             codegen::builder<L>::template add_component<component::availability_table<L>>(symbol());
 
@@ -77,7 +81,7 @@ namespace kdtool::builder::page
 
         virtual auto build_footer() -> void
         {
-
+            codegen::builder<L>::template add<codegen::ast::epilogue<L>>();
         }
 
         virtual auto build_content() -> void

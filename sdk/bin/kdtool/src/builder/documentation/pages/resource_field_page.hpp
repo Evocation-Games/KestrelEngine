@@ -33,8 +33,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct resource_field_page : public basic<L>
     {
-        resource_field_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : basic<L>(definition, root_dir)
+        resource_field_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
         {}
 
         [[nodiscard]] auto filename() const -> foundation::filesystem::path override
@@ -51,8 +51,8 @@ namespace kdtool::builder::page
             if (instance.repeatable().enabled()) {
                 codegen::builder<L>::template add<codegen::ast::heading<L>>("Repeatable", 2);
                 auto repeat_table = std::make_shared<codegen::ast::table<L>>();
-                repeat_table->add_column("Aspect");
-                repeat_table->add_column("Value");
+                repeat_table->header_row()->add_cell()->add_content("Aspect");
+                repeat_table->header_row()->add_cell()->add_content("Value");
 
                 auto count = instance.repeatable().upper_bound() - instance.repeatable().lower_bound() + 1;
                 if (count > 1) {
@@ -71,20 +71,20 @@ namespace kdtool::builder::page
             // Values
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Values", 2);
             auto value_table = std::make_shared<codegen::ast::table<L>>();
-            value_table->add_column("Value Name");
-            value_table->add_column("Type");
-            value_table->add_column("Required");
+            value_table->header_row()->add_cell()->add_content("Value Name");
+            value_table->header_row()->add_cell()->add_content("Type");
+            value_table->header_row()->add_cell()->add_content("Required");
 
             for (const auto& value : field->all_values()) {
-                value_table->add_row({
+                const auto& row = value_table->add_row();
+                row->add_cell()->add_content(
                     std::make_shared<codegen::ast::anchor<L>>(
                         value->basename(),
                         value->basename() + "/index." + L::extension()
-                    ),
-                    std::make_shared<codegen::ast::text<L>>(value->type_name()),
-                    std::make_shared<codegen::ast::text<L>>(value->has_default_value() ? "Optional" : "")
-                });
-
+                    )
+                );
+                row->add_cell()->add_content(value->type_name());
+                row->add_cell()->add_content(value->has_default_value() ? "Optional" : "Required");
                 basic<L>::layout_decision(value);
             }
 

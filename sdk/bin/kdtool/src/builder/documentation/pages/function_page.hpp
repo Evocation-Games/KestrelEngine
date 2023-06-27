@@ -37,8 +37,8 @@ namespace kdtool::builder::page
     template<codegen::language::markup_support L>
     struct function_page : public basic<L>
     {
-        function_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir)
-            : basic<L>(definition, root_dir)
+        function_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
         {}
 
         auto build_content() -> void override
