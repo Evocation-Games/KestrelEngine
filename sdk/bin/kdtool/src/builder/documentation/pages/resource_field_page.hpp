@@ -42,6 +42,14 @@ namespace kdtool::builder::page
             return basic<L>::filename().child("index");
         }
 
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            header->add_style_class("resource-field");
+            header->add_style_class("symbol");
+            return header;
+        }
+
         auto build_content() -> void override
         {
             const auto& field = basic<L>::template definition<project::structure::resource_field_definition>();

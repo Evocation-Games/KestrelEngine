@@ -37,6 +37,14 @@ namespace kdtool::builder::page
             : basic<L>(definition, root_dir, reference_root)
         {}
 
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            header->add_style_class("constant");
+            header->add_style_class("symbol");
+            return header;
+        }
+
         auto build_content() -> void override
         {
             const auto& value = basic<L>::template definition<project::structure::resource_value_symbol_definition>();

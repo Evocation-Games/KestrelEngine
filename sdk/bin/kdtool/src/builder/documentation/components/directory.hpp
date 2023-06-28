@@ -59,13 +59,14 @@ namespace kdtool::builder::component
                             entry->name(),
                             path + "." + L::extension()
                         )
-                    );
+                    )->add_style_class(entry->style_class());
 
                     // Synthesize the page for this entry.
                     page::layout_decider<L>::using_definition(entry->symbol()->definition(), m_root_dir, m_reference_root);
                 }
                 else {
-                    list->template add_item<codegen::ast::list_item<L>>(entry->name());
+                    list->template add_item<codegen::ast::list_item<L>>(entry->name())
+                        ->add_style_class(entry->style_class());
                 }
 
                 // TODO: Fix this...

@@ -47,6 +47,14 @@ namespace kdtool::builder::page
             return basic<L>::filename().child("index");
         }
 
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            header->add_style_class("resource-type");
+            header->add_style_class("symbol");
+            return header;
+        }
+
         auto build_content() -> void override
         {
             const auto& type = basic<L>::template definition<project::structure::resource_type_definition>();
@@ -58,14 +66,13 @@ namespace kdtool::builder::page
             // Fields
             codegen::builder<L>::template add<codegen::ast::heading<L>>("Fields", 2);
             auto field_list = std::make_shared<codegen::ast::list<L>>();
-            field_list->add_style_class("resource-fields");
             for (const auto& field : type->all_fields()) {
                 field_list->template add_item<codegen::ast::list_item<L>>(
                     std::make_shared<codegen::ast::anchor<L>>(
                         field->basename(),
                         field->basename() + "/index." + L::extension()
                     )
-                );
+                )->add_style_class("resource-field");
                 basic<L>::layout_decision(field);
             }
             codegen::builder<L>::add(field_list);

@@ -44,6 +44,14 @@ namespace kdtool::builder::page
             return basic<L>::filename().child("index");
         }
 
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            header->add_style_class("class");
+            header->add_style_class("symbol");
+            return header;
+        }
+
         auto build_content() -> void override
         {
             const auto& klass = basic<L>::template definition<project::structure::class_definition>();
@@ -60,7 +68,7 @@ namespace kdtool::builder::page
                         property->name(),
                         property->symbol()->filename().name() + "." + L::extension()
                     )
-                );
+                )->add_style_class("property");
                 basic<L>::layout_decision(property);
             }
             codegen::builder<L>::add(properties_list);
@@ -74,7 +82,7 @@ namespace kdtool::builder::page
                         function->symbol()->display_name(),
                         function->symbol()->filename().name() + "." + L::extension()
                     )
-                );
+                )->add_style_class("function");
                 basic<L>::layout_decision(function);
             }
             codegen::builder<L>::add(functions_list);

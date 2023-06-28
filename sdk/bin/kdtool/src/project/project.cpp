@@ -166,5 +166,5 @@ auto kdtool::project::index::all_definitions() const -> std::vector<std::shared_
 auto kdtool::project::index::add_definition(const std::shared_ptr<structure::construct_definition>& definition) -> void
 {
     add_symbol(definition->symbol());
-    m_definitions.emplace(definition->symbol()->resolved_name(), definition);
+    m_definitions.emplace(definition->symbol()->name(), definition);
 }

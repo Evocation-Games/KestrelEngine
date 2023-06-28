@@ -63,13 +63,18 @@ namespace kdtool::builder::page
             return symbol()->filename();
         }
 
+        [[nodiscard]] virtual auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>>
+        {
+            return std::make_shared<codegen::ast::heading<L>>(symbol()->resolved_name(), 1);
+        }
+
         virtual auto build_header() -> void
         {
             codegen::builder<L>::template add<codegen::ast::prologue<L>>(
                 symbol()->resolved_name(),
-                codegen::builder<L>::reference_root().child("css").child("style.css").string()
+                codegen::builder<L>::reference_root().child("style.css").string()
             );
-            codegen::builder<L>::template add<codegen::ast::heading<L>>(symbol()->resolved_name(), 1);
+            codegen::builder<L>::add(build_title_heading());
             codegen::builder<L>::template add_component<component::availability_table<L>>(symbol());
 
             if (auto documentation = symbol()->documentation().lock()) {
@@ -95,10 +100,8 @@ namespace kdtool::builder::page
             build_header();
 
             codegen::builder<L>::template add<codegen::ast::nl<L>>();
-            codegen::builder<L>::template add<codegen::ast::divider<L>>();
             build_content();
             codegen::builder<L>::template add<codegen::ast::nl<L>>();
-            codegen::builder<L>::template add<codegen::ast::divider<L>>();
 
             build_footer();
             codegen::builder<L>::save(filename().string());

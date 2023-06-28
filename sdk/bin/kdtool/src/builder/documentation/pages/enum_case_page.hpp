@@ -44,5 +44,13 @@ namespace kdtool::builder::page
         {
             return basic<L>::filename();
         }
+
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            header->add_style_class("enum-case");
+            header->add_style_class("symbol");
+            return header;
+        }
     };
 }

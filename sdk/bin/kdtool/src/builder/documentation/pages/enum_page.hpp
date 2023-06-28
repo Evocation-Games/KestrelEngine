@@ -45,6 +45,14 @@ namespace kdtool::builder::page
             return basic<L>::filename().child("index");
         }
 
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            header->add_style_class("enum");
+            header->add_style_class("symbol");
+            return header;
+        }
+
         auto build_content() -> void override
         {
             const auto& enum_definition = basic<L>::template definition<project::structure::enum_definition>();
@@ -58,7 +66,7 @@ namespace kdtool::builder::page
                         enum_case->symbol()->display_name(),
                         enum_case->symbol()->filename().name() + "." + L::extension()
                     )
-                );
+                )->add_style_class("enum-case");
                 basic<L>::layout_decision(enum_case);
             }
             codegen::builder<L>::add(case_list);

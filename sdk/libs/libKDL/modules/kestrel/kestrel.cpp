@@ -32,6 +32,7 @@ namespace kdl::modules::kestrel
     static inline auto construct_lua_script(sema::context& ctx) -> void
     {
         resource::definition::type::instance lua_script("LuaScript", "LuaS");
+        lua_script.add_decorator("__builtin", "");
 
         resource::definition::binary_template::instance tmpl;
         tmpl.add_field(resource::definition::binary_template::type::LUA_BYTE_CODE, "Data");

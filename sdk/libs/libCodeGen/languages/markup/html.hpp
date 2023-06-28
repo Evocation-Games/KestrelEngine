@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <codecvt>
+#include <locale>
 #include <libCodeGen/languages/language.hpp>
 
 namespace codegen::language
@@ -45,6 +47,23 @@ namespace codegen::language
             }
         }
 
+        [[nodiscard]] static inline auto encode_text(const std::string& str) -> std::string
+        {
+            std::string out;
+
+            for (const auto c : str) {
+                switch (c) {
+                    case '&':  out += "&amp;"; break;
+                    case '<':  out += "&lt;"; break;
+                    case '>':  out += "&gt;"; break;
+                    case '\n':  out += "<br>"; break;
+                    default:    out += c; break;
+                }
+            }
+
+            return std::move(out);
+        }
+
         // Metadata
         [[nodiscard]] static auto name() -> std::string { return "HTML"; }
         [[nodiscard]] static auto lc_name() -> std::string { return "html"; };
@@ -56,6 +75,7 @@ namespace codegen::language
             return {
                 emit::segment("<html>", emit::line_break_mode::after, emit::indentation_mode::indent_after),
                 emit::segment("<head>", emit::line_break_mode::after, emit::indentation_mode::indent_after),
+                emit::segment("<meta charset=\"UTF-8\">", emit::line_break_mode::after),
                 emit::segment("<title>" + title + "</title>", emit::line_break_mode::after),
                 emit::segment("<link rel=\"stylesheet\" href=\"" + style + "\">", emit::line_break_mode::after),
                 emit::segment("</head>", emit::line_break_mode::after, emit::indentation_mode::outdent_before),
@@ -84,32 +104,32 @@ namespace codegen::language
             if (styles.empty()) {
                 return "";
             }
-            return " class=\"" + foundation::string::joined(styles, ", ") + "\"";
+            return " class=\"" + foundation::string::joined(styles, " ") + "\"";
         }
 
         [[nodiscard]] static auto text(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<span" + style_classes_attribute(styles) + ">" + str + "</span>");
+            return emit::segment("<span" + style_classes_attribute(styles) + ">" + encode_text(str) + "</span>");
         }
 
         [[nodiscard]] static auto bold(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<b" + style_classes_attribute(styles) + ">" + str + "</b>");
+            return emit::segment("<b" + style_classes_attribute(styles) + ">" + encode_text(str) + "</b>");
         }
 
         [[nodiscard]] static auto italic(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<i" + style_classes_attribute(styles) + ">" + str + "</i>");
+            return emit::segment("<i" + style_classes_attribute(styles) + ">" + encode_text(str) + "</i>");
         }
 
         [[nodiscard]] static auto strikethrough(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<s" + style_classes_attribute(styles) + ">" + str + "</s>");
+            return emit::segment("<s" + style_classes_attribute(styles) + ">" + encode_text(str) + "</s>");
         }
 
         [[nodiscard]] static auto inline_code(const std::string& str, const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<code" + style_classes_attribute(styles) + ">" + str + "</code>");
+            return emit::segment("<code" + style_classes_attribute(styles) + ">" + encode_text(str) + "</code>");
         }
 
         // Dividers
@@ -123,7 +143,7 @@ namespace codegen::language
 
         [[nodiscard]] static auto anchor(const std::string& str, const std::string& link, const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<a" + style_classes_attribute(styles) + " href=\"" + link + "\">" + str + "</a>");
+            return emit::segment("<a" + style_classes_attribute(styles) + " href=\"" + link + "\">" + encode_text(str) + "</a>");
         }
 
         // Headings
@@ -131,7 +151,7 @@ namespace codegen::language
         [[nodiscard]] static auto heading(const std::string& heading, std::int32_t level, const std::vector<std::string>& styles) -> emit::segment
         {
             const auto tag_name = heading_tag_name(level);
-            return emit::segment(tag(tag_name, false, styles) + heading + tag(tag_name, true), emit::line_break_mode::full);
+            return emit::segment(tag(tag_name, false, styles) + encode_text(heading) + tag(tag_name, true), emit::line_break_mode::full);
         }
 
         // Formatting
@@ -149,7 +169,7 @@ namespace codegen::language
         {
             return {
                 emit::segment("<blockquote" + style_classes_attribute(styles) + ">", emit::line_break_mode::full, emit::indentation_mode::indent_after),
-                emit::segment(text),
+                emit::segment(encode_text(text)),
                 emit::segment("</blockquote>", emit::line_break_mode::full, emit::indentation_mode::outdent_before)
             };
         }
@@ -190,7 +210,7 @@ namespace codegen::language
 
         [[nodiscard]] static auto begin_table(const std::vector<std::string>& styles) -> emit::segment
         {
-            return emit::segment("<table" + style_classes_attribute(styles) + ">", emit::line_break_mode::before, emit::indentation_mode::indent_after);
+            return emit::segment("<table cellspacing=0 cellpadding=0" + style_classes_attribute(styles) + ">", emit::line_break_mode::before, emit::indentation_mode::indent_after);
         }
 
         [[nodiscard]] static auto begin_table_header(const std::vector<std::string>& styles) -> emit::segment

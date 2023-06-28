@@ -63,6 +63,28 @@ namespace kdtool::builder::directory
             return m_path.value();
         }
 
+        [[nodiscard]] auto style_class() const -> std::string
+        {
+            if (auto definition = symbol()->definition().lock()) {
+                switch (definition->instance_type()) {
+                    case project::structure::construct_definition::type::is_namespace:              return "namespace";
+                    case project::structure::construct_definition::type::is_class:                  return "class";
+                    case project::structure::construct_definition::type::is_enum:                   return "enum";
+                    case project::structure::construct_definition::type::is_enum_case:              return "enum-case";
+                    case project::structure::construct_definition::type::is_function:               return "function";
+                    case project::structure::construct_definition::type::is_property:               return "property";
+                    case project::structure::construct_definition::type::is_resource_type:          return "resource-type";
+                    case project::structure::construct_definition::type::is_resource_field:         return "resource-field";
+                    case project::structure::construct_definition::type::is_resource_value:         return "resource-field-value";
+                    case project::structure::construct_definition::type::is_resource_value_symbol:  return "constant";
+                    case project::structure::construct_definition::type::is_constructor:            return "constructor";
+                    default:
+                        return "";
+                }
+            }
+            return "";
+        }
+
         auto each(const std::function<auto(const std::shared_ptr<project::structure::symbol>&)->void>& callback) -> void
         {
             for (const auto& it : m_symbol->children()) {
