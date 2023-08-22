@@ -145,14 +145,16 @@ add_dependencies(Kestrel KestrelAPIDefinition)
 ########################################################################################################################
 ## libKestrel: Generate Documentation
 
-add_custom_target(KestrelLuaDocumentation_Markdown
+add_custom_target(KestrelLuaDocumentation
     ${kdtool}   -I ${PROJECT_SDK_LIBS}
                 -I ${CMAKE_SOURCE_DIR}/submodules
                 -I ${CMAKE_SOURCE_DIR}/submodules/graphite/libs
                 -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
-                -documentation ${CMAKE_SOURCE_DIR}/docs/libKestrel -md -html
+                -doctitle "Kestrel Lua API Documentation"
+                -root https://tomhancocks.com/kestrel-api
+                -documentation ${CMAKE_SOURCE_DIR}/docs/libKestrel -html
                 ${KESTREL_LIB_HEADERS}
     DEPENDS     ${KESTREL_LIB_HEADERS}
-    COMMENT     "Generating Lua Markdown Documentation"
+    COMMENT     "Generating Lua API Documentation"
 )
-add_dependencies(KestrelLuaDocumentation_Markdown kdtool)
+add_dependencies(KestrelLuaDocumentation kdtool)

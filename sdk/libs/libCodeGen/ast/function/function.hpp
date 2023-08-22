@@ -56,6 +56,11 @@ namespace codegen::ast
             );
         }
 
+        auto add_template_parameter(const typename language::procedural::type_system<L>::type_id& type) -> void
+        {
+            m_template_parameters.emplace_back(type);
+        }
+
         auto set_statement(const std::shared_ptr<ast::statement<L>>& statement) -> void
         {
             m_statement = statement;
@@ -63,15 +68,23 @@ namespace codegen::ast
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
+            std::vector<std::string> template_parameters;
+            for (const auto& param : m_template_parameters) {
+                template_parameters.emplace_back(param->name());
+            }
+
             if (m_statement) {
                 return {
+                    L::template_specialization_decl(template_parameters),
                     L::function_decl(m_name, m_return->name(), m_parameters),
                     m_statement->emit()
                 };
             }
             else {
                 return {
-                    L::function_decl(m_name, m_return->name(), m_parameters)
+                    L::template_specialization_decl(template_parameters),
+                    L::function_decl(m_name, m_return->name(), m_parameters),
+                    emit::segment(L::statement_end_operator_string()),
                 };
             }
         }
@@ -81,6 +94,7 @@ namespace codegen::ast
         typename language::procedural::type_system<L>::type_id m_return { language::procedural::void_type<L>() };
         std::shared_ptr<ast::parameter_list<L>> m_parameters { std::make_shared<ast::parameter_list<L>>() };
         std::shared_ptr<ast::statement<L>> m_statement;
+        std::vector<typename language::procedural::type_system<L>::type_id> m_template_parameters;
     };
 
     template<language::function_support L>

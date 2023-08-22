@@ -48,11 +48,16 @@ namespace codegen
 
         virtual auto build() -> void {};
 
-        auto save(const std::string& filename) const -> void
+        auto save(const std::string& filename = "") const -> void
         {
             auto buffer = std::make_shared<emit::buffer>();
             buffer->write(m_segments);
-            buffer->save(m_root.child(filename + "." + L::extension()));
+            if (filename.empty()) {
+                buffer->save(m_root);
+            }
+            else {
+                buffer->save(m_root.child(filename + "." + L::extension()));
+            }
         }
 
         template<typename T, typename std::enable_if<std::is_base_of<ast::node, T>::value>::type* = nullptr>

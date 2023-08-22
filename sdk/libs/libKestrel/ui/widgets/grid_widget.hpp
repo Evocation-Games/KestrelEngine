@@ -60,8 +60,8 @@ namespace kestrel::ui::widgets
         lua_setter(backgroundColor, Available_0_8) auto set_background_color(const graphics::color::lua_reference& color) -> void;
         lua_getter(hiliteColor, Available_0_8) [[nodiscard]] auto hilite_color() const -> graphics::color::lua_reference;
         lua_setter(hiliteColor, Available_0_8) auto set_hilite_color(const graphics::color::lua_reference& color) -> void;
-        lua_getter(outlineColor, Available_0_8) lua_getter(gridColor, Available_0_8) [[nodiscard]] auto outline_color() const -> graphics::color::lua_reference;
-        lua_setter(outlineColor, Available_0_8) lua_setter(gridColor, Available_0_8) auto set_outline_color(const graphics::color::lua_reference& color) -> void;
+        lua_getter(outlineColor, Available_0_8) [[nodiscard]] auto outline_color() const -> graphics::color::lua_reference;
+        lua_setter(outlineColor, Available_0_8) auto set_outline_color(const graphics::color::lua_reference& color) -> void;
         lua_getter(font, Available_0_8) [[nodiscard]] auto font() const -> font::reference::lua_reference;
         lua_setter(font, Available_0_8) auto set_font(const font::reference::lua_reference& font) -> void;
 

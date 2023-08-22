@@ -85,6 +85,10 @@ namespace kdtool::builder::page
                     page::basic<L>(definition, root_dir, reference_root).build();
                     break;
                 }
+                case project::structure::construct_definition::type::is_variable: {
+                    page::basic<L>(definition, root_dir, reference_root).build();
+                    break;
+                }
                 case project::structure::construct_definition::type::is_function: {
                     page::function_page<L>(definition, root_dir, reference_root).build();
                     break;

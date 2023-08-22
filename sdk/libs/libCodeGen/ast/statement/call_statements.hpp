@@ -29,8 +29,13 @@ namespace codegen::ast
     struct function_call : public statement<L>
     {
         explicit function_call(
+            const std::shared_ptr<ast::symbol<L>>& function_name
+        ) : m_function_name(function_name), m_arguments({})
+        {}
+
+        explicit function_call(
             const std::shared_ptr<ast::symbol<L>>& function_name,
-            const std::initializer_list<std::shared_ptr<ast::statement<L>>>& arguments = {}
+            const std::vector<std::shared_ptr<ast::statement<L>>>& arguments
         ) : m_function_name(function_name), m_arguments(arguments)
         {}
 

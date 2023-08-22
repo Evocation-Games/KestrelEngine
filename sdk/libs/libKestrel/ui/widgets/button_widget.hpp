@@ -64,8 +64,8 @@ namespace kestrel::ui::widgets
         lua_getter(disabledColor, Available_0_8) [[nodiscard]] auto label_disabled_color() const -> graphics::color::lua_reference;
         lua_getter(icon, Available_0_8) [[nodiscard]] auto icon() const -> image::static_image::lua_reference;
         lua_getter(action, Available_0_8) [[nodiscard]] auto action_body() const -> luabridge::LuaRef;
-        lua_function(setMouseEnter, Available_0_8) lua_getter(mouseEnter, Available_0_8) [[nodiscard]] auto mouse_enter_body() const -> luabridge::LuaRef;
-        lua_function(setMouseExit, Available_0_8)  lua_getter(mouseExit, Available_0_8) [[nodiscard]] auto mouse_exit_body() const -> luabridge::LuaRef;
+        lua_function(setMouseEnter, Available_0_8) [[nodiscard]] auto mouse_enter_body() const -> luabridge::LuaRef;
+        lua_function(setMouseExit, Available_0_8) [[nodiscard]] auto mouse_exit_body() const -> luabridge::LuaRef;
         lua_getter(userInfo, Available_0_8) [[nodiscard]] auto user_info() const -> luabridge::LuaRef;
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(disabled, Available_0_8) [[nodiscard]] auto disabled() const -> bool;
@@ -81,7 +81,7 @@ namespace kestrel::ui::widgets
         lua_setter(pressedColor, Available_0_8) auto set_label_pressed_color(const graphics::color::lua_reference& color) -> void;
         lua_setter(disabledColor, Available_0_8) auto set_label_disabled_color(const graphics::color::lua_reference& color) -> void;
         lua_setter(icon, Available_0_8) auto set_icon(const luabridge::LuaRef& info) -> void;
-        lua_function(setAction, Available_0_8) lua_setter(action, Available_0_8) auto set_action(const luabridge::LuaRef& body) -> void;
+        lua_function(setAction, Available_0_8) auto set_action(const luabridge::LuaRef& body) -> void;
         lua_setter(mouseEnter, Available_0_8) auto set_mouse_enter(const luabridge::LuaRef& body) -> void;
         lua_setter(mouseExit, Available_0_8) auto set_mouse_exit(const luabridge::LuaRef& body) -> void;
         lua_setter(userInfo, Available_0_8) auto set_user_info(const luabridge::LuaRef& info) -> void;

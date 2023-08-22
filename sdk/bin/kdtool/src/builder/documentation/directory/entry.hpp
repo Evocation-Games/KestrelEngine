@@ -38,6 +38,9 @@ namespace kdtool::builder::directory
                 if (definition->instance_type() == project::structure::construct_definition::type::is_resource_type) {
                     m_allow_children = false;
                 }
+                else if (definition->instance_type() == project::structure::construct_definition::type::is_enum) {
+                    m_allow_children = false;
+                }
             }
         }
 
@@ -46,6 +49,7 @@ namespace kdtool::builder::directory
         [[nodiscard]] auto has_file() const -> bool { return m_path.has_value(); }
         [[nodiscard]] auto is_leaf() const -> bool { return !m_allow_children || m_symbol->children().empty(); }
         [[nodiscard]] auto is_root() const -> bool { return m_symbol->parent().lock() == nullptr; }
+        [[nodiscard]] auto is_built_in() const -> bool { return m_symbol->is_built_in(); }
 
         [[nodiscard]] auto path() const -> foundation::filesystem::path
         {
@@ -65,6 +69,10 @@ namespace kdtool::builder::directory
 
         [[nodiscard]] auto style_class() const -> std::string
         {
+            if (symbol()->is_reference_stub()) {
+                return "reference";
+            }
+
             if (auto definition = symbol()->definition().lock()) {
                 switch (definition->instance_type()) {
                     case project::structure::construct_definition::type::is_namespace:              return "namespace";
@@ -73,6 +81,7 @@ namespace kdtool::builder::directory
                     case project::structure::construct_definition::type::is_enum_case:              return "enum-case";
                     case project::structure::construct_definition::type::is_function:               return "function";
                     case project::structure::construct_definition::type::is_property:               return "property";
+                    case project::structure::construct_definition::type::is_variable:               return "variable";
                     case project::structure::construct_definition::type::is_resource_type:          return "resource-type";
                     case project::structure::construct_definition::type::is_resource_field:         return "resource-field";
                     case project::structure::construct_definition::type::is_resource_value:         return "resource-field-value";
@@ -82,7 +91,7 @@ namespace kdtool::builder::directory
                         return "";
                 }
             }
-            return "";
+            return is_leaf() ? "" : "namespace";
         }
 
         auto each(const std::function<auto(const std::shared_ptr<project::structure::symbol>&)->void>& callback) -> void

@@ -50,12 +50,19 @@ namespace kdtool::builder
             generate_header_documentation();
             generate_includes();
 
+            // Generate any required the forward declarations.
+            for (const auto& definition : base::project()->all_definitions()) {
+                generate_enrollment(definition, true);
+            }
+
+            generate_global_enrollment();
+
             for (const auto& definition : base::project()->all_definitions()) {
                 generate_enrollment(definition);
             }
 
             // Save the contents of the generated source.
-            codegen::procedural_builder<L>::save("lua_api");
+            codegen::procedural_builder<L>::save();
         }
 
     private:
@@ -84,14 +91,68 @@ namespace kdtool::builder
         auto generate_global_enrollment() -> void
         {
             auto scope = codegen::procedural_builder<L>::scope();
-            auto symbol = scope->symbol("lua::enroll_object_api");
+            auto symbol = scope->symbol("kestrel::lua::enroll_lua_api");
+            auto enroll_function = std::make_shared<codegen::ast::function<L>>(symbol->resolved_name_node());
+            enroll_function->set_return_type(codegen::language::procedural::void_type<L>());
 
-            codegen::procedural_builder<L>::template add<codegen::ast::function<L>>(symbol->resolved_name_node());
+            enroll_function->add_parameter(
+                std::make_shared<codegen::ast::symbol<L>>("lua"),
+                codegen::language::procedural::const_qualified<L>(
+                    codegen::language::procedural::reference<L>(
+                        codegen::language::cxx::shared_ptr({ codegen::language::procedural::named<L>("kestrel::lua::runtime") })
+                    )
+                )
+            );
 
+            auto enroll_function_imp = std::make_shared<codegen::ast::compound_statement<L>>();
+            enroll_function->set_statement(enroll_function_imp);
+
+            for (const auto& definition : base::project()->all_definitions()) {
+                std::vector<std::shared_ptr<codegen::ast::statement<L>>> args;
+
+                if (definition->enrollment()->requires_runtime()) {
+                    args.emplace_back(std::make_shared<codegen::ast::symbol_statement<L>>("lua"));
+                }
+
+                switch (definition->instance_type()) {
+                    case project::structure::construct_definition::type::is_class: {
+                        const auto& class_definition = std::reinterpret_pointer_cast<project::structure::class_definition>(definition);
+                        if (!class_definition->all_template_variants().empty()) {
+                            for (const auto& variant : class_definition->all_template_variants()) {
+                                if (definition->enrollment()->requires_custom_name()) {
+                                    args.insert(args.begin(), std::make_shared<codegen::ast::string_statement<L>>(variant.first));
+                                }
+                                auto enroll_function_symbol = generate_enrollment_symbol(definition, { variant.second });
+                                auto call = std::make_shared<codegen::ast::function_call<L>>(
+                                    enroll_function_symbol->resolved_name_node(), args
+                                );
+                                enroll_function_imp->add_statement(call);
+                                enroll_function_imp->add_node(std::make_shared<codegen::ast::nl<L>>(), false);
+                                args.erase(args.begin());
+                            }
+                            break;
+                        }
+                    }
+                    default: {
+                        auto enroll_function_symbol = generate_enrollment_symbol(definition);
+                        auto call = std::make_shared<codegen::ast::function_call<L>>(
+                            enroll_function_symbol->resolved_name_node(), args
+                        );
+                        enroll_function_imp->add_statement(call);
+                        break;
+                    }
+                }
+                enroll_function_imp->add_node(std::make_shared<codegen::ast::nl<L>>(), false);
+            }
+
+            codegen::procedural_builder<L>::add(enroll_function);
+            codegen::procedural_builder<L>::template add<codegen::ast::nl<L>>();
         }
 
-        auto generate_enrollment(const std::shared_ptr<project::structure::construct_definition>& definition) -> void
-        {
+        auto generate_enrollment(
+            const std::shared_ptr<project::structure::construct_definition>& definition,
+            bool declaration_only = false
+        ) -> void {
             if (!definition->enrollment()) {
                 return;
             }
@@ -99,9 +160,32 @@ namespace kdtool::builder
             auto enroll_function = std::make_shared<codegen::ast::function<L>>(enroll_function_symbol->resolved_name_node());
             enroll_function->set_return_type(codegen::language::procedural::void_type<L>());
 
+            if (definition->instance_type() == project::structure::construct_definition::type::is_class) {
+                const auto class_definition = std::reinterpret_pointer_cast<project::structure::class_definition>(definition);
+                if (!class_definition->all_template_variants().empty()) {
+                    enroll_function->add_template_parameter(
+                        codegen::language::procedural::named<L>("T")
+                    );
+                }
+            }
+
+            std::string definition_name = definition->symbol()->name();
+
+            if (definition->enrollment()->requires_custom_name()) {
+                definition_name = "name";
+                enroll_function->add_parameter(
+                    std::make_shared<codegen::ast::symbol<L>>(definition_name),
+                    codegen::language::procedural::const_qualified<L>(
+                        codegen::language::procedural::reference<L>(
+                            codegen::language::procedural::string_type<L>()
+                        )
+                    )
+                );
+            }
+
             if (definition->enrollment()->requires_runtime()) {
                 enroll_function->add_parameter(
-                std::make_shared<codegen::ast::symbol<L>>("lua"),
+                    std::make_shared<codegen::ast::symbol<L>>("lua"),
                     codegen::language::procedural::const_qualified<L>(
                         codegen::language::procedural::reference<L>(
                             codegen::language::cxx::shared_ptr({ codegen::language::procedural::named<L>("kestrel::lua::runtime") })
@@ -110,53 +194,67 @@ namespace kdtool::builder
                 );
             }
 
-            auto enroll_function_imp = std::make_shared<codegen::ast::compound_statement<L>>();
-            enroll_function->set_statement(enroll_function_imp);
+            if (!declaration_only) {
+                auto enroll_function_imp = std::make_shared<codegen::ast::compound_statement<L>>();
+                enroll_function->set_statement(enroll_function_imp);
 
-            auto namespaces = foundation::string::split(definition->symbol()->resolved_name(), ".");
-            namespaces.pop_back();
+                auto namespaces = foundation::string::split(definition->symbol()->display_name(), ".");
+                namespaces.pop_back();
 
-            enroll_function_imp->add_statement(
-                luabridge<L>::global_namespace()
-                    .namespaces(namespaces, [&] (luabridge<L>& lua) {
+                enroll_function_imp->add_statement(
+                    luabridge<L>::global_namespace()
+                        .namespaces(namespaces, [&] (luabridge<L>& lua) {
 
-                        switch (definition->instance_type()) {
-                            case project::structure::construct_definition::type::is_class: {
-                                lua.add_class(std::reinterpret_pointer_cast<project::structure::class_definition>(definition));
-                                break;
+                            switch (definition->instance_type()) {
+                                case project::structure::construct_definition::type::is_class: {
+                                    lua.add_class(std::reinterpret_pointer_cast<project::structure::class_definition>(definition));
+                                    break;
+                                }
+
+                                case project::structure::construct_definition::type::is_enum: {
+                                    const auto &enum_definition = std::reinterpret_pointer_cast<project::structure::enum_definition>(definition);
+                                    codegen::procedural_builder<L>::add(lua.prepare_enum_cases(enum_definition));
+                                    lua.add_enum(enum_definition);
+                                    break;
+                                }
+
+                                case project::structure::construct_definition::type::is_namespace: {
+                                    lua.add_namespace(std::reinterpret_pointer_cast<project::structure::namespace_definition>(definition));
+                                    break;
+                                }
+                                default: break;
                             }
 
-                            case project::structure::construct_definition::type::is_enum: {
-                                const auto &enum_definition = std::reinterpret_pointer_cast<project::structure::enum_definition>(definition);
-                                codegen::procedural_builder<L>::add(lua.prepare_enum_cases(enum_definition));
-                                lua.add_enum(enum_definition);
-                                break;
-                            }
-
-                            case project::structure::construct_definition::type::is_namespace: {
-                                lua.add_namespace(std::reinterpret_pointer_cast<project::structure::namespace_definition>(definition));
-                                break;
-                            }
-                            default: break;
-                        }
-
-                    })
-                    .end()
-            );
+                        })
+                        .end()
+                );
+            }
+            else {
+                if (definition->instance_type() != project::structure::construct_definition::type::is_enum) {
+                    return;
+                }
+            }
 
             codegen::procedural_builder<L>::add(enroll_function);
         }
 
     private:
         auto generate_enrollment_symbol(
-            const std::shared_ptr<project::structure::construct_definition>& definition
+            const std::shared_ptr<project::structure::construct_definition>& definition,
+            const std::vector<std::string>& template_parameters = {}
         ) -> std::shared_ptr<codegen::language::procedural::symbol<L>> {
             auto scope = codegen::procedural_builder<L>::scope();
             switch (definition->instance_type()) {
-                case project::structure::construct_definition::type::is_namespace:
-                case project::structure::construct_definition::type::is_class: {
+                case project::structure::construct_definition::type::is_namespace: {
                     return scope->symbol({
                         definition->symbol()->source_resolved_identifier(),
+                        definition->enrollment()->symbol()->name()
+                    });
+                }
+                case project::structure::construct_definition::type::is_class: {
+                    const auto& class_definition = std::reinterpret_pointer_cast<project::structure::class_definition>(definition);
+                    return scope->symbol({
+                        definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string(), "", template_parameters),
                         definition->enrollment()->symbol()->name()
                     });
                 }

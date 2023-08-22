@@ -28,7 +28,6 @@ namespace kestrel::lua
     /**
      * A vector that is compatible with the Lua Scripting Environment, aware of the method of indexing
      * that Lua uses.
-     * @tparam T    The type of value contained in the vector.
      */
     template<typename T>
     struct lua_api(Vector, Available_0_8) vector

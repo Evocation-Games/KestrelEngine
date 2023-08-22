@@ -211,7 +211,7 @@ namespace kdtool::builder
 
         auto add_class(const std::shared_ptr<project::structure::class_definition>& definition) -> luabridge<L>&
         {
-            return define_class(definition->symbol()->source_resolved_identifier(), definition->symbol()->name(), [&] (auto& lua) {
+            return define_class(definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()), definition->symbol()->name(), [&] (auto& lua) {
                 add_constructor(definition);
 
                 for (const auto& property : definition->all_properties()) {
@@ -292,15 +292,15 @@ namespace kdtool::builder
             if (definition->is_static()) {
                 add_static_property(
                     definition->symbol()->name(),
-                    definition->getter()->symbol()->source_resolved_identifier(),
-                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier() : ""
+                    definition->getter() ? definition->getter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : "",
+                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : ""
                 );
             }
             else {
                 add_property(
                     definition->symbol()->name(),
-                    definition->getter()->symbol()->source_resolved_identifier(),
-                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier() : ""
+                    definition->getter() ? definition->getter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : "",
+                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : ""
                 );
             }
             return *this;
@@ -309,15 +309,15 @@ namespace kdtool::builder
         auto add_function(const std::shared_ptr<project::structure::function_definition>& definition) -> luabridge<L>&
         {
             if (definition->is_static()) {
-                add_function(
+                add_static_function(
                     definition->symbol()->name(),
-                    definition->symbol()->source_resolved_identifier()
+                    definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string())
                 );
             }
             else {
                 add_function(
                     definition->symbol()->name(),
-                    definition->symbol()->source_resolved_identifier()
+                    definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string())
                 );
             }
             return *this;

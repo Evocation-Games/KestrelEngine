@@ -17,6 +17,9 @@ cmake-*-jit/
 *.o
 *.bin
 build/
+docs/CosmicFrontier
+docs/libKestrel/html
+docs/libKestrel/style.css
 support/vendor/
 support/packaging/appimage/appimagetool
 result.kdat

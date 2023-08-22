@@ -49,14 +49,17 @@ namespace codegen::language::procedural
             std::shared_ptr<scope<L>> child;
         };
 
-        [[nodiscard]] auto symbol(const std::string& name) -> std::shared_ptr<struct procedural::symbol<L>>
-        {
+        [[nodiscard]] auto symbol(
+            const std::string& name
+        ) -> std::shared_ptr<struct procedural::symbol<L>> {
             auto name_components = foundation::string::split(name, L::scope_resolution_operator_string());
             return symbol(name_components);
         }
 
-        [[nodiscard]] auto symbol(const std::vector<std::string>& name, const std::vector<std::string>& resolved = {}) -> std::shared_ptr<struct procedural::symbol<L>>
-        {
+        [[nodiscard]] auto symbol(
+            const std::vector<std::string>& name,
+            const std::vector<std::string>& resolved = {}
+        ) -> std::shared_ptr<struct procedural::symbol<L>> {
             // Get the first name in the vector, and remove it.
             auto components = name;
             auto current_name = components.front();

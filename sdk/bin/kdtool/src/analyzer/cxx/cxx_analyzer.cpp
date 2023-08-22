@@ -26,6 +26,7 @@
 #include "project/structure/class/class_definition.hpp"
 #include "project/structure/enum/enum_definition.hpp"
 #include "project/structure/function/function_definition.hpp"
+#include "project/structure/class/variable/variable_definition.hpp"
 #include "project/structure/class/constructor/constructor_definition.hpp"
 #include "project/structure/enrollment/enrollment.hpp"
 #include "project/structure/type/type.hpp"
@@ -184,7 +185,7 @@ auto kdtool::cxx::analyzer::visit_node(CXCursor cursor, CXCursor parent, CXClien
             context->visit_parameter(cursor);
             break;
         }
-        case CXCursor_TemplateTemplateParameter: {
+        case CXCursor_TemplateTypeParameter: {
             context->visit_template_parameter(cursor, parent);
             break;
         }
@@ -205,6 +206,15 @@ auto kdtool::cxx::analyzer::visit_annotation(CXCursor cursor, CXCursor parent) -
     if (annotations.has(scripting::annotation::tag::parameter_type)) {
         register_parameter_type_fix(annotations);
         return;
+    }
+    else if (annotations.has(scripting::annotation::tag::template_variant)) {
+        if (const auto& class_definition = parent_definition<project::structure::class_definition>()) {
+            class_definition->add_template_variant(
+                annotations.attachment(scripting::annotation::tag::symbol).value(),
+                annotations.attachment(scripting::annotation::tag::template_variant).value()
+            );
+            return;
+        }
     }
 
     switch (clang_getCursorKind(parent)) {
@@ -305,7 +315,7 @@ auto kdtool::cxx::analyzer::visit_function(CXCursor cursor) -> void
 
 auto kdtool::cxx::analyzer::visit_template_parameter(CXCursor cursor, CXCursor parent) -> void
 {
-
+    m_state.template_type_parameters.emplace_back(clang::spelling(cursor));
 }
 
 // MARK: - Construct Definitions
@@ -330,11 +340,27 @@ auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::a
         }
         symbol_name += node->symbol()->resolved_name() + ".";
     }
-    symbol_name += annotations.attachment(scripting::annotation::tag::symbol).value();
-    symbol = m_index->symbol_named(symbol_name);
 
-    // Generate the source CXX symbol
-    symbol->add_source_identifier(clang::spelling(cursor), foundation::string::joined(m_state.name_stack, "::"));
+    // Source CXX Symbol
+    std::string source_symbol_parameters;
+    auto source_symbol_resolved = foundation::string::joined(m_state.name_stack, "::");
+    auto source_symbol = clang::spelling(cursor);
+
+    if (!m_state.template_type_parameters.empty()) {
+        std::vector<std::string> template_parameters;
+        template_parameters.reserve(m_state.template_type_parameters.size());
+        for (const auto& param : m_state.template_type_parameters) {
+            template_parameters.emplace_back(param);
+        }
+        m_state.template_type_parameters.clear();
+        source_symbol_parameters = "<" + foundation::string::joined(template_parameters, ", ") + ">";
+    }
+    auto source_symbol_name = source_symbol_resolved + source_symbol_parameters;
+
+    // Create the symbol
+    symbol_name += annotations.attachment(scripting::annotation::tag::symbol).value();
+    symbol = m_index->symbol_named(source_symbol_resolved, "::");
+    symbol->set_display_name(symbol_name);
 
     if (is_static) {
         symbol->make_static();
@@ -513,7 +539,26 @@ auto kdtool::cxx::analyzer::construct_function(CXCursor cursor, CXCursor parent,
 
 auto kdtool::cxx::analyzer::construct_variable(CXCursor cursor, CXCursor parent, const scripting::annotation::set &annotations) -> std::shared_ptr<project::structure::construct_definition>
 {
-    return nullptr;
+    const auto& symbol = construct_symbol(parent, annotations);
+    if (!symbol) {
+        return nullptr;
+    }
+
+    auto var = std::make_shared<struct project::structure::variable_definition>(symbol);
+    var->set_location(m_state.filepath);
+    symbol->set_definition(var);
+
+    if (annotations.has(scripting::annotation::tag::mutability)) {
+    }
+
+    if (auto class_definition = current_definition<struct project::structure::class_definition>()) {
+        class_definition->add(var);
+    }
+    else if (auto namespace_definition = current_definition<struct project::structure::namespace_definition>()) {
+        namespace_definition->add(var);
+    }
+
+    return var;
 }
 
 auto kdtool::cxx::analyzer::construct_parameter(CXCursor cursor) -> std::shared_ptr<project::structure::construct_definition>

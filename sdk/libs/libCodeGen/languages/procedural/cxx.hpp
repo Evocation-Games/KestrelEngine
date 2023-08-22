@@ -223,6 +223,24 @@ namespace codegen::language
             return name + "<" + specialization_str + ">";
         }
 
+        [[nodiscard]] static auto template_specialization_decl(const std::vector<std::string>& params) -> emit::segment
+        {
+            if (params.empty()) {
+                return emit::segment("");
+            }
+
+            std::vector<emit::segment> out;
+            out.emplace_back("template<");
+            for (const auto& param : params) {
+                if (out.size() > 1) {
+                    out.emplace_back(", ");
+                }
+                out.emplace_back("typename " + param);
+            }
+            out.emplace_back(">");
+            return emit::segment(out);
+        }
+
         [[nodiscard]] static auto shared_ptr(const std::initializer_list<procedural::type_system<cxx>::type_id>& specializations = {}) -> procedural::type_system<cxx>::type_id
         {
             return procedural::template_specailized<cxx>(

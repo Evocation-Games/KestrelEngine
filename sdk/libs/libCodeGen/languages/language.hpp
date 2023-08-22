@@ -114,6 +114,7 @@ namespace codegen::language
         { L::type_name_pointer(str) } -> std::same_as<std::string>;
         { L::type_name_reference(str) } -> std::same_as<std::string>;
         { L::template_specialized_type_name(str, str_list) } -> std::same_as<std::string>;
+        { L::template_specialization_decl(str_list) } -> std::same_as<emit::segment>;
     };
 
     template<class L>

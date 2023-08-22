@@ -27,6 +27,7 @@
 #include "project/structure/construct_definition.hpp"
 #include "project/structure/class/constructor/constructor_definition.hpp"
 #include "project/structure/class/property/property_definition.hpp"
+#include "project/structure/class/variable/variable_definition.hpp"
 #include "project/structure/function/function_definition.hpp"
 #include "project/structure/enrollment/enrollment.hpp"
 
@@ -51,15 +52,22 @@ namespace kdtool::project::structure
         auto set(const std::shared_ptr<struct enrollment>& enrollment) -> void override;
         auto set(const std::shared_ptr<struct constructor_definition>& constructor) -> void;
         auto add(const std::shared_ptr<struct function_definition>& function) -> void;
+        auto add(const std::shared_ptr<struct variable_definition>& variable) -> void;
+        auto add_template_variant(const std::string& variant, const std::string& type) -> void;
 
         [[nodiscard]] auto property(const std::shared_ptr<struct symbol>& name) -> std::shared_ptr<struct property_definition>;
         [[nodiscard]] auto constructor() const -> std::shared_ptr<struct constructor_definition>;
         [[nodiscard]] auto all_properties() const -> std::vector<std::shared_ptr<struct property_definition>>;
         [[nodiscard]] auto all_functions() const -> std::vector<std::shared_ptr<struct function_definition>>;
+        [[nodiscard]] auto all_variables() const -> std::vector<std::shared_ptr<struct variable_definition>>;
+        [[nodiscard]] auto all_template_variants() -> std::unordered_map<std::string, std::string>;
 
     private:
         std::shared_ptr<struct constructor_definition> m_constructor;
         std::vector<std::shared_ptr<struct function_definition>> m_functions;
         std::unordered_map<std::string, std::shared_ptr<struct property_definition>> m_properties;
+        std::unordered_map<std::string, std::shared_ptr<struct variable_definition>> m_variables;
+        std::unordered_map<std::string, std::string> m_template_variants;
+        std::vector<std::string> m_template_parameters;
     };
 }

@@ -77,3 +77,32 @@ auto kdtool::project::structure::class_definition::all_properties() const -> std
     }
     return std::move(out);
 }
+
+// MARK: - Variable Management
+
+auto kdtool::project::structure::class_definition::add(const std::shared_ptr<struct variable_definition> &var) -> void
+{
+    m_variables.emplace(var->name(), var);
+}
+
+auto kdtool::project::structure::class_definition::all_variables() const -> std::vector<std::shared_ptr<struct variable_definition>>
+{
+    std::vector<std::shared_ptr<struct variable_definition>> out;
+    out.reserve(m_variables.size());
+    for (const auto& property : m_variables) {
+        out.emplace_back(property.second);
+    }
+    return std::move(out);
+}
+
+// MARK: - Template Variants
+
+auto kdtool::project::structure::class_definition::all_template_variants() -> std::unordered_map<std::string, std::string>
+{
+    return m_template_variants;
+}
+
+auto kdtool::project::structure::class_definition::add_template_variant(const std::string &variant, const std::string &type) -> void
+{
+    m_template_variants.emplace(variant, type);
+}

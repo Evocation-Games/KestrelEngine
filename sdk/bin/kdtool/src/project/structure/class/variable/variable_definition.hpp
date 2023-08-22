@@ -22,24 +22,22 @@
 
 #include <vector>
 #include <memory>
-#include <string>
 #include <unordered_map>
 #include "project/structure/construct_definition.hpp"
-#include "project/structure/class/property/property_definition.hpp"
-#include "project/structure/class/variable/variable_definition.hpp"
+#include "project/structure/class/constructor/constructor_definition.hpp"
 #include "project/structure/function/function_definition.hpp"
 
 namespace kdtool::project::structure
 {
-    struct namespace_definition : public construct_definition
+    struct variable_definition : public construct_definition
     {
-        explicit namespace_definition(const std::shared_ptr<struct symbol>& symbol)
+        explicit variable_definition(const std::shared_ptr<struct symbol>& symbol)
             : construct_definition(symbol)
         {}
 
         static auto type() -> enum type
         {
-            return type::is_namespace;
+            return type::is_variable;
         }
 
         [[nodiscard]] auto instance_type() const -> enum type override
@@ -47,17 +45,12 @@ namespace kdtool::project::structure
             return type();
         }
 
-        auto add(const std::shared_ptr<struct function_definition>& function) -> void;
-        auto add(const std::shared_ptr<struct variable_definition>& variable) -> void;
+        [[nodiscard]] auto name() const -> std::string { return symbol()->name(); }
+        [[nodiscard]] auto filename() const -> foundation::filesystem::path { return symbol()->filename(); }
 
-        [[nodiscard]] auto property(const std::shared_ptr<struct symbol>& name) -> std::shared_ptr<struct property_definition>;
-        [[nodiscard]] auto all_properties() const -> std::vector<std::shared_ptr<struct property_definition>>;
-        [[nodiscard]] auto all_functions() const -> std::vector<std::shared_ptr<struct function_definition>>;
-        [[nodiscard]] auto all_variables() const -> std::vector<std::shared_ptr<struct variable_definition>>;
+        [[nodiscard]] auto is_static() const -> bool { return symbol()->is_static(); }
+        [[nodiscard]] auto is_mutable() const -> bool { return symbol()->is_mutable(); }
+        [[nodiscard]] auto is_constant() const -> bool { return symbol()->is_constant(); }
 
-    private:
-        std::vector<std::shared_ptr<struct function_definition>> m_functions;
-        std::unordered_map<std::string, std::shared_ptr<struct property_definition>> m_properties;
-        std::unordered_map<std::string, std::shared_ptr<struct variable_definition>> m_variables;
     };
 }

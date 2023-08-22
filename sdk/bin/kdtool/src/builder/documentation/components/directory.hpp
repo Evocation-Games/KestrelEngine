@@ -34,13 +34,24 @@ namespace kdtool::builder::component
     {
         explicit directory(const std::shared_ptr<struct builder::directory::entry>& entry, const std::string& root_dir, const std::string& reference_root, bool is_root = false)
             : m_entries({ entry }), m_root(is_root), m_root_dir(root_dir), m_reference_root(reference_root)
-        {}
+        {
+            sort();
+        }
 
         explicit directory(const std::vector<std::shared_ptr<struct builder::directory::entry>>& entry, const std::string& root_dir, const std::string& reference_root, bool is_root = false)
             : m_entries(entry), m_root(is_root), m_root_dir(root_dir), m_reference_root(reference_root)
-        {}
+        {
+            sort();
+        }
 
-        [[nodiscard]] auto emit() const -> codegen::emit::segment override
+        auto sort() -> void
+        {
+            std::sort(m_entries.begin(), m_entries.end(), [&] (const auto& lhs, const auto& rhs) {
+                return (lhs->name() < rhs->name());
+            });
+        }
+
+        [[nodiscard]] auto list() const -> std::shared_ptr<codegen::ast::list<L>>
         {
             auto list = std::make_shared<codegen::ast::list<L>>();
             for (const auto& entry : m_entries) {
@@ -48,37 +59,56 @@ namespace kdtool::builder::component
                     continue;
                 }
 
+                std::shared_ptr<codegen::ast::list_item<L>> list_item;
+
                 if (entry->has_file() && entry->symbol()->definition().lock()) {
                     auto path = entry->path().string();
                     if (path.starts_with("/")) {
                         path.erase(0, 1);
                     }
 
-                    list->template add_item<codegen::ast::list_item<L>>(
+                    list_item = list->template add_item<codegen::ast::list_item<L>>(
                         std::make_shared<codegen::ast::anchor<L>>(
                             entry->name(),
                             path + "." + L::extension()
                         )
-                    )->add_style_class(entry->style_class());
+                    );
 
                     // Synthesize the page for this entry.
                     page::layout_decider<L>::using_definition(entry->symbol()->definition(), m_root_dir, m_reference_root);
                 }
                 else {
-                    list->template add_item<codegen::ast::list_item<L>>(entry->name())
-                        ->add_style_class(entry->style_class());
+                    list_item = list->template add_item<codegen::ast::list_item<L>>(entry->name());
                 }
 
+                list_item->add_style_class(entry->style_class());
+
                 // TODO: Fix this...
-//                if (!entry->is_leaf()) {
-//                    decltype(m_entries) children;
-//                    entry->each([&] (const auto& child) {
-//                        children.emplace_back(std::make_shared<builder::directory::entry>(child));
-//                    });
-//                    buffer.add(std::make_shared<directory<L>>(children, m_root_dir, m_reference_root));
-//                }
+                if (!entry->is_leaf()) {
+                    decltype(m_entries) children;
+                    entry->each([&] (const auto& child) {
+                        auto new_entry = std::make_shared<builder::directory::entry>(child);
+                        if (new_entry->is_built_in()) {
+                            return;
+                        }
+                        if (!new_entry->has_file()) {
+                            return;
+                        }
+                        children.emplace_back(new_entry);
+                    });
+
+                    if (!children.empty()) {
+                        auto sublist = std::make_shared<directory<L>>(children, m_root_dir, m_reference_root);
+                        list_item->add_content(sublist->list());
+                    }
+                }
             }
-            return list->emit();
+            return list;
+        }
+
+        [[nodiscard]] auto emit() const -> codegen::emit::segment override
+        {
+            return list()->emit();
         }
 
     private:

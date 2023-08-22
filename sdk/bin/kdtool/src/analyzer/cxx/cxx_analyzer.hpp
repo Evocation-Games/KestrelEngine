@@ -116,6 +116,7 @@ namespace kdtool::cxx
             std::vector<std::string> name_stack;
             std::vector<std::shared_ptr<struct project::structure::construct_definition>> definition_stack;
             std::unordered_map<std::string, std::shared_ptr<struct project::structure::type::base>> parameter_type_fixes;
+            std::vector<std::string> template_type_parameters;
         } m_state;
 
         std::shared_ptr<project::index> m_index;

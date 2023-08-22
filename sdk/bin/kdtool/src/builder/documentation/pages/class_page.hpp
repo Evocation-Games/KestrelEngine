@@ -57,35 +57,52 @@ namespace kdtool::builder::page
             const auto& klass = basic<L>::template definition<project::structure::class_definition>();
 
             // Instance Variables
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Variables", 2);
+            if (!klass->all_variables().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Variables", 2);
+                auto variable_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &var: klass->all_variables()) {
+                    variable_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            var->name(),
+                            var->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("variable");
+                    basic<L>::layout_decision(var);
+                }
+                codegen::builder<L>::add(variable_list);
+            }
 
             // Properties
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Properties", 2);
-            auto properties_list = std::make_shared<codegen::ast::list<L>>();
-            for (const auto& property : klass->all_properties()) {
-                properties_list->template add_item<codegen::ast::list_item<L>>(
-                    std::make_shared<codegen::ast::anchor<L>>(
-                        property->name(),
-                        property->symbol()->filename().name() + "." + L::extension()
-                    )
-                )->add_style_class("property");
-                basic<L>::layout_decision(property);
+            if (!klass->all_properties().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Properties", 2);
+                auto properties_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &property: klass->all_properties()) {
+                    properties_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            property->name(),
+                            property->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("property");
+                    basic<L>::layout_decision(property);
+                }
+                codegen::builder<L>::add(properties_list);
             }
-            codegen::builder<L>::add(properties_list);
 
             // Functions
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Functions", 2);
-            auto functions_list = std::make_shared<codegen::ast::list<L>>();
-            for (const auto& function : klass->all_functions()) {
-                functions_list->template add_item<codegen::ast::list_item<L>>(
-                    std::make_shared<codegen::ast::anchor<L>>(
-                        function->symbol()->display_name(),
-                        function->symbol()->filename().name() + "." + L::extension()
-                    )
-                )->add_style_class("function");
-                basic<L>::layout_decision(function);
+            if (!klass->all_functions().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Functions", 2);
+                auto functions_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &function: klass->all_functions()) {
+                    functions_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            function->symbol()->display_name(),
+                            function->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("function");
+                    basic<L>::layout_decision(function);
+                }
+                codegen::builder<L>::add(functions_list);
             }
-            codegen::builder<L>::add(functions_list);
 
         }
     };

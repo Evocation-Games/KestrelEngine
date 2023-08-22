@@ -56,33 +56,53 @@ namespace kdtool::builder::page
         {
             const auto& ns = basic<L>::template definition<project::structure::namespace_definition>();
 
-            // Properties
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Properties", 2);
-            auto properties_list = std::make_shared<codegen::ast::list<L>>();
-            for (const auto& property : ns->all_properties()) {
-                properties_list->template add_item<codegen::ast::list_item<L>>(
-                    std::make_shared<codegen::ast::anchor<L>>(
-                        property->name(),
-                        property->symbol()->filename().name() + "." + L::extension()
-                    )
-                )->add_style_class("property");
-                basic<L>::layout_decision(property);
+            // Variables
+            if (!ns->all_variables().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Variables", 2);
+                auto variable_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &var: ns->all_variables()) {
+                    variable_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            var->name(),
+                            var->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("variable");
+                    basic<L>::layout_decision(var);
+                }
+                codegen::builder<L>::add(variable_list);
             }
-            codegen::builder<L>::add(properties_list);
+
+            // Properties
+            if (!ns->all_properties().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Properties", 2);
+                auto properties_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &property: ns->all_properties()) {
+                    properties_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            property->name(),
+                            property->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("property");
+                    basic<L>::layout_decision(property);
+                }
+                codegen::builder<L>::add(properties_list);
+            }
 
             // Functions
-            codegen::builder<L>::template add<codegen::ast::heading<L>>("Functions", 2);
-            auto functions_list = std::make_shared<codegen::ast::list<L>>();
-            for (const auto& function : ns->all_functions()) {
-                functions_list->template add_item<codegen::ast::list_item<L>>(
-                    std::make_shared<codegen::ast::anchor<L>>(
-                        function->symbol()->display_name(),
-                        function->symbol()->filename().name() + "." + L::extension()
-                    )
-                )->add_style_class("function");
-                basic<L>::layout_decision(function);
+            if (!ns->all_functions().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Functions", 2);
+                auto functions_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &function: ns->all_functions()) {
+                    functions_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            function->symbol()->display_name(),
+                            function->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("function");
+                    basic<L>::layout_decision(function);
+                }
+                codegen::builder<L>::add(functions_list);
             }
-            codegen::builder<L>::add(functions_list);
 
         }
     };

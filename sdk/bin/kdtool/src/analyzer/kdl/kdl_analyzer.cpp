@@ -51,7 +51,7 @@ auto kdtool::kdl::analyzer::run() -> void
 auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const std::string& code) -> std::shared_ptr<project::structure::symbol>
 {
     std::shared_ptr<project::structure::symbol> symbol;
-    auto symbol_name = "rsrc-type:" + type_name + "<" + code + ">";
+    auto symbol_name = type_name;
     symbol = m_index->symbol_named(symbol_name);
     symbol->set_basename(type_name);
     symbol->set_display_name(type_name);
@@ -62,7 +62,7 @@ auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const
 auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const std::string& code, const std::string& field) -> std::shared_ptr<project::structure::symbol>
 {
     std::shared_ptr<project::structure::symbol> symbol;
-    auto symbol_name = "rsrc-type-member:" + type_name + "<" + code + ">:" + field;
+    auto symbol_name = type_name + "." + field;
     symbol = m_index->symbol_named(symbol_name);
     symbol->set_basename(field);
     symbol->set_display_name(field);
@@ -73,7 +73,7 @@ auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const
 auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const std::string& code, const std::string& field, const std::string& value) -> std::shared_ptr<project::structure::symbol>
 {
     std::shared_ptr<project::structure::symbol> symbol;
-    auto symbol_name = "rsrc-type-member:" + type_name + "<" + code + ">:" + field + ":" + value;
+    auto symbol_name = type_name + "." + field + "." + value;
     symbol = m_index->symbol_named(symbol_name);
     symbol->set_basename(value);
     symbol->set_display_name(value);
@@ -89,15 +89,13 @@ auto kdtool::kdl::analyzer::construct_symbol(
     const std::string& sym
 ) -> std::shared_ptr<project::structure::symbol> {
     std::shared_ptr<project::structure::symbol> symbol;
-    auto symbol_name = "rsrc-type-member:" + type_name + "<" + code + ">:" + field + ":" + value + "." + sym;
+    auto symbol_name = type_name + "." + field + "." + value + "." + sym;
     symbol = m_index->symbol_named(symbol_name);
     symbol->set_basename(sym);
     symbol->set_display_name(sym);
     symbol->set_source_identifier(code);
     return symbol;
 }
-
-
 
 auto kdtool::kdl::analyzer::construct_documentation(const std::shared_ptr<project::structure::symbol>& symbol, const std::vector<resource::decorator>& decorators) -> void
 {
@@ -157,6 +155,9 @@ auto kdtool::kdl::analyzer::construct_resource_type(const resource::definition::
     }
     if (type.has_decorator("__builtin")) {
         symbol->make_built_in();
+    }
+    if (type.has_decorator("__referenceStub")) {
+        symbol->make_reference_stub();
     }
 
     auto resource_type_definition = std::make_shared<struct project::structure::resource_type_definition>(symbol);

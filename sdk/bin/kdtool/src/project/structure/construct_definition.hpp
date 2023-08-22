@@ -24,10 +24,10 @@
 #include <string>
 #include <concepts>
 #include <libFoundation/system/filesystem/path.hpp>
+#include "project/structure/symbol.hpp"
 
 namespace kdtool::project::structure
 {
-    struct symbol;
     struct enrollment;
 
     struct construct_definition
@@ -41,10 +41,20 @@ namespace kdtool::project::structure
             return m_symbol;
         }
 
+        [[nodiscard]] auto is_root() const -> bool
+        {
+            return m_symbol->is_root();
+        }
+
+        [[nodiscard]] auto is_built_in() const -> bool
+        {
+            return m_symbol->is_built_in();
+        }
+
         enum class type
         {
             // CXX
-            none, is_namespace, is_class, is_enum, is_function, is_constructor, is_property, is_enum_case,
+            none, is_namespace, is_class, is_enum, is_function, is_constructor, is_property, is_enum_case, is_variable,
             // KDL
             is_resource_type, is_resource_field, is_resource_value, is_resource_value_symbol, is_resource_constructor,
         };

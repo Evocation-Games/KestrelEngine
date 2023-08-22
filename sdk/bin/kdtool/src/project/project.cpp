@@ -106,9 +106,9 @@ auto kdtool::project::index::add_translation_unit(const std::string &path) -> vo
 
 // MARK: - Symbol Management
 
-auto kdtool::project::index::symbol_named(const std::string& resolved_name) -> std::shared_ptr<structure::symbol>
+auto kdtool::project::index::symbol_named(const std::string& resolved_name, const std::string& delimiter) -> std::shared_ptr<structure::symbol>
 {
-    const auto name_stack = foundation::string::split(resolved_name, ".");
+    const auto name_stack = foundation::string::split(resolved_name, delimiter);
     std::shared_ptr<structure::symbol> symbol;
     for (const auto& name : name_stack) {
         auto new_symbol = std::make_shared<structure::symbol>(name, symbol);
@@ -120,10 +120,11 @@ auto kdtool::project::index::symbol_named(const std::string& resolved_name) -> s
 auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>& symbol, int indent) -> std::shared_ptr<structure::symbol>
 {
     // Check for the existance of the symbol.
-    const auto name = symbol->name();
-    auto it = m_symbols.find(name);
+    const auto hash = symbol->hash();
+    auto it = m_symbols.find(hash);
     if (it == m_symbols.end()) {
-        m_symbols.emplace(name, symbol);
+        m_symbols.emplace(hash, symbol);
+        std::cout << "* Add symbol: " << hash << std::endl;
 
         if (auto parent = symbol->parent().lock()) {
             parent->add_child(symbol);
@@ -144,7 +145,7 @@ auto kdtool::project::index::all_root_symbols() const -> std::vector<std::shared
 {
     std::vector<std::shared_ptr<structure::symbol>> out;
     for (const auto& sym : m_symbols) {
-        if (sym.second->is_root()) {
+        if (sym.second->is_root() && !sym.second->is_built_in()) {
             out.emplace_back(sym.second);
         }
     }
@@ -153,18 +154,13 @@ auto kdtool::project::index::all_root_symbols() const -> std::vector<std::shared
 
 // MARK: - Definition Management
 
-auto kdtool::project::index::all_definitions() const -> std::vector<std::shared_ptr<structure::construct_definition>>
+auto kdtool::project::index::all_definitions() const -> const std::vector<std::shared_ptr<structure::construct_definition>>&
 {
-    std::vector<std::shared_ptr<structure::construct_definition>> out;
-    out.reserve(m_definitions.size());
-    for (const auto& it : m_definitions) {
-        out.emplace_back(it.second);
-    }
-    return std::move(out);
+    return m_definitions;
 }
 
 auto kdtool::project::index::add_definition(const std::shared_ptr<structure::construct_definition>& definition) -> void
 {
     add_symbol(definition->symbol());
-    m_definitions.emplace(definition->symbol()->name(), definition);
+    m_definitions.emplace_back(definition);
 }

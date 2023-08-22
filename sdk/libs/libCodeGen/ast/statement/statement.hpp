@@ -29,14 +29,19 @@ namespace codegen::ast
     template<language::statement_support L>
     struct statement : public node
     {
-
+        [[nodiscard]] virtual auto requires_terminator() const -> bool { return true; }
     };
 
     template<language::statement_support L>
     struct segment_statement : public statement<L>
     {
-        explicit segment_statement(const emit::segment& segment) : m_segment(segment) {}
-        explicit segment_statement(const std::vector<emit::segment>& segments) : m_segment(segments) {}
+        explicit segment_statement(const emit::segment& segment, bool terminator = true) : m_segment(segment), m_terminator(terminator) {}
+        explicit segment_statement(const std::vector<emit::segment>& segments, bool terminator = true) : m_segment(segments), m_terminator(terminator) {}
+
+        [[nodiscard]] auto requires_terminator() const -> bool override
+        {
+            return m_terminator;
+        }
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
@@ -45,6 +50,7 @@ namespace codegen::ast
 
     private:
         emit::segment m_segment;
+        bool m_terminator;
     };
 
     template<language::compound_statement_support L>
@@ -55,13 +61,20 @@ namespace codegen::ast
             m_statements.emplace_back(statement);
         }
 
+        virtual auto add_node(const std::shared_ptr<ast::node>& node, bool terminator) -> void
+        {
+            m_statements.emplace_back(std::make_shared<segment_statement<L>>(node->emit(), terminator));
+        }
+
         [[nodiscard]] auto emit() const -> emit::segment override
         {
             std::vector<emit::segment> out;
             out.emplace_back(L::begin_compound_statement());
             for (const auto& stmt : m_statements) {
                 out.emplace_back(stmt->emit());
-                out.emplace_back(L::statement_end_operator_string());
+                if (stmt->requires_terminator()) {
+                    out.emplace_back(L::statement_end_operator_string());
+                }
             }
             out.emplace_back(L::end_compound_statement());
             return emit::segment(out);

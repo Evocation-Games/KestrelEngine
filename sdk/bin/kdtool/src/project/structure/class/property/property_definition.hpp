@@ -48,7 +48,18 @@ namespace kdtool::project::structure
         [[nodiscard]] auto name() const -> std::string { return symbol()->name(); }
         [[nodiscard]] auto filename() const -> foundation::filesystem::path { return symbol()->filename(); }
 
-        [[nodiscard]] auto is_static() const -> bool { return getter()->is_static(); }
+        [[nodiscard]] auto is_static() const -> bool
+        {
+            if (getter()) {
+                return getter()->is_static();
+            }
+            else if (setter()) {
+                return setter()->is_static();
+            }
+            else {
+                return false;
+            }
+        }
 
         [[nodiscard]] auto getter() const -> std::shared_ptr<struct function_definition>;
         [[nodiscard]] auto setter() const -> std::shared_ptr<struct function_definition>;

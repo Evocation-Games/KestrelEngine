@@ -43,9 +43,9 @@ namespace kdtool::project
 
         [[nodiscard]] auto include_paths() const -> const std::vector<std::string>&;
         [[nodiscard]] auto scanned_include_paths() const -> const std::vector<std::string>&;
-        [[nodiscard]] auto all_definitions() const -> std::vector<std::shared_ptr<structure::construct_definition>>;
+        [[nodiscard]] auto all_definitions() const -> const std::vector<std::shared_ptr<structure::construct_definition>>&;
         [[nodiscard]] auto all_root_symbols() const -> std::vector<std::shared_ptr<structure::symbol>>;
-        [[nodiscard]] auto symbol_named(const std::string& name) -> std::shared_ptr<structure::symbol>;
+        [[nodiscard]] auto symbol_named(const std::string& name, const std::string& delimiter = ".") -> std::shared_ptr<structure::symbol>;
         [[nodiscard]] auto title() const -> std::string;
 
     private:
@@ -58,7 +58,7 @@ namespace kdtool::project
         std::vector<std::string> m_include_paths;
         std::vector<std::string> m_scanned_include_paths;
         std::unordered_map<std::string, std::shared_ptr<structure::symbol>> m_symbols;
-        std::unordered_map<std::string, std::shared_ptr<structure::construct_definition>> m_definitions;
+        std::vector<std::shared_ptr<structure::construct_definition>> m_definitions;
 
     };
 }
