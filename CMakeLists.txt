@@ -69,14 +69,17 @@ set(PROJECT_TARGETS_DIR ${CMAKE_SOURCE_DIR}/targets)
 
 ########################################################################################################################
 
-add_subdirectory(sdk/vendor/LuaJIT)
+if (NOT APPLE)
+    add_subdirectory(sdk/vendor/LuaJIT)
+endif()
+
 add_subdirectory(sdk/vendor/imgui)
 add_subdirectory(submodules/graphite)
 
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCHITECTURES})
     add_subdirectory(sdk/bin/kdtool)
-    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
 else()
     add_subdirectory(sdk/bin/kdtool)
 endif()

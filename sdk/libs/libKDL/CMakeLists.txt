@@ -39,4 +39,8 @@ target_include_directories(KDL PUBLIC
     ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )
 
-target_link_directories(KDL PUBLIC ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
+if (APPLE)
+    target_link_directories(KDL PUBLIC ${PROJECT_VENDOR_DIR})
+else()
+    target_link_directories(KDL PUBLIC ${PROJECT_SUBMODULE_DIR}/LuaJIT/src)
+endif()
