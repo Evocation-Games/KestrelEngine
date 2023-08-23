@@ -76,7 +76,7 @@ auto ui::responder_chain::remove_responder(ui::responder *responder) -> void
                 m_nodes.end = previous;
             }
             else if (current == m_nodes.start) {
-                m_nodes.start == current->m_next;
+                m_nodes.start = current->m_next;
                 m_nodes.end->m_next = m_nodes.end->m_next;
             }
             else {
