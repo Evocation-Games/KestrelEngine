@@ -35,6 +35,8 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
           sudo apt-get install -y -q --no-install-recommends llvm-14-dev
           sudo apt-get install -y -q --no-install-recommends libclang-14-dev
+          sudo apt-get install -y -q --no-install-recommends nodejs
+          npm install tree-sitter-cli
       - name: Download AppImageTool
         run: |
           mkdir -p build
@@ -70,6 +72,8 @@ jobs:
       - name: Install Dependencies
         run: |
           brew install llvm@15
+          brew install node
+          npm install tree-sitter-cli
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
@@ -138,7 +142,8 @@ jobs:
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-freetype
           pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
+          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-nodejs
+          npm install tree-sitter-cli
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
