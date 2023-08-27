@@ -29,7 +29,7 @@ cd submodules/LuaJIT \
 
 echo "Building macOS Apple Silicon LuaJIT Library"
 make clean \
-  && make HOST_CC="clang -arch arm64" TARGET_CC="clang -arch arm64" TARGET_STCC="clang -arch arm64" TARGET_LD="clang -arch arm64" \
+  && make TARGET_CC="clang -arch arm64" TARGET_STCC="clang -arch arm64" TARGET_LD="clang -arch arm64" \
   && make install DESTDIR=${PROJECT_ROOT}/build/luajit/arm64
 
 echo "Merging LuaJIT Libraries into single Universal Library"
