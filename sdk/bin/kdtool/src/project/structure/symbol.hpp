@@ -22,6 +22,7 @@
 
 #include <string>
 #include <optional>
+#include <memory>
 #include <libFoundation/system/filesystem/path.hpp>
 #include <libDocumentation/parser/type/documentation.hpp>
 #include "project/structure/version/version.hpp"
