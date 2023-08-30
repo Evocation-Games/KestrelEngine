@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <functional>
 #include <libCodeGen/languages/language.hpp>
 #include <libCodeGen/builder/emit/segment.hpp>
 #include <libCodeGen/ast/statement/statement.hpp>
