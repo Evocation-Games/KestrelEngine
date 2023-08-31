@@ -57,47 +57,47 @@
 #endif
 
 #if !defined(luatool_type_fix)
-#   define luatool_type_fix(_type, _name)   ScriptingAnnotation2(lua, Symbol(_name), Type(_type))
+#   define luatool_type_fix(_type, _name)   ScriptingAnnotation2(lua, SymbolAnnotation(_name), Type(_type))
 #endif
 
 #if !defined(lua_declare_named)
-#   define lua_declare_named(_name, _type)  ScriptingAnnotation2(lua, Symbol(_name), TemplateVariant(_type))
+#   define lua_declare_named(_name, _type)  ScriptingAnnotation2(lua, SymbolAnnotation(_name), TemplateVariant(_type))
 #endif
 
 #if !defined(lua_setter)
-#   define lua_setter(_name, _api_version)  ScriptingAnnotation3(lua, Setter, Symbol(_name), _api_version)
+#   define lua_setter(_name, _api_version)  ScriptingAnnotation3(lua, SetterAnnotation, SymbolAnnotation(_name), _api_version)
 #endif
 
 #if !defined(lua_getter)
-#   define lua_getter(_name, _api_version)  ScriptingAnnotation3(lua, Getter, Symbol(_name), _api_version)
+#   define lua_getter(_name, _api_version)  ScriptingAnnotation3(lua, GetterAnnotation, SymbolAnnotation(_name), _api_version)
 #endif
 
 #if !defined(lua_data)
-#   define lua_data(_name, _mutatability, _api_version)  ScriptingAnnotation3(lua, Symbol(_name), Mutability(_mutability), _api_version)
+#   define lua_data(_name, _mutatability, _api_version)  ScriptingAnnotation3(lua, SymbolAnnotation(_name), MutabilityAnnotation(_mutability), _api_version)
 #endif
 
 #if !defined(lua_function)
-#   define lua_function(_name, _api_version)  ScriptingAnnotation2(lua, Symbol(_name), _api_version)
+#   define lua_function(_name, _api_version)  ScriptingAnnotation2(lua, SymbolAnnotation(_name), _api_version)
 #endif
 
 #if !defined(lua_constructor)
-#   define lua_constructor(_api_version)  ScriptingAnnotation2(lua, Constructor, _api_version)
+#   define lua_constructor(_api_version)  ScriptingAnnotation2(lua, ConstructorAnnotation, _api_version)
 #endif
 
 #if !defined(lua_case)
-#   define lua_case(_name, _api_version)  ScriptingAnnotation2(lua, Symbol(_name), _api_version)
+#   define lua_case(_name, _api_version)  ScriptingAnnotation2(lua, SymbolAnnotation(_name), _api_version)
 #endif
 
 #if !defined(has_named_constructable_lua_api)
 #   define has_named_constructable_lua_api(_type) \
-        ScriptingAnnotation3(lua, RequiresEnrollment, RequiresEnrollmentName, Reference(InstanceReference)) \
+        ScriptingAnnotation3(lua, RequiresEnrollment, RequiresEnrollmentName, ReferenceAnnotation(InstanceReference)) \
         static auto EnrollmentFunction(const std::string& name, const std::shared_ptr<kestrel::lua::runtime>& runtime) -> void; \
         typedef luabridge::RefCountedPtr<_type> InstanceReference;
 #endif
 
 #if !defined(has_constructable_lua_api)
 #   define has_constructable_lua_api(_type) \
-        ScriptingAnnotation2(lua, RequiresEnrollment, Reference(InstanceReference)) \
+        ScriptingAnnotation2(lua, RequiresEnrollment, ReferenceAnnotation(InstanceReference)) \
         static auto EnrollmentFunction(const std::shared_ptr<kestrel::lua::runtime>& runtime) -> void; \
         typedef luabridge::RefCountedPtr<_type> InstanceReference;
 #endif

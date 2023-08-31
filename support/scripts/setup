@@ -102,6 +102,11 @@ if [[ $OS =~ ^darwin ]]; then
     _=$(cd submodules/png && git apply ../../support/patches/libpng.macos.patch)
     support/scripts/compile-library-macos.sh png libpng16 PNG
   fi
+
+  if [[ ! -f "support/vendor/libluajit.a" ]]; then
+    echo "Building universal libluajit... "
+    support/scripts/compile-luajit-macos.sh
+  fi
 fi
 
 if ! CMAKE_PATH="$(type -p "cmake")" || [[ -z $CMAKE_PATH ]]; then

@@ -54,28 +54,28 @@
 #   define Deprecated(_version)             ScriptingAnnotationKeyValue(deprecated, _version)
 #endif
 
-#if !defined(Undocumented)
-#   define Undocumented                     "undocumented/"
+#if !defined(UndocumentedAnnotation)
+#   define UndocumentedAnnotation           "undocumented/"
 #endif
 
-#if !defined(Namespace)
-#   define Namespace                        "namespace/"
+#if !defined(NamespaceAnnotation)
+#   define NamespaceAnnotation              "namespace/"
 #endif
 
-#if !defined(Constructor)
-#   define Constructor                      "constructor/"
+#if !defined(ConstructorAnnotation)
+#   define ConstructorAnnotation            "constructor/"
 #endif
 
-#if !defined(Setter)
-#   define Setter                           "setter/"
+#if !defined(SetterAnnotation)
+#   define SetterAnnotation                 "setter/"
 #endif
 
-#if !defined(Getter)
-#   define Getter                           "getter/"
+#if !defined(GetterAnnotation)
+#   define GetterAnnotation                 "getter/"
 #endif
 
-#if !defined(Mutability)
-#   define Mutability(_mode)                ScriptingAnnotationKeyValue(mutability, _mode)
+#if !defined(MutabilityAnnotation)
+#   define MutabilityAnnotation(_mode)      ScriptingAnnotationKeyValue(mutability, _mode)
 #endif
 
 #if !defined(RequiresEnrollment)
@@ -86,12 +86,12 @@
 #   define RequiresEnrollmentName           "enrollment-name/"
 #endif
 
-#if !defined(Reference)
-#   define Reference(_sym)                  ScriptingAnnotationKeyValue(reference, _sym)
+#if !defined(ReferenceAnnotation)
+#   define ReferenceAnnotation(_sym)        ScriptingAnnotationKeyValue(reference, _sym)
 #endif
 
-#if !defined(Symbol)
-#   define Symbol(_sym)                     ScriptingAnnotationKeyValue(symbol, _sym)
+#if !defined(SymbolAnnotation)
+#   define SymbolAnnotation(_sym)           ScriptingAnnotationKeyValue(symbol, _sym)
 #endif
 
 #if !defined(ParameterType)

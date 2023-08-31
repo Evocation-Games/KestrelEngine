@@ -38,12 +38,21 @@ set(KESTREL_PLAYER_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data F
 
 if (APPLE)
     set(OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
-    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fobjc-arc")
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(APPLE_SILICON 1)
+        set(BREW "/opt/homebrew/bin/brew")
+    else()
+        set(BREW "/usr/local/bin/brew")
+    endif()
 elseif (UNIX)
     set(LINUX TRUE)
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -msse -msse4.1")
+
+if (NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -msse -msse4.1")
+endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
