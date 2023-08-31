@@ -355,7 +355,7 @@ auto kestrel::math::angle::rotated(const angular_difference& phi) const -> angle
 
 auto kestrel::math::angle::normalize() -> void
 {
-    m_theta = std::fmodf(m_theta, 360.0);
+    m_theta = ::fmodf(m_theta, 360.0);
     if (m_theta < 0) {
         m_theta += 360;
     }
