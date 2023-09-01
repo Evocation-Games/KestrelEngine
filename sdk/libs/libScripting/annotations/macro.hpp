@@ -31,11 +31,11 @@
 #endif
 
 #if !defined(ScriptingAnnotation)
-#   define ScriptingAnnotation(_lang, ...)  [[clang::annotate(STR(_lang) "/" __VA_ARGS__)]] [[maybe_unused]]
-#   define ScriptingAnnotation1(_lang, _a1)  [[clang::annotate(STR(_lang) "/" STR(_a1))]] [[maybe_unused]]
-#   define ScriptingAnnotation2(_lang, _a1, _a2)  [[clang::annotate(STR(_lang) "/" STR(_a1) STR(_a2))]] [[maybe_unused]]
-#   define ScriptingAnnotation3(_lang, _a1, _a2, _a3)  [[clang::annotate(STR(_lang) "/" STR(_a1) STR(_a2) STR(_a3))]] [[maybe_unused]]
-#   define ScriptingAnnotation4(_lang, _a1, _a2, _a3, _a4)  [[clang::annotate(STR(_lang) "/" STR(_a1) STR(_a2) STR(_a3) STR(_a4))]] [[maybe_unused]]
+#   define ScriptingAnnotation(_lang, ...)  [[clang::annotate(STR(_lang) "/" __VA_ARGS__)]]
+#   define ScriptingAnnotation1(_lang, _a1)  [[clang::annotate(STR(_lang) "/" STR(_a1))]]
+#   define ScriptingAnnotation2(_lang, _a1, _a2)  [[clang::annotate(STR(_lang) "/" STR(_a1) STR(_a2))]]
+#   define ScriptingAnnotation3(_lang, _a1, _a2, _a3)  [[clang::annotate(STR(_lang) "/" STR(_a1) STR(_a2) STR(_a3))]]
+#   define ScriptingAnnotation4(_lang, _a1, _a2, _a3, _a4)  [[clang::annotate(STR(_lang) "/" STR(_a1) STR(_a2) STR(_a3) STR(_a4))]]
 #endif
 
 #if !defined(ScriptingAnnotationKeyValue)

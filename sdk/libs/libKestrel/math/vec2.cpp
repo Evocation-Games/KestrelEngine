@@ -149,7 +149,7 @@ auto kestrel::math::vec2::unit() const -> vec2
 auto kestrel::math::vec2::angle_to(const vec2 &v) const -> float
 {
     auto xx = v.m_value - m_value;
-    return (std::atan2f(xx[0], xx[1]) * 180.0f) / std::numbers::pi_v<float>;
+    return (::atan2f(xx[0], xx[1]) * 180.0f) / std::numbers::pi_v<float>;
 }
 
 auto kestrel::math::vec2::round() const -> vec2

@@ -65,11 +65,11 @@
 #endif
 
 #if !defined(lua_setter)
-#   define lua_setter(_name, _api_version)  ScriptingAnnotation3(lua, SetterAnnotation, SymbolAnnotation(_name), _api_version)
+#   define lua_setter(_name, _api_version)  ScriptingAnnotation3(lua, SetterAnnotation, SymbolAnnotation(_name), _api_version) [[maybe_unused]]
 #endif
 
 #if !defined(lua_getter)
-#   define lua_getter(_name, _api_version)  ScriptingAnnotation3(lua, GetterAnnotation, SymbolAnnotation(_name), _api_version)
+#   define lua_getter(_name, _api_version)  ScriptingAnnotation3(lua, GetterAnnotation, SymbolAnnotation(_name), _api_version) [[maybe_unused]]
 #endif
 
 #if !defined(lua_data)
@@ -77,11 +77,11 @@
 #endif
 
 #if !defined(lua_function)
-#   define lua_function(_name, _api_version)  ScriptingAnnotation2(lua, SymbolAnnotation(_name), _api_version)
+#   define lua_function(_name, _api_version)  ScriptingAnnotation2(lua, SymbolAnnotation(_name), _api_version) [[maybe_unused]]
 #endif
 
 #if !defined(lua_constructor)
-#   define lua_constructor(_api_version)  ScriptingAnnotation2(lua, ConstructorAnnotation, _api_version)
+#   define lua_constructor(_api_version)  ScriptingAnnotation2(lua, ConstructorAnnotation, _api_version) [[maybe_unused]]
 #endif
 
 #if !defined(lua_case)
