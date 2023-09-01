@@ -38,7 +38,7 @@ kestrel::math::angular_difference::angular_difference(const angular_difference& 
 auto kestrel::math::angular_difference::between(const angle& a, const angle& b) -> angular_difference
 {
     auto phi = b - a + math::angle(180);
-    auto phi_value = std::fmodf(phi.degrees(), 360.0f) + 180.0f;
+    auto phi_value = ::fmodf(phi.degrees(), 360.0f) + 180.0f;
     return math::angular_difference(phi_value > 180.0 ? 360 - phi_value : phi_value);
 }
 
