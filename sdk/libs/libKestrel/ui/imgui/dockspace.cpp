@@ -141,7 +141,7 @@ auto kestrel::ui::imgui::dockspace::receive_event(const event &e) -> void
         if (e.has(::ui::event::type::mouse_drag)) {
             io.MouseDragThreshold = 2;
             io.MouseDragMaxDistanceAbs[0] = {io.MousePos.x - io.MousePosPrev.x, io.MousePos.y - io.MousePosPrev.y};
-            io.MouseDragMaxDistanceSqr[0] = std::sqrtf(std::powf(io.MouseDragMaxDistanceAbs[0].x, 2.f) + std::powf(io.MouseDragMaxDistanceAbs[0].y, 2.f));
+            io.MouseDragMaxDistanceSqr[0] = ::sqrtf(::powf(io.MouseDragMaxDistanceAbs[0].x, 2.f) + ::powf(io.MouseDragMaxDistanceAbs[0].y, 2.f));
         }
 
         if (e.has(::ui::event::type::mmb_down)) {
