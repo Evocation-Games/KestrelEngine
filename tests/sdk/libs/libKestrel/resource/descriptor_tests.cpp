@@ -20,7 +20,7 @@
 
 #include <libTesting/testing.hpp>
 #include <libKestrel/resource/descriptor.hpp>
-#include <libGraphite/rsrc/file.hpp>
+#include <libResourceCore/file.hpp>
 #include "helpers/resource_manager.hpp"
 
 using namespace kestrel::resource;
@@ -29,7 +29,8 @@ using namespace kestrel::resource;
 
 TEST(resource_descriptor_fileConstrainedDescriptor)
 {
-    auto file = new graphite::rsrc::file();
+
+    auto file = new resource_core::file();
     auto desc = descriptor::file_constrained(file);
     test::not_null(desc.get());
     test::is_true(desc->file == file);

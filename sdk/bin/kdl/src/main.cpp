@@ -39,6 +39,7 @@
 #include <libKDL/exception/unrecognised_module_format_exception.hpp>
 #include <libKDL/exception/unrecognised_type_definition_exception.hpp>
 #include <libKDL/exception/unrecognised_variable_exception.hpp>
+#include <libLexer/exception/unrecognised_character_exception.hpp>
 
 auto report_exception(const std::string& reason, const lexer::lexeme& lx) -> void;
 auto report_exception(const std::string& reason) -> void;
@@ -151,6 +152,9 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
     catch (kdl::unrecognised_variable_exception& e) {
         report_exception(e.reason(), e.lexeme());
     }
+    catch (lexer::unrecognised_character_exception& e) {
+        report_exception("Unexpected character exception.", e.lexeme());
+    }
 
     return 0;
 }
@@ -161,6 +165,7 @@ auto report_exception(const std::string& reason, const lexer::lexeme& lx) -> voi
 {
     std::cerr << lx.location() << " - " << lx.source_directory().string() << std::endl;
     std::cerr << "    " << reason << std::endl;
+    std::cerr << "    '" << lx.text() << "'" << std::endl;
 }
 
 auto report_exception(const std::string& reason) -> void

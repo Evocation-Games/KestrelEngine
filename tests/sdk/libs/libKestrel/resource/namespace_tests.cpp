@@ -174,7 +174,7 @@ TEST(resource_namespace_resourceForTypeAndId_returnsExpectedDescriptor)
 
 TEST(resource_namespace_addFileConstraint_correctlyAppliesConstraint_withSingleNamespace)
 {
-    auto file = new graphite::rsrc::file();
+    auto file = new resource_core::file();
     container c("example");
 
     auto descriptor = c.file_constraint(file);
@@ -184,7 +184,7 @@ TEST(resource_namespace_addFileConstraint_correctlyAppliesConstraint_withSingleN
 
 TEST(resource_namespace_addFileConstraint_correctlyAppliesConstraint_withMultipleNamespaces)
 {
-    auto file = new graphite::rsrc::file();
+    auto file = new resource_core::file();
     container c(std::vector<std::string>({ "example", "foo", "bar" }));
 
     auto descriptor = c.file_constraint(file);

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libGraphite/rsrc/manager.hpp>
+#include <libResourceCore/manager.hpp>
 #include <libKestrel/resource/container.hpp>
 
 namespace test
@@ -36,25 +36,25 @@ namespace test
 
         static auto tear_down() -> void
         {
-            graphite::rsrc::manager::shared_manager().tear_down();
+            resource_core::manager::shared_manager().tear_down();
         }
 
         auto add_file(const std::string& name = "TestFile.kdat") -> resource_manager&
         {
-            m_current_file = graphite::rsrc::manager::shared_manager().import_file(new graphite::rsrc::file());
+            m_current_file = resource_core::manager::shared_manager().import_file(new resource_core::file());
             return *this;
         }
 
         auto add_resource(const std::string& type_code,
-                          graphite::rsrc::resource::identifier id,
+                          resource_core::identifier id,
                           const std::string& name,
                           const std::string& namespace_name) -> resource_manager&
         {
             if (namespace_name.empty()) {
-                m_current_file->add_resource(type_code, id, name, graphite::data::block());
+                m_current_file->add_resource(type_code, id, name, data::block());
             }
             else {
-                m_current_file->add_resource(type_code, id, name, graphite::data::block(), {
+                m_current_file->add_resource(type_code, id, name, data::block(), {
                     std::pair(kestrel::resource::container::attribute_name, namespace_name)
                 });
             }
@@ -62,6 +62,6 @@ namespace test
         }
 
     private:
-        graphite::rsrc::file *m_current_file { nullptr };
+        resource_core::file *m_current_file { nullptr };
     };
 }
