@@ -95,6 +95,9 @@ if(LINUX)
     message("PLAYER_APP_BIN_DIR = ${PLAYER_APP_BIN_DIR}")
     message("PLAYER_APP_LIB_DIR = ${PLAYER_APP_LIB_DIR}")
     message("PLAYER_APP_SHARE_DIR = ${PLAYER_APP_SHARE_DIR}")
+    message("KestrelPlayer.Src = ${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.desktop.in")
+    message("KestrelPlayer.Dst = ${CMAKE_BUILD_DIR}/${KESTREL_PLAYER_NAME}.desktop")
+
 
     add_custom_command(
         TARGET KestrelPlayer POST_BUILD
