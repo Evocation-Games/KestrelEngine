@@ -96,7 +96,7 @@ if(LINUX)
     message("PLAYER_APP_LIB_DIR = ${PLAYER_APP_LIB_DIR}")
     message("PLAYER_APP_SHARE_DIR = ${PLAYER_APP_SHARE_DIR}")
     message("KestrelPlayer.Src = ${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.desktop.in")
-    message("KestrelPlayer.Dst = ${CMAKE_BUILD_DIR}/${KESTREL_PLAYER_NAME}.desktop")
+    message("KestrelPlayer.Dst = ${PROJECT_INSTALL_DIR}/${KESTREL_PLAYER_NAME}.desktop")
 
 
     add_custom_command(
@@ -104,7 +104,7 @@ if(LINUX)
         COMMAND
             ${CMAKE_COMMAND}
                 -D SRC=${CMAKE_SOURCE_DIR}/support/packaging/appimage/kestrel.desktop.in
-                -D DST=${CMAKE_BUILD_DIR}/${KESTREL_PLAYER_NAME}.desktop
+                -D DST=${PROJECT_INSTALL_DIR}/${KESTREL_PLAYER_NAME}.desktop
                 -D KESTREL_NAME=${KESTREL_PLAYER_NAME}
                 -D KESTREL_BIN_NAME=${KESTREL_PLAYER_BIN_NAME}
                 -D KESTREL_ICON_NAME=${PLAYER_ICON_NAME}
