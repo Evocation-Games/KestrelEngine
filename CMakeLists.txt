@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(KESTREL_PLAYER_NAME "Kestrel" CACHE STRING "Kestrel Package Name")
 set(KESTREL_PLAYER_BIN_NAME "kestrel" CACHE STRING "Kestrel Binary Name")
-set(KESTREL_PLAYER_ICON_NAME "kestrel_icon" CACHE STRING "Kestrel Packaged Icon Name")
+set(KESTREL_PLAYER_ICON_NAME "icon.png" CACHE STRING "Kestrel Packaged Icon Name")
 set(KESTREL_PLAYER_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Icon Path")
 set(KESTREL_PLAYER_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING "Kestrel Project Path")
 set(KESTREL_PLAYER_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data Files Path")
