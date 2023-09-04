@@ -53,7 +53,7 @@ jobs:
           support/scripts/build
           support/scripts/install
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-Ubuntu
           path: ./artifacts
@@ -102,7 +102,7 @@ jobs:
             --user="$APPSTORECONNECT_USERNAME" \
             --pwd="$APPSTORECONNECT_PWD"
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-macOS
           path: ./artifacts
@@ -124,17 +124,18 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.env.msystem }}
-          install: git mingw-w64-${{ matrix.env.arch }}-toolchain
-      - name: Install dependencies
-        run: |
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-clang
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-cmake
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-ninja
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-openal
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-mesa
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-freetype
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
+          install: >-
+            git 
+            mingw-w64-${{ matrix.env.arch }}-toolchain
+            mingw-w64-${{ matrix.env.arch }}-clang
+            mingw-w64-${{ matrix.env.arch }}-cmake
+            mingw-w64-${{ matrix.env.arch }}-make
+            mingw-w64-${{ matrix.env.arch }}-ninja
+            mingw-w64-${{ matrix.env.arch }}-openal
+            mingw-w64-${{ matrix.env.arch }}-mesa
+            mingw-w64-${{ matrix.env.arch }}-glew
+            mingw-w64-${{ matrix.env.arch }}-freetype
+            mingw-w64-${{ matrix.env.arch }}-glfw
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
@@ -149,7 +150,7 @@ jobs:
           support/scripts/build
           support/scripts/install
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-Windows
           path: ./artifacts
