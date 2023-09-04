@@ -25,6 +25,7 @@
 #include <memory>
 #include <concepts>
 #include <type_traits>
+#include <cstdint>
 #include <libCodeGen/ast/core/node.hpp>
 #include <libCodeGen/builder/emit/segment.hpp>
 #include <libCodeGen/languages/procedural/scalar.hpp>
