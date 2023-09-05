@@ -141,7 +141,7 @@ jobs:
           git submodule update --init --recursive
       - name: Build LuaJIT
         run: |
-          cd submodules/LuaJIT && mingw32-make && mingw32-make install
+          cd submodules/LuaJIT && mingw32-make BUILDMODE=static && mingw32-make install
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
