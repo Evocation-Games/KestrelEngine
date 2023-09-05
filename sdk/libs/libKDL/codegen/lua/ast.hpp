@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <cstdint>
 #include <type_traits>
 
 namespace kdl::codegen::lua::ast
