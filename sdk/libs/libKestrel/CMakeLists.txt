@@ -137,6 +137,7 @@ add_custom_command(
                     -api ${KestrelAPIDefinition} -cxx
                     ${KESTREL_LIB_HEADERS}
     DEPENDS     ${KESTREL_LIB_HEADERS}
+    COMMENT     "Running ${kdtool} for lua_api_definition.cpp"
 )
 
 add_custom_target(KestrelAPIDefinition
