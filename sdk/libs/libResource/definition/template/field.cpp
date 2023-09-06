@@ -68,6 +68,11 @@ auto resource::definition::binary_template::field::skip_length() const -> std::s
     return m_type.size();
 }
 
+auto resource::definition::binary_template::field::size() const -> std::uint16_t
+{
+    return m_type.size();
+}
+
 // MARK: - Lists
 
 auto resource::definition::binary_template::field::is_list() const -> bool
