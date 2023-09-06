@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <libResource/definition/template/type.hpp>
+#include <libResource/definition/template/instance.hpp>
 
 // MARK: - Construction
 
@@ -116,6 +117,26 @@ auto resource::definition::binary_template::type::calculate_size() -> void
         case $type::DQWD:
         case $type::RECT:
             m_size = 8;
+            break;
+        case $type::LUA_BYTE_CODE:
+        case $type::BOOL:
+        case $type::CSTR:
+        case PSTR:
+            m_size = 1;
+            break;
+        case Cnnn:
+        case LSTR:
+        case OSTR:
+        case LSTC:
+        case LSTE:
+        case HEXD:
+            m_size = 0;
+            break;
+        case NESTED:
+            m_size = m_nested.definition->minimum_size();
+            break;
+        case RSRC:
+            m_size = 9;
             break;
     }
 }

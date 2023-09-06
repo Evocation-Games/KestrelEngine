@@ -101,3 +101,12 @@ auto resource::definition::binary_template::instance::all_fields() const -> std:
 {
     return m_fields;
 }
+
+auto resource::definition::binary_template::instance::minimum_size() const -> std::size_t
+{
+    std::size_t size = 0;
+    for (const auto& field : m_fields) {
+        size += field.size();
+    }
+    return size;
+}

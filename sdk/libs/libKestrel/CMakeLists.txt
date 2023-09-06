@@ -134,7 +134,7 @@ add_custom_command(
                     -I ${CMAKE_SOURCE_DIR}/submodules
                     -I ${CMAKE_SOURCE_DIR}/submodules/graphite/libs
                     -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
-                    -api ${KestrelAPIDefinition} -cxx
+                    -api ${KestrelAPIDefinition} -cxx -v
                     ${KESTREL_LIB_HEADERS}
     DEPENDS     ${KESTREL_LIB_HEADERS}
     COMMENT     "Running ${kdtool} for lua_api_definition.cpp"

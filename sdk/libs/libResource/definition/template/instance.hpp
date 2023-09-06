@@ -23,6 +23,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cstdint>
 #include <libResource/definition/template/field.hpp>
 
 namespace resource::definition::binary_template
@@ -43,6 +44,8 @@ namespace resource::definition::binary_template
         [[nodiscard]] auto has_field_named(const std::string& name) const -> bool;
 
         [[nodiscard]] auto field_named(const std::vector<std::string>& name) const -> const field&;
+
+        [[nodiscard]] auto minimum_size() const -> std::size_t;
 
     private:
         std::vector<field> m_fields;
