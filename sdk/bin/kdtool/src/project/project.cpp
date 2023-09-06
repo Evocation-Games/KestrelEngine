@@ -136,19 +136,11 @@ auto kdtool::project::index::symbol_named(const std::string& resolved_name, cons
 
 auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>& symbol, int indent) -> std::shared_ptr<structure::symbol>
 {
-    if (verbose_logging()) {
-        std::cout << "    ? add_symbol check: " << symbol->hash() << std::endl;
-    }
-
     // Check for the existance of the symbol.
     const auto hash = symbol->hash();
     auto it = m_symbols.find(hash);
     if (it == m_symbols.end()) {
         m_symbols.emplace(hash, symbol);
-
-        if (verbose_logging()) {
-            std::cout << "* Add symbol: " << hash << std::endl;
-        }
 
         if (auto parent = symbol->parent().lock()) {
             parent->add_child(symbol);

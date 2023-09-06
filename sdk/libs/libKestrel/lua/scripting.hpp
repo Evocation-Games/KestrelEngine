@@ -49,7 +49,7 @@
 #endif
 
 #if !defined(lua_api)
-#   define lua_api(_name, _api_version)     ScriptingAnnotation2(lua, Symbol(_name), _api_version)
+#   define lua_api(_name, _api_version)     ScriptingAnnotation2(lua, SymbolAnnotation(_name), _api_version)
 #endif
 
 #if !defined(lua_use_namespace)

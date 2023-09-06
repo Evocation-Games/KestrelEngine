@@ -207,6 +207,10 @@ auto kdtool::cxx::analyzer::visit_annotation(CXCursor cursor, CXCursor parent) -
     const auto raw_annotation = clang::spelling(cursor);
     const auto annotations = scripting::annotation::parse(raw_annotation);
 
+    if (m_index->verbose_logging()) {
+        std::cout << log_indent() << "(annotation '" << raw_annotation << "')" << std::endl;
+    }
+
     if (annotations.has(scripting::annotation::tag::parameter_type)) {
         register_parameter_type_fix(annotations);
         return;
@@ -261,6 +265,10 @@ auto kdtool::cxx::analyzer::visit_annotation(CXCursor cursor, CXCursor parent) -
 
 auto kdtool::cxx::analyzer::visit_namespace(CXCursor cursor) -> void
 {
+    if (m_index->verbose_logging()) {
+        std::cout << log_indent() << "(namespace '" << clang::spelling(cursor) << "')" << std::endl;
+    }
+
     push(clang::spelling(cursor));
     clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
     pop();
@@ -268,6 +276,10 @@ auto kdtool::cxx::analyzer::visit_namespace(CXCursor cursor) -> void
 
 auto kdtool::cxx::analyzer::visit_class(CXCursor cursor) -> void
 {
+    if (m_index->verbose_logging()) {
+        std::cout << log_indent() << "(class '" << clang::spelling(cursor) << "')" << std::endl;
+    }
+
     push(clang::spelling(cursor));
     clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
     pop();
@@ -275,6 +287,10 @@ auto kdtool::cxx::analyzer::visit_class(CXCursor cursor) -> void
 
 auto kdtool::cxx::analyzer::visit_enum(CXCursor cursor) -> void
 {
+    if (m_index->verbose_logging()) {
+        std::cout << log_indent() << "(enum '" << clang::spelling(cursor) << "')" << std::endl;
+    }
+
     push(clang::spelling(cursor));
     clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
     pop();
@@ -282,6 +298,10 @@ auto kdtool::cxx::analyzer::visit_enum(CXCursor cursor) -> void
 
 auto kdtool::cxx::analyzer::visit_enum_case(CXCursor cursor) -> void
 {
+    if (m_index->verbose_logging()) {
+        std::cout << log_indent() << "(enum_case '" << clang::spelling(cursor) << "')" << std::endl;
+    }
+
     if (auto definition = current_definition<struct project::structure::enum_definition>()) {
         clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
     }
@@ -292,6 +312,10 @@ auto kdtool::cxx::analyzer::visit_parameter(CXCursor cursor) -> void
     if (current_definition<struct project::structure::function_definition>()
      || current_definition<struct project::structure::constructor_definition>())
     {
+        if (m_index->verbose_logging()) {
+            std::cout << log_indent() << "(parameter '" << clang::spelling(cursor) << "')" << std::endl;
+        }
+
         clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
         construct_parameter(cursor);
     }
@@ -300,6 +324,10 @@ auto kdtool::cxx::analyzer::visit_parameter(CXCursor cursor) -> void
 auto kdtool::cxx::analyzer::visit_constructor(CXCursor cursor) -> void
 {
     if (auto definition = current_definition<struct project::structure::class_definition>()) {
+        if (m_index->verbose_logging()) {
+            std::cout << log_indent() << "(ctor '" << clang::spelling(cursor) << "')" << std::endl;
+        }
+
         push(clang::spelling(cursor));
         clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
         pop();
@@ -311,6 +339,10 @@ auto kdtool::cxx::analyzer::visit_function(CXCursor cursor) -> void
     if (current_definition<struct project::structure::namespace_definition>()
         || current_definition<struct project::structure::class_definition>())
     {
+        if (m_index->verbose_logging()) {
+            std::cout << log_indent() << "(function '" << clang::spelling(cursor) << "')" << std::endl;
+        }
+
         push(clang::spelling(cursor));
         clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
         pop();
@@ -626,4 +658,15 @@ auto kdtool::cxx::analyzer::construct_enrollment(CXCursor cursor, const scriptin
     }
 
     return enrollment;
+}
+
+// MARK: - Logging Helpers
+
+auto kdtool::cxx::analyzer::log_indent() const -> std::string
+{
+    std::string result;
+    for (const auto& name : m_state.definition_stack) {
+        result.append("  ");
+    }
+    return std::move(result);
 }

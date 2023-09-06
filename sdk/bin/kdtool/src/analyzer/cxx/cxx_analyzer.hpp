@@ -106,6 +106,9 @@ namespace kdtool::cxx
         auto register_parameter_type_fix(const scripting::annotation::set& annotations) -> void;
 
     private:
+        [[nodiscard]] auto log_indent() const -> std::string;
+
+    private:
         struct {
             CXTranslationUnit tu { nullptr };
             CXIndex index { nullptr };
