@@ -87,10 +87,27 @@ auto kdtool::project::index::set_title(const std::string &title) -> void
     m_title = title;
 }
 
+// MARK: - Verbose Mode
+
+auto kdtool::project::index::verbose_logging() const -> bool
+{
+    return m_verbose_mode;
+}
+
+auto kdtool::project::index::set_verbose_mode(bool verbose) -> void
+{
+    m_verbose_mode = verbose;
+}
+
 // MARK: - Translation Unit
 
 auto kdtool::project::index::add_translation_unit(const std::string &path) -> void
 {
+    if (verbose_logging()) {
+        std::cout << "Add TU: " << path << std::endl;
+        std::cout << "   path.extension is cxx? " << (path_is_cxx(path) ? "Yes" : "No") << std::endl;
+    }
+
     if (path_is_cxx(path)) {
         cxx::analyzer unit(shared_from_this(), foundation::filesystem::path(path));
         unit.run();
@@ -124,7 +141,10 @@ auto kdtool::project::index::add_symbol(const std::shared_ptr<structure::symbol>
     auto it = m_symbols.find(hash);
     if (it == m_symbols.end()) {
         m_symbols.emplace(hash, symbol);
-        std::cout << "* Add symbol: " << hash << std::endl;
+
+        if (verbose_logging()) {
+            std::cout << "* Add symbol: " << hash << std::endl;
+        }
 
         if (auto parent = symbol->parent().lock()) {
             parent->add_child(symbol);

@@ -29,7 +29,6 @@
 auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
 {
     auto project = std::make_shared<kdtool::project::index>();
-    bool verbose_mode = false;
 
     struct {
         std::string path;
@@ -70,7 +69,7 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
                 lua_api.cxx = true;
             }
             else if (arg == "-v" || arg == "--verbose") {
-                verbose_mode = true;
+                project->set_verbose_mode(true);
             }
             else if (arg == "-doctitle") {
                 documentation.title = argv[++n];
@@ -78,16 +77,13 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             }
         }
         else {
-            if (verbose_mode) {
-                std::cout << "Add TU: " << argv[n] << std::endl;
-            }
             project->add_translation_unit(argv[n]);
         }
     }
 
     if (!lua_api.path.empty()) {
         if (lua_api.cxx) {
-            if (verbose_mode) {
+            if (project->verbose_logging()) {
                 std::cout << "Build C++ API to: " << lua_api.path << std::endl;
             }
             auto api = std::make_shared<kdtool::builder::api<codegen::language::cxx>>(project, lua_api.path);
@@ -100,7 +96,7 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
         foundation::filesystem::path root(documentation.ref_root);
 
         if (documentation.markdown) {
-            if (verbose_mode) {
+            if (project->verbose_logging()) {
                 std::cout << "Build Markdown Documentation to: " << documentation.path << std::endl;
             }
             auto api = std::make_shared<kdtool::builder::documentation<codegen::language::markdown>>(project, path, root);
@@ -108,7 +104,7 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
         }
 
         if (documentation.html) {
-            if (verbose_mode) {
+            if (project->verbose_logging()) {
                 std::cout << "Build HTML Documentation to: " << documentation.path << std::endl;
             }
             auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, path, root);

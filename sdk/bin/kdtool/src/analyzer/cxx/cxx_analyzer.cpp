@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <memory>
+#include <iostream>
 #include "analyzer/cxx/cxx_analyzer.hpp"
 #include "analyzer/cxx/clang.hpp"
 #include "analyzer/cxx/types/parser.hpp"
@@ -127,6 +128,9 @@ auto kdtool::cxx::analyzer::set_current_definition(const std::shared_ptr<struct 
 
 auto kdtool::cxx::analyzer::run() -> void
 {
+    if (m_index->verbose_logging()) {
+        std::cout << "   Analyzing CXX File" << std::endl;
+    }
     auto cursor = clang_getTranslationUnitCursor(m_clang.tu);
     clang_visitChildren(cursor, cxx::analyzer::visit_node, this);
 }
