@@ -398,6 +398,10 @@ auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::a
     symbol = m_index->symbol_named(source_symbol_resolved, "::");
     symbol->set_display_name(symbol_name);
 
+    if (annotations.has(scripting::annotation::tag::symbol)) {
+        symbol->set_basename(annotations.attachment(scripting::annotation::tag::symbol).value());
+    }
+
     if (is_static) {
         symbol->make_static();
     }
