@@ -50,6 +50,12 @@ auto foundation::filesystem::path::path_scheme(const std::string& path) -> std::
     else if (path.starts_with("file://")) {
         return "file";
     }
+#if TARGET_WINDOWS
+    else if (path.substr(1, 2) == ":/") {
+        // Return the Drive Letter
+        return path.substr(0, 1);
+    }
+#endif
     else {
         return "";
     }
@@ -67,6 +73,12 @@ auto foundation::filesystem::path::path_components(const std::string& path, char
     else if (p.starts_with("https://")) {
         p.erase(0, 8);
     }
+#if TARGET_WINDOWS
+    else if (p.substr(1, 2) == ":/") {
+        // This is a Windows absolute path, and starts with a Drive Letter.
+        p.erase(0, 3);
+    }
+#endif
 
     while (!p.empty()) {
         if (p.back() == separator) {

@@ -24,7 +24,7 @@ extern "C" {
 #   include "LuaJIT/src/lua.h"
 #   include "LuaJIT/src/lauxlib.h"
 #   include "LuaJIT/src/lualib.h"
-#   include "LuaJIT/src/luajit.h"
+#   include "LuaJIT/src/luajit_rolling.h"
 }
 
 #include <libData/block.hpp>
