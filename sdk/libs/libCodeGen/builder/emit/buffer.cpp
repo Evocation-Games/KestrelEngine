@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <fstream>
 #include <libCodeGen/builder/emit/buffer.hpp>
 #include <libCodeGen/languages/markup/markdown.hpp>
@@ -39,6 +40,9 @@ auto codegen::emit::buffer::save(const foundation::filesystem::path& path) -> vo
         file << m_output << std::endl;
         file.flush();
         file.close();
+    }
+    else {
+        std::cerr << "Failed to write to file: " << path.string() << std::endl;
     }
 }
 
