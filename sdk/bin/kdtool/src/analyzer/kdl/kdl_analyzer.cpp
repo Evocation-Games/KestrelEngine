@@ -53,7 +53,6 @@ auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const
     std::shared_ptr<project::structure::symbol> symbol;
     auto symbol_name = type_name;
     symbol = m_index->symbol_named(symbol_name);
-    symbol->set_basename(type_name);
     symbol->set_display_name(type_name);
     symbol->set_source_identifier(code);
     return symbol;
@@ -64,7 +63,6 @@ auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const
     std::shared_ptr<project::structure::symbol> symbol;
     auto symbol_name = type_name + "." + field;
     symbol = m_index->symbol_named(symbol_name);
-    symbol->set_basename(field);
     symbol->set_display_name(field);
     symbol->set_source_identifier(code);
     return symbol;
@@ -75,7 +73,6 @@ auto kdtool::kdl::analyzer::construct_symbol(const std::string& type_name, const
     std::shared_ptr<project::structure::symbol> symbol;
     auto symbol_name = type_name + "." + field + "." + value;
     symbol = m_index->symbol_named(symbol_name);
-    symbol->set_basename(value);
     symbol->set_display_name(value);
     symbol->set_source_identifier(code);
     return symbol;
@@ -91,7 +88,6 @@ auto kdtool::kdl::analyzer::construct_symbol(
     std::shared_ptr<project::structure::symbol> symbol;
     auto symbol_name = type_name + "." + field + "." + value + "." + sym;
     symbol = m_index->symbol_named(symbol_name);
-    symbol->set_basename(sym);
     symbol->set_display_name(sym);
     symbol->set_source_identifier(code);
     return symbol;
@@ -123,7 +119,7 @@ auto kdtool::kdl::analyzer::construct_available(const std::shared_ptr<project::s
         return;
     }
 
-    symbol->set_available(project::structure::version(available.associated_value_at(0)));
+    symbol->set_available_version(project::structure::version(available.associated_value_at(0)));
 }
 
 auto kdtool::kdl::analyzer::construct_deprecated(const std::shared_ptr<project::structure::symbol> &symbol, const std::vector<resource::decorator> &decorators) -> void
@@ -137,7 +133,7 @@ auto kdtool::kdl::analyzer::construct_deprecated(const std::shared_ptr<project::
         return;
     }
 
-    symbol->set_deprecated(project::structure::version(deprecated.associated_value_at(0)));
+    symbol->set_deprecation_version(project::structure::version(deprecated.associated_value_at(0)));
 }
 
 auto kdtool::kdl::analyzer::construct_resource_type(const resource::definition::type::instance& type) -> std::shared_ptr<project::structure::resource_type_definition>
@@ -154,10 +150,10 @@ auto kdtool::kdl::analyzer::construct_resource_type(const resource::definition::
         construct_deprecated(symbol, type.decorators_named("deprecated"));
     }
     if (type.has_decorator("__builtin")) {
-        symbol->make_built_in();
+        symbol->make_builtin();
     }
     if (type.has_decorator("__referenceStub")) {
-        symbol->make_reference_stub();
+        symbol->make_reference();
     }
 
     auto resource_type_definition = std::make_shared<struct project::structure::resource_type_definition>(symbol);
@@ -191,7 +187,7 @@ auto kdtool::kdl::analyzer::construct_resource_field(
         construct_deprecated(symbol, type.decorators_named("deprecated"));
     }
     if (type.has_decorator("__builtin")) {
-        symbol->make_built_in();
+        symbol->make_builtin();
     }
 
     auto resource_field_definition = std::make_shared<struct project::structure::resource_field_definition>(symbol);
@@ -226,7 +222,7 @@ auto kdtool::kdl::analyzer::construct_resource_value(
         construct_deprecated(symbol, type.decorators_named("deprecated"));
     }
     if (type.has_decorator("__builtin")) {
-        symbol->make_built_in();
+        symbol->make_builtin();
     }
 
     auto resource_value_definition = std::make_shared<struct project::structure::resource_value_definition>(symbol);
@@ -262,7 +258,7 @@ auto kdtool::kdl::analyzer::construct_resource_value_symbol(
         construct_deprecated(symbol, type.decorators_named("deprecated"));
     }
     if (type.has_decorator("__builtin")) {
-        symbol->make_built_in();
+        symbol->make_builtin();
     }
 
     auto resource_value_symbol_definition = std::make_shared<struct project::structure::resource_value_symbol_definition>(symbol);

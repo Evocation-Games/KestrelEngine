@@ -28,7 +28,7 @@ auto kdtool::project::structure::function_definition::add(const std::shared_ptr<
     // If it does, then apply the parameter description.
     if (auto docs = symbol()->documentation().lock()) {
         for (const auto& param_doc : docs->parameters()) {
-            if (param_doc.name() == parameter->symbol()->name()) {
+            if (param_doc.name() == parameter->symbol()->lua_identifier()) {
                 parameter->set_description(param_doc.description());
                 break;
             }
@@ -60,7 +60,7 @@ auto kdtool::project::structure::function_definition::set_return_type(const std:
 
 auto kdtool::project::structure::function_definition::update_display_name() -> void
 {
-    std::string name = symbol()->name() + "(";
+    std::string name = symbol()->lua_identifier() + "(";
     for (const auto& param : m_parameters) {
         if (name.back() != '(') {
             name += ", ";

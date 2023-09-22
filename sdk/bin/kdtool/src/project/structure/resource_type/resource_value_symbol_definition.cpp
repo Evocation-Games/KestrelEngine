@@ -31,7 +31,7 @@ auto kdtool::project::structure::resource_value_symbol_definition::name() const 
 
 auto kdtool::project::structure::resource_value_symbol_definition::basename() const -> std::string
 {
-    return symbol()->basename();
+    return symbol()->lua_identifier();
 }
 
 auto kdtool::project::structure::resource_value_symbol_definition::value() const -> std::string

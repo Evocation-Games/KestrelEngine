@@ -156,7 +156,16 @@ namespace kdtool::builder
             if (!definition->enrollment()) {
                 return;
             }
-            auto enroll_function_symbol = generate_enrollment_symbol(definition);
+
+            std::vector<std::string> template_parameters;
+            if (definition->instance_type() == project::structure::construct_definition::type::is_class) {
+                const auto class_definition = std::reinterpret_pointer_cast<project::structure::class_definition>(definition);
+                if (!class_definition->all_template_variants().empty()) {
+                    template_parameters = class_definition->all_template_parameters();
+                }
+            }
+
+            auto enroll_function_symbol = generate_enrollment_symbol(definition, template_parameters);
             auto enroll_function = std::make_shared<codegen::ast::function<L>>(enroll_function_symbol->resolved_name_node());
             enroll_function->set_return_type(codegen::language::procedural::void_type<L>());
 
@@ -169,7 +178,7 @@ namespace kdtool::builder
                 }
             }
 
-            std::string definition_name = definition->symbol()->name();
+            std::string definition_name = definition->symbol()->lua_identifier();
 
             if (definition->enrollment()->requires_custom_name()) {
                 definition_name = "name";
@@ -247,21 +256,21 @@ namespace kdtool::builder
             switch (definition->instance_type()) {
                 case project::structure::construct_definition::type::is_namespace: {
                     return scope->symbol({
-                        definition->symbol()->source_resolved_identifier(),
-                        definition->enrollment()->symbol()->name()
+                        definition->symbol()->resolved_source_identifier(L::scope_resolution_operator_string()),
+                        definition->enrollment()->symbol()->source_identifier()
                     });
                 }
                 case project::structure::construct_definition::type::is_class: {
                     const auto& class_definition = std::reinterpret_pointer_cast<project::structure::class_definition>(definition);
                     return scope->symbol({
-                        definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string(), "", template_parameters),
-                        definition->enrollment()->symbol()->name()
+                        definition->symbol()->resolved_source_identifier(L::scope_resolution_operator_string(), template_parameters),
+                        definition->enrollment()->symbol()->source_identifier()
                     });
                 }
                 case project::structure::construct_definition::type::is_enum: {
                     return scope->symbol(
-                        definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string(), "_") +
-                        "_" + definition->enrollment()->symbol()->name()
+                        definition->symbol()->resolved_source_identifier("_") +
+                        "_" + definition->enrollment()->symbol()->source_identifier()
                     );
                     break;
                 }

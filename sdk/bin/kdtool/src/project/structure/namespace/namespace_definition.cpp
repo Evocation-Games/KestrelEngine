@@ -36,10 +36,10 @@ auto kdtool::project::structure::namespace_definition::all_functions() const -> 
 
 auto kdtool::project::structure::namespace_definition::property(const std::shared_ptr<struct symbol> &symbol) -> std::shared_ptr<struct property_definition>
 {
-    auto it = m_properties.find(symbol->name());
+    auto it = m_properties.find(symbol->lua_identifier());
     if (it == m_properties.end()) {
         auto property = std::make_shared<struct property_definition>(symbol);
-        m_properties.emplace(symbol->name(), property);
+        m_properties.emplace(symbol->lua_identifier(), property);
         symbol->set_definition(property);
         return property;
     }

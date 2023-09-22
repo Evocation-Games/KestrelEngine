@@ -64,8 +64,8 @@ namespace kestrel::ui::widgets
         lua_getter(disabledColor, Available_0_8) [[nodiscard]] auto label_disabled_color() const -> graphics::color::lua_reference;
         lua_getter(icon, Available_0_8) [[nodiscard]] auto icon() const -> image::static_image::lua_reference;
         lua_getter(action, Available_0_8) [[nodiscard]] auto action_body() const -> luabridge::LuaRef;
-        lua_function(setMouseEnter, Available_0_8) [[nodiscard]] auto mouse_enter_body() const -> luabridge::LuaRef;
-        lua_function(setMouseExit, Available_0_8) [[nodiscard]] auto mouse_exit_body() const -> luabridge::LuaRef;
+        lua_getter(mouseEnter, Available_0_8) [[nodiscard]] auto mouse_enter_body() const -> luabridge::LuaRef;
+        lua_getter(mouseExit, Available_0_8) [[nodiscard]] auto mouse_exit_body() const -> luabridge::LuaRef;
         lua_getter(userInfo, Available_0_8) [[nodiscard]] auto user_info() const -> luabridge::LuaRef;
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(disabled, Available_0_8) [[nodiscard]] auto disabled() const -> bool;

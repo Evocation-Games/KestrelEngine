@@ -56,12 +56,12 @@ auto kdtool::project::structure::class_definition::all_functions() const -> std:
 
 auto kdtool::project::structure::class_definition::property(const std::shared_ptr<struct symbol> &symbol) -> std::shared_ptr<struct property_definition>
 {
-    auto it = m_properties.find(symbol->basename());
+    auto it = m_properties.find(symbol->lua_identifier());
     if (it == m_properties.end()) {
         auto property = std::make_shared<struct property_definition>(symbol);
         symbol->set_definition(property);
-        symbol->set_display_name(symbol->name());
-        m_properties.emplace(symbol->name(), property);
+        symbol->set_display_name(symbol->lua_identifier());
+        m_properties.emplace(symbol->lua_identifier(), property);
         return property;
     }
     return it->second;
@@ -93,6 +93,11 @@ auto kdtool::project::structure::class_definition::all_variables() const -> std:
         out.emplace_back(property.second);
     }
     return std::move(out);
+}
+
+auto kdtool::project::structure::class_definition::all_template_parameters() const -> std::vector<std::string>
+{
+    return m_template_parameters;
 }
 
 // MARK: - Template Variants

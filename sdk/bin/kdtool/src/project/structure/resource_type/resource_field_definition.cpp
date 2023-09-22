@@ -30,7 +30,7 @@ auto kdtool::project::structure::resource_field_definition::name() const -> std:
 
 auto kdtool::project::structure::resource_field_definition::basename() const -> std::string
 {
-    return symbol()->basename();
+    return symbol()->lua_identifier();
 }
 
 // MARK: - Instance

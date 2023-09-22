@@ -212,7 +212,12 @@ namespace kdtool::builder
 
         auto add_class(const std::shared_ptr<project::structure::class_definition>& definition) -> luabridge<L>&
         {
-            return define_class(definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()), definition->symbol()->name(), [&] (auto& lua) {
+            auto class_symbol = definition->symbol()->resolved_source_identifier(
+                L::scope_resolution_operator_string(),
+                definition->symbol()->source_template_parameters()
+            );
+
+            return define_class(class_symbol, definition->symbol()->lua_identifier(), [&] (auto& lua) {
                 add_constructor(definition);
 
                 for (const auto& property : definition->all_properties()) {
@@ -227,11 +232,11 @@ namespace kdtool::builder
 
         auto add_enum(const std::shared_ptr<project::structure::enum_definition>& definition) -> luabridge<L>&
         {
-            auto prefix = definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string(), "_");
-            return namespaces({ definition->symbol()->name() }, [&] (auto& lua) {
+            auto prefix = definition->symbol()->resolved_source_identifier("_");
+            return namespaces({ definition->symbol()->lua_identifier() }, [&] (auto& lua) {
                 for (const auto& case_definition : definition->all_cases()) {
                     lua.add_property(
-                        case_definition->symbol()->name(),
+                        case_definition->symbol()->lua_identifier(),
                         case_definition->static_symbol_suggestion(prefix)
                     );
                 }
@@ -240,7 +245,7 @@ namespace kdtool::builder
 
         auto prepare_enum_cases(const std::shared_ptr<project::structure::enum_definition>& definition) -> codegen::emit::segment
         {
-            auto prefix = definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string(), "_");
+            auto prefix = definition->symbol()->resolved_source_identifier("_");
             std::vector<codegen::emit::segment> out;
             for (const auto& case_definition : definition->all_cases()) {
                 auto stmt = std::make_shared<codegen::ast::static_statement<L>>(
@@ -251,7 +256,7 @@ namespace kdtool::builder
                         ),
                         std::make_shared<codegen::ast::cast_statement<L>>(
                             std::make_shared<codegen::ast::symbol_statement<L>>(
-                                case_definition->symbol()->source_resolved_identifier(true, L::scope_resolution_operator_string())
+                                case_definition->symbol()->resolved_source_identifier(L::scope_resolution_operator_string())
                             ),
                             codegen::language::procedural::long_type<L>()
                         )
@@ -266,7 +271,7 @@ namespace kdtool::builder
 
         auto add_namespace(const std::shared_ptr<project::structure::namespace_definition>& definition) -> luabridge<L>&
         {
-            return namespaces({ definition->symbol()->name() }, [&] (auto& lua) {
+            return namespaces({ definition->symbol()->lua_identifier() }, [&] (auto& lua) {
                 for (const auto& property : definition->all_properties()) {
                     add_property(property);
                 }
@@ -292,16 +297,16 @@ namespace kdtool::builder
         {
             if (definition->is_static()) {
                 add_static_property(
-                    definition->symbol()->name(),
-                    definition->getter() ? definition->getter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : "",
-                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : ""
+                    definition->symbol()->lua_identifier(),
+                    definition->getter() ? definition->getter()->symbol()->resolved_source_identifier(L::scope_resolution_operator_string()) : "",
+                    definition->setter() ? definition->setter()->symbol()->resolved_source_identifier(L::scope_resolution_operator_string()) : ""
                 );
             }
             else {
                 add_property(
-                    definition->symbol()->name(),
-                    definition->getter() ? definition->getter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : "",
-                    definition->setter() ? definition->setter()->symbol()->source_resolved_identifier(L::scope_resolution_operator_string()) : ""
+                    definition->symbol()->lua_identifier(),
+                    definition->getter() ? definition->getter()->symbol()->resolved_source_identifier(L::scope_resolution_operator_string()) : "",
+                    definition->setter() ? definition->setter()->symbol()->resolved_source_identifier(L::scope_resolution_operator_string()) : ""
                 );
             }
             return *this;
@@ -311,14 +316,14 @@ namespace kdtool::builder
         {
             if (definition->is_static()) {
                 add_static_function(
-                    definition->symbol()->name(),
-                    definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string())
+                    definition->symbol()->lua_identifier(),
+                    definition->symbol()->resolved_source_identifier(L::scope_resolution_operator_string())
                 );
             }
             else {
                 add_function(
-                    definition->symbol()->name(),
-                    definition->symbol()->source_resolved_identifier(L::scope_resolution_operator_string())
+                    definition->symbol()->lua_identifier(),
+                    definition->symbol()->resolved_source_identifier(L::scope_resolution_operator_string())
                 );
             }
             return *this;

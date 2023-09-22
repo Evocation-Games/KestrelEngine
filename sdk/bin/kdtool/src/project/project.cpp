@@ -38,7 +38,11 @@ auto kdtool::project::index::add_include_path(const std::string& path, bool scan
                     if (altered_path.starts_with("/")) {
                         altered_path.erase(0, 1);
                     }
-                    m_scanned_include_paths.emplace_back(altered_path);
+
+                    auto it = std::find(m_scanned_include_paths.begin(), m_scanned_include_paths.end(), altered_path);
+                    if (it == m_scanned_include_paths.end()) {
+                        m_scanned_include_paths.emplace_back(altered_path);
+                    }
                     return;
                 }
             }
@@ -141,7 +145,10 @@ auto kdtool::project::index::symbol_named(const std::string& resolved_name, cons
     const auto name_stack = foundation::string::split(resolved_name, delimiter);
     std::shared_ptr<structure::symbol> symbol;
     for (const auto& name : name_stack) {
-        auto new_symbol = std::make_shared<structure::symbol>(name, symbol);
+        auto new_symbol = std::make_shared<structure::symbol>(name);
+        if (symbol) {
+            symbol->add_child(new_symbol);
+        }
         symbol = add_symbol(new_symbol);
     }
     return symbol;
@@ -174,7 +181,7 @@ auto kdtool::project::index::all_root_symbols() const -> std::vector<std::shared
 {
     std::vector<std::shared_ptr<structure::symbol>> out;
     for (const auto& sym : m_symbols) {
-        if (sym.second->is_root() && !sym.second->is_built_in()) {
+        if (sym.second->is_root() && !sym.second->is_builtin()) {
             out.emplace_back(sym.second);
         }
     }

@@ -46,9 +46,9 @@ namespace kdtool::project::structure
             return m_symbol->is_root();
         }
 
-        [[nodiscard]] auto is_built_in() const -> bool
+        [[nodiscard]] auto is_builtin() const -> bool
         {
-            return m_symbol->is_built_in();
+            return m_symbol->is_builtin();
         }
 
         enum class type

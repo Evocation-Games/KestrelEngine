@@ -30,7 +30,7 @@ auto kdtool::project::structure::resource_value_definition::name() const -> std:
 
 auto kdtool::project::structure::resource_value_definition::basename() const -> std::string
 {
-    return symbol()->basename();
+    return symbol()->lua_identifier();
 }
 
 auto kdtool::project::structure::resource_value_definition::type_name() const -> std::string

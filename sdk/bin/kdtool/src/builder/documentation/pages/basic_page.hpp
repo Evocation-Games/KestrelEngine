@@ -65,13 +65,13 @@ namespace kdtool::builder::page
 
         [[nodiscard]] virtual auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>>
         {
-            return std::make_shared<codegen::ast::heading<L>>(symbol()->resolved_name(), 1);
+            return std::make_shared<codegen::ast::heading<L>>(symbol()->lua_identifier(), 1);
         }
 
         virtual auto build_header() -> void
         {
             codegen::builder<L>::template add<codegen::ast::prologue<L>>(
-                symbol()->resolved_name(),
+                symbol()->lua_identifier(),
                 codegen::builder<L>::reference_root().child("style.css").string()
             );
             codegen::builder<L>::add(build_title_heading());

@@ -61,27 +61,27 @@ namespace kdtool::builder::component
                 }
             }
 
-            bool is_first_symbol = true;
-            if (!source_symbol_name.empty()) {
-                for (const auto &symbol: m_symbol->all_source_resolved_identifiers()) {
-                    const auto& row = table->add_row();
-                    row->add_cell()->add_content(is_first_symbol ? source_symbol_name : "");
-                    row->add_cell()->add_content(
-                        std::make_shared<codegen::ast::inline_code<L>>(symbol)
-                    );
-                    is_first_symbol = false;
-                }
-            }
+//            bool is_first_symbol = true;
+//            if (!source_symbol_name.empty()) {
+//                for (const auto &symbol: m_symbol->all_source_resolved_identifiers()) {
+//                    const auto& row = table->add_row();
+//                    row->add_cell()->add_content(is_first_symbol ? source_symbol_name : "");
+//                    row->add_cell()->add_content(
+//                        std::make_shared<codegen::ast::inline_code<L>>(symbol)
+//                    );
+//                    is_first_symbol = false;
+//                }
+//            }
 
             if (m_symbol->available().has_value()) {
                 const auto& row = table->add_row();
                 row->add_cell()->add_content("Available");
                 row->add_cell()->add_content(m_symbol->available()->string());
             }
-            if (m_symbol->deprecated().has_value()) {
+            if (m_symbol->deprecation().has_value()) {
                 const auto& row = table->add_row();
                 row->add_cell()->add_content("Deprecated");
-                row->add_cell()->add_content(m_symbol->deprecated()->string());
+                row->add_cell()->add_content(m_symbol->deprecation()->string());
             }
 
             return table->emit();

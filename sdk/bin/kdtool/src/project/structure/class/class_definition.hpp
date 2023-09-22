@@ -37,7 +37,9 @@ namespace kdtool::project::structure
     {
         explicit class_definition(const std::shared_ptr<struct symbol>& symbol)
             : construct_definition(symbol)
-        {}
+        {
+            m_template_parameters = symbol->source_template_parameters();
+        }
 
         static auto type() -> enum type
         {
@@ -61,6 +63,7 @@ namespace kdtool::project::structure
         [[nodiscard]] auto all_functions() const -> std::vector<std::shared_ptr<struct function_definition>>;
         [[nodiscard]] auto all_variables() const -> std::vector<std::shared_ptr<struct variable_definition>>;
         [[nodiscard]] auto all_template_variants() -> std::unordered_map<std::string, std::string>;
+        [[nodiscard]] auto all_template_parameters() const -> std::vector<std::string>;
 
     private:
         std::shared_ptr<struct constructor_definition> m_constructor;

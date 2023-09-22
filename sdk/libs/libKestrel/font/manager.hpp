@@ -72,7 +72,7 @@ namespace kestrel::font
             return shared_manager().default_font();
         }
 
-        lua_setter(defaultFont, Available_0_8) static auto lua_set_default_font(const reference::lua_reference& font) -> void
+        lua_setter(defaultFont, Available_0_8) static auto lua_set_default_font(reference::lua_reference font) -> void
         {
             shared_manager().set_default_font(font);
         }

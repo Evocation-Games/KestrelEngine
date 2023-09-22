@@ -46,7 +46,7 @@ namespace kdtool::builder::page
 
         [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
         {
-            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->resolved_name(), 1);
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->lua_identifier(), 1);
             header->add_style_class("class");
             header->add_style_class("symbol");
             return header;

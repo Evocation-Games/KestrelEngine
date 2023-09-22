@@ -351,6 +351,9 @@ auto kdtool::cxx::analyzer::visit_function(CXCursor cursor) -> void
 
 auto kdtool::cxx::analyzer::visit_template_parameter(CXCursor cursor, CXCursor parent) -> void
 {
+    if (m_index->verbose_logging()) {
+        std::cout << log_indent() << "(template parameter '" << clang::spelling(cursor) << "')" << std::endl;
+    }
     m_state.template_type_parameters.emplace_back(clang::spelling(cursor));
 }
 
@@ -359,6 +362,7 @@ auto kdtool::cxx::analyzer::visit_template_parameter(CXCursor cursor, CXCursor p
 auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::annotation::set& annotations) -> std::shared_ptr<project::structure::symbol>
 {
     std::shared_ptr<project::structure::symbol> symbol;
+
     if (!annotations.has(scripting::annotation::tag::symbol)) {
         return nullptr;
     }
@@ -369,21 +373,13 @@ auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::a
         is_static = true;
     }
 
-    std::string symbol_name;
-    for (const auto& node : m_state.definition_stack) {
-        if (!node) {
-            continue;
-        }
-        symbol_name += node->symbol()->resolved_name() + ".";
-    }
-
     // Source CXX Symbol
     std::string source_symbol_parameters;
     auto source_symbol_resolved = foundation::string::joined(m_state.name_stack, "::");
     auto source_symbol = clang::spelling(cursor);
 
+    std::vector<std::string> template_parameters;
     if (!m_state.template_type_parameters.empty()) {
-        std::vector<std::string> template_parameters;
         template_parameters.reserve(m_state.template_type_parameters.size());
         for (const auto& param : m_state.template_type_parameters) {
             template_parameters.emplace_back(param);
@@ -394,12 +390,20 @@ auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::a
     auto source_symbol_name = source_symbol_resolved + source_symbol_parameters;
 
     // Create the symbol
-    symbol_name += annotations.attachment(scripting::annotation::tag::symbol).value();
-    symbol = m_index->symbol_named(source_symbol_resolved, "::");
-    symbol->set_display_name(symbol_name);
+    std::string full_symbol_name = source_symbol_resolved;
+    if (!full_symbol_name.ends_with("::" + source_symbol) && full_symbol_name != source_symbol) {
+        full_symbol_name = foundation::string::joined({ full_symbol_name, source_symbol }, "::");
+    }
+
+    symbol = m_index->symbol_named(full_symbol_name, "::");
+
+    for (const auto& param : template_parameters) {
+        symbol->add_source_template_parameter(param);
+    }
 
     if (annotations.has(scripting::annotation::tag::symbol)) {
-        symbol->set_basename(annotations.attachment(scripting::annotation::tag::symbol).value());
+        symbol->set_display_name(annotations.attachment(scripting::annotation::tag::symbol).value());
+        symbol->set_lua_identifier(annotations.attachment(scripting::annotation::tag::symbol).value());
     }
 
     if (is_static) {
@@ -411,11 +415,11 @@ auto kdtool::cxx::analyzer::construct_symbol(CXCursor cursor, const scripting::a
     symbol->set_documentation(documentation::parser(raw_documentation).build());
 
     if (annotations.has(scripting::annotation::tag::available)) {
-        symbol->set_available(project::structure::version(annotations.attachment(scripting::annotation::tag::available).value()));
+        symbol->set_available_version(project::structure::version(annotations.attachment(scripting::annotation::tag::available).value()));
     }
 
     if (annotations.has(scripting::annotation::tag::deprecated)) {
-        symbol->set_deprecated(project::structure::version(annotations.attachment(scripting::annotation::tag::deprecated).value()));
+        symbol->set_deprecation_version(project::structure::version(annotations.attachment(scripting::annotation::tag::deprecated).value()));
     }
 
     return symbol;
@@ -625,6 +629,11 @@ auto kdtool::cxx::analyzer::construct_parameter(CXCursor cursor) -> std::shared_
     }
 
     return parameter;
+}
+
+auto kdtool::cxx::analyzer::construct_template_parameter(CXCursor cursor, CXCursor parent, const scripting::annotation::set &annotations) -> std::shared_ptr<project::structure::construct_definition>
+{
+
 }
 
 // MARK: - Type Fixes

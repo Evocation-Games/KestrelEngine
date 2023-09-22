@@ -48,7 +48,7 @@ namespace kdtool::builder
 
             std::vector<std::shared_ptr<directory::entry>> root_entries;
             for (const auto& symbol : project()->all_root_symbols()) {
-                if (symbol->is_built_in()) {
+                if (symbol->is_builtin()) {
                     // Skip build in
                     continue;
                 }
