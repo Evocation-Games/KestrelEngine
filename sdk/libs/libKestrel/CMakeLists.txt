@@ -136,8 +136,6 @@ add_custom_command(
                     -I ${CMAKE_SOURCE_DIR}/submodules/lua_bridge/Source
                     -api ${KestrelAPIDefinition} -cxx
                     ${KESTREL_LIB_HEADERS}
-    COMMAND     ls -la "${CMAKE_BUILD_DIR}"
-    COMMAND     ls -la "${CMAKE_BUILD_DIR}/libKestrel"
     DEPENDS     ${KESTREL_LIB_HEADERS}
     COMMENT     "Running ${kdtool} for ${KestrelAPIDefinition}"
 )
