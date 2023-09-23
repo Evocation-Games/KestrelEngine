@@ -51,7 +51,7 @@ auto foundation::filesystem::path::path_scheme(const std::string& path) -> std::
         return "file";
     }
 #if TARGET_WINDOWS
-    else if (path.substr(1, 2) == ":/") {
+    else if (path.length() >= 3 && path.substr(1, 2) == ":/") {
         // Return the Drive Letter
         return path.substr(0, 1);
     }
@@ -74,7 +74,7 @@ auto foundation::filesystem::path::path_components(const std::string& path, char
         p.erase(0, 8);
     }
 #if TARGET_WINDOWS
-    else if (p.substr(1, 2) == ":/") {
+    else if (path.length() >= 3 && p.substr(1, 2) == ":/") {
         // This is a Windows absolute path, and starts with a Drive Letter.
         p.erase(0, 3);
     }
