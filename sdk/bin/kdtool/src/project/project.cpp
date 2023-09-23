@@ -29,7 +29,7 @@
 auto kdtool::project::index::add_include_path(const std::string& path, bool scanned) -> void
 {
     if (scanned) {
-        auto it = std::find(m_scanned_include_paths.begin(), m_scanned_include_paths.end(), path);
+        const auto& it = std::find(m_scanned_include_paths.begin(), m_scanned_include_paths.end(), path);
         if (it == m_scanned_include_paths.end()) {
             for (const auto& include_path : m_include_paths) {
                 if (path.starts_with(include_path)) {
@@ -39,8 +39,8 @@ auto kdtool::project::index::add_include_path(const std::string& path, bool scan
                         altered_path.erase(0, 1);
                     }
 
-                    auto it = std::find(m_scanned_include_paths.begin(), m_scanned_include_paths.end(), altered_path);
-                    if (it == m_scanned_include_paths.end()) {
+                    const auto& sit = std::find(m_scanned_include_paths.begin(), m_scanned_include_paths.end(), altered_path);
+                    if (sit == m_scanned_include_paths.end()) {
                         m_scanned_include_paths.emplace_back(altered_path);
                     }
                     return;

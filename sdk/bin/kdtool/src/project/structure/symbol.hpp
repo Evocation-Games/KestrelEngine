@@ -78,11 +78,13 @@ namespace kdtool::project::structure
         auto set_display_name(const std::string& name) -> void;
 
         // Source
+        [[nodiscard]] auto source_file() const -> foundation::filesystem::path;
         [[nodiscard]] auto source_identifier(const std::vector<std::string>& template_parameters = {}) const -> std::string;
         [[nodiscard]] auto resolved_source_identifier(const std::string& scope_operator = "::",
                                                       const std::vector<std::string>& template_parameters = {}) const -> std::string;
         [[nodiscard]] auto source_template_parameters() const -> std::vector<std::string>;
         auto set_source_identifier(const std::string& identifier) -> void;
+        auto set_source_file(const foundation::filesystem::path& path) -> void;
         auto add_source_template_parameter(const std::string& parameter) -> void;
 
         // Lua

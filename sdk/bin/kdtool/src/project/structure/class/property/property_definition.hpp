@@ -45,7 +45,7 @@ namespace kdtool::project::structure
             return type();
         }
 
-        [[nodiscard]] auto name() const -> std::string { return symbol()->source_identifier(); }
+        [[nodiscard]] auto name() const -> std::string { return symbol()->lua_identifier(); }
         [[nodiscard]] auto filename() const -> foundation::filesystem::path { return symbol()->filename(); }
 
         [[nodiscard]] auto is_static() const -> bool

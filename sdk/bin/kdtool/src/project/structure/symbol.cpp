@@ -84,12 +84,15 @@ auto kdtool::project::structure::symbol::make_reference() -> void
 
 auto kdtool::project::structure::symbol::filename() const -> foundation::filesystem::path
 {
-    return m_source.filename;
-}
+    auto it = shared_from_this();
+    std::vector<std::string> components;
+    while (it != nullptr) {
+        components.insert(components.begin(), it->m_lua.identifiers.begin(), it->m_lua.identifiers.end());
+        it = it->parent().lock();
+    }
 
-auto kdtool::project::structure::symbol::set_filename(const foundation::filesystem::path& filename) -> void
-{
-    m_source.filename = filename;
+    foundation::filesystem::path path(components);
+    return path;
 }
 
 // MARK: - Definition
@@ -173,6 +176,11 @@ auto kdtool::project::structure::symbol::set_display_name(const std::string &nam
 
 // MARK: - Source
 
+auto kdtool::project::structure::symbol::source_file() const -> foundation::filesystem::path
+{
+    return m_source.filename;
+}
+
 auto kdtool::project::structure::symbol::source_identifier(const std::vector<std::string>& template_parameters) const -> std::string
 {
     std::string out = m_source.identifier;
@@ -201,6 +209,11 @@ auto kdtool::project::structure::symbol::resolved_source_identifier(const std::s
 auto kdtool::project::structure::symbol::source_template_parameters() const -> std::vector<std::string>
 {
     return m_source.templates;
+}
+
+auto kdtool::project::structure::symbol::set_source_file(const foundation::filesystem::path &path) -> void
+{
+    m_source.filename = path;
 }
 
 auto kdtool::project::structure::symbol::set_source_identifier(const std::string &identifier) -> void
