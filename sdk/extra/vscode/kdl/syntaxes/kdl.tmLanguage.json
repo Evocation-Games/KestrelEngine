@@ -1,0 +1,245 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "KDL",
+	"patterns": [
+		{ "include": "#directive" },
+		{ "include": "#component" },
+		{ "include": "#comment" },
+		{ "include": "#type.definition" },
+		{ "include": "#decorators" }
+	],
+	"repository": {
+		"directive": {
+			"begin": "\\@(project|author|email|license|version|copyright|import)",
+			"end": ";",
+			"beginCaptures": {
+				"0": {"name": "meta.preprocessor"}
+			},
+			"patterns": [
+				{ "include": "#module.name" },
+				{ "include": "#string" }
+			]
+		},
+
+		"decorators": {
+			"match": "(@([A-Za-z_][A-Za-z0-9_]*))(\\s*\\(((([A-Za-z_][A-Za-z0-9_]*)|([0-9]+)|(\"[^\"]*\"))(\\s*,\\s*(([A-Za-z_][A-Za-z0-9_]*)|([0-9]+)|(\"[^\"]*\")))*)?\\))?",
+			"captures": {
+				"1": { "name": "entity.other.attribute-name" },
+				"6": { "name": "entity.name" },
+				"7": { "name": "constant.numeric" },
+				"8": { "name": "string.quoted.double" },
+				"11": { "name": "entity.name" },
+				"12": { "name": "constant.numeric" },
+				"13": { "name": "string.quoted.double" }
+			}
+		},
+
+		"component": {
+			"begin": "component",
+			"end": ";",
+			"beginCaptures": {
+				"0": { "name": "keyword" }
+			},
+			"patterns": [
+				{ "include": "#component.statement" },
+				{ "include": "#component.body" },
+				{ "include": "#comment" }
+			],
+			"applyEndPatternLast": 1
+		},
+
+		"component.statement": {
+			"begin": "\\<",
+			"end": "\\>\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*",
+			"beginCaptures": {
+				"1": { "name": "keyword.other" }
+			},
+			"endCaptures": {
+				"1": { "name": "entity.name.type" }
+			},
+			"patterns": [
+				{ "include": "#type.name"},
+				{ "include": "#resource.reference" }
+			]
+		},
+
+		"component.body": {
+			"begin": "\\{",
+			"end": "\\}",
+			"patterns": [
+				{ "include": "#component.files" },
+				{ "include": "#component.types" }
+			]
+		},
+
+		"component.files": {
+			"begin": "\\b(files)\\s*\\((\"[^\"]*\")\\)\\s*\\{",
+			"end": "\\};",
+			"captures": {
+				"1": { "name": "keyword" },
+				"2": { "name": "string.quoted.double" }
+			},
+			"patterns": [
+				{ "include": "#string" },
+				{ "include": "#comment" },
+				{ "include": "#decorators" }
+			]
+		},
+
+		"component.types": {
+			"begin": "\\b(api_export)\\s*\\{",
+			"end": "\\};",
+			"captures": {
+				"1": { "name": "keyword" }
+			},
+			"patterns": [
+				{ "include": "#type.name" },
+				{ "include": "#comment" },
+				{ "include": "#decorators" }
+			]
+		},
+
+		"type.definition": {
+			"begin": "\\b(type)\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*:\\s*(\"([[:alnum:]]|_|-|\\s){4}\")\\s*\\{",
+			"end": "\\};",
+			"captures": {
+				"1": { "name": "keyword" },
+				"2": { "name": "entity.name.type" },
+				"3": { "name": "string.quoted.double" }
+			},
+			"patterns": [
+				{ "include": "#type.template" },
+				{ "include": "#type.field.definition" },
+				{ "include": "#type.field.declaration" },
+				{ "include": "#comment" },
+				{ "include": "#decorators" }
+			]
+		},
+
+		"type.template": {
+			"begin": "\\b(template)\\s*\\{",
+			"end": "\\}",
+			"captures": {
+				"1": { "name": "keyword" }
+			},
+			"patterns": [
+				{ "include": "#type.template.field" },
+				{ "include": "#comment" },
+				{ "include": "#decorators" }
+			]
+		},
+
+		"type.template.field": {
+			"match": "\\b(RSRC|((D|H)(BYT|WRD|LNG|QWD))|((P|C)STR)|C[0-9A-Fa-f]{3}|BOOL|BBIT|RECT|HEXD)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+			"captures": {
+				"1": { "name": "entity.name.type" },
+				"7": { "name": "variable.name" }
+			}
+		},
+
+		"type.field.definition": {
+			"begin": "\\b(field)\\s*\\((\"[A-Za-z_][A-Za-z0-9_]*\")\\)\\s*\\{",
+			"end": "\\}",
+			"captures": {
+				"1": { "name": "keyword" },
+				"2": { "name": "string.quoted.double" }
+			},
+			"patterns": [
+				{ "include": "#type.field.value.basic" },
+				{ "include": "#type.field.value.symbols" },
+				{ "include": "#comment" },
+				{ "include": "#decorators" }
+			]
+		},
+
+		"type.field.declaration": {
+			"match": "\\b(field)\\s*\\((\"[A-Za-z_][A-Za-z0-9_]*\")\\)\\s*=\\s*((\"[^\"]*\")|(-?[0-9]+)|(#(([A-Za-z_][A-Za-z0-9_]*)\\.)*(-?[[:digit:]]+)))",
+			"captures": {
+				"1": { "name": "keyword" },
+				"2": { "name": "string.quoted.double" },
+				"4": { "name": "string.quoted.double" },
+				"5": { "name": "constant.numeric" },
+				"6": { "name": "constant.numeric" },
+				"8": { "name": "entity.name.type" }
+			}
+		},
+
+		"type.field.value.basic": {
+			"match": "([A-Za-z_][A-Za-z0-9_]*)(\\s+(as)\\s+((Range\\<(-?[0-9]+%?)(\\s*,\\s*(-?[0-9]+%?))*\\>)|(([A-Za-z_][A-Za-z0-9_]*)?&?)))?(\\s*=\\s*(([A-Za-z_][A-Za-z0-9_]*)|(\"[^\"]*\")|(-?[0-9]+)|(#([A-Za-z_][A-Za-z0-9_]*\\.){0,2}(-?[0-9]+))))?",
+			"captures": {
+				"1": { "name": "variable.name" },
+				"3": { "name": "keyword" },
+				"5": { "name": "constant.language" },
+				"6": { "name": "constant.numeric" },
+				"8": { "name": "constant.numeric" },
+				"9": { "name": "entity.name.type" },
+				"13": { "name": "entity.name.type" },
+				"14": { "name": "string.quoted.double" },
+				"15": { "name": "constant.numeric" },
+				"16": { "name": "constant.numeric" }
+			}
+		},
+
+		"type.field.value.symbols": {
+			"begin": "([A-Za-z_][A-Za-z0-9_]*)(\\s+(as)\\s+((Range\\<(-?[0-9]+%?)(\\s*,\\s*(-?[0-9]+%?))*\\>)|(([A-Za-z_][A-Za-z0-9_]*)?&?)))?(\\s*=\\s*(([A-Za-z_][A-Za-z0-9_]*)|(\"[^\"]*\")|(-?[0-9]+)|(#([A-Za-z_][A-Za-z0-9_]*\\.){0,2}(-?[0-9]+))))?\\s*\\[",
+			"end": "\\]",
+			"beginCaptures": {
+				"1": { "name": "variable.name" },
+				"3": { "name": "keyword" },
+				"5": { "name": "constant.language" },
+				"6": { "name": "constant.numeric" },
+				"8": { "name": "constant.numeric" },
+				"9": { "name": "entity.name.type" },
+				"13": { "name": "entity.name.type" },
+				"14": { "name": "string.quoted.double" },
+				"15": { "name": "constant.numeric" },
+				"16": { "name": "constant.numeric" }
+			},
+			"patterns": [
+				{ "include": "#type.field.value.symbol.definition" },
+				{ "include": "#comment" },
+				{ "include": "#decorators" }
+			]
+		},
+
+		"type.field.value.symbol.definition": {
+			"match": "([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*((-?[0-9]+)|(\"[^\"]*\")|(#([A-Za-z_][A-Za-z0-9_]*\\.){0,2}-?[0-9]+))",
+			"captures": {
+				"1": { "name": "variable.name" },
+				"3": { "name": "constant.numeric" },
+				"4": { "name": "string.quoted.double" },
+				"5": { "name": "constant.numeric" },
+				"6": { "name": "entity.name.type" }
+			}
+		},
+
+		"module.name": {
+			"match": "\\b(Kestrel|SpriteWorld|Macintosh)",
+			"name": "entity.name.type"
+		},
+
+		"type.name": {
+			"match": "([A-Za-z_][A-Za-z0-9_]*)(\\.[A-Za-z_][A-Za-z0-9_]*)?",
+			"name": "entity.name.type"
+		},
+
+		"string": {
+			"match": "\"[^\"]*\"",
+			"name": "string.quoted.double"
+		},
+
+		"resource.reference": {
+			"match": "#([A-Za-z_][A-Za-z0-9_]*\\.)*(-?[[:digit:]]+)",
+			"captures": {
+				"0": { "name": "constant.numeric" },
+				"1": { "name": "entity.name.type" }
+			}
+		},
+
+		"comment": {
+			"match": "[\\/]{2}[^\\n]*",
+			"name": "comment.line.double-slash"
+		}
+	},
+	"scopeName": "source.kdl"
+}

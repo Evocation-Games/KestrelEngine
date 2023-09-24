@@ -1,0 +1,25 @@
+{
+  "name": "kdl",
+  "displayName": "KDL",
+  "description": "VSCode KDL Support",
+  "version": "0.1",
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "kdl",
+      "aliases": ["KDL", "kdl"],
+      "extensions": [".kdl",".kdlproj"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "kdl",
+      "scopeName": "source.kdl",
+      "path": "./syntaxes/kdl.tmLanguage.json"
+    }]
+  }
+}
