@@ -154,3 +154,28 @@ jobs:
         with:
           name: KestrelEngine-Windows
           path: ./artifacts
+
+  vscode:
+    name: VSCode Extension
+    strategy:
+      matrix:
+        env:
+          - { os: ubuntu-latest, compiler: LLVM, CC: clang, CXX: clang++ }
+    runs-on: ${{ matrix.env.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Build Extension
+        run: |
+          npm install -g @vscode/vsce 
+          cd sdk/extra/vscode/kdl
+          vsce package -o "KDL.vsix"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDL.vsix
+          path: ./sdk/extra/vscode/kdl
