@@ -102,11 +102,19 @@ namespace kdtool::builder
             std::vector<std::shared_ptr<codegen::ast::statement<L>>> specializations;
             specializations.emplace_back(std::make_shared<codegen::ast::symbol_statement<L>>(source_name));
 
+            std::shared_ptr<codegen::ast::statement<L>> name_arg = std::make_shared<codegen::ast::string_statement<L>>(name);
+            if (name == "name.c_str()") {
+                // TODO: Fix this
+                name_arg = std::make_shared<codegen::ast::function_call<L>>(
+                    std::make_shared<codegen::ast::symbol<L>>("name.c_str")
+                );
+            }
+
             m_indent++;
             add(codegen::emit::segment({
                 codegen::emit::segment(L::reference_member_operator_string()),
                 codegen::ast::template_specialized_function_call<L>(m_symbols.beginClass, specializations, {
-                    std::make_shared<codegen::ast::string_statement<L>>(name)
+                    name_arg
                 }).emit()
             }, codegen::emit::line_break_mode::before, codegen::emit::indentation_mode::indent_after));
             return *this;
@@ -217,7 +225,12 @@ namespace kdtool::builder
                 definition->symbol()->source_template_parameters()
             );
 
-            return define_class(class_symbol, definition->symbol()->lua_identifier(), [&] (auto& lua) {
+            auto name = definition->symbol()->lua_identifier();
+            if (definition->enrollment()->requires_custom_name()) {
+                name = "name.c_str()";
+            }
+
+            return define_class(class_symbol, name, [&] (auto& lua) {
                 add_constructor(definition);
 
                 for (const auto& property : definition->all_properties()) {

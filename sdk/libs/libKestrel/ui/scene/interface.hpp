@@ -37,7 +37,7 @@
 
 namespace kestrel::ui
 {
-    enum lua_api(UI.SceneInterfaceFlags, Available_0_8) scene_interface_flags : std::uint16_t
+    enum lua_api(UI.SceneInterface.Flags, Available_0_8) scene_interface_flags : std::uint16_t
     {
         // ImGui Flags
         use_imgui = ::ui::format::interface::flags::imgui,
@@ -54,7 +54,7 @@ namespace kestrel::ui
         force_macintosh_dialog = 0xF00F,
     };
 
-    enum lua_api(UI.SceneInterfaceItem.AxisOrigin, Available_0_9) scene_interface_item_origin_axis : std::uint8_t
+    enum lua_api(UI.SceneInterface.AxisOrigin, Available_0_9) scene_interface_item_origin_axis : std::uint8_t
     {
         top_left = 0x00,
         top_center = 0x01,
@@ -67,7 +67,7 @@ namespace kestrel::ui
         bottom_right = 0x22
     };
 
-    struct lua_api(UI.SceneInterfaceItem, Available_0_8) scene_interface_item
+    struct lua_api(UI.SceneInterface.Item, Available_0_8) scene_interface_item
     {
     public:
         has_constructable_lua_api(scene_interface_item);
@@ -159,7 +159,7 @@ namespace kestrel::ui
         ui::horizontal_alignment m_alignment { ui::horizontal_alignment::left };
     };
 
-    struct lua_api(UI.SceneInterface, Available_0_8) scene_interface
+    struct lua_api(UI.SceneInterface.Dialog, Available_0_8) scene_interface
     {
     public:
         has_constructable_lua_api(scene_interface);
