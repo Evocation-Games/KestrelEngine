@@ -1,0 +1,55 @@
+// This is an example KDL script to demonstrate the new style
+// and VS Code Extension.
+@project "Example Project";
+@author "Tom Hancocks";
+
+// Import definitions from the Cosmic Frontier module.
+@import CosmicFrontier;
+
+// Represents a body of text that acts a description to an entity within
+// CosmicFrontier. Such entities might be stellar objects, weapons, missions,
+// etc.
+type Description : "dësc" {
+    template {
+        CSTR Text;
+        RSRC Graphic;
+        C020 MovieFile;
+        HWRD Flags;
+    };
+
+    // @synthesize decorators allow fields to be specified without explicitly
+    // defining their accepted values. KDL will automatically infer the "Text"
+    // field from the template.
+    @synthesize field("Text");
+
+    field("Graphic") {
+        // Instruct KDL to treat the graphic value as a reference to a StaticImage
+        // type.
+        Graphic as StaticImage& = #0;
+    };
+
+    field("Flags") {
+        Flags as Bitmask = 0 [
+            MovieAfter = 0x0001,
+            DoubleSizeMovie = 0x0002,
+            CinematicMovie = 0x0004,
+        ];
+    };
+};
+
+@example declare ExampleContainer.Description {
+    new(#128, "Example Description") {
+        Text = import "@spath/example.txt";
+        Graphic = new {
+            PNG = import "@spath/example.png";
+        };
+    };
+
+    // Using the "if" decorator, we can tell KDL to only look at structures if
+    // a certain symbol is defined. KDL will automatically define symbols such as
+    // 'classic', 'extended' and 'rez' based on target file format. Other symbols
+    // can be defined when running the kdl program, like so: '-D SYMBOL'
+    @if(classic) new(#129, "Second Description") {
+        // ...
+    }
+};

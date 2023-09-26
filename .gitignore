@@ -24,3 +24,7 @@ support/vendor/
 support/packaging/appimage/appimagetool
 result.kdat
 result.ndat
+.vscode
+*.vsix
+node_modules
+package-lock.json

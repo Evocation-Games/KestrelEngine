@@ -10,17 +10,30 @@
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "kdl",
-      "aliases": ["KDL", "kdl"],
-      "extensions": [".kdl",".kdlproj"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "kdl",
-      "scopeName": "source.kdl",
-      "path": "./syntaxes/kdl.tmLanguage.json"
-    }]
+    "languages": [
+      {
+        "id": "kdl",
+        "aliases": [
+          "KDL",
+          "kdl"
+        ],
+        "extensions": [
+          ".kdl",
+          ".kdlproj"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "kdl",
+        "scopeName": "source.kdl",
+        "path": "./syntaxes/kdl.tmLanguage.json"
+      }
+    ]
   },
-  "repository": {}
+  "repository": {},
+  "devDependencies": {
+    "js-yaml": "^4.1.0"
+  }
 }

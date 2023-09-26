@@ -171,11 +171,13 @@ jobs:
           node-version: 16.x
       - name: Build Extension
         run: |
-          npm install -g @vscode/vsce 
+          npm install -g @vscode/vsce
+          npm install js-yaml --save-dev
           cd sdk/extra/vscode/kdl
+          npx js-yaml syntaxes/kdl.yaml > syntaxes/kdl.tmLanguage.json
           vsce package -o "KDL.vsix"
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KDL.vsix
-          path: ./sdk/extra/vscode/kdl
+          path: ./sdk/extra/vscode/kdl/KDL.vsix
