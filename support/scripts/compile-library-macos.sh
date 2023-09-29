@@ -40,8 +40,8 @@ cmake \
 cmake --build cmake-$1-arm-build-release -- -j2
 
 echo "Merging $3 Libraries into single Universal Library"
-mkdir -p vendor
+mkdir -p support/vendor
 lipo -create cmake-$1-intel-build-release/$2.a cmake-$1-arm-build-release/$2.a \
-     -output vendor/lib$1.a
+     -output support/vendor/lib$1.a
 
 rm -rf cmake-$1-arm-build-release cmake-$1-intel-build-release
