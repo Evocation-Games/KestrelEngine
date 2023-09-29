@@ -19,7 +19,9 @@
         ],
         "extensions": [
           ".kdl",
-          ".kdlproj"
+          ".kdlproj",
+          ".kdconfig",
+          ".kdmodule"
         ],
         "configuration": "./language-configuration.json"
       }

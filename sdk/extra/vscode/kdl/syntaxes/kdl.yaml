@@ -162,6 +162,7 @@ repository:
       '1': { name: keyword }
     patterns:
       - { include: '#moduleName' }
+      - { include: '#string' }
 
 #######################################################################################################################
 ## Type Definition

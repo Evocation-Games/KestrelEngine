@@ -61,7 +61,7 @@ auto kestrel::platform::windows::font::path_for(const std::string& name) -> std:
 
     // Look for a matching font file.
     do {
-        ws_font_file.clear()
+        ws_font_file.clear();
         value_data_size = max_value_data_size;
         value_name_size = max_value_name_size;
 
