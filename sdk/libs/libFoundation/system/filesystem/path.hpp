@@ -76,6 +76,11 @@ namespace foundation::filesystem
         static auto path_scheme(const std::string& path) -> std::string;
 
         /**
+         * Creates a path that represents the location of configuration files for the user.
+         */
+        static auto configuration_directory(const std::string& name = "kestrel") -> path;
+
+        /**
          * Creates a new string by appending the specified path component to it.
          * @return
          */
