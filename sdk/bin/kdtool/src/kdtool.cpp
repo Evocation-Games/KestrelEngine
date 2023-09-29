@@ -22,9 +22,12 @@
 #include "project/project.hpp"
 #include "builder/api/api.hpp"
 #include "builder/documentation/documentation.hpp"
+#include "kdl/kdl.hpp"
 #include <libCodeGen/languages/markup/markdown.hpp>
 #include <libCodeGen/languages/markup/html.hpp>
 #include <libCodeGen/languages/procedural/cxx.hpp>
+#include <libKDL/unit/file.hpp>
+#include <libResourceCore/file.hpp>
 
 auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
 {
@@ -34,6 +37,11 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
         std::string path;
         bool cxx { false };
     } lua_api;
+
+    struct {
+        bool enabled { false };
+        std::shared_ptr<kdtool::kdl::tool> tool;
+    } kdl;
 
     struct {
         std::string path;
@@ -75,9 +83,22 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
                 documentation.title = argv[++n];
                 project->set_title(documentation.title);
             }
+            else if (arg == "-kdl") {
+                kdl.enabled = true;
+                kdl.tool = std::make_shared<kdtool::kdl::tool>(argv[++n]);
+            }
+            else if (arg == "-D" && kdl.enabled) {
+                kdl.tool->add_definition(argv[++n]);
+            }
+            else if ((arg == "-f" || arg == "--format") && kdl.enabled) {
+                kdl.tool->set_format(argv[++n]);
+            }
         }
-        else {
+        else if (!kdl.enabled) {
             project->add_translation_unit(argv[n]);
+        }
+        else if (kdl.enabled) {
+            kdl.tool->add_file(argv[n]);
         }
     }
 
@@ -110,6 +131,10 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             auto api = std::make_shared<kdtool::builder::documentation<codegen::language::html>>(project, path, root);
             api->build();
         }
+    }
+
+    if (kdl.enabled) {
+        kdl.tool->build();
     }
 
     return 0;

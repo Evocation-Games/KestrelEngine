@@ -20,32 +20,13 @@
 
 #pragma once
 
-#include <string>
-#include <libKDL/tokenizer/token.hpp>
-#include <libKDL/sema/context.hpp>
-#include <libFoundation/system/filesystem/file.hpp>
 #include <libFoundation/stream/stream.hpp>
-#include <libLexer/lexeme.hpp>
-#include <libResourceCore/file.hpp>
+#include <libKDL/tokenizer/token.hpp>
+#include <libKDL/modules/module/module_definition.hpp>
+#include <libKDL/sema/context.hpp>
 
-namespace kdl::unit
+namespace kdl::sema::module_definition
 {
-    struct file
-    {
-    public:
-        explicit file(sema::context& ctx);
-        explicit file(resource_core::file& output, sema::context& ctx);
-        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
-        auto import_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
-
-        static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
-
-    private:
-        auto find_config_files(const std::vector<std::string>& definitions) -> void;
-        auto import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
-
-    private:
-        resource_core::file *m_output { nullptr };
-        sema::context *m_context { nullptr };
-    };
+    auto test(const foundation::stream<tokenizer::token>& stream) -> bool;
+    auto parse(foundation::stream<tokenizer::token>& stream, context& ctx) -> void;
 }

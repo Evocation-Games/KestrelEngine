@@ -21,31 +21,26 @@
 #pragma once
 
 #include <string>
-#include <libKDL/tokenizer/token.hpp>
-#include <libKDL/sema/context.hpp>
-#include <libFoundation/system/filesystem/file.hpp>
-#include <libFoundation/stream/stream.hpp>
-#include <libLexer/lexeme.hpp>
-#include <libResourceCore/file.hpp>
+#include <vector>
+#include <libFoundation/system/filesystem/path.hpp>
 
-namespace kdl::unit
+namespace kdl
 {
-    struct file
+    struct module_definition
     {
-    public:
-        explicit file(sema::context& ctx);
-        explicit file(resource_core::file& output, sema::context& ctx);
-        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
-        auto import_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
+        explicit module_definition(const std::string& name);
 
-        static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
+        [[nodiscard]] auto name() const -> std::string;
 
-    private:
-        auto find_config_files(const std::vector<std::string>& definitions) -> void;
-        auto import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
+        auto add_dependency(const std::string& name) -> void;
+        auto add_import(const std::string& path) -> void;
+
+        [[nodiscard]] auto dependencies() const -> std::vector<std::string>;
+        [[nodiscard]] auto imports() const -> std::vector<foundation::filesystem::path>;
 
     private:
-        resource_core::file *m_output { nullptr };
-        sema::context *m_context { nullptr };
+        std::string m_name;
+        std::vector<foundation::filesystem::path> m_imports;
+        std::vector<std::string> m_dependencies;
     };
 }

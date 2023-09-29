@@ -633,7 +633,7 @@ auto kdtool::cxx::analyzer::construct_parameter(CXCursor cursor) -> std::shared_
 
 auto kdtool::cxx::analyzer::construct_template_parameter(CXCursor cursor, CXCursor parent, const scripting::annotation::set &annotations) -> std::shared_ptr<project::structure::construct_definition>
 {
-
+    return nullptr;
 }
 
 // MARK: - Type Fixes

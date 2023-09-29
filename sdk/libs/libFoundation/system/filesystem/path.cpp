@@ -22,9 +22,9 @@
 #include <libFoundation/system/filesystem/path.hpp>
 #include <libFoundation/string/split.hpp>
 
-
 #if TARGET_WINDOWS
 #include <windows.h>
+#include <shlobj.h>
 #else
 #include <unistd.h>
 #include <pwd.h>
@@ -35,7 +35,6 @@
 #include <climits>
 #include <fstream>
 #include <streambuf>
-#include <stdexcept>
 
 // MARK: - Helpers
 
@@ -119,6 +118,33 @@ foundation::filesystem::path::path(const std::vector<std::string>& components, b
     convert_to_absolute();
 }
 
+// MARK: - Pre-defined Locations
+
+auto foundation::filesystem::path::configuration_directory(const std::string &name) -> path
+{
+    path config_dir;
+
+#if TARGET_WINDOWS
+    WCHAR appdata_directory[MAX_PATH];
+    HRESULT result = SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, appdata_directory);
+    if (SUCCEEDED(result)) {
+        std::wstring ws(appdata_directory);
+        std::string raw(ws.begin(), ws.end());
+        config_dir = path(raw);
+        config_dir = config_dir.appending_path_component(name);
+    }
+    else {
+        throw std::runtime_error("Could not find user AppData directory.");
+    }
+#else
+    config_dir = path::resolve_tilde({ "~" });
+    config_dir = config_dir.appending_path_component("." + name);
+#endif
+
+    config_dir.create_directory();
+    return config_dir;
+}
+
 // MARK: - Absolute Path Conversion
 
 auto foundation::filesystem::path::convert_to_absolute() -> void
@@ -196,7 +222,7 @@ auto foundation::filesystem::path::string() const -> std::string
             result.insert(result.end(), component.begin(), component.end());
         }
 
-        if (m_relative && result[0] == '/') {
+        if ((m_relative || (result.length() > 1 && result.starts_with("/~"))) && result[0] == '/') {
             result.erase(0, 1);
         }
 #if TARGET_WINDOWS
@@ -348,7 +374,7 @@ auto foundation::filesystem::path::resolve_tilde(const path &path) -> filesystem
         }
     }
 
-    if (!home.empty()) {
+    if (home.empty()) {
         return filesystem::path(path_str);
     }
 

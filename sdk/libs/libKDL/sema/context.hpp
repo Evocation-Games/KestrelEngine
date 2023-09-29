@@ -30,6 +30,7 @@
 #include <libInterpreter/scope/scope.hpp>
 #include <libResourceCore/file.hpp>
 #include <libFoundation/system/filesystem/file.hpp>
+#include <libKDL/modules/module/module_definition.hpp>
 
 namespace kdl::sema
 {
@@ -43,6 +44,7 @@ namespace kdl::sema
 
         std::unordered_set<std::string> definitions;
         std::unordered_map<std::string, resource::definition::type::instance> registered_types;
+        std::unordered_map<std::string, kdl::module_definition> registered_modules;
         std::unordered_map<std::string, std::int64_t> field_repeat_counts;
         std::vector<resource::instance> resources;
         std::vector<std::shared_ptr<foundation::filesystem::file>> files;
@@ -57,6 +59,10 @@ namespace kdl::sema
         [[nodiscard]] auto type_named(const std::string& name) const -> const resource::definition::type::instance *;
         [[nodiscard]] auto type_named(const lexer::lexeme& lx) const -> const resource::definition::type::instance *;
         [[nodiscard]] auto type(const resource::definition::type::descriptor& descriptor) const -> const resource::definition::type::instance *;
+
+        auto register_module(const kdl::module_definition& module) -> kdl::module_definition *;
+        [[nodiscard]] auto module_named(const std::string& name) const -> const kdl::module_definition *;
+        [[nodiscard]] auto module_named(const lexer::lexeme& lx) const -> const kdl::module_definition *;
 
         auto create_scope() -> interpreter::scope *;
         auto pop_scope() -> void;

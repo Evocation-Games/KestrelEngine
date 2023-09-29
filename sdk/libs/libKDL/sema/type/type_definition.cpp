@@ -55,7 +55,6 @@ auto kdl::sema::type_definition::parse(foundation::stream<tokenizer::token> &str
     auto type = const_cast<resource::definition::type::instance *>(ctx.current_type = ctx.register_type(raw_type));
 
     while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
-
         if (sema::decorator::test(stream)) {
             ctx.current_decorators = sema::decorator::parse(stream);
             continue;

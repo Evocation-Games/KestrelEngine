@@ -20,32 +20,35 @@
 
 #pragma once
 
-#include <string>
-#include <libKDL/tokenizer/token.hpp>
-#include <libKDL/sema/context.hpp>
-#include <libFoundation/system/filesystem/file.hpp>
-#include <libFoundation/stream/stream.hpp>
+#include <stdexcept>
+#include <utility>
 #include <libLexer/lexeme.hpp>
-#include <libResourceCore/file.hpp>
 
-namespace kdl::unit
+namespace kdl
 {
-    struct file
+    class unrecognised_module_definition_exception : public std::exception
     {
     public:
-        explicit file(sema::context& ctx);
-        explicit file(resource_core::file& output, sema::context& ctx);
-        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
-        auto import_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
+        explicit unrecognised_module_definition_exception(std::string reason)
+            : m_reason(std::move(reason)), m_lexeme("none", lexer::lexeme_type::any)
+        {}
 
-        static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
+        unrecognised_module_definition_exception(std::string reason, lexer::lexeme lx)
+            : m_reason(std::move(reason)), m_lexeme(std::move(lx))
+        {};
+
+        [[nodiscard]] auto reason() const -> std::string
+        {
+            return m_reason;
+        }
+
+        [[nodiscard]] auto lexeme() const -> lexer::lexeme
+        {
+            return m_lexeme;
+        }
 
     private:
-        auto find_config_files(const std::vector<std::string>& definitions) -> void;
-        auto import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
-
-    private:
-        resource_core::file *m_output { nullptr };
-        sema::context *m_context { nullptr };
+        std::string m_reason;
+        lexer::lexeme m_lexeme;
     };
 }

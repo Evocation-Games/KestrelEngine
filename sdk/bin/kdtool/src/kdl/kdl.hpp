@@ -21,31 +21,31 @@
 #pragma once
 
 #include <string>
-#include <libKDL/tokenizer/token.hpp>
-#include <libKDL/sema/context.hpp>
-#include <libFoundation/system/filesystem/file.hpp>
-#include <libFoundation/stream/stream.hpp>
-#include <libLexer/lexeme.hpp>
+#include <vector>
 #include <libResourceCore/file.hpp>
+#include <libKDL/unit/file.hpp>
 
-namespace kdl::unit
+namespace kdtool::kdl
 {
-    struct file
+    struct tool
     {
-    public:
-        explicit file(sema::context& ctx);
-        explicit file(resource_core::file& output, sema::context& ctx);
-        auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
-        auto import_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
+        explicit tool(const std::string& path);
 
-        static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
+        auto add_file(const std::string& file) -> void;
+        auto add_definition(const std::string& symbol) -> void;
+        auto set_format(const std::string& format) -> void;
 
-    private:
-        auto find_config_files(const std::vector<std::string>& definitions) -> void;
-        auto import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
+        auto build() -> void;
 
     private:
-        resource_core::file *m_output { nullptr };
-        sema::context *m_context { nullptr };
+        [[nodiscard]] auto definitions() const -> std::vector<std::string>;
+
+    private:
+        std::string m_output_path;
+        resource_core::file m_output;
+        std::vector<std::string> m_definitions;
+        enum resource_core::file::format m_format { resource_core::file::format::extended };
+        ::kdl::sema::context m_context;
+        ::kdl::unit::file m_session;
     };
 }
