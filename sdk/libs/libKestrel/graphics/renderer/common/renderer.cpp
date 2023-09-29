@@ -150,7 +150,7 @@ auto kestrel::renderer::hitbox_debug() -> bool
 
 auto kestrel::renderer::scale_factor() -> float
 {
-    return 1.0;
+    return s_renderer_api.context->native_screen_scale();
 }
 
 auto kestrel::renderer::native_screen_size() -> math::size

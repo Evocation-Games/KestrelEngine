@@ -125,7 +125,7 @@ auto kestrel::font::typesetter::layout() -> void
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font->size() - 2) << 6U), m_dpi, m_dpi);
+    FT_Set_Char_Size(m_base_font->face(), 0, static_cast<std::int32_t>(m_base_font->size() * m_scale) << 6U, m_dpi, m_dpi);
 
     // Prepare a buffer to keep track of character layouts, before committing them to the actual layout.
     std::vector<character> buffer;
@@ -223,7 +223,7 @@ auto kestrel::font::typesetter::render() -> std::vector<graphics::color>
 
     // Ensure that the character set and font size is correctly configured, otherwise the layout will be invalid.
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
-    FT_Set_Char_Size(m_base_font->face(), 0, ((m_base_font->size() - 2) << 6U), m_dpi, m_dpi);
+    FT_Set_Char_Size(m_base_font->face(), 0, (static_cast<std::int32_t>(m_base_font->size() * m_scale) << 6U), m_dpi, m_dpi);
 
     if (m_base_font->size() <= 10) {
         for (const auto& ch : m_layout) {

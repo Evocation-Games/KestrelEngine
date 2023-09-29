@@ -89,10 +89,12 @@ namespace kestrel::renderer::metal
 
         auto set_viewport_size(const math::size& viewport_size) -> void override;
         [[nodiscard]] auto viewport_size() const -> math::size override;
+        [[nodiscard]] auto scaled_viewport_size() const -> math::size override;
 
         auto set_viewport_title(const std::string& title) -> void override;
         [[nodiscard]] auto viewport_title() const -> std::string override;
 
+        [[nodiscard]] auto native_screen_scale() const -> float override;
         [[nodiscard]] auto native_screen_size() const -> math::size override;
         auto set_fullscreen(bool f) -> void override;
 

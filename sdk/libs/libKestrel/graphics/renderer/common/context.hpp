@@ -56,10 +56,12 @@ namespace kestrel::renderer
 
         virtual auto set_viewport_size(const math::size& viewport_size) -> void = 0;
         virtual auto viewport_size() const -> math::size = 0;
+        virtual auto scaled_viewport_size() const -> math::size = 0;
 
         virtual auto set_viewport_title(const std::string& title) -> void = 0;
         virtual auto viewport_title() const -> std::string = 0;
 
+        virtual auto native_screen_scale() const -> float = 0;
         virtual auto native_screen_size() const -> math::size = 0;
         virtual auto set_fullscreen(bool f) -> void = 0;
     };

@@ -184,7 +184,7 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
     auto shader_program = entity->shader().get() ? entity->shader()->program() : nullptr;
 
     math::rect tex_coords { uv_x, uv_y, uv_w, uv_h };
-    renderer::draw_quad(entity->texture(), frame, tex_coords, entity->blend(), static_cast<float>(entity->get_alpha()), 1.0, shader_program, entity->shader_attachments());
+    renderer::draw_quad(entity->texture(), frame, tex_coords, entity->blend(), static_cast<float>(entity->get_alpha()), renderer::scale_factor(), shader_program, entity->shader_attachments());
 
     if (renderer::hitbox_debug() && entity->body()->hitbox().is_valid()) {
         const auto& hb = entity->body()->hitbox();

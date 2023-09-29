@@ -50,7 +50,7 @@ kestrel::font::reference::reference(const std::string &name, std::uint32_t size)
 #elif TARGET_LINUX
     m_path = platform::gnu_linux::font_config::path_for_best_fit_font(name);
 #elif TARGET_WINDOWS
-    m_path = "C:/Windows/Fonts/Arial.ttf";
+    m_path = platform::windows::font::path_for(name);
 #endif
 }
 

@@ -36,6 +36,7 @@
 
 static struct {
     kestrel::renderer::opengl::context *context { nullptr };
+    float current_scale_factor { 1.f };
 } s_opengl;
 
 // MARK: - Construction / Initialisation
@@ -170,6 +171,7 @@ auto kestrel::renderer::opengl::context::detect_display_configuration() -> void
     glfwGetMonitorContentScale(m_screen.monitor, &x_scale, &y_scale);
     if (x_scale > 1 || y_scale > 1) {
         m_screen.dpi_factor = x_scale;
+        s_opengl.current_scale_factor = x_scale;
     }
 #endif
 }
@@ -219,22 +221,24 @@ auto kestrel::renderer::opengl::context::configure_window() -> void
     create_shader_library("basic", opengl::s_default_vertex_function, opengl::s_default_fragment_function);
 
     // Setup a default projection
-    m_opengl.projection = glm::ortho(0.0, (double)m_opengl.viewport_width, (double)m_opengl.viewport_height, 0.0, 1.0, -1.0);
+    m_opengl.projection = glm::ortho(0.0, (double)m_opengl.scaled_viewport_width, (double)m_opengl.scaled_viewport_height, 0.0, 1.0, -1.0);
 }
 
 auto kestrel::renderer::opengl::context::window_resized(GLFWwindow *window, GLint width, GLint height) -> void
 {
     // TODO: Handle this better?
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, static_cast<GLint>(width * s_opengl.current_scale_factor), static_cast<GLint>(height * s_opengl.current_scale_factor));
 }
 
 auto kestrel::renderer::opengl::context::set_viewport_size(const math::size &viewport_size) -> void
 {
-    m_opengl.viewport_width = static_cast<uint32_t>(viewport_size.width());
-    m_opengl.viewport_height = static_cast<uint32_t>(viewport_size.height());
+    m_opengl.viewport_width = static_cast<std::int32_t>(viewport_size.width());
+    m_opengl.viewport_height = static_cast<std::int32_t>(viewport_size.height());
+    m_opengl.scaled_viewport_width = static_cast<std::int32_t>(viewport_size.width() * native_screen_scale());
+    m_opengl.scaled_viewport_height = static_cast<std::int32_t>(viewport_size.height() * native_screen_scale());
 
     glfwSetWindowSize(m_screen.window, m_opengl.viewport_width, m_opengl.viewport_height);
-    m_opengl.projection = glm::ortho(0.0, (double)m_opengl.viewport_width, (double)m_opengl.viewport_height, 0.0, 1.0, -1.0);
+    m_opengl.projection = glm::ortho(0.0, (double)m_opengl.scaled_viewport_width, (double)m_opengl.scaled_viewport_height, 0.0, 1.0, -1.0);
 
     for (auto i = 0; i < constants::swap_count; ++i) {
         m_swap.passes[i] = new opengl::swap_chain(m_screen.window, m_opengl.texture_samplers, constants::texture_slots, m_opengl.vao, m_opengl.vbo);
@@ -245,6 +249,11 @@ auto kestrel::renderer::opengl::context::set_viewport_size(const math::size &vie
 auto kestrel::renderer::opengl::context::viewport_size() const -> math::size
 {
     return { static_cast<float>(m_opengl.viewport_width), static_cast<float>(m_opengl.viewport_height) };
+}
+
+auto kestrel::renderer::opengl::context::scaled_viewport_size() const -> math::size
+{
+    return { static_cast<float>(m_opengl.scaled_viewport_width), static_cast<float>(m_opengl.scaled_viewport_height) };
 }
 
 auto kestrel::renderer::opengl::context::set_viewport_title(const std::string &title) -> void
@@ -678,6 +687,11 @@ auto kestrel::renderer::opengl::context::map_modifiers(int modifiers) -> enum ::
 
 auto kestrel::renderer::opengl::context::set_fullscreen(bool f) -> void
 {
+}
+
+auto kestrel::renderer::opengl::context::native_screen_scale() const -> float
+{
+    return m_screen.dpi_factor;
 }
 
 auto kestrel::renderer::opengl::context::native_screen_size() const -> math::size

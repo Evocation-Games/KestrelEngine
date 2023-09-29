@@ -176,6 +176,11 @@ auto kestrel::renderer::metal::context::viewport_size() const -> math::size
     return { static_cast<float>(m_metal.viewport_width), static_cast<float>(m_metal.viewport_height) };
 }
 
+auto kestrel::renderer::metal::context::scaled_viewport_size() const -> math::size
+{
+    return viewport_size();
+}
+
 auto kestrel::renderer::metal::context::set_viewport_title(const std::string &title) -> void
 {
     [m_window setTitle:[NSString stringWithUTF8String:title.c_str()]];
@@ -360,6 +365,12 @@ auto kestrel::renderer::metal::context::set_tick_function(const std::function<au
 auto kestrel::renderer::metal::context::set_fullscreen(bool f) -> void
 {
     [m_window toggleFullScreen:m_window];
+}
+
+auto kestrel::renderer::metal::context::native_screen_scale() const -> float
+{
+    // TODO: Metal is handling the scaling automatically, so simply report a scale factor or 1.0
+    return 1.0f;
 }
 
 auto kestrel::renderer::metal::context::native_screen_size() const -> math::size

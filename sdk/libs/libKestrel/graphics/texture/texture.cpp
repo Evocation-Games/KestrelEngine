@@ -68,6 +68,7 @@ auto kestrel::graphics::texture::raw_data_ptr() const -> const void *
 auto kestrel::graphics::texture::set_data(const data::block& data) -> void
 {
     m_data = data;
+    m_uploaded = false;
 }
 
 auto kestrel::graphics::texture::handle() const -> reference

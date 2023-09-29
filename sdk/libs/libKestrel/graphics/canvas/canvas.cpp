@@ -32,7 +32,7 @@
 kestrel::graphics::canvas::canvas(const math::size& size)
     : m_size(size.round()),
       m_scale(renderer::scale_factor()),
-      m_scaled_size(m_size * m_scale),
+      m_scaled_size((m_size * m_scale).round()),
       m_rgba_buffer(m_scaled_size),
       m_pen_color(graphics::color::white_color()),
       m_typesetter("", m_scale)
@@ -310,7 +310,7 @@ auto kestrel::graphics::canvas::layout_text_in_bounds(const std::string &text, c
 
 auto kestrel::graphics::canvas::character_point_in_text(std::uint32_t position) const -> math::point
 {
-    return m_typesetter.get_point_at_location(position);
+    return m_typesetter.get_point_at_location(position) / m_scale;
 }
 
 auto kestrel::graphics::canvas::draw_text(const math::point &point) -> void

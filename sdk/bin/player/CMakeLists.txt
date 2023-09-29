@@ -60,11 +60,15 @@ endif()
 
 ########################################################################################################################
 ## Player Icon
-add_custom_command(
-    TARGET KestrelPlayer POST_BUILD
-    COMMAND cp "${PROJECT_SDK_BIN}/player/${PLAYER_ICON_NAME}" "${CMAKE_BUILD_DIR}/${PLAYER_ICON_NAME}"
-    COMMENT "Creating Player Icon"
-)
+if (WIN32)
+    # TODO...
+else()
+    add_custom_command(
+        TARGET KestrelPlayer POST_BUILD
+        COMMAND cp "${PROJECT_SDK_BIN}/player/${PLAYER_ICON_NAME}" "${CMAKE_BUILD_DIR}/${PLAYER_ICON_NAME}"
+        COMMENT "Creating Player Icon"
+    )
+endif()
 
 ########################################################################################################################
 ## Player - info.plist (Apple Only)

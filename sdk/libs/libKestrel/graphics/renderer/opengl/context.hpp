@@ -63,10 +63,12 @@ namespace kestrel::renderer::opengl
 
         auto set_viewport_size(const math::size& viewport_size) -> void override;
         [[nodiscard]] auto viewport_size() const -> math::size override;
+        [[nodiscard]] auto scaled_viewport_size() const -> math::size override;
 
         auto set_viewport_title(const std::string& title) -> void override;
         [[nodiscard]] auto viewport_title() const -> std::string override;
 
+        [[nodiscard]] auto native_screen_scale() const -> float override;
         [[nodiscard]] auto native_screen_size() const -> math::size override;
         auto set_fullscreen(bool f) -> void override;
 
@@ -104,8 +106,10 @@ namespace kestrel::renderer::opengl
         struct {
             GLuint vao { 0 };
             GLuint vbo { 0 };
-            uint32_t viewport_width { 1440 };
-            uint32_t viewport_height { 900 };
+            std::int32_t viewport_width { 1440 };
+            std::int32_t viewport_height { 900 };
+            std::int32_t scaled_viewport_width { 1440 };
+            std::int32_t scaled_viewport_height { 900 };
             glm::mat4 projection;
             GLint texture_samplers[constants::texture_slots] { 0 };
             std::unordered_map<util::uid, std::shared_ptr<renderer::shader::program>> shader_programs;
