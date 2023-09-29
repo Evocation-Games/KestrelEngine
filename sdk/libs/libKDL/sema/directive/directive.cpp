@@ -80,7 +80,8 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
     else if (stream.expect({ expectation(tokenizer::import_directive).be_true(), expectation(tokenizer::identifier).be_true() })) {
         // Importing a module.
         stream.advance();
-        auto name = stream.read().string_value();
+        auto name_tk = stream.read();
+        auto name = name_tk.string_value();
         if (name == "Kestrel") {
             modules::kestrel::construct(ctx);
         }
@@ -89,6 +90,28 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
         }
         else if (name == "SpriteWorld") {
             modules::spriteworld::construct(ctx);
+        }
+        else if (auto module = ctx.module_named(name)) {
+            for (const auto& dependency : module->dependencies()) {
+                if (dependency == "Kestrel") {
+                    modules::kestrel::construct(ctx);
+                }
+                else if (dependency == "Macintosh") {
+                    modules::macintosh::construct(ctx);
+                }
+                else if (dependency == "SpriteWorld") {
+                    modules::spriteworld::construct(ctx);
+                }
+            }
+
+            for (const auto& raw_path : module->imports()) {
+                auto path = ctx.resolve_path(raw_path, name_tk.source().source_directory());
+                auto lexical_result = unit::file::import_and_tokenize_file(path.string(), std::vector<std::string>(
+                    ctx.definitions.begin(), ctx.definitions.end()
+                ), ctx);
+                stream.insert(lexical_result);
+                stream.push(tokenizer::token(tokenizer::semi));
+            }
         }
     }
     else if (stream.expect({ expectation(tokenizer::import_directive).be_true(), expectation(tokenizer::string).be_true() })) {

@@ -22,6 +22,7 @@
 #include <libKDL/spec/decorators.hpp>
 #include <libKDL/modules/kdl/kdl.hpp>
 #include <libKDL/exception/unrecognised_type_definition_exception.hpp>
+#include <libKDL/exception/unrecognised_module_definition_exception.hpp>
 
 // MARK: - Types
 
@@ -63,6 +64,41 @@ auto kdl::sema::context::type(const resource::definition::type::descriptor &desc
         return nullptr;
     }
     return type_named(descriptor.name());
+}
+
+// MARK: - Modules
+
+auto kdl::sema::context::register_module(const kdl::module_definition &module) -> kdl::module_definition *
+{
+    auto it = registered_modules.find(module.name());
+    if (it == registered_modules.end()) {
+        registered_modules.emplace(module.name(), module);
+    }
+
+    it = registered_modules.find(module.name());
+    if (it == registered_modules.end()) {
+        throw unrecognised_module_definition_exception("Failed to define module '" + module.name() + "'");
+    }
+
+    return &it->second;
+}
+
+auto kdl::sema::context::module_named(const std::string &name) const -> const kdl::module_definition *
+{
+    auto it = registered_modules.find(name);
+    if (it == registered_modules.end()) {
+        throw unrecognised_module_definition_exception("Unrecognised module '" + name + "'");
+    }
+    return &it->second;
+}
+
+auto kdl::sema::context::module_named(const lexer::lexeme &lx) const -> const kdl::module_definition *
+{
+    auto it = registered_modules.find(lx.text());
+    if (it == registered_modules.end()) {
+        throw unrecognised_module_definition_exception("Unrecognised module '" + lx.text() + "'");
+    }
+    return &it->second;
 }
 
 // MARK: -

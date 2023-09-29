@@ -461,6 +461,7 @@ auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> toke
     else if (name.is(spec::keywords::import_keyword))       return token_type::import_keyword;
     else if (name.is(spec::keywords::scene_keyword))        return token_type::scene_keyword;
     else if (name.is(spec::keywords::dialog_keyword))       return token_type::dialog_keyword;
+    else if (name.is(spec::keywords::module_keyword))       return token_type::module_keyword;
     throw std::runtime_error("Invalid keyword requested: " + name.text());
 }
 

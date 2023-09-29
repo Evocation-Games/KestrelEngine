@@ -29,6 +29,7 @@
 #include <libKDL/sema/components/component.hpp>
 #include <libKDL/sema/scene/interface.hpp>
 #include <libKDL/sema/context.hpp>
+#include <libKDL/sema/module/module.hpp>
 #include <libKDL/spec/decorators.hpp>
 
 // MARK: - Construction
@@ -56,6 +57,9 @@ auto kdl::sema::analyser::process(context& ctx) -> void
         else if (sema::decorator::test(m_tokens)) {
             ctx.current_decorators = sema::decorator::parse(m_tokens);
             continue;
+        }
+        else if (sema::module_definition::test(m_tokens)) {
+            sema::module_definition::parse(m_tokens, ctx);
         }
         else if (sema::type_definition::test(m_tokens)) {
             sema::type_definition::parse(m_tokens, ctx);
