@@ -30,11 +30,34 @@
 
 kdl::unit::file::file(sema::context& ctx)
     : m_context(&ctx)
-{}
+{
+    find_config_files({});
+}
 
 kdl::unit::file::file(resource_core::file& output, sema::context& ctx)
     : m_output(&output), m_context(&ctx)
-{}
+{
+    find_config_files({});
+}
+
+// MARK: - Config Files
+
+auto kdl::unit::file::find_config_files(const std::vector<std::string>& definitions) -> void
+{
+    // We need to import the config files in the correct order, so that
+    // values are appropriately overridden as required.
+
+    // 1. User Configuration File: ~/.kestrel/config.kdl
+    auto user_configuration = foundation::filesystem::path::configuration_directory().appending_path_component("config.kdl");
+    import_config_file(user_configuration, definitions);
+}
+
+auto kdl::unit::file::import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void
+{
+    if (path.exists()) {
+        import_file(path, definitions);
+    }
+}
 
 // MARK: - Helpers
 
@@ -70,13 +93,12 @@ auto kdl::unit::file::import_and_tokenize_file(const std::string &path, const st
 
 auto kdl::unit::file::import_file(const std::string &path, const std::vector<std::string>& definitions) -> void
 {
-    foundation::filesystem::path fs_path(path);
-    if (!fs_path.exists()) {
-        // TODO: Error Correctly here
-        return;
-    }
+    import_file(foundation::filesystem::path(path), definitions);
+}
 
-    auto file = std::make_shared<foundation::filesystem::file>(fs_path);
+auto kdl::unit::file::import_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void
+{
+    auto file = std::make_shared<foundation::filesystem::file>(path);
     if (!file->exists()) {
         // TODO: Error correctly here
         return;

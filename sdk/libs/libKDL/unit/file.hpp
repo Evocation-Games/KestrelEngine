@@ -36,8 +36,13 @@ namespace kdl::unit
         explicit file(sema::context& ctx);
         explicit file(resource_core::file& output, sema::context& ctx);
         auto import_file(const std::string& path, const std::vector<std::string>& definitions) -> void;
+        auto import_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
 
         static auto import_and_tokenize_file(const std::string& path, const std::vector<std::string>& definitions, sema::context& ctx) -> foundation::stream<kdl::tokenizer::token>;
+
+    private:
+        auto find_config_files(const std::vector<std::string>& definitions) -> void;
+        auto import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void;
 
     private:
         resource_core::file *m_output { nullptr };

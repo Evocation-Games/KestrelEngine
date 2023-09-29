@@ -137,7 +137,7 @@ auto foundation::filesystem::path::configuration_directory(const std::string &na
         throw std::runtime_error("Could not find user AppData directory.");
     }
 #else
-    config_dir = path("~");
+    config_dir = path::resolve_tilde({ "~" });
     config_dir = config_dir.appending_path_component("." + name);
 #endif
 
@@ -222,7 +222,7 @@ auto foundation::filesystem::path::string() const -> std::string
             result.insert(result.end(), component.begin(), component.end());
         }
 
-        if (m_relative && result[0] == '/') {
+        if ((m_relative || (result.length() > 1 && result.starts_with("/~"))) && result[0] == '/') {
             result.erase(0, 1);
         }
 #if TARGET_WINDOWS
@@ -374,7 +374,7 @@ auto foundation::filesystem::path::resolve_tilde(const path &path) -> filesystem
         }
     }
 
-    if (!home.empty()) {
+    if (home.empty()) {
         return filesystem::path(path_str);
     }
 
