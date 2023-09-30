@@ -23,6 +23,7 @@
 #include <libKDL/sema/script/script.hpp>
 #include <libUI/format/interface/encoder.hpp>
 #include <libUI/format/interface/axis_origin.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::scene_interface::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -137,7 +138,7 @@ auto kdl::sema::scene_interface::parse(foundation::stream<tokenizer::token> &str
 
         // Unknowns
         else {
-            throw std::runtime_error("");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL028);
         }
 
         stream.ensure({ expectation(tokenizer::semi).be_true() });
@@ -340,7 +341,7 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
             ));
         }
         else {
-            throw std::runtime_error("");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL029);
         }
 
         stream.ensure({ expectation(tokenizer::semi).be_true() });
@@ -355,15 +356,16 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
 
 auto kdl::sema::scene_interface::parse_reference_value(foundation::stream<tokenizer::token>& stream, sema::context& ctx, interpreter::scope *scope) -> resource::reference
 {
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::reference)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     return result.value.reference_value();
@@ -371,15 +373,16 @@ auto kdl::sema::scene_interface::parse_reference_value(foundation::stream<tokeni
 
 auto kdl::sema::scene_interface::parse_string_value(foundation::stream<tokenizer::token>& stream, sema::context& ctx, interpreter::scope *scope) -> std::string
 {
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::string)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     return result.value.string_value();
@@ -387,15 +390,16 @@ auto kdl::sema::scene_interface::parse_string_value(foundation::stream<tokenizer
 
 auto kdl::sema::scene_interface::parse_integer_value(foundation::stream<tokenizer::token>& stream, sema::context& ctx, interpreter::scope *scope) -> std::int64_t
 {
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::integer)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     return result.value.integer_value();
@@ -403,15 +407,16 @@ auto kdl::sema::scene_interface::parse_integer_value(foundation::stream<tokenize
 
 auto kdl::sema::scene_interface::parse_unsigned_integer_value(foundation::stream<tokenizer::token>& stream, sema::context& ctx, interpreter::scope *scope) -> std::uint64_t
 {
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::integer)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     return static_cast<std::uint64_t>(result.value.integer_value());
@@ -454,19 +459,20 @@ auto kdl::sema::scene_interface::parse_rect_value(foundation::stream<tokenizer::
 
     scope->add_variable("FlexibleHeight", static_cast<std::int64_t>(-1));
 
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::boolean)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     if (result.value.is(false)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL030);
     }
 
     return frame;
@@ -494,7 +500,7 @@ auto kdl::sema::scene_interface::parse_background_value(foundation::stream<token
                 bottom = parse_reference_value(stream, ctx, scope);
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL013);
             }
 
             stream.ensure({ expectation(tokenizer::semi).be_true() });
@@ -526,15 +532,16 @@ auto kdl::sema::scene_interface::parse_color_value(foundation::stream<tokenizer:
         return interpreter::token(static_cast<std::int64_t>((a << 24) | (r << 16) | (g << 8) | b | 0LL));
     }});
 
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::integer)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     return static_cast<std::uint32_t>(result.value.integer_value());
@@ -542,15 +549,16 @@ auto kdl::sema::scene_interface::parse_color_value(foundation::stream<tokenizer:
 
 auto kdl::sema::scene_interface::parse_bool_value(foundation::stream<tokenizer::token> &stream, sema::context &ctx, interpreter::scope *scope) -> bool
 {
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(scope ?: ctx.create_scope());
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::boolean)) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL021);
     }
 
     return result.value.bool_value();
@@ -603,7 +611,7 @@ auto kdl::sema::scene_interface::parse_action(foundation::stream<tokenizer::toke
         return ui::format::action(script_ref.reference_value(), ui::format::action::type::lua_script_reference);
     }
     else {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL031);
     }
 }
 
@@ -622,7 +630,7 @@ auto kdl::sema::scene_interface::parse_value(foundation::stream<tokenizer::token
 
     value_scope->add_function({ "Get", [&] (interpreter::scope *scope, const std::vector<interpreter::token>& args) -> interpreter::token {
         if (!args[0].is(interpreter::token::reference)) {
-            throw std::runtime_error("");
+            throw diagnostic(diagnostic::reason::KDL032);
         }
 
         // Resolve the reference type information
@@ -631,7 +639,7 @@ auto kdl::sema::scene_interface::parse_value(foundation::stream<tokenizer::token
             ref = ref.with_type_name(type->name(), type->code());
         }
         else {
-            throw std::runtime_error("");
+            throw diagnostic(diagnostic::reason::KDL009);
         }
 
         if (args[1].is(interpreter::token::string)) {
@@ -650,7 +658,7 @@ auto kdl::sema::scene_interface::parse_value(foundation::stream<tokenizer::token
                 ));
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(diagnostic::reason::KDL006);
             }
         }
         else if (args[1].is(interpreter::token::integer)) {
@@ -671,7 +679,7 @@ auto kdl::sema::scene_interface::parse_value(foundation::stream<tokenizer::token
                 ));
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(diagnostic::reason::KDL006);
             }
         }
         return interpreter::token::result(true);
@@ -726,11 +734,12 @@ auto kdl::sema::scene_interface::parse_value(foundation::stream<tokenizer::token
         return interpreter::token::result(true);
     }});
 
+    auto first_tk = stream.peek();
     auto value_stmt = sema::script::parse_statement(stream, ctx);
     auto result = value_stmt.evaluate(value_scope);
 
     if (result.status != interpreter::script::statement::result::ok) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
 
     if (!result.value.is(interpreter::token::function_result)) {
@@ -743,6 +752,9 @@ auto kdl::sema::scene_interface::parse_value(foundation::stream<tokenizer::token
 //        else if (result.value.is(interpreter::token::boolean)) {
 //            value = ui::format::value(result.value.bool_value());
 //        }
+        else {
+            throw diagnostic(first_tk, diagnostic::reason::KDL021);
+        }
     }
 
     ctx.pop_scope();

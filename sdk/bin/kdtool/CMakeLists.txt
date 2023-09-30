@@ -64,7 +64,7 @@ elseif(WIN32)
 endif()
 
 ########################################################################################################################
-## LuaTool Target
+## kdtool Target
 
 file(GLOB_RECURSE kdtool_Sources src/*.cpp)
 add_executable(kdtool ${kdtool_Sources})

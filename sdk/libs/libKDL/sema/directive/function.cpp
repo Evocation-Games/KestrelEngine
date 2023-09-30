@@ -18,21 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <vector>
 #include <stdexcept>
 #include <libKDL/sema/directive/function.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/script/script.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::directive::function::parse(foundation::stream<tokenizer::token> &stream, sema::context& ctx) -> void
 {
     if (!stream.expect_any({ expectation(tokenizer::function_directive).be_true() })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL000);
     }
     auto directive = stream.read();
 
     if (!stream.expect({ expectation(tokenizer::identifier).be_true() })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL025);
     }
     auto name = stream.read();
 

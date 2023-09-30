@@ -24,6 +24,7 @@
 #include <libKDL/sema/type/constructor/constructor_definition.hpp>
 #include <libKDL/sema/type/field/field_definition.hpp>
 #include <libKDL/sema/documentation/documentation.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::type_definition::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {

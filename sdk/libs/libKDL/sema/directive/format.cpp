@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include <libKDL/sema/directive/format.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 static auto format_names() -> std::vector<std::string>
 {
@@ -45,6 +46,6 @@ auto kdl::sema::directive::format::parse(foundation::stream<tokenizer::token> &s
         stream.advance(2);
     }
     else {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL024);
     }
 }

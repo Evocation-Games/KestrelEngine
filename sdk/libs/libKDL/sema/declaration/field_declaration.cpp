@@ -25,13 +25,12 @@
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/command/encoder.hpp>
 #include <libKDL/spec/types.hpp>
-#include <libResource/reference.hpp>
-#include <libResource/definition/template/instance.hpp>
 #include <libInterpreter/construct/function.hpp>
 #include <libInterpreter/token/token.hpp>
 #include <libData/block.hpp>
 #include <libImage/conversion/conversion.hpp>
 #include <libSound/conversion/conversion.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 // MARK: - Helpers
 
@@ -56,7 +55,7 @@ static auto convert_token(const interpreter::token& token) -> ::resource::value_
             return ::resource::value_container(token.reference_value());
         }
         default: {
-            return {};
+            throw kdl::diagnostic(kdl::diagnostic::reason::KDL000);
         }
     }
 }
@@ -255,7 +254,7 @@ static auto write_value(
     }
     else if (type.name() == kdl::spec::types::image) {
         if (!type.has_hints() || type.hints().size() != 2) {
-            throw std::runtime_error("");
+            throw kdl::diagnostic(kdl::diagnostic::reason::KDL011);
         }
         auto source = type.hints()[0];
         auto result = type.hints()[1];
@@ -266,7 +265,7 @@ static auto write_value(
     }
     else if (type.name() == kdl::spec::types::sound) {
         if (!type.has_hints() || type.hints().size() != 2) {
-            throw std::runtime_error("");
+            throw kdl::diagnostic(kdl::diagnostic::reason::KDL011);
         }
         auto source = type.hints()[0];
         auto result = type.hints()[1];
@@ -277,7 +276,7 @@ static auto write_value(
     }
     else if (type.name() == kdl::spec::types::image_set) {
         if (!type.has_hints() || type.hints().size() != 2) {
-            throw std::runtime_error("");
+            throw kdl::diagnostic(kdl::diagnostic::reason::KDL011);
         }
         auto source = type.hints()[0];
         auto result = type.hints()[1];
@@ -287,7 +286,7 @@ static auto write_value(
         values.emplace(name, ::resource::value_container(result_data.get<std::uint8_t *>(), result_data.size()));
     }
     else {
-        throw std::runtime_error("");
+        throw kdl::diagnostic(kdl::diagnostic::reason::KDL012);
     }
 }
 
@@ -301,7 +300,7 @@ static auto write_value(
 {
     if (type.name() == kdl::spec::types::image_set) {
         if (!type.has_hints() || type.hints().size() != 2) {
-            throw std::runtime_error("");
+            throw kdl::diagnostic(kdl::diagnostic::reason::KDL011);
         }
         auto source = type.hints()[0];
         auto result = type.hints()[1];
@@ -310,7 +309,7 @@ static auto write_value(
         values.emplace(name, ::resource::value_container(result_data.get<std::uint8_t *>(), result_data.size()));
     }
     else {
-        throw std::runtime_error("");
+        throw kdl::diagnostic(kdl::diagnostic::reason::KDL012);
     }
 }
 
@@ -324,13 +323,13 @@ auto kdl::sema::declaration::resource::field::test(const foundation::stream<toke
 auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> std::unordered_map<std::string, ::resource::value_container>
 {
     if (!test(stream)) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL000);
     }
     auto field_name = stream.read(); stream.advance();
 
     // Look up the field in the type definition.
     if (!ctx.current_type->has_field_named(field_name.string_value())) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL013);
     }
     auto field = ctx.current_type->field_named(field_name.string_value());
 
@@ -353,7 +352,7 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
         if (it != ctx.field_repeat_counts.end()) {
             field_number = ++it->second;
             if (field_number > field.repeatable().upper_bound()) {
-                throw std::runtime_error("");
+                throw diagnostic(field_name, diagnostic::reason::KDL014);
             }
         }
         else {
@@ -387,7 +386,7 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
                 }
 
                 if (!field_ref) {
-                    throw std::runtime_error("");
+                    throw diagnostic(value_name, diagnostic::reason::KDL015);
                 }
 
                 parse_value(stream, ctx, field_scope, values, *field_ref, field_ref->extended_name(*field_scope));
@@ -400,7 +399,7 @@ auto kdl::sema::declaration::resource::field::parse(foundation::stream<tokenizer
         // Parse the field values as a comma separated list.
         while (stream.expect({ expectation(tokenizer::semi).be_false() })) {
             if (value_index >= field.value_count()) {
-                throw std::runtime_error("");
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL016);
             }
 
             const auto& value = field.value_at(value_index);
@@ -492,7 +491,7 @@ auto kdl::sema::declaration::resource::field::parse_value(
                 masks[0] |= i.value<std::uint64_t>();
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL017);
             }
 
             if (stream.expect({ expectation(tokenizer::pipe).be_true() })) {
@@ -524,27 +523,24 @@ auto kdl::sema::declaration::resource::field::parse_value(
         write_value(values, value_name, ::resource::value_container(resource.reference()));
     }
     else if (stream.expect({ expectation(tokenizer::import_keyword).be_true(), expectation(tokenizer::l_brace).be_true() }) && can_multi_import(&value.type())) {
-        auto source_path = stream.peek().source().source_directory();
-        stream.advance(1);
+        auto source_path = stream.read().source().source_directory();
+        stream.advance();
         std::vector<data::block> files;
-
-        if (!stream.expect({ expectation(tokenizer::l_brace).be_true() })) {
-            throw std::runtime_error("");
-        }
 
         while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
             // Import the contents of a file to use for the value.
+            auto first_tk = stream.peek();
             auto import_path_stmt = script::parse_statement(stream, ctx);
             auto import_path_result = import_path_stmt.evaluate(scope);
 
             if (import_path_result.status == interpreter::script::statement::result::error) {
-                throw std::runtime_error("");
+                throw diagnostic(first_tk, diagnostic::reason::KDL018);
             }
 
             // TODO: Setup a path resolver.
             auto import_path = ctx.resolve_path(import_path_result.value.string_value(), source_path);
             if (!import_path.exists()) {
-                throw std::runtime_error("");
+                throw diagnostic(first_tk, diagnostic::reason::KDL019);
             }
 
             foundation::filesystem::file file(import_path, foundation::filesystem::file_mode::binary);
@@ -556,19 +552,21 @@ auto kdl::sema::declaration::resource::field::parse_value(
         write_value(values, value_name, value.type(), files);
     }
     else if (stream.expect({ expectation(tokenizer::import_keyword).be_true() })) {
+        stream.advance();
         auto source_path = stream.peek().source().source_directory();
 
         // Import the contents of a file to use for the value.
+        auto first_tk = stream.peek();
         auto import_path_stmt = script::parse_statement(stream, ctx);
         auto import_path_result = import_path_stmt.evaluate(scope);
 
         if (import_path_result.status == interpreter::script::statement::result::error) {
-            throw std::runtime_error("");
+            throw diagnostic(first_tk, diagnostic::reason::KDL018);
         }
 
         auto import_path = ctx.resolve_path(import_path_result.value.string_value(), source_path);
         if (!import_path.exists()) {
-            throw std::runtime_error("");
+            throw diagnostic(first_tk, diagnostic::reason::KDL019);
         }
 
         // Load the file and apply the data to the value.
@@ -611,7 +609,7 @@ auto kdl::sema::declaration::resource::field::parse_value(
 
             // Joined
             if (value.has_joined_values()) {
-
+                throw diagnostic(diagnostic::reason::KDL900);
             }
         }
 

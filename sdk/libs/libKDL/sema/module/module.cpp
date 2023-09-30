@@ -21,8 +21,8 @@
 #include <libKDL/sema/module/module.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/documentation/documentation.hpp>
-#include <libKDL/exception/unexpected_token_exception.hpp>
 #include <libKDL/modules/module/module_definition.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::module_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -64,7 +64,7 @@ auto kdl::sema::module_definition::parse(foundation::stream<tokenizer::token> &s
                 module->add_dependency(name.string_value());
             }
             else {
-                throw kdl::unexpected_token_exception("Expected either an identifier or string.", stream.peek());
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL006);
             }
         }
         stream.ensure({ expectation(tokenizer::semi).be_true() });

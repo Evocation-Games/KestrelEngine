@@ -21,7 +21,7 @@
 #include <libKDL/sema/directive/directive.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/unit/file.hpp>
-#include <libKDL/exception/invalid_attribute_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 #include <libKDL/sema/directive/out.hpp>
 #include <libKDL/sema/directive/metadata.hpp>
@@ -102,6 +102,9 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
                 else if (dependency == "SpriteWorld") {
                     modules::spriteworld::construct(ctx);
                 }
+                else {
+                    throw diagnostic(name_tk, diagnostic::reason::KDL022);
+                }
             }
 
             for (const auto& raw_path : module->imports()) {
@@ -112,6 +115,9 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
                 stream.insert(lexical_result);
                 stream.push(tokenizer::token(tokenizer::semi));
             }
+        }
+        else {
+            throw diagnostic(name_tk, diagnostic::reason::KDL022);
         }
     }
     else if (stream.expect({ expectation(tokenizer::import_directive).be_true(), expectation(tokenizer::string).be_true() })) {
@@ -127,6 +133,6 @@ auto kdl::sema::directive::parse(foundation::stream<tokenizer::token>& stream, c
         stream.push(tokenizer::token(tokenizer::semi));
     }
     else {
-        throw invalid_attribute_exception("Unrecognised attribute '" + stream.peek().string_value() + "'.", stream.peek().source());
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL023);
     }
 }

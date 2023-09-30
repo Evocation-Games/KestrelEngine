@@ -23,7 +23,7 @@
 #include <libKDL/codegen/lua/exporter.hpp>
 #include <libKDL/assembler/compiler/lua/lua.hpp>
 #include <libData/writer.hpp>
-#include <libData/reader.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::component::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -38,12 +38,12 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
     stream.ensure({ expectation(tokenizer::component_keyword).be_true(), expectation(tokenizer::l_angle).be_true() });
 
     if (!stream.expect_any({ expectation(tokenizer::identifier).be_true(), expectation(tokenizer::identifier_path).be_true() })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL002);
     }
     auto component_type = stream.read();
 
     if (!stream.expect_any({ expectation(tokenizer::comma).be_true(), expectation(tokenizer::reference).be_true() })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL003);
     }
     stream.advance();
     auto reference = stream.read().reference_value();
@@ -59,13 +59,13 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
             .with_container(component_type.associated_values().front());
     }
     else {
-        throw std::runtime_error("");
+        throw diagnostic(component_type, diagnostic::reason::KDL004);
     }
 
     stream.ensure({ expectation(tokenizer::r_angle).be_true() });
 
     if (!stream.expect_any({ expectation(tokenizer::identifier).be_true() })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL005);
     }
     auto component_name = stream.read();
 
@@ -80,7 +80,7 @@ auto kdl::sema::component::parse(foundation::stream<tokenizer::token>& stream, c
             parse_types(stream, ctx, reference);
         }
         else {
-            throw std::runtime_error("");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL006);
         }
 
         stream.ensure({ expectation(tokenizer::semi).be_true() });
@@ -151,7 +151,7 @@ auto kdl::sema::component::parse_files(foundation::stream<tokenizer::token> &str
         expectation(tokenizer::r_paren).be_true(),
         expectation(tokenizer::l_brace).be_true()
     })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL007);
     }
     stream.advance();
     auto path_prefix = stream.read();
@@ -178,7 +178,7 @@ auto kdl::sema::component::parse_files(foundation::stream<tokenizer::token> &str
             synthesize_resource(ctx, ref, prefix.appending_path_component(file.string_value()));
         }
         else {
-            throw std::runtime_error("");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL008);
         }
 
         // Check for any hints applied to the entry...
@@ -206,11 +206,11 @@ auto kdl::sema::component::parse_types(foundation::stream<tokenizer::token> &str
                 synthesize_resource(ctx, ref, exporter.generate(), type_name.string_value());
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(type_name, diagnostic::reason::KDL009);
             }
         }
         else {
-            throw std::runtime_error("");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL010);
         }
         stream.ensure({ expectation(tokenizer::semi).be_true() });
     }

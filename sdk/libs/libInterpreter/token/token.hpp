@@ -39,13 +39,34 @@ namespace interpreter
         };
 
     public:
-        explicit token(enum type type) : m_type(type), m_value(0) {}
-        explicit token(const std::string& str) : m_type(string), m_value(str) {}
-        explicit token(const std::vector<std::string>& v) : m_type(string), m_value(v) {}
-        explicit token(std::int64_t value) : m_type(integer), m_value(value) {}
-        explicit token(bool value) : m_type(boolean), m_value(value) {}
-        explicit token(double value) : m_type(decimal), m_value(value) {}
-        explicit token(resource::reference value) : m_type(reference), m_value(value) {}
+        explicit token(enum type type, std::size_t line = 0, const std::string& file = "")
+            : m_type(type), m_value(0), m_line(line), m_file(file)
+        {}
+
+        explicit token(const std::string& str, std::size_t line = 0, const std::string& file = "")
+            : m_type(string), m_value(str), m_line(line), m_file(file)
+        {}
+
+        explicit token(const std::vector<std::string>& v, std::size_t line = 0, const std::string& file = "")
+            : m_type(string), m_value(v), m_line(line), m_file(file)
+        {}
+
+        explicit token(std::int64_t value, std::size_t line = 0, const std::string& file = "")
+            : m_type(integer), m_value(value), m_line(line), m_file(file)
+        {}
+
+        explicit token(bool value, std::size_t line = 0, const std::string& file = "")
+            : m_type(boolean), m_value(value), m_line(line), m_file(file)
+        {}
+
+        explicit token(double value, std::size_t line = 0, const std::string& file = "")
+            : m_type(decimal), m_value(value), m_line(line), m_file(file)
+        {}
+
+        explicit token(resource::reference value, std::size_t line = 0, const std::string& file = "")
+            : m_type(reference), m_value(value), m_line(line), m_file(file)
+        {}
+
 
         static auto result(bool result) -> token
         {
@@ -66,6 +87,16 @@ namespace interpreter
             token tk(v);
             tk.m_type = identifier_path;
             return tk;
+        }
+
+        [[nodiscard]] auto file() const -> std::string
+        {
+            return m_file;
+        }
+
+        [[nodiscard]] auto line() const -> std::size_t
+        {
+            return m_line;
         }
 
         [[nodiscard]] auto type() const -> enum type
@@ -508,6 +539,8 @@ namespace interpreter
         }
 
     private:
+        std::string m_file {};
+        std::size_t m_line { 0 };
         enum type m_type;
         std::variant<std::string, bool, __int128, double, std::vector<std::string>, resource::reference> m_value;
         std::string m_source_variable;

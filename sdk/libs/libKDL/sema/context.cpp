@@ -21,8 +21,7 @@
 #include <libKDL/sema/context.hpp>
 #include <libKDL/spec/decorators.hpp>
 #include <libKDL/modules/kdl/kdl.hpp>
-#include <libKDL/exception/unrecognised_type_definition_exception.hpp>
-#include <libKDL/exception/unrecognised_module_definition_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 // MARK: - Types
 
@@ -35,7 +34,9 @@ auto kdl::sema::context::register_type(const resource::definition::type::instanc
 
     it = registered_types.find(type.name());
     if (it == registered_types.end()) {
-        throw unrecognised_type_definition_exception("Failed to create type '" + type.name() + "'");
+        throw diagnostic(diagnostic::reason::KDL040, {
+            type.name()
+        });
     }
     return &it->second;
 }
@@ -44,7 +45,9 @@ auto kdl::sema::context::type_named(const std::string& name) const -> const reso
 {
     auto it = registered_types.find(name);
     if (it == registered_types.end()) {
-        throw unrecognised_type_definition_exception("Unrecognised type '" + name + "'");
+        throw diagnostic(diagnostic::reason::KDL009, {
+            name
+        });
     }
     return &it->second;
 }
@@ -53,7 +56,7 @@ auto kdl::sema::context::type_named(const lexer::lexeme& lx) const -> const reso
 {
     auto it = registered_types.find(lx.text());
     if (it == registered_types.end()) {
-        throw unrecognised_type_definition_exception("Unrecognised type '" + lx.text() + "'", lx);
+        throw diagnostic(lx, diagnostic::reason::KDL009);
     }
     return &it->second;
 }
@@ -77,7 +80,9 @@ auto kdl::sema::context::register_module(const kdl::module_definition &module) -
 
     it = registered_modules.find(module.name());
     if (it == registered_modules.end()) {
-        throw unrecognised_module_definition_exception("Failed to define module '" + module.name() + "'");
+        throw diagnostic(diagnostic::reason::KDL041, {
+            module.name()
+        });
     }
 
     return &it->second;
@@ -87,7 +92,9 @@ auto kdl::sema::context::module_named(const std::string &name) const -> const kd
 {
     auto it = registered_modules.find(name);
     if (it == registered_modules.end()) {
-        throw unrecognised_module_definition_exception("Unrecognised module '" + name + "'");
+        throw diagnostic(diagnostic::reason::KDL022, {
+            name
+        });
     }
     return &it->second;
 }
@@ -96,7 +103,7 @@ auto kdl::sema::context::module_named(const lexer::lexeme &lx) const -> const kd
 {
     auto it = registered_modules.find(lx.text());
     if (it == registered_modules.end()) {
-        throw unrecognised_module_definition_exception("Unrecognised module '" + lx.text() + "'");
+        throw diagnostic(lx, diagnostic::reason::KDL022);
     }
     return &it->second;
 }

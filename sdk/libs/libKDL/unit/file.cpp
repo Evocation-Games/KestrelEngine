@@ -25,6 +25,7 @@
 #include <libKDL/tokenizer/tokenizer.hpp>
 #include <libKDL/sema/analyser.hpp>
 #include <libKDL/assembler/encoder.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 // MARK: - Construction
 
@@ -81,7 +82,7 @@ auto kdl::unit::file::import_and_tokenize_file(const std::string &path, const st
 
     auto file = std::make_shared<foundation::filesystem::file>(fs_path);
     if (!file->exists()) {
-        return {};
+        throw diagnostic(diagnostic::reason::KDL047, { path });
     }
     ctx.files.emplace_back(file);
 
@@ -100,8 +101,7 @@ auto kdl::unit::file::import_file(const foundation::filesystem::path& path, cons
 {
     auto file = std::make_shared<foundation::filesystem::file>(path);
     if (!file->exists()) {
-        // TODO: Error correctly here
-        return;
+        throw diagnostic(diagnostic::reason::KDL047, { path.string() });
     }
     m_context->files.emplace_back(file);
 
@@ -130,8 +130,7 @@ auto kdl::unit::file::import_file(const foundation::filesystem::path& path, cons
 
         const auto *type = m_context->type_named(ref.type_name());
         if (!type) {
-            // TODO: Report an error regarding the missing type.
-            throw std::runtime_error("");
+            throw diagnostic(diagnostic::reason::KDL009, { ref.type_name() });
         }
 
         // Setup an encoder and generate the instance data and add it to the resource file.

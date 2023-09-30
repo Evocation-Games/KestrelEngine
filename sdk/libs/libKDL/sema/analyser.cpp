@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <iostream>
 #include <libKDL/sema/analyser.hpp>
 #include <libKDL/tokenizer/token.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
@@ -31,6 +30,7 @@
 #include <libKDL/sema/context.hpp>
 #include <libKDL/sema/module/module.hpp>
 #include <libKDL/spec/decorators.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 // MARK: - Construction
 

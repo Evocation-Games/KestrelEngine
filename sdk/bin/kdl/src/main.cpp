@@ -22,24 +22,8 @@
 #include <libResourceCore/file.hpp>
 
 #include <iostream>
-#include <libKDL/exception/duplicate_type_definition_exception.hpp>
-#include <libKDL/exception/expression_runtime_exception.hpp>
-#include <libKDL/exception/incompatible_conversion_exception.hpp>
-#include <libKDL/exception/incorrect_arguments_exception.hpp>
-#include <libKDL/exception/invalid_attribute_exception.hpp>
-#include <libKDL/exception/module_exception.hpp>
-#include <libKDL/exception/resource_already_exists_exception.hpp>
-#include <libKDL/exception/type_mismatch_exception.hpp>
-#include <libKDL/exception/unexpected_token_exception.hpp>
-#include <libKDL/exception/unknown_binary_conversion_format_exception.hpp>
-#include <libKDL/exception/unknown_field_exception.hpp>
-#include <libKDL/exception/unknown_value_exception.hpp>
-#include <libKDL/exception/unrecognised_binary_template_field_exception.hpp>
-#include <libKDL/exception/unrecognised_function_exception.hpp>
-#include <libKDL/exception/unrecognised_module_format_exception.hpp>
-#include <libKDL/exception/unrecognised_type_definition_exception.hpp>
-#include <libKDL/exception/unrecognised_variable_exception.hpp>
 #include <libLexer/exception/unrecognised_character_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto report_exception(const std::string& reason, const lexer::lexeme& lx) -> void;
 auto report_exception(const std::string& reason) -> void;
@@ -101,56 +85,8 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
 
         output.write(output_name, format);
     }
-    catch (kdl::duplicate_type_definition_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::expression_runtime_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::incompatible_conversion_exception& e) {
-        report_exception(e.reason());
-    }
-    catch (kdl::incorrect_arguments_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::invalid_attribute_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::module_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::resource_already_exists_exception& e) {
-        report_exception(e.reason());
-    }
-    catch (kdl::type_mismatch_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unexpected_token_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unknown_binary_conversion_format_exception& e) {
-        report_exception(e.reason());
-    }
-    catch (kdl::unknown_field_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unknown_value_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unrecognised_binary_template_field_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unrecognised_function_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unrecognised_module_format_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unrecognised_type_definition_exception& e) {
-        report_exception(e.reason(), e.lexeme());
-    }
-    catch (kdl::unrecognised_variable_exception& e) {
-        report_exception(e.reason(), e.lexeme());
+    catch (kdl::diagnostic& diagnostic) {
+        diagnostic.report();
     }
     catch (lexer::unrecognised_character_exception& e) {
         report_exception("Unexpected character exception.", e.lexeme());

@@ -26,10 +26,7 @@
 #include <libKDL/spec/decorators.hpp>
 #include <libKDL/spec/types.hpp>
 #include <libKDL/sema/script/script.hpp>
-#include <libKDL/exception/invalid_attribute_exception.hpp>
-#include <libKDL/exception/unexpected_token_exception.hpp>
-#include <libKDL/exception/unrecognised_variable_exception.hpp>
-#include <libKDL/exception/unrecognised_binary_template_field_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::type_definition::field_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -92,11 +89,11 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
             auto& bin_field = ctx.current_type->binary_template()->field_named(field_list.string_value());
 
             if (!ctx.active_scope()->has_variable(lower.string_value())) {
-                throw unrecognised_variable_exception("Unrecognised variable found.", lower.source());
+                throw diagnostic(lower, diagnostic::reason::KDL035_1);
             }
 
             if (!ctx.active_scope()->has_variable(upper.string_value())) {
-                throw unrecognised_variable_exception("Unrecognised variable found.", upper.source());
+                throw diagnostic(upper, diagnostic::reason::KDL035_2);
             }
 
             auto lower_var = ctx.active_scope()->variable(lower.string_value());
@@ -121,11 +118,11 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
             auto upper = stream.read();
 
             if (!ctx.active_scope()->has_variable(lower.string_value())) {
-                throw unrecognised_variable_exception("Unrecognised variable found.", lower.source());
+                throw diagnostic(lower, diagnostic::reason::KDL035_3);
             }
 
             if (!ctx.active_scope()->has_variable(upper.string_value())) {
-                throw unrecognised_variable_exception("Unrecognised variable found.", upper.source());
+                throw diagnostic(lower, diagnostic::reason::KDL035_4);
             }
 
             auto lower_var = ctx.active_scope()->variable(lower.string_value());
@@ -158,6 +155,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
                 }
 
                 ctx.current_field = &field;
+                auto first_tk = stream.peek();
                 auto decorators = ctx.current_decorators;
                 auto value = parse_value(stream, ctx, prefix);
                 ctx.current_decorators = decorators;
@@ -167,7 +165,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
                 // Check if we need to merge bitmasks.
                 if (field.has_decorator(spec::decorators::merge_bitmask)) {
                     if (value.type().name() != spec::types::bitmask) {
-                        throw invalid_attribute_exception("The 'MergeBitmask' attribute requires that field only contains 'Bitmask' values.", field_name.source());
+                        throw diagnostic(first_tk, diagnostic::reason::KDL034);
                     }
 
                     if (field.value_count() == 0) {
@@ -182,7 +180,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
                 }
             }
             else {
-                throw unexpected_token_exception("Expected either 'Attribute' or value 'Identifier' with field body.", stream.peek());
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL006);
             }
 
             stream.ensure({ expectation(tokenizer::semi).be_true() });
@@ -206,7 +204,7 @@ auto kdl::sema::type_definition::field_definition::parse(foundation::stream<toke
             field.add_value(value);
         }
         else {
-            throw unrecognised_binary_template_field_exception("Attempted to synthesize field with unknown template field.", field_name.source());
+            throw diagnostic(field_name, diagnostic::reason::KDL036);
         }
     }
 
@@ -232,7 +230,7 @@ auto kdl::sema::type_definition::field_definition::parse_value(foundation::strea
                 name_extensions.emplace_back(stream.read().string_value());
             }
             else {
-                throw unexpected_token_exception("'Variable' expected as name extension.");
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL037);
             }
 
             if (stream.expect({ expectation(tokenizer::comma).be_true() })) {

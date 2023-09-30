@@ -23,7 +23,7 @@
 #include <cstring>
 #include <libKDL/assembler/compiler/lua/lua.hpp>
 #include <libData/writer.hpp>
-#include <libKDL/exception/lua_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 struct source
 {
@@ -88,15 +88,19 @@ auto kdl::assembler::compiler::lua::compile(const std::string &source, const std
     src.code = source;
     if (lua_load(L, lua_reader, &src, "") != LUA_OK) {
         auto reason = lua_tostring(L, -1);
-        std::cerr << std::endl << "LUA_EXCEPTION @ " << path << std::endl << reason << std::endl;
-        throw lua_exception(reason, path);
+        throw diagnostic(diagnostic::reason::KDL048, {
+            reason,
+            path
+        });
     }
 
     struct compilation_result result;
     if (lua_dump(L, lua_writer, &result) != LUA_OK) {
         auto reason = lua_tostring(L, -1);
-        std::cerr << std::endl << "LUA_EXCEPTION @ " << path << std::endl << reason << std::endl;
-        throw lua_exception(reason, path);
+        throw diagnostic(diagnostic::reason::KDL048, {
+            reason,
+            path
+        });
     }
 
     lua_close(L);

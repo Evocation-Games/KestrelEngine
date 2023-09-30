@@ -22,26 +22,28 @@
 #include <libKDL/sema/directive/variable.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/script/script.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::directive::variable::parse(foundation::stream<tokenizer::token> &stream, sema::context& ctx) -> void
 {
     if (!stream.expect_any({
         expectation(tokenizer::variable_directive).be_true(), expectation(tokenizer::constant_directive).be_true()
     })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL000);
     }
     auto directive = stream.read();
 
     if (!stream.expect_any({ expectation(tokenizer::identifier).be_true(), expectation(tokenizer::variable).be_true() })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL027);
     }
     auto name = stream.read();
 
     stream.ensure({ expectation(tokenizer::equals).be_true() });
+    auto first_tk = stream.peek();
     auto stmt = script::parse_statement(stream, ctx);
     auto result = stmt.evaluate(ctx.create_scope());
     if (result.status == interpreter::script::statement::result::error) {
-        throw std::runtime_error("");
+        throw diagnostic(first_tk, diagnostic::reason::KDL018);
     }
     ctx.active_scope()->add_variable(name.string_value(), result.value);
 }

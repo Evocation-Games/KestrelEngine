@@ -23,6 +23,7 @@
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/sema/decorator/decorator.hpp>
 #include <libKDL/sema/script/script.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::type_definition::field_definition::symbol_list::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -55,7 +56,7 @@ auto kdl::sema::type_definition::field_definition::symbol_list::parse(foundation
             auto value_statement = script::parse_statement(stream, ctx);
             auto value_result = value_statement.evaluate(scope);
             if (value_result.status == interpreter::script::statement::result::error) {
-                throw std::runtime_error("");
+                throw diagnostic(name, diagnostic::reason::KDL018);
             }
 
             resource::definition::type::symbol *symbol = nullptr;
@@ -85,7 +86,7 @@ auto kdl::sema::type_definition::field_definition::symbol_list::parse(foundation
             break;
         }
         else {
-            throw std::runtime_error("");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL006);
         }
 
         if (stream.expect({ expectation(tokenizer::comma).be_true() })) {

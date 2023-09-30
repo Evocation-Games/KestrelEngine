@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <libKDL/sema/directive/metadata.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::directive::metadata::parse(foundation::stream<tokenizer::token> &stream) -> void
 {
@@ -46,6 +47,6 @@ auto kdl::sema::directive::metadata::parse(foundation::stream<tokenizer::token> 
         stream.advance(2);
     }
     else {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL023);
     }
 }

@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <libKDL/sema/type/template/template_definition.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::type_definition::template_definition::test(const foundation::stream<tokenizer::token> &stream) -> bool
 {
@@ -59,7 +60,7 @@ auto kdl::sema::type_definition::template_definition::parse_field(foundation::st
         case resource::definition::binary_template::type::OCNT: {
             // OCNT must be followed by a LSTC. Check the upcoming type and validate it.
             if (stream.expect({ expectation(tokenizer::LSTC).be_false() })) {
-                throw std::runtime_error("OCNT binary field must be followed by an LSTC binary field.");
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL038);
             }
             parse_field(stream, ctx);
             while (true) {
@@ -173,6 +174,6 @@ auto kdl::sema::type_definition::template_definition::binary_type(const tokenize
         return resource::definition::binary_template::type(resource::definition::binary_template::type::LUA_BYTE_CODE);
     }
     else {
-        throw std::runtime_error("");
+        throw diagnostic(token, diagnostic::reason::KDL039);
     }
 }

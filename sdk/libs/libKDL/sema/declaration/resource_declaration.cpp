@@ -21,10 +21,9 @@
 #include <libKDL/sema/declaration/resource_declaration.hpp>
 #include <libKDL/sema/declaration/field_declaration.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
-#include <libKDL/spec/keywords.hpp>
 #include <libKDL/sema/script/script.hpp>
 #include <libResource/reference.hpp>
-#include <libKDL/exception/unrecognised_type_definition_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::declaration::resource::test(const foundation::stream<tokenizer::token>& stream) -> bool
 {
@@ -38,7 +37,7 @@ auto kdl::sema::declaration::resource::parse(foundation::stream<tokenizer::token
     stream.ensure({ expectation(tokenizer::declare_keyword).be_true() });
 
     if (!stream.expect_any({ expectation(tokenizer::identifier).be_true(), expectation(tokenizer::identifier_path).be_true() })) {
-        throw unrecognised_type_definition_exception("Unrecognised type for resource declaration", stream.peek().source());
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL009);
     }
     auto declaration_type = stream.read();
     auto type = ctx.type_named(declaration_type.string_value());
@@ -79,14 +78,9 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
         expectation(tokenizer::override_keyword).be_true(),
         expectation(tokenizer::duplicate_keyword).be_true(),
     })) {
-        throw std::runtime_error("");
+        throw diagnostic(stream.peek(), diagnostic::reason::KDL020);
     }
     auto action = stream.read();
-
-    // Override and Duplicate actions are not allowed on inline declarations...
-    if (is_inline && (action.is(tokenizer::override_keyword) || action.is(tokenizer::duplicate_keyword))) {
-        throw std::runtime_error("");
-    }
 
     ::resource::reference id;
     ::resource::reference source_id;
@@ -96,6 +90,7 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
         stream.ensure({ expectation(tokenizer::l_paren).be_true() });
         while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
             // Extract the expression to use
+            auto first_tk = stream.peek();
             auto statement = sema::script::parse_statement(stream, ctx);
             auto result = statement.evaluate(scope);
 
@@ -110,7 +105,7 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
                 id = result.value.reference_value();
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(first_tk, diagnostic::reason::KDL021);
             }
 
             if (stream.expect({ expectation(tokenizer::comma).be_true() })) {
@@ -121,7 +116,7 @@ auto kdl::sema::declaration::resource::parse_resource(foundation::stream<tokeniz
                 break;
             }
             else {
-                throw std::runtime_error("");
+                throw diagnostic(stream.peek(), diagnostic::reason::KDL006);
             }
         }
         stream.ensure({ expectation(tokenizer::r_paren).be_true() });

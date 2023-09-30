@@ -29,7 +29,7 @@
 #include <libKDL/spec/decorators.hpp>
 #include <libKDL/tokenizer/token.hpp>
 #include <libResource/reference.hpp>
-#include <libKDL/exception/unexpected_lexeme_exception.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 // MARK: - Construction
 
@@ -94,7 +94,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                         arguments.emplace_back(m_input.read());
                     }
                     else {
-                        throw unexpected_lexeme_exception("Decorator arguments must be either an identifier, string or integer.", m_input.peek());
+                        throw diagnostic(m_input.peek(), diagnostic::reason::KDL043);
                     }
 
                     if (m_input.expect({ lexer::expectation(lexer::comma).be_true() })) {
@@ -105,7 +105,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                         break;
                     }
                     else {
-                        throw unexpected_lexeme_exception("Decorator arguments must be separated by a comma.", m_input.peek());
+                        throw diagnostic(m_input.peek(), diagnostic::reason::KDL044);
                     }
                 }
                 m_input.advance();
@@ -140,7 +140,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                     output.append(token(nested_type, token_type::NESTED));
                 }
                 else {
-                    throw unexpected_lexeme_exception("Nested type in binary template expects type to be provided within angle brackets '<', '>'.", m_input.peek());
+                    throw diagnostic(m_input.peek(), diagnostic::reason::KDL045);
                 }
             }
             else if (binary_type.is(spec::binary_types::BYTE_CODE)) {
@@ -154,7 +154,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
                     output.append(token(language, token_type::BYTE_CODE));
                 }
                 else {
-                    throw unexpected_lexeme_exception("ByteCode type in binary template expects language name to be provided within angle brackets '<', '>'.", m_input.peek());
+                    throw diagnostic(m_input.peek(), diagnostic::reason::KDL046);
                 }
             }
             else {
@@ -208,6 +208,7 @@ auto kdl::tokenizer::tokenizer::process() -> foundation::stream<token>
         }
         else if (m_input.expect({ lexer::expectation(lexer::integer).be_true(), lexer::expectation(lexer::percent).be_true() })) {
             output.append(token(m_input.read(), token_type::percentage));
+            m_input.advance();
         }
         else if (m_input.expect({ lexer::expectation(lexer::integer).be_true() })) {
             output.append(token(m_input.read(), token_type::integer));
@@ -439,7 +440,7 @@ auto kdl::tokenizer::tokenizer::directive_named(const lexer::lexeme &name) -> to
     else if (name.is(spec::directives::variable_directive))     return token_type::variable_directive;
     else if (name.is(spec::directives::constant_directive))     return token_type::constant_directive;
     else if (name.is(spec::directives::function_directive))     return token_type::function_directive;
-    throw std::runtime_error("Invalid named directive requested: " + name.text());
+    throw diagnostic(name, diagnostic::reason::KDL023);
 }
 
 auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> token_type
@@ -462,7 +463,7 @@ auto kdl::tokenizer::tokenizer::keyword_named(const lexer::lexeme &name) -> toke
     else if (name.is(spec::keywords::scene_keyword))        return token_type::scene_keyword;
     else if (name.is(spec::keywords::dialog_keyword))       return token_type::dialog_keyword;
     else if (name.is(spec::keywords::module_keyword))       return token_type::module_keyword;
-    throw std::runtime_error("Invalid keyword requested: " + name.text());
+    throw diagnostic(name, diagnostic::reason::KDL042);
 }
 
 auto kdl::tokenizer::tokenizer::binary_type_named(const lexer::lexeme &name) -> token_type
@@ -491,7 +492,7 @@ auto kdl::tokenizer::tokenizer::binary_type_named(const lexer::lexeme &name) -> 
     else if (name.is(spec::binary_types::HEXD))             return token_type::HEXD;
     else if (name.is(spec::binary_types::NESTED))           return token_type::NESTED;
     else if (name.is(spec::binary_types::BYTE_CODE))        return token_type::BYTE_CODE;
-    throw std::runtime_error("Invalid binary type requested: " + name.text());
+    throw diagnostic(name, diagnostic::reason::KDL039);
 }
 
 auto kdl::tokenizer::tokenizer::type_named(const lexer::lexeme &name) -> token_type
@@ -507,7 +508,7 @@ auto kdl::tokenizer::tokenizer::type_named(const lexer::lexeme &name) -> token_t
     else if (name.is(spec::types::command_encoder))         return token_type::command_encoder_type;
     else if (name.is(spec::types::range))                   return token_type::range_type;
     else if (name.is(spec::types::color))                   return token_type::color_type;
-    throw std::runtime_error("Invalid built-in value type requested: " + name.text());
+    throw diagnostic(name, diagnostic::reason::KDL012);
 }
 
 auto kdl::tokenizer::tokenizer::decorator_named(const lexer::lexeme &name) -> token_type

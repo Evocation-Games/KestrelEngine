@@ -21,6 +21,7 @@
 #include <libKDL/sema/script/script.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libInterpreter/token/token.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::script::parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> interpreter::script::script
 {

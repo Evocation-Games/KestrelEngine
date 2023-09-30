@@ -22,6 +22,7 @@
 #include <libKDL/sema/expectation/expectation.hpp>
 #include <libKDL/spec/types.hpp>
 #include <libResource/definition/template/instance.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::type_definition::descriptor::parse(foundation::stream<tokenizer::token> &stream, context &ctx) -> resource::definition::type::descriptor
 {

@@ -21,6 +21,7 @@
 #include <libKDL/sema/command/encoder.hpp>
 #include <libData/writer.hpp>
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 auto kdl::sema::command_encoder::parse(foundation::stream<tokenizer::token> &stream, sema::context &ctx) -> data::block
 {
@@ -32,7 +33,7 @@ auto kdl::sema::command_encoder::parse(foundation::stream<tokenizer::token> &str
     while (stream.expect({ expectation(tokenizer::r_brace).be_false() })) {
         // Get the name of the request/attribute.
         if (!stream.expect({ expectation(tokenizer::identifier).be_true() })) {
-            throw std::runtime_error("Expected identifier for command request/attribute name.");
+            throw diagnostic(stream.peek(), diagnostic::reason::KDL001);
         }
 
         // Leading NULL byte of the packet.
