@@ -29,6 +29,7 @@
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
 #include FT_ADVANCES_H
+#include FT_BITMAP_H
 #include <libKestrel/math/size.hpp>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/graphics/types/color.hpp>
@@ -51,6 +52,8 @@ namespace kestrel::graphics
         [[nodiscard]] auto line_height() const -> double;
 
         static auto font_name_at_path(const std::string& path) -> std::string;
+
+        static auto library() -> FT_Library;
 
     private:
         std::string m_path;

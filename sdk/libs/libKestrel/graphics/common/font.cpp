@@ -50,6 +50,12 @@ static inline auto init_freetype() -> void
     }
 }
 
+auto kestrel::graphics::font::library() -> FT_Library
+{
+    init_freetype();
+    return ft;
+}
+
 kestrel::graphics::font::font(const std::string& name, std::int16_t size, bool load_font)
     : m_size(size)
 {

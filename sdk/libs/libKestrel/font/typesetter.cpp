@@ -232,7 +232,7 @@ auto kestrel::font::typesetter::render() -> std::vector<graphics::color>
                 continue;
             }
 
-            if (FT_Render_Glyph(slot,FT_RENDER_MODE_MONO)) {
+            if (FT_Render_Glyph(slot,FT_RENDER_MODE_NORMAL)) {
                 continue;
             }
 
@@ -267,12 +267,16 @@ auto kestrel::font::typesetter::render() -> std::vector<graphics::color>
                 continue;
             }
 
+            FT_Bitmap bmp;
+            FT_Bitmap_New(&bmp);
+            FT_Bitmap_Convert(graphics::font::library(), &slot->bitmap, &bmp, 8);
+
             auto y_offset = static_cast<int>(line_height - slot->bitmap_top);
             auto x_offset = static_cast<int>(slot->bitmap_left);
 
-            for (auto yy = 0; yy < slot->bitmap.rows; ++yy) {
-                for (auto xx = 0; xx < slot->bitmap.width; ++xx) {
-                    auto alpha = slot->bitmap.buffer[(yy * slot->bitmap.pitch) + xx];
+            for (auto yy = 0; yy < bmp.rows; ++yy) {
+                for (auto xx = 0; xx < bmp.width; ++xx) {
+                    auto alpha = bmp.buffer[(yy * bmp.pitch) + xx];
                     alpha = alpha > 0 ? std::min(255U, static_cast<unsigned int>(alpha) + 64) : alpha;
                     auto hex_color = static_cast<unsigned int>(m_font_color.color_value() & 0x00FFFFFFU);
                     auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
@@ -282,6 +286,8 @@ auto kestrel::font::typesetter::render() -> std::vector<graphics::color>
                     }
                 }
             }
+
+            FT_Bitmap_Done(graphics::font::library(), &bmp);
         }
     }
 
