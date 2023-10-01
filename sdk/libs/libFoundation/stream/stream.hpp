@@ -153,7 +153,7 @@ namespace foundation
                 auto item = read();
                 if (!f(item)) {
                     if (!f.is_optional()) {
-                        throw std::logic_error("[stream] Could not ensure the correctness of the item.");
+                        f.fail(item);
                     }
                     continue;
                 }

@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <libKDL/sema/expectation/expectation.hpp>
+#include <libKDL/diagnostic/diagnostic.hpp>
 
 // MARK: - Construction
 
@@ -49,7 +50,7 @@ auto kdl::sema::expectation::to_be(bool r) const -> foundation::expectation_func
     auto& Tx_options = m_Tx_options;
     auto& Ty = m_Ty;
 
-    return foundation::expectation_function<tokenizer::token>([Tx_options, Ty, r] (tokenizer::token Tk) -> bool {
+    auto expect = foundation::expectation_function<tokenizer::token>([Tx_options, Ty, r] (tokenizer::token Tk) -> bool {
         auto outcome = true;
         if (!Tx_options.empty() && !Tk.is(Tx_options)) {
             outcome = false;
@@ -59,6 +60,12 @@ auto kdl::sema::expectation::to_be(bool r) const -> foundation::expectation_func
         }
         return (outcome == r);
     });
+
+    expect.on_expectation_failure([] (const auto& tk) {
+        throw diagnostic(tk, diagnostic::reason::KDL006);
+    });
+
+    return expect;
 }
 
 auto kdl::sema::expectation::optional() const -> foundation::expectation_function<tokenizer::token>

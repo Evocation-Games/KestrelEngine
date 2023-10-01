@@ -49,7 +49,7 @@ auto lexer::expectation::to_be(bool r) const -> foundation::expectation_function
     auto& Tx_options = m_Tx_options;
     auto& Ty = m_Ty;
 
-    return foundation::expectation_function<lexeme>([Tx_options, Ty, r] (lexeme lx) -> bool {
+    auto expect = foundation::expectation_function<lexeme>([Tx_options, Ty, r] (lexeme lx) -> bool {
         auto outcome = true;
         if (!Tx_options.empty() && !lx.is(Tx_options)) {
             outcome = false;
@@ -59,6 +59,8 @@ auto lexer::expectation::to_be(bool r) const -> foundation::expectation_function
         }
         return (outcome == r);
     });
+
+    return expect;
 }
 
 auto lexer::expectation::be_true() const -> foundation::expectation_function<lexeme>

@@ -29,17 +29,17 @@ namespace kdl::tokenizer
     struct tokenizer
     {
     public:
-        tokenizer(const foundation::stream<lexer::lexeme>& input);
+        explicit tokenizer(const foundation::stream<lexer::lexeme>& input);
 
         auto process() -> foundation::stream<token>;
 
     private:
         foundation::stream<lexer::lexeme> m_input;
 
-        static auto directive_named(const lexer::lexeme& name) -> token_type;
-        static auto keyword_named(const lexer::lexeme& name) -> token_type;
-        static auto binary_type_named(const lexer::lexeme& name) -> token_type;
-        static auto type_named(const lexer::lexeme& name) -> token_type;
+        static auto directive_named(const lexer::lexeme& name) -> token;
+        static auto keyword_named(const lexer::lexeme& name) -> token;
+        static auto binary_type_named(const lexer::lexeme& name) -> token;
+        static auto type_named(const lexer::lexeme& name) -> token;
         static auto decorator_named(const lexer::lexeme& name) -> token_type;
     };
 }

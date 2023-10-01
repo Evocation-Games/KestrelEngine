@@ -53,11 +53,29 @@ namespace foundation
         }
         [[nodiscard]] auto is_optional() const -> bool { return m_optional; }
 
+        auto on_expectation_failure(const std::function<auto(T)->void>& handler) -> void
+        {
+            m_has_failure_handler = true;
+            m_failure_handler = handler;
+        }
+
+        auto fail(const T& t) const -> void
+        {
+            if (m_has_failure_handler) {
+                m_failure_handler(t);
+            }
+            else {
+                throw std::runtime_error("[stream] Could not ensure the correctness of the item.");
+            }
+        }
+
         auto operator()(T t) const -> bool { return m_fn(t); }
 
     private:
         inner_function m_fn;
         bool m_optional { false };
+        bool m_has_failure_handler { false };
+        std::function<auto(T)->void> m_failure_handler {};
     };
 
 }
