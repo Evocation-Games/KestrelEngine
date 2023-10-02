@@ -33,7 +33,7 @@ set(KESTREL_PLAYER_NAME "Kestrel" CACHE STRING "Kestrel Package Name")
 set(KESTREL_PLAYER_BIN_NAME "kestrel" CACHE STRING "Kestrel Binary Name")
 set(KESTREL_PLAYER_ICON_NAME "icon.png" CACHE STRING "Kestrel Packaged Icon Name")
 set(KESTREL_PLAYER_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Icon Path")
-set(KESTREL_PLAYER_PROJECT_PATH "projects/ExampleProject/example.kdlproj" CACHE STRING "Kestrel Project Path")
+set(KESTREL_PLAYER_PROJECT_PATH "projects/GraphicsTestSuite/project.kdlproj" CACHE STRING "Kestrel Project Path")
 set(KESTREL_PLAYER_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data Files Path")
 
 if (APPLE)
@@ -105,10 +105,13 @@ add_subdirectory(sdk/libs/libLexer)
 add_subdirectory(sdk/libs/libKDL)
 add_subdirectory(sdk/libs/libUI)
 add_subdirectory(sdk/bin/kdl)
-
 add_subdirectory(sdk/libs/libKestrel)
 add_subdirectory(sdk/bin/player)
 
+# Example/Test Projects
+add_subdirectory(projects/GraphicsTestSuite)
+
+# Extensions
 #add_subdirectory(sdk/extra/tree-sitter/tree-sitter-kdl)
 
 ########################################################################################################################

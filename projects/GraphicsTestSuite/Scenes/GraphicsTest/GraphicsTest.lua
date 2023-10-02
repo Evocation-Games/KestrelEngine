@@ -18,22 +18,26 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-ExampleScene = Scene.current
-local dialog = ExampleScene.Dialog
+GraphicsTestScene = Scene.current
 
--- Bind the action functions defined in the scene KDL.
-ExampleScene:bind({
-	DoAction = function()
-		dialog:elementNamed("Message").value = "Doing an action!"
-	end
-})
+print("  -> Building Scene...")
 
-dialog:configureElementsOnOpen({
-	Message = function(label)
-		
-	end,
-	
-	Action = function(button)
-		
-	end,
-})
+createSquare = function(frame, color)
+    local canvas = Canvas(frame.size)
+    local entity = SceneEntity(canvas)
+    entity.position = frame.origin
+
+
+    canvas.penColor = color
+    canvas:fillRect(Rect(0, 0, frame.size.width, frame.size.height))
+    canvas:rebuildEntityTexture()
+
+    return entity
+end
+
+local redColor = Color(200, 0, 0, 255)
+local redSquare = createSquare(Rect(0, 0, 100, 100), redColor)
+
+GraphicsTestScene:render(function()
+    redSquare:draw()
+end)

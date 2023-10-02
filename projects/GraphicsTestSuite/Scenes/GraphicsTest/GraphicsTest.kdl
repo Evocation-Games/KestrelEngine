@@ -18,16 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-@project "Placeholder Project";
 @author "Tom Hancocks";
 @version "1.0";
 
-@import Kestrel;
+component<GraphicsTest.LuaScript, #1000> GraphicsTest {
+	files ("Scenes/GraphicsTest") {
+		"GraphicsTest.lua" -> "Graphics Test" (scene);
+	};
+};
 
-@import "@spath/ExampleScene/ExampleScene.kdl";
+declare GraphicsTest.SceneDefinition {
+	new (SceneDefinitionID, "Graphics Test Definition") {
+		Script = #GraphicsTest.LuaScript.1000;
+		Interface = #GraphicsTest.SceneInterface.1000;
+		DLOG = #-1;
+	};
+};
 
-component<LuaScript, #0> main {
-    files ("Scripts") {
-        "main.lua" (_mainFunction);
-    };
+scene<#1000> GraphicsTest {
+	Title = "Graphics Test";
 };
