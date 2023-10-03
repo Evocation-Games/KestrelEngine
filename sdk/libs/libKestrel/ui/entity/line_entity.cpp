@@ -25,7 +25,9 @@
 
 kestrel::ui::line_entity::line_entity(const math::point &start, const math::point &end, double weight)
     : m_start(start), m_end(end), m_weight(weight)
-{}
+{
+    m_parent_bounds = { math::point(0), renderer::window_size() };
+}
 
 kestrel::ui::line_entity::line_entity(const std::shared_ptr<line_entity> &entity)
     : m_weight(entity->m_weight),
@@ -35,7 +37,8 @@ kestrel::ui::line_entity::line_entity(const std::shared_ptr<line_entity> &entity
       m_draw_end(entity->m_draw_end),
       m_color(entity->m_color),
       m_blend_mode(entity->m_blend_mode),
-      m_alpha(entity->m_alpha)
+      m_alpha(entity->m_alpha),
+      m_parent_bounds(entity->m_parent_bounds)
 {
     if (entity->m_on_layout.state() && entity->m_on_layout.isFunction()) {
         m_on_layout = entity->m_on_layout;
@@ -177,5 +180,12 @@ auto kestrel::ui::line_entity::bind_shader_attachment4(std::int32_t idx, double 
 
 auto kestrel::ui::line_entity::draw() -> void
 {
-    renderer::draw_line(m_draw_start, m_draw_end, m_blend_mode, *m_color.get(), m_weight, m_shader.get() ? m_shader->program() : nullptr, m_shader_attachments);
+    renderer::draw_line(
+        m_draw_start + m_parent_bounds.origin(),
+        m_draw_end + m_parent_bounds.origin(),
+        m_blend_mode,
+        *m_color.get(),
+        m_weight,
+        m_shader.get() ? m_shader->program() : nullptr, m_shader_attachments
+    );
 }

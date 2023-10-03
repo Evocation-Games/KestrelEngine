@@ -240,9 +240,9 @@ auto kestrel::ui::scene_entity::clipping_offset() const -> math::point
     return m_entity->clipping_offset();
 }
 
-auto kestrel::ui::scene_entity::children() const -> lua::vector<lua_reference>
+auto kestrel::ui::scene_entity::children() const -> lua::vector<luabridge::LuaRef>
 {
-    return m_children;
+    return {};
 }
 
 auto kestrel::ui::scene_entity::animator() const -> renderer::animator::lua_reference
@@ -385,10 +385,33 @@ auto kestrel::ui::scene_entity::set_hidden(bool hidden) -> void
 
 // MARK: - Child Entity Management
 
-auto kestrel::ui::scene_entity::add_child_entity(const lua_reference& child) -> void
+auto kestrel::ui::scene_entity::add_entity(const lua_reference & child) -> void
 {
-    m_children.emplace_back(child);
-    update_children();
+    add_child_entity({ kestrel::lua_runtime()->internal_state(), child });
+}
+
+auto kestrel::ui::scene_entity::add_child_entity(const luabridge::LuaRef& child) -> void
+{
+    struct entity_wrapper wrapper;
+
+    if (lua::type_check<scene_entity>(child)) {
+        wrapper.scene = child.cast<scene_entity::lua_reference>();
+        m_children.emplace_back(wrapper);
+        update_children();
+    }
+    else if (lua::type_check<text_entity>(child)) {
+        wrapper.text = child.cast<text_entity::lua_reference>();
+        m_children.emplace_back(wrapper);
+        update_children();
+    }
+    else if (lua::type_check<line_entity>(child)) {
+        wrapper.line = child.cast<line_entity::lua_reference>();
+        m_children.emplace_back(wrapper);
+        update_children();
+    }
+    else {
+
+    }
 }
 
 auto kestrel::ui::scene_entity::each_child(const luabridge::LuaRef& body) const -> void
@@ -401,7 +424,7 @@ auto kestrel::ui::scene_entity::each_child(const luabridge::LuaRef& body) const 
 auto kestrel::ui::scene_entity::remove_entity(const kestrel::ui::scene_entity::lua_reference &child) -> void
 {
     for (auto i = 0; i < m_children.size(); ++i) {
-        if (m_children.at(i) == child) {
+        if (m_children.at(i).scene == child) {
             m_children.remove(i + 1);
             return;
         }
@@ -411,10 +434,23 @@ auto kestrel::ui::scene_entity::remove_entity(const kestrel::ui::scene_entity::l
 auto kestrel::ui::scene_entity::update_children() -> void
 {
     for (auto& child : m_children) {
-        child->m_parent_bounds = {
-            m_entity->get_position(), size()
-        };
-        child->update_position();
+        if (*child.scene) {
+            child.scene->m_parent_bounds = {
+                m_entity->get_position(), size()
+            };
+            child.scene->update_position();
+        }
+        else if (*child.text) {
+            child.text->m_parent_bounds = {
+                m_entity->get_position(), size()
+            };
+            child.text->update_position();
+        }
+        else if (*child.line) {
+            child.line->m_parent_bounds = {
+                m_entity->get_position(), size()
+            };
+        }
     }
 }
 
@@ -552,8 +588,15 @@ auto kestrel::ui::scene_entity::draw() -> void
     }
 
     for (auto& child : m_children) {
-//        child->set_draw_position(draw_position() + child->position());
-        child->draw();
+        if (*child.scene) {
+            child.scene->draw();
+        }
+        else if (*child.text) {
+            child.text->draw();
+        }
+        else if (*child.line) {
+            child.line->draw();
+        }
     }
 }
 

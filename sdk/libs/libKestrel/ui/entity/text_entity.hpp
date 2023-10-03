@@ -94,6 +94,7 @@ namespace kestrel::ui
         graphics::color::lua_reference m_text_color { nullptr };
         graphics::color::lua_reference m_background_color { nullptr };
         math::point m_position { 0 };
+        math::rect m_parent_bounds { 0, 0, 0, 0 };
         std::int16_t m_min_height { 0 };
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
         std::shared_ptr<ecs::entity> m_entity;
@@ -102,5 +103,7 @@ namespace kestrel::ui
         enum horizontal_alignment m_alignment { horizontal_alignment::left };
 
         auto redraw() -> void;
+
+        friend struct scene_entity;
     };
 }

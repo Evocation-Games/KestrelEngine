@@ -41,6 +41,10 @@
 
 namespace kestrel::ui
 {
+    // Forward Declarations
+    struct line_entity;
+    struct text_entity;
+
     /**
      * Represents an entity within a scene.
      */
@@ -127,8 +131,9 @@ namespace kestrel::ui
         lua_setter(clippingOffset, Available_0_8) auto set_clipping_offset(const math::point& v) -> void;
 
         // MARK: - Children
-        lua_getter(children, Available_0_8) [[nodiscard]] auto children() const -> lua::vector<lua_reference>;
-        lua_function(addChildEntity, Available_0_8) auto add_child_entity(const lua_reference& child) -> void;
+        auto add_entity(const lua_reference & child) -> void;
+        lua_getter(children, Available_0_8) [[nodiscard]] auto children() const -> lua::vector<luabridge::LuaRef>;
+        lua_function(addChildEntity, Available_0_8) auto add_child_entity(const luabridge::LuaRef& child) -> void;
         lua_function(eachChild, Available_0_8) auto each_child(const luabridge::LuaRef& body) const -> void;
         lua_function(removeChildEntity, Available_0_9) auto remove_entity(const lua_reference& child) -> void;
         auto update_children() -> void;
@@ -168,6 +173,12 @@ namespace kestrel::ui
         auto replace(const lua_reference& entity) -> void;
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
 
+    private:
+        struct entity_wrapper {
+            luabridge::RefCountedPtr<scene_entity> scene;
+            luabridge::RefCountedPtr<line_entity> line;
+            luabridge::RefCountedPtr<text_entity> text;
+        };
 
     private:
         std::string m_id;
@@ -189,7 +200,7 @@ namespace kestrel::ui
         bool m_continuous_mouse_down_action { false };
         bool m_ignore_positioning_frame_scaler { false };
         event m_mouse_down_event;
-        lua::vector<lua_reference> m_children;
+        lua::vector<entity_wrapper> m_children;
         luabridge::LuaRef m_on_animation_finish { nullptr };
         luabridge::LuaRef m_on_animation_start { nullptr };
         luabridge::LuaRef m_on_layout { nullptr };

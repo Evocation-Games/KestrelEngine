@@ -84,7 +84,7 @@ auto kestrel::ui::widgets::custom_widget::set_scroll_offset(const math::point &o
 
 auto kestrel::ui::widgets::custom_widget::add_child_entity(const scene_entity::lua_reference &entity) -> void
 {
-    m_entity->add_child_entity(entity);
+    m_entity->add_child_entity({ kestrel::lua_runtime()->internal_state(), entity });
 }
 
 // MARK: - Drawing

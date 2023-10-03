@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/ui/widgets/scrollview_widget.hpp>
+#include "libKestrel/kestrel.hpp"
 
 // MARK: - Construction
 
@@ -128,7 +129,7 @@ auto kestrel::ui::widgets::scrollview_widget::set_content_entity(const scene_ent
     }
 
     m_content_entity = entity;
-    m_entity->add_child_entity(m_content_entity);
+    m_entity->add_child_entity({ kestrel::lua_runtime()->internal_state(), m_content_entity });
     m_dirty = true;
 }
 

@@ -41,6 +41,7 @@ kestrel::ui::text_entity::text_entity(const std::string &text)
     m_entity = m_canvas->spawn_entity({0, 0});
 
     m_min_height = static_cast<std::int16_t>(m_canvas->get_bounds().height());
+    m_parent_bounds = { math::point(0), renderer::window_size() };
 }
 
 // MARK: - Accessors
@@ -176,7 +177,7 @@ auto kestrel::ui::text_entity::set_position(const math::point &v) -> void
 auto kestrel::ui::text_entity::update_position() -> void
 {
     auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position(), this->size());
-    m_entity->set_position(position);
+    m_entity->set_position(position + m_parent_bounds.origin());
 }
 
 auto kestrel::ui::text_entity::set_size(const math::size &v) -> void
