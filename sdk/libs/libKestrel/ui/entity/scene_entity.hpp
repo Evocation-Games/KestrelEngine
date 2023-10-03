@@ -131,6 +131,7 @@ namespace kestrel::ui
         lua_function(addChildEntity, Available_0_8) auto add_child_entity(const lua_reference& child) -> void;
         lua_function(eachChild, Available_0_8) auto each_child(const luabridge::LuaRef& body) const -> void;
         lua_function(removeChildEntity, Available_0_9) auto remove_entity(const lua_reference& child) -> void;
+        auto update_children() -> void;
 
         // MARK: - Events
         lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous_mouse_down_action() const -> bool;
@@ -174,6 +175,7 @@ namespace kestrel::ui
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
         enum layout::scaling_mode m_scaling_mode { layout::scaling_mode::normal };
         math::point m_position { 0 };
+        math::rect m_parent_bounds { 0, 0, 0, 0 };
         std::int32_t m_frame_count { 1 };
         std::int32_t m_frame { 0 };
         bool m_next_frame_on_draw { false };

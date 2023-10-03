@@ -48,7 +48,7 @@ namespace kestrel::math
 
         auto operator=(const rect&) -> rect& = default;
 
-        auto ui_rect() const -> ::ui::rect;
+        [[nodiscard]] auto ui_rect() const -> ::ui::rect;
 
         lua_constructor(Available_0_8) rect(float x, float y, float w, float h);
         lua_function(macintosh, Available_0_8) static auto macintosh_rect(float top, float left, float bottom, float right) -> rect;
