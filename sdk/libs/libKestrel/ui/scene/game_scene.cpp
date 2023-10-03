@@ -119,13 +119,13 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
         for (auto i = 0; i < entities.size(); ++i) {
             if (lua::ref_isa<scene_entity>(entities[i])) {
                 const auto& entity = entities[i].cast<scene_entity::lua_reference>();
-                m_positioning_frame->position_scene_entity(entity);
+//                m_positioning_frame->position_scene_entity(entity);
                 entity->layout();
                 entity->draw();
             }
             else if (lua::ref_isa<text_entity>(entities[i])) {
                 const auto& entity = entities[i].cast<text_entity::lua_reference>();
-                m_positioning_frame->position_text_entity(entity);
+//                m_positioning_frame->position_text_entity(entity);
                 entity->layout();
                 entity->draw();
             }

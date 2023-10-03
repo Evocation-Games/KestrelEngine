@@ -178,7 +178,7 @@ auto kestrel::ui::layout::positioning_frame::position_text_entity_with_offset(co
     math::point position = m_target.origin() + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor) + entity_position + (offset * m_scaling_factor);
 
     // Apply the drawing dimensions to the entity.
-    entity->set_draw_position(position);
+//    entity->set_draw_position(position);
     entity->set_size(entity_size);
 }
 

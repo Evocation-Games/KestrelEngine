@@ -208,7 +208,7 @@ auto kestrel::font::typesetter::layout() -> void
     // Ensure there is nothing remaining in the buffer, and if there is commit it.
     commit_buffer();
     m_min_size.set_height(m_pos.y() + (m_base_font->line_height() + 5)); // TODO: Calculate an actual excess for the text.
-    m_min_size.set_width(std::max(m_min_size.width(), m_pos.x()));
+    m_min_size.set_width(std::max(m_min_size.width(), m_pos.x()) + 5);
 }
 
 // MARK: - Rendering
@@ -225,72 +225,38 @@ auto kestrel::font::typesetter::render() -> std::vector<graphics::color>
     FT_Select_Charmap(m_base_font->face(), FT_ENCODING_UNICODE);
     FT_Set_Char_Size(m_base_font->face(), 0, (static_cast<std::int32_t>(m_base_font->size() * m_scale) << 6U), m_dpi, m_dpi);
 
-    if (m_base_font->size() <= 10) {
-        for (const auto& ch : m_layout) {
-            FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), ch.value);
-            if (FT_Load_Glyph(m_base_font->face(), glyph_index, FT_LOAD_DEFAULT | FT_LOAD_FORCE_AUTOHINT)) {
-                continue;
-            }
+    for (const auto& ch : m_layout) {
+        FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), ch.value);
+        if (FT_Load_Glyph(m_base_font->face(), glyph_index, FT_LOAD_DEFAULT | FT_LOAD_FORCE_AUTOHINT)) {
+            continue;
+        }
 
-            if (FT_Render_Glyph(slot,FT_RENDER_MODE_NORMAL)) {
-                continue;
-            }
+        if (FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL)) {
+            continue;
+        }
 
-            auto y_offset = static_cast<int>(line_height - slot->bitmap_top);
-            auto x_offset = static_cast<int>(slot->bitmap_left);
+        FT_Bitmap bmp;
+        FT_Bitmap_New(&bmp);
+        FT_Bitmap_Convert(graphics::font::library(), &slot->bitmap, &bmp, 8);
 
-            for (auto yy = 0; yy < slot->bitmap.rows; ++yy) {
-                std::uint8_t bits = 0;
-                for (auto xx = 0; xx <= slot->bitmap.width; ++xx, bits <<= 1) {
-                    if ((xx & 7) == 0) {
-                        bits = slot->bitmap.buffer[(yy * slot->bitmap.pitch) + xx];
-                    }
+        auto y_offset = static_cast<int>(line_height - slot->bitmap_top);
+        auto x_offset = static_cast<int>(slot->bitmap_left);
 
-                    if (bits & 0x80) {
-                        auto offset = ((static_cast<int>(std::round(ch.y)) + y_offset + yy) * static_cast<int>(std::round(m_min_size.width()))) + static_cast<int>(std::round(ch.x)) + x_offset + xx;
-                        if (offset < buffer.size()) {
-                            buffer[offset] = m_font_color;
-                        }
-                    }
+        for (auto yy = 0; yy < bmp.rows; ++yy) {
+            for (auto xx = 0; xx < bmp.width; ++xx) {
+                auto alpha = bmp.buffer[(yy * bmp.pitch) + xx];
+//                    alpha = alpha > 0 ? std::min(255U, static_cast<unsigned int>(alpha) + 64) : alpha;
+                auto hex_color = static_cast<unsigned int>(m_font_color.color_value() & 0x00FFFFFFU);
+                auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
+                auto offset = ((static_cast<int>(std::round(ch.y)) + y_offset + yy) * static_cast<int>(std::round(m_min_size.width()))) + static_cast<int>(std::round(ch.x)) + x_offset + xx;
+                if (offset < buffer.size()) {
+                    buffer[offset] = graphics::color::color_value(color);
                 }
             }
         }
+
+        FT_Bitmap_Done(graphics::font::library(), &bmp);
     }
-    else {
-        for (const auto& ch : m_layout) {
-            FT_UInt glyph_index = FT_Get_Char_Index(m_base_font->face(), ch.value);
-            if (FT_Load_Glyph(m_base_font->face(), glyph_index, FT_LOAD_DEFAULT | FT_LOAD_FORCE_AUTOHINT)) {
-                continue;
-            }
-
-            if (FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL)) {
-                continue;
-            }
-
-            FT_Bitmap bmp;
-            FT_Bitmap_New(&bmp);
-            FT_Bitmap_Convert(graphics::font::library(), &slot->bitmap, &bmp, 8);
-
-            auto y_offset = static_cast<int>(line_height - slot->bitmap_top);
-            auto x_offset = static_cast<int>(slot->bitmap_left);
-
-            for (auto yy = 0; yy < bmp.rows; ++yy) {
-                for (auto xx = 0; xx < bmp.width; ++xx) {
-                    auto alpha = bmp.buffer[(yy * bmp.pitch) + xx];
-                    alpha = alpha > 0 ? std::min(255U, static_cast<unsigned int>(alpha) + 64) : alpha;
-                    auto hex_color = static_cast<unsigned int>(m_font_color.color_value() & 0x00FFFFFFU);
-                    auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
-                    auto offset = ((static_cast<int>(std::round(ch.y)) + y_offset + yy) * static_cast<int>(std::round(m_min_size.width()))) + static_cast<int>(std::round(ch.x)) + x_offset + xx;
-                    if (offset < buffer.size()) {
-                        buffer[offset] = graphics::color::color_value(color);
-                    }
-                }
-            }
-
-            FT_Bitmap_Done(graphics::font::library(), &bmp);
-        }
-    }
-
 
     return buffer;
 }

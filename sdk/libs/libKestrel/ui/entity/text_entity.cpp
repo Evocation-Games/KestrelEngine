@@ -33,14 +33,14 @@ kestrel::ui::text_entity::text_entity(const std::string &text)
 
     // Perform an estimation of the text size to get a basic label size.
     // TODO: We need to get the current scale here so the size is estimated correctly!
-    font::typesetter ts(text);
+    font::typesetter ts(text, renderer::scale_factor());
     ts.set_font(*m_font.get());
     ts.layout();
 
-    m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
+    m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size() / renderer::scale_factor());
     m_entity = m_canvas->spawn_entity({0, 0});
 
-    m_min_height = static_cast<std::int16_t>(ts.get_bounding_size().height());
+    m_min_height = static_cast<std::int16_t>(m_canvas->get_bounds().height());
 }
 
 // MARK: - Accessors
@@ -78,12 +78,6 @@ auto kestrel::ui::text_entity::lua_anchor_point() const -> std::int32_t
 auto kestrel::ui::text_entity::position() const -> math::point
 {
     return m_position;
-}
-
-auto kestrel::ui::text_entity::draw_position() const -> math::point
-{
-    auto offset = origin_for_axis(size(), m_anchor);
-    return m_entity->get_position() + offset;
 }
 
 auto kestrel::ui::text_entity::size() const -> math::size
@@ -132,6 +126,7 @@ auto kestrel::ui::text_entity::set_text(const std::string &v) -> void
 {
     m_text = v;
     m_dirty = true;
+    update_position();
 }
 
 auto kestrel::ui::text_entity::set_font(const font::reference::lua_reference &v) -> void
@@ -140,7 +135,7 @@ auto kestrel::ui::text_entity::set_font(const font::reference::lua_reference &v)
     m_font->load_for_graphics();
     m_dirty = true;
 
-    font::typesetter ts(m_text);
+    font::typesetter ts(m_text, renderer::scale_factor());
     ts.set_font(*m_font.get());
     ts.layout();
 
@@ -164,6 +159,7 @@ auto kestrel::ui::text_entity::set_background_color(const graphics::color::lua_r
 auto kestrel::ui::text_entity::set_anchor_point(enum layout::axis_origin v) -> void
 {
     m_anchor = v;
+    update_position();
 }
 
 auto kestrel::ui::text_entity::set_lua_anchor_point(std::int32_t v) -> void
@@ -174,17 +170,19 @@ auto kestrel::ui::text_entity::set_lua_anchor_point(std::int32_t v) -> void
 auto kestrel::ui::text_entity::set_position(const math::point &v) -> void
 {
     m_position = v;
+    update_position();
 }
 
-auto kestrel::ui::text_entity::set_draw_position(const math::point &v) -> void
+auto kestrel::ui::text_entity::update_position() -> void
 {
-    auto offset = layout::origin_for_axis(size(), m_anchor);
-    m_entity->set_position(v - offset);
+    auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position(), this->size());
+    m_entity->set_position(position);
 }
 
 auto kestrel::ui::text_entity::set_size(const math::size &v) -> void
 {
     m_entity->set_size(v);
+    update_position();
 
     m_canvas = std::make_unique<graphics::canvas>(v);
     m_entity = m_canvas->spawn_entity({});
@@ -253,7 +251,7 @@ auto kestrel::ui::text_entity::draw() -> void
 
 auto kestrel::ui::text_entity::redraw() -> void
 {
-    const auto size = m_entity->get_size();
+    const auto size = m_entity->get_size() / renderer::scale_factor();
     if (size.area() <= 1) {
         return;
     }
@@ -270,7 +268,7 @@ auto kestrel::ui::text_entity::redraw() -> void
 
     m_canvas->set_font(m_font);
 
-    const auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
+    const auto text_size = m_canvas->layout_text_in_bounds(m_text, size).round();
     auto x = 0.f;
     auto y = (size.height() - text_size.height()) / 2.f;
 

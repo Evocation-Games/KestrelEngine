@@ -20,6 +20,8 @@
 
 GraphicsTestScene = Scene.current
 
+FontManager.defaultFont = FontManager.addFont(Font.namedFont("Geneva", 15))
+
 print("  -> Building Scene...")
 
 createSquare = function(frame, color)
@@ -40,6 +42,12 @@ imageEntity.anchorPoint = AxisOrigin.Center
 imageEntity.size = Size(1440, 900)
 imageEntity.scalingMode = ScalingMode.AspectFill
 GraphicsTestScene:addEntity(imageEntity)
+
+local text = TextEntity("Hello, World")
+text.textColor = Color(255, 255, 255, 255)
+text.position = Point(50, 50)
+text.anchorPoint = AxisOrigin.TopLeft
+GraphicsTestScene:addEntity(text)
 
 local redSquare = createSquare(Rect(50, 50, 100, 100), Color(200, 0, 0, 255))
 

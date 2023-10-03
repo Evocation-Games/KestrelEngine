@@ -109,6 +109,7 @@ auto kestrel::ui::layout::entity_position(const math::size &container, enum axis
         case axis_origin::top_left: {
             origin.set_x(position.x());
             origin.set_y(position.y());
+            break;
         }
         case axis_origin::center_left: {
             origin.set_x(position.x());

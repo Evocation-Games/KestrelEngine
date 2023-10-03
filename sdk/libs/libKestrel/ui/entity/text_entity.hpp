@@ -41,42 +41,51 @@ namespace kestrel::ui
         text_entity() = default;
         lua_constructor(Available_0_8) explicit text_entity(const std::string& text);
 
+        // MARK: - Text Properties
         lua_getter(text, Available_0_8) [[nodiscard]] auto text() const -> std::string;
-        lua_getter(font, Available_0_8) [[nodiscard]] auto font() const -> font::reference::lua_reference;
-        lua_getter(textColor, Available_0_8) [[nodiscard]] auto text_color() const -> graphics::color::lua_reference;
-        lua_getter(backgroundColor, Available_0_8) [[nodiscard]] auto background_color() const -> graphics::color::lua_reference;
-        lua_getter(position, Available_0_8) [[nodiscard]] auto position() const -> math::point;
-        lua_getter(drawPosition, Available_0_8) [[nodiscard]] auto draw_position() const -> math::point;
-        [[nodiscard]] auto anchor_point() const -> enum layout::axis_origin;
-        lua_getter(axisAnchor, Available_0_8) [[nodiscard]] auto lua_anchor_point() const -> std::int32_t;
-        lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size;
-        lua_getter(halfSize, Available_0_8) [[nodiscard]] auto half_size() const -> math::size;
-        lua_getter(alpha, Available_0_8) [[nodiscard]] auto alpha() const -> double;
-        lua_getter(blend, Available_0_8) [[nodiscard]] auto blend_mode() const -> std::int32_t;
-        lua_getter(clippingArea, Available_0_8) [[nodiscard]] auto clipping_area() const -> math::size;
-        lua_getter(clippingOffset, Available_0_8) [[nodiscard]] auto clipping_offset() const -> math::point;
-        lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
-        lua_getter(alignment, Available_0_8) [[nodiscard]] auto lua_safe_alignment() const -> int32_t;
-
         lua_setter(text, Available_0_8) auto set_text(const std::string& v) -> void;
+        lua_getter(font, Available_0_8) [[nodiscard]] auto font() const -> font::reference::lua_reference;
         lua_setter(font, Available_0_8) auto set_font(const font::reference::lua_reference& v) -> void;
+        lua_getter(textColor, Available_0_8) [[nodiscard]] auto text_color() const -> graphics::color::lua_reference;
         lua_setter(textColor, Available_0_8) auto set_text_color(const graphics::color::lua_reference& v) -> void;
+        lua_getter(backgroundColor, Available_0_8) [[nodiscard]] auto background_color() const -> graphics::color::lua_reference;
         lua_setter(backgroundColor, Available_0_8) auto set_background_color(const graphics::color::lua_reference& v) -> void;
-        lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
-        lua_setter(drawPosition, Available_0_8) auto set_draw_position(const math::point& v) -> void;
-        auto set_anchor_point(enum layout::axis_origin v) -> void;
-        lua_setter(axisAnchor, Available_0_8) auto set_lua_anchor_point(std::int32_t v) -> void;
-        lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
-        lua_setter(alpha, Available_0_8) auto set_alpha(double v) -> void;
-        lua_setter(blend, Available_0_8) auto set_blend_mode(std::int32_t v) -> void;
-        lua_setter(clippingArea, Available_0_8) auto set_clipping_area(const math::size& v) -> void;
-        lua_setter(clippingOffset, Available_0_8) auto set_clipping_offset(const math::point& v) -> void;
-        lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
+        lua_getter(alignment, Available_0_8) [[nodiscard]] auto lua_safe_alignment() const -> int32_t;
         lua_setter(alignment, Available_0_8) auto set_lua_safe_alignment(std::int32_t v) -> void;
 
+        // MARK: - Positioning
+        lua_getter(position, Available_0_8) [[nodiscard]] auto position() const -> math::point;
+        lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
+        auto update_position() -> void;
+
+        [[nodiscard]] auto anchor_point() const -> enum layout::axis_origin;
+        auto set_anchor_point(enum layout::axis_origin v) -> void;
+        lua_getter(anchorPoint, Available_0_8) [[nodiscard]] auto lua_anchor_point() const -> std::int32_t;
+        lua_setter(anchorPoint, Available_0_8) auto set_lua_anchor_point(std::int32_t v) -> void;
+
+        // MARK: - Sizing
+        lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size;
+        lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
+        lua_getter(halfSize, Available_0_8) [[nodiscard]] auto half_size() const -> math::size;
+
+        // MARK: - Layout
+        lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
+        lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
         lua_function(layout, Available_0_8) auto layout() -> void;
         lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;
+
+        // MARK: - Drawing
+        lua_getter(alpha, Available_0_8) [[nodiscard]] auto alpha() const -> double;
+        lua_setter(alpha, Available_0_8) auto set_alpha(double v) -> void;
+        lua_getter(blend, Available_0_8) [[nodiscard]] auto blend_mode() const -> std::int32_t;
+        lua_setter(blend, Available_0_8) auto set_blend_mode(std::int32_t v) -> void;
         lua_function(draw, Available_0_8) auto draw() -> void;
+
+        // MARK: - Clipping
+        lua_getter(clippingArea, Available_0_8) [[nodiscard]] auto clipping_area() const -> math::size;
+        lua_setter(clippingArea, Available_0_8) auto set_clipping_area(const math::size& v) -> void;
+        lua_getter(clippingOffset, Available_0_8) [[nodiscard]] auto clipping_offset() const -> math::point;
+        lua_setter(clippingOffset, Available_0_8) auto set_clipping_offset(const math::point& v) -> void;
 
     private:
         bool m_dirty { true };

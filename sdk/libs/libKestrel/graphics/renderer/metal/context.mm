@@ -54,6 +54,7 @@ auto kestrel::renderer::metal::context::start_application(const math::size& size
 {
     platform::macos::start_application([&, callback] (KestrelApplication *app) {
         auto context = new metal::context();
+        context->m_metal.scale_factor = static_cast<float>(scale);
 
         context->m_window = [app createWindowWithTitle:@"Cosmic Frontier: Override" withSize: {
             static_cast<float>(context->m_metal.viewport_width),

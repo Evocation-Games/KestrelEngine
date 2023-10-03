@@ -113,6 +113,7 @@ namespace kestrel::renderer::metal
             std::unordered_map<util::uid, std::shared_ptr<renderer::shader::program>> shader_programs;
             std::uint32_t viewport_width { 1280 };
             std::uint32_t viewport_height { 720 };
+            float scale_factor { 1.f };
             bool fullscreen { false };
         } m_metal;
 
