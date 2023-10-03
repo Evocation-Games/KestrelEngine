@@ -177,12 +177,6 @@ namespace kestrel::ecs
          */
         auto set_size(const math::size& sz) -> void;
 
-        [[nodiscard]] auto get_render_size() const -> math::size;
-        auto set_render_size(const math::size& sz) -> void;
-
-        [[nodiscard]] auto get_draw_size() const -> math::size;
-        auto set_draw_size(const math::size& sz) -> void;
-
         auto set_clipping_area(const math::size& sz) -> void;
         auto remove_clipping_area() -> void;
         [[nodiscard]] auto has_clipping_area() const -> bool;
@@ -192,6 +186,10 @@ namespace kestrel::ecs
         auto set_clipping_offset(const math::point& p) -> void;
         [[nodiscard]] auto clipping_offset() const -> math::point;
         [[nodiscard]] auto clipping_offset_uv() const -> math::point;
+
+        [[nodiscard]] auto has_scaled_texture() const -> bool;
+        auto set_scaled_texture_area(const math::rect&) -> void;
+        [[nodiscard]] auto scaled_texture_area() const -> math::rect;
 
         [[nodiscard]] auto get_blend_lua() const -> int;
         auto set_blend_lua(int blend) -> void;
@@ -226,13 +224,14 @@ namespace kestrel::ecs
         std::string m_name;
         math::point m_position { 0 };
         math::size m_size { 0 };
-        math::size m_render_size { 0 };
-        math::size m_draw_size { 0 };
         std::uint32_t m_sprite_index { 0 };
         std::shared_ptr<graphics::sprite_sheet> m_sprite_sheet;
         enum renderer::blending m_blend { renderer::blending::normal };
         double m_alpha { 1.0 };
         bool m_has_texture_clip { false };
+        bool m_has_scaled_texture { false };
+        math::rect m_scaled_texture { math::point(0), math::size(0) };
+        math::rect m_scaled_texture_uv { math::point(0), math::size(0) };
         math::size m_clipping_area { 0 };
         math::point m_clipping_offset { 0 };
         math::size m_clipping_area_uv { 0 };

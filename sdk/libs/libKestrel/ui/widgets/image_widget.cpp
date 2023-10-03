@@ -166,8 +166,7 @@ auto kestrel::ui::widgets::image_widget::resize(bool reload) -> void
         output_uv_size = output_size * scale_factor;
 
         // We need to aspect fill in the frame. First set up the frame and size of the entity...
-        m_entity->set_render_size(output_size);
-        m_entity->set_draw_size(output_size);
+        m_entity->set_size(output_size);
         m_entity->set_position(m_frame.origin() + output_origin);
 
         m_entity->set_clipping_area(output_uv_size);

@@ -31,3 +31,9 @@ component<LuaScript, #0> main {
         "main.lua" (_mainFunction);
     };
 };
+
+declare StaticImage {
+	new (#128, "4K Debug Test Image") {
+		PNG = import "@spath/Assets/image.png";
+	};
+};

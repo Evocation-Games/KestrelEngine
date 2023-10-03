@@ -101,3 +101,55 @@ auto kestrel::ui::layout::position_for_axis(const math::size &container, enum ax
     }
     return origin;
 }
+
+auto kestrel::ui::layout::entity_position(const math::size &container, enum axis_origin axis, const math::point& position, const math::size& size) -> math::point
+{
+    math::point origin;
+    switch (axis) {
+        case axis_origin::top_left: {
+            origin.set_x(position.x());
+            origin.set_y(position.y());
+        }
+        case axis_origin::center_left: {
+            origin.set_x(position.x());
+            origin.set_y(position.y() + ((container.height() - size.height()) / 2.f));
+            break;
+        }
+        case axis_origin::bottom_left: {
+            origin.set_x(position.x());
+            origin.set_y((container.height() - size.height()) - position.y());
+            break;
+        }
+        case axis_origin::top_center: {
+            origin.set_x(position.x() + ((container.width() - size.width()) / 2.f));
+            origin.set_y(position.y());
+            break;
+        }
+        case axis_origin::center: {
+            origin.set_x(position.x() + ((container.width() - size.width()) / 2.f));
+            origin.set_y(position.y() + ((container.height() - size.height()) / 2.f));
+            break;
+        }
+        case axis_origin::bottom_center: {
+            origin.set_x(position.x() + ((container.width() - size.width()) / 2.f));
+            origin.set_y(position.y() + (container.height() - size.height()));
+            break;
+        }
+        case axis_origin::top_right: {
+            origin.set_x((container.width() - size.width()) - position.y());
+            origin.set_y(position.y());
+            break;
+        }
+        case axis_origin::center_right: {
+            origin.set_x((container.width() - size.width()) - position.x());
+            origin.set_y(position.y() + ((container.height() - size.height()) / 2.f));
+            break;
+        }
+        case axis_origin::bottom_right: {
+            origin.set_x((container.width() - size.width()) - position.x());
+            origin.set_y((container.height() - size.height()) - position.y());
+            break;
+        }
+    }
+    return origin;
+}

@@ -43,7 +43,7 @@ static struct {
     bool hitbox_debug { false };
 } s_renderer_api;
 
-auto kestrel::renderer::initialize(enum renderer::api api, const std::function<auto()->void> &callback) -> void
+auto kestrel::renderer::initialize(enum renderer::api api, const math::size& size, double scale, const std::function<auto()->void> &callback) -> void
 {
     s_renderer_api.api = api;
 
@@ -56,7 +56,7 @@ auto kestrel::renderer::initialize(enum renderer::api api, const std::function<a
         case api::metal: {
 #if TARGET_MACOS
             s_renderer_api.api = renderer::api::metal;
-            metal::context::start_application([&, callback] (metal::context *context) {
+            metal::context::start_application(size, scale, [&, callback] (metal::context *context) {
                 s_renderer_api.context = context;
                 s_renderer_api.drawing_buffer = new draw_buffer(metal::constants::max_quads * 6, metal::constants::texture_slots);
 
@@ -70,7 +70,7 @@ auto kestrel::renderer::initialize(enum renderer::api api, const std::function<a
         }
         case api::opengl: {
             s_renderer_api.api = renderer::api::opengl;
-            s_renderer_api.context = new opengl::context([] {});
+            s_renderer_api.context = new opengl::context(size, scale, [] {});
             s_renderer_api.drawing_buffer = new draw_buffer(opengl::constants::max_quads * 6, opengl::constants::texture_slots);
 
             auto shader = s_renderer_api.context->shader_program("basic");
@@ -149,6 +149,11 @@ auto kestrel::renderer::hitbox_debug() -> bool
 }
 
 auto kestrel::renderer::scale_factor() -> float
+{
+    return s_renderer_api.context->current_scale_factor();
+}
+
+auto kestrel::renderer::native_screen_scale() -> float
 {
     return s_renderer_api.context->native_screen_scale();
 }
@@ -272,8 +277,8 @@ auto kestrel::renderer::draw_quad(const std::shared_ptr<graphics::texture> &text
 
     auto texture_slot = buffer->push_texture(texture);
 
-    auto p = (math::vec2(frame.origin()) + buffer->camera().translation()) * buffer->camera().scale();
-    auto s = (math::vec2(frame.size())) * buffer->camera().scale();
+    auto p = (math::vec2(frame.origin()) + buffer->camera().translation()) * buffer->camera().scale() * scale_factor();
+    auto s = (math::vec2(frame.size())) * buffer->camera().scale() * scale_factor();
 
     auto uv_x = tex_coords.origin().x();
     auto uv_y = tex_coords.origin().y();

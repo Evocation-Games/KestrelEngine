@@ -82,7 +82,7 @@ auto kestrel::ui::text_entity::position() const -> math::point
 
 auto kestrel::ui::text_entity::draw_position() const -> math::point
 {
-    auto offset = origin_for_axis(render_size(), m_anchor);
+    auto offset = origin_for_axis(size(), m_anchor);
     return m_entity->get_position() + offset;
 }
 
@@ -94,16 +94,6 @@ auto kestrel::ui::text_entity::size() const -> math::size
 auto kestrel::ui::text_entity::half_size() const -> math::size
 {
     return m_entity->get_size() / 2;
-}
-
-auto kestrel::ui::text_entity::render_size() const -> math::size
-{
-    return m_entity->get_render_size();
-}
-
-auto kestrel::ui::text_entity::draw_size() const -> math::size
-{
-    return m_entity->get_draw_size();
 }
 
 auto kestrel::ui::text_entity::alpha() const -> double
@@ -188,7 +178,7 @@ auto kestrel::ui::text_entity::set_position(const math::point &v) -> void
 
 auto kestrel::ui::text_entity::set_draw_position(const math::point &v) -> void
 {
-    auto offset = layout::origin_for_axis(render_size(), m_anchor);
+    auto offset = layout::origin_for_axis(size(), m_anchor);
     m_entity->set_position(v - offset);
 }
 
@@ -200,16 +190,6 @@ auto kestrel::ui::text_entity::set_size(const math::size &v) -> void
     m_entity = m_canvas->spawn_entity({});
 
     redraw();
-}
-
-auto kestrel::ui::text_entity::set_render_size(const math::size &v) -> void
-{
-    m_entity->set_render_size(v);
-}
-
-auto kestrel::ui::text_entity::set_draw_size(const math::size &v) -> void
-{
-    m_entity->set_draw_size(v);
 }
 
 auto kestrel::ui::text_entity::set_alpha(double v) -> void

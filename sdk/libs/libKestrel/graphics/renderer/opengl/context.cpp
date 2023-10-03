@@ -29,6 +29,10 @@
 #include <libKestrel/graphics/renderer/opengl/framebuffer.hpp>
 #include <libKestrel/graphics/renderer/opengl/texture.hpp>
 
+#if TARGET_MACOS
+#   include <libKestrel/platform/macos/application.h>
+#endif
+
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
@@ -41,19 +45,16 @@ static struct {
 
 // MARK: - Construction / Initialisation
 
-kestrel::renderer::opengl::context::context(const std::function<auto() -> void> &callback)
+kestrel::renderer::opengl::context::context(const math::size& size, double scale, const std::function<auto() -> void> &callback)
 {
     s_opengl.context = this;
+    s_opengl.current_scale_factor = static_cast<float>(scale);
 
     if (!glfwInit()) {
         // TODO: Handle gracefully...
         exit(1);
     }
     glfwSetErrorCallback(&opengl::context::error_handler);
-
-#if !TARGET_MACOS
-    link_api();
-#endif
 
     detect_display_configuration();
     configure_window();
@@ -171,8 +172,12 @@ auto kestrel::renderer::opengl::context::detect_display_configuration() -> void
     glfwGetMonitorContentScale(m_screen.monitor, &x_scale, &y_scale);
     if (x_scale > 1 || y_scale > 1) {
         m_screen.dpi_factor = x_scale;
-        s_opengl.current_scale_factor = x_scale;
+        if (s_opengl.current_scale_factor != 0) {
+            s_opengl.current_scale_factor = x_scale;
+        }
     }
+#else
+    m_screen.dpi_factor = platform::macos::application::screen_scale_factor();
 #endif
 }
 
@@ -213,6 +218,10 @@ auto kestrel::renderer::opengl::context::configure_window() -> void
     window_resized(m_screen.window, m_opengl.viewport_width, m_opengl.viewport_height);
     glfwMakeContextCurrent(m_screen.window);
 
+#if !TARGET_MACOS
+    link_api();
+#endif
+
     glfwSwapInterval(1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -234,8 +243,8 @@ auto kestrel::renderer::opengl::context::set_viewport_size(const math::size &vie
 {
     m_opengl.viewport_width = static_cast<std::int32_t>(viewport_size.width());
     m_opengl.viewport_height = static_cast<std::int32_t>(viewport_size.height());
-    m_opengl.scaled_viewport_width = static_cast<std::int32_t>(viewport_size.width() * native_screen_scale());
-    m_opengl.scaled_viewport_height = static_cast<std::int32_t>(viewport_size.height() * native_screen_scale());
+    m_opengl.scaled_viewport_width = static_cast<std::int32_t>(viewport_size.width() * current_scale_factor());
+    m_opengl.scaled_viewport_height = static_cast<std::int32_t>(viewport_size.height() * current_scale_factor());
 
     glfwSetWindowSize(m_screen.window, m_opengl.viewport_width, m_opengl.viewport_height);
     m_opengl.projection = glm::ortho(0.0, (double)m_opengl.scaled_viewport_width, (double)m_opengl.scaled_viewport_height, 0.0, 1.0, -1.0);
@@ -692,6 +701,11 @@ auto kestrel::renderer::opengl::context::set_fullscreen(bool f) -> void
 auto kestrel::renderer::opengl::context::native_screen_scale() const -> float
 {
     return m_screen.dpi_factor;
+}
+
+auto kestrel::renderer::opengl::context::current_scale_factor() const -> float
+{
+    return s_opengl.current_scale_factor;
 }
 
 auto kestrel::renderer::opengl::context::native_screen_size() const -> math::size

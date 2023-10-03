@@ -131,8 +131,7 @@ auto kestrel::ui::widgets::sprite_widget::resize(bool reload) -> void
                 m_frame.y() + ((m_frame.height() - size.height()) / 2.f)
             );
             m_entity->set_position(position);
-            m_entity->set_render_size(size);
-            m_entity->set_draw_size(size);
+            m_entity->set_size(size);
             break;
     }
 }

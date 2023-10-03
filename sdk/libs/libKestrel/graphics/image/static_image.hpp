@@ -53,7 +53,7 @@ namespace kestrel::image
         lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size override;
         lua_getter(spriteCount, Available_0_8) [[nodiscard]] auto sprite_count() const -> std::size_t override;
 
-        lua_function(spawnEntity, Available_0_8) [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<ecs::entity> override;
+        [[nodiscard]] auto spawn_entity(const math::point& position) const -> std::shared_ptr<ecs::entity> override;
     };
 
 }

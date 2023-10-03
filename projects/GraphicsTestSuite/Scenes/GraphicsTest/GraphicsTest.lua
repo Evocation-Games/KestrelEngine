@@ -27,7 +27,6 @@ createSquare = function(frame, color)
     local entity = SceneEntity(canvas)
     entity.position = frame.origin
 
-
     canvas.penColor = color
     canvas:fillRect(Rect(0, 0, frame.size.width, frame.size.height))
     canvas:rebuildEntityTexture()
@@ -35,9 +34,23 @@ createSquare = function(frame, color)
     return entity
 end
 
-local redColor = Color(200, 0, 0, 255)
-local redSquare = createSquare(Rect(0, 0, 100, 100), redColor)
+local image = StaticImage(Container.global():identifiedResource(128))
+local imageEntity = SceneEntity(image)
+imageEntity.anchorPoint = AxisOrigin.Center
+imageEntity.size = Size(1440, 900)
+imageEntity.scalingMode = ScalingMode.AspectFill
+GraphicsTestScene:addEntity(imageEntity)
+
+local redSquare = createSquare(Rect(50, 50, 100, 100), Color(200, 0, 0, 255))
+
+local greenSquare = createSquare(Rect(100, 100, 100, 100), Color(0, 200, 0, 255))
+greenSquare.anchorPoint = AxisOrigin.TopRight
+
+local yellowSquare = createSquare(Rect(0, 0, 100, 100), Color(200, 200, 0, 255))
+yellowSquare.anchorPoint = AxisOrigin.BottomRight
+GraphicsTestScene:addEntity(yellowSquare)
 
 GraphicsTestScene:render(function()
     redSquare:draw()
+    greenSquare:draw()
 end)

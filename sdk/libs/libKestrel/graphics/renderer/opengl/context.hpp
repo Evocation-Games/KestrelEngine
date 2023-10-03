@@ -38,7 +38,7 @@ namespace kestrel::renderer::opengl
     class context : public renderer::context
     {
     public:
-        explicit context(const std::function<auto()->void>& callback);
+        explicit context(const math::size& size, double scale, const std::function<auto()->void>& callback);
         ~context() = default;
 
         auto enable_imgui() -> void override;
@@ -50,7 +50,7 @@ namespace kestrel::renderer::opengl
         auto add_shader_program(const std::string& name, const std::string& vertex_function, const std::string& fragment_function) -> std::shared_ptr<shader::program> override;
         auto shader_program(const std::string& name) -> std::shared_ptr<shader::program> override;
 
-        auto start_frame(const render_pass *pass = nullptr, bool imgui = false) -> void override;
+        auto start_frame(const render_pass *pass, bool imgui) -> void override;
         auto finalize_frame(const std::function<auto() -> void>& callback) -> void override;
 
         auto draw(const draw_buffer *buffer) -> void override;
@@ -69,6 +69,7 @@ namespace kestrel::renderer::opengl
         [[nodiscard]] auto viewport_title() const -> std::string override;
 
         [[nodiscard]] auto native_screen_scale() const -> float override;
+        [[nodiscard]] auto current_scale_factor() const -> float override;
         [[nodiscard]] auto native_screen_size() const -> math::size override;
         auto set_fullscreen(bool f) -> void override;
 

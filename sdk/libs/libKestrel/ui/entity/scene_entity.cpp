@@ -27,6 +27,7 @@
 #include <libKestrel/graphics/legacy/macintosh/color_icon.hpp>
 #include <libKestrel/graphics/renderer/common/blending.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
+#include <libKestrel/ui/layout/aspect_ratio.hpp>
 
 // MARK: - Construction
 
@@ -164,12 +165,6 @@ auto kestrel::ui::scene_entity::position() const -> math::point
     return m_position;
 }
 
-auto kestrel::ui::scene_entity::draw_position() const -> math::point
-{
-    auto offset = origin_for_axis(render_size(), m_anchor);
-    return m_entity->get_position() + offset;
-}
-
 auto kestrel::ui::scene_entity::anchor_point() const -> enum layout::axis_origin
 {
     return m_anchor;
@@ -180,6 +175,16 @@ auto kestrel::ui::scene_entity::lua_anchor_point() const -> std::int32_t
     return static_cast<std::int32_t>(anchor_point());
 }
 
+auto kestrel::ui::scene_entity::scaling_mode() const -> enum layout::scaling_mode
+{
+    return m_scaling_mode;
+}
+
+auto kestrel::ui::scene_entity::lua_scaling_mode() const -> std::int32_t
+{
+    return static_cast<std::int32_t>(scaling_mode());
+}
+
 auto kestrel::ui::scene_entity::size() const -> math::size
 {
     return m_entity->get_size();
@@ -188,16 +193,6 @@ auto kestrel::ui::scene_entity::size() const -> math::size
 auto kestrel::ui::scene_entity::half_size() const -> math::size
 {
     return m_entity->get_size() / 2;
-}
-
-auto kestrel::ui::scene_entity::render_size() const -> math::size
-{
-    return m_entity->get_render_size();
-}
-
-auto kestrel::ui::scene_entity::draw_size() const -> math::size
-{
-    return m_entity->get_draw_size();
 }
 
 auto kestrel::ui::scene_entity::frame_count() const -> std::int32_t
@@ -270,17 +265,19 @@ auto kestrel::ui::scene_entity::hidden() const -> bool
 auto kestrel::ui::scene_entity::set_position(const math::point& v) -> void
 {
     m_position = v;
+    update_position();
 }
 
-auto kestrel::ui::scene_entity::set_draw_position(const math::point& v) -> void
+auto kestrel::ui::scene_entity::update_position() -> void
 {
-    auto offset = origin_for_axis(render_size(), m_anchor);
-    m_entity->set_position(v - offset);
+    auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position(), this->size());
+    m_entity->set_position(position);
 }
 
 auto kestrel::ui::scene_entity::set_anchor_point(enum layout::axis_origin v) -> void
 {
     m_anchor = v;
+    update_position();
 }
 
 auto kestrel::ui::scene_entity::set_lua_anchor_point(std::int32_t v) -> void
@@ -288,19 +285,38 @@ auto kestrel::ui::scene_entity::set_lua_anchor_point(std::int32_t v) -> void
     set_anchor_point(static_cast<enum layout::axis_origin>(v));
 }
 
+auto kestrel::ui::scene_entity::set_scaling_mode(enum layout::scaling_mode v) -> void
+{
+    m_scaling_mode = v;
+    update_scaling();
+}
+
+auto kestrel::ui::scene_entity::set_lua_scaling_mode(std::int32_t v) -> void
+{
+    set_scaling_mode(static_cast<enum layout::scaling_mode>(v));
+}
+
+auto kestrel::ui::scene_entity::update_scaling() -> void
+{
+    if (m_scaling_mode == layout::scaling_mode::aspect_fill) {
+        auto scaled = layout::calculate_size(
+            m_scaling_mode,
+            this->size(),
+            m_entity->texture()->size(),
+            layout::aspect_ratio(m_entity->texture()->size())
+        );
+
+        auto offset = ((scaled - this->size()) / 2.f) / scaled;
+        auto size = this->size() / scaled;
+
+        m_entity->set_scaled_texture_area(math::rect(offset.width(), offset.height(), size.width(), size.height()));
+    }
+}
+
 auto kestrel::ui::scene_entity::set_size(const math::size& v) -> void
 {
     m_entity->set_size(v);
-}
-
-auto kestrel::ui::scene_entity::set_render_size(const math::size& v) -> void
-{
-    m_entity->set_render_size(v);
-}
-
-auto kestrel::ui::scene_entity::set_draw_size(const math::size& v) -> void
-{
-    m_entity->set_draw_size(v);
+    update_position();
 }
 
 auto kestrel::ui::scene_entity::set_current_frame(std::uint32_t v) -> void
@@ -519,8 +535,7 @@ auto kestrel::ui::scene_entity::draw() -> void
     }
 
     for (auto& child : m_children) {
-        child->set_draw_position(draw_position() + child->position());
-        child->set_draw_size(child->render_size());
+//        child->set_draw_position(draw_position() + child->position());
         child->draw();
     }
 }
@@ -639,7 +654,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 
 auto kestrel::ui::scene_entity::hit_test(const math::point& p) const -> bool
 {
-    math::rect frame { math::point(0), m_entity->get_draw_size() };
+    math::rect frame { math::point(0), m_entity->get_size() };
     return frame.contains_point(p) && !m_hidden;
 }
 

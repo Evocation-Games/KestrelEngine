@@ -51,8 +51,6 @@ namespace kestrel::ui
         lua_getter(axisAnchor, Available_0_8) [[nodiscard]] auto lua_anchor_point() const -> std::int32_t;
         lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size;
         lua_getter(halfSize, Available_0_8) [[nodiscard]] auto half_size() const -> math::size;
-        lua_getter(renderSize, Available_0_8) [[nodiscard]] auto render_size() const -> math::size;
-        lua_getter(drawSize, Available_0_8) [[nodiscard]] auto draw_size() const -> math::size;
         lua_getter(alpha, Available_0_8) [[nodiscard]] auto alpha() const -> double;
         lua_getter(blend, Available_0_8) [[nodiscard]] auto blend_mode() const -> std::int32_t;
         lua_getter(clippingArea, Available_0_8) [[nodiscard]] auto clipping_area() const -> math::size;
@@ -69,8 +67,6 @@ namespace kestrel::ui
         auto set_anchor_point(enum layout::axis_origin v) -> void;
         lua_setter(axisAnchor, Available_0_8) auto set_lua_anchor_point(std::int32_t v) -> void;
         lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
-        lua_setter(renderSize, Available_0_8) auto set_render_size(const math::size& v) -> void;
-        lua_setter(drawSize, Available_0_8) auto set_draw_size(const math::size& v) -> void;
         lua_setter(alpha, Available_0_8) auto set_alpha(double v) -> void;
         lua_setter(blend, Available_0_8) auto set_blend_mode(std::int32_t v) -> void;
         lua_setter(clippingArea, Available_0_8) auto set_clipping_area(const math::size& v) -> void;

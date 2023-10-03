@@ -87,7 +87,7 @@ auto kestrel::ecs::entity::set_sprite_sheet(const std::shared_ptr<graphics::spri
 {
     m_sprite_sheet = sheet;
     m_sprite_index = sprite_index;
-    m_render_size = m_sprite_sheet->sprite_size();
+    m_size = m_sprite_sheet->sprite_size();
 }
 
 auto kestrel::ecs::entity::sprite_sheet() const -> std::shared_ptr<graphics::sprite_sheet>
@@ -141,28 +141,6 @@ auto kestrel::ecs::entity::set_size(const math::size &sz) -> void
     m_size = sz;
 }
 
-auto kestrel::ecs::entity::get_render_size() const -> math::size
-{
-    return m_render_size;
-}
-
-auto kestrel::ecs::entity::set_render_size(const math::size &sz) -> void
-{
-    m_render_size = sz;
-    m_body->set_scaling_factor(sz / m_size);
-}
-
-auto kestrel::ecs::entity::get_draw_size() const -> math::size
-{
-    return m_draw_size;
-}
-
-auto kestrel::ecs::entity::set_draw_size(const math::size &sz) -> void
-{
-    m_draw_size = sz;
-    m_body->set_scaling_factor(sz / m_size);
-}
-
 auto kestrel::ecs::entity::set_clipping_area(const math::size& sz) -> void
 {
     auto clip_sz = sz * renderer::scale_factor();
@@ -210,6 +188,25 @@ auto kestrel::ecs::entity::clipping_offset_uv() const -> math::point
 {
     return m_clipping_offset_uv;
 }
+
+auto kestrel::ecs::entity::has_scaled_texture() const -> bool
+{
+    return m_has_scaled_texture;
+}
+
+auto kestrel::ecs::entity::set_scaled_texture_area(const math::rect& area) -> void
+{
+    m_scaled_texture = area;
+    m_has_scaled_texture = true;
+
+    m_scaled_texture_uv = area;
+}
+
+auto kestrel::ecs::entity::scaled_texture_area() const -> math::rect
+{
+    return m_scaled_texture_uv;
+}
+
 
 auto kestrel::ecs::entity::blend() const -> enum renderer::blending
 {

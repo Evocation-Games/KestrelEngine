@@ -40,7 +40,7 @@ namespace kestrel::renderer
 
     class context;
 
-    auto initialize(enum api api, const std::function<auto()->void>& callback) -> void;
+    auto initialize(enum api api, const math::size& size, double scale, const std::function<auto()->void>& callback) -> void;
     auto deinitialize() -> void;
 
     auto current_context() -> renderer::context *;
@@ -51,6 +51,7 @@ namespace kestrel::renderer
     auto supports_metal() -> bool;
 
     auto scale_factor() -> float;
+    auto native_screen_scale() -> float;
 
     auto toggle_hitbox_debug() -> void;
     [[nodiscard]] auto hitbox_debug() -> bool;

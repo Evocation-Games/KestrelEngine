@@ -447,8 +447,7 @@ auto kestrel::ui::dialog::set_background(const luabridge::LuaRef &background) ->
 
         m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
         m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
-        m_background.fill_entity->set_render_size(size);
-        m_background.fill_entity->set_draw_size(size);
+        m_background.fill_entity->set_size(size);
         m_owner_scene->add_scene_entity(m_background.fill_entity);
     }
 }

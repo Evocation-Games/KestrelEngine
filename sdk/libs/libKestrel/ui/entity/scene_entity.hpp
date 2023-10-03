@@ -34,12 +34,16 @@
 #include <libKestrel/graphics/image/static_image.hpp>
 #include <libKestrel/graphics/renderer/common/animator.hpp>
 #include <libKestrel/ui/layout/axis_origin.hpp>
+#include <libKestrel/ui/layout/scaling_mode.hpp>
 #include <libKestrel/physics/body.hpp>
 #include <libKestrel/graphics/renderer/common/shader/source.hpp>
 #include <libKestrel/math/vec4.hpp>
 
 namespace kestrel::ui
 {
+    /**
+     * Represents an entity within a scene.
+     */
     struct lua_api(SceneEntity, Available_0_8) scene_entity
     {
     public:
@@ -51,76 +55,86 @@ namespace kestrel::ui
         explicit scene_entity(const graphics::canvas::lua_reference& canvas);
         explicit scene_entity(const std::shared_ptr<scene_entity>& entity);
 
+        /**
+         * Construct a new entity, using the specified object as a source for the entities texture.
+         * @param entity_provider
+         */
         luatool_type_fix(const luabridge::LuaRef&, entity_provider)
         lua_constructor(Available_0_8) explicit scene_entity(const luabridge::LuaRef& entity_provider);
 
-        auto set_id(const std::string& id) -> void { m_id = id; }
+        lua_getter(id, Available_0_9) [[nodiscard]] auto id() const -> std::string { return m_id; }
+        lua_setter(id, Available_0_9) auto set_id(const std::string& id) -> void { m_id = id; }
 
+        // MARK: - Positioning
         lua_getter(position, Available_0_8) [[nodiscard]] auto position() const -> math::point;
-        lua_getter(drawPosition, Available_0_8) [[nodiscard]] auto draw_position() const -> math::point;
-        [[nodiscard]] auto anchor_point() const -> enum layout::axis_origin;
-        lua_getter(anchorPoint, Available_0_8) [[nodiscard]] auto lua_anchor_point() const -> std::int32_t;
-        lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size;
-        lua_getter(halfSize, Available_0_8) [[nodiscard]] auto half_size() const -> math::size;
-        lua_getter(renderSize, Available_0_8) [[nodiscard]] auto render_size() const -> math::size;
-        lua_getter(drawSize, Available_0_8) [[nodiscard]] auto draw_size() const -> math::size;
-        lua_getter(frameCount, Available_0_8) [[nodiscard]] auto frame_count() const -> std::int32_t;
-        lua_getter(currentFrame, Available_0_8) [[nodiscard]] auto current_frame() const -> std::int32_t;
-        lua_getter(nextFrameOnDraw, Available_0_8) [[nodiscard]] auto advances_to_next_frame_on_draw() const -> bool;
-        lua_getter(loops, Available_0_8) [[nodiscard]] auto animation_loops() const -> bool;
-        lua_getter(alpha, Available_0_8) [[nodiscard]] auto alpha() const -> double;
-        lua_getter(blend, Available_0_8) [[nodiscard]] auto blend_mode() const -> std::int32_t;
-        lua_getter(clippingArea, Available_0_8) [[nodiscard]] auto clipping_area() const -> math::size;
-        lua_getter(clippingOffset, Available_0_8) [[nodiscard]] auto clipping_offset() const -> math::point;
-        lua_getter(children, Available_0_8) [[nodiscard]] auto children() const -> lua::vector<lua_reference>;
-        lua_getter(animator, Available_0_8) [[nodiscard]] auto animator() const -> renderer::animator::lua_reference;
-        lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
-        lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous_mouse_down_action() const -> bool;
-        lua_getter(body, Available_0_8) [[nodiscard]] auto body() const -> physics::body::lua_reference;
-        lua_getter(hidden, Available_0_9) [[nodiscard]] auto hidden() const -> bool;
-
         lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
-        lua_setter(drawPosition, Available_0_8) auto set_draw_position(const math::point& v) -> void;
-        auto set_anchor_point(enum layout::axis_origin v) -> void;
-        lua_setter(anchorPoint, Available_0_8) auto set_lua_anchor_point(std::int32_t v) -> void;
-        lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
-        lua_setter(renderSize, Available_0_8) auto set_render_size(const math::size& v) -> void;
-        lua_setter(drawSize, Available_0_8) auto set_draw_size(const math::size& v) -> void;
-        lua_setter(currentFrame, Available_0_8) auto set_current_frame(std::uint32_t v) -> void;
-        lua_setter(nextFrameOnDraw, Available_0_8) auto set_advances_to_next_frame_on_draw(bool v) -> void;
-        lua_setter(loops, Available_0_8) auto set_animation_loops(bool v) -> void;
-        lua_setter(alpha, Available_0_8) auto set_alpha(double v) -> void;
-        lua_setter(blend, Available_0_8) auto set_blend_mode(std::int32_t v) -> void;
-        lua_setter(clippingArea, Available_0_8) auto set_clipping_area(const math::size& v) -> void;
-        lua_setter(clippingOffset, Available_0_8) auto set_clipping_offset(const math::point& v) -> void;
-        lua_setter(animator, Available_0_8) auto set_animator(const renderer::animator::lua_reference& animator) -> void;
-        lua_setter(continuous, Available_0_8) auto set_continuous_mouse_down_action(bool continuous) -> void;
-        lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
-        lua_setter(hidden, Available_0_9) auto set_hidden(bool hidden) -> void;
+        auto update_position() -> void;
 
+        [[nodiscard]] auto anchor_point() const -> enum layout::axis_origin;
+        auto set_anchor_point(enum layout::axis_origin v) -> void;
+        lua_getter(anchorPoint, Available_0_8) [[nodiscard]] auto lua_anchor_point() const -> std::int32_t;
+        lua_setter(anchorPoint, Available_0_8) auto set_lua_anchor_point(std::int32_t v) -> void;
+
+        // MARK: - Sizing
+        lua_getter(size, Available_0_8) [[nodiscard]] auto size() const -> math::size;
+        lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
+        lua_getter(halfSize, Available_0_8) [[nodiscard]] auto half_size() const -> math::size;
+
+        [[nodiscard]] auto scaling_mode() const -> enum layout::scaling_mode;
+        auto set_scaling_mode(enum layout::scaling_mode v) -> void;
+        lua_getter(scalingMode, Available_0_8) [[nodiscard]] auto lua_scaling_mode() const -> std::int32_t;
+        lua_setter(scalingMode, Available_0_8) auto set_lua_scaling_mode(std::int32_t v) -> void;
+        auto update_scaling() -> void;
+
+        // MARK: - Layout
+        lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
+        lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
+        lua_function(layout, Available_0_8) auto layout() -> void;
+        lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;
+
+        // MARK: - Sprites
         auto change_internal_entity(const std::shared_ptr<ecs::entity>& entity) -> void;
         lua_function(setSprite, Available_0_8) auto set_sprite(const luabridge::LuaRef& sprite) -> void;
 
-        lua_function(addChildEntity, Available_0_8) auto add_child_entity(const lua_reference& child) -> void;
-        lua_function(eachChild, Available_0_8) auto each_child(const luabridge::LuaRef& body) const -> void;
-        lua_function(removeChildEntity, Available_0_9) auto remove_entity(const lua_reference& child) -> void;
-
+        // MARK: - Animation
+        lua_getter(animator, Available_0_8) [[nodiscard]] auto animator() const -> renderer::animator::lua_reference;
+        lua_setter(animator, Available_0_8) auto set_animator(const renderer::animator::lua_reference& animator) -> void;
+        lua_setter(currentFrame, Available_0_8) auto set_current_frame(std::uint32_t v) -> void;
+        lua_getter(currentFrame, Available_0_8) [[nodiscard]] auto current_frame() const -> std::int32_t;
+        lua_getter(frameCount, Available_0_8) [[nodiscard]] auto frame_count() const -> std::int32_t;
+        lua_getter(nextFrameOnDraw, Available_0_8) [[nodiscard]] auto advances_to_next_frame_on_draw() const -> bool;
+        lua_setter(nextFrameOnDraw, Available_0_8) auto set_advances_to_next_frame_on_draw(bool v) -> void;
+        lua_getter(loops, Available_0_8) [[nodiscard]] auto animation_loops() const -> bool;
+        lua_setter(loops, Available_0_8) auto set_animation_loops(bool v) -> void;
         lua_function(configureAnimation, Available_0_8) auto configure_animation_frames(std::int32_t frame_count) -> void;
         lua_function(nextFrame, Available_0_8) auto next_frame() -> void;
         lua_function(onAnimationStart, Available_0_8) auto on_animation_start(const luabridge::LuaRef& callback) -> void;
         lua_function(onAnimationFinish, Available_0_8) auto on_animation_finish(const luabridge::LuaRef& callback) -> void;
 
-        lua_function(layout, Available_0_8) auto layout() -> void;
-        lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;
+        // MARK: - Drawing
+        lua_getter(hidden, Available_0_9) [[nodiscard]] auto hidden() const -> bool;
+        lua_setter(hidden, Available_0_9) auto set_hidden(bool hidden) -> void;
+        lua_getter(alpha, Available_0_8) [[nodiscard]] auto alpha() const -> double;
+        lua_setter(alpha, Available_0_8) auto set_alpha(double v) -> void;
+        lua_getter(blend, Available_0_8) [[nodiscard]] auto blend_mode() const -> std::int32_t;
+        lua_setter(blend, Available_0_8) auto set_blend_mode(std::int32_t v) -> void;
         lua_function(draw, Available_0_8) auto draw() -> void;
 
-        lua_getter(shader, Available_0_8) [[nodiscard]] auto shader() const -> renderer::shader::source::lua_reference;
-        lua_setter(shader, Available_0_8) auto set_shader(const renderer::shader::source::lua_reference& shader) -> void;
-        lua_function(bindShaderAttachment, Available_0_8) auto bind_shader_attachment(std::int32_t idx, double v1) -> void;
-        lua_function(bindShaderAttachment2, Available_0_8) auto bind_shader_attachment2(std::int32_t idx, double v1, double v2) -> void;
-        lua_function(bindShaderAttachment3, Available_0_8) auto bind_shader_attachment3(std::int32_t idx, double v1, double v2, double v3) -> void;
-        lua_function(bindShaderAttachment4, Available_0_8) auto bind_shader_attachment4(std::int32_t idx, double v1, double v2, double v3, double v4) -> void;
+        // MARK: - Clipping
+        lua_getter(clippingArea, Available_0_8) [[nodiscard]] auto clipping_area() const -> math::size;
+        lua_setter(clippingArea, Available_0_8) auto set_clipping_area(const math::size& v) -> void;
+        lua_getter(clippingOffset, Available_0_8) [[nodiscard]] auto clipping_offset() const -> math::point;
+        lua_setter(clippingOffset, Available_0_8) auto set_clipping_offset(const math::point& v) -> void;
 
+        // MARK: - Children
+        lua_getter(children, Available_0_8) [[nodiscard]] auto children() const -> lua::vector<lua_reference>;
+        lua_function(addChildEntity, Available_0_8) auto add_child_entity(const lua_reference& child) -> void;
+        lua_function(eachChild, Available_0_8) auto each_child(const luabridge::LuaRef& body) const -> void;
+        lua_function(removeChildEntity, Available_0_9) auto remove_entity(const lua_reference& child) -> void;
+
+        // MARK: - Events
+        lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous_mouse_down_action() const -> bool;
+        lua_setter(continuous, Available_0_8) auto set_continuous_mouse_down_action(bool continuous) -> void;
         lua_function(onMouseEnter, Available_0_8) auto on_mouse_enter(const luabridge::LuaRef& callback) -> void;
         lua_function(onMouseExit, Available_0_8) auto on_mouse_exit(const luabridge::LuaRef& callback) -> void;
         lua_function(onMouseDown, Available_0_8) auto on_mouse_down(const luabridge::LuaRef& callback) -> void;
@@ -135,18 +149,30 @@ namespace kestrel::ui
         auto on_mouse_release_internal(const std::function<auto(const event&)->void>& callback) -> void;
         auto on_mouse_drag_internal(const std::function<auto(const event&)->void>& callback) -> void;
 
-        auto replace(const lua_reference& entity) -> void;
-
-        [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
-
+        // MARK: - Physics
+        lua_getter(body, Available_0_8) [[nodiscard]] auto body() const -> physics::body::lua_reference;
         lua_function(setupHitbox, Available_0_8) auto setup_hitbox() -> void;
         lua_getter(hitboxColor, Available_0_8) [[nodiscard]] auto hitbox_color() const -> graphics::color::lua_reference;
         lua_setter(hitboxColor, Available_0_8) auto set_hitbox_color(const graphics::color::lua_reference& color) -> void;
+
+        // MARK: - Shader
+        lua_getter(shader, Available_0_8) [[nodiscard]] auto shader() const -> renderer::shader::source::lua_reference;
+        lua_setter(shader, Available_0_8) auto set_shader(const renderer::shader::source::lua_reference& shader) -> void;
+        lua_function(bindShaderAttachment, Available_0_8) auto bind_shader_attachment(std::int32_t idx, double v1) -> void;
+        lua_function(bindShaderAttachment2, Available_0_8) auto bind_shader_attachment2(std::int32_t idx, double v1, double v2) -> void;
+        lua_function(bindShaderAttachment3, Available_0_8) auto bind_shader_attachment3(std::int32_t idx, double v1, double v2, double v3) -> void;
+        lua_function(bindShaderAttachment4, Available_0_8) auto bind_shader_attachment4(std::int32_t idx, double v1, double v2, double v3, double v4) -> void;
+
+        // MARK: - Misc
+        auto replace(const lua_reference& entity) -> void;
+        [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
+
 
     private:
         std::string m_id;
         std::shared_ptr<ecs::entity> m_entity;
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
+        enum layout::scaling_mode m_scaling_mode { layout::scaling_mode::normal };
         math::point m_position { 0 };
         std::int32_t m_frame_count { 1 };
         std::int32_t m_frame { 0 };

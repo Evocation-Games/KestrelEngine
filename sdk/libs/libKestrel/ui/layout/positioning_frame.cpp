@@ -159,8 +159,8 @@ auto kestrel::ui::layout::positioning_frame::position_scene_entity_with_offset(c
     math::point position = m_target.origin() + (m_axis_placement * m_scaling_factor) + (m_axis_displacement * m_scaling_factor) + entity_position + (offset * m_scaling_factor);
 
     // Apply the drawing dimensions to the entity.
-    entity->set_draw_position(position);
-    entity->set_draw_size(entity_size);
+//    entity->set_draw_position(position);
+    entity->set_size(entity_size);
 }
 
 auto kestrel::ui::layout::positioning_frame::position_scene_entity(const ui::scene_entity::lua_reference& entity) const -> void
@@ -179,7 +179,7 @@ auto kestrel::ui::layout::positioning_frame::position_text_entity_with_offset(co
 
     // Apply the drawing dimensions to the entity.
     entity->set_draw_position(position);
-    entity->set_draw_size(entity_size);
+    entity->set_size(entity_size);
 }
 
 auto kestrel::ui::layout::positioning_frame::position_text_entity(const ui::text_entity::lua_reference& entity) const -> void
@@ -215,7 +215,7 @@ auto kestrel::ui::layout::positioning_frame::scene_entity_position(const ui::sce
 
 auto kestrel::ui::layout::positioning_frame::scene_entity_size(const ui::scene_entity &entity) const -> math::size
 {
-    auto entity_size = entity.render_size() * m_scaling_factor;
+    auto entity_size = entity.size() * m_scaling_factor;
     return entity_size.round();
 }
 
@@ -238,7 +238,7 @@ auto kestrel::ui::layout::positioning_frame::text_entity_position(const ui::text
 
 auto kestrel::ui::layout::positioning_frame::text_entity_size(const ui::text_entity& entity) const -> math::size
 {
-    auto entity_size = entity.render_size();
+    auto entity_size = entity.size();
     return entity_size.round();
 }
 

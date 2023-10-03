@@ -138,7 +138,12 @@ namespace kestrel
 
         // Finally, setup the renderer and enter the game loop.
         try {
-            renderer::initialize(s_kestrel_session.base_configuration.renderer.desired_api, environment::prepare);
+            renderer::initialize(
+                s_kestrel_session.base_configuration.renderer.desired_api,
+                math::size(s_kestrel_session.base_configuration.video.width, s_kestrel_session.base_configuration.video.height),
+                s_kestrel_session.base_configuration.video.scale,
+                environment::prepare
+            );
         }
         catch (const incompatible_driver_exception& e) {
             return result::incompatible_renderer;

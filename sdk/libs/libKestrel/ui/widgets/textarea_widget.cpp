@@ -217,7 +217,6 @@ auto kestrel::ui::widgets::textarea_widget::redraw_entity() -> void
 
     m_entity->change_internal_entity(m_canvas->spawn_entity({0, 0}));
     m_entity->set_size(m_clipping_size);
-    m_entity->set_render_size(m_clipping_size);
     m_entity->set_clipping_area(m_clipping_size);
     m_dirty = false;
 }

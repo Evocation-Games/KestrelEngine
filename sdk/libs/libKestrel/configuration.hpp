@@ -71,7 +71,7 @@ namespace kestrel
             std::string scenarios;
             std::string mods;
             std::string fonts;
-            std::vector<std::string> recognized_extensions { "rsrc" };
+            std::vector<std::string> recognized_extensions { "rsrc", "rsrx" };
             bool include_dot_files { false };
         } data_files;
     };

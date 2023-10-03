@@ -166,7 +166,7 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
         return;
     }
 
-    math::rect frame { entity->get_position(), entity->get_draw_size() };
+    math::rect frame { entity->get_position(), entity->get_size() };
 
     auto sprite = entity->sprite_sheet()->at(static_cast<int>(entity->get_sprite_index()));
     auto uv_x = static_cast<float>(sprite.point().x());
@@ -179,6 +179,12 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
         uv_y = static_cast<float>(sprite.point().y() + entity->clipping_offset_uv().y());
         uv_w = static_cast<float>(entity->clipping_area_uv().width());
         uv_h = static_cast<float>(entity->clipping_area_uv().height());
+    }
+    else if (entity->has_scaled_texture()) {
+        uv_x = static_cast<float>(sprite.point().x() + entity->scaled_texture_area().origin().x());
+        uv_y = static_cast<float>(sprite.point().y() + entity->scaled_texture_area().origin().y());
+        uv_w = static_cast<float>(entity->scaled_texture_area().size().width());
+        uv_h = static_cast<float>(entity->scaled_texture_area().size().height());
     }
 
     auto shader_program = entity->shader().get() ? entity->shader()->program() : nullptr;
