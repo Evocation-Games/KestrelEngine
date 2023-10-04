@@ -252,11 +252,6 @@ auto kestrel::ui::scene_entity::animator() const -> renderer::animator::lua_refe
     return m_animator;
 }
 
-auto kestrel::ui::scene_entity::ignore_positioning_frame_scaler() const -> bool
-{
-    return m_ignore_positioning_frame_scaler;
-}
-
 auto kestrel::ui::scene_entity::continuous_mouse_down_action() const -> bool
 {
     return m_continuous_mouse_down_action;
@@ -277,7 +272,7 @@ auto kestrel::ui::scene_entity::set_position(const math::point& v) -> void
 
 auto kestrel::ui::scene_entity::update_position() -> void
 {
-    auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position(), this->size());
+    auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position(), this->size());
     m_entity->set_position(position + m_parent_bounds.origin());
     update_children();
 }
@@ -325,6 +320,7 @@ auto kestrel::ui::scene_entity::set_size(const math::size& v) -> void
 {
     m_entity->set_size(v);
     update_position();
+    update_scaling();
 }
 
 auto kestrel::ui::scene_entity::set_current_frame(std::uint32_t v) -> void
@@ -373,11 +369,6 @@ auto kestrel::ui::scene_entity::set_animator(const renderer::animator::lua_refer
 auto kestrel::ui::scene_entity::set_continuous_mouse_down_action(bool continuous) -> void
 {
     m_continuous_mouse_down_action = continuous;
-}
-
-auto kestrel::ui::scene_entity::set_ignore_positioning_frame_scaler(bool f) -> void
-{
-    m_ignore_positioning_frame_scaler = f;
 }
 
 auto kestrel::ui::scene_entity::set_hidden(bool hidden) -> void
@@ -517,6 +508,12 @@ auto kestrel::ui::scene_entity::on_animation_finish(const luabridge::LuaRef& cal
 auto kestrel::ui::scene_entity::replace(const lua_reference &entity) -> void
 {
     m_entity = entity->internal_entity();
+}
+
+auto kestrel::ui::scene_entity::set_parent_bounds(const math::rect &bounds) -> void
+{
+    m_parent_bounds = bounds;
+    update_position();
 }
 
 // MARK: - Layout & Drawing

@@ -60,6 +60,16 @@ auto kestrel::ui::widgets::image_widget::dynamic_resizing() const -> bool
     return m_dynamic_resizing;
 }
 
+auto kestrel::ui::widgets::image_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::image_widget::scaling_mode() const -> layout::scaling_mode
+{
+    return m_entity->scaling_mode();
+}
+
 // MARK: - Setters
 
 auto kestrel::ui::widgets::image_widget::set_frame(const math::rect &frame) -> void
@@ -88,6 +98,16 @@ auto kestrel::ui::widgets::image_widget::set_click_action(const luabridge::LuaRe
 auto kestrel::ui::widgets::image_widget::set_down_action(const luabridge::LuaRef &action) -> void
 {
     m_down_action = action;
+}
+
+auto kestrel::ui::widgets::image_widget::set_anchor_point(const layout::axis_origin &point) -> void
+{
+    m_entity->set_anchor_point(point);
+}
+
+auto kestrel::ui::widgets::image_widget::set_scaling_mode(const layout::scaling_mode &mode) -> void
+{
+    m_entity->set_scaling_mode(mode);
 }
 
 // MARK: - Drawing

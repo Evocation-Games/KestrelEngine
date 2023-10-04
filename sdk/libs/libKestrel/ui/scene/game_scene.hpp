@@ -72,8 +72,12 @@ namespace kestrel::ui
         lua_getter(passthroughRender, Available_0_8) [[nodiscard]] auto passthrough_render() const -> bool;
         lua_getter(entities, Available_0_8) [[nodiscard]] auto entities() const -> lua::vector<luabridge::LuaRef>;
         lua_getter(disableUserInput, Available_0_8) [[nodiscard]] auto disable_user_input() const -> bool;
+        lua_getter(sceneBoundingFrame, Available_0_9) [[nodiscard]] auto scene_bounding_frame() const -> math::rect;
+        lua_getter(sceneScalingFactor, Available_0_9) [[nodiscard]] auto scene_scaling_factor() const -> double;
 
         lua_setter(passthroughRender, Available_0_8) auto set_passthrough_render(bool f) -> void;
+        lua_setter(sceneBoundingFrame, Available_0_9) auto set_scene_bounding_frame(const math::rect& frame) -> void;
+        lua_setter(sceneScalingFactor, Available_0_9) auto set_scene_scaling_factor(double factor) -> void;
 
         lua_function(render, Available_0_8) auto on_render(const luabridge::LuaRef& block) -> void;
         lua_function(update, Available_0_8) auto on_update(const luabridge::LuaRef& block) -> void;
@@ -113,6 +117,8 @@ namespace kestrel::ui
         std::shared_ptr<physics::world> m_world { std::make_shared<physics::world>() };
         resource::descriptor::lua_reference m_script_descriptor { nullptr };
         std::shared_ptr<scene> m_backing_scene;
+        math::rect m_bounding_frame { 0, 0, 0, 0 };
+        double m_scale_factor { 1.f };
         bool m_user_input { true };
         lua::vector<luabridge::LuaRef> m_entities;
         std::vector<luabridge::LuaRef> m_widgets;

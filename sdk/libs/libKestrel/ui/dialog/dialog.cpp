@@ -181,18 +181,22 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 button->set_label_color(element->text_color());
                 button->set_font(element->font());
                 button->set_ui_action(element->script_action().bind_to_scene(scene));
+                button->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
                 break;
             }
             case control_type::sprite: {
                 auto sprite = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
                 sprite->set_frame(element->frame());
+                sprite->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
                 break;
             }
             case control_type::image: {
                 auto image = widgets::image_widget::lua_reference(new widgets::image_widget({ L, element->value().descriptor(0) }));
                 image->set_frame(element->frame());
+                image->set_anchor_point(element->anchor_point());
+                image->set_scaling_mode(element->scaling_mode());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
                 break;
             }

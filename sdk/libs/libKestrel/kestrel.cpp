@@ -425,6 +425,11 @@ auto kestrel::effective_game_size() -> math::size
     return { width, height };
 }
 
+auto kestrel::game_size() -> math::size
+{
+    return renderer::window_size();
+}
+
 auto kestrel::set_fullscreen(bool f) -> void
 {
     renderer::set_fullscreen(f);

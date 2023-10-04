@@ -127,8 +127,8 @@ auto kestrel::ui::layout::entity_position(const math::size &container, enum axis
             break;
         }
         case axis_origin::center: {
-            origin.set_x(position.x() + ((container.width() - size.width()) / 2.f));
-            origin.set_y(position.y() + ((container.height() - size.height()) / 2.f));
+            origin.set_x(position.x() + (container.width() / 2.f) - (size.width() / 2.f));
+            origin.set_y(position.y() + (container.height() / 2.f) - (size.height() / 2.f));
             break;
         }
         case axis_origin::bottom_center: {

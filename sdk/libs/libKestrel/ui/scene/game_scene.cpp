@@ -60,6 +60,7 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
     lua::script scene_main_script(kestrel::lua_runtime(), m_script_descriptor);
     m_name = default_scene_name(scene_main_script.name());
     m_backing_scene = kestrel::create_backing_scene(scene_main_script, m_name);
+    m_bounding_frame = { math::point(0), kestrel::session().size() };
 
     // Setup some defaults...
     m_backing_scene->add_mouse_event_block([&, this] (const event& e) {
@@ -254,7 +255,7 @@ auto kestrel::ui::game_scene::center_point() const -> math::point
 
 auto kestrel::ui::game_scene::size() const -> math::size
 {
-    return kestrel::session().size();
+    return m_bounding_frame.size();
 }
 
 auto kestrel::ui::game_scene::disable_user_input() const -> bool
@@ -282,11 +283,31 @@ auto kestrel::ui::game_scene::entities() const -> lua::vector<luabridge::LuaRef>
     return m_entities;
 }
 
+auto kestrel::ui::game_scene::scene_bounding_frame() const -> math::rect
+{
+    return m_bounding_frame;
+}
+
+auto kestrel::ui::game_scene::scene_scaling_factor() const -> double
+{
+    return m_scale_factor;
+}
+
 // MARK: - Setters
 
 auto kestrel::ui::game_scene::set_passthrough_render(bool f) -> void
 {
     m_backing_scene->set_passthrough_render(f);
+}
+
+auto kestrel::ui::game_scene::set_scene_bounding_frame(const math::rect &frame) -> void
+{
+    m_bounding_frame = frame;
+}
+
+auto kestrel::ui::game_scene::set_scene_scaling_factor(double factor) -> void
+{
+    m_scale_factor = factor;
 }
 
 // MARK: - Callbacks
@@ -334,6 +355,10 @@ auto kestrel::ui::game_scene::add_entity(const luabridge::LuaRef& entity) -> std
         return -1;
     }
 
+    if (lua::type_check<scene_entity>(entity)) {
+        entity.cast<scene_entity::lua_reference>()->set_parent_bounds(scene_bounding_frame());
+    }
+
     auto index = m_entities.size();
     m_entities.emplace_back(entity);
     return static_cast<std::int32_t>(index);
@@ -358,6 +383,7 @@ auto kestrel::ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> voi
         auto text = widget.cast<widgets::text_widget::lua_reference>();
         text->attach_responder_chain(&m_responder_chain);
         text->become_first_responder();
+        text->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(text.get());
     }
     else if (lua::ref_isa<ui::widgets::button_widget>(widget)) {
@@ -366,30 +392,37 @@ auto kestrel::ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> voi
             return;
         }
 
+        button->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(button.get());
     }
     else if (lua::ref_isa<ui::widgets::list_widget>(widget)) {
         auto list = widget.cast<ui::widgets::list_widget::lua_reference>();
+        list->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(list.get());
     }
     else if (lua::ref_isa<ui::widgets::grid_widget>(widget)) {
         auto grid = widget.cast<ui::widgets::grid_widget::lua_reference>();
+        grid->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(grid.get());
     }
     else if (lua::ref_isa<ui::widgets::scrollview_widget>(widget)) {
         auto scroll = widget.cast<ui::widgets::scrollview_widget::lua_reference>();
+        scroll->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(scroll.get());
     }
     else if (lua::ref_isa<ui::widgets::image_widget>(widget)) {
         auto image = widget.cast<ui::widgets::image_widget::lua_reference>();
+        image->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(image.get());
     }
     else if (lua::ref_isa<ui::widgets::checkbox_widget>(widget)) {
         auto checkbox = widget.cast<ui::widgets::checkbox_widget::lua_reference>();
+        checkbox->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(checkbox.get());
     }
     else if (lua::ref_isa<ui::widgets::popup_button_widget>(widget)) {
         auto popup = widget.cast<ui::widgets::popup_button_widget::lua_reference>();
+        popup->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(popup.get());
     }
 
@@ -470,7 +503,7 @@ auto kestrel::ui::game_scene::draw_widgets() const -> void
             continue;
         }
 
-        entity->set_anchor_point(layout::axis_origin::top_left);
+//        entity->set_anchor_point(layout::axis_origin::top_left);
         entity->layout();
         entity->draw();
     }

@@ -71,6 +71,7 @@ namespace kestrel::ui::widgets
         lua_getter(disabled, Available_0_8) [[nodiscard]] auto disabled() const -> bool;
         lua_getter(continuous, Available_0_8) [[nodiscard]] auto continuous() const -> bool;
         lua_getter(hidden, Available_0_9) [[nodiscard]] auto hidden() const -> bool;
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
 
         lua_setter(normalStencil, Available_0_8) auto set_normal_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
         lua_setter(pressedStencil, Available_0_8) auto set_pressed_stencil(const stencils::button_stencil::lua_reference& stencil) -> void;
@@ -89,6 +90,7 @@ namespace kestrel::ui::widgets
         lua_setter(disabled, Available_0_8) auto set_disabled(bool disabled) -> void;
         lua_setter(continuous, Available_0_8) auto set_continuous_action(bool continuous) -> void;
         lua_setter(hidden, Available_0_9) auto set_hidden(bool hidden) -> void;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& anchor) -> void;
 
         auto set_ui_action(const ui::action& action) -> void;
 

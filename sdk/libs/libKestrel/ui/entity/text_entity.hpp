@@ -69,8 +69,6 @@ namespace kestrel::ui
         lua_getter(halfSize, Available_0_8) [[nodiscard]] auto half_size() const -> math::size;
 
         // MARK: - Layout
-        lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
-        lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
         lua_function(layout, Available_0_8) auto layout() -> void;
         lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;
 
@@ -99,7 +97,6 @@ namespace kestrel::ui
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
         std::shared_ptr<ecs::entity> m_entity;
         std::unique_ptr<graphics::canvas> m_canvas;
-        bool m_ignore_positioning_frame_scaler { false };
         enum horizontal_alignment m_alignment { horizontal_alignment::left };
 
         auto redraw() -> void;

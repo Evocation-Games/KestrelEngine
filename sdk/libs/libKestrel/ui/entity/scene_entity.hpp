@@ -91,8 +91,6 @@ namespace kestrel::ui
         auto update_scaling() -> void;
 
         // MARK: - Layout
-        lua_getter(ignorePositioningFrameScaler, Available_0_8) [[nodiscard]] auto ignore_positioning_frame_scaler() const -> bool;
-        lua_setter(ignorePositioningFrameScaler, Available_0_8) auto set_ignore_positioning_frame_scaler(bool f) -> void;
         lua_function(layout, Available_0_8) auto layout() -> void;
         lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;
 
@@ -172,6 +170,7 @@ namespace kestrel::ui
         // MARK: - Misc
         auto replace(const lua_reference& entity) -> void;
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
+        auto set_parent_bounds(const math::rect& bounds) -> void;
 
     private:
         struct entity_wrapper {
@@ -198,7 +197,6 @@ namespace kestrel::ui
         bool m_started { false };
         bool m_finished { false };
         bool m_continuous_mouse_down_action { false };
-        bool m_ignore_positioning_frame_scaler { false };
         event m_mouse_down_event;
         lua::vector<entity_wrapper> m_children;
         luabridge::LuaRef m_on_animation_finish { nullptr };

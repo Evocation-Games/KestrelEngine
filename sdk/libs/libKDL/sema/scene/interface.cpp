@@ -203,31 +203,31 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
                 parse_string_value(stream, ctx)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::frame).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::frame).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::frame, attribute_names::frame, ui::format::attribute_value(
                 parse_rect_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::x).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::x).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::x, attribute_names::x, ui::format::attribute_value(
                 parse_integer_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::y).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::y).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::y, attribute_names::y, ui::format::attribute_value(
                 parse_integer_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::size).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::size).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::size, attribute_names::size, ui::format::attribute_value(
                 parse_integer_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::axis_origin).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::anchor_point).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             scope->add_variable(axis_origin::top_left, static_cast<std::int64_t>(::ui::format::axis_origin::top_left));
             scope->add_variable(axis_origin::top_center, static_cast<std::int64_t>(::ui::format::axis_origin::top_center));
@@ -238,53 +238,64 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
             scope->add_variable(axis_origin::bottom_left, static_cast<std::int64_t>(::ui::format::axis_origin::bottom_left));
             scope->add_variable(axis_origin::bottom_center, static_cast<std::int64_t>(::ui::format::axis_origin::bottom_center));
             scope->add_variable(axis_origin::bottom_right, static_cast<std::int64_t>(::ui::format::axis_origin::bottom_right));
-            element.add_attribute(ui::format::attribute::code::axis_origin, attribute_names::axis_origin, ui::format::attribute_value(
+            element.add_attribute(ui::format::attribute::code::anchor_point, attribute_names::anchor_point, ui::format::attribute_value(
                 parse_integer_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::color).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::scaling_mode).be_true(), expectation(tokenizer::equals).be_true() })) {
+            stream.advance(2);
+            scope->add_variable(scaling_mode::normal, static_cast<std::int64_t>(::ui::format::axis_origin::top_left));
+            scope->add_variable(scaling_mode::aspect_fill, static_cast<std::int64_t>(::ui::format::axis_origin::top_center));
+            scope->add_variable(scaling_mode::aspect_fit, static_cast<std::int64_t>(::ui::format::axis_origin::top_right));
+            scope->add_variable(scaling_mode::scaling_fill, static_cast<std::int64_t>(::ui::format::axis_origin::middle_left));
+            scope->add_variable(scaling_mode::scaling_fit, static_cast<std::int64_t>(::ui::format::axis_origin::center));
+            element.add_attribute(ui::format::attribute::code::scaling_mode, attribute_names::scaling_mode, ui::format::attribute_value(
+                parse_integer_value(stream, ctx, scope)
+            ));
+        }
+        else if (stream.expect({ expectation(attribute_names::color).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::color, attribute_names::color, ui::format::attribute_value(
                 parse_color_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::background_color).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::background_color).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::background_color, attribute_names::background_color, ui::format::attribute_value(
                 parse_color_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::selection_color).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::selection_color).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::selection_color, attribute_names::selection_color, ui::format::attribute_value(
                 parse_color_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::border_color).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::border_color).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::border_color, attribute_names::border_color, ui::format::attribute_value(
                 parse_color_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::secondary_color).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::secondary_color).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::secondary_color, attribute_names::secondary_color, ui::format::attribute_value(
                 parse_color_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::font).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::font).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::font, attribute_names::font, ui::format::attribute_value(
                 parse_string_value(stream, ctx)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::font_size).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::font_size).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::font_size, attribute_names::font_size, ui::format::attribute_value(
                 parse_integer_value(stream, ctx)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::hidden).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::hidden).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             scope->add_variable(boolean_names::yes, true);
             scope->add_variable(boolean_names::True, true);
@@ -294,7 +305,7 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
                 parse_bool_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::disabled).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::disabled).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             scope->add_variable(boolean_names::yes, true);
             scope->add_variable(boolean_names::True, true);
@@ -304,13 +315,13 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
                 parse_bool_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::weight).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::weight).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::weight, attribute_names::weight, ui::format::attribute_value(
                 parse_integer_value(stream, ctx)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::horizontal_alignment).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::horizontal_alignment).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             scope->add_variable(horizontal_alignment_names::left, static_cast<std::int64_t>(-1));
             scope->add_variable(horizontal_alignment_names::center, static_cast<std::int64_t>(0));
@@ -319,7 +330,7 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
                 parse_integer_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::vertical_alignment).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::vertical_alignment).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             scope->add_variable(vertical_alignment_names::top, static_cast<std::int64_t>(-1));
             scope->add_variable(vertical_alignment_names::middle, static_cast<std::int64_t>(0));
@@ -328,17 +339,21 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
                 parse_integer_value(stream, ctx, scope)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::action).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::action).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::action, attribute_names::action, ui::format::attribute_value(
                 parse_action(stream, ctx)
             ));
         }
-        else if (stream.expect({ expectation(attribute_names::value).be_true() })) {
+        else if (stream.expect({ expectation(attribute_names::value).be_true(), expectation(tokenizer::equals).be_true() })) {
             stream.advance(2);
             element.add_attribute(ui::format::attribute::code::value, attribute_names::value, ui::format::attribute_value(
                 parse_value(stream, ctx)
             ));
+        }
+        else if (stream.expect({ expectation(attribute_names::fill_container).be_true() })) {
+            stream.advance();
+            element.add_attribute(ui::format::attribute::code::fill_container, attribute_names::fill_container, ui::format::attribute_value(0LL));
         }
         else {
             throw diagnostic(stream.peek(), diagnostic::reason::KDL029);

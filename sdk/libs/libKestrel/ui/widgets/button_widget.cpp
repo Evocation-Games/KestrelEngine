@@ -171,6 +171,11 @@ auto kestrel::ui::widgets::button_widget::hidden() const -> bool
     return m_entity->hidden();
 }
 
+auto kestrel::ui::widgets::button_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
 // MARK: - Setters
 
 auto kestrel::ui::widgets::button_widget::set_label(const std::string& label) -> void
@@ -282,6 +287,11 @@ auto kestrel::ui::widgets::button_widget::set_hidden(bool hidden) -> void
 {
     m_entity->set_hidden(hidden);
     m_dirty = true;
+}
+
+auto kestrel::ui::widgets::button_widget::set_anchor_point(const layout::axis_origin &anchor) -> void
+{
+    m_entity->set_anchor_point(anchor);
 }
 
 // MARK: - Internal Events

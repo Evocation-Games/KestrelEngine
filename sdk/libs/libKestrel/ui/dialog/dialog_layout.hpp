@@ -52,6 +52,8 @@ namespace kestrel::ui
             graphics::color::lua_reference selection_color  { graphics::color::grey_color_ref() };
             std::string font_name;
             std::int16_t font_size { 12 };
+            ui::scene_interface_item_scaling_mode scaling_mode { ui::scene_interface_item_scaling_mode::normal };
+            ui::scene_interface_item_anchor_point anchor_point { ui::scene_interface_item_anchor_point::top_left };
             ui::horizontal_alignment alignment { ui::horizontal_alignment::left };
         };
 

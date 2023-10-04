@@ -53,10 +53,14 @@ namespace kestrel::ui::widgets
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(image, Available_0_8) [[nodiscard]] auto image() const -> luabridge::LuaRef;
         lua_getter(dynamicResizing, Available_0_8) [[nodiscard]] auto dynamic_resizing() const -> bool;
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_getter(scalingMode, Available_0_9) [[nodiscard]] auto scaling_mode() const -> layout::scaling_mode;
 
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& frame) -> void;
         lua_setter(image, Available_0_8) auto set_image(const luabridge::LuaRef& image) -> void;
         lua_setter(dynamicResizing, Available_0_8) auto set_dynamic_resizing(bool v) -> void;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& point) -> void;
+        lua_setter(scalingMode, Available_0_9) auto set_scaling_mode(const layout::scaling_mode& mode) -> void;
 
         lua_function(onMouseDown, Available_0_8) auto set_down_action(const luabridge::LuaRef& action) -> void;
         lua_function(onClick, Available_0_8) auto set_click_action(const luabridge::LuaRef& action) -> void;

@@ -112,6 +112,16 @@ auto kestrel::ui::control_definition::anchor() const -> std::uint8_t
     return static_cast<std::uint8_t>(m_anchor);
 }
 
+auto kestrel::ui::control_definition::anchor_point() const -> layout::axis_origin
+{
+    return m_anchor_point;
+}
+
+auto kestrel::ui::control_definition::scaling_mode() const -> layout::scaling_mode
+{
+    return m_scaling_mode;
+}
+
 auto kestrel::ui::control_definition::type() const -> std::uint8_t
 {
     return static_cast<std::uint8_t>(m_type);
@@ -131,6 +141,16 @@ auto kestrel::ui::control_definition::set_anchor(std::uint8_t anchor) -> void
 {
     m_anchor = static_cast<enum anchor>(anchor);
     recalculate_frame();
+}
+
+auto kestrel::ui::control_definition::set_anchor_point(std::uint8_t anchor) -> void
+{
+    m_anchor_point = static_cast<layout::axis_origin>(anchor);
+}
+
+auto kestrel::ui::control_definition::set_scaling_mode(std::uint8_t mode) -> void
+{
+    m_scaling_mode = static_cast<layout::scaling_mode>(mode);
 }
 
 auto kestrel::ui::control_definition::set_frame(const math::rect &frame) -> void

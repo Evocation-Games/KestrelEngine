@@ -263,3 +263,13 @@ auto kestrel::math::rect::inset(float amount) const -> rect
     auto delta = simd::float32(-1, -1, 2, 2) * amount;
     return rect(m_value - delta);
 }
+
+auto kestrel::math::rect::centered(const struct size& bounds) const -> rect
+{
+    return {
+        (bounds.width() - width()) / 2.f,
+        (bounds.height() - height()) / 2.f,
+        width(),
+        height()
+    };
+}

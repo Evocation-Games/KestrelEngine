@@ -98,6 +98,8 @@ namespace kestrel::math
 
         lua_function(inset, Available_0_8) [[nodiscard]] auto inset(float amount) const -> rect;
 
+        lua_function(centered, Available_0_9) [[nodiscard]] auto centered(const struct size&) const -> rect;
+
         friend struct point;
         friend struct size;
 

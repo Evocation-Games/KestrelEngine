@@ -111,11 +111,6 @@ auto kestrel::ui::text_entity::clipping_offset() const -> math::point
     return m_entity->clipping_offset();
 }
 
-auto kestrel::ui::text_entity::ignore_positioning_frame_scaler() const -> bool
-{
-    return m_ignore_positioning_frame_scaler;
-}
-
 auto kestrel::ui::text_entity::lua_safe_alignment() const -> std::int32_t
 {
     return static_cast<std::int32_t>(m_alignment);
@@ -209,11 +204,6 @@ auto kestrel::ui::text_entity::set_clipping_area(const math::size &v) -> void
 auto kestrel::ui::text_entity::set_clipping_offset(const math::point &v) -> void
 {
     m_entity->set_clipping_offset(v);
-}
-
-auto kestrel::ui::text_entity::set_ignore_positioning_frame_scaler(bool f) -> void
-{
-    m_ignore_positioning_frame_scaler = f;
 }
 
 auto kestrel::ui::text_entity::set_lua_safe_alignment(std::int32_t v) -> void
