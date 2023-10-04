@@ -18,24 +18,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-@project "Kestrel Graphics Test Suite";
 @author "Tom Hancocks";
 @version "1.0";
 
-@import Kestrel;
-
-@import "@spath/Scenes/BasicDrawingTests/BasicDrawingTests.kdl";
-@import "@spath/Scenes/MouseInteractionTests/MouseInteractionTests.kdl";
-@import "@spath/Scenes/Launcher/Launcher.kdl";
-
-component<LuaScript, #0> main {
-    files ("Scripts") {
-        "main.lua" (_mainFunction);
-    };
+component<MouseInteractionTests.LuaScript, #1000> MouseInteractionTests {
+	files ("Scenes/MouseInteractionTests") {
+		"MouseInteractionTests.lua" -> "Mouse Interaction Tests" (scene);
+	};
 };
 
-declare StaticImage {
-	new (#128, "4K Debug Test Image") {
-		PNG = import "@spath/Assets/image.png";
+declare MouseInteractionTests.SceneDefinition {
+	new (SceneDefinitionID, "Mouse Interaction Tests Definition") {
+		Script = #MouseInteractionTests.LuaScript.1000;
+		Interface = #MouseInteractionTests.SceneInterface.1000;
+		DLOG = #-1;
 	};
+};
+
+scene<#1000> MouseInteractionTests {
+	Title = "Mouse Interaction Tests";
 };

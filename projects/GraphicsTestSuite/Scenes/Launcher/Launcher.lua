@@ -18,14 +18,20 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-math.randomseed(os.time())
-math.random(); math.random(); math.random()
+LauncherDialog = Scene.current
+local dialog = LauncherDialog.dialog
 
-print("Loading Graphics Test Suite...")
+LauncherDialog:onClose(function()
+    dialog = nil
+    LauncherDialog = nil
+end)
 
-FontManager.defaultFont = FontManager.addFont(Font.namedFont("Geneva", 15))
+LauncherDialog:bind({
+    pushBasicDrawingTests = function()
+        Kestrel.Scene("BasicDrawingTests"):push()
+    end,
 
-Kestrel.setGameWindowTitle("Kestrel")
-Kestrel.setGameWindowSize(Size(1440, 900))
-
-Kestrel.Scene("MouseInteractionTests"):push()
+    pushMouseInteractionTests = function()
+        Kestrel.Scene("MouseInteractionTests"):push()
+    end
+})

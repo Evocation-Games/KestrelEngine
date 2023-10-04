@@ -62,20 +62,15 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
     m_backing_scene = kestrel::create_backing_scene(scene_main_script, m_name);
 
     // Setup some defaults...
-    m_positioning_frame = {
-        new layout::positioning_frame(renderer::window_size(), layout::axis_origin::center, layout::scaling_mode::normal)
-    };
-
     m_backing_scene->add_mouse_event_block([&, this] (const event& e) {
         if (!m_user_input || !e.is_mouse_event()) {
             return;
         }
 
         auto point = e.location();
-        auto local_point = m_positioning_frame->translate_point_from(point);
 
         if (m_menu_widget.get()) {
-            if (m_menu_widget->receive_event(e.relocated(local_point))) {
+            if (m_menu_widget->receive_event(e.relocated(point))) {
                 m_menu_widget->will_close();
                 m_menu_widget = { nullptr };
                 return;
@@ -89,11 +84,11 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
         for (const auto& entity_ref : m_entities) {
             if (lua::ref_isa<scene_entity>(entity_ref)) {
                 auto entity = entity_ref.cast<scene_entity::lua_reference>();
-                entity->send_event(event::mouse(e.type(), local_point - entity->position()));
+                entity->send_event(event::mouse(e.type(), point));
             }
         }
 
-        m_responder_chain.send_event(e.relocated(local_point));
+        m_responder_chain.send_event(e.relocated(point));
 
         if (m_mouse_event_block.state() && m_mouse_event_block.isFunction()) {
             m_mouse_event_block(event::lua_reference( new event(e) ));
@@ -119,19 +114,16 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
         for (auto i = 0; i < entities.size(); ++i) {
             if (lua::ref_isa<scene_entity>(entities[i])) {
                 const auto& entity = entities[i].cast<scene_entity::lua_reference>();
-//                m_positioning_frame->position_scene_entity(entity);
                 entity->layout();
                 entity->draw();
             }
             else if (lua::ref_isa<text_entity>(entities[i])) {
                 const auto& entity = entities[i].cast<text_entity::lua_reference>();
-//                m_positioning_frame->position_text_entity(entity);
                 entity->layout();
                 entity->draw();
             }
             else if (lua::ref_isa<line_entity>(entities[i])) {
                 const auto& entity = entities[i].cast<line_entity::lua_reference>();
-                m_positioning_frame->position_line_entity(entity);
                 entity->layout();
                 entity->draw();
             }
@@ -191,7 +183,6 @@ auto kestrel::ui::game_scene::will_close() -> void
     m_bindings = kestrel::lua_runtime()->null();
     m_on_close = kestrel::lua_runtime()->null();
     m_dialog = nullptr;
-    m_positioning_frame = nullptr;
     m_backing_scene = nullptr;
 }
 
@@ -291,21 +282,11 @@ auto kestrel::ui::game_scene::entities() const -> lua::vector<luabridge::LuaRef>
     return m_entities;
 }
 
-auto kestrel::ui::game_scene::positioning_frame() const -> layout::positioning_frame::lua_reference
-{
-    return m_positioning_frame;
-}
-
 // MARK: - Setters
 
 auto kestrel::ui::game_scene::set_passthrough_render(bool f) -> void
 {
     m_backing_scene->set_passthrough_render(f);
-}
-
-auto kestrel::ui::game_scene::set_positioning_frame(const layout::positioning_frame::lua_reference &positioning) -> void
-{
-    m_positioning_frame = positioning;
 }
 
 // MARK: - Callbacks
@@ -490,14 +471,12 @@ auto kestrel::ui::game_scene::draw_widgets() const -> void
         }
 
         entity->set_anchor_point(layout::axis_origin::top_left);
-        m_positioning_frame->position_scene_entity(entity);
         entity->layout();
         entity->draw();
     }
 
     if (m_menu_widget.get()) {
         m_menu_widget->entity()->set_anchor_point(layout::axis_origin::top_left);
-        m_positioning_frame->position_scene_entity(m_menu_widget->entity());
         m_menu_widget->entity()->layout();
         m_menu_widget->entity()->draw();
     }

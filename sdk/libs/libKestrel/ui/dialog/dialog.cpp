@@ -440,10 +440,6 @@ auto kestrel::ui::dialog::set_background(const luabridge::LuaRef &background) ->
     if (lua::ref_isa<image::static_image>(background)) {
         m_background.fill = background.cast<image::static_image::lua_reference>();
         auto size = m_scene_ui.frame_size;
-        m_owner_scene->set_positioning_frame({
-            new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
-        });
-        m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
 
         m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
         m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
@@ -454,11 +450,6 @@ auto kestrel::ui::dialog::set_background(const luabridge::LuaRef &background) ->
 
 auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void
 {
-    m_owner_scene->set_positioning_frame({
-        new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
-    });
-    m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
-
     if (lua::ref_isa<image::static_image>(top)) {
         m_background.top = top.cast<image::static_image::lua_reference>();
         m_background.top_entity = { new ui::scene_entity(m_background.top) };
@@ -501,11 +492,6 @@ auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, con
 
 auto kestrel::ui::dialog::resize_stretchable_background(const math::size& size) -> void
 {
-    m_owner_scene->set_positioning_frame({
-        new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
-    });
-    m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
-
     m_background.top_entity->set_position({ 0, 0 });
     m_background.top_entity->set_anchor_point(layout::axis_origin::top_left);
 

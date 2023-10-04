@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include <libKestrel/ui/entity/scene_entity.hpp>
+#include <libKestrel/ui/entity/text_entity.hpp>
+#include <libKestrel/ui/entity/line_entity.hpp>
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/graphics/canvas/canvas.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
@@ -655,6 +657,12 @@ auto kestrel::ui::scene_entity::on_mouse_drag_internal(const std::function<auto(
 
 auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 {
+    for (auto& child : m_children) {
+        if (*child.scene) {
+            child.scene->send_event(e);
+        }
+    }
+
     if (e.is_mouse_event()) {
         auto point = e.location();
 
@@ -714,8 +722,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 
 auto kestrel::ui::scene_entity::hit_test(const math::point& p) const -> bool
 {
-    math::rect frame { math::point(0), m_entity->get_size() };
-    return frame.contains_point(p) && !m_hidden;
+    return m_entity->get_bounds().contains_point(p) && !m_hidden;
 }
 
 // MARK: - Entity

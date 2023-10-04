@@ -18,8 +18,7 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-GraphicsTestScene = Scene.current
-
+MouseInteractionTests = Scene.current
 
 createColorEntity = function(frame, color)
     local canvas = Canvas(frame.size)
@@ -33,42 +32,44 @@ createColorEntity = function(frame, color)
     return entity
 end
 
-createTextEntity = function(origin, text)
-    local textEntity = TextEntity(text)
-    textEntity.textColor = Color(255, 255, 255, 255)
-    textEntity.position = origin
-    textEntity.anchorPoint = AxisOrigin.TopLeft
-    return textEntity
+createInteractableEntity = function(frame, color)
+    local canvas = Canvas(frame.size)
+    local entity = SceneEntity(canvas)
+    entity.position = frame.origin
+
+    canvas.penColor = color
+    canvas:fillRect(Rect(0, 0, frame.size.width, frame.size.height))
+    canvas:rebuildEntityTexture()
+
+    entity:onMouseEnter(function()
+        canvas.penColor = Color(200, 0, 0, 255)
+        canvas:fillRect(Rect(0, 0, frame.size.width, frame.size.height))
+        canvas:rebuildEntityTexture()
+    end)
+    
+    entity:onMouseExit(function()
+        canvas.penColor = Color(0, 200, 0, 255)
+        canvas:fillRect(Rect(0, 0, frame.size.width, frame.size.height))
+        canvas:rebuildEntityTexture()
+    end)
+
+    return entity
 end
 
-loadImageEntity = function(id, rect)
-    local image = StaticImage(Container.global():identifiedResource(id))
-    local imageEntity = SceneEntity(image)
-    imageEntity.position = rect.origin
-    imageEntity.anchorPoint = AxisOrigin.Center
-    imageEntity.size = rect.size
-    imageEntity.scalingMode = ScalingMode.AspectFill
-    return imageEntity
-end
+-- Add some buttons with different anchor points to test coordinate transformations
+button = createInteractableEntity(Rect(100, 100, 200, 200), Color(0, 200, 0, 255))
+button.anchorPoint = AxisOrigin.TopLeft
+MouseInteractionTests:addEntity(button)
 
--- Add a background image
-GraphicsTestScene:addEntity(loadImageEntity(128, Rect(0, 0, 1440, 900)))
+button2 = createInteractableEntity(Rect(100, 100, 200, 200), Color(0, 200, 0, 255))
+button2.anchorPoint = AxisOrigin.BottomLeft
+MouseInteractionTests:addEntity(button2)
 
--- Add a "window" entity that can be used to test child entities
+-- Add a "window" in order to test child elements
 window = createColorEntity(Rect(300, 50, 250, 800), Color(255, 255, 70, 255))
 window.anchorPoint = AxisOrigin.TopRight
-GraphicsTestScene:addEntity(window)
+MouseInteractionTests:addEntity(window)
 
-child = createColorEntity(Rect(5, 5, 240, 240), Color(0, 0, 0, 255))
-child.anchorPoint = AxisOrigin.TopLeft
-window:addChildEntity(child)
-
--- Add a message entity to test text rendering
-message = createTextEntity(Point(20, 20), "The quick brown fox jumped over the lazy dogs back.")
-message.anchorPoint = AxisOrigin.BottomLeft
-GraphicsTestScene:addEntity(message)
-
--- Add an entity to the center
-centerEntity = createColorEntity(Rect(0, 0, 100, 100), Color(200, 0, 0, 255))
-centerEntity.anchorPoint = AxisOrigin.Center
-GraphicsTestScene:addEntity(centerEntity)
+button3 = createInteractableEntity(Rect(10, 10, 100, 50), Color(0, 200, 0, 255))
+button3.anchorPoint = AxisOrigin.TopLeft
+window:addChildEntity(button3)

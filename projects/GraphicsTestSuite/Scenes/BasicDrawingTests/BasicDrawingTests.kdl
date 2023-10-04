@@ -21,20 +21,20 @@
 @author "Tom Hancocks";
 @version "1.0";
 
-component<GraphicsTest.LuaScript, #1000> GraphicsTest {
-	files ("Scenes/GraphicsTest") {
-		"GraphicsTest.lua" -> "Graphics Test" (scene);
+component<BasicDrawingTests.LuaScript, #1000> BasicDrawingTests {
+	files ("Scenes/BasicDrawingTests") {
+		"BasicDrawingTests.lua" -> "Basic Drawing Tests" (scene);
 	};
 };
 
-declare GraphicsTest.SceneDefinition {
-	new (SceneDefinitionID, "Graphics Test Definition") {
-		Script = #GraphicsTest.LuaScript.1000;
-		Interface = #GraphicsTest.SceneInterface.1000;
+declare BasicDrawingTests.SceneDefinition {
+	new (SceneDefinitionID, "Basic Drawing Test Definition") {
+		Script = #BasicDrawingTests.LuaScript.1000;
+		Interface = #BasicDrawingTests.SceneInterface.1000;
 		DLOG = #-1;
 	};
 };
 
-scene<#1000> GraphicsTest {
-	Title = "Graphics Test";
+scene<#1000> BasicDrawingTests {
+	Title = "Basic Drawing Tests";
 };

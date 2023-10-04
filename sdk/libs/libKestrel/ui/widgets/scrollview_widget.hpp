@@ -25,7 +25,6 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
-#include <libKestrel/ui/layout/positioning_frame.hpp>
 #include <libKestrel/event/responder/responder_chain.hpp>
 
 namespace kestrel::ui::widgets

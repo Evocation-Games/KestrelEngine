@@ -158,7 +158,8 @@ auto kestrel::math::rect::area() const -> float
 
 auto kestrel::math::rect::contains_point(const point& p) const -> bool
 {
-    auto r = (m_value + m_value.lower().swapped()) - p.m_value;
+    auto o = origin() - p;
+    auto r = math::rect(o.x(), o.y(), width() + o.x(), height() + o.y()).m_value;
     return (r[0] < 0) && (r[1] < 0) && (r[2] >= 0) && (r[3] >= 0);
 }
 
