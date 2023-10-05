@@ -28,4 +28,4 @@ FontManager.defaultFont = FontManager.addFont(Font.namedFont("Geneva", 15))
 Kestrel.setGameWindowTitle("Kestrel")
 Kestrel.setGameWindowSize(Size(1440, 900))
 
-Kestrel.Scene("MouseInteractionTests"):push()
+Kestrel.Scene("BasicDrawingTests"):push()

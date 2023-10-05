@@ -290,7 +290,7 @@ auto kestrel::ui::game_scene::scene_bounding_frame() const -> math::rect
 
 auto kestrel::ui::game_scene::scene_scaling_factor() const -> double
 {
-    return m_scale_factor;
+    return m_backing_scene->scaling_factor();
 }
 
 // MARK: - Setters
@@ -303,11 +303,18 @@ auto kestrel::ui::game_scene::set_passthrough_render(bool f) -> void
 auto kestrel::ui::game_scene::set_scene_bounding_frame(const math::rect &frame) -> void
 {
     m_bounding_frame = frame;
+
+    for (auto& child : m_entities) {
+        if (lua::ref_isa<scene_entity>(child)) {
+            auto entity = child.cast<scene_entity::lua_reference>();
+            entity->set_parent_bounds(m_bounding_frame);
+        }
+    }
 }
 
 auto kestrel::ui::game_scene::set_scene_scaling_factor(double factor) -> void
 {
-    m_scale_factor = factor;
+    m_backing_scene->set_scaling_factor(factor);
 }
 
 // MARK: - Callbacks
@@ -385,6 +392,14 @@ auto kestrel::ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> voi
         text->become_first_responder();
         text->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(text.get());
+    }
+    else if (lua::ref_isa<widgets::textarea_widget>(widget)) {
+        auto text = widget.cast<widgets::textarea_widget::lua_reference>();
+        text->entity()->set_parent_bounds(scene_bounding_frame());
+    }
+    else if (lua::ref_isa<widgets::label_widget>(widget)) {
+        auto label = widget.cast<widgets::label_widget::lua_reference>();
+        label->entity()->set_parent_bounds(scene_bounding_frame());
     }
     else if (lua::ref_isa<ui::widgets::button_widget>(widget)) {
         auto button = widget.cast<ui::widgets::button_widget::lua_reference>();

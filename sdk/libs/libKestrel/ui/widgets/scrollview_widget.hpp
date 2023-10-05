@@ -51,6 +51,9 @@ namespace kestrel::ui::widgets
 
         lua_function(setContent, Available_0_8) auto set_content_entity(const scene_entity::lua_reference& entity) -> void;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
         auto bind_internal_events() -> void;
         auto receive_event(const event& e) -> bool override;
 

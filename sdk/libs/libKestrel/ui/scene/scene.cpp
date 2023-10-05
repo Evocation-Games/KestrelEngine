@@ -41,6 +41,16 @@ auto kestrel::ui::scene::set_passthrough_render(bool f) -> void
     m_passthrough_render = f;
 }
 
+auto kestrel::ui::scene::scaling_factor() const -> double
+{
+    return m_scaling_factor;
+}
+
+auto kestrel::ui::scene::set_scaling_factor(double f) -> void
+{
+    m_scaling_factor = f;
+}
+
 // MARK: - Blocks
 
 auto kestrel::ui::scene::add_update_block(const std::function<auto()->void>& block) -> void
@@ -167,6 +177,9 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
     }
 
     math::rect frame { entity->get_position(), entity->get_size() };
+    if (!entity->ignores_scene_scaling_factor()) {
+        frame.set_size(frame.size() * static_cast<float>(scaling_factor()));
+    }
 
     auto sprite = entity->sprite_sheet()->at(static_cast<int>(entity->get_sprite_index()));
     auto uv_x = static_cast<float>(sprite.point().x());

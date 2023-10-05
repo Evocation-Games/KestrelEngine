@@ -69,6 +69,9 @@ namespace kestrel::ui::widgets
         lua_setter(frame, Available_0_9) auto set_frame(const math::rect& v) -> void;
         lua_setter(items, Available_0_9) auto set_items(const luabridge::LuaRef& items) -> void;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
         auto synthesize_items(const std::string& item_string) -> void;
 
         auto receive_event(const event& e) -> bool override;

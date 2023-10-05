@@ -118,7 +118,6 @@ namespace kestrel::ui
         resource::descriptor::lua_reference m_script_descriptor { nullptr };
         std::shared_ptr<scene> m_backing_scene;
         math::rect m_bounding_frame { 0, 0, 0, 0 };
-        double m_scale_factor { 1.f };
         bool m_user_input { true };
         lua::vector<luabridge::LuaRef> m_entities;
         std::vector<luabridge::LuaRef> m_widgets;

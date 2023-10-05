@@ -47,7 +47,7 @@ namespace kestrel::ui
     };
 
     /**
-     * Rperesents how content should be aligned horizontally.
+     * Represents how content should be aligned horizontally.
      */
     enum class lua_api(UI.HorizontalAlignment, Available_0_8) horizontal_alignment : std::int64_t
     {

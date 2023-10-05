@@ -155,6 +155,17 @@ auto kestrel::ui::widgets::text_widget::set_frame(const math::rect& v) -> void
     set_size(v.size());
 }
 
+auto kestrel::ui::widgets::text_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::text_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
+}
+
+
 // MARK: - Drawing
 
 auto kestrel::ui::widgets::text_widget::redraw_entity() -> void

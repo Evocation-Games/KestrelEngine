@@ -87,6 +87,16 @@ auto kestrel::ui::widgets::custom_widget::add_child_entity(const scene_entity::l
     m_entity->add_child_entity({ kestrel::lua_runtime()->internal_state(), entity });
 }
 
+auto kestrel::ui::widgets::custom_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::custom_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
+}
+
 // MARK: - Drawing
 
 auto kestrel::ui::widgets::custom_widget::resize() -> void

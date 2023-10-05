@@ -62,6 +62,9 @@ namespace kestrel::ui::widgets
         lua_setter(backgroundColor, Available_0_8) auto set_background_color(const graphics::color::lua_reference& v) -> void;
         lua_setter(borderColor, Available_0_8) auto set_border_color(const graphics::color::lua_reference& v) -> void;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
         auto receive_event(const event& e) -> bool override;
         auto mouse_down() -> void;
         auto mouse_up() -> void;

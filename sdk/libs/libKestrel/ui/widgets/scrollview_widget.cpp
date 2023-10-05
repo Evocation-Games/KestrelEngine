@@ -83,6 +83,17 @@ auto kestrel::ui::widgets::scrollview_widget::set_scroll_offset(const math::poin
     m_dirty = true;
 }
 
+auto kestrel::ui::widgets::scrollview_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::scrollview_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
+}
+
+
 auto kestrel::ui::widgets::scrollview_widget::bind_internal_events() -> void
 {
 

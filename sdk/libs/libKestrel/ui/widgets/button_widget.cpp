@@ -384,7 +384,7 @@ auto kestrel::ui::widgets::button_widget::redraw_entity() -> void
 
 auto kestrel::ui::widgets::button_widget::receive_event(const event &e) -> bool
 {
-    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::mouse_move) && !m_inside) {
             m_inside = true;
             mouse_enter();

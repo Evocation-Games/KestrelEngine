@@ -207,6 +207,15 @@ auto kestrel::ecs::entity::scaled_texture_area() const -> math::rect
     return m_scaled_texture_uv;
 }
 
+auto kestrel::ecs::entity::ignores_scene_scaling_factor() const -> bool
+{
+    return m_ignores_scene_scaling_factor;
+}
+
+auto kestrel::ecs::entity::set_ignores_scene_scaling_factor(bool f) -> void
+{
+    m_ignores_scene_scaling_factor = f;
+}
 
 auto kestrel::ecs::entity::blend() const -> enum renderer::blending
 {

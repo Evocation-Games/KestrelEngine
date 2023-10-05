@@ -43,6 +43,9 @@ namespace kestrel::ui
         [[nodiscard]] auto is_passthrough_render() const -> bool;
         auto set_passthrough_render(bool f) -> void;
 
+        [[nodiscard]] auto scaling_factor() const -> double;
+        auto set_scaling_factor(double f) -> void;
+
         auto add_update_block(const std::function<auto()->void>& block) -> void;
         auto invoke_update_blocks() -> void;
 
@@ -77,6 +80,7 @@ namespace kestrel::ui
         std::weak_ptr<responder_chain::key_responder> m_key_responder;
         rtc::clock::time m_starting_time { rtc::clock::global().current() };
         bool m_passthrough_render { false };
+        double m_scaling_factor { 1.f };
     };
 
 }

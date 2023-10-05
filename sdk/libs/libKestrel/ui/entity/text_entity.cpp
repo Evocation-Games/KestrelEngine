@@ -21,6 +21,7 @@
 #include <libKestrel/ui/entity/text_entity.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
 #include <libKestrel/ui/alignment.hpp>
+#include "libKestrel/kestrel.hpp"
 
 // MARK: - Construction
 
@@ -171,7 +172,8 @@ auto kestrel::ui::text_entity::set_position(const math::point &v) -> void
 
 auto kestrel::ui::text_entity::update_position() -> void
 {
-    auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position(), this->size());
+    auto scale_factor = kestrel::session().current_scene()->scene_scaling_factor();
+    auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
     m_entity->set_position(position + m_parent_bounds.origin());
 }
 

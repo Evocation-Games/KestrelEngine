@@ -225,6 +225,16 @@ auto kestrel::ui::widgets::grid_widget::receive_event(const event &e) -> bool
     return false;
 }
 
+auto kestrel::ui::widgets::grid_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity.entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::grid_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity.entity->set_anchor_point(origin);
+}
+
 // MARK: - Drawing
 
 auto kestrel::ui::widgets::grid_widget::draw() -> void

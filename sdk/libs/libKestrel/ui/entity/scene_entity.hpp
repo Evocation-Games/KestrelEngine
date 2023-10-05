@@ -90,6 +90,9 @@ namespace kestrel::ui
         lua_setter(scalingMode, Available_0_8) auto set_lua_scaling_mode(std::int32_t v) -> void;
         auto update_scaling() -> void;
 
+        lua_getter(ignoresSceneScalingFactor, Available_0_9) [[nodiscard]] auto ignores_scene_scaling_factor() const -> bool;
+        lua_setter(ignoresSceneScalingFactor, Available_0_9) auto set_ignores_scene_scaling_factor(bool f) -> void;
+
         // MARK: - Layout
         lua_function(layout, Available_0_8) auto layout() -> void;
         lua_function(onLayout, Available_0_8) auto on_layout(const luabridge::LuaRef& callback) -> void;

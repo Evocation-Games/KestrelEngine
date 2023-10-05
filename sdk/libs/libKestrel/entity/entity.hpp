@@ -191,6 +191,9 @@ namespace kestrel::ecs
         auto set_scaled_texture_area(const math::rect&) -> void;
         [[nodiscard]] auto scaled_texture_area() const -> math::rect;
 
+        [[nodiscard]] auto ignores_scene_scaling_factor() const -> bool;
+        auto set_ignores_scene_scaling_factor(bool f) -> void;
+
         [[nodiscard]] auto get_blend_lua() const -> int;
         auto set_blend_lua(int blend) -> void;
         [[nodiscard]] auto blend() const -> enum renderer::blending;
@@ -230,6 +233,7 @@ namespace kestrel::ecs
         double m_alpha { 1.0 };
         bool m_has_texture_clip { false };
         bool m_has_scaled_texture { false };
+        bool m_ignores_scene_scaling_factor { false };
         math::rect m_scaled_texture { math::point(0), math::size(0) };
         math::rect m_scaled_texture_uv { math::point(0), math::size(0) };
         math::size m_clipping_area { 0 };

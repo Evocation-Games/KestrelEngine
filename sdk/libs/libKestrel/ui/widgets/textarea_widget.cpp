@@ -37,6 +37,7 @@ kestrel::ui::widgets::textarea_widget::textarea_widget(const std::string &text)
 
     m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
     m_entity = { new scene_entity(m_canvas->spawn_entity({ 0, 0 })) };
+    m_entity->set_anchor_point(layout::axis_origin::top_left);
 }
 
 kestrel::ui::widgets::textarea_widget::textarea_widget(const math::rect &frame, const std::string &text)
@@ -53,6 +54,7 @@ kestrel::ui::widgets::textarea_widget::textarea_widget(const math::rect &frame, 
     m_canvas = std::make_unique<graphics::canvas>(math::size(frame.size().width(), std::max(frame.size().height(), ts.get_bounding_size().height())));
     m_entity = { new scene_entity(m_canvas->spawn_entity(frame.origin())) };
     m_entity->set_clipping_area(m_clipping_size);
+    m_entity->set_anchor_point(layout::axis_origin::top_left);
 }
 
 // MARK: - Accessors
@@ -189,6 +191,16 @@ auto kestrel::ui::widgets::textarea_widget::can_scroll_up() const -> bool
 auto kestrel::ui::widgets::textarea_widget::can_scroll_down() const -> bool
 {
     return m_can_scroll_down;
+}
+
+auto kestrel::ui::widgets::textarea_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::textarea_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
 }
 
 // MARK: - Drawing

@@ -70,6 +70,9 @@ namespace kestrel::ui::widgets
         lua_getter(canScrollUp, Available_0_8) [[nodiscard]] auto can_scroll_up() const -> bool;
         lua_getter(canScrollDown, Available_0_8) [[nodiscard]] auto can_scroll_down() const -> bool;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
     private:
         bool m_dirty { true };
         std::string m_text;

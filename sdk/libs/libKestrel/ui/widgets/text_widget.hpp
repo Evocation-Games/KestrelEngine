@@ -68,6 +68,9 @@ namespace kestrel::ui::widgets
         lua_setter(size, Available_0_8) auto set_size(const math::size& v) -> void;
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& v) -> void;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
         auto did_become_first_responder() -> void override;
         auto did_resign_first_responder() -> void override;
         auto receive_event(const event& e) -> bool override;

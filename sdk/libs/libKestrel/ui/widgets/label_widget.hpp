@@ -66,6 +66,9 @@ namespace kestrel::ui::widgets
         auto set_vertical_alignment(enum vertical_alignment v) -> void;
         auto set_horizontal_alignment(enum horizontal_alignment v) -> void;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
     private:
         bool m_dirty { true };
         std::int16_t m_min_height { 0 };

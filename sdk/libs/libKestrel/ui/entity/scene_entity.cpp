@@ -272,7 +272,11 @@ auto kestrel::ui::scene_entity::set_position(const math::point& v) -> void
 
 auto kestrel::ui::scene_entity::update_position() -> void
 {
-    auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position(), this->size());
+    auto scale_factor = 1.f;
+    if (!ignores_scene_scaling_factor()) {
+        scale_factor = kestrel::session().current_scene()->scene_scaling_factor();
+    }
+    auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
     m_entity->set_position(position + m_parent_bounds.origin());
     update_children();
 }
@@ -314,6 +318,16 @@ auto kestrel::ui::scene_entity::update_scaling() -> void
 
         m_entity->set_scaled_texture_area(math::rect(offset.width(), offset.height(), size.width(), size.height()));
     }
+}
+
+auto kestrel::ui::scene_entity::set_ignores_scene_scaling_factor(bool f) -> void
+{
+    m_entity->set_ignores_scene_scaling_factor(f);
+}
+
+auto kestrel::ui::scene_entity::ignores_scene_scaling_factor() const -> bool
+{
+    return m_entity->ignores_scene_scaling_factor();
 }
 
 auto kestrel::ui::scene_entity::set_size(const math::size& v) -> void
