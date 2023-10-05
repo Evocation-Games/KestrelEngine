@@ -92,7 +92,7 @@ namespace kestrel::ui
         lua_function(addWidget, Available_0_8) auto add_widget(const luabridge::LuaRef& widget) -> void;
 
         lua_setter(menuWidget, Available_0_9) auto set_menu_widget(const widgets::menu_widget::lua_reference& menu) -> void;
-        lua_getter(menuWidget, Available_0_9) auto menu_widget() const -> widgets::menu_widget::lua_reference;
+        lua_getter(menuWidget, Available_0_9) [[nodiscard]] auto menu_widget() const -> widgets::menu_widget::lua_reference;
 
         lua_function(key, Available_0_8) [[nodiscard]] auto key(std::int32_t k) const -> event::lua_reference;
         lua_function(keyDown, Available_0_8) [[nodiscard]] auto is_key_down(std::int32_t k) const -> bool;

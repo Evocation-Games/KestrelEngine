@@ -30,7 +30,7 @@
 #include <libKestrel/graphics/renderer/common/shader/source.hpp>
 #include <libKestrel/math/vec4.hpp>
 
-namespace kestrel
+namespace kestrel::ui
 {
     class scene;
 }
@@ -67,13 +67,13 @@ namespace kestrel::ecs
          * submit its draw command to.
          * @param scene The scene that the entity should be drawn into.
          */
-        auto move_to_scene(const std::shared_ptr<class scene>& scene) -> void;
+        auto move_to_scene(std::shared_ptr<kestrel::ui::scene>& scene) -> void;
 
         /**
          * The scene that the entity currently renders into.
          * @return  A scene reference.
          */
-        auto scene() const -> std::weak_ptr<class scene>;
+        [[nodiscard]] auto scene() const -> std::shared_ptr<kestrel::ui::scene>;
 
         /**
          * The name of the scene that can be used for debugging.
@@ -221,7 +221,7 @@ namespace kestrel::ecs
         auto body() -> physics::body::lua_reference;
 
     private:
-        std::weak_ptr<class scene> m_scene;
+        std::weak_ptr<kestrel::ui::scene> m_scene;
 
         util::uid m_id;
         std::string m_name;

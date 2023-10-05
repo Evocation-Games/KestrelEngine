@@ -273,8 +273,10 @@ auto kestrel::ui::scene_entity::set_position(const math::point& v) -> void
 auto kestrel::ui::scene_entity::update_position() -> void
 {
     auto scale_factor = 1.f;
-    if (!ignores_scene_scaling_factor()) {
-        scale_factor = kestrel::session().current_scene()->scene_scaling_factor();
+    if (auto scene = internal_entity()->scene()) {
+        if (!ignores_scene_scaling_factor()) {
+            scale_factor = scene->scaling_factor();
+        }
     }
     auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
     m_entity->set_position(position + m_parent_bounds.origin());

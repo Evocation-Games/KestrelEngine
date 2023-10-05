@@ -43,14 +43,14 @@ kestrel::ecs::entity::~entity()
 
 // MARK: - Accessors
 
-auto kestrel::ecs::entity::move_to_scene(const std::shared_ptr<class scene>& scene) -> void
+auto kestrel::ecs::entity::move_to_scene(std::shared_ptr<kestrel::ui::scene>& scene) -> void
 {
     m_scene = scene;
 }
 
-auto kestrel::ecs::entity::scene() const -> std::weak_ptr<class scene>
+auto kestrel::ecs::entity::scene() const -> std::shared_ptr<kestrel::ui::scene>
 {
-    return m_scene;
+    return m_scene.lock();
 }
 
 auto kestrel::ecs::entity::name() const -> std::string

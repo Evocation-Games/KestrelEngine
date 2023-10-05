@@ -178,7 +178,9 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
 
     math::rect frame { entity->get_position(), entity->get_size() };
     if (!entity->ignores_scene_scaling_factor()) {
-        frame.set_size(frame.size() * static_cast<float>(scaling_factor()));
+        if (auto scene = entity->scene()) {
+            frame.set_size(frame.size() * static_cast<float>(scene->scaling_factor()));
+        }
     }
 
     auto sprite = entity->sprite_sheet()->at(static_cast<int>(entity->get_sprite_index()));

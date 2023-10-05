@@ -85,6 +85,11 @@ namespace kestrel::ui
         lua_getter(clippingOffset, Available_0_8) [[nodiscard]] auto clipping_offset() const -> math::point;
         lua_setter(clippingOffset, Available_0_8) auto set_clipping_offset(const math::point& v) -> void;
 
+        // MARK: - Misc
+        auto set_parent_bounds(const math::rect& bounds) -> void;
+        [[nodiscard]] auto parent_bounds() const -> math::rect;
+        [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
+
     private:
         bool m_dirty { true };
         std::string m_text;

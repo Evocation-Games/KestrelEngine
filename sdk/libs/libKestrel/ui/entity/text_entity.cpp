@@ -172,8 +172,12 @@ auto kestrel::ui::text_entity::set_position(const math::point &v) -> void
 
 auto kestrel::ui::text_entity::update_position() -> void
 {
-    auto scale_factor = kestrel::session().current_scene()->scene_scaling_factor();
-    auto position = entity_position(renderer::window_size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
+    auto scale_factor = 1.f;
+    if (auto scene = internal_entity()->scene()) {
+        scale_factor = scene->scaling_factor();
+    }
+
+    auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
     m_entity->set_position(position + m_parent_bounds.origin());
 }
 
@@ -224,6 +228,24 @@ auto kestrel::ui::text_entity::layout() -> void
 auto kestrel::ui::text_entity::on_layout(const luabridge::LuaRef &callback) -> void
 {
 
+}
+
+// MARK: - Misc
+
+auto kestrel::ui::text_entity::internal_entity() const -> std::shared_ptr<ecs::entity>
+{
+    return m_entity;
+}
+
+auto kestrel::ui::text_entity::parent_bounds() const -> math::rect
+{
+    return m_parent_bounds;
+}
+
+auto kestrel::ui::text_entity::set_parent_bounds(const math::rect &bounds) -> void
+{
+    m_parent_bounds = bounds;
+    update_position();
 }
 
 // MARK: - Drawing
