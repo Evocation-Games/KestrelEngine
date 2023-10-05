@@ -69,7 +69,7 @@ namespace kestrel::ui::widgets
 
     private:
         bool m_pressed { false };
-        bool m_dynamic_resizing { true };
+        bool m_dynamic_resizing { false };
         math::rect m_frame { 0, 0, 100, 100 };
         luabridge::LuaRef m_image_ref { nullptr };
         scene_entity::lua_reference m_entity { nullptr };

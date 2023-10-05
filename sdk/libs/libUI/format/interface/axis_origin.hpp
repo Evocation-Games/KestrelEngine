@@ -26,14 +26,14 @@ namespace ui::format
 {
     enum axis_origin : std::uint8_t
     {
-        top_left = 0x00,
-        top_center = 0x01,
-        top_right = 0x02,
-        middle_left = 0x10,
-        center = 0x11,
-        middle_right = 0x12,
-        bottom_left = 0x20,
-        bottom_center = 0x21,
-        bottom_right = 0x22,
+        top_left = 0,
+        middle_left = 1,
+        bottom_left = 2,
+        top_center = 3,
+        center = 4,
+        bottom_center = 5,
+        top_right = 6,
+        middle_right = 7,
+        bottom_right = 8,
     };
 }

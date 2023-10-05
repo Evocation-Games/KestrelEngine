@@ -177,13 +177,6 @@ namespace kestrel::ui
         [[nodiscard]] auto parent_bounds() const -> math::rect;
 
     private:
-        struct entity_wrapper {
-            luabridge::RefCountedPtr<scene_entity> scene;
-            luabridge::RefCountedPtr<line_entity> line;
-            luabridge::RefCountedPtr<text_entity> text;
-        };
-
-    private:
         std::string m_id;
         std::shared_ptr<ecs::entity> m_entity;
         enum layout::axis_origin m_anchor { layout::axis_origin::center };
@@ -202,7 +195,7 @@ namespace kestrel::ui
         bool m_finished { false };
         bool m_continuous_mouse_down_action { false };
         event m_mouse_down_event;
-        lua::vector<entity_wrapper> m_children;
+        lua::vector<luabridge::LuaRef> m_children;
         luabridge::LuaRef m_on_animation_finish { nullptr };
         luabridge::LuaRef m_on_animation_start { nullptr };
         luabridge::LuaRef m_on_layout { nullptr };

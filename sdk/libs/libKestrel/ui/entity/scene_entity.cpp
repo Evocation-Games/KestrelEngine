@@ -401,26 +401,8 @@ auto kestrel::ui::scene_entity::add_entity(const lua_reference & child) -> void
 
 auto kestrel::ui::scene_entity::add_child_entity(const luabridge::LuaRef& child) -> void
 {
-    struct entity_wrapper wrapper;
-
-    if (lua::type_check<scene_entity>(child)) {
-        wrapper.scene = child.cast<scene_entity::lua_reference>();
-        m_children.emplace_back(wrapper);
-        update_children();
-    }
-    else if (lua::type_check<text_entity>(child)) {
-        wrapper.text = child.cast<text_entity::lua_reference>();
-        m_children.emplace_back(wrapper);
-        update_children();
-    }
-    else if (lua::type_check<line_entity>(child)) {
-        wrapper.line = child.cast<line_entity::lua_reference>();
-        m_children.emplace_back(wrapper);
-        update_children();
-    }
-    else {
-
-    }
+    m_children.emplace_back(child);
+    update_children();
 }
 
 auto kestrel::ui::scene_entity::each_child(const luabridge::LuaRef& body) const -> void
@@ -433,7 +415,7 @@ auto kestrel::ui::scene_entity::each_child(const luabridge::LuaRef& body) const 
 auto kestrel::ui::scene_entity::remove_entity(const kestrel::ui::scene_entity::lua_reference &child) -> void
 {
     for (auto i = 0; i < m_children.size(); ++i) {
-        if (m_children.at(i).scene == child) {
+        if (m_children.at(i) == child) {
             m_children.remove(i + 1);
             return;
         }
@@ -443,20 +425,23 @@ auto kestrel::ui::scene_entity::remove_entity(const kestrel::ui::scene_entity::l
 auto kestrel::ui::scene_entity::update_children() -> void
 {
     for (auto& child : m_children) {
-        if (*child.scene) {
-            child.scene->m_parent_bounds = {
+        if (lua::ref_isa<scene_entity>(child)) {
+            auto entity = child.cast<scene_entity::lua_reference>();
+            entity->m_parent_bounds = {
                 m_entity->get_position(), size()
             };
-            child.scene->update_position();
+            entity->update_position();
         }
-        else if (*child.text) {
-            child.text->m_parent_bounds = {
+        else if (lua::ref_isa<text_entity>(child)) {
+            auto entity = child.cast<text_entity::lua_reference>();
+            entity->m_parent_bounds = {
                 m_entity->get_position(), size()
             };
-            child.text->update_position();
+            entity->update_position();
         }
-        else if (*child.line) {
-            child.line->m_parent_bounds = {
+        else if (lua::ref_isa<line_entity>(child)) {
+            auto entity = child.cast<line_entity::lua_reference>();
+            entity->m_parent_bounds = {
                 m_entity->get_position(), size()
             };
         }
@@ -608,14 +593,14 @@ auto kestrel::ui::scene_entity::draw() -> void
     }
 
     for (auto& child : m_children) {
-        if (*child.scene) {
-            child.scene->draw();
+        if (lua::ref_isa<scene_entity>(child)) {
+            child.cast<scene_entity::lua_reference>()->draw();
         }
-        else if (*child.text) {
-            child.text->draw();
+        else if (lua::ref_isa<text_entity>(child)) {
+            child.cast<text_entity::lua_reference>()->draw();
         }
-        else if (*child.line) {
-            child.line->draw();
+        else if (lua::ref_isa<line_entity>(child)) {
+            child.cast<line_entity::lua_reference>()->draw();
         }
     }
 }
@@ -676,8 +661,8 @@ auto kestrel::ui::scene_entity::on_mouse_drag_internal(const std::function<auto(
 auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 {
     for (auto& child : m_children) {
-        if (*child.scene) {
-            child.scene->send_event(e);
+        if (lua::ref_isa<scene_entity>(child)) {
+            child.cast<scene_entity::lua_reference>()->send_event(e);
         }
     }
 

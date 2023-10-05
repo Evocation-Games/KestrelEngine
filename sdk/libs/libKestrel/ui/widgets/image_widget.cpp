@@ -148,51 +148,8 @@ auto kestrel::ui::widgets::image_widget::resize(bool reload) -> void
     }
     else if (m_entity->internal_entity() && m_entity->internal_entity()->texture()) {
         auto texture = m_entity->internal_entity()->texture();
-
-        auto source_size = texture->size();
-        auto destination_size = m_frame.size();
-        auto scale = source_size / destination_size;
-        auto source_ar = source_size.aspect_ratio();
-        auto destination_ar = destination_size.aspect_ratio();
-
-        math::size target_size(source_size);
-
-        // The first task is to scale the target size so that it fits within the destination.
-        if (target_size.is_landscape()) {
-            target_size.set_height(destination_size.height());
-            target_size.set_width(target_size.height() * source_ar);
-        }
-        else {
-            target_size.set_width(destination_size.width());
-            target_size.set_height(target_size.width() * source_ar);
-        }
-
-        auto scale_factor = source_size.width() / target_size.width();
-
-        math::point output_origin(0);
-        math::point output_uv_origin(0);
-        math::size output_size(target_size);
-        math::size output_uv_size(source_size);
-
-        output_size.set_width(std::min(output_size.width(), destination_size.width()));
-        output_size.set_height(std::min(output_size.height(), destination_size.height()));
-        output_origin.set_x(std::max(0.f, (destination_size.width() - output_size.width()) / 2.f));
-        output_origin.set_y(std::max(0.f, (destination_size.height() - output_size.height()) / 2.f));
-
-        output_uv_origin = math::point(
-            output_origin.x() == 0 ? std::fabs((destination_size.width() - target_size.width()) / 2.f) : 0.f,
-            output_origin.y() == 0 ? std::fabs((destination_size.height() - target_size.height()) / 2.f) : 0.f
-        ) * scale_factor;
-        output_uv_size = output_size * scale_factor;
-
-        // We need to aspect fill in the frame. First set up the frame and size of the entity...
-        m_entity->set_size(output_size);
-        m_entity->set_position(m_frame.origin() + output_origin);
-
-        m_entity->set_clipping_area(output_uv_size);
-        m_entity->set_clipping_offset(output_uv_origin);
+        m_entity->set_size(texture->size());
     }
-
 }
 
 auto kestrel::ui::widgets::image_widget::draw() -> void
