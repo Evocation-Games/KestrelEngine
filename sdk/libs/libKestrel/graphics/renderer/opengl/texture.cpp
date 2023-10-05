@@ -51,7 +51,7 @@ kestrel::renderer::opengl::texture::texture(GLuint handle, const math::size& sz)
 
 kestrel::renderer::opengl::texture::~texture()
 {
-    if (uploaded()) {
+    if (m_uploaded) {
         glDeleteTextures(1, &m_id);
     }
 }

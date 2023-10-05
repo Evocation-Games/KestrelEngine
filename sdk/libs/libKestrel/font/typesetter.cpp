@@ -245,7 +245,9 @@ auto kestrel::font::typesetter::render() -> std::vector<graphics::color>
         for (auto yy = 0; yy < bmp.rows; ++yy) {
             for (auto xx = 0; xx < bmp.width; ++xx) {
                 auto alpha = bmp.buffer[(yy * bmp.pitch) + xx];
-                alpha = alpha > 0 ? std::min(255U, static_cast<unsigned int>(alpha) + 64) : alpha;
+                if (bmp.num_grays == 2) {
+                    alpha *= 255;
+                }
                 auto hex_color = static_cast<unsigned int>(m_font_color.color_value() & 0x00FFFFFFU);
                 auto color = hex_color | (alpha << 24U); // Color of the glyph becomes the alpha for the text.
                 auto offset = ((static_cast<int>(std::round(ch.y)) + y_offset + yy) * static_cast<int>(std::round(m_min_size.width()))) + static_cast<int>(std::round(ch.x)) + x_offset + xx;
