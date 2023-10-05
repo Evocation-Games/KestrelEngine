@@ -132,7 +132,7 @@ auto kestrel::ui::widgets::checkbox_widget::set_anchor_point(const layout::axis_
 
 auto kestrel::ui::widgets::checkbox_widget::receive_event(const event &e) -> bool
 {
-    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::mouse_move) && !m_inside) {
             m_inside = true;
             mouse_enter();

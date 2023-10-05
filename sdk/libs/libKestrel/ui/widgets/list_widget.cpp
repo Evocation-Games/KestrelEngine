@@ -362,7 +362,7 @@ auto kestrel::ui::widgets::list_widget::lua_receive_event(const event::lua_refer
 
 auto kestrel::ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location() - entity()->position();
+    auto local_position = e.location();
     if (e.is_mouse_event() && entity()->hit_test(local_position)) {
         if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;

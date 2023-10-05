@@ -204,7 +204,7 @@ auto kestrel::ui::widgets::image_widget::draw() -> void
 
 auto kestrel::ui::widgets::image_widget::receive_event(const event &e) -> bool
 {
-    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;
             if (m_down_action.state() && m_down_action.isFunction()) {

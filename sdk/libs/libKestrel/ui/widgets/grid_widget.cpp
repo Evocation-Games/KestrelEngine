@@ -198,7 +198,7 @@ auto kestrel::ui::widgets::grid_widget::bind_internal_events() -> void
 
 auto kestrel::ui::widgets::grid_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location() - entity()->position();
+    auto local_position = e.location();
     if (e.is_mouse_event() && entity()->hit_test(local_position)) {
         if (e.has(::ui::event::any_mouse_down) && !m_state.pressed) {
             m_state.pressed = true;

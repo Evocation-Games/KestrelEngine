@@ -530,6 +530,11 @@ auto kestrel::ui::scene_entity::set_parent_bounds(const math::rect &bounds) -> v
     update_position();
 }
 
+auto kestrel::ui::scene_entity::parent_bounds() const -> math::rect
+{
+    return m_parent_bounds;
+}
+
 // MARK: - Layout & Drawing
 
 auto kestrel::ui::scene_entity::layout() -> void

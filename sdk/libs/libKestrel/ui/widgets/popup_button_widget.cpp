@@ -259,7 +259,7 @@ auto kestrel::ui::widgets::popup_button_widget::draw() -> void
 auto kestrel::ui::widgets::popup_button_widget::receive_event(const event& e) -> bool
 {
     if (e.has(::ui::event::any_mouse_down)) {
-        if (entity()->hit_test(e.location() - entity()->position())) {
+        if (entity()->hit_test(e.location())) {
             present_menu();
             return true;
         }

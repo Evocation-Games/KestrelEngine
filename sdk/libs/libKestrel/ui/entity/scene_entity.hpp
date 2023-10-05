@@ -174,6 +174,7 @@ namespace kestrel::ui
         auto replace(const lua_reference& entity) -> void;
         [[nodiscard]] auto internal_entity() const -> std::shared_ptr<ecs::entity>;
         auto set_parent_bounds(const math::rect& bounds) -> void;
+        [[nodiscard]] auto parent_bounds() const -> math::rect;
 
     private:
         struct entity_wrapper {

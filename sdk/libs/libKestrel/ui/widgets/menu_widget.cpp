@@ -220,7 +220,7 @@ auto kestrel::ui::widgets::menu_widget::recalculate_entity_size() -> void
     // Resize the entity with the updated information and flag the drawing state as dirty.
     m_canvas = std::make_unique<graphics::canvas>(menu_size);
     m_entity = { new scene_entity(m_canvas->spawn_entity({0, 0})) };
-    m_entity->set_position(menu_position);
+    m_entity->set_position(menu_position + m_parent_entity->parent_bounds().origin());
 
     m_dirty = true;
     redraw_entity();
@@ -281,7 +281,7 @@ auto kestrel::ui::widgets::menu_widget::draw() -> void
 auto kestrel::ui::widgets::menu_widget::receive_event(const event &e) -> bool
 {
     if (e.is_mouse_event()) {
-        const auto point = e.location() - entity()->position();
+        const auto point = e.location();
         const auto hover_row = static_cast<std::int32_t>((point.y() - m_vertical_padding) / m_row_height);
 
         if (!m_mouse_over && e.has(::ui::event::mouse_move) && entity()->hit_test(point)) {
