@@ -66,6 +66,8 @@ namespace kestrel::ui
         luatool_type_fix(const luabridge::LuaRef&, entity_provider)
         lua_constructor(Available_0_8) explicit scene_entity(const luabridge::LuaRef& entity_provider);
 
+        lua_function(empty, Available_0_9) static auto empty() -> lua_reference;
+
         lua_getter(id, Available_0_9) [[nodiscard]] auto id() const -> std::string { return m_id; }
         lua_setter(id, Available_0_9) auto set_id(const std::string& id) -> void { m_id = id; }
 

@@ -319,14 +319,14 @@ namespace kdl::modules::kestrel
         resource::definition::type::field png_field("PNG");
         resource::definition::type::field_value png_value(&static_image->binary_template()->field_named("Data"));
         png_value.set_type(resource::definition::type::descriptor(false, spec::types::image, std::vector<std::string>({
-            image::conversion::format::png, image::conversion::format::tga
+            image::conversion::format::png, image::conversion::format::png
         })), true);
         png_field.add_value(png_value);
 
         resource::definition::type::field_value png_format_value(&static_image->binary_template()->field_named("ImageFormat"));
         png_format_value.set_type(resource::definition::type::descriptor(false, spec::types::string, {}), true);
         png_format_value.set_default_value(interpreter::script::statement({
-            interpreter::token(std::string("TGA "))
+            interpreter::token(std::string("PNG "))
         }));
         png_field.add_value(png_format_value);
         static_image->add_field(png_field);

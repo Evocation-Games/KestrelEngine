@@ -459,7 +459,7 @@ auto kestrel::ui::dialog::set_background(const luabridge::LuaRef &background) ->
         m_background.fill_entity->set_size(size);
         m_owner_scene->add_scene_entity(m_background.fill_entity);
 
-        m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(m_owner_scene->size()));
+        m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(kestrel::session().size()));
     }
 }
 
@@ -504,7 +504,7 @@ auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, con
     m_owner_scene->add_scene_entity(m_background.top_entity);
     m_owner_scene->add_scene_entity(m_background.bottom_entity);
 
-    m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(m_owner_scene->size()));
+    m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(kestrel::session().size()));
 }
 
 auto kestrel::ui::dialog::resize_stretchable_background(const math::size& size) -> void
@@ -532,7 +532,7 @@ auto kestrel::ui::dialog::resize_stretchable_background(const math::size& size) 
     m_background.fill_entity->set_position({ 0, y });
     m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
 
-    m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(m_owner_scene->size()));
+    m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(kestrel::session().size()));
 }
 
 

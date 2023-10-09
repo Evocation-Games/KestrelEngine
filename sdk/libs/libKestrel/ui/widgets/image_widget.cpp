@@ -23,6 +23,7 @@
 #include <libKestrel/graphics/legacy/macintosh/picture.hpp>
 #include <libKestrel/graphics/legacy/macintosh/color_icon.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
+#include <libKestrel/kestrel.hpp>
 
 // MARK: - Construction
 
@@ -34,6 +35,11 @@ kestrel::ui::widgets::image_widget::image_widget(const luabridge::LuaRef &image)
 
     auto internal_entity = std::make_shared<ecs::entity>(math::size(1));
     m_entity = { new scene_entity(internal_entity) };
+
+    auto content_entity = std::make_shared<ecs::entity>(math::size(1));
+    m_image_entity = { new scene_entity(content_entity) };
+    m_image_entity->set_anchor_point(layout::axis_origin::top_left);
+    m_entity->add_entity(m_image_entity);
 
     resize(true);
 }
@@ -74,7 +80,12 @@ auto kestrel::ui::widgets::image_widget::scaling_mode() const -> layout::scaling
 
 auto kestrel::ui::widgets::image_widget::set_frame(const math::rect &frame) -> void
 {
-    m_frame = frame;
+    if (frame.size().area() <= 0) {
+        m_frame = { math::point(0), kestrel::session().current_scene()->size() };
+    }
+    else {
+        m_frame = frame;
+    }
     resize();
 }
 
@@ -114,20 +125,23 @@ auto kestrel::ui::widgets::image_widget::set_scaling_mode(const layout::scaling_
 
 auto kestrel::ui::widgets::image_widget::resize(bool reload) -> void
 {
+    m_entity->set_position(m_frame.origin());
+    m_entity->set_size(m_frame.size());
+
     if (reload) {
         if (lua::ref_isa<image::static_image>(m_image_ref)) {
-            m_entity->change_internal_entity(m_image_ref.cast<image::static_image::lua_reference>()->spawn_entity({ 0, 0 }));
+            m_image_entity->change_internal_entity(m_image_ref.cast<image::static_image::lua_reference>()->spawn_entity({ 0, 0 }));
         }
         else if (lua::ref_isa<image::legacy::macintosh::quickdraw::picture>(m_image_ref)) {
-            m_entity->change_internal_entity(m_image_ref.cast<image::legacy::macintosh::quickdraw::picture::lua_reference>()->spawn_entity({ 0, 0 }));
+            m_image_entity->change_internal_entity(m_image_ref.cast<image::legacy::macintosh::quickdraw::picture::lua_reference>()->spawn_entity({ 0, 0 }));
         }
         else if (lua::ref_isa<image::legacy::macintosh::quickdraw::color_icon>(m_image_ref)) {
-            m_entity->change_internal_entity(m_image_ref.cast<image::legacy::macintosh::quickdraw::color_icon::lua_reference>()->spawn_entity({ 0, 0 }));
+            m_image_entity->change_internal_entity(m_image_ref.cast<image::legacy::macintosh::quickdraw::color_icon::lua_reference>()->spawn_entity({ 0, 0 }));
         }
         else if (lua::ref_isa<resource::descriptor>(m_image_ref)) {
             auto descriptor = m_image_ref.cast<resource::descriptor::lua_reference>();
             image::static_image img(descriptor);
-            m_entity->change_internal_entity(img.spawn_entity({0, 0}));
+            m_image_entity->change_internal_entity(img.spawn_entity({0, 0}));
         }
         else {
             // TODO: Handle unrecognised image format...
@@ -135,20 +149,25 @@ auto kestrel::ui::widgets::image_widget::resize(bool reload) -> void
     }
 
     if (m_dynamic_resizing) {
-        m_entity->set_size(m_entity->internal_entity()->get_size());
+        m_image_entity->set_size(m_image_entity->internal_entity()->get_size());
         switch (m_alignment) {
             default:
                 math::point position(
-                    m_frame.x() + ((m_frame.width() - m_entity->size().width()) / 2.f),
-                    m_frame.y() + ((m_frame.height() - m_entity->size().height()) / 2.f)
+                    m_frame.x() + ((m_frame.width() - m_image_entity->size().width()) / 2.f),
+                    m_frame.y() + ((m_frame.height() - m_image_entity->size().height()) / 2.f)
                 );
-                m_entity->set_position(position);
+                m_image_entity->set_position(position);
                 break;
         }
     }
-    else if (m_entity->internal_entity() && m_entity->internal_entity()->texture()) {
-        auto texture = m_entity->internal_entity()->texture();
-        m_entity->set_size(texture->size());
+    else if (m_image_entity->internal_entity() && m_image_entity->internal_entity()->texture()) {
+        auto texture = m_image_entity->internal_entity()->texture();
+
+        // Center the image entity within its parent
+        auto ar = layout::aspect_ratio(texture->size());
+        auto size = layout::calculate_size(layout::scaling_mode::aspect_fit, m_frame.size(), texture->size(), ar);
+
+        m_image_entity->set_size(size);
     }
 }
 

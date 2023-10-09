@@ -37,7 +37,7 @@ static auto calculate_aspect_fit(const kestrel::math::size& container, const kes
             result.set_width(result.height() * ratio);
         }
     }
-    return size;
+    return result.round();
 }
 
 static auto calculate_aspect_fill(const kestrel::math::size& container, const kestrel::math::size& size, kestrel::ui::layout::aspect_ratio_t ratio) -> kestrel::math::size

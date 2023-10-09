@@ -106,6 +106,14 @@ kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& ent
     }
 }
 
+auto kestrel::ui::scene_entity::empty() -> lua_reference
+{
+    auto canvas = graphics::canvas::lua_reference(new graphics::canvas({ 1, 1 }));
+    canvas->set_pen_color(graphics::color::black_color_ref());
+    canvas->fill_rect({ 0, 0, 1, 1 });
+    return { new scene_entity(canvas) };
+}
+
 // MARK: - Entity Spawning
 
 auto kestrel::ui::scene_entity::spawn_entity(const luabridge::LuaRef& entity_provider) -> std::shared_ptr<ecs::entity>

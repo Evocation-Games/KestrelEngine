@@ -25,9 +25,9 @@
 #include <libQuickdraw/format/color_icon.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
 #include <libKestrel/cache/cache.hpp>
-#include <libKestrel/graphics/image/static_image.hpp>
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/graphics/image/tga.hpp>
+#include <libImage/codecs/png/png.hpp>
 
 // MARK: - Construction
 
@@ -93,6 +93,13 @@ kestrel::image::static_image::static_image(const resource::descriptor::lua_refer
                 kestrel::image::tga tga(tga_raw_data);
 
                 const auto& surface = tga.surface();
+                configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
+            }
+            else if (format == "PNG ") {
+                auto png_raw_data = reader.read_data(reader.size() - 4);
+                ::image::codec::png png(png_raw_data);
+
+                const auto& surface = png.surface();
                 configure(resource->id(), resource->name(), math::size(surface.size().width, surface.size().height), surface.raw());
             }
             else {

@@ -314,6 +314,39 @@ auto kestrel::ui::game_scene::set_scene_bounding_frame(const math::rect &frame) 
             entity->set_parent_bounds(m_bounding_frame);
         }
     }
+
+    for (auto& widget : m_widgets) {
+        if (lua::ref_isa<widgets::text_widget>(widget)) {
+            widget.cast<widgets::text_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<widgets::textarea_widget>(widget)) {
+            widget.cast<widgets::textarea_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<widgets::label_widget>(widget)) {
+            widget.cast<widgets::label_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::button_widget>(widget)) {
+            widget.cast<widgets::button_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::list_widget>(widget)) {
+            widget.cast<widgets::list_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::grid_widget>(widget)) {
+            widget.cast<widgets::grid_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::scrollview_widget>(widget)) {
+            widget.cast<widgets::scrollview_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::image_widget>(widget)) {
+            widget.cast<widgets::image_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::checkbox_widget>(widget)) {
+            widget.cast<widgets::checkbox_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+        else if (lua::ref_isa<ui::widgets::popup_button_widget>(widget)) {
+            widget.cast<widgets::popup_button_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
+    }
 }
 
 auto kestrel::ui::game_scene::set_scene_scaling_factor(double factor) -> void
