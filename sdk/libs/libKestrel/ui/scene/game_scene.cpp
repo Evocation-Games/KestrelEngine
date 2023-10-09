@@ -346,6 +346,9 @@ auto kestrel::ui::game_scene::set_scene_bounding_frame(const math::rect &frame) 
         else if (lua::ref_isa<ui::widgets::popup_button_widget>(widget)) {
             widget.cast<widgets::popup_button_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
         }
+        else if (lua::ref_isa<ui::widgets::custom_widget>(widget)) {
+            widget.cast<widgets::custom_widget::lua_reference>()->entity()->set_parent_bounds(scene_bounding_frame());
+        }
     }
 }
 
@@ -493,6 +496,11 @@ auto kestrel::ui::game_scene::add_widget(const luabridge::LuaRef &widget) -> voi
         popup->entity()->internal_entity()->move_to_scene(m_backing_scene);
         popup->entity()->set_parent_bounds(scene_bounding_frame());
         m_responder_chain.add_mouse_responder(popup.get());
+    }
+    else if (lua::ref_isa<ui::widgets::custom_widget>(widget)) {
+        auto custom = widget.cast<ui::widgets::custom_widget::lua_reference>();
+        custom->entity()->internal_entity()->move_to_scene(m_backing_scene);
+        custom->entity()->set_parent_bounds(scene_bounding_frame());
     }
 
     m_widgets.emplace_back(widget);
