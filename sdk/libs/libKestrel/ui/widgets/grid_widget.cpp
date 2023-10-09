@@ -250,7 +250,7 @@ auto kestrel::ui::widgets::grid_widget::redraw_entity() -> void
     m_entity.canvas->clear();
     m_entity.canvas->set_font(m_appearance.label_font);
 
-    const auto cell_size = this->cell_size(0);
+    const auto cell_size = this->cell_size(0).round();
     const auto grid_cols = static_cast<std::uint32_t>(std::ceil(frame().size().width() / cell_size.width()));
     const auto grid_rows = static_cast<std::uint32_t>(std::ceil(frame().size().width() / grid_cols));
     const auto item_count = number_of_items();
@@ -267,6 +267,7 @@ auto kestrel::ui::widgets::grid_widget::redraw_entity() -> void
             auto k = i - first_idx;
             auto item = value_for_cell(i + 1);
             math::point position(k % grid_cols * cell_size.width(), k / grid_cols * cell_size.height());
+            position = position.round();
 
             if ((i + 1) == m_state.selection.item) {
                 selection_visible = true;
