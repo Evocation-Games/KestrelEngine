@@ -72,6 +72,7 @@ namespace kestrel::ui
         lua_setter(id, Available_0_9) auto set_id(const std::string& id) -> void { m_id = id; }
 
         // MARK: - Positioning
+        lua_getter(absolutePosition, Available_0_9) [[nodiscard]] auto absolute_position() const -> math::point;
         lua_getter(position, Available_0_8) [[nodiscard]] auto position() const -> math::point;
         lua_setter(position, Available_0_8) auto set_position(const math::point& v) -> void;
         auto update_position() -> void;

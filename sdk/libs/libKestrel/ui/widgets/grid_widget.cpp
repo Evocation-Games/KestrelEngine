@@ -159,7 +159,7 @@ auto kestrel::ui::widgets::grid_widget::set_outline_color(const graphics::color:
 
 auto kestrel::ui::widgets::grid_widget::cell_index_at_point(const math::point &p) const -> std::int32_t
 {
-    const auto cell_size = this->cell_size(0);
+    const auto cell_size = this->cell_size(0).round();
     const auto grid_cols = static_cast<std::int32_t>(std::ceil(frame().size().width() / cell_size.width()));
     auto cell = (math::vec2(p) / math::vec2(cell_size)).to_point().floor();
     return static_cast<std::int32_t>(1 + ((m_state.scroll.offset.y() + cell.y()) * grid_cols) + cell.x());
@@ -198,8 +198,8 @@ auto kestrel::ui::widgets::grid_widget::bind_internal_events() -> void
 
 auto kestrel::ui::widgets::grid_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location();
-    if (e.is_mouse_event() && entity()->hit_test(local_position)) {
+    auto local_position = e.location() - m_entity.entity->absolute_position();
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::any_mouse_down) && !m_state.pressed) {
             m_state.pressed = true;
         }

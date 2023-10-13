@@ -175,6 +175,11 @@ auto kestrel::ui::scene_entity::body() const -> physics::body::lua_reference
     return m_entity->body();
 }
 
+auto kestrel::ui::scene_entity::absolute_position() const -> math::point
+{
+    return internal_entity()->get_position();
+}
+
 auto kestrel::ui::scene_entity::position() const -> math::point
 {
     return m_position;
@@ -676,11 +681,12 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 
     if (e.is_mouse_event()) {
         auto point = e.location();
+        auto local_event = e.relocated(point - absolute_position());
 
         if (!m_mouse_over && hit_test(point)) {
             m_mouse_over = true;
             if (m_on_mouse_enter.state() && m_on_mouse_enter.isFunction()) {
-                m_on_mouse_enter(event::lua_reference { new event(e) });
+                m_on_mouse_enter(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_enter_internal) {
@@ -690,7 +696,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
         else if (m_mouse_over && !hit_test(point)) {
             m_mouse_over = false;
             if (m_on_mouse_exit.state() && m_on_mouse_exit.isFunction()) {
-                m_on_mouse_exit(event::lua_reference { new event(e) });
+                m_on_mouse_exit(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_exit_internal) {
@@ -703,7 +709,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
             m_mouse_down_event = e;
 
             if (m_on_mouse_down.state() && m_on_mouse_down.isFunction()) {
-                m_on_mouse_down(event::lua_reference { new event(e) });
+                m_on_mouse_down(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_down_internal) {
@@ -713,7 +719,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
         else if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             m_pressed = false;
             if (m_on_mouse_release.state() && m_on_mouse_release.isFunction()) {
-                m_on_mouse_release(event::lua_reference { new event(e) });
+                m_on_mouse_release(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_release_internal) {
@@ -722,7 +728,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
         }
 
         if (m_on_mouse_drag.state() && m_on_mouse_drag.isFunction() && e.has(::ui::event::any_mouse_down) && e.has(::ui::event::mouse_move)) {
-            m_on_mouse_drag(event::lua_reference { new event(e) });
+            m_on_mouse_drag(event::lua_reference { new event(local_event) });
             m_mouse_dragged = true;
             if (m_on_mouse_drag_internal) {
                 m_on_mouse_drag_internal(e);

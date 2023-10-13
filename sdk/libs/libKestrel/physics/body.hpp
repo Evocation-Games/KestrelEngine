@@ -123,9 +123,9 @@ namespace kestrel::physics
         math::point m_position;
         math::point m_velocity;
         math::angle m_rotation;
-        double m_current_speed { 0 };
+        float m_current_speed { 0 };
         math::angular_difference m_rotation_speed;
-        double m_maximum_speed { 0 };
-        double m_acceleration { 0 };
+        float m_maximum_speed { 0 };
+        float m_acceleration { 0 };
     };
 }
