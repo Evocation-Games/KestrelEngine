@@ -109,7 +109,7 @@ add_subdirectory(sdk/libs/libKestrel)
 add_subdirectory(sdk/bin/player)
 
 # Example/Test Projects
-#add_subdirectory(projects/GraphicsTestSuite)
+add_subdirectory(projects/GraphicsTestSuite)
 
 # Extensions
 #add_subdirectory(sdk/extra/tree-sitter/tree-sitter-kdl)

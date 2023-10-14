@@ -40,19 +40,6 @@ createTextEntity = function(origin, text)
     return textEntity
 end
 
-loadImageEntity = function(id, rect)
-    local image = StaticImage(Container.global():identifiedResource(id))
-    local imageEntity = SceneEntity(image)
-    imageEntity.position = rect.origin
-    imageEntity.anchorPoint = AxisOrigin.Center
-    imageEntity.size = rect.size
-    imageEntity.scalingMode = ScalingMode.AspectFill
-    return imageEntity
-end
-
--- Add a background image
-BasicDrawingTests:addEntity(loadImageEntity(128, Rect(0, 0, 1440, 900)))
-
 -- Add a "window" entity that can be used to test child entities
 window = createColorEntity(Rect(300, 50, 250, 800), Color(255, 255, 70, 255))
 window.anchorPoint = AxisOrigin.TopRight
