@@ -36,7 +36,7 @@ endif()
 
 add_custom_target(
     GraphicsTestSuite ALL
-        ${KDL} -f extended -o ${CMAKE_BUILD_DIR}/GraphicsTestSuite.kdat
+        ${KDL} -f extended -o ${CMAKE_BUILD_DIR}/GameCore.kdat
         ${CMAKE_SOURCE_DIR}/projects/GraphicsTestSuite/project.kdlproj
     COMMENT "Building GraphicsTestSuite"
 )
