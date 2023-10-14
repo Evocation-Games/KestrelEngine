@@ -170,15 +170,13 @@ auto kestrel::renderer::opengl::context::detect_display_configuration() -> void
     float x_scale = 1;
     float y_scale = 1;
     glfwGetMonitorContentScale(m_screen.monitor, &x_scale, &y_scale);
-    if (x_scale > 1 || y_scale > 1) {
-        m_screen.dpi_factor = x_scale;
-        if (s_opengl.current_scale_factor != 0) {
-            s_opengl.current_scale_factor = x_scale;
-        }
-    }
+    m_screen.dpi_factor = x_scale;
 #else
     m_screen.dpi_factor = platform::macos::application::screen_scale_factor();
 #endif
+    if (s_opengl.current_scale_factor == 0) {
+        s_opengl.current_scale_factor = m_screen.dpi_factor;
+    }
 }
 
 // MARK: - Window Configuration

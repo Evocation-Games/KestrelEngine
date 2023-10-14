@@ -353,7 +353,11 @@ auto kdl::sema::scene_interface::parse_element(foundation::stream<tokenizer::tok
         }
         else if (stream.expect({ expectation(attribute_names::fill_container).be_true() })) {
             stream.advance();
-            element.add_attribute(ui::format::attribute::code::fill_container, attribute_names::fill_container, ui::format::attribute_value(0LL));
+            element.add_attribute(
+                ui::format::attribute::code::fill_container,
+                attribute_names::fill_container,
+                ui::format::attribute_value(static_cast<std::int64_t>(0))
+            );
         }
         else {
             throw diagnostic(stream.peek(), diagnostic::reason::KDL029);
