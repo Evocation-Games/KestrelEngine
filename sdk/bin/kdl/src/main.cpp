@@ -41,7 +41,10 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
     try {
         for (std::int32_t i = 1; i < argc; ++i) {
             std::string option(argv[i]);
-            if (option == "-f" || option == "--format") {
+            if (option == "-v") {
+                std::cout << "Kestrel Definition Language (KDL) Version 0.9" << std::endl;
+            }
+            else if (option == "-f" || option == "--format") {
                 std::string f(argv[++i]);
                 if (f == "extended" || f == "kestrel") {
                     format = resource_core::file::format::extended;

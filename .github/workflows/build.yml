@@ -52,11 +52,24 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
-      - name: Upload Artifacts
+      - name: Tar Files (Kestrel Engine)
+        run: |
+          tar -cvf KestrelEngine-Ubuntu.tar.gz ./artifacts
+          sha256sum -a 256 KestrelEngine-Ubuntu.tar.gz
+      - name: Tar Files (kdl)
+        run: |
+          tar -cvf KDL-Ubuntu.tar.gz ./artifacts/kdl
+          sha256sum -a 256 KDL-Ubuntu.tar.gz
+      - name: Upload Kestrel Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-Ubuntu
-          path: ./artifacts
+          path: KestrelEngine-Ubuntu.tar.gz
+      - name: Upload KDL Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDL-Ubuntu
+          path: KDL-Ubuntu.tar.gz
 
   macOS:
     name: Build on macOS
@@ -101,11 +114,24 @@ jobs:
             --cert-pwd="$DISTRIBUTION_CERTIFICATE_PWD" \
             --user="$APPSTORECONNECT_USERNAME" \
             --pwd="$APPSTORECONNECT_PWD"
-      - name: Upload Artifacts
+      - name: Tar Files (Kestrel Engine)
+        run: |
+          tar -cvf KestrelEngine-macOS.tar.gz ./artifacts
+          shasum -a 256 KestrelEngine-macOS.tar.gz
+      - name: Tar Files (kdl)
+        run: |
+          tar -cvf KDL-macOS.tar.gz ./artifacts/kdl
+          shasum -a 256 KDL-macOS.tar.gz
+      - name: Upload Kestrel Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-macOS
-          path: ./artifacts
+          path: KestrelEngine-macOS.tar.gz
+      - name: Upload KDL Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDL-macOS
+          path: KDL-macOS.tar.gz
 
   windows:
     name: Build on Windows

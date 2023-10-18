@@ -216,7 +216,7 @@ namespace kestrel::ecs
         [[nodiscard]] auto shader_attachments() const -> std::array<math::vec4, 8>;
 
         auto draw() -> void;
-        auto update() -> void;
+        auto update(const rtc::clock::duration& delta) -> void;
 
         auto body() -> physics::body::lua_reference;
 

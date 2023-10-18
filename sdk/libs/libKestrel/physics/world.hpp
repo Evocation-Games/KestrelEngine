@@ -40,7 +40,7 @@ namespace kestrel::physics
 
         auto purge_all_bodies() -> void;
 
-        auto update() -> void;
+        auto update(const rtc::clock::duration& delta) -> void;
 
     private:
         static constexpr std::size_t arena_count = 50'000;

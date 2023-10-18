@@ -135,11 +135,10 @@ kestrel::ui::game_scene::game_scene(const resource::descriptor::lua_reference &s
         if (m_render_block.state() && m_render_block.isFunction()) {
             m_render_block();
         }
-
     });
 
-    m_backing_scene->add_update_block([&, this] {
-        m_world->update();
+    m_backing_scene->add_update_block([&, this] (const rtc::clock::duration& delta) {
+        m_world->update(delta);
 
         if (m_update_block.state() && m_update_block.isFunction()) {
             m_update_block();

@@ -44,6 +44,8 @@ namespace kestrel::math
         auto operator> (angular_difference& a) const -> bool;
         auto operator>= (angular_difference& a) const -> bool;
 
+        [[nodiscard]] auto operator* (float f) const -> angular_difference;
+
         lua_function(calculateAngleFrom, Available_0_8) [[nodiscard]] auto calculate_for(const angle& a) const -> angle;
 
         lua_getter(isClockwise, Available_0_8) [[nodiscard]] auto is_clockwise() const -> bool;

@@ -53,7 +53,7 @@ auto kestrel::ui::scene::set_scaling_factor(double f) -> void
 
 // MARK: - Blocks
 
-auto kestrel::ui::scene::add_update_block(const std::function<auto()->void>& block) -> void
+auto kestrel::ui::scene::add_update_block(const std::function<auto(const rtc::clock::duration&)->void>& block) -> void
 {
     m_update_blocks.emplace_back(block);
 }
@@ -78,10 +78,10 @@ auto kestrel::ui::scene::add_timed_event(const std::shared_ptr<rtc::timed_event>
     m_timed_events.emplace_back(event);
 }
 
-auto kestrel::ui::scene::invoke_update_blocks() -> void
+auto kestrel::ui::scene::invoke_update_blocks(const rtc::clock::duration& delta) -> void
 {
     for (const auto& block : m_update_blocks) {
-        block();
+        block(delta);
     }
 }
 
@@ -158,9 +158,9 @@ auto kestrel::ui::scene::start() -> void
     m_script.execute();
 }
 
-auto kestrel::ui::scene::update() -> void
+auto kestrel::ui::scene::update(const rtc::clock::duration& delta) -> void
 {
-    invoke_update_blocks();
+    invoke_update_blocks(delta);
 }
 
 auto kestrel::ui::scene::render() -> void

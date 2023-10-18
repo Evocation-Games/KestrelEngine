@@ -277,10 +277,10 @@ auto kestrel::ecs::entity::body() -> physics::body::lua_reference
     return m_body;
 }
 
-auto kestrel::ecs::entity::update() -> void
+auto kestrel::ecs::entity::update(const rtc::clock::duration& delta) -> void
 {
     if (m_body.get()) {
-        m_body->update();
+        m_body->update(delta);
     }
 }
 

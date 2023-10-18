@@ -29,6 +29,7 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/physics/hitbox.hpp>
+#include <libKestrel/clock/clock.hpp>
 
 namespace kestrel::physics
 {
@@ -99,7 +100,7 @@ namespace kestrel::physics
         lua_getter(info, Available_0_8) [[nodiscard]] auto info() const -> luabridge::LuaRef;
         lua_setter(info, Available_0_8) auto set_info(luabridge::LuaRef ref) -> void;
 
-        auto update() -> void;
+        auto update(const rtc::clock::duration& delta) -> void;
 
         auto destroy() -> void;
         auto migrate_to_world(std::weak_ptr<physics::world> new_world) -> void;
@@ -118,14 +119,16 @@ namespace kestrel::physics
         std::unordered_set<std::uint32_t> m_rejected_collision_types;
         std::unordered_set<identifier> m_rejected_collisions;
         physics::hitbox m_hitbox;
+        rtc::clock::time m_last_update;
         luabridge::LuaRef m_info { nullptr };
         bool m_has_inertia { true };
         math::point m_position;
         math::point m_velocity;
         math::angle m_rotation;
-        float m_current_speed { 0 };
+        double m_current_speed { 0 };
         math::angular_difference m_rotation_speed;
-        float m_maximum_speed { 0 };
-        float m_acceleration { 0 };
+        double m_maximum_speed { 0 };
+        double m_acceleration { 0 };
+        std::int8_t m_rotation_action { 0 };
     };
 }

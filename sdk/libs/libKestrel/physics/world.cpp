@@ -95,7 +95,7 @@ auto kestrel::physics::world::purge_all_bodies() -> void
 
 // MARK: - Updates
 
-auto kestrel::physics::world::update() -> void
+auto kestrel::physics::world::update(const rtc::clock::duration& delta) -> void
 {
     if (m_bodies.allocated() == 0) {
         return;
@@ -109,7 +109,7 @@ auto kestrel::physics::world::update() -> void
             continue;
         }
 
-        body.ref->update();
+        body.ref->update(delta);
         if (body.ref->hitbox().is_valid()) {
             math::rect bounds(body.ref->position(), body.ref->hitbox().size());
             m_collision_tree.insert(bounds, body.ref->id());
