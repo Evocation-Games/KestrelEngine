@@ -54,12 +54,12 @@ jobs:
           support/scripts/install
       - name: Tar Files (Kestrel Engine)
         run: |
-          tar -cvf KestrelEngine-Ubuntu.tar.gz ./artifacts
-          sha256sum -a 256 KestrelEngine-Ubuntu.tar.gz
+          tar -cvf KestrelEngine-Ubuntu.tar.gz ./artifacts/Kestrel.AppDir
+          sha256sum KestrelEngine-Ubuntu.tar.gz
       - name: Tar Files (kdl)
         run: |
           tar -cvf KDL-Ubuntu.tar.gz ./artifacts/kdl
-          sha256sum -a 256 KDL-Ubuntu.tar.gz
+          sha256sum KDL-Ubuntu.tar.gz
       - name: Upload Kestrel Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -116,7 +116,7 @@ jobs:
             --pwd="$APPSTORECONNECT_PWD"
       - name: Tar Files (Kestrel Engine)
         run: |
-          tar -cvf KestrelEngine-macOS.tar.gz ./artifacts
+          tar -cvf KestrelEngine-macOS.tar.gz ./artifacts/Kestrel.app
           shasum -a 256 KestrelEngine-macOS.tar.gz
       - name: Tar Files (kdl)
         run: |
