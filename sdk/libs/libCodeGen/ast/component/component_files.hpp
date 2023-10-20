@@ -27,35 +27,41 @@
 
 namespace codegen::ast
 {
-    template<language::preprocessor_support L>
-    struct include_library : public node
+    template<language::component_definition_support L>
+    struct component_files : public node
     {
-        explicit include_library(const std::string& name)
-            : m_name(name)
+    public:
+        explicit component_files(const std::string& path)
+            : m_path(path)
         {}
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { std::move(L::include_library(m_name)) };
+            std::vector<emit::segment> out;
+            for (const auto& file : m_files) {
+                emit::segment entry({
+                    emit::segment("\"" + file + "\""),
+                    emit::segment(";", emit::line_break_mode::after)
+                });
+                out.emplace_back(entry);
+            }
+
+            return {
+                L::component_files_decl(m_path),
+                L::begin_compound_statement(),
+                emit::segment(out),
+                L::end_compound_statement()
+            };
         }
 
-    private:
-        std::string m_name;
-    };
-
-    template<language::preprocessor_support L>
-    struct include_file : public node
-    {
-        explicit include_file(const std::string& name)
-            : m_name(name)
-        {}
-
-        [[nodiscard]] auto emit() const -> emit::segment override
+        auto add(const std::string& name) -> void
         {
-            return { std::move(L::include_file(m_name)) };
+            m_files.emplace_back(name);
         }
 
     private:
-        std::string m_name;
+        std::string m_path;
+        std::vector<std::string> m_files;
     };
+
 }

@@ -686,6 +686,11 @@ auto kestrel::ui::game_scene::bindings() const -> luabridge::LuaRef
 
 auto kestrel::ui::game_scene::find_function(const std::string &name) const -> luabridge::LuaRef
 {
+    if (!m_bindings.state() || m_bindings.isNil()) {
+        device::console::write("Function '" + name + "' not found.", device::console::status::error);
+        return { nullptr };
+    }
+
     if (m_bindings.isUserdata()) {
 
     }

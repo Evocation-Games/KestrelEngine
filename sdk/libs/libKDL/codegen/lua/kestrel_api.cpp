@@ -62,6 +62,25 @@ auto kdl::codegen::lua::kestrel_api::create(ast::generator *gen) -> kestrel_api
         // Command Decoder
         api.command_decoder = gen->declare_class("Kestrel.Command.Decoder", true);
         api.command_decoder_from = gen->declare_static_function(true, gen->symbol("from"), api.command_decoder);
+
+        // Kestrel Properties
+        api.kestrel_namespace = gen->declare_class("Kestrel", true);
+        api.set_game_window_title = gen->declare_static_function(true, gen->symbol("setGameWindowTitle"), api.kestrel_namespace);
+        api.set_game_window_size = gen->declare_static_function(true, gen->symbol("setGameWindowSize"), api.kestrel_namespace);
+        api.fullscreen = gen->declare_property(api.kestrel_namespace, gen->symbol("fullscreen"), nullptr, true);
+
+        // Size
+        api.size_klass = gen->declare_class("Size", true);
+
+        // Scene
+        api.scene_klass = gen->declare_class("Scene", true);
+        api.scene = gen->declare_static_function(true, gen->symbol("Scene"), api.kestrel_namespace);
+        api.push = gen->declare_function(true, gen->symbol("push"), api.scene_klass);
+        api.on_close = gen->declare_function(true, gen->symbol("onClose"), api.scene_klass);
+        api.close = gen->declare_function(true, gen->symbol("close"), api.scene_klass);
+        api.configure_elements = gen->declare_function(true, gen->symbol("configureElementsOnOpen"), api.scene_klass);
+        api.bind = gen->declare_function(true, gen->symbol("bind"), api.scene_klass);
+        api.update = gen->declare_function(true, gen->symbol("update"), api.scene_klass);
     }
     return api;
 }

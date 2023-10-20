@@ -27,32 +27,80 @@
 
 namespace codegen::ast
 {
-    template<language::preprocessor_support L>
-    struct include_library : public node
+    template<language::definition_metadata L>
+    struct project_name : public node
     {
-        explicit include_library(const std::string& name)
+        explicit project_name(const std::string& name)
             : m_name(name)
         {}
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { std::move(L::include_library(m_name)) };
+            return { std::move(L::metadata("project", m_name)) };
         }
 
     private:
         std::string m_name;
     };
 
-    template<language::preprocessor_support L>
-    struct include_file : public node
+    template<language::definition_metadata L>
+    struct author_name : public node
     {
-        explicit include_file(const std::string& name)
+        explicit author_name(const std::string& name)
             : m_name(name)
         {}
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { std::move(L::include_file(m_name)) };
+            return { std::move(L::metadata("author", m_name)) };
+        }
+
+    private:
+        std::string m_name;
+    };
+
+    template<language::definition_metadata L>
+    struct version_name : public node
+    {
+        explicit version_name(const std::string& name)
+            : m_name(name)
+        {}
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return { std::move(L::metadata("version", m_name)) };
+        }
+
+    private:
+        std::string m_name;
+    };
+
+    template<language::definition_metadata L>
+    struct license_name : public node
+    {
+        explicit license_name(const std::string& name)
+            : m_name(name)
+        {}
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return { std::move(L::metadata("license", m_name)) };
+        }
+
+    private:
+        std::string m_name;
+    };
+
+    template<language::definition_metadata L>
+    struct copyright_name : public node
+    {
+        explicit copyright_name(const std::string& name)
+            : m_name(name)
+        {}
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return { std::move(L::metadata("copyright", m_name)) };
         }
 
     private:

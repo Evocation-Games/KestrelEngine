@@ -21,41 +21,49 @@
 #pragma once
 
 #include <string>
-#include <sstream>
-#include <vector>
 #include <libCodeGen/ast/core/node.hpp>
+#include <libCodeGen/ast/symbol/symbol.hpp>
 
 namespace codegen::ast
 {
-    template<language::preprocessor_support L>
-    struct include_library : public node
+    template<language::resource_reference L>
+    struct resource_reference : public node
     {
-        explicit include_library(const std::string& name)
-            : m_name(name)
+        explicit resource_reference(std::int64_t id)
+            : m_id(id)
+        {}
+
+        explicit resource_reference(const std::string& type, std::int64_t id)
+            : m_id(id), m_type(type)
+        {}
+
+        explicit resource_reference(const std::string& container, const std::string& type, std::int64_t id)
+            : m_id(id), m_type(type), m_container(container)
         {}
 
         [[nodiscard]] auto emit() const -> emit::segment override
         {
-            return { std::move(L::include_library(m_name)) };
+            if (!m_container.empty() && !m_type.empty()) {
+                return L::typed_contained_reference(
+                    std::make_shared<ast::symbol<L>>(m_container),
+                    std::make_shared<ast::symbol<L>>(m_type),
+                    m_id
+                );
+            }
+            else if (!m_type.empty()) {
+                return L::typed_reference(
+                    std::make_shared<ast::symbol<L>>(m_type),
+                    m_id
+                );
+            }
+            else {
+                return L::global_reference(m_id);
+            }
         }
 
     private:
-        std::string m_name;
-    };
-
-    template<language::preprocessor_support L>
-    struct include_file : public node
-    {
-        explicit include_file(const std::string& name)
-            : m_name(name)
-        {}
-
-        [[nodiscard]] auto emit() const -> emit::segment override
-        {
-            return { std::move(L::include_file(m_name)) };
-        }
-
-    private:
-        std::string m_name;
+        std::int64_t m_id;
+        std::string m_type;
+        std::string m_container;
     };
 }

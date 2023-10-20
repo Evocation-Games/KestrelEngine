@@ -20,42 +20,12 @@
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <vector>
+#include <libCodeGen/ast/core/nl.hpp>
 #include <libCodeGen/ast/core/node.hpp>
-
-namespace codegen::ast
-{
-    template<language::preprocessor_support L>
-    struct include_library : public node
-    {
-        explicit include_library(const std::string& name)
-            : m_name(name)
-        {}
-
-        [[nodiscard]] auto emit() const -> emit::segment override
-        {
-            return { std::move(L::include_library(m_name)) };
-        }
-
-    private:
-        std::string m_name;
-    };
-
-    template<language::preprocessor_support L>
-    struct include_file : public node
-    {
-        explicit include_file(const std::string& name)
-            : m_name(name)
-        {}
-
-        [[nodiscard]] auto emit() const -> emit::segment override
-        {
-            return { std::move(L::include_file(m_name)) };
-        }
-
-    private:
-        std::string m_name;
-    };
-}
+#include <libCodeGen/ast/comment/comment.hpp>
+#include <libCodeGen/ast/metadata/metadata.hpp>
+#include <libCodeGen/ast/component/component.hpp>
+#include <libCodeGen/ast/preprocessor/include.hpp>
+#include <libCodeGen/ast/declaration/resource_declaration.hpp>
+#include <libCodeGen/ast/declaration/scene_declaration.hpp>
+#include <libCodeGen/ast/literal/resource_reference.hpp>
