@@ -50,8 +50,6 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 ########################################################################################################################
 ## libClang
 if (APPLE)
-    add_library(clang SHARED IMPORTED)
-    set_property(TARGET clang PROPERTY IMPORTED_LOCATION  "${LLVM_LIBS_DIR}/libclang.dylib")
     set(LIBCLANG_LIBRARY clang)
 elseif(LINUX)
     add_library(clang SHARED IMPORTED)
@@ -69,7 +67,12 @@ endif()
 file(GLOB_RECURSE kdtool_Sources src/*.cpp)
 add_executable(kdtool ${kdtool_Sources})
 set_target_properties(kdtool PROPERTIES OUTPUT_NAME kdtool)
+
+if (APPLE)
+    target_link_directories(kdtool PUBLIC ${PROJECT_SDK}/vendor/clang/macOS)
+endif()
 target_link_libraries(kdtool ${LIBCLANG_LIBRARY} CodeGen Foundation Scripting Documentation Lexer KDL)
+
 target_include_directories(kdtool PUBLIC
     ${LLVM_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src
@@ -81,3 +84,14 @@ target_include_directories(kdtool PUBLIC
 install(TARGETS kdtool
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
         DESTINATION ${PROJECT_INSTALL_DIR})
+
+if (APPLE)
+    add_custom_command(
+        TARGET kdtool
+        POST_BUILD
+            COMMAND
+                ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "/opt/homebrew/opt/llvm@15/lib" $<TARGET_FILE:kdtool> || (exit 0)
+            COMMAND
+                ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "/usr/local/opt/llvm@15/lib" $<TARGET_FILE:kdtool> || (exit 0)
+    )
+endif()

@@ -55,31 +55,31 @@ jobs:
           support/scripts/install
       - name: Tar Files (Kestrel Engine)
         run: |
-          tar -cvf KestrelEngine-Ubuntu.tar.gz ./artifacts/Kestrel.AppDir
-          sha256sum KestrelEngine-Ubuntu.tar.gz
+          tar -cvf KestrelEngine-Ubuntu-${{ github.run_number }}.tar.gz ./artifacts/Kestrel.AppDir
+          sha256sum KestrelEngine-Ubuntu-${{ github.run_number }}.tar.gz
       - name: Upload Kestrel Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-Ubuntu
-          path: KestrelEngine-Ubuntu.tar.gz
+          path: KestrelEngine-Ubuntu-${{ github.run_number }}.tar.gz
       - name: Tar Files (kdl)
         run: |
-          tar -cvf KDL-Ubuntu.tar.gz ./artifacts/kdl
-          sha256sum KDL-Ubuntu.tar.gz
+          tar -cvf KDL-Ubuntu-${{ github.run_number }}.tar.gz ./artifacts/kdl
+          sha256sum KDL-Ubuntu-${{ github.run_number }}.tar.gz
       - name: Upload KDL Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KDL-Ubuntu
-          path: KDL-Ubuntu.tar.gz
+          path: KDL-Ubuntu-${{ github.run_number }}.tar.gz
       - name: Tar Files (KDTool)
         run: |
-          tar -cvf KDTool-Ubuntu.tar.gz ./artifacts/kdtool
-          sha256sum KDTool-Ubuntu.tar.gz
+          tar -cvf KDTool-Ubuntu-${{ github.run_number }}.tar.gz ./artifacts/kdtool
+          sha256sum KDTool-Ubuntu-${{ github.run_number }}.tar.gz
       - name: Upload KDTool Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KDTool-Ubuntu
-          path: KDTool-Ubuntu.tar.gz
+          path: KDTool-Ubuntu-${{ github.run_number }}.tar.gz
 
 
   ######################################################################################################################
