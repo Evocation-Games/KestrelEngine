@@ -25,9 +25,11 @@
 #if TARGET_WINDOWS
 #include <windows.h>
 #include <shlobj.h>
+#include <libFoundation/system/filesystem/dirent_windows.hpp>
 #else
 #include <unistd.h>
 #include <pwd.h>
+#include <dirent.h>
 #endif
 
 #include <sys/stat.h>
@@ -475,4 +477,25 @@ auto foundation::filesystem::path::replace_component(std::int32_t i, const path 
         return path(result, false, m_scheme);
     }
     return {};
+}
+
+// MARK: - Children
+
+auto foundation::filesystem::path::each_child(const std::function<auto(const path &) -> void> &fn) const -> void
+{
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir(c_str())) != nullptr) {
+        while ((ent = readdir(dir)) != nullptr) {
+            fn(appending_path_component(ent->d_name));
+        }
+        closedir(dir);
+    }
+}
+
+// MARK: - Extensions
+
+auto foundation::filesystem::path::has_extension(const std::string &ext) const -> bool
+{
+    return m_components.back().ends_with("." + ext);
 }

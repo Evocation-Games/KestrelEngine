@@ -183,6 +183,19 @@ namespace foundation::filesystem
          */
         [[nodiscard]] auto replace_component(std::int32_t i, const path& replacement) const -> path;
 
+        /**
+         * Iterate over each of the children in the directory.
+         * @param fn
+         */
+        auto each_child(const std::function<auto(const path&)->void>& fn) const -> void;
+
+        /**
+         * Check to see if the path has the specified extension.
+         * @param ext The extension to test for (excluding dot)
+         * @return
+         */
+        [[nodiscard]] auto has_extension(const std::string& ext) const -> bool;
+
     public:
         /**
          * Check if the item at the specified path exists or not.
