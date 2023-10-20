@@ -80,6 +80,7 @@ auto kdl::project::build() -> void
     // If there are no scenes, then add an example.
     if (m_scenes.empty() && m_dialogs.empty()) {
         m_scenes.emplace_back("ExampleScene");
+        m_default_scene = m_scenes.back();
     }
 
     // Create the project directory structure.

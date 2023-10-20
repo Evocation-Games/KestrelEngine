@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <functional>
 #include <initializer_list>
 #include <libFoundation/availability.hpp>
 #include <libFoundation/system/filesystem/file_type.hpp>
