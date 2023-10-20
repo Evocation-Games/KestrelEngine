@@ -35,6 +35,8 @@ set(KESTREL_PLAYER_ICON_NAME "icon.png" CACHE STRING "Kestrel Packaged Icon Name
 set(KESTREL_PLAYER_ICON_PATH "support/packaging/icon-1024.png" CACHE STRING "Kestrel Icon Path")
 set(KESTREL_PLAYER_PROJECT_PATH "projects/GraphicsTestSuite/project.kdlproj" CACHE STRING "Kestrel Project Path")
 set(KESTREL_PLAYER_DATA_FILES_PATH "build/Scenario" CACHE STRING "Kestrel Data Files Path")
+set(KESTREL_VERSION "0.9.1" CACHE STRING "Kestrel Version")
+set(KESTREL_BUILD_NUMBER "1" CACHE STRING "Kestrel Build Number")
 
 if (APPLE)
     set(OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
@@ -75,6 +77,11 @@ set(PROJECT_SDK_LIBS ${PROJECT_SDK}/libs)
 set(PROJECT_SDK_BIN ${PROJECT_SDK}/bin)
 set(PROJECT_VENDOR_DIR ${CMAKE_SOURCE_DIR}/support/vendor)
 set(PROJECT_TARGETS_DIR ${CMAKE_SOURCE_DIR}/targets)
+
+add_compile_definitions(
+    "BUILD_NUMBER=\"${KESTREL_BUILD_NUMBER}\""
+    "KESTREL_VERSION=\"${KESTREL_VERSION}\""
+)
 
 ########################################################################################################################
 

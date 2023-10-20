@@ -110,7 +110,7 @@ jobs:
           ./support/scripts/compile-luajit-macos.sh
       - name: Build Kestrel Engine
         run: |
-          support/scripts/build
+          support/scripts/build --build-number=${{ github.build_number }}
           support/scripts/install
       - name: Codesign & Notarize Kestrel Engine
         env:
@@ -128,31 +128,31 @@ jobs:
             --pwd="$APPSTORECONNECT_PWD"
       - name: Tar Files (Kestrel Engine)
         run: |
-          tar -cvf KestrelEngine-macOS.tar.gz ./artifacts/Kestrel.app
-          shasum -a 256 KestrelEngine-macOS.tar.gz
+          tar -cvf KestrelEngine-macOS-${{ github.run_number }}.tar.gz ./artifacts/Kestrel.app
+          shasum -a 256 KestrelEngine-macOS-${{ github.run_number }}.tar.gz
       - name: Upload Kestrel Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-macOS
-          path: KestrelEngine-macOS.tar.gz
+          path: KestrelEngine-macOS-${{ github.run_number }}.tar.gz
       - name: Tar Files (KDL)
         run: |
-          tar -cvf KDL-macOS.tar.gz ./artifacts/kdl
-          shasum -a 256 KDL-macOS.tar.gz
+          tar -cvf KDL-macOS-${{ github.run_number }}.tar.gz ./artifacts/kdl
+          shasum -a 256 KDL-macOS-${{ github.run_number }}.tar.gz
       - name: Upload KDL Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KDL-macOS
-          path: KDL-macOS.tar.gz
+          path: KDL-macOS-${{ github.run_number }}.tar.gz
       - name: Tar Files (KDTool)
         run: |
-          tar -cvf KDTool-macOS.tar.gz ./artifacts/kdtool
-          shasum -a 256 KDTool-macOS.tar.gz
+          tar -cvf KDTool-macOS-${{ github.run_number }}.tar.gz ./artifacts/kdtool
+          shasum -a 256 KDTool-macOS-${{ github.run_number }}.tar.gz
       - name: Upload KDTool Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: KDTool-macOS
-          path: KDTool-macOS.tar.gz
+          path: KDTool-macOS-${{ github.run_number }}.tar.gz
 
   ######################################################################################################################
   windows:

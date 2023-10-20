@@ -38,6 +38,10 @@ namespace kestrel
         std::vector<std::string> unparsed_options;
 
         struct {
+            std::string string;
+        } version;
+
+        struct {
             std::uint16_t width { 1280 };
             std::uint16_t height { 800 };
             double scale { 0.0 };

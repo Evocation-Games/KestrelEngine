@@ -18,14 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <libKestrel/configuration.hpp>
+
+#if !defined(KESTREL_VERSION)
+#   define KESTREL_VERSION "0"
+#endif
+
+#if !defined(BUILD_NUMBER)
+#   define BUILD_NUMBER "0"
+#endif
 
 kestrel::configuration::configuration(const int argc, const char **argv)
 {
+    // Configure the version
+    version.string = std::string("Kestrel Game Engine v") + KESTREL_VERSION + " (Build " + BUILD_NUMBER + ")";
+
     // We need to parse the arguments being passed into the configuration.
     for (std::int32_t n = 1; n < argc; ++n) {
         std::string option(argv[n]);
-        if (option == "--scale") {
+        if (option == "-v") {
+            std::cout << version.string << std::endl;
+        }
+        else if (option == "--scale") {
             video.scale = std::strtod(argv[++n], nullptr);
         }
         else if (option == "--openal") {

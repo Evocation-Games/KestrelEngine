@@ -25,6 +25,7 @@ PROJECT="projects/ExampleProject/example.kdlproj"
 DATA_FILES=""
 ICON="support/packaging/icon-1024.png"
 BUILD="Release"
+BUILD_NUMBER="1"
 CLEAN="off"
 J=2
 
@@ -75,6 +76,10 @@ for ARG in "$@"; do
       J="${ARG#*=}"
       shift
       ;;
+    --build-number=*)
+      BUILD_NUMBER="${ARGV*=}"
+      shift
+      ;;
   esac
 done
 
@@ -90,5 +95,6 @@ cmake -DKESTREL_NAME="$NAME" \
         -DKESTREL_DATA_FILES_PATH="build/DataFiles" \
         -DKESTREL_ICON_PATH="$ICON" \
         -DCMAKE_BUILD_TYPE="$BUILD" \
+        -DKESTREL_BUILD_NUMBER="$BUILD_NUMBER" \
         -H. -Bbuild
 cmake --build build -- -j$J

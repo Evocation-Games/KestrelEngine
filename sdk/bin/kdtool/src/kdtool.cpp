@@ -31,6 +31,14 @@
 #include <libKDL/project/project.hpp>
 #include <libFoundation/string/split.hpp>
 
+#if !defined(KESTREL_VERSION)
+#   define KESTREL_VERSION "0"
+#endif
+
+#if !defined(BUILD_NUMBER)
+#   define BUILD_NUMBER "0"
+#endif
+
 auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
 {
     auto project = std::make_shared<kdtool::project::index>();
@@ -94,7 +102,12 @@ auto main(const std::int32_t argc, const char *argv[]) -> std::int32_t
             break;
         }
         else if (arg[0] == '-') {
-            if (arg == "-I") {
+            if (arg == "-v") {
+                std::cout << "Kestrel Development Tool (kdtool)" << std::endl;
+                std::cout << "\tVersion " << KESTREL_VERSION << " ";
+                std::cout << "(Build " << BUILD_NUMBER << ")";
+            }
+            else if (arg == "-I") {
                 std::string path(argv[++n]);
                 project->add_include_path(path);
             }
