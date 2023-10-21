@@ -1,0 +1,73 @@
+// Copyright (c) 2023 Tom Hancocks
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+component<Launcher.LuaScript, #1000> LogoScreen {
+	files ("Scenes/Launcher") {
+		"Launcher.lua" -> "Launcher" (scene);
+	};
+};
+
+declare Launcher.SceneDefinition {
+	new (SceneDefinitionID, "Launcher Definition") {
+		Script = #Launcher.LuaScript.1000;
+		Interface = #Launcher.SceneInterface.1000;
+		DLOG = #-1;
+	};
+};
+
+dialog<#1000> Launcher {
+    Title = "Tests";
+    Size = FrameSize(200, 400);
+    Flags = UseImGui | Passthrough | ShowsTitleBar | VerticalFlowLayout;
+
+    VerticalSpacer("S1") {
+        Size = 30;
+    };
+
+    Button ("basicDrawingTests") {
+        Frame = Frame(20, 0, 160, 30);
+        Value = "Drawing Tests";
+        Color = rgb(255, 255, 255);
+        Action = Function(pushBasicDrawingTests);
+    };
+
+    VerticalSpacer("S2") {
+        Size = 10;
+    };
+
+    Button ("mouseInteractionTests") {
+        Frame = Frame(20, 0, 160, 30);
+        Value = "Mouse Interaction Tests";
+        Color = rgb(255, 255, 255);
+        Action = Function(pushMouseInteractionTests);
+    };
+
+    VerticalSpacer("S3") {
+        Size = 10;
+    };
+
+    Button ("animationTests") {
+        Frame = Frame(20, 0, 160, 30);
+        Value = "Animation Tests";
+        Color = rgb(255, 255, 255);
+        Action = Function(pushAnimationTests);
+    };
+
+};

@@ -1,6 +1,6 @@
 <p align="center"><img src="https://raw.githubusercontent.com/EvocationGames/KestrelEngine/master/support/assets/KestrelLogoRepoHeader.png"></p>
 
-<p align="center"><a href="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml"><img src="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg"></a> <img src="https://img.shields.io/badge/version-v0.8_beta-blue.svg">
+<p align="center"><a href="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml"><img src="https://github.com/EvocationGames/KestrelEngine/actions/workflows/build.yml/badge.svg"></a> <img src="https://img.shields.io/badge/version-v0.9_beta-blue.svg">
 <img src="https://img.shields.io/badge/license-MIT-blue.svg">
 <a href="https://discord.gg/u3dbBws"><img src="https://img.shields.io/discord/590385943425318912.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"></a>
 </p>
@@ -31,6 +31,34 @@ This question gets asked a lot. Why not just completely use modern technologies.
 Kestrel's early development has been for the most part guided by the requirements of Cosmic Frontier. One of the goals with the project is that it should retain compatibility with old plug-ins _Escape Velocity_ plug-ins. This necessitates being able to handle the old formats in some capacity. The other factor is the natural way in which resource files allow for plug-ins to effortless replace existing resources.
 
 Of course it has added challenges, not least of all in the fact that the technologies are decades out of date, deprecated and/or gone. Hence why this project has reimplemented so many of them.
+
+## Kestrel Components
+There are a number of components to the Kestrel Game Engine which include;
+
+- **Kestrel**
+  - `libKestrel`<br/>
+  A static library containing all the functionality of the Kestrel Game Engine
+  
+  - `KestrelPlayer`<br/>
+  An example executable that links against _libKestrel_ that can run games built for Kestrel
+  
+- **Kestrel Development Kit**
+  - `libKDL`<br/>
+  A static library containing all the functionality for reading and assembling KDL scripts and projects
+  
+  - `kdl`<br/>
+  A command line tool linked against _libKDL_, providing the default tooling for Kestrel
+  
+  - `luatool`<br/>
+  A command line tool used to parse C++ headers files in the `libKestrel` build process so that the Lua API for Kestrel can be
+  generated, along with documentation for the API.
+  
+  - `tree-sitter-kdl`<br/>
+  A tree-sitter grammar/parser that can be used to provide KDL syntax highlighting capabilities in various text editors
+
+- **Supporting Libraries** -
+  - `libMath`<br/>
+  A static library containing all of the math related functionality.1
 
 ## Building Kestrel
 It should be relatively straightforward to get started with building Kestrel for yourself. However if you are on Windows, then please refer to the _Building Kestrel on Windows_ section, as you will need to setup MinGW/MSYS2 first.

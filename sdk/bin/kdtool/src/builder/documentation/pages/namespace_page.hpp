@@ -1,0 +1,109 @@
+// Copyright (c) 2023 Tom Hancocks
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#pragma once
+
+#include <memory>
+#include <libCodeGen/builder/builder.hpp>
+#include <libCodeGen/ast/markup.hpp>
+#include "project/structure/namespace/namespace_definition.hpp"
+#include "project/structure/symbol.hpp"
+#include "builder/documentation/pages/basic_page.hpp"
+#include "builder/documentation/components/availability_table.hpp"
+#include "builder/documentation/components/description.hpp"
+#include "builder/documentation/pages/layout_decider.hpp"
+
+namespace kdtool::builder::page
+{
+    template<codegen::language::markup_support L>
+    struct namespace_page : public basic<L>
+    {
+        namespace_page(const std::shared_ptr<project::structure::construct_definition>& definition, const std::string& root_dir, const std::string& reference_root)
+            : basic<L>(definition, root_dir, reference_root)
+        {}
+
+        [[nodiscard]] auto filename() const -> foundation::filesystem::path override
+        {
+            return basic<L>::filename().child("index");
+        }
+
+        [[nodiscard]] auto build_title_heading() const -> std::shared_ptr<codegen::ast::heading<L>> override
+        {
+            auto header = std::make_shared<codegen::ast::heading<L>>(basic<L>::symbol()->lua_identifier(), 1);
+            header->add_style_class("symbol");
+            header->add_style_class("namespace");
+            return header;
+        }
+
+        auto build_content() -> void override
+        {
+            const auto& ns = basic<L>::template definition<project::structure::namespace_definition>();
+
+            // Variables
+            if (!ns->all_variables().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Variables", 2);
+                auto variable_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &var: ns->all_variables()) {
+                    variable_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            var->name(),
+                            var->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("variable");
+                    basic<L>::layout_decision(var);
+                }
+                codegen::builder<L>::add(variable_list);
+            }
+
+            // Properties
+            if (!ns->all_properties().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Properties", 2);
+                auto properties_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &property: ns->all_properties()) {
+                    properties_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            property->name(),
+                            property->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("property");
+                    basic<L>::layout_decision(property);
+                }
+                codegen::builder<L>::add(properties_list);
+            }
+
+            // Functions
+            if (!ns->all_functions().empty()) {
+                codegen::builder<L>::template add<codegen::ast::heading<L>>("Functions", 2);
+                auto functions_list = std::make_shared<codegen::ast::list<L>>();
+                for (const auto &function: ns->all_functions()) {
+                    functions_list->template add_item<codegen::ast::list_item<L>>(
+                        std::make_shared<codegen::ast::anchor<L>>(
+                            function->symbol()->display_name(),
+                            function->symbol()->filename().name() + "." + L::extension()
+                        )
+                    )->add_style_class("function");
+                    basic<L>::layout_decision(function);
+                }
+                codegen::builder<L>::add(functions_list);
+            }
+
+        }
+    };
+}

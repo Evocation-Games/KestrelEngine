@@ -9,14 +9,22 @@
 .idea/
 
 # Build
-bin/
+artifacts/
 cmake-*-debug/
 cmake-*-release/
 cmake-*-asan/
+cmake-*-jit/
 *.o
 *.bin
 build/
-vendor/
+docs/CosmicFrontier
+docs/libKestrel/html
+docs/libKestrel/style.css
+support/vendor/
 support/packaging/appimage/appimagetool
 result.kdat
 result.ndat
+.vscode
+*.vsix
+node_modules
+package-lock.json

@@ -1,0 +1,88 @@
+@out "Hello, World";
+@format set kestrel;
+@author "Tom Hancocks";
+
+@import Kestrel;
+@import Macintosh;
+@import "test.kdl";
+
+@var $Foo = 40;
+@const $Bar = 10;
+@function Hash = __xxh64($1);
+
+@type Test : "tëst" {
+	template {
+		DWRD Foo;
+		DWRD Bar;
+	};
+	
+	field("Foo");
+	
+	field("Bar") {
+		@name(gamma) Bar;
+		@conversion($InputFormat, PICT) Foo as &;
+		Foo as Integer<0, 100>&;
+		Bar = 5 [
+			Alpha = 0,
+			Beta = 1,
+			Gamma = 2,
+		];
+		Bar = #60;
+		Bar = #Awesome.Test.70;
+	};
+	
+	@setter field("Baz");
+};
+
+@example declare Example.Test {
+	new (#auto) {
+		Bar = 4 + 6 * (2 >> $shift);
+	};
+};
+
+component "Audio" {
+	path_prefix = "Foundation/Audio/";
+	namespace = "audio";
+	base_id = #1000;
+	as_type = LuaScript;
+	
+	files {
+		"SoundEffects.lua" ("SoundEffects");
+	};
+};
+
+@lua_export component "Base Models" {
+	path_prefix = "";
+	namespace = "models";
+	base_id = #1000;
+	as_type = LuaScript;
+
+	types {
+		Achievement;
+		Explosion;
+		CharacterTemplate;
+		Description;
+		Disaster;
+		Asteroid;
+		ScheduledEvent;
+		Fleet;
+		Government;
+		SpecializedCommodity;
+		Mission;
+		Nebula;
+		Outfit;
+		Person;
+		Rank;
+		Ship;
+		ShipAnimation;
+		AgentTypeClassification;
+		Sprite;
+		StellarObject;
+		StatusBarAppearance;
+		StarSystem;
+		Theme;
+		Weapon;
+		GalacticMapStyle;
+		GameMenuLayout;
+	};
+};

@@ -3,6 +3,7 @@ name: Kestrel Game Engine CI
 on: [push]
 
 jobs:
+  ######################################################################################################################
   linux:
     name: Build on Linux
     strategy:
@@ -12,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.env.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
@@ -42,6 +43,9 @@ jobs:
           chmod a+x build/appimagetool
           wget https://github.com/AppImage/AppImageKit/releases/download/13/AppRun-x86_64 -O build/AppRun
           chmod a+x build/AppRun
+      - name: Build LuaJIT
+        run: |
+          cd submodules/LuaJIT && make && sudo make install
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
@@ -49,12 +53,36 @@ jobs:
         run: |
           support/scripts/build
           support/scripts/install
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+      - name: Tar Files (Kestrel Engine)
+        run: |
+          tar -cvf KestrelEngine-Ubuntu-${{ github.run_number }}.tar.gz ./artifacts/Kestrel.AppDir
+          sha256sum KestrelEngine-Ubuntu-${{ github.run_number }}.tar.gz
+      - name: Upload Kestrel Artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-Ubuntu
-          path: ./bin
+          path: KestrelEngine-Ubuntu-${{ github.run_number }}.tar.gz
+      - name: Tar Files (kdl)
+        run: |
+          tar -cvf KDL-Ubuntu-${{ github.run_number }}.tar.gz ./artifacts/kdl
+          sha256sum KDL-Ubuntu-${{ github.run_number }}.tar.gz
+      - name: Upload KDL Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDL-Ubuntu
+          path: KDL-Ubuntu-${{ github.run_number }}.tar.gz
+      - name: Tar Files (KDTool)
+        run: |
+          tar -cvf KDTool-Ubuntu-${{ github.run_number }}.tar.gz ./artifacts/kdtool
+          sha256sum KDTool-Ubuntu-${{ github.run_number }}.tar.gz
+      - name: Upload KDTool Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDTool-Ubuntu
+          path: KDTool-Ubuntu-${{ github.run_number }}.tar.gz
 
+
+  ######################################################################################################################
   macOS:
     name: Build on macOS
     strategy:
@@ -63,10 +91,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Homebrew Dependencies
-        run: |
-          brew install llvm@15
+        uses: actions/checkout@v3
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
@@ -80,9 +105,12 @@ jobs:
         run: |
           `cd submodules/png && git apply ../../support/patches/libpng.macos.patch`
           ./support/scripts/compile-library-macos.sh png libpng16 PNG
+      - name: Build LuaJIT
+        run: |
+          ./support/scripts/compile-luajit-macos.sh
       - name: Build Kestrel Engine
         run: |
-          support/scripts/build
+          support/scripts/build --build-number=${{ github.build_number }}
           support/scripts/install
       - name: Codesign & Notarize Kestrel Engine
         env:
@@ -98,12 +126,35 @@ jobs:
             --cert-pwd="$DISTRIBUTION_CERTIFICATE_PWD" \
             --user="$APPSTORECONNECT_USERNAME" \
             --pwd="$APPSTORECONNECT_PWD"
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+      - name: Tar Files (Kestrel Engine)
+        run: |
+          tar -cvf KestrelEngine-macOS-${{ github.run_number }}.tar.gz ./artifacts/Kestrel.app
+          shasum -a 256 KestrelEngine-macOS-${{ github.run_number }}.tar.gz
+      - name: Upload Kestrel Artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-macOS
-          path: ./bin
+          path: KestrelEngine-macOS-${{ github.run_number }}.tar.gz
+      - name: Tar Files (KDL)
+        run: |
+          tar -cvf KDL-macOS-${{ github.run_number }}.tar.gz ./artifacts/kdl
+          shasum -a 256 KDL-macOS-${{ github.run_number }}.tar.gz
+      - name: Upload KDL Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDL-macOS
+          path: KDL-macOS-${{ github.run_number }}.tar.gz
+      - name: Tar Files (KDTool)
+        run: |
+          tar -cvf KDTool-macOS-${{ github.run_number }}.tar.gz ./artifacts/kdtool
+          shasum -a 256 KDTool-macOS-${{ github.run_number }}.tar.gz
+      - name: Upload KDTool Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDTool-macOS
+          path: KDTool-macOS-${{ github.run_number }}.tar.gz
 
+  ######################################################################################################################
   windows:
     name: Build on Windows
     strategy:
@@ -116,26 +167,29 @@ jobs:
         shell: ${{ matrix.env.shell }} {0}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup MinGW/MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.env.msystem }}
-          install: git mingw-w64-${{ matrix.env.arch }}-toolchain
-      - name: Install dependencies
-        run: |
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-clang
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-cmake
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-ninja
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-openal
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-mesa
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glew
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-freetype
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
-          pacman -S --noconfirm mingw-w64-${{ matrix.env.arch }}-glfw
+          install: >-
+            git 
+            mingw-w64-${{ matrix.env.arch }}-toolchain
+            mingw-w64-${{ matrix.env.arch }}-clang
+            mingw-w64-${{ matrix.env.arch }}-cmake
+            mingw-w64-${{ matrix.env.arch }}-make
+            mingw-w64-${{ matrix.env.arch }}-ninja
+            mingw-w64-${{ matrix.env.arch }}-openal
+            mingw-w64-${{ matrix.env.arch }}-mesa
+            mingw-w64-${{ matrix.env.arch }}-glew
+            mingw-w64-${{ matrix.env.arch }}-freetype
+            mingw-w64-${{ matrix.env.arch }}-glfw
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
+      - name: Build LuaJIT
+        run: |
+          cd submodules/LuaJIT && mingw32-make BUILDMODE=static && mingw32-make install
       - name: Build Kestrel Engine
         env:
           CC: ${{ matrix.env.CC }}
@@ -144,7 +198,35 @@ jobs:
           support/scripts/build
           support/scripts/install
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: KestrelEngine-Windows
-          path: ./bin
+          path: ./artifacts
+
+  ######################################################################################################################
+  vscode:
+    name: VSCode Extension
+    strategy:
+      matrix:
+        env:
+          - { os: ubuntu-latest, compiler: LLVM, CC: clang, CXX: clang++ }
+    runs-on: ${{ matrix.env.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - name: Build Extension
+        run: |
+          npm install -g @vscode/vsce
+          npm install js-yaml --save-dev
+          cd sdk/extra/vscode/kdl
+          npx js-yaml syntaxes/kdl.yaml > syntaxes/kdl.tmLanguage.json
+          vsce package -o "KDL.vsix"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: KDL.vsix
+          path: ./sdk/extra/vscode/kdl/KDL.vsix

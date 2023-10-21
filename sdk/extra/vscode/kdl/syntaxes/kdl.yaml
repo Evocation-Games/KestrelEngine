@@ -1,0 +1,442 @@
+$schema: https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json
+name: KDL
+scopeName: source.kdl
+
+patterns:
+  - { include: '#comment' }
+  - { include: '#metadata' }
+  - { include: '#import' }
+  - { include: '#argumentedDecorator' }
+  - { include: '#decorator' }
+  - { include: '#component' }
+  - { include: '#module' }
+  - { include: '#typeDefinition' }
+  - { include: '#resourceDeclaration' }
+  - { include: '#scene' }
+
+repository:
+  comment:
+    match: '[/]{2}[^\n]*'
+    name: comment.line.double-slash
+
+#######################################################################################################################
+## Metadata / Directives
+  metadata:
+    begin: '(@(project|author|version|copyright|license|email))'
+    end: ';'
+    patterns:
+      - { include: '#string' }
+    beginCaptures:
+      '1': { name: 'meta.preprocessor' }
+
+  import:
+    begin: '(@import)'
+    end: ';'
+    patterns:
+      - { include: '#moduleName' }
+    beginCaptures:
+      '1': { name: 'meta.preprocessor' }
+
+  moduleName:
+    match: '(Macintosh|Kestrel|SpriteWorld)|([A-Za-z_][A-Za-z0-9_]*)'
+    captures:
+      '1': { name: 'entity.other.inherited-class' }
+      '2': { name: 'entity.name.tag' }
+
+# Decorators
+  decorator:
+    match: '(@[A-Za-z_][A-Za-z0-9_]*)'
+    captures:
+      '1': { name: entity.other.attribute-name }
+
+  argumentedDecorator:
+    begin: '(@[A-Za-z_][A-Za-z0-9_]*)\('
+    end: '\)'
+    beginCaptures:
+      '1': { name: entity.other.attribute-name }
+    patterns:
+      - { include: '#string' }
+      - { include: '#integer' }
+      - { include: '#identifier' }
+      - { include: '#resourceReference' }
+
+#######################################################################################################################
+## Components
+  component:
+    begin: '\b(component)'
+    end: ';'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#componentStatement' }
+      - { include: '#componentBody' }
+    applyEndPatternLast: 1
+
+  componentStatement:
+    begin: '\<'
+    end: '\>\s*([A-Za-z_][A-Za-z0-9_]*)'
+    beginCaptures:
+      '1': { name: keyword }
+    endCaptures:
+      '1': { name: entity.name.type }
+    patterns:
+      - { include: '#typeName' }
+      - { include: '#resourceReference' }
+
+  componentBody:
+    begin: '\{'
+    end: '\}'
+    patterns:
+      - { include: '#componentFiles' }
+      - { include: '#componentExport' }
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+
+  componentFiles:
+    begin: '\b(files)'
+    end: ';'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#componentFilesStatement' }
+      - { include: '#componentFilesBody' }
+    applyEndPatternLast: 1
+
+  componentFilesStatement:
+    begin: '\('
+    end: '\)'
+    patterns:
+      - { include: '#string' }
+  
+  componentFilesBody:
+    begin: '\{'
+    end: '\}'
+    patterns:
+      - { include: '#componentFileDefinition' }
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+
+  componentFileDefinition:
+    match: '("[^"]*")(\s*-\>\s*("[^"]*"))?(\s*\(([A-Za-z_][A-Za-z0-9_]*)\))?\s*;'
+    captures:
+      '1': { name: string.quoted.double }
+      '3': { name: string.quoted.double }
+      '5': { name: entity.name.tag }
+  
+  componentExport:
+    begin: '\b(api_export)\s*\{'
+    end: '\};'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#componentExportType' }
+      - { include: '#comment' }
+      - { include: '#decorator' }
+      - { include: '#argumentedDecorator' }
+
+  componentExportType:
+    match: '([A-Za-z_][A-Za-z0-9_]*)\s*;'
+    captures:
+      '1': { name: entity.name.type }
+
+#######################################################################################################################
+## Module Definition
+
+  module:
+    begin: '\b(module)\s+([A-Za-z_][A-Za-z0-9_]*)\s*\{'
+    end: '\};'
+    beginCaptures:
+      '1': { name: keyword }
+      '2': { name: entity.name.tag }
+    patterns:
+      - { include: '#implicitImport'}
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+
+  implicitImport:
+    begin: '\b(import)'
+    end: ';'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#moduleName' }
+      - { include: '#string' }
+
+#######################################################################################################################
+## Type Definition
+
+  typeDefinition:
+    begin: '\b(type)\s+([A-Za-z_][A-Za-z0-9_]*)\s*:\s*("([[:alnum:]]|_|-){4}")\s*\{'
+    end: '};'
+    beginCaptures:
+      '1': { name: keyword }
+      '2': { name: entity.name.type }
+      '3': { name: string.quote.double }
+    patterns:
+      - { include: '#comment' }
+      - { include: '#typeFieldDefinition_autoSynthesize' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#typeBinaryTemplate' }
+      - { include: '#typeConstructor' }
+      - { include: '#typeFieldDefinition' }
+
+  typeBinaryTemplate:
+    begin: '\b(template)\s*\{'
+    end: '\};'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#typeBinaryTemplateField' }
+
+  typeBinaryTemplateField:
+    match: '\b(((D|H)(BYT|WRD|LNG|QWD))|((P|C)STR)|BOOL|BBIT|RECT|RSRC|HEXD|C[0-9A-Fa-f]{3})\s+([A-Za-z_][A-Za-z0-9_]*)\s*;'
+    captures:
+      '1': { name: entity.name.type }
+      '7': { name: variable.name }
+
+  typeConstructor:
+    begin: '\b(constructor)'
+    end: ';'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#typeConstructorParameters' }
+      - { include: '#typeConstructorBody' }
+    applyEndPatternLast: 1
+
+  typeConstructorParameters:
+    begin: '\('
+    end: '\)'
+    patterns:
+      - { include: '#identifier' }
+
+  typeConstructorBody:
+    begin: '\{'
+    end: '\}'
+    patterns:
+      - { include: '#comment' }
+      - { include: '#this' }
+      - { include: '#resourceReference' }
+      - { include: '#identifier' }
+      - { include: '#string' }
+      - { include: '#integer' }
+      - { include: '#booleanLiterals'}
+
+#######################################################################################################################
+## Type Field Definition
+
+  typeFieldDefinition:
+    begin: '\b(field)\s*\(("[A-Za-z_][A-Za-z0-9_]*")\)'
+    beginCaptures:
+      '1': { name: keyword }
+      '2': { name: string.quoted.double }
+    end: ';'
+    patterns:
+      - { include: '#typeFieldRepeatable' }
+      - { include: '#typeFieldBody' }
+    applyEndPatternLast: 1
+
+  typeFieldDefinition_autoSynthesize:
+    begin: '\b(@synthesize)\s+(field)\s*\(("[A-Za-z_][A-Za-z0-9_]*")\)\s*='
+    beginCaptures:
+      '1': { name: entity.other.attribute-name }
+      '2': { name: keyword }
+      '3': { name: string.quoted.double }
+    end: ';'
+    patterns:
+      - { include: '#resourceReference' }
+      - { include: '#identifier' }
+      - { include: '#string' }
+      - { include: '#integer' }
+      - { include: '#booleanLiterals'}
+
+  typeFieldRepeatable:
+    begin: '\b(repeatable)\s*\<'
+    end: '\>'
+    beginCaptures:
+      '1': { name: keyword }
+    patterns:
+      - { include: '#integer' }
+      - { include: '#identifier' }
+
+  typeFieldBody:
+    begin: '\{'
+    end: '\}'
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#typeFieldValueDefinition' }
+
+  typeFieldValueDefinition:
+    begin: '\b([A-Za-z_][A-Za-z0-9_]*)(\<\s*(\$([A-Za-z_][A-Za-z0-9_]*))\s*\>)?(\s+as)?(\s+([A-Za-z_][A-Za-z0-9_]*)?\&?)\s*='
+    end: ';'
+    beginCaptures:
+      '1': { name: variable.name }
+      '3': { name: variable.name }
+      '5': { name: keyword }
+      '6': { name: keyword.operator }
+      '7': { name: entity.name.type }
+    patterns:
+      - { include: '#resourceReference' }
+      - { include: '#identifier' }
+      - { include: '#string' }
+      - { include: '#integer' }
+      - { include: '#booleanLiterals'}
+      - { include: '#symbolList' }
+    applyEndPatternLast: 1
+
+  symbolList:
+    begin: '\['
+    end: '\]'
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#symbolDefinition' }
+
+  symbolDefinition:
+    begin: '\b([A-Za-z_][A-Za-z0-9_]*)\s*='
+    end: ','
+    beginCaptures:
+      '1': { name: variable.name }
+    patterns:
+      - { include: '#resourceReference' }
+      - { include: '#integer' }
+
+#######################################################################################################################
+## Declaration
+
+  resourceDeclaration:
+    begin: '\b(declare)\s+([A-Za-z_][A-Za-z0-9_]*)(\.([A-Za-z_][A-Za-z0-9_]*))?\s*\{'
+    end: '\};'
+    beginCaptures:
+      '1': { name: keyword }
+      '2': { name: entity.name.type }
+      '4': { name: entity.name.type }
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#resourceNewInstance' }
+      - { include: '#resourceOverrideInstance' }
+      - { include: '#resourceDuplicateInstance' }
+
+  resourceNewInstance:
+    begin: '\b(new)(\s*\(((\#([A-Za-z_][A-Za-z0-9_]*\.)*(-?[0-9]+))|("[^"]*")|[\s,])*\))?\s\{'
+    end: '\}'
+    beginCaptures:
+      '1': { name: keyword }
+      '4': { name: constant.numeric }
+      '7': { name: string.quoted.double }
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#resourceInstanceFieldValue' }
+
+  resourceOverrideInstance:
+    begin: '\b(override)(\s*\(((\#([A-Za-z_][A-Za-z0-9_]*\.)*(-?[0-9]+))|("[^"]*")|[\s,])*\))?\s\{'
+    end: '\}'
+    beginCaptures:
+      '1': { name: keyword }
+      '4': { name: constant.numeric }
+      '7': { name: string.quoted.double }
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#resourceInstanceFieldValue' }
+
+  resourceDuplicateInstance:
+    begin: '\b(duplicate)\s*\(\s*(\#([A-Za-z_][A-Za-z0-9_]*\.)*(-?[0-9]+))\s+(as)\s+(\#([A-Za-z_][A-Za-z0-9_]*\.)*(-?[0-9]+))(\s*,\s*("[^"]*"))?\s*\)\s*\{'
+    end: '\}'
+    beginCaptures:
+      '1': { name: keyword }
+      '2': { name: constant.numeric }
+      '5': { name: keyword }
+      '6': { name: constant.numeric }
+      '10': { name: string.quoted.double }
+    patterns:
+      - { include: '#comment' }
+      - { include: '#argumentedDecorator' }
+      - { include: '#decorator' }
+      - { include: '#resourceInstanceFieldValue' }
+
+  resourceInstanceFieldValue:
+    begin: '\b([A-Za-z_][A-Za-z0-9_]*)\s*='
+    end: ';'
+    beginCaptures:
+      '1': { name: variable.name }
+    patterns:
+      - { include: '#resourceNewInstance' }
+      - { include: '#resourceReference' }
+      - { include: '#identifier' }
+      - { include: '#string' }
+      - { include: '#integer' }
+      - { include: '#booleanLiterals'}
+
+#######################################################################################################################
+## Scene / Dialog
+
+  scene:
+    begin: '\b(scene|dialog)\s*(\<\s*((#([A-Za-z_][A-Za-z0-9_]*\.)*(-?[0-9]+))|([A-Za-z_][A-Za-z0-9_]*))\s*\>)?\s*([A-Za-z_][A-Za-z0-9_]*)\s*\{'
+    end: '\};'
+    beginCaptures:
+      '1': { name: keyword }
+      '4': { name: constant.numeric }
+      '7': { name: entity.name.tag }
+      '8': { name: entity.name.tag }
+    patterns:
+      - { include: '#resourceInstanceFieldValue' }
+      - { include: '#elementDefinition' }
+
+  elementDefinition:
+    begin: '\b([A-Za-z_][A-Za-z0-9_]*)\s*\(("[^"]*")\)\s*\{'
+    end: '\};'
+    beginCaptures:
+      '1': { name: entity.name.type }
+      '2': { name: string.quoted.double }
+    patterns:
+      - { include: '#resourceInstanceFieldValue' }
+
+
+#######################################################################################################################
+## Literals
+
+  this:
+    name: constant.language
+    match: '\bthis\b'
+
+  string:
+    match: '"[^"]*"'
+    name: string.quouted.double
+
+  integer:
+    match: '(-?[0-9]+)|(0(X|x)[0-9A-Fa-f]+)'
+    name: constant.numeric
+
+  identifier:
+    match: '[A-Za-z_][A-Za-z0-9_]*'
+    name: entity.name.tag
+
+  resourceReference:
+    match: '#([A-Za-z_][A-Za-z0-9_]*\.)*(-?[[:digit:]]+)'
+    captures:
+      '0': { name: constant.numeric }
+
+  typeName:
+    match: '([A-Za-z_][A-Za-z0-9_]*)(\.[A-Za-z_][A-Za-z0-9_]*)?'
+    captures: 
+      '0': { name: entity.name.type }
+
+  booleanLiterals:
+    match: '(true|false)'
+    name: constant.language
