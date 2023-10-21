@@ -91,6 +91,15 @@ endif()
 
 add_subdirectory(sdk/vendor/imgui)
 add_subdirectory(submodules/graphite)
+
+if (APPLE)
+    add_subdirectory(sdk/libs/libMacOS)
+elseif (LINUX)
+    add_subdirectory(sdk/libs/libLinux)
+elseif (WINDOWS)
+    add_subdirectory(sdk/libs/libWindows)
+endif()
+
 add_subdirectory(sdk/libs/libMath)
 add_subdirectory(sdk/libs/libECS)
 add_subdirectory(sdk/libs/libFoundation)
