@@ -18,22 +18,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
-
-########################################################################################################################
-## Project
-project(Math LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 20)
-
-########################################################################################################################
-## libMath
-file(GLOB_RECURSE libMath_Sources
-    *.cpp
-)
-
-add_library(Math ${libMath_Sources})
-target_link_libraries(Math SIMD)
-target_include_directories(Math PUBLIC
-    ${PROJECT_SDK_LIBS}
-    ${PROJECT_SUBMODULE_DIR}/graphite/libs
-)
+test_suite(ECS)
+    test_case(StoragePool)
+        test(acquire_returnsReferencesWithExpectedValues)
+        test(destroyReference_releasesAcquiredValueBackToPool)
+        test(acquire_expandsPoolWhenDepleted)
+        test(capacity_reportsExpectedValue)
+    end_test_case()
+    test_case(Storage)
+        test(createEntity_returnsValidStorageLink)
+        test(getEntity_returnsValidStorageLink)
+        test(subscript_returnsValidStorageLink)
+        test(ephemeralGet_returnsValidEntityReference)
+        test(reacquiringEntity_correctlyResetsPreviousValues)
+    end_test_case()
+    test_case(EntityIteration)
+        test(iterate_onlyVisitsCreatedEntities)
+        test(iterate_skipDestroyedEntities)
+    end_test_case()
+end_test_suite()

@@ -22,18 +22,18 @@ cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 ########################################################################################################################
 ## Project
-project(Math LANGUAGES CXX)
+project(ECS LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 ########################################################################################################################
 ## libMath
-file(GLOB_RECURSE libMath_Sources
+file(GLOB_RECURSE libECS_Sources
     *.cpp
 )
 
-add_library(Math ${libMath_Sources})
-target_link_libraries(Math SIMD)
-target_include_directories(Math PUBLIC
+add_library(ECS ${libECS_Sources})
+target_link_libraries(ECS SIMD Math)
+target_include_directories(ECS PUBLIC
     ${PROJECT_SDK_LIBS}
     ${PROJECT_SUBMODULE_DIR}/graphite/libs
 )
