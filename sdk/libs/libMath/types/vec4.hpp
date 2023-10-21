@@ -23,54 +23,60 @@
 #include <libSIMD/float32.hpp>
 #include <cmath>
 #include <numbers>
+#include <libMath/types/vec2.hpp>
+#include <libMath/types/vec3.hpp>
 
 namespace math
 {
-    struct vec2
+    struct vec4
     {
     public:
-        vec2() = default;
+        vec4() = default;
 
-        explicit vec2(simd::float32 v) : m_value(v) {}
-        explicit vec2(float u) : m_value(simd::float32::constant(u)) {}
-        vec2(float x, float y) : m_value(x, y, x, y) {}
-        vec2(vec2&& v) noexcept = default;
-        vec2(const vec2& v) = default;
+        explicit vec4(simd::float32 v) : m_value(v) {}
+        explicit vec4(float u) : m_value(simd::float32::constant(u)) {}
+        vec4(float x, float y, float z, float w) : m_value(x, y, z, w) {}
+        vec4(vec4&& v) noexcept = default;
+        vec4(const vec4& v) = default;
+        explicit vec4(const vec2& v, float z = 0.f, float w = 0.f) : m_value(v.x(), v.y(), z, w) {}
+        explicit vec4(const vec3& v, float w = 0.f) : m_value(v.x(), v.y(), v.z(), w) {}
 
         [[nodiscard]] inline auto x() const -> float { return m_value[0]; }
         [[nodiscard]] inline auto y() const -> float { return m_value[1]; }
+        [[nodiscard]] inline auto z() const -> float { return m_value[2]; }
+        [[nodiscard]] inline auto w() const -> float { return m_value[3]; }
 
-        auto operator= (const vec2& v) -> vec2& = default;
-        auto operator= (float s) -> vec2&
+        auto operator= (const vec4& v) -> vec4& = default;
+        auto operator= (float s) -> vec4&
         {
             m_value = simd::float32::constant(s);
             return *this;
         }
 
-        auto operator+ (float f) const -> vec2 { return vec2(m_value + f); }
-        auto operator- (float f) const -> vec2 { return vec2(m_value - f); }
-        auto operator* (float f) const -> vec2 { return vec2(m_value * f); }
-        auto operator/ (float f) const -> vec2 { return vec2(m_value / f); }
+        auto operator+ (float f) const -> vec4 { return vec4(m_value + f); }
+        auto operator- (float f) const -> vec4 { return vec4(m_value - f); }
+        auto operator* (float f) const -> vec4 { return vec4(m_value * f); }
+        auto operator/ (float f) const -> vec4 { return vec4(m_value / f); }
 
-        auto operator+ (const vec2& v) const -> vec2 { return vec2(m_value + v.m_value); }
-        auto operator- (const vec2& v) const -> vec2 { return vec2(m_value - v.m_value); }
-        auto operator* (const vec2& v) const -> vec2 { return vec2(m_value * v.m_value); }
-        auto operator/ (const vec2& v) const -> vec2 { return vec2(m_value / v.m_value); }
+        auto operator+ (const vec4& v) const -> vec4 { return vec4(m_value + v.m_value); }
+        auto operator- (const vec4& v) const -> vec4 { return vec4(m_value - v.m_value); }
+        auto operator* (const vec4& v) const -> vec4 { return vec4(m_value * v.m_value); }
+        auto operator/ (const vec4& v) const -> vec4 { return vec4(m_value / v.m_value); }
 
-        [[nodiscard]] auto cross(const vec2& v) const -> vec2
+        [[nodiscard]] auto cross(const vec4& v) const -> vec4
         {
-            return vec2(m_value * v.m_value.reversed());
+            return vec4(m_value * v.m_value.reversed());
         }
 
-        [[nodiscard]] auto dot(const vec2& v) const -> float
+        [[nodiscard]] auto dot(const vec4& v) const -> float
         {
             auto xx = m_value * v.m_value;
             return (xx + xx.reversed())[0];
         }
 
-        [[nodiscard]] auto lerp(const vec2& v, float t) const -> vec2
+        [[nodiscard]] auto lerp(const vec4& v, float t) const -> vec4
         {
-            return vec2(m_value + ((v.m_value - m_value) * t));
+            return vec4(m_value + ((v.m_value - m_value) * t));
         }
 
         [[nodiscard]] auto magnitude() const -> float
@@ -78,20 +84,20 @@ namespace math
             return std::sqrt(dot(*this));
         }
 
-        [[nodiscard]] auto unit() const -> vec2
+        [[nodiscard]] auto unit() const -> vec4
         {
             return *this / magnitude();
         }
 
-        [[nodiscard]] auto angle_to(const vec2& v) const -> float
+        [[nodiscard]] auto angle_to(const vec4& v) const -> float
         {
             auto xx = v.m_value - m_value;
             return (::atan2f(xx[0], xx[1]) * 180.f) / std::numbers::pi_v<float>;
         }
 
-        [[nodiscard]] auto round() const -> vec2
+        [[nodiscard]] auto round() const -> vec4
         {
-            return vec2(m_value.round());
+            return vec4(m_value.round());
         }
 
     private:

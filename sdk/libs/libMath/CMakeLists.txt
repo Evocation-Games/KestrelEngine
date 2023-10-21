@@ -26,7 +26,7 @@ project(Math LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 ########################################################################################################################
-## libKDL
+## libMath
 file(GLOB_RECURSE libMath_Sources
     *.cpp
 )
