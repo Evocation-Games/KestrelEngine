@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include <libSIMD/float32.hpp>
 #include <cmath>
 #include <numbers>
+#include <libSIMD/float32.hpp>
 
 namespace math
 {
@@ -52,15 +52,40 @@ namespace math
             return *this;
         }
 
-        auto operator+ (float f) const -> vec2 { return vec2(m_value + f); }
-        auto operator- (float f) const -> vec2 { return vec2(m_value - f); }
-        auto operator* (float f) const -> vec2 { return vec2(m_value * f); }
-        auto operator/ (float f) const -> vec2 { return vec2(m_value / f); }
+        [[nodiscard]] inline auto operator== (vec2 v) const -> bool
+        {
+            return (m_value[0] == v.m_value[0]) && (m_value[1] == v.m_value[1]);
+        }
 
-        auto operator+ (vec2 v) const -> vec2 { return vec2(m_value + v.m_value); }
-        auto operator- (vec2 v) const -> vec2 { return vec2(m_value - v.m_value); }
-        auto operator* (vec2 v) const -> vec2 { return vec2(m_value * v.m_value); }
-        auto operator/ (vec2 v) const -> vec2 { return vec2(m_value / v.m_value); }
+        [[nodiscard]] inline auto operator!= (vec2 v) const -> bool
+        {
+            return (m_value[0] != v.m_value[0]) && (m_value[1] != v.m_value[1]);
+        }
+
+        [[nodiscard]] inline auto operator+ (float f) const -> vec2 { return vec2(m_value + f); }
+        [[nodiscard]] inline auto operator- (float f) const -> vec2 { return vec2(m_value - f); }
+        [[nodiscard]] inline auto operator* (float f) const -> vec2 { return vec2(m_value * f); }
+        [[nodiscard]] inline auto operator/ (float f) const -> vec2 { return vec2(m_value / f); }
+
+        [[nodiscard]] inline auto operator+ (vec2 v) const -> vec2 { return vec2(m_value + v.m_value); }
+        [[nodiscard]] inline auto operator- (vec2 v) const -> vec2 { return vec2(m_value - v.m_value); }
+        [[nodiscard]] inline auto operator* (vec2 v) const -> vec2 { return vec2(m_value * v.m_value); }
+        [[nodiscard]] inline auto operator/ (vec2 v) const -> vec2 { return vec2(m_value / v.m_value); }
+
+        [[nodiscard]] auto round() const -> vec2
+        {
+            return vec2(m_value.round());
+        }
+
+        [[nodiscard]] auto floor() const -> vec2
+        {
+            return vec2(m_value.floor());
+        }
+
+        [[nodiscard]] auto ceil() const -> vec2
+        {
+            return vec2(m_value.ceil());
+        }
 
         [[nodiscard]] auto cross(vec2 v) const -> vec2
         {
@@ -83,6 +108,12 @@ namespace math
             return std::sqrt(dot(*this));
         }
 
+        [[nodiscard]] auto distance_to(vec2 v) const -> float
+        {
+            auto xx = (v.m_value - m_value).pow(2);
+            return std::sqrtf((xx + xx.reversed())[0]);
+        }
+
         [[nodiscard]] auto unit() const -> vec2
         {
             return *this / magnitude();
@@ -92,11 +123,6 @@ namespace math
         {
             auto xx = v.m_value - m_value;
             return (::atan2f(xx[0], xx[1]) * 180.f) / std::numbers::pi_v<float>;
-        }
-
-        [[nodiscard]] auto round() const -> vec2
-        {
-            return vec2(m_value.round());
         }
 
         friend struct line;
