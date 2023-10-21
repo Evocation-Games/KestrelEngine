@@ -37,7 +37,7 @@ namespace math
         vec3(float x, float y, float z) : m_value(x, y, z, 0) {}
         vec3(vec3&& v) noexcept = default;
         vec3(const vec3& v) = default;
-        explicit vec3(const vec2& v, float z = 0.f) : m_value(v.x(), v.y(), z, 0) {}
+        explicit vec3(vec2 v, float z = 0.f) : m_value(v.x(), v.y(), z, 0) {}
 
         [[nodiscard]] inline auto x() const -> float { return m_value[0]; }
         [[nodiscard]] inline auto y() const -> float { return m_value[1]; }
@@ -55,23 +55,23 @@ namespace math
         auto operator* (float f) const -> vec3 { return vec3(m_value * f); }
         auto operator/ (float f) const -> vec3 { return vec3(m_value / f); }
 
-        auto operator+ (const vec3& v) const -> vec3 { return vec3(m_value + v.m_value); }
-        auto operator- (const vec3& v) const -> vec3 { return vec3(m_value - v.m_value); }
-        auto operator* (const vec3& v) const -> vec3 { return vec3(m_value * v.m_value); }
-        auto operator/ (const vec3& v) const -> vec3 { return vec3(m_value / v.m_value); }
+        auto operator+ (vec3 v) const -> vec3 { return vec3(m_value + v.m_value); }
+        auto operator- (vec3 v) const -> vec3 { return vec3(m_value - v.m_value); }
+        auto operator* (vec3 v) const -> vec3 { return vec3(m_value * v.m_value); }
+        auto operator/ (vec3 v) const -> vec3 { return vec3(m_value / v.m_value); }
 
-        [[nodiscard]] auto cross(const vec3& v) const -> vec3
+        [[nodiscard]] auto cross(vec3 v) const -> vec3
         {
             return vec3(m_value * v.m_value.reversed());
         }
 
-        [[nodiscard]] auto dot(const vec3& v) const -> float
+        [[nodiscard]] auto dot(vec3 v) const -> float
         {
             auto xx = m_value * v.m_value;
             return (xx + xx.reversed())[0];
         }
 
-        [[nodiscard]] auto lerp(const vec3& v, float t) const -> vec3
+        [[nodiscard]] auto lerp(vec3 v, float t) const -> vec3
         {
             return vec3(m_value + ((v.m_value - m_value) * t));
         }
@@ -86,7 +86,7 @@ namespace math
             return *this / magnitude();
         }
 
-        [[nodiscard]] auto angle_to(const vec3& v) const -> float
+        [[nodiscard]] auto angle_to(vec3 v) const -> float
         {
             auto xx = v.m_value - m_value;
             return (::atan2f(xx[0], xx[1]) * 180.f) / std::numbers::pi_v<float>;

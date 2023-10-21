@@ -26,6 +26,11 @@
 
 namespace math
 {
+    namespace geometry {
+        struct triangle;
+        struct polygon;
+    }
+
     struct vec2
     {
     public:
@@ -52,23 +57,23 @@ namespace math
         auto operator* (float f) const -> vec2 { return vec2(m_value * f); }
         auto operator/ (float f) const -> vec2 { return vec2(m_value / f); }
 
-        auto operator+ (const vec2& v) const -> vec2 { return vec2(m_value + v.m_value); }
-        auto operator- (const vec2& v) const -> vec2 { return vec2(m_value - v.m_value); }
-        auto operator* (const vec2& v) const -> vec2 { return vec2(m_value * v.m_value); }
-        auto operator/ (const vec2& v) const -> vec2 { return vec2(m_value / v.m_value); }
+        auto operator+ (vec2 v) const -> vec2 { return vec2(m_value + v.m_value); }
+        auto operator- (vec2 v) const -> vec2 { return vec2(m_value - v.m_value); }
+        auto operator* (vec2 v) const -> vec2 { return vec2(m_value * v.m_value); }
+        auto operator/ (vec2 v) const -> vec2 { return vec2(m_value / v.m_value); }
 
-        [[nodiscard]] auto cross(const vec2& v) const -> vec2
+        [[nodiscard]] auto cross(vec2 v) const -> vec2
         {
             return vec2(m_value * v.m_value.reversed());
         }
 
-        [[nodiscard]] auto dot(const vec2& v) const -> float
+        [[nodiscard]] auto dot(vec2 v) const -> float
         {
             auto xx = m_value * v.m_value;
             return (xx + xx.reversed())[0];
         }
 
-        [[nodiscard]] auto lerp(const vec2& v, float t) const -> vec2
+        [[nodiscard]] auto lerp(vec2 v, float t) const -> vec2
         {
             return vec2(m_value + ((v.m_value - m_value) * t));
         }
@@ -83,7 +88,7 @@ namespace math
             return *this / magnitude();
         }
 
-        [[nodiscard]] auto angle_to(const vec2& v) const -> float
+        [[nodiscard]] auto angle_to(vec2 v) const -> float
         {
             auto xx = v.m_value - m_value;
             return (::atan2f(xx[0], xx[1]) * 180.f) / std::numbers::pi_v<float>;
@@ -93,6 +98,10 @@ namespace math
         {
             return vec2(m_value.round());
         }
+
+        friend struct line;
+        friend struct geometry::triangle;
+        friend struct geometry::polygon;
 
     private:
         simd::float32 m_value;
