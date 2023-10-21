@@ -55,9 +55,7 @@ namespace kestrel::ui
         [[nodiscard]] auto size() const -> math::size;
 
         auto tick(bool render = true, bool update = true) -> void;
-        auto receive_event(const event& e) -> void;
-
-        [[nodiscard]] inline auto last_update_period() const -> float { return m_update.last_time; }
+        auto receive_event(const event& e) const -> void;
 
     private:
         bool m_alive { true };
@@ -67,7 +65,7 @@ namespace kestrel::ui
         } m_time;
 
         struct {
-            float last_time { 0.f };
+            double last_time { 0.f };
             rtc::clock::time start_time;
         } m_update;
 

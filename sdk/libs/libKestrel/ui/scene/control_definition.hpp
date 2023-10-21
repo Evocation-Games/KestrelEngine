@@ -27,6 +27,8 @@
 #include <libKestrel/ui/types/action/action.hpp>
 #include <libKestrel/ui/types/value/value.hpp>
 #include <libKestrel/ui/alignment.hpp>
+#include <libKestrel/ui/layout/axis_origin.hpp>
+#include <libKestrel/ui/layout/scaling_mode.hpp>
 #include <libKestrel/graphics/types/color.hpp>
 #include <libKestrel/font/font.hpp>
 
@@ -82,6 +84,8 @@ namespace kestrel::ui
 
         lua_getter(name, Available_0_8) [[nodiscard]] auto name() const -> std::string;
         lua_getter(anchor, Available_0_8) [[nodiscard]] auto anchor() const -> std::uint8_t;
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_getter(scalingMode, Available_0_9) [[nodiscard]] auto scaling_mode() const -> layout::scaling_mode;
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(type, Available_0_8) [[nodiscard]] auto type() const -> std::uint8_t;
         lua_getter(backgroundColor, Available_0_9) [[nodiscard]] auto background_color() const -> graphics::color::lua_reference;
@@ -94,6 +98,8 @@ namespace kestrel::ui
         lua_getter(value, Available_0_9) [[nodiscard]] auto value() const -> ui::value;
 
         lua_setter(anchor, Available_0_8) auto set_anchor(std::uint8_t anchor) -> void;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(std::uint8_t anchor) -> void;
+        lua_setter(scalingMode, Available_0_9) auto set_scaling_mode(std::uint8_t mode) -> void;
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& frame) -> void;
         lua_setter(type, Available_0_8) auto set_type(std::uint8_t type) -> void;
         lua_setter(backgroundColor, Available_0_9) auto set_background_color(const graphics::color::lua_reference& value) -> void;
@@ -115,6 +121,8 @@ namespace kestrel::ui
         std::string m_name;
         enum control_type m_type { control_type::none };
         enum anchor m_anchor { 0 };
+        enum layout::axis_origin m_anchor_point { layout::axis_origin::top_left };
+        enum layout::scaling_mode m_scaling_mode { layout::scaling_mode::normal };
         math::rect m_frame;
         std::vector<std::uint16_t> m_element_index_vec;
         ui::action m_script_action;

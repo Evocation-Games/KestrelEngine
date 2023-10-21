@@ -58,7 +58,7 @@ namespace kestrel::renderer::metal
     class context : public renderer::context
     {
     public:
-        static auto start_application(const std::function<auto(metal::context *)->void>& callback) -> void;
+        static auto start_application(const math::size& size, double scale, const std::function<auto(metal::context *)->void>& callback) -> void;
         static auto supports_metal() -> bool;
 
         context() = default;
@@ -95,6 +95,7 @@ namespace kestrel::renderer::metal
         [[nodiscard]] auto viewport_title() const -> std::string override;
 
         [[nodiscard]] auto native_screen_scale() const -> float override;
+        [[nodiscard]] auto current_scale_factor() const -> float override;
         [[nodiscard]] auto native_screen_size() const -> math::size override;
         auto set_fullscreen(bool f) -> void override;
 
@@ -112,6 +113,7 @@ namespace kestrel::renderer::metal
             std::unordered_map<util::uid, std::shared_ptr<renderer::shader::program>> shader_programs;
             std::uint32_t viewport_width { 1280 };
             std::uint32_t viewport_height { 720 };
+            float scale_factor { 1.f };
             bool fullscreen { false };
         } m_metal;
 

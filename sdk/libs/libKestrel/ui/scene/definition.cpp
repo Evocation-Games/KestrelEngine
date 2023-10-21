@@ -123,6 +123,8 @@ auto kestrel::ui::scene_definition::construct_interface() -> ui::game_scene::lua
         definition->set_secondary_text_color(element->secondary_color);
         definition->set_selection_color(element->selection_color);
         definition->set_alignment(element->alignment);
+        definition->set_anchor_point(element->anchor_point);
+        definition->set_scaling_mode(element->scaling_mode);
         definition->set_font({ new font::reference(element->font_name, element->font_size ?: 12) });
     }
 

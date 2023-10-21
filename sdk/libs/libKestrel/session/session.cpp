@@ -109,9 +109,10 @@ auto kestrel::ui::session::tick(bool render, bool update) -> void
     auto scene = this->current_scene();
 
     if (update && scene.get()) {
-        m_update.last_time = rtc::clock::global().since(m_update.start_time).count();
+        auto delta = rtc::clock::global().since(m_update.start_time);
+        m_update.last_time = delta.count();
         m_update.start_time = rtc::clock::global().current();
-        scene->internal_scene()->update();
+        scene->internal_scene()->update(delta);
     }
 
     if (render) {
@@ -137,7 +138,7 @@ auto kestrel::ui::session::tick(bool render, bool update) -> void
     }
 }
 
-auto kestrel::ui::session::receive_event(const event &e) -> void
+auto kestrel::ui::session::receive_event(const event &e) const -> void
 {
     if (e.is_key_event()) {
         if (e.has(::ui::event::type::key_up) && e.is(::ui::hid::f1)) {

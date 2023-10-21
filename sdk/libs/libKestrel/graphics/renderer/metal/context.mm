@@ -50,10 +50,11 @@ static auto dispatch_display_render_request(
 
 // MARK: - Cocoa Application
 
-auto kestrel::renderer::metal::context::start_application(const std::function<auto(metal::context *)->void> &callback) -> void
+auto kestrel::renderer::metal::context::start_application(const math::size& size, double scale, const std::function<auto(metal::context *)->void> &callback) -> void
 {
     platform::macos::start_application([&, callback] (KestrelApplication *app) {
         auto context = new metal::context();
+        context->m_metal.scale_factor = static_cast<float>(scale);
 
         context->m_window = [app createWindowWithTitle:@"Cosmic Frontier: Override" withSize: {
             static_cast<float>(context->m_metal.viewport_width),
@@ -371,6 +372,11 @@ auto kestrel::renderer::metal::context::native_screen_scale() const -> float
 {
     // TODO: Metal is handling the scaling automatically, so simply report a scale factor or 1.0
     return 1.0f;
+}
+
+auto kestrel::renderer::metal::context::current_scale_factor() const -> float
+{
+    return 1.f;
 }
 
 auto kestrel::renderer::metal::context::native_screen_size() const -> math::size

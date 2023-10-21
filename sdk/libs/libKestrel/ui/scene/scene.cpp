@@ -41,9 +41,19 @@ auto kestrel::ui::scene::set_passthrough_render(bool f) -> void
     m_passthrough_render = f;
 }
 
+auto kestrel::ui::scene::scaling_factor() const -> double
+{
+    return m_scaling_factor;
+}
+
+auto kestrel::ui::scene::set_scaling_factor(double f) -> void
+{
+    m_scaling_factor = f;
+}
+
 // MARK: - Blocks
 
-auto kestrel::ui::scene::add_update_block(const std::function<auto()->void>& block) -> void
+auto kestrel::ui::scene::add_update_block(const std::function<auto(const rtc::clock::duration&)->void>& block) -> void
 {
     m_update_blocks.emplace_back(block);
 }
@@ -68,10 +78,10 @@ auto kestrel::ui::scene::add_timed_event(const std::shared_ptr<rtc::timed_event>
     m_timed_events.emplace_back(event);
 }
 
-auto kestrel::ui::scene::invoke_update_blocks() -> void
+auto kestrel::ui::scene::invoke_update_blocks(const rtc::clock::duration& delta) -> void
 {
     for (const auto& block : m_update_blocks) {
-        block();
+        block(delta);
     }
 }
 
@@ -148,9 +158,9 @@ auto kestrel::ui::scene::start() -> void
     m_script.execute();
 }
 
-auto kestrel::ui::scene::update() -> void
+auto kestrel::ui::scene::update(const rtc::clock::duration& delta) -> void
 {
-    invoke_update_blocks();
+    invoke_update_blocks(delta);
 }
 
 auto kestrel::ui::scene::render() -> void
@@ -166,7 +176,12 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
         return;
     }
 
-    math::rect frame { entity->get_position(), entity->get_draw_size() };
+    math::rect frame { entity->get_position(), entity->get_size() };
+    if (!entity->ignores_scene_scaling_factor()) {
+        if (auto scene = entity->scene()) {
+            frame.set_size(frame.size() * static_cast<float>(scene->scaling_factor()));
+        }
+    }
 
     auto sprite = entity->sprite_sheet()->at(static_cast<int>(entity->get_sprite_index()));
     auto uv_x = static_cast<float>(sprite.point().x());
@@ -179,6 +194,12 @@ auto kestrel::ui::scene::draw_entity(const std::shared_ptr<ecs::entity>& entity)
         uv_y = static_cast<float>(sprite.point().y() + entity->clipping_offset_uv().y());
         uv_w = static_cast<float>(entity->clipping_area_uv().width());
         uv_h = static_cast<float>(entity->clipping_area_uv().height());
+    }
+    else if (entity->has_scaled_texture()) {
+        uv_x = static_cast<float>(sprite.point().x() + entity->scaled_texture_area().origin().x());
+        uv_y = static_cast<float>(sprite.point().y() + entity->scaled_texture_area().origin().y());
+        uv_w = static_cast<float>(entity->scaled_texture_area().size().width());
+        uv_h = static_cast<float>(entity->scaled_texture_area().size().height());
     }
 
     auto shader_program = entity->shader().get() ? entity->shader()->program() : nullptr;

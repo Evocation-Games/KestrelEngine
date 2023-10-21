@@ -30,7 +30,9 @@ static std::uint64_t s_next_body_id = 1;
 
 kestrel::physics::body::body(std::weak_ptr<physics::world> world, identifier id)
     : m_world(std::move(world)), m_id(id == 0 ? s_next_body_id++ : id)
-{}
+{
+    m_last_update = rtc::clock::global().current();
+}
 
 // MARK: - ID
 
@@ -112,7 +114,7 @@ auto kestrel::physics::body::maximum_speed() const -> double
 
 auto kestrel::physics::body::set_maximum_speed(double speed) -> void
 {
-    m_maximum_speed = speed;
+    m_maximum_speed = speed * 60.0;
 }
 
 auto kestrel::physics::body::reduce_speed(double speed) -> void
@@ -233,12 +235,12 @@ auto kestrel::physics::body::simulate_force(const math::point &velocity, const m
         }
     }
     else if (!ignore_maximum) {
-//        m_current_speed = std::min(m_current_speed + force.magnitude(), m_maximum_speed);
-//        m_velocity = m_rotation.vector(m_current_speed);
+        m_current_speed = std::min(m_current_speed + force.magnitude(), m_maximum_speed);
+        m_velocity = m_rotation.vector(m_current_speed);
     }
     else {
-//        m_current_speed += force.magnitude();
-//        m_velocity = m_rotation.vector(m_current_speed);
+        m_current_speed += force.magnitude();
+        m_velocity = m_rotation.vector(m_current_speed);
     }
 
     return new_velocity;
@@ -288,7 +290,7 @@ auto kestrel::physics::body::acceleration() const -> double
 
 auto kestrel::physics::body::set_acceleration(double accel) -> void
 {
-    m_acceleration = accel;
+    m_acceleration = accel * 60.0;
 }
 
 // MARK: - Rotation
@@ -310,23 +312,17 @@ auto kestrel::physics::body::rotation_speed() const -> math::angular_difference
 
 auto kestrel::physics::body::set_rotation_speed(const math::angular_difference& speed) -> void
 {
-    m_rotation_speed = speed;
+    m_rotation_speed = speed * 60;
 }
 
 auto kestrel::physics::body::rotate_clockwise() -> void
 {
-    m_rotation = m_rotation + math::angular_difference(m_rotation_speed);
-    if (!m_has_inertia) {
-        m_velocity = m_rotation.vector(m_current_speed);
-    }
+    m_rotation_action = 1;
 }
 
 auto kestrel::physics::body::rotate_counter_clockwise() -> void
 {
-    m_rotation = m_rotation - math::angular_difference(m_rotation_speed);
-    if (!m_has_inertia) {
-        m_velocity = m_rotation.vector(m_current_speed);
-    }
+    m_rotation_action = -1;
 }
 
 // MARK: - Halting
@@ -339,9 +335,22 @@ auto kestrel::physics::body::halt() -> void
 
 // MARK: - Updating / Tick
 
-auto kestrel::physics::body::update() -> void
+auto kestrel::physics::body::update(const rtc::clock::duration& delta) -> void
 {
-    m_position = m_position + m_velocity;
+    // Update the current rotation
+    if (m_rotation_action > 0) {
+        m_rotation = m_rotation + math::angular_difference(m_rotation_speed * delta.count());
+    }
+    else if (m_rotation_action < 0) {
+        m_rotation = m_rotation - math::angular_difference(m_rotation_speed * delta.count());
+    }
+    m_rotation_action = 0;
+
+    if (!m_has_inertia) {
+        m_velocity = m_rotation.vector(m_current_speed);
+    }
+
+    m_position = m_position + (m_velocity * delta.count());
     m_hitbox.set_offset(m_position);
 }
 

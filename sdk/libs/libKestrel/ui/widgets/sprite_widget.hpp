@@ -43,10 +43,12 @@ namespace kestrel::ui::widgets
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect;
         lua_getter(image, Available_0_8) [[nodiscard]] auto image() const -> luabridge::LuaRef;
         lua_getter(frameNumber, Available_0_8) [[nodiscard]] auto frame_number() const -> std::int32_t;
+        lua_getter(anchorPoint, Available_0_0) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
 
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& frame) -> void;
         lua_setter(image, Available_0_8) auto set_image(const luabridge::LuaRef& image) -> void;
         lua_setter(frameNumber, Available_0_8) auto set_frame_number(std::int32_t n) -> void;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
 
     private:
         math::rect m_frame;

@@ -51,6 +51,22 @@ auto kdl::unit::file::find_config_files(const std::vector<std::string>& definiti
     // 1. User Configuration File: ~/.kestrel/config.kdl
     auto user_configuration = foundation::filesystem::path::configuration_directory().appending_path_component("config.kdl");
     import_config_file(user_configuration, definitions);
+
+    // 2. Homebrew Configuration Files
+    auto homebrew_opt = foundation::filesystem::path("/opt/homebrew/var/kestrel");
+    auto homebrew_usr = foundation::filesystem::path("/usr/local/var/kestrel");
+
+    homebrew_opt.each_child([&] (const auto& child) {
+        if (child.has_extension("kdl") || child.has_extension("kdmodule")) {
+            import_config_file(child, definitions);
+        }
+    });
+
+    homebrew_usr.each_child([&] (const auto& child) {
+        if (child.has_extension("kdl") || child.has_extension("kdmodule")) {
+            import_config_file(child, definitions);
+        }
+    });
 }
 
 auto kdl::unit::file::import_config_file(const foundation::filesystem::path& path, const std::vector<std::string>& definitions) -> void

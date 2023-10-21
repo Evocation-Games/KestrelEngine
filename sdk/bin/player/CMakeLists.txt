@@ -134,22 +134,6 @@ if(LINUX)
 endif()
 
 ########################################################################################################################
-## Player - Basic Game Placeholder
-if (WIN32)
-    set(KDL ${CMAKE_BUILD_DIR}/kdl.exe)
-else()
-    set(KDL ${CMAKE_BUILD_DIR}/kdl)
-endif()
-
-add_custom_command(
-    TARGET KestrelPlayer POST_BUILD
-    COMMAND
-        ${KDL} -f extended -o ${CMAKE_BUILD_DIR}/GameCore.kdat
-        ${CMAKE_SOURCE_DIR}/projects/placeholder/placeholder.kdlproj
-    COMMENT "Generating placeholder game for player"
-)
-
-########################################################################################################################
 ## Installation
 if (APPLE)
     set_target_properties(KestrelPlayer PROPERTIES MACOSX_BUNDLE_BUNDLE_NAME "${KESTREL_PLAYER_NAME}")

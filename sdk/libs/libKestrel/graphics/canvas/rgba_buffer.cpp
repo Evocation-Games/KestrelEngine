@@ -174,6 +174,7 @@ auto kestrel::graphics::rgba_buffer::clear_rect(const graphics::color &c, const 
     auto stride = static_cast<std::uint64_t>(m_size.width());
     auto pitch = stride - width;
     auto ptr = reinterpret_cast<color::value *>(m_buffer) + (lo_y * static_cast<std::uint64_t>(m_size.width())) + lo_x;
+    auto ptr_value = reinterpret_cast<std::uint64_t>(m_buffer);
 
     union simd_value v {};
     for (unsigned int & i : v.f) {
@@ -181,7 +182,7 @@ auto kestrel::graphics::rgba_buffer::clear_rect(const graphics::color &c, const 
     }
 
     for (auto scanline = 0; scanline < height; ++scanline) {
-#if TARGET_SUPPORTS_128BIT
+#if TARGET_SUPPORTS_128BIT && 0
         std::uint32_t n = 0;
         std::uint64_t i = 0;
         while (n < stride) {
@@ -203,15 +204,17 @@ auto kestrel::graphics::rgba_buffer::clear_rect(const graphics::color &c, const 
 #elif TARGET_64BIT
         std::uint32_t n = 0;
         while (n < stride) {
-            if ((reinterpret_cast<std::uint64_t>(ptr) & 0x7) || (stride - n) < 2) {
+            if ((ptr_value & 0x7) || (stride - n) < 2) {
                 *ptr = v.f[n & 1];
                 ++ptr;
                 ++n;
+                ptr_value += 4;
             }
             else {
                 *reinterpret_cast<std::uint64_t*>(ptr) = v.wide;
                 ptr += 2;
                 n += 2;
+                ptr_value += 8;
             }
         }
 #else

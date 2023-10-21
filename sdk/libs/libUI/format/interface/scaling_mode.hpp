@@ -18,37 +18,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-@author "Tom Hancocks";
-@version "1.0";
+#pragma once
 
-component<ExampleScene.LuaScript, #1000> ExampleScene {
-	files ("ExampleScene") {
-		"ExampleScene.lua" -> "Example Scene" (scene);
-	};
-};
+#include <cstdint>
 
-declare ExampleScene.SceneDefinition {
-	new (SceneDefinitionID, "Example Scene Definition") {
-		Script = #ExampleScene.LuaScript.1000;
-		Interface = #ExampleScene.SceneInterface.1000;
-		DLOG = #-1;
-	};
-};
-
-scene<#1000> ExampleScene {
-	Flags = Passthrough | UseImGui | IsDialog | ShowsTitleBar;
-	Title = "Example Scene";
-	Size = FrameSize(400, 300);
-	
-	Label ("Message") {
-		Frame = Frame(20, 20, 100, 20);
-		Value = "Hello, World!";
-		Color = rgb(255, 255, 255);
-	};
-	
-	Button ("Action") {
-		Frame = Frame(20, 50, 100, 20);
-		Value = "Action";
-		Action = Function(DoAction);
-	};
-};
+namespace ui::format
+{
+    enum scaling_mode : std::uint8_t
+    {
+        normal = 0x00,
+        aspect_fill = 0x01,
+        aspect_fit = 0x02,
+        scaling_fill = 0x10,
+        scaling_fit = 0x11,
+    };
+}

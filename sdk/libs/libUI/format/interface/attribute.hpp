@@ -46,12 +46,14 @@ namespace ui::format
             weight = 0x000c,
             horizontal_alignment = 0x000d,
             vertical_alignment = 0x000e,
-            axis_origin = 0x000f,
+            anchor_point = 0x000f,
             x = 0x0010,
             y = 0x0011,
             size = 0x0012,
             action = 0x0020,
             value = 0x0030,
+            scaling_mode = 0x0040,
+            fill_container = 0x0050,
         };
 
         explicit attribute(enum code code, const std::string& name, const attribute_value& value);

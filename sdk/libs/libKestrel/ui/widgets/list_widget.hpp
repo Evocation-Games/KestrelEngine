@@ -94,6 +94,9 @@ namespace kestrel::ui::widgets
         auto receive_event(const event& e) -> bool override;
         lua_function(receiveEvent, Available_0_9) auto lua_receive_event(const event::lua_reference& e) -> void;
 
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
+
     private:
         bool m_has_header { false };
         bool m_borders { false };

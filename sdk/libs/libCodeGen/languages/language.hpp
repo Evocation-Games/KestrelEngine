@@ -34,6 +34,10 @@
 #   define NamedArgument(_n, _arg)  _arg
 #endif
 
+#if !defined(SPACE)
+#   define SPACE emit::segment(" ")
+#endif
+
 namespace codegen::language
 {
     struct statement;
@@ -53,8 +57,9 @@ namespace codegen::language
     template<class L>
     concept preprocessor_support = requires(const L& lang, const std::string& str) {
         requires metadata<L>;
-        { L::include_library(str) } -> std::same_as<emit::segment>;
-        { L::include_file(str) } -> std::same_as<emit::segment>;
+        { L::preprocessor_keyword(NamedArgument(Name, str)) } -> std::same_as<emit::segment>;
+        { L::include_library(NamedArgument(Name, str)) } -> std::same_as<emit::segment>;
+        { L::include_file(NamedArgument(Path, str)) } -> std::same_as<emit::segment>;
     };
 
     template<class L>
@@ -183,6 +188,88 @@ namespace codegen::language
         requires function_support<L>;
         requires statement_support<L>;
         requires compound_statement_support<L>;
+    };
+
+    // MARK: - Definition Languages
+
+    template<class L>
+    concept definition_metadata = requires(
+        const L& lang,
+        const std::string& str
+    ) {
+        { L::metadata(NamedArgument(Name, str),
+                      NamedArgument(Value, str)) } -> std::same_as<emit::segment>;
+    };
+
+    template<class L>
+    concept resource_reference = requires(
+        const L& lang,
+        std::int64_t i,
+        const std::string& str,
+        const std::shared_ptr<ast::node>& node
+    ) {
+        { L::global_reference(NamedArgument(ID, i)) } -> std::same_as<emit::segment>;
+        { L::typed_reference(NamedArgument(Type, node),
+                             NamedArgument(ID, i)) } -> std::same_as<emit::segment>;
+        { L::typed_contained_reference(NamedArgument(Container, node),
+                                       NamedArgument(Type, node),
+                                       NamedArgument(ID, i)) } -> std::same_as<emit::segment>;
+    };
+
+    template<class L>
+    concept component_definition_support = requires(
+        const L& lang,
+        const std::shared_ptr<ast::node>& node,
+        const std::string& str,
+        std::int64_t i
+    ) {
+        requires resource_reference<L>;
+        { L::component_decl(NamedArgument(ComponentNamespace, node),
+                            NamedArgument(ComponentStartID, i),
+                            NamedArgument(ComponentType, node)) } -> std::same_as<emit::segment>;
+        { L::component_files_decl(NamedArgument(DirectoryPath, str)) } -> std::same_as<emit::segment>;
+        { L::component_types_decl() } -> std::same_as<emit::segment>;
+        { L::component_basic_file(NamedArgument(FileName, str)) } -> std::same_as<emit::segment>;
+        { L::component_named_file(NamedArgument(FileName, str),
+                        NamedArgument(ResourceName, str)) } -> std::same_as<emit::segment>;
+    };
+
+    template<class L>
+    concept resource_declaration_support = requires(
+        const L& lang,
+        const std::shared_ptr<ast::node>& node,
+        std::int64_t i,
+        const std::string& str
+    ) {
+        requires resource_reference<L>;
+        { L::resource_declaration_decl(NamedArgument(ComponentNamespace, node),
+                                       NamedArgument(ComponentType, node)) } -> std::same_as<emit::segment>;
+
+        { L::scene_declaration_decl(NamedArgument(SceneNamespace, node),
+                                    NamedArgument(SceneID, i)) } -> std::same_as<emit::segment>;
+        { L::dialog_declaration_decl(NamedArgument(DialogNamespace, node),
+                                     NamedArgument(DialogID, i)) } -> std::same_as<emit::segment>;
+        { L::control_declaration_decl(NamedArgument(ControlType, node),
+                                      NamedArgument(ControlName, str)) } -> std::same_as<emit::segment>;
+
+        { L::new_resource() } -> std::same_as<emit::segment>;
+    };
+
+    template<class L>
+    concept general_definition_support = requires(const L& lang) {
+        requires metadata<L>;
+        requires preprocessor_support<L>;
+        requires comment_support<L>;
+        requires symbol_support<L>;
+        requires definition_metadata<L>;
+        requires resource_reference<L>;
+        requires component_definition_support<L>;
+        requires resource_declaration_support<L>;
+        requires statement_support<L>;
+        requires compound_statement_support<L>;
+
+        { L::begin_parameter_list() } -> std::same_as<emit::segment>;
+        { L::end_parameter_list() } -> std::same_as<emit::segment>;
     };
 
     // MARK: - Markup Languages

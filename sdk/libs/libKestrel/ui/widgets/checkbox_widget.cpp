@@ -117,11 +117,22 @@ auto kestrel::ui::widgets::checkbox_widget::set_border_color(const graphics::col
     m_dirty = true;
 }
 
+auto kestrel::ui::widgets::checkbox_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::checkbox_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
+}
+
+
 // MARK: - Events
 
 auto kestrel::ui::widgets::checkbox_widget::receive_event(const event &e) -> bool
 {
-    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::mouse_move) && !m_inside) {
             m_inside = true;
             mouse_enter();

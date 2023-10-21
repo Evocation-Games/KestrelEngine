@@ -24,6 +24,7 @@
 #include <libKestrel/ui/types/value/value.hpp>
 #include <libKestrel/ui/types/action/action.hpp>
 #include <libResourceCore/manager.hpp>
+#include <libKestrel/graphics/renderer/common/renderer.hpp>
 
 // MARK: - Construction
 
@@ -100,6 +101,12 @@ auto kestrel::ui::dialog_layout::build_scene_interface_layout(const scene_interf
         element.font_size = item->font_size();
         element.alignment = item->alignment();
         element.action = item->action();
+        element.anchor_point = item->anchor_point();
+        element.scaling_mode = item->scaling_mode();
+
+        if (item->fills_parent_container()) {
+            element.frame.set_size(renderer::window_size());
+        }
 
         m_elements.emplace_back(std::move(element));
     }

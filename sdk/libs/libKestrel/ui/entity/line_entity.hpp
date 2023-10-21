@@ -27,6 +27,7 @@
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/math/point.hpp>
 #include <libKestrel/math/size.hpp>
+#include <libKestrel/math/rect.hpp>
 #include <libKestrel/math/vec4.hpp>
 #include <libKestrel/graphics/types/color.hpp>
 #include <libKestrel/graphics/renderer/common/blending.hpp>
@@ -82,6 +83,7 @@ namespace kestrel::ui
         math::point m_draw_start;
         math::point m_end;
         math::point m_draw_end;
+        math::rect m_parent_bounds { 0, 0, 0, 0 };
         double m_weight { 1.0 };
         graphics::color::lua_reference m_color { graphics::color::white_color_ref() };
         enum renderer::blending m_blend_mode { renderer::blending::normal };
@@ -89,5 +91,7 @@ namespace kestrel::ui
         luabridge::LuaRef m_on_layout { nullptr };
         renderer::shader::source::lua_reference m_shader { nullptr };
         std::array<math::vec4, 8> m_shader_attachments;
+
+        friend struct scene_entity;
     };
 }

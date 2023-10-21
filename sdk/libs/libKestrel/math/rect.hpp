@@ -48,7 +48,7 @@ namespace kestrel::math
 
         auto operator=(const rect&) -> rect& = default;
 
-        auto ui_rect() const -> ::ui::rect;
+        [[nodiscard]] auto ui_rect() const -> ::ui::rect;
 
         lua_constructor(Available_0_8) rect(float x, float y, float w, float h);
         lua_function(macintosh, Available_0_8) static auto macintosh_rect(float top, float left, float bottom, float right) -> rect;
@@ -97,6 +97,8 @@ namespace kestrel::math
         lua_getter(height, Available_0_8) [[nodiscard]] auto height() const -> float;
 
         lua_function(inset, Available_0_8) [[nodiscard]] auto inset(float amount) const -> rect;
+
+        lua_function(centered, Available_0_9) [[nodiscard]] auto centered(const struct size&) const -> rect;
 
         friend struct point;
         friend struct size;

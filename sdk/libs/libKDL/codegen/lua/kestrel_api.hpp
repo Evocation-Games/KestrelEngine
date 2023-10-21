@@ -55,6 +55,19 @@ namespace kdl::codegen::lua
         ast::function_definition *identified_resource { nullptr };
         ast::class_definition *command_decoder { nullptr };
         ast::function_definition *command_decoder_from { nullptr };
+        ast::class_definition *kestrel_namespace { nullptr };
+        ast::function_definition *set_game_window_title { nullptr };
+        ast::function_definition *set_game_window_size { nullptr };
+        ast::property_definition *fullscreen { nullptr };
+        ast::class_definition *size_klass { nullptr };
+        ast::class_definition *scene_klass { nullptr };
+        ast::function_definition *scene { nullptr };
+        ast::function_definition *push { nullptr };
+        ast::function_definition *on_close { nullptr };
+        ast::function_definition *bind { nullptr };
+        ast::function_definition *configure_elements { nullptr };
+        ast::function_definition *close { nullptr };
+        ast::function_definition *update { nullptr };
 
         static auto create(ast::generator *gen = nullptr) -> kestrel_api;
     };

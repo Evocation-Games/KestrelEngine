@@ -18,22 +18,20 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-ExampleScene = Scene.current
-local dialog = ExampleScene.Dialog
+LauncherDialog = Scene.current
+local dialog = LauncherDialog.dialog
 
--- Bind the action functions defined in the scene KDL.
-ExampleScene:bind({
-	DoAction = function()
-		dialog:elementNamed("Message").value = "Doing an action!"
-	end
-})
+LauncherDialog:onClose(function()
+    dialog = nil
+    LauncherDialog = nil
+end)
 
-dialog:configureElementsOnOpen({
-	Message = function(label)
-		
-	end,
-	
-	Action = function(button)
-		
-	end,
+LauncherDialog:bind({
+    pushBasicDrawingTests = function()
+        Kestrel.Scene("BasicDrawingTests"):push()
+    end,
+
+    pushMouseInteractionTests = function()
+        Kestrel.Scene("MouseInteractionTests"):push()
+    end
 })

@@ -29,7 +29,6 @@
 #include <libKestrel/lua/support/vector.hpp>
 #include <libKestrel/ui/scene/scene.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
-#include <libKestrel/ui/layout/positioning_frame.hpp>
 #include <libKestrel/resource/descriptor.hpp>
 #include <libKestrel/event/responder/responder_chain.hpp>
 #include <libKestrel/event/event.hpp>
@@ -72,11 +71,13 @@ namespace kestrel::ui
         lua_getter(currentTime, Available_0_8) [[nodiscard]] auto current_time() const -> double;
         lua_getter(passthroughRender, Available_0_8) [[nodiscard]] auto passthrough_render() const -> bool;
         lua_getter(entities, Available_0_8) [[nodiscard]] auto entities() const -> lua::vector<luabridge::LuaRef>;
-        lua_getter(positioningFrame, Available_0_8) [[nodiscard]] auto positioning_frame() const -> layout::positioning_frame::lua_reference;
         lua_getter(disableUserInput, Available_0_8) [[nodiscard]] auto disable_user_input() const -> bool;
+        lua_getter(sceneBoundingFrame, Available_0_9) [[nodiscard]] auto scene_bounding_frame() const -> math::rect;
+        lua_getter(sceneScalingFactor, Available_0_9) [[nodiscard]] auto scene_scaling_factor() const -> double;
 
         lua_setter(passthroughRender, Available_0_8) auto set_passthrough_render(bool f) -> void;
-        lua_setter(positioningFrame, Available_0_8) auto set_positioning_frame(const layout::positioning_frame::lua_reference& positioning) -> void;
+        lua_setter(sceneBoundingFrame, Available_0_9) auto set_scene_bounding_frame(const math::rect& frame) -> void;
+        lua_setter(sceneScalingFactor, Available_0_9) auto set_scene_scaling_factor(double factor) -> void;
 
         lua_function(render, Available_0_8) auto on_render(const luabridge::LuaRef& block) -> void;
         lua_function(update, Available_0_8) auto on_update(const luabridge::LuaRef& block) -> void;
@@ -91,7 +92,7 @@ namespace kestrel::ui
         lua_function(addWidget, Available_0_8) auto add_widget(const luabridge::LuaRef& widget) -> void;
 
         lua_setter(menuWidget, Available_0_9) auto set_menu_widget(const widgets::menu_widget::lua_reference& menu) -> void;
-        lua_getter(menuWidget, Available_0_9) auto menu_widget() const -> widgets::menu_widget::lua_reference;
+        lua_getter(menuWidget, Available_0_9) [[nodiscard]] auto menu_widget() const -> widgets::menu_widget::lua_reference;
 
         lua_function(key, Available_0_8) [[nodiscard]] auto key(std::int32_t k) const -> event::lua_reference;
         lua_function(keyDown, Available_0_8) [[nodiscard]] auto is_key_down(std::int32_t k) const -> bool;
@@ -116,7 +117,7 @@ namespace kestrel::ui
         std::shared_ptr<physics::world> m_world { std::make_shared<physics::world>() };
         resource::descriptor::lua_reference m_script_descriptor { nullptr };
         std::shared_ptr<scene> m_backing_scene;
-        layout::positioning_frame::lua_reference m_positioning_frame { nullptr };
+        math::rect m_bounding_frame { 0, 0, 0, 0 };
         bool m_user_input { true };
         lua::vector<luabridge::LuaRef> m_entities;
         std::vector<luabridge::LuaRef> m_widgets;

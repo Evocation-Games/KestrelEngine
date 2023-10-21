@@ -25,6 +25,14 @@
 #include <libLexer/exception/unrecognised_character_exception.hpp>
 #include <libKDL/diagnostic/diagnostic.hpp>
 
+#if !defined(KESTREL_VERSION)
+#   define KESTREL_VERSION "0"
+#endif
+
+#if !defined(BUILD_NUMBER)
+#   define BUILD_NUMBER "0"
+#endif
+
 auto report_exception(const std::string& reason, const lexer::lexeme& lx) -> void;
 auto report_exception(const std::string& reason) -> void;
 
@@ -41,7 +49,12 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
     try {
         for (std::int32_t i = 1; i < argc; ++i) {
             std::string option(argv[i]);
-            if (option == "-f" || option == "--format") {
+            if (option == "-v") {
+                std::cout << "Kestrel Definition Language (KDL)" << std::endl;
+                std::cout << "\tVersion " << KESTREL_VERSION << " ";
+                std::cout << "(Build " << BUILD_NUMBER << ")";
+            }
+            else if (option == "-f" || option == "--format") {
                 std::string f(argv[++i]);
                 if (f == "extended" || f == "kestrel") {
                     format = resource_core::file::format::extended;

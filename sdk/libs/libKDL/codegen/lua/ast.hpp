@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <functional>
 #include <type_traits>
 
 namespace kdl::codegen::lua::ast
@@ -50,7 +51,7 @@ namespace kdl::codegen::lua::ast
         auto end_block() -> void;
 
         auto declare_class(const std::string& name, bool implicit = false) -> struct class_definition *;
-        auto construct(struct class_definition *klass) -> struct node *;
+        auto construct(struct class_definition *klass, const std::vector<struct node *>& arguments = {}, bool implicit_new = false) -> struct node *;
 
         auto declare_function(bool implicit, struct symbol *name, const std::vector<struct symbol *>& parameters = {}) -> struct function_definition *;
         auto declare_function(bool implicit, struct symbol *name, struct class_definition *klass, const std::vector<struct symbol *>& parameters = {}) -> struct function_definition *;
@@ -69,6 +70,8 @@ namespace kdl::codegen::lua::ast
         auto apply_not(struct node *expression) -> struct node *;
         auto nil() -> struct node *;
         auto self() -> struct node *;
+        auto true_value() -> struct node *;
+        auto false_value() -> struct node *;
         auto number(std::int64_t n) -> struct node *;
         auto string(const std::string& str) -> struct node *;
         auto condition(struct node *condition) -> struct node *;
@@ -79,9 +82,11 @@ namespace kdl::codegen::lua::ast
         auto call(struct function_definition *function, const std::vector<struct node *>& arguments = {}) -> struct node *;
         auto call(struct node *expression, struct function_definition *function, const std::vector<struct node *>& arguments = {}) -> struct node *;
         auto userdata_literal() -> struct node *;
+        auto userdata(const std::function<auto(struct block *)->void>& fn) -> struct node *;
         auto subscript(struct node *value, struct node *index) -> struct node *;
         auto count(struct node *value) -> struct node *;
         auto add(struct node *lhs, struct node *rhs) -> struct node *;
+        auto annonymous_function(const std::function<auto(struct block *)->void>& fn) -> struct node *;
 
         auto push(struct block *block) -> void;
         auto pop() -> void;
@@ -201,6 +206,17 @@ namespace kdl::codegen::lua::ast
         struct node *m_object_expression { nullptr };
     };
 
+    struct annonymous_function_decl : node
+    {
+        explicit annonymous_function_decl(struct block *implementation = nullptr);
+        [[nodiscard]] auto generate(std::uint8_t indent) const -> std::vector<std::string> override;
+        auto implementation() -> struct block *;
+
+    private:
+        std::vector<struct symbol *> m_parameters;
+        struct block *m_implementation { nullptr };
+    };
+
     // -----
 
     struct class_definition : node
@@ -233,7 +249,7 @@ namespace kdl::codegen::lua::ast
 
     struct property_accessor : node
     {
-        property_accessor(struct property_definition *property, bool getter = true);
+        explicit property_accessor(struct property_definition *property, bool getter = true);
         [[nodiscard]] auto generate(std::uint8_t indent) const -> std::vector<std::string> override;
 
     private:
@@ -345,6 +361,15 @@ namespace kdl::codegen::lua::ast
 
     private:
         std::string m_value;
+    };
+
+    struct boolean_literal : node
+    {
+        explicit boolean_literal(bool value);
+        [[nodiscard]] auto generate(std::uint8_t indent) const -> std::vector<std::string> override;
+
+    private:
+        bool m_value;
     };
 
     // -----

@@ -43,8 +43,11 @@ namespace kestrel::ui
         [[nodiscard]] auto is_passthrough_render() const -> bool;
         auto set_passthrough_render(bool f) -> void;
 
-        auto add_update_block(const std::function<auto()->void>& block) -> void;
-        auto invoke_update_blocks() -> void;
+        [[nodiscard]] auto scaling_factor() const -> double;
+        auto set_scaling_factor(double f) -> void;
+
+        auto add_update_block(const std::function<auto(const rtc::clock::duration&)->void>& block) -> void;
+        auto invoke_update_blocks(const rtc::clock::duration& delta) -> void;
 
         auto add_render_block(const std::function<auto()->void>& block) -> void;
         auto invoke_render_blocks() -> void;
@@ -62,7 +65,7 @@ namespace kestrel::ui
         [[nodiscard]] auto key_responder() const -> std::shared_ptr<responder_chain::key_responder>;
 
         auto start() -> void;
-        auto update() -> void;
+        auto update(const rtc::clock::duration& delta) -> void;
         auto render() -> void;
 
         auto draw_entity(const std::shared_ptr<ecs::entity>& entity) const -> void;
@@ -70,13 +73,14 @@ namespace kestrel::ui
     private:
         lua::script m_script;
         std::vector<std::function<auto()->void>> m_render_blocks;
-        std::vector<std::function<auto()->void>> m_update_blocks;
+        std::vector<std::function<auto(const rtc::clock::duration&)->void>> m_update_blocks;
         std::vector<std::function<auto(const event&)->void>> m_key_event_blocks;
         std::vector<std::function<auto(const event&)->void>> m_mouse_event_blocks;
         std::vector<std::shared_ptr<rtc::timed_event>> m_timed_events;
         std::weak_ptr<responder_chain::key_responder> m_key_responder;
         rtc::clock::time m_starting_time { rtc::clock::global().current() };
         bool m_passthrough_render { false };
+        double m_scaling_factor { 1.f };
     };
 
 }

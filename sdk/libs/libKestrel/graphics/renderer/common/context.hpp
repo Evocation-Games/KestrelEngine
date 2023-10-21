@@ -62,6 +62,7 @@ namespace kestrel::renderer
         virtual auto viewport_title() const -> std::string = 0;
 
         virtual auto native_screen_scale() const -> float = 0;
+        virtual auto current_scale_factor() const -> float = 0;
         virtual auto native_screen_size() const -> math::size = 0;
         virtual auto set_fullscreen(bool f) -> void = 0;
     };

@@ -199,6 +199,17 @@ auto kestrel::ui::widgets::popup_button_widget::synthesize_items(const std::stri
     redraw_entity();
 }
 
+auto kestrel::ui::widgets::popup_button_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::popup_button_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
+}
+
+
 // MARK: - Drawing
 
 auto kestrel::ui::widgets::popup_button_widget::redraw_entity() -> void
@@ -248,7 +259,7 @@ auto kestrel::ui::widgets::popup_button_widget::draw() -> void
 auto kestrel::ui::widgets::popup_button_widget::receive_event(const event& e) -> bool
 {
     if (e.has(::ui::event::any_mouse_down)) {
-        if (entity()->hit_test(e.location() - entity()->position())) {
+        if (entity()->hit_test(e.location())) {
             present_menu();
             return true;
         }

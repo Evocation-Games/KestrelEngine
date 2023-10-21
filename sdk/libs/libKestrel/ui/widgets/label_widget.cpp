@@ -194,6 +194,17 @@ auto kestrel::ui::widgets::label_widget::set_lua_safe_horizontal_alignment(std::
     set_horizontal_alignment(static_cast<enum horizontal_alignment>(v));
 }
 
+auto kestrel::ui::widgets::label_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::label_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    return m_entity->set_anchor_point(origin);
+}
+
+
 // MARK: - Drawing
 
 auto kestrel::ui::widgets::label_widget::redraw_entity() -> void

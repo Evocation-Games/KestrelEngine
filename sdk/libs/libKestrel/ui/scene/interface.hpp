@@ -54,7 +54,7 @@ namespace kestrel::ui
         force_macintosh_dialog = 0xF00F,
     };
 
-    enum lua_api(UI.SceneInterface.AxisOrigin, Available_0_9) scene_interface_item_origin_axis : std::uint8_t
+    enum lua_api(UI.SceneInterface.AnchorPoint, Available_0_9) scene_interface_item_anchor_point : std::uint8_t
     {
         top_left = 0x00,
         top_center = 0x01,
@@ -65,6 +65,15 @@ namespace kestrel::ui
         bottom_left = 0x20,
         bottom_center = 0x21,
         bottom_right = 0x22
+    };
+
+    enum lua_api(UI.SceneInterface.ScalingMode, Available_0_9) scene_interface_item_scaling_mode : std::uint8_t
+    {
+        normal = 0x00,
+        aspect_fill = 0x01,
+        aspect_fit = 0x02,
+        scaling_fill = 0x10,
+        scaling_fit = 0x11,
     };
 
     struct lua_api(UI.SceneInterface.Item, Available_0_8) scene_interface_item
@@ -83,6 +92,9 @@ namespace kestrel::ui
         lua_getter(frame, Available_0_8) [[nodiscard]] auto frame() const -> math::rect { return m_frame; }
         auto set_frame(const math::rect& frame) -> void { m_frame = frame; }
 
+        lua_getter(fillsParentContainer, Available_0_8) [[nodiscard]] auto fills_parent_container() const -> bool { return m_fills_parent_container; }
+        auto set_fills_parent_container() -> void { m_fills_parent_container = true; }
+
         lua_getter(childCount, Available_0_8) [[nodiscard]] auto child_count() const -> std::size_t { return m_items.size(); }
         lua_function(childAt, Available_0_8) [[nodiscard]] auto child_at(std::int32_t idx) const -> lua_reference { return m_items[idx]; }
         auto add_child(const lua_reference& item) -> void { m_items.emplace_back(item); }
@@ -97,8 +109,11 @@ namespace kestrel::ui
         lua_getter(script, Available_0_8) [[nodiscard]] auto lua_script() const -> std::string { return m_lua_script; }
         auto set_lua_script(const std::string& script) -> void { m_lua_script = script; }
 
-        lua_getter(axisOrigin, Available_0_9) [[nodiscard]] auto axis_origin() const -> std::uint8_t { return m_axis_origin; }
-        auto set_axis_origin(std::uint8_t origin) -> void { m_axis_origin = static_cast<enum ui::scene_interface_item_origin_axis>(origin); }
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> enum ui::scene_interface_item_anchor_point { return m_anchor_point; }
+        auto set_anchor_point(std::uint8_t anchor_point) -> void { m_anchor_point = static_cast<enum ui::scene_interface_item_anchor_point>(anchor_point); }
+
+        lua_getter(scalingMode, Available_0_9) [[nodiscard]] auto scaling_mode() const -> enum ui::scene_interface_item_scaling_mode { return m_scaling_mode; }
+        auto set_scaling_mode(std::uint8_t mode) -> void { m_scaling_mode = static_cast<enum ui::scene_interface_item_scaling_mode>(mode); }
 
         lua_getter(condition, Available_0_8) [[nodiscard]] auto condition() const -> std::string { return m_condition; }
         auto set_condition(const std::string& script) -> void { m_condition = script; }
@@ -138,9 +153,11 @@ namespace kestrel::ui
 
     private:
         enum ui::control_type m_type { ui::control_type::none };
-        enum ui::scene_interface_item_origin_axis m_axis_origin { ui::scene_interface_item_origin_axis::top_left };
+        enum ui::scene_interface_item_anchor_point m_anchor_point { ui::scene_interface_item_anchor_point::top_left };
+        enum ui::scene_interface_item_scaling_mode m_scaling_mode { ui::scene_interface_item_scaling_mode::normal };
         std::string m_identifier;
         math::rect m_frame;
+        bool m_fills_parent_container { false };
         std::vector<lua_reference> m_items;
         ui::value m_value;
         ui::action m_action;

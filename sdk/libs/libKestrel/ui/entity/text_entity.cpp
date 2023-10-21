@@ -21,6 +21,7 @@
 #include <libKestrel/ui/entity/text_entity.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
 #include <libKestrel/ui/alignment.hpp>
+#include "libKestrel/kestrel.hpp"
 
 // MARK: - Construction
 
@@ -33,14 +34,15 @@ kestrel::ui::text_entity::text_entity(const std::string &text)
 
     // Perform an estimation of the text size to get a basic label size.
     // TODO: We need to get the current scale here so the size is estimated correctly!
-    font::typesetter ts(text);
+    font::typesetter ts(text, renderer::scale_factor());
     ts.set_font(*m_font.get());
     ts.layout();
 
-    m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size());
+    m_canvas = std::make_unique<graphics::canvas>(ts.get_bounding_size() / renderer::scale_factor());
     m_entity = m_canvas->spawn_entity({0, 0});
 
-    m_min_height = static_cast<std::int16_t>(ts.get_bounding_size().height());
+    m_min_height = static_cast<std::int16_t>(m_canvas->get_bounds().height());
+    m_parent_bounds = { math::point(0), renderer::window_size() };
 }
 
 // MARK: - Accessors
@@ -80,12 +82,6 @@ auto kestrel::ui::text_entity::position() const -> math::point
     return m_position;
 }
 
-auto kestrel::ui::text_entity::draw_position() const -> math::point
-{
-    auto offset = origin_for_axis(render_size(), m_anchor);
-    return m_entity->get_position() + offset;
-}
-
 auto kestrel::ui::text_entity::size() const -> math::size
 {
     return m_entity->get_size();
@@ -94,16 +90,6 @@ auto kestrel::ui::text_entity::size() const -> math::size
 auto kestrel::ui::text_entity::half_size() const -> math::size
 {
     return m_entity->get_size() / 2;
-}
-
-auto kestrel::ui::text_entity::render_size() const -> math::size
-{
-    return m_entity->get_render_size();
-}
-
-auto kestrel::ui::text_entity::draw_size() const -> math::size
-{
-    return m_entity->get_draw_size();
 }
 
 auto kestrel::ui::text_entity::alpha() const -> double
@@ -126,11 +112,6 @@ auto kestrel::ui::text_entity::clipping_offset() const -> math::point
     return m_entity->clipping_offset();
 }
 
-auto kestrel::ui::text_entity::ignore_positioning_frame_scaler() const -> bool
-{
-    return m_ignore_positioning_frame_scaler;
-}
-
 auto kestrel::ui::text_entity::lua_safe_alignment() const -> std::int32_t
 {
     return static_cast<std::int32_t>(m_alignment);
@@ -142,6 +123,7 @@ auto kestrel::ui::text_entity::set_text(const std::string &v) -> void
 {
     m_text = v;
     m_dirty = true;
+    update_position();
 }
 
 auto kestrel::ui::text_entity::set_font(const font::reference::lua_reference &v) -> void
@@ -150,7 +132,7 @@ auto kestrel::ui::text_entity::set_font(const font::reference::lua_reference &v)
     m_font->load_for_graphics();
     m_dirty = true;
 
-    font::typesetter ts(m_text);
+    font::typesetter ts(m_text, renderer::scale_factor());
     ts.set_font(*m_font.get());
     ts.layout();
 
@@ -174,6 +156,7 @@ auto kestrel::ui::text_entity::set_background_color(const graphics::color::lua_r
 auto kestrel::ui::text_entity::set_anchor_point(enum layout::axis_origin v) -> void
 {
     m_anchor = v;
+    update_position();
 }
 
 auto kestrel::ui::text_entity::set_lua_anchor_point(std::int32_t v) -> void
@@ -184,32 +167,29 @@ auto kestrel::ui::text_entity::set_lua_anchor_point(std::int32_t v) -> void
 auto kestrel::ui::text_entity::set_position(const math::point &v) -> void
 {
     m_position = v;
+    update_position();
 }
 
-auto kestrel::ui::text_entity::set_draw_position(const math::point &v) -> void
+auto kestrel::ui::text_entity::update_position() -> void
 {
-    auto offset = layout::origin_for_axis(render_size(), m_anchor);
-    m_entity->set_position(v - offset);
+    auto scale_factor = 1.f;
+    if (auto scene = internal_entity()->scene()) {
+        scale_factor = scene->scaling_factor();
+    }
+
+    auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
+    m_entity->set_position(position + m_parent_bounds.origin());
 }
 
 auto kestrel::ui::text_entity::set_size(const math::size &v) -> void
 {
     m_entity->set_size(v);
+    update_position();
 
     m_canvas = std::make_unique<graphics::canvas>(v);
     m_entity = m_canvas->spawn_entity({});
 
     redraw();
-}
-
-auto kestrel::ui::text_entity::set_render_size(const math::size &v) -> void
-{
-    m_entity->set_render_size(v);
-}
-
-auto kestrel::ui::text_entity::set_draw_size(const math::size &v) -> void
-{
-    m_entity->set_draw_size(v);
 }
 
 auto kestrel::ui::text_entity::set_alpha(double v) -> void
@@ -232,11 +212,6 @@ auto kestrel::ui::text_entity::set_clipping_offset(const math::point &v) -> void
     m_entity->set_clipping_offset(v);
 }
 
-auto kestrel::ui::text_entity::set_ignore_positioning_frame_scaler(bool f) -> void
-{
-    m_ignore_positioning_frame_scaler = f;
-}
-
 auto kestrel::ui::text_entity::set_lua_safe_alignment(std::int32_t v) -> void
 {
     m_alignment = static_cast<enum horizontal_alignment>(v);
@@ -253,6 +228,24 @@ auto kestrel::ui::text_entity::layout() -> void
 auto kestrel::ui::text_entity::on_layout(const luabridge::LuaRef &callback) -> void
 {
 
+}
+
+// MARK: - Misc
+
+auto kestrel::ui::text_entity::internal_entity() const -> std::shared_ptr<ecs::entity>
+{
+    return m_entity;
+}
+
+auto kestrel::ui::text_entity::parent_bounds() const -> math::rect
+{
+    return m_parent_bounds;
+}
+
+auto kestrel::ui::text_entity::set_parent_bounds(const math::rect &bounds) -> void
+{
+    m_parent_bounds = bounds;
+    update_position();
 }
 
 // MARK: - Drawing
@@ -273,7 +266,7 @@ auto kestrel::ui::text_entity::draw() -> void
 
 auto kestrel::ui::text_entity::redraw() -> void
 {
-    const auto size = m_entity->get_size();
+    const auto size = m_entity->get_size() / renderer::scale_factor();
     if (size.area() <= 1) {
         return;
     }
@@ -290,7 +283,7 @@ auto kestrel::ui::text_entity::redraw() -> void
 
     m_canvas->set_font(m_font);
 
-    const auto text_size = m_canvas->layout_text_in_bounds(m_text, size);
+    const auto text_size = m_canvas->layout_text_in_bounds(m_text, size).round();
     auto x = 0.f;
     auto y = (size.height() - text_size.height()) / 2.f;
 

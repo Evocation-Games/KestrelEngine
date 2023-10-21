@@ -37,25 +37,25 @@ static auto calculate_aspect_fit(const kestrel::math::size& container, const kes
             result.set_width(result.height() * ratio);
         }
     }
-    return size;
+    return result.round();
 }
 
 static auto calculate_aspect_fill(const kestrel::math::size& container, const kestrel::math::size& size, kestrel::ui::layout::aspect_ratio_t ratio) -> kestrel::math::size
 {
     auto result = size;
     if (kestrel::ui::layout::is_landscape(ratio)) {
-        if (size.height() > container.height()) {
-            result.set_height(container.height());
-            result.set_width(container.height() * ratio);
-        }
-    }
-    else {
         if (size.width() > container.width()) {
             result.set_width(container.width());
             result.set_height(container.width() / ratio);
         }
     }
-    return size;
+    else {
+        if (size.height() > container.height()) {
+            result.set_height(container.height());
+            result.set_width(container.height() * ratio);
+        }
+    }
+    return result.round();
 }
 
 static auto calculate_scale_fit(const kestrel::math::size& container, const kestrel::math::size& size, kestrel::ui::layout::aspect_ratio_t ratio) -> kestrel::math::size

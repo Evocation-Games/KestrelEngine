@@ -42,4 +42,20 @@ namespace codegen::ast
     private:
         std::string m_name;
     };
+
+    template<language::preprocessor_support L>
+    struct include_file : public node
+    {
+        explicit include_file(const std::string& name)
+            : m_name(name)
+        {}
+
+        [[nodiscard]] auto emit() const -> emit::segment override
+        {
+            return { std::move(L::include_file(m_name)) };
+        }
+
+    private:
+        std::string m_name;
+    };
 }

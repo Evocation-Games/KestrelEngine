@@ -60,6 +60,11 @@ auto kestrel::ui::widgets::sprite_widget::image() const -> luabridge::LuaRef
     return m_sprite_ref;
 }
 
+auto kestrel::ui::widgets::sprite_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
 auto kestrel::ui::widgets::sprite_widget::set_frame(const math::rect &frame) -> void
 {
     m_frame = frame;
@@ -75,6 +80,11 @@ auto kestrel::ui::widgets::sprite_widget::set_image(const luabridge::LuaRef &ima
 auto kestrel::ui::widgets::sprite_widget::set_frame_number(std::int32_t n) -> void
 {
     m_entity->set_current_frame(n);
+}
+
+auto kestrel::ui::widgets::sprite_widget::set_anchor_point(const layout::axis_origin &origin) -> void
+{
+    m_entity->set_anchor_point(origin);
 }
 
 // MARK: - Drawing
@@ -131,8 +141,7 @@ auto kestrel::ui::widgets::sprite_widget::resize(bool reload) -> void
                 m_frame.y() + ((m_frame.height() - size.height()) / 2.f)
             );
             m_entity->set_position(position);
-            m_entity->set_render_size(size);
-            m_entity->set_draw_size(size);
+            m_entity->set_size(size);
             break;
     }
 }

@@ -138,7 +138,12 @@ namespace kestrel
 
         // Finally, setup the renderer and enter the game loop.
         try {
-            renderer::initialize(s_kestrel_session.base_configuration.renderer.desired_api, environment::prepare);
+            renderer::initialize(
+                s_kestrel_session.base_configuration.renderer.desired_api,
+                math::size(s_kestrel_session.base_configuration.video.width, s_kestrel_session.base_configuration.video.height),
+                s_kestrel_session.base_configuration.video.scale,
+                environment::prepare
+            );
         }
         catch (const incompatible_driver_exception& e) {
             return result::incompatible_renderer;
@@ -418,6 +423,11 @@ auto kestrel::effective_game_size() -> math::size
     auto width = renderer::window_size().width();
     auto height = ceilf(width / 1.7777778f);
     return { width, height };
+}
+
+auto kestrel::game_size() -> math::size
+{
+    return renderer::window_size();
 }
 
 auto kestrel::set_fullscreen(bool f) -> void

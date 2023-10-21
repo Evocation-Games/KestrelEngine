@@ -32,7 +32,26 @@ namespace kestrel::renderer::opengl
 
     static constexpr const char *s_default_fragment_function {R"(
         int tex_index = int(v_tex_index);
-        color = v_color * texture(u_textures[tex_index], v_tex_coord);
+        switch (tex_index) {
+        case 0: color = v_color * texture(u_textures[0], v_tex_coord); break;
+        case 1: color = v_color * texture(u_textures[1], v_tex_coord); break;
+        case 2: color = v_color * texture(u_textures[2], v_tex_coord); break;
+        case 3: color = v_color * texture(u_textures[3], v_tex_coord); break;
+        case 4: color = v_color * texture(u_textures[4], v_tex_coord); break;
+        case 5: color = v_color * texture(u_textures[5], v_tex_coord); break;
+        case 6: color = v_color * texture(u_textures[6], v_tex_coord); break;
+        case 7: color = v_color * texture(u_textures[7], v_tex_coord); break;
+        case 8: color = v_color * texture(u_textures[8], v_tex_coord); break;
+        case 9: color = v_color * texture(u_textures[9], v_tex_coord); break;
+        case 10: color = v_color * texture(u_textures[10], v_tex_coord); break;
+        case 11: color = v_color * texture(u_textures[11], v_tex_coord); break;
+        case 12: color = v_color * texture(u_textures[12], v_tex_coord); break;
+        case 13: color = v_color * texture(u_textures[13], v_tex_coord); break;
+        case 14: color = v_color * texture(u_textures[14], v_tex_coord); break;
+        case 15: color = v_color * texture(u_textures[15], v_tex_coord); break;
+        default: color = v_color; break;
+        }
+
     )"};
 
     static constexpr const char *s_vertex_shader_template {R"(

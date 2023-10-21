@@ -21,7 +21,11 @@
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
 
-Kestrel.setGameWindowTitle("Kestrel")
-Kestrel.setGameWindowSize(Size(1280, 800))
+print("Loading Graphics Test Suite...")
 
-Kestrel.Scene("ExampleScene"):push()
+FontManager.defaultFont = FontManager.addFont(Font.namedFont("Geneva", 15))
+
+Kestrel.setGameWindowTitle("Kestrel")
+Kestrel.setGameWindowSize(Size(1440, 900))
+
+Kestrel.Scene("BasicDrawingTests"):push()

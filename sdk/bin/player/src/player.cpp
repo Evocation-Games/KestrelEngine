@@ -24,7 +24,7 @@ auto main(int argc, const char **argv) -> int
 {
     // Setup the configuration for Kestrel.
     kestrel::configuration cfg(argc, argv);
-    cfg.data_files.recognized_extensions = { "ndat", "kdat", "rsrc", "rez" };
+    cfg.data_files.recognized_extensions = { "ndat", "kdat", "rsrc", "rsrx", "rez" };
 
     // Launch
     auto result = kestrel::start(cfg);

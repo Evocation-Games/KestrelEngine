@@ -74,6 +74,11 @@ auto kestrel::math::angular_difference::operator>= (angular_difference& a) const
     return m_phi >= a.m_phi;
 }
 
+auto kestrel::math::angular_difference::operator*(float f) const -> angular_difference
+{
+    return angular_difference(m_phi * f);
+}
+
 // MARK: - Operations
 
 auto kestrel::math::angular_difference::calculate_for(const angle& a) const -> angle

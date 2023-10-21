@@ -19,6 +19,8 @@
 // SOFTWARE.
 
 #include <libKestrel/ui/entity/scene_entity.hpp>
+#include <libKestrel/ui/entity/text_entity.hpp>
+#include <libKestrel/ui/entity/line_entity.hpp>
 #include <libKestrel/kestrel.hpp>
 #include <libKestrel/graphics/canvas/canvas.hpp>
 #include <libKestrel/graphics/image/static_image.hpp>
@@ -27,27 +29,32 @@
 #include <libKestrel/graphics/legacy/macintosh/color_icon.hpp>
 #include <libKestrel/graphics/renderer/common/blending.hpp>
 #include <libKestrel/graphics/renderer/common/renderer.hpp>
+#include <libKestrel/ui/layout/aspect_ratio.hpp>
 
 // MARK: - Construction
 
 kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<ecs::entity>& entity)
     : m_entity(entity), m_position(0), m_frame(0)
 {
+    m_parent_bounds = { math::point(0), renderer::window_size() };
 }
 
 kestrel::ui::scene_entity::scene_entity(const luabridge::LuaRef& entity_provider)
     : m_entity(spawn_entity(entity_provider)), m_position(0), m_frame(0)
 {
+    m_parent_bounds = { math::point(0), renderer::window_size() };
 }
 
 kestrel::ui::scene_entity::scene_entity(const image::static_image::lua_reference &image)
     : m_entity(spawn_entity(image)), m_position(0), m_frame(0)
 {
+    m_parent_bounds = { math::point(0), renderer::window_size() };
 }
 
 kestrel::ui::scene_entity::scene_entity(const graphics::canvas::lua_reference &canvas)
     : m_entity(spawn_entity(canvas)), m_position(), m_frame(0)
 {
+    m_parent_bounds = { math::point(0), renderer::window_size() };
 }
 
 kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& entity)
@@ -70,7 +77,8 @@ kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& ent
       m_on_mouse_drag_internal(entity->m_on_mouse_drag_internal),
       m_on_mouse_enter_internal(entity->m_on_mouse_enter_internal),
       m_on_mouse_exit_internal(entity->m_on_mouse_exit_internal),
-      m_continuous_mouse_down_action(entity->m_continuous_mouse_down_action)
+      m_continuous_mouse_down_action(entity->m_continuous_mouse_down_action),
+      m_parent_bounds(entity->m_parent_bounds)
 {
     if (entity->m_on_animation_start.state() && entity->m_on_animation_start.isFunction()) {
         m_on_animation_start = entity->m_on_animation_start;
@@ -96,6 +104,14 @@ kestrel::ui::scene_entity::scene_entity(const std::shared_ptr<scene_entity>& ent
     if (entity->m_on_mouse_drag.state() && entity->m_on_mouse_drag.isFunction()) {
         m_on_mouse_drag = entity->m_on_mouse_drag;
     }
+}
+
+auto kestrel::ui::scene_entity::empty() -> lua_reference
+{
+    auto canvas = graphics::canvas::lua_reference(new graphics::canvas({ 1, 1 }));
+    canvas->set_pen_color(graphics::color::black_color_ref());
+    canvas->fill_rect({ 0, 0, 1, 1 });
+    return { new scene_entity(canvas) };
 }
 
 // MARK: - Entity Spawning
@@ -159,15 +175,14 @@ auto kestrel::ui::scene_entity::body() const -> physics::body::lua_reference
     return m_entity->body();
 }
 
+auto kestrel::ui::scene_entity::absolute_position() const -> math::point
+{
+    return internal_entity()->get_position();
+}
+
 auto kestrel::ui::scene_entity::position() const -> math::point
 {
     return m_position;
-}
-
-auto kestrel::ui::scene_entity::draw_position() const -> math::point
-{
-    auto offset = origin_for_axis(render_size(), m_anchor);
-    return m_entity->get_position() + offset;
 }
 
 auto kestrel::ui::scene_entity::anchor_point() const -> enum layout::axis_origin
@@ -180,6 +195,16 @@ auto kestrel::ui::scene_entity::lua_anchor_point() const -> std::int32_t
     return static_cast<std::int32_t>(anchor_point());
 }
 
+auto kestrel::ui::scene_entity::scaling_mode() const -> enum layout::scaling_mode
+{
+    return m_scaling_mode;
+}
+
+auto kestrel::ui::scene_entity::lua_scaling_mode() const -> std::int32_t
+{
+    return static_cast<std::int32_t>(scaling_mode());
+}
+
 auto kestrel::ui::scene_entity::size() const -> math::size
 {
     return m_entity->get_size();
@@ -188,16 +213,6 @@ auto kestrel::ui::scene_entity::size() const -> math::size
 auto kestrel::ui::scene_entity::half_size() const -> math::size
 {
     return m_entity->get_size() / 2;
-}
-
-auto kestrel::ui::scene_entity::render_size() const -> math::size
-{
-    return m_entity->get_render_size();
-}
-
-auto kestrel::ui::scene_entity::draw_size() const -> math::size
-{
-    return m_entity->get_draw_size();
 }
 
 auto kestrel::ui::scene_entity::frame_count() const -> std::int32_t
@@ -240,19 +255,14 @@ auto kestrel::ui::scene_entity::clipping_offset() const -> math::point
     return m_entity->clipping_offset();
 }
 
-auto kestrel::ui::scene_entity::children() const -> lua::vector<lua_reference>
+auto kestrel::ui::scene_entity::children() const -> lua::vector<luabridge::LuaRef>
 {
-    return m_children;
+    return {};
 }
 
 auto kestrel::ui::scene_entity::animator() const -> renderer::animator::lua_reference
 {
     return m_animator;
-}
-
-auto kestrel::ui::scene_entity::ignore_positioning_frame_scaler() const -> bool
-{
-    return m_ignore_positioning_frame_scaler;
 }
 
 auto kestrel::ui::scene_entity::continuous_mouse_down_action() const -> bool
@@ -270,17 +280,26 @@ auto kestrel::ui::scene_entity::hidden() const -> bool
 auto kestrel::ui::scene_entity::set_position(const math::point& v) -> void
 {
     m_position = v;
+    update_position();
 }
 
-auto kestrel::ui::scene_entity::set_draw_position(const math::point& v) -> void
+auto kestrel::ui::scene_entity::update_position() -> void
 {
-    auto offset = origin_for_axis(render_size(), m_anchor);
-    m_entity->set_position(v - offset);
+    auto scale_factor = 1.f;
+    if (auto scene = internal_entity()->scene()) {
+        if (!ignores_scene_scaling_factor()) {
+            scale_factor = scene->scaling_factor();
+        }
+    }
+    auto position = entity_position(m_parent_bounds.size(), this->anchor_point(), this->position() * scale_factor, this->size() * scale_factor);
+    m_entity->set_position(position + m_parent_bounds.origin());
+    update_children();
 }
 
 auto kestrel::ui::scene_entity::set_anchor_point(enum layout::axis_origin v) -> void
 {
     m_anchor = v;
+    update_position();
 }
 
 auto kestrel::ui::scene_entity::set_lua_anchor_point(std::int32_t v) -> void
@@ -288,19 +307,49 @@ auto kestrel::ui::scene_entity::set_lua_anchor_point(std::int32_t v) -> void
     set_anchor_point(static_cast<enum layout::axis_origin>(v));
 }
 
+auto kestrel::ui::scene_entity::set_scaling_mode(enum layout::scaling_mode v) -> void
+{
+    m_scaling_mode = v;
+    update_scaling();
+}
+
+auto kestrel::ui::scene_entity::set_lua_scaling_mode(std::int32_t v) -> void
+{
+    set_scaling_mode(static_cast<enum layout::scaling_mode>(v));
+}
+
+auto kestrel::ui::scene_entity::update_scaling() -> void
+{
+    if (m_scaling_mode == layout::scaling_mode::aspect_fill) {
+        auto scaled = layout::calculate_size(
+            m_scaling_mode,
+            this->size(),
+            m_entity->texture()->size(),
+            layout::aspect_ratio(m_entity->texture()->size())
+        );
+
+        auto offset = ((scaled - this->size()) / 2.f) / scaled;
+        auto size = this->size() / scaled;
+
+        m_entity->set_scaled_texture_area(math::rect(offset.width(), offset.height(), size.width(), size.height()));
+    }
+}
+
+auto kestrel::ui::scene_entity::set_ignores_scene_scaling_factor(bool f) -> void
+{
+    m_entity->set_ignores_scene_scaling_factor(f);
+}
+
+auto kestrel::ui::scene_entity::ignores_scene_scaling_factor() const -> bool
+{
+    return m_entity->ignores_scene_scaling_factor();
+}
+
 auto kestrel::ui::scene_entity::set_size(const math::size& v) -> void
 {
     m_entity->set_size(v);
-}
-
-auto kestrel::ui::scene_entity::set_render_size(const math::size& v) -> void
-{
-    m_entity->set_render_size(v);
-}
-
-auto kestrel::ui::scene_entity::set_draw_size(const math::size& v) -> void
-{
-    m_entity->set_draw_size(v);
+    update_position();
+    update_scaling();
 }
 
 auto kestrel::ui::scene_entity::set_current_frame(std::uint32_t v) -> void
@@ -351,11 +400,6 @@ auto kestrel::ui::scene_entity::set_continuous_mouse_down_action(bool continuous
     m_continuous_mouse_down_action = continuous;
 }
 
-auto kestrel::ui::scene_entity::set_ignore_positioning_frame_scaler(bool f) -> void
-{
-    m_ignore_positioning_frame_scaler = f;
-}
-
 auto kestrel::ui::scene_entity::set_hidden(bool hidden) -> void
 {
     m_hidden = hidden;
@@ -363,9 +407,15 @@ auto kestrel::ui::scene_entity::set_hidden(bool hidden) -> void
 
 // MARK: - Child Entity Management
 
-auto kestrel::ui::scene_entity::add_child_entity(const lua_reference& child) -> void
+auto kestrel::ui::scene_entity::add_entity(const lua_reference & child) -> void
+{
+    add_child_entity({ kestrel::lua_runtime()->internal_state(), child });
+}
+
+auto kestrel::ui::scene_entity::add_child_entity(const luabridge::LuaRef& child) -> void
 {
     m_children.emplace_back(child);
+    update_children();
 }
 
 auto kestrel::ui::scene_entity::each_child(const luabridge::LuaRef& body) const -> void
@@ -381,6 +431,32 @@ auto kestrel::ui::scene_entity::remove_entity(const kestrel::ui::scene_entity::l
         if (m_children.at(i) == child) {
             m_children.remove(i + 1);
             return;
+        }
+    }
+}
+
+auto kestrel::ui::scene_entity::update_children() -> void
+{
+    for (auto& child : m_children) {
+        if (lua::ref_isa<scene_entity>(child)) {
+            auto entity = child.cast<scene_entity::lua_reference>();
+            entity->m_parent_bounds = {
+                m_entity->get_position(), size()
+            };
+            entity->update_position();
+        }
+        else if (lua::ref_isa<text_entity>(child)) {
+            auto entity = child.cast<text_entity::lua_reference>();
+            entity->m_parent_bounds = {
+                m_entity->get_position(), size()
+            };
+            entity->update_position();
+        }
+        else if (lua::ref_isa<line_entity>(child)) {
+            auto entity = child.cast<line_entity::lua_reference>();
+            entity->m_parent_bounds = {
+                m_entity->get_position(), size()
+            };
         }
     }
 }
@@ -446,6 +522,17 @@ auto kestrel::ui::scene_entity::on_animation_finish(const luabridge::LuaRef& cal
 auto kestrel::ui::scene_entity::replace(const lua_reference &entity) -> void
 {
     m_entity = entity->internal_entity();
+}
+
+auto kestrel::ui::scene_entity::set_parent_bounds(const math::rect &bounds) -> void
+{
+    m_parent_bounds = bounds;
+    update_position();
+}
+
+auto kestrel::ui::scene_entity::parent_bounds() const -> math::rect
+{
+    return m_parent_bounds;
 }
 
 // MARK: - Layout & Drawing
@@ -519,9 +606,15 @@ auto kestrel::ui::scene_entity::draw() -> void
     }
 
     for (auto& child : m_children) {
-        child->set_draw_position(draw_position() + child->position());
-        child->set_draw_size(child->render_size());
-        child->draw();
+        if (lua::ref_isa<scene_entity>(child)) {
+            child.cast<scene_entity::lua_reference>()->draw();
+        }
+        else if (lua::ref_isa<text_entity>(child)) {
+            child.cast<text_entity::lua_reference>()->draw();
+        }
+        else if (lua::ref_isa<line_entity>(child)) {
+            child.cast<line_entity::lua_reference>()->draw();
+        }
     }
 }
 
@@ -580,13 +673,20 @@ auto kestrel::ui::scene_entity::on_mouse_drag_internal(const std::function<auto(
 
 auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 {
+    for (auto& child : m_children) {
+        if (lua::ref_isa<scene_entity>(child)) {
+            child.cast<scene_entity::lua_reference>()->send_event(e);
+        }
+    }
+
     if (e.is_mouse_event()) {
         auto point = e.location();
+        auto local_event = e.relocated(point - absolute_position());
 
         if (!m_mouse_over && hit_test(point)) {
             m_mouse_over = true;
             if (m_on_mouse_enter.state() && m_on_mouse_enter.isFunction()) {
-                m_on_mouse_enter(event::lua_reference { new event(e) });
+                m_on_mouse_enter(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_enter_internal) {
@@ -596,7 +696,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
         else if (m_mouse_over && !hit_test(point)) {
             m_mouse_over = false;
             if (m_on_mouse_exit.state() && m_on_mouse_exit.isFunction()) {
-                m_on_mouse_exit(event::lua_reference { new event(e) });
+                m_on_mouse_exit(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_exit_internal) {
@@ -609,7 +709,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
             m_mouse_down_event = e;
 
             if (m_on_mouse_down.state() && m_on_mouse_down.isFunction()) {
-                m_on_mouse_down(event::lua_reference { new event(e) });
+                m_on_mouse_down(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_down_internal) {
@@ -619,7 +719,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
         else if (e.has(::ui::event::any_mouse_up) && m_pressed) {
             m_pressed = false;
             if (m_on_mouse_release.state() && m_on_mouse_release.isFunction()) {
-                m_on_mouse_release(event::lua_reference { new event(e) });
+                m_on_mouse_release(event::lua_reference { new event(local_event) });
             }
 
             if (m_on_mouse_release_internal) {
@@ -628,7 +728,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
         }
 
         if (m_on_mouse_drag.state() && m_on_mouse_drag.isFunction() && e.has(::ui::event::any_mouse_down) && e.has(::ui::event::mouse_move)) {
-            m_on_mouse_drag(event::lua_reference { new event(e) });
+            m_on_mouse_drag(event::lua_reference { new event(local_event) });
             m_mouse_dragged = true;
             if (m_on_mouse_drag_internal) {
                 m_on_mouse_drag_internal(e);
@@ -639,8 +739,7 @@ auto kestrel::ui::scene_entity::send_event(const event& e) -> void
 
 auto kestrel::ui::scene_entity::hit_test(const math::point& p) const -> bool
 {
-    math::rect frame { math::point(0), m_entity->get_draw_size() };
-    return frame.contains_point(p) && !m_hidden;
+    return m_entity->get_bounds().contains_point(p) && !m_hidden;
 }
 
 // MARK: - Entity

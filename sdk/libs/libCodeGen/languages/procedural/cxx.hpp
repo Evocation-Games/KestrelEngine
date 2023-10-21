@@ -41,14 +41,28 @@ namespace codegen::language
 
         // MARK: - Preprocessor Support
 
-        [[nodiscard]] static auto include_library(const std::string& path) -> emit::segment
+        [[nodiscard]] static auto preprocessor_keyword(const std::string& name) -> emit::segment
         {
-            return emit::segment("#include <" + path + ">", emit::line_break_mode::after);
+            return emit::segment("#" + name + " ", emit::line_break_mode::none);
+        }
+
+        [[nodiscard]] static auto include_library(const std::string& name) -> emit::segment
+        {
+            return {
+                preprocessor_keyword("include"),
+                emit::segment("<"),
+                emit::segment(name),
+                emit::segment(">", emit::line_break_mode::after)
+            };
         }
 
         [[nodiscard]] static auto include_file(const std::string& path) -> emit::segment
         {
-            return emit::segment("#include \"" + path + "\"", emit::line_break_mode::after);
+            return {
+                preprocessor_keyword("include"),
+                string(path),
+                emit::segment(" ", emit::line_break_mode::after)
+            };
         }
 
         // MARK: - Literal Support

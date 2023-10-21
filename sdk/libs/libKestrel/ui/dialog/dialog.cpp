@@ -181,18 +181,22 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 button->set_label_color(element->text_color());
                 button->set_font(element->font());
                 button->set_ui_action(element->script_action().bind_to_scene(scene));
+                button->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, button)));
                 break;
             }
             case control_type::sprite: {
                 auto sprite = widgets::sprite_widget::lua_reference(new widgets::sprite_widget({ nullptr }));
                 sprite->set_frame(element->frame());
+                sprite->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, sprite)));
                 break;
             }
             case control_type::image: {
                 auto image = widgets::image_widget::lua_reference(new widgets::image_widget({ L, element->value().descriptor(0) }));
                 image->set_frame(element->frame());
+                image->set_anchor_point(element->anchor_point());
+                image->set_scaling_mode(element->scaling_mode());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, image)));
                 break;
             }
@@ -203,6 +207,7 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 checkbox->set_background_color(element->background_color());
                 checkbox->set_border_color(element->border_color());
                 checkbox->set_value(element->value().boolean(0));
+                checkbox->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, checkbox)));
                 break;
             }
@@ -213,6 +218,7 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 label->set_background_color(element->background_color());
                 label->set_horizontal_alignment(element->alignment());
                 label->set_font(element->font());
+                label->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, label)));
                 break;
             }
@@ -226,6 +232,7 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 text->set_cursor_color(element->text_color());
                 text->set_selection_color(element->selection_color());
                 text->set_font(element->font());
+                text->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
                 break;
             }
@@ -234,6 +241,7 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 text->set_frame(element->frame());
                 text->set_background_color(element->background_color());
                 text->set_color(element->text_color());
+                text->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, text)));
                 break;
             }
@@ -244,6 +252,7 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 popup->set_border_color(element->border_color());
                 popup->set_color(element->text_color());
                 popup->set_selection_color(element->selection_color());
+                popup->set_anchor_point(element->anchor_point());
 
                 auto items = luabridge::LuaRef::newTable(kestrel::lua_runtime()->internal_state());
                 for (auto n = 0; n < element->value().count(); ++n) {
@@ -264,6 +273,7 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 list->set_text_color(element->text_color());
                 list->set_hilite_color(element->selection_color());
                 list->set_font(element->font());
+                list->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, list)));
                 break;
             }
@@ -276,18 +286,21 @@ auto kestrel::ui::dialog::load_scene_contents(dialog_configuration *config, cons
                 grid->set_secondary_text_color(element->text_color());
                 grid->set_hilite_color(element->selection_color());
                 grid->set_font(element->font());
+                grid->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, grid)));
                 break;
             }
             case control_type::canvas: {
                 auto custom = widgets::custom_widget::lua_reference(new widgets::custom_widget({ nullptr }));
                 custom->set_frame(element->frame());
+                custom->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, custom)));
                 break;
             }
             case control_type::scroll_area: {
                 auto scroll = widgets::scrollview_widget::lua_reference(new widgets::scrollview_widget());
                 scroll->set_frame(element->frame());
+                scroll->set_anchor_point(element->anchor_point());
                 m_elements.emplace(std::pair(element_name, luabridge::LuaRef(L, scroll)));
                 break;
             }
@@ -440,26 +453,18 @@ auto kestrel::ui::dialog::set_background(const luabridge::LuaRef &background) ->
     if (lua::ref_isa<image::static_image>(background)) {
         m_background.fill = background.cast<image::static_image::lua_reference>();
         auto size = m_scene_ui.frame_size;
-        m_owner_scene->set_positioning_frame({
-            new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
-        });
-        m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
 
         m_background.fill_entity = { new ui::scene_entity(m_background.fill) };
         m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
-        m_background.fill_entity->set_render_size(size);
-        m_background.fill_entity->set_draw_size(size);
+        m_background.fill_entity->set_size(size);
         m_owner_scene->add_scene_entity(m_background.fill_entity);
+
+        m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(kestrel::session().size()));
     }
 }
 
 auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, const luabridge::LuaRef& top, const luabridge::LuaRef& fill, const luabridge::LuaRef& bottom) -> void
 {
-    m_owner_scene->set_positioning_frame({
-        new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
-    });
-    m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
-
     if (lua::ref_isa<image::static_image>(top)) {
         m_background.top = top.cast<image::static_image::lua_reference>();
         m_background.top_entity = { new ui::scene_entity(m_background.top) };
@@ -498,15 +503,12 @@ auto kestrel::ui::dialog::set_stretchable_background(const math::size& size, con
     m_owner_scene->add_scene_entity(m_background.fill_entity);
     m_owner_scene->add_scene_entity(m_background.top_entity);
     m_owner_scene->add_scene_entity(m_background.bottom_entity);
+
+    m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(kestrel::session().size()));
 }
 
 auto kestrel::ui::dialog::resize_stretchable_background(const math::size& size) -> void
 {
-    m_owner_scene->set_positioning_frame({
-        new layout::positioning_frame(size, layout::axis_origin::center, layout::scaling_mode::normal)
-    });
-    m_owner_scene->positioning_frame()->set_axis_displacement({ -size.width() / 2.f, -size.height() / 2.f });
-
     m_background.top_entity->set_position({ 0, 0 });
     m_background.top_entity->set_anchor_point(layout::axis_origin::top_left);
 
@@ -529,6 +531,8 @@ auto kestrel::ui::dialog::resize_stretchable_background(const math::size& size) 
     m_background.fill_entity->change_internal_entity(canvas->entity());
     m_background.fill_entity->set_position({ 0, y });
     m_background.fill_entity->set_anchor_point(layout::axis_origin::top_left);
+
+    m_owner_scene->set_scene_bounding_frame(math::rect(math::point(0), size).centered(kestrel::session().size()));
 }
 
 

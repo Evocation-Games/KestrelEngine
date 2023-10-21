@@ -171,6 +171,11 @@ auto kestrel::ui::widgets::button_widget::hidden() const -> bool
     return m_entity->hidden();
 }
 
+auto kestrel::ui::widgets::button_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
 // MARK: - Setters
 
 auto kestrel::ui::widgets::button_widget::set_label(const std::string& label) -> void
@@ -284,6 +289,11 @@ auto kestrel::ui::widgets::button_widget::set_hidden(bool hidden) -> void
     m_dirty = true;
 }
 
+auto kestrel::ui::widgets::button_widget::set_anchor_point(const layout::axis_origin &anchor) -> void
+{
+    m_entity->set_anchor_point(anchor);
+}
+
 // MARK: - Internal Events
 
 auto kestrel::ui::widgets::button_widget::bind_internal_events() -> void
@@ -374,7 +384,7 @@ auto kestrel::ui::widgets::button_widget::redraw_entity() -> void
 
 auto kestrel::ui::widgets::button_widget::receive_event(const event &e) -> bool
 {
-    if (e.is_mouse_event() && entity()->hit_test(e.location() - entity()->position())) {
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::mouse_move) && !m_inside) {
             m_inside = true;
             mouse_enter();

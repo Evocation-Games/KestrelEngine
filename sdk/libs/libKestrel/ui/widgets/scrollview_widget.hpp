@@ -25,7 +25,6 @@
 #include <libKestrel/lua/scripting.hpp>
 #include <libKestrel/math/rect.hpp>
 #include <libKestrel/ui/entity/scene_entity.hpp>
-#include <libKestrel/ui/layout/positioning_frame.hpp>
 #include <libKestrel/event/responder/responder_chain.hpp>
 
 namespace kestrel::ui::widgets
@@ -51,6 +50,9 @@ namespace kestrel::ui::widgets
         lua_setter(frame, Available_0_8) auto set_frame(const math::rect& v) -> void;
 
         lua_function(setContent, Available_0_8) auto set_content_entity(const scene_entity::lua_reference& entity) -> void;
+
+        lua_getter(anchorPoint, Available_0_9) [[nodiscard]] auto anchor_point() const -> layout::axis_origin;
+        lua_setter(anchorPoint, Available_0_9) auto set_anchor_point(const layout::axis_origin& origin) -> void;
 
         auto bind_internal_events() -> void;
         auto receive_event(const event& e) -> bool override;

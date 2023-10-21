@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <functional>
 #include <initializer_list>
 #include <libFoundation/availability.hpp>
 #include <libFoundation/system/filesystem/file_type.hpp>
@@ -182,6 +183,19 @@ namespace foundation::filesystem
          * Replace a path component with the contents of another path.
          */
         [[nodiscard]] auto replace_component(std::int32_t i, const path& replacement) const -> path;
+
+        /**
+         * Iterate over each of the children in the directory.
+         * @param fn
+         */
+        auto each_child(const std::function<auto(const path&)->void>& fn) const -> void;
+
+        /**
+         * Check to see if the path has the specified extension.
+         * @param ext The extension to test for (excluding dot)
+         * @return
+         */
+        [[nodiscard]] auto has_extension(const std::string& ext) const -> bool;
 
     public:
         /**

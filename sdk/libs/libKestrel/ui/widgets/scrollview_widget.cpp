@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <libKestrel/ui/widgets/scrollview_widget.hpp>
+#include "libKestrel/kestrel.hpp"
 
 // MARK: - Construction
 
@@ -44,7 +45,7 @@ auto kestrel::ui::widgets::scrollview_widget::position() const -> math::point
 
 auto kestrel::ui::widgets::scrollview_widget::size() const -> math::size
 {
-    return m_entity->render_size();
+    return m_entity->size();
 }
 
 auto kestrel::ui::widgets::scrollview_widget::frame() const -> math::rect
@@ -66,7 +67,6 @@ auto kestrel::ui::widgets::scrollview_widget::set_position(const math::point &v)
 auto kestrel::ui::widgets::scrollview_widget::set_size(const math::size &v) -> void
 {
     m_entity->set_size(v);
-    m_entity->set_render_size(v);
     m_dirty = true;
 }
 
@@ -82,6 +82,17 @@ auto kestrel::ui::widgets::scrollview_widget::set_scroll_offset(const math::poin
     m_scroll_offset = v;
     m_dirty = true;
 }
+
+auto kestrel::ui::widgets::scrollview_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::scrollview_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity->set_anchor_point(origin);
+}
+
 
 auto kestrel::ui::widgets::scrollview_widget::bind_internal_events() -> void
 {
@@ -129,7 +140,7 @@ auto kestrel::ui::widgets::scrollview_widget::set_content_entity(const scene_ent
     }
 
     m_content_entity = entity;
-    m_entity->add_child_entity(m_content_entity);
+    m_entity->add_child_entity({ kestrel::lua_runtime()->internal_state(), m_content_entity });
     m_dirty = true;
 }
 
@@ -151,28 +162,28 @@ auto kestrel::ui::widgets::scrollview_widget::redraw_entity() -> void
     math::point origin(0);
     math::size size(0);
 
-    if (m_content_entity->render_size().width() >= m_entity->render_size().width()) {
-        clip_size.set_width(m_entity->render_size().width());
-        size.set_width(m_entity->render_size().width());
+    if (m_content_entity->size().width() >= m_entity->size().width()) {
+        clip_size.set_width(m_entity->size().width());
+        size.set_width(m_entity->size().width());
         origin.set_x(0);
-        scroll_offset.set_x(m_scroll_offset.x() - (m_content_entity->render_size().width() / 2.f));
+        scroll_offset.set_x(m_scroll_offset.x() - (m_content_entity->size().width() / 2.f));
     }
     else {
-        clip_size.set_width(m_content_entity->render_size().width());
-        size.set_width(m_content_entity->render_size().width());
-        origin.set_x((m_entity->render_size().width() - size.width()) / 2.f);
+        clip_size.set_width(m_content_entity->size().width());
+        size.set_width(m_content_entity->size().width());
+        origin.set_x((m_entity->size().width() - size.width()) / 2.f);
     }
 
-    if (m_content_entity->render_size().height() >= m_entity->render_size().height()) {
-        clip_size.set_height(m_entity->render_size().height());
-        size.set_height(m_entity->render_size().height());
+    if (m_content_entity->size().height() >= m_entity->size().height()) {
+        clip_size.set_height(m_entity->size().height());
+        size.set_height(m_entity->size().height());
         origin.set_y(0);
-        scroll_offset.set_y(m_scroll_offset.y() - (m_content_entity->render_size().height() / 2.f));
+        scroll_offset.set_y(m_scroll_offset.y() - (m_content_entity->size().height() / 2.f));
     }
     else {
-        clip_size.set_height(m_entity->render_size().height());
-        size.set_height(m_entity->render_size().height());
-        origin.set_y((m_entity->render_size().height() - size.height()) / 2.f);
+        clip_size.set_height(m_entity->size().height());
+        size.set_height(m_entity->size().height());
+        origin.set_y((m_entity->size().height() - size.height()) / 2.f);
     }
 
     origin = origin.round();
@@ -182,7 +193,6 @@ auto kestrel::ui::widgets::scrollview_widget::redraw_entity() -> void
 
     m_content_entity->set_position(origin);
     m_content_entity->set_size(size);
-    m_content_entity->set_render_size(size);
     m_content_entity->set_clipping_offset(scroll_offset);
     m_content_entity->set_clipping_area(clip_size);
 

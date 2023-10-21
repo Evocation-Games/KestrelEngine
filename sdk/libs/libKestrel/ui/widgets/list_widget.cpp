@@ -199,6 +199,16 @@ auto kestrel::ui::widgets::list_widget::heading_text_color() const -> graphics::
     return m_appearance.heading_text_color;
 }
 
+auto kestrel::ui::widgets::list_widget::anchor_point() const -> layout::axis_origin
+{
+    return m_entity.entity->anchor_point();
+}
+
+auto kestrel::ui::widgets::list_widget::set_anchor_point(const layout::axis_origin& origin) -> void
+{
+    m_entity.entity->set_anchor_point(origin);
+}
+
 
 // MARK: - Drawing
 
@@ -352,8 +362,8 @@ auto kestrel::ui::widgets::list_widget::lua_receive_event(const event::lua_refer
 
 auto kestrel::ui::widgets::list_widget::receive_event(const event &e) -> bool
 {
-    auto local_position = e.location() - entity()->position();
-    if (e.is_mouse_event() && entity()->hit_test(local_position)) {
+    auto local_position = e.location() - m_entity.entity->absolute_position();
+    if (e.is_mouse_event() && entity()->hit_test(e.location())) {
         if (e.has(::ui::event::any_mouse_down) && !m_pressed) {
             m_pressed = true;
             return true;

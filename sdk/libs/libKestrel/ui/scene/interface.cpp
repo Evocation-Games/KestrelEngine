@@ -163,6 +163,18 @@ kestrel::ui::scene_interface::scene_interface(const resource::descriptor::lua_re
                         }
                         break;
                     }
+                    case ::ui::format::attribute::code::anchor_point: {
+                        item->set_anchor_point(attribute.value().value<std::int64_t>());
+                        break;
+                    }
+                    case ::ui::format::attribute::code::scaling_mode: {
+                        item->set_scaling_mode(attribute.value().value<std::int64_t>());
+                        break;
+                    }
+                    case ::ui::format::attribute::code::fill_container: {
+                        item->set_fills_parent_container();
+                        break;
+                    }
                     default:
                         throw std::runtime_error("");
                 }

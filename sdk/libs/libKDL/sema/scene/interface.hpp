@@ -104,9 +104,11 @@ namespace kdl::sema::scene_interface
         static constexpr const char *weight = "Weight";
         static constexpr const char *horizontal_alignment = "HorizontalAlignment";
         static constexpr const char *vertical_alignment = "VerticalAlignment";
-        static constexpr const char *axis_origin = "AxisOrigin";
+        static constexpr const char *anchor_point = "AnchorPoint";
         static constexpr const char *action = "Action";
         static constexpr const char *value = "Value";
+        static constexpr const char *scaling_mode = "ScalingMode";
+        static constexpr const char *fill_container = "_FillParentContainer";
     };
 
     struct horizontal_alignment_names {
@@ -144,6 +146,14 @@ namespace kdl::sema::scene_interface
         static constexpr const char *bottom_left = "BottomLeft";
         static constexpr const char *bottom_center = "BottomCenter";
         static constexpr const char *bottom_right = "BottomRight";
+    };
+
+    struct scaling_mode {
+        static constexpr const char *normal = "Normal";
+        static constexpr const char *aspect_fill = "AspectFill";
+        static constexpr const char *aspect_fit = "AspectFit";
+        static constexpr const char *scaling_fill = "ScaleFill";
+        static constexpr const char *scaling_fit = "ScaleFit";
     };
 
     struct basic_names {

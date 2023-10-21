@@ -84,5 +84,6 @@ namespace kestrel::ui::layout
     };
 
     auto origin_for_axis(const math::size& size, enum axis_origin axis) -> math::point;
+    auto entity_position(const math::size& container, enum axis_origin axis, const math::point& position, const math::size& size) -> math::point;
     auto position_for_axis(const math::size& container, enum axis_origin axis, const math::size& size) -> math::point;
 }

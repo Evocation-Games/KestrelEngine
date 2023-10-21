@@ -24,8 +24,9 @@
 
 // MARK: - Indentation
 
-static inline auto indent_line(const std::string& input, std::uint8_t depth) -> std::string
+static inline auto indent_line(const std::string& input, std::int32_t depth) -> std::string
 {
+    depth = std::max(0, depth);
     std::string indentation_str = "   ";
     std::string result = input;
     for (auto i = 0; i < depth; ++i) {
@@ -287,15 +288,26 @@ auto kdl::codegen::lua::ast::class_definition::generate(std::uint8_t indent) con
     return stmt.generate(indent);
 }
 
-auto kdl::codegen::lua::ast::generator::construct(struct class_definition *klass) -> struct node *
+auto kdl::codegen::lua::ast::generator::construct(struct class_definition *klass, const std::vector<struct node *>& arguments, bool implicit_new) -> struct node *
 {
-    auto new_symbol = new struct symbol("new");
-    auto klass_new = new struct function_definition(new_symbol, klass, true);
-    auto call = new struct function_call(klass_new);
-    m_nodes.emplace_back(new_symbol);
-    m_nodes.emplace_back(klass_new);
-    m_nodes.emplace_back(call);
-    return call;
+    if (implicit_new) {
+        auto new_symbol = new struct symbol("new");
+        auto klass_new = new struct function_definition(new_symbol, klass, true);
+        auto call = new struct function_call(klass_new, arguments);
+        m_nodes.emplace_back(new_symbol);
+        m_nodes.emplace_back(klass_new);
+        m_nodes.emplace_back(call);
+        return call;
+    }
+    else {
+        auto klass_symbol = new struct symbol(klass->identifier());
+        auto klass_new = new struct function_definition(klass_symbol, nullptr, true);
+        auto call = new struct function_call(klass_new, arguments);
+        m_nodes.emplace_back(klass_symbol);
+        m_nodes.emplace_back(klass_new);
+        m_nodes.emplace_back(call);
+        return call;
+    }
 }
 
 // MARK: - Function Definition
@@ -382,6 +394,8 @@ kdl::codegen::lua::ast::function_call::function_call(struct node *expression, st
 
 auto kdl::codegen::lua::ast::function_call::generate(std::uint8_t indent) const -> std::vector<std::string>
 {
+    std::vector<std::string> out;
+
     std::string result;
     if (m_function->parent_class()) {
         if (m_object_expression && m_function->is_member()) {
@@ -398,11 +412,22 @@ auto kdl::codegen::lua::ast::function_call::generate(std::uint8_t indent) const 
         if (it != m_arguments.begin()) {
             result += ", ";
         }
-        result += const_cast<struct node *>(*it)->generate(0).front();
+        auto arg = const_cast<struct node *>(*it)->generate(0);
+        if (arg.size() > 1) {
+            out.emplace_back(indent_line(result + arg.front(), indent));
+            for (auto i = 1; i < arg.size() - 1; ++i) {
+                out.emplace_back(indent_line(arg[i], indent + 1));
+            }
+            result = arg.back();
+        }
+        else {
+            result += arg.front();
+        }
     }
     result += ")";
+    out.emplace_back(indent_line(result, indent));
 
-    return { indent_line(result, indent) };
+    return out;
 }
 
 auto kdl::codegen::lua::ast::generator::call(struct function_definition *function, const std::vector<struct node *> &arguments) -> struct node *
@@ -415,6 +440,57 @@ auto kdl::codegen::lua::ast::generator::call(struct function_definition *functio
 auto kdl::codegen::lua::ast::generator::call(struct node *expression, struct function_definition *function, const std::vector<struct node *> &arguments) -> struct node *
 {
     auto node = new struct function_call(expression, function, arguments);
+    m_nodes.emplace_back(node);
+    return node;
+}
+
+// MARK: - Annonymous Function
+
+kdl::codegen::lua::ast::annonymous_function_decl::annonymous_function_decl(struct kdl::codegen::lua::ast::block *implementation)
+    : m_implementation(implementation)
+{}
+
+auto kdl::codegen::lua::ast::annonymous_function_decl::generate(std::uint8_t indent) const -> std::vector<std::string>
+{
+    std::string function_prefix = "function(";
+    for (const auto& parameter : m_parameters) {
+        if (!function_prefix.ends_with("(")) {
+            function_prefix += ", ";
+        }
+        function_prefix += parameter->identifier();
+    }
+    function_prefix += ")";
+
+    std::vector<std::string> result;
+    result.emplace_back(function_prefix);
+
+    if (m_implementation && m_implementation->has_children()) {
+        m_implementation->remove_end();
+        auto children = m_implementation->generate(indent);
+        for (const auto& child : children) {
+            result.emplace_back(child);
+        }
+    }
+
+    result.emplace_back("end");
+    return result;
+}
+
+auto kdl::codegen::lua::ast::annonymous_function_decl::implementation() -> struct block *
+{
+    return m_implementation;
+}
+
+auto kdl::codegen::lua::ast::generator::annonymous_function(const std::function<auto(struct block *)->void> &fn) -> struct node *
+{
+    auto block = new struct block();
+    auto node = new struct annonymous_function_decl(block);
+
+    push(block);
+    fn(block);
+    pop();
+
+    m_nodes.emplace_back(block);
     m_nodes.emplace_back(node);
     return node;
 }
@@ -594,6 +670,31 @@ auto kdl::codegen::lua::ast::generator::string(const std::string &str) -> struct
     return node;
 }
 
+// MARK: - Boolean Literal
+
+kdl::codegen::lua::ast::boolean_literal::boolean_literal(bool value)
+    : m_value(value)
+{}
+
+auto kdl::codegen::lua::ast::boolean_literal::generate(std::uint8_t indent) const -> std::vector<std::string>
+{
+    return { indent_line(m_value ? "true" : "false", indent) };
+}
+
+auto kdl::codegen::lua::ast::generator::true_value() -> struct node *
+{
+    auto node = new struct boolean_literal(true);
+    m_nodes.emplace_back(node);
+    return node;
+}
+
+auto kdl::codegen::lua::ast::generator::false_value() -> struct node *
+{
+    auto node = new struct boolean_literal(false);
+    m_nodes.emplace_back(node);
+    return node;
+}
+
 // MARK: - Member
 
 kdl::codegen::lua::ast::member::member(struct node *member, struct node *object)
@@ -746,6 +847,20 @@ auto kdl::codegen::lua::ast::generator::userdata_literal() -> struct node *
     m_nodes.emplace_back(node);
     return node;
 }
+
+auto kdl::codegen::lua::ast::generator::userdata(const std::function<auto(struct block *)->void>& fn) -> struct node *
+{
+    auto block = new struct block();
+    auto node = new struct userdata_literal(block);
+
+    push(block);
+    fn(block);
+    pop();
+
+    m_nodes.emplace_back(block);
+    m_nodes.emplace_back(node);
+    return node;
+};
 
 auto kdl::codegen::lua::ast::generator::push(struct block *block) -> void
 {

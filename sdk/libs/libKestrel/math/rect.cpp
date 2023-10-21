@@ -158,7 +158,8 @@ auto kestrel::math::rect::area() const -> float
 
 auto kestrel::math::rect::contains_point(const point& p) const -> bool
 {
-    auto r = (m_value + m_value.lower().swapped()) - p.m_value;
+    auto o = origin() - p;
+    auto r = math::rect(o.x(), o.y(), width() + o.x(), height() + o.y()).m_value;
     return (r[0] < 0) && (r[1] < 0) && (r[2] >= 0) && (r[3] >= 0);
 }
 
@@ -261,4 +262,14 @@ auto kestrel::math::rect::inset(float amount) const -> rect
 {
     auto delta = simd::float32(-1, -1, 2, 2) * amount;
     return rect(m_value - delta);
+}
+
+auto kestrel::math::rect::centered(const struct size& bounds) const -> rect
+{
+    return {
+        (bounds.width() - width()) / 2.f,
+        (bounds.height() - height()) / 2.f,
+        width(),
+        height()
+    };
 }

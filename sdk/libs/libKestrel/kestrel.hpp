@@ -142,6 +142,7 @@ namespace lua_api(Kestrel, Available_0_8) kestrel
     lua_function(setGameWindowSize, Available_0_8) auto set_game_window_size(const math::size& size) -> void;
     lua_function(nativeScreenSize, Available_0_8) auto native_screen_size() -> math::size;
     lua_function(effectiveGameSize, Available_0_8) auto effective_game_size() -> math::size;
+    lua_function(gameSize, Available_0_9) auto game_size() -> math::size;
 
     lua_getter(fullscreen, Available_0_8) auto is_fullscreen() -> bool;
     lua_setter(fullscreen, Available_0_8) auto set_fullscreen(bool f) -> void;

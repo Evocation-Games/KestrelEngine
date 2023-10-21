@@ -100,7 +100,6 @@ auto kestrel::device::console::show_console() -> void
 
         s_console.canvas = std::make_shared<graphics::canvas>(s_console.canvas_size);
         s_console.entity = s_console.canvas->entity();
-        s_console.entity->set_draw_size(s_console.canvas_size);
 
         s_console.font = { new kestrel::font::reference("Menlo", 11) };
         s_console.font->load_for_graphics();
