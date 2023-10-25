@@ -31,6 +31,7 @@
 #include <libRenderCore/submission/submission.hpp>
 #include <libRenderCore/components/drawable.hpp>
 #include <libRenderCore/components/texturing.hpp>
+#include <libRenderCore/frame/occlusion_tester.hpp>
 
 namespace renderer
 {
@@ -60,11 +61,7 @@ namespace renderer
         static auto color_quad(quad& q, const component::drawable *drawable) -> void;
         static auto texture_quad(quad& q, buffer::texture_slot slot, const component::texturing *texturing) -> void;
 
-    private:
-        auto reset() -> void;
-
-        auto current_buffer() -> buffer&;
-        auto submit_buffer() -> buffer&;
+        auto submit_buffer() -> void;
 
     private:
         enum state { READY, PREPARING, SUBMITTED, WORKING, TERMINATED };
@@ -72,6 +69,7 @@ namespace renderer
         struct {
             const renderer::driver *driver;
             math::geometry::rect bounds;
+            occlusion_tester<500'000> tester;
         } m_renderer;
 
         struct {
@@ -79,9 +77,6 @@ namespace renderer
             std::function<auto(std::function<auto()->void>)->void> completion { [] (auto cb) {} };
         } m_task;
 
-        struct {
-            std::array<buffer, 5> all;
-            std::size_t current { 0 };
-        } m_buffers;
+        buffer m_buffer;
     };
 }

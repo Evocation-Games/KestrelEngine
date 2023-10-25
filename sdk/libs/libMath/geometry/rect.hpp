@@ -35,6 +35,8 @@ namespace math::geometry
 
         auto operator= (const rect& r) -> rect& = default;
 
+        [[nodiscard]] auto operator== (const rect& r) const -> bool { return m_value == r.m_value; }
+
         [[nodiscard]] inline auto origin() const -> vec2 { return vec2(m_value.lower()); }
         [[nodiscard]] inline auto size() const -> vec2 { return vec2(m_value.upper()); }
 

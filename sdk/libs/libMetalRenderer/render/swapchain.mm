@@ -69,12 +69,14 @@ auto renderer::metal::swapchain::commit(renderer::metal::render_operation job, r
                                     length:sizeof(m_viewport.size)
                                    atIndex:constants::vertex_input_index::viewport_size];
 
+    std::uint32_t vertex_count = 0;
     for (const auto& command : job.commands()) {
         [m_pass.command_encoder setRenderPipelineState:command.shader->pipeline()];
 
         [m_pass.command_encoder setVertexBuffer:job.buffer()
                                          offset:command.offset
                                         atIndex:constants::vertex_input_index::vertices];
+        vertex_count += command.vertex_count;
 
         for (auto i = 0; i < command.texture_count; ++i) {
             [m_pass.command_encoder setFragmentTexture:command.textures[i] atIndex:i];
@@ -82,6 +84,7 @@ auto renderer::metal::swapchain::commit(renderer::metal::render_operation job, r
 
         [m_pass.command_encoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:command.vertex_count];
     }
+    std::cout << "Drawing " << vertex_count << " vertices" << std::endl;
 
     [m_pass.command_encoder endEncoding];
     [m_pass.command_buffer presentDrawable:m_output.drawable];

@@ -41,34 +41,44 @@ auto renderer::frame::initialize() -> void
 
 auto renderer::frame::draw(ecs::entity entity, const ecs::world *world) -> void
 {
-    auto& buffer = current_buffer();
+    auto drawable = world->component<component::drawable>(entity);
+    auto texturing = world->component<component::texturing>(entity);
+    auto texture = (texturing != nullptr) ? texturing->texture : -1;
+    if (!drawable || !m_renderer.tester.test(drawable->frame, texture, false)) {
+        return;
+    }
 
     // Determine if a new buffer is needed. This is if the buffer is full, or can not accept any
     // more textures.
-    auto new_buffer_required = buffer.is_full();
-    auto texturing = world->component<component::texturing>(entity);
+    auto new_buffer_required = m_buffer.is_full();
     if (texturing) {
-        new_buffer_required |= buffer.can_accept_texture(texturing->texture);
+        new_buffer_required |= m_buffer.can_accept_texture(texturing->texture);
     }
 
     if (new_buffer_required) {
         // Submit the buffer and get a new one.
-        buffer = submit_buffer();
-        buffer.reset();
+        submit_buffer();
     }
 
-    auto entity_quad = get_quad(buffer);
+    auto entity_quad = get_quad(m_buffer);
 
     // Handle the drawable component first... this includes position and size.
-     const auto *drawable = world->component<component::drawable>(entity);
      layout_quad(entity_quad, drawable);
      color_quad(entity_quad, drawable);
 
      if (texturing) {
          // We need to apply texture information to the quad.
          auto device_texture = m_renderer.driver->device_texture_id(texturing->texture);
-         texture_quad(entity_quad, buffer.bind_texture(texturing->texture, device_texture), texturing);
+         texture_quad(entity_quad, m_buffer.bind_texture(texturing->texture, device_texture), texturing);
      }
+}
+
+auto renderer::frame::submit_buffer() ->  void
+{
+    KESTREL_PROFILE_FUNCTION();
+    m_renderer.driver->draw(m_buffer);
+    m_buffer.reset();
+    m_renderer.tester.reset();
 }
 
 // MARK: - Lifetime
@@ -76,7 +86,7 @@ auto renderer::frame::draw(ecs::entity entity, const ecs::world *world) -> void
 auto renderer::frame::begin() -> frame&
 {
     m_task.state = PREPARING;
-    reset();
+    m_buffer.reset();
     return *this;
 }
 
@@ -85,17 +95,10 @@ auto renderer::frame::finalize(std::function<auto(renderer::callback)->void> com
     submit_buffer();
     m_task.completion = std::move(completion);
     m_task.state = SUBMITTED;
-
     m_task.completion([&] {
         // We have finished rendering the frame!
         m_task.state = READY;
     });
-}
-
-auto renderer::frame::reset() -> void
-{
-    m_buffers.current = 0;
-    current_buffer().reset();
 }
 
 // MARK: - Draw Calls
@@ -159,28 +162,4 @@ auto renderer::frame::texture_quad(renderer::frame::quad& q,buffer::texture_slot
     q.vertices[3]->tex_coord = renderer::vec2(uv_x, uv_y + uv_h);
     q.vertices[4]->tex_coord = renderer::vec2(uv_x, uv_y);
     q.vertices[5]->tex_coord = renderer::vec2(uv_x + uv_w, uv_y);
-}
-
-// MARK: - Buffer Management
-
-auto renderer::frame::current_buffer() -> buffer&
-{
-    return m_buffers.all[m_buffers.current];
-}
-
-auto renderer::frame::submit_buffer() -> buffer&
-{
-    KESTREL_PROFILE_FUNCTION();
-    using namespace std::chrono_literals;
-
-    // Submit the old buffer
-    auto& old_buffer = current_buffer();
-    m_renderer.driver->draw(old_buffer);
-    old_buffer.unlock();
-
-    // Now advance to a new one. Check if the buffer is still locked. If it is then wait.
-    m_buffers.current = (m_buffers.current + 1) % m_buffers.all.max_size();
-    auto& new_buffer = current_buffer();
-    new_buffer.lock();
-    return new_buffer;
 }
