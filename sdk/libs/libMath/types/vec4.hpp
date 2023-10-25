@@ -36,6 +36,7 @@ namespace math
         explicit vec4(simd::float32 v) : m_value(v) {}
         explicit vec4(float u) : m_value(simd::float32::constant(u)) {}
         vec4(float x, float y, float z, float w) : m_value(x, y, z, w) {}
+        vec4(vec2 u, vec2 v) : m_value(u.x(), u.y(), v.x(), v.y()) {}
         vec4(vec4&& v) noexcept = default;
         vec4(const vec4& v) = default;
         explicit vec4(vec2 v, float z = 0.f, float w = 0.f) : m_value(v.x(), v.y(), z, w) {}
