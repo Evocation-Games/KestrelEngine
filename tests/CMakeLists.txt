@@ -30,6 +30,5 @@ build_testing_library()
 
 set(TESTS ${PROJECT_SOURCE_DIR}/tests)
 add_test_target(Foundation ${TESTS}/sdk/libs/libFoundation)
-add_test_target(ECS ${TESTS}/sdk/libs/libECS)
 #add_test_target(KDL ${TESTS}/sdk/libs/libKDL)
 add_test_target(Kestrel ${TESTS}/sdk/libs/libKestrel)

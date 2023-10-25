@@ -20,26 +20,11 @@
 
 #pragma once
 
-#include <libECS/entity/identity.hpp>
-#include <libECS/components/name.hpp>
-#include <libECS/components/position.hpp>
-#include <libECS/components/size.hpp>
-#include <libECS/components/color.hpp>
-#include <libECS/components/rotation.hpp>
-#include <libECS/components/texture.hpp>
+#include <cstdint>
+#include <cstdlib>
 
 namespace ecs
 {
-    struct entity
-    {
-        identity id;
-        component::name name;
-        component::position position;
-        component::size size;
-        component::color color;
-        component::rotation rotation;
-        component::texture texture;
-
-        auto reset() -> void;
-    };
+    using entity = std::uint64_t;
+    constexpr std::size_t default_max = 1000000;
 }
