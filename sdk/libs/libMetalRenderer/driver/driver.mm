@@ -273,10 +273,12 @@ auto renderer::metal::driver::viewport_size() const -> math::vec2
 auto renderer::metal::driver::render_job() -> void
 {
     while (!m_context->metal.render.should_terminate) {
-        m_context->metal.render.generator.wait_for_ready();
+        @autoreleasepool {
+            m_context->metal.render.generator.wait_for_ready();
 
-        // We are ready for a new frame to be produced! Request that a new frame be rendered.
-        m_context->metal.render.frame_request();
+            // We are ready for a new frame to be produced! Request that a new frame be rendered.
+            m_context->metal.render.frame_request();
+        }
     }
 }
 

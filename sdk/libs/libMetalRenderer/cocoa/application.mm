@@ -42,9 +42,11 @@
 {
     @try {
         _continuation = continuation;
-        [self configureApplication];
-        [self configureMenuBar];
-        return [self run];
+        @autoreleasepool {
+            [self configureApplication];
+            [self configureMenuBar];
+            return [self run];
+        }
     }
     @catch (...) {
         // TODO: Handle any exceptions

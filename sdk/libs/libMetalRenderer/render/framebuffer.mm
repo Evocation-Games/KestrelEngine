@@ -58,7 +58,7 @@ renderer::metal::framebuffer::framebuffer(
 // MARK: - Lifecycle
 
 auto renderer::metal::framebuffer::render(
-    id <MTLCommandBuffer> command_buffer,
+    id<MTLCommandBuffer> command_buffer,
     const renderer::metal::render_operation& job
 ) -> void {
     KESTREL_PROFILE_FUNCTION();
