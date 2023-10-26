@@ -18,30 +18,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 #pragma once
 
+#include <array>
+#include <thread>
 #include <functional>
-#include <libMath/types/vec2.hpp>
-#include <libRenderCore/callback.hpp>
 #include <libRenderCore/buffer/buffer.hpp>
-#include <libRenderCore/frame/frame.hpp>
-#include <libRenderCore/texture/store.hpp>
-#include <libData/block.hpp>
+#include <libRenderCore/buffer/vertex.hpp>
+#include <libMetalRenderer/resource/shader/shader_program.h>
+#include <libMetalRenderer/render/render_operation.h>
+#include <libRenderCore/callback.hpp>
+#include <MetalKit/MetalKit.h>
 
-namespace renderer::api
+#if !defined(METAL_SWAPCHAIN_BUFFER_COUNT)
+#   define METAL_SWAPCHAIN_BUFFER_COUNT 1
+#endif
+
+namespace renderer::metal
 {
-    struct bindings
+    class framebuffer
     {
-        std::function<auto()->void> initialize;
-        std::function<auto(renderer::callback)->void> start;
-        std::function<auto(const std::string&)->void> set_viewport_title;
-        std::function<auto()->std::string> viewport_title;
-        std::function<auto(std::uint32_t, std::uint32_t)->void> set_viewport_size;
-        std::function<auto()->math::vec2> viewport_size;
-        std::function<auto(renderer::callback)->void> end_frame;
-        std::function<auto(const buffer&)->void> submit_draw_buffer;
-        std::function<auto(const data::block&, math::vec2)->texture::device_id> create_texture;
-        std::function<auto(texture::device_id, const data::block&)->void> update_texture;
-        std::function<auto(texture::device_id)->void> destroy_texture;
+    public:
+        explicit framebuffer(id<MTLDevice> device, std::uint32_t width, std::uint32_t height, MTLPixelFormat format);
+
+        inline auto texture() -> id<MTLTexture> { return m_output.texture; };
+
+        auto render(id<MTLCommandBuffer> command_buffer, const render_operation& job) -> void;
+
+    private:
+        id<MTLDevice> m_device;
+        render_operation m_operation;
+
+        struct {
+            vector_uint2 size { 0 };
+            MTLViewport viewport { 0 };
+        } m_viewport;
+
+        struct {
+            MTLTextureDescriptor *descriptor { nil };
+            id<MTLTexture> texture { nil };
+        } m_output;
     };
 }

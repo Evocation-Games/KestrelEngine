@@ -26,14 +26,20 @@
 #include <MetalKit/MetalKit.h>
 #include <libRenderCore/pipeline/pipeline_name.hpp>
 
-namespace renderer::metal
+namespace renderer::metal::resource::shader
 {
-    class driver;
-
-    struct shader_program
+    struct program
     {
-        shader_program(id<MTLDevice> device, const std::string& name, id<MTLFunction> vertex, id<MTLFunction> fragment, MTLPixelFormat format);
+        program() = default;
+        program(id<MTLDevice> device,
+                std::uint64_t uid,
+                const std::string& name,
+                id<MTLFunction> vertex,
+                id<MTLFunction> fragment,
+                MTLPixelFormat format);
 
+        [[nodiscard]] inline auto is_valid() const -> bool { return !m_pipelines.empty(); }
+        [[nodiscard]] inline auto uid() const -> std::uint64_t { return m_uid; }
         [[nodiscard]] inline auto name() const -> std::string { return m_name; }
         [[nodiscard]] auto pipeline(pipeline_name name = pipeline_name::NORMAL) const -> id<MTLRenderPipelineState>;
 
@@ -42,6 +48,7 @@ namespace renderer::metal
         static auto pipeline_state(id<MTLDevice> device, MTLRenderPipelineDescriptor *pipeline, const std::function<auto(MTLRenderPipelineColorAttachmentDescriptor *)->void>& config) -> id<MTLRenderPipelineState>;
 
     private:
+        std::uint64_t m_uid { 0 };
         std::string m_name;
         std::unordered_map<pipeline_name, id<MTLRenderPipelineState>> m_pipelines;
     };

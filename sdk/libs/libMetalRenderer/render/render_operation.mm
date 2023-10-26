@@ -54,7 +54,7 @@ auto renderer::metal::render_operation::clear() -> void
 auto renderer::metal::render_operation::submit(
     const renderer::buffer &source,
     const std::vector<id<MTLTexture>>& textures,
-    const metal::shader_program& shader
+    const resource::shader::program& shader
 ) -> void {
     KESTREL_PROFILE_FUNCTION();
     command cmd;

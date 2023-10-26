@@ -147,7 +147,7 @@ auto renderer::driver::start_driver(frame_request_callback frame_request) -> voi
 
 auto renderer::driver::start_frame() -> void
 {
-    m_api.bindings.start_frame(m_render.frame.begin());
+    m_render.frame.begin();
 }
 
 auto renderer::driver::end_frame() -> void

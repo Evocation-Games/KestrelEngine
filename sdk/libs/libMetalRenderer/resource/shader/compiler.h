@@ -20,28 +20,20 @@
 
 #pragma once
 
-#include <functional>
-#include <libMath/types/vec2.hpp>
-#include <libRenderCore/callback.hpp>
-#include <libRenderCore/buffer/buffer.hpp>
-#include <libRenderCore/frame/frame.hpp>
-#include <libRenderCore/texture/store.hpp>
-#include <libData/block.hpp>
+#include <libRenderCore/shader/library.hpp>
+#include <libMetalRenderer/resource/shader/shader_program.h>
 
-namespace renderer::api
+namespace renderer::metal::resource::shader
 {
-    struct bindings
+    struct compiler
     {
-        std::function<auto()->void> initialize;
-        std::function<auto(renderer::callback)->void> start;
-        std::function<auto(const std::string&)->void> set_viewport_title;
-        std::function<auto()->std::string> viewport_title;
-        std::function<auto(std::uint32_t, std::uint32_t)->void> set_viewport_size;
-        std::function<auto()->math::vec2> viewport_size;
-        std::function<auto(renderer::callback)->void> end_frame;
-        std::function<auto(const buffer&)->void> submit_draw_buffer;
-        std::function<auto(const data::block&, math::vec2)->texture::device_id> create_texture;
-        std::function<auto(texture::device_id, const data::block&)->void> update_texture;
-        std::function<auto(texture::device_id)->void> destroy_texture;
+        compiler() = default;
+        explicit compiler(id<MTLDevice> device);
+
+        auto compile(const renderer::shader::library& library, MTLPixelFormat format) -> shader::program;
+
+    private:
+        std::uint64_t m_next_program_id { 0 };
+        id<MTLDevice> m_device { nil };
     };
 }

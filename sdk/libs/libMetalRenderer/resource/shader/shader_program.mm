@@ -19,15 +19,16 @@
 // SOFTWARE.
 
 #include <libMacOS/cocoa/string.h>
-#include <libMetalRenderer/driver/shader_program.h>
+#include <libMetalRenderer/resource/shader/shader_program.h>
 
 // MARK: - Construction
 
-renderer::metal::shader_program::shader_program(
+renderer::metal::resource::shader::program::program(
     id<MTLDevice> device,
+    std::uint64_t uid,
     const std::string &name,
-    id <MTLFunction> vertex,
-    id <MTLFunction> fragment,
+    id<MTLFunction> vertex,
+    id<MTLFunction> fragment,
     MTLPixelFormat format
 ) {
     m_pipelines[pipeline_name::NORMAL] = pipeline_state(device, make_pipeline(name, vertex, fragment, format), [] (auto color) {
@@ -51,14 +52,14 @@ renderer::metal::shader_program::shader_program(
 
 // MARK: - Accessors
 
-auto renderer::metal::shader_program::pipeline(renderer::pipeline_name name) const -> id<MTLRenderPipelineState>
+auto renderer::metal::resource::shader::program::pipeline(renderer::pipeline_name name) const -> id<MTLRenderPipelineState>
 {
     return m_pipelines.at(name);
 }
 
 // MARK: - Pipeline Management
 
-auto renderer::metal::shader_program::make_pipeline(
+auto renderer::metal::resource::shader::program::make_pipeline(
     const std::string &name,
     id <MTLFunction> vertex,
     id <MTLFunction> fragment,
@@ -73,7 +74,7 @@ auto renderer::metal::shader_program::make_pipeline(
     return pipeline;
 }
 
-auto renderer::metal::shader_program::pipeline_state(
+auto renderer::metal::resource::shader::program::pipeline_state(
     id<MTLDevice> device,
     MTLRenderPipelineDescriptor *pipeline,
     const std::function<auto(MTLRenderPipelineColorAttachmentDescriptor *)->void> &config

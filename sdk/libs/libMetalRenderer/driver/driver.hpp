@@ -48,7 +48,6 @@ namespace renderer::metal
         auto configure_device() -> void;
         auto start(renderer::callback run_loop) -> void;
 
-        auto should_request_frame() const -> bool;
         auto render_job() -> void;
 
         auto set_viewport_title(const std::string&) -> void;

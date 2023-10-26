@@ -18,49 +18,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
 
-#include <array>
-#include <functional>
-#include <libRenderCore/buffer/buffer.hpp>
-#include <libRenderCore/buffer/vertex.hpp>
-#include <libMetalRenderer/driver/shader_program.h>
-#include <libMetalRenderer/render/render_operation.h>
-#include <libRenderCore/callback.hpp>
+#include <vector>
 #include <MetalKit/MetalKit.h>
-
-#if !defined(METAL_SWAPCHAIN_BUFFER_COUNT)
-#   define METAL_SWAPCHAIN_BUFFER_COUNT 1
-#endif
+#include <libRenderCore/frame/frame.hpp>
+#include <libMetalRenderer/render/framebuffer.h>
+#include <libMetalRenderer/render/render_operation.h>
 
 namespace renderer::metal
 {
-    class swapchain
+    class frame_generator
     {
     public:
-        auto prepare(id<CAMetalDrawable> drawable, id<MTLCommandBuffer> command_buffer, std::uint32_t width, std::uint32_t height) -> void;
-        auto commit(render_operation job, renderer::callback completion) -> void;
+        frame_generator() = default;
+        explicit frame_generator(id<MTLDevice> device,
+                                 std::uint32_t width,
+                                 std::uint32_t height,
+                                 std::size_t queue_size,
+                                 MTLPixelFormat format);
+
+        [[nodiscard]] auto latest_frame_texture() -> id<MTLTexture>;
+        [[nodiscard]] inline auto current_operation() -> render_operation& { return m_operation; }
+
+        auto wait_for_ready() -> void;
+        auto produce_new_frame(id<MTLCommandQueue> command_queue, renderer::callback completion) -> void;
 
     private:
+        id<MTLDevice> m_device;
+        std::uint64_t m_index { 0 };
+        std::size_t m_queue_size { 3 };
+        std::vector<framebuffer> m_buffers;
+        id<MTLTexture> m_last_frame_texture { nil };
         render_operation m_operation;
-
-        struct {
-            vector_uint2 size;
-            std::uint32_t width { 0 };
-            std::uint32_t height { 0 };
-        } m_viewport;
-
-        struct {
-            MTLRenderPassDescriptor *descriptor;
-            id<MTLCommandQueue> command_queue;
-            id<MTLRenderCommandEncoder> command_encoder;
-            id<MTLCommandBuffer> command_buffer;
-        } m_pass;
-
-        struct {
-            id<MTLDrawable> drawable { nil };
-            id<MTLTexture> texture { nil };
-        } m_output;
+        renderer::callback m_completion;
     };
 }

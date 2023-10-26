@@ -21,15 +21,17 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <MetalKit/MetalKit.h>
+#include <libMacOS/cocoa/string.h>
+#include <libFoundation/profile/profiler.hpp>
 #include <libMetalRenderer/driver/driver.hpp>
 #include <libMetalRenderer/cocoa/application.h>
-#include <libMetalRenderer/driver/shader_program.h>
-#include <libMacOS/cocoa/string.h>
-#include <MetalKit/MetalKit.h>
-#include <libMetalRenderer/driver/texture.h>
-#include <libMetalRenderer/render/swapchain.h>
-#include <libFoundation/profile/profiler.hpp>
-#include <libMetalRenderer/render/render_operation.h>
+#include <libMetalRenderer/driver/frame_generator.h>
+#include <libMetalRenderer/driver/layer_output.h>
+#include <libMetalRenderer/resource/shader/compiler.h>
+#include <libMetalRenderer/resource/shader/shader_program.h>
+#include <libMetalRenderer/resource/texture.h>
+#include <libMetalRenderer/resource/shader/default_shader.hpp>
 
 // MARK: - Metal Driver Context
 
@@ -40,29 +42,23 @@ namespace renderer::metal
         struct {
             id<MTLDevice> device { nil };
             id<MTLCommandQueue> command_queue { nil };
-            CAMetalLayer *output_layer { nil };
             math::vec2 viewport_size;
+            layer_output layer;
+            MTLPixelFormat pixel_format { 0 };
 
             struct {
                 std::function<auto()->void> frame_request;
                 std::thread runner;
-                render_operation operation;
                 bool should_terminate { false };
                 renderer::callback completion;
+                frame_generator generator;
             } render;
 
             struct {
-                std::uint32_t index { 0 };
-                std::vector<swapchain> all;
-                dispatch_semaphore_t sema;
-                swapchain *current { nullptr };
-            } swap;
-
-            struct {
-                std::uint32_t next_id { 0 };
-                std::uint32_t default_id { 0 };
+                resource::shader::compiler compiler;
+                std::uint64_t default_id { 0 };
                 std::unordered_map<std::string, id<MTLLibrary>> libraries;
-                std::unordered_map<std::uint32_t, metal::shader_program> programs;
+                std::unordered_map<std::uint32_t, resource::shader::program> programs;
             } shader;
 
             struct {
@@ -134,7 +130,6 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
     bindings.viewport_title = [&] { return viewport_title(); };
     bindings.viewport_size = [&] { return viewport_size(); };
 
-    bindings.start_frame = [&] (const auto& frame) { start_frame(frame); };
     bindings.end_frame = [&] (auto callback) { end_frame(std::move(callback)); };
     bindings.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
 
@@ -146,7 +141,6 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
 auto renderer::metal::driver::start(renderer::callback frame_request_callback) -> void
 {
     m_context = new context();
-    m_context->metal.swap.sema = dispatch_semaphore_create(m_config.swap_chain_count());
     m_context->metal.render.frame_request = std::move(frame_request_callback);
     m_context->cocoa.app = [[MetalRendererApplication alloc] init];
 
@@ -186,30 +180,41 @@ auto renderer::metal::driver::initialize() -> void
 auto renderer::metal::driver::configure_device() -> void
 {
     m_context->metal.device = MTLCreateSystemDefaultDevice();
-    m_context->metal.output_layer = (CAMetalLayer *)m_context->cocoa.default_window.contentView.layer;
     m_context->metal.command_queue = [m_context->metal.device newCommandQueue];
 
-    // Configure the render operation
-    m_context->metal.render.operation.initialize(m_context->metal.device);
-
-    // Configure the output layer
-    m_context->metal.output_layer.device = m_context->metal.device;
-    m_context->metal.output_layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    m_context->metal.output_layer.frame = (CGRect)m_context->cocoa.default_window.contentView.bounds;
-    m_context->metal.output_layer.displaySyncEnabled = m_config.vsync();
-
     // Shaders
+    m_context->metal.pixel_format = MTLPixelFormatBGRA8Unorm;
+    m_context->metal.shader.compiler = resource::shader::compiler(m_context->metal.device);
     install_default_shader();
 
-    // Setup any required swap chains to use when rendering.
-    for (auto i = 0; i < m_config.swap_chain_count(); ++i) {
-        m_context->metal.swap.all.emplace_back();
-    }
+    // Configure the output layer
+    CAMetalLayer *output_layer = (CAMetalLayer *)m_context->cocoa.default_window.contentView.layer;
+    output_layer.device = m_context->metal.device;
+    output_layer.pixelFormat = m_context->metal.pixel_format;
+    output_layer.frame = (CGRect)m_context->cocoa.default_window.contentView.bounds;
+    output_layer.displaySyncEnabled = m_config.vsync();
+    m_context->metal.layer.initialize(
+        output_layer,
+        m_context->metal.viewport_size,
+        m_context->metal.shader.programs[m_context->metal.shader.default_id]
+    );
+
+    // Configure the frame generator
+    m_context->metal.render.generator = frame_generator(
+        m_context->metal.device,
+        (std::uint32_t)m_context->metal.viewport_size.x(),
+        (std::uint32_t)m_context->metal.viewport_size.y(),
+        m_config.swap_chain_count(),
+        output_layer.pixelFormat
+    );
 
     // Configure the display link
     m_context->display.source = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(m_context->display.source, ^(){
-        m_context->display.tick_received = true;
+        m_context->metal.layer.push_frame(
+            m_context->metal.command_queue,
+            m_context->metal.render.generator.latest_frame_texture()
+        );
     });
     dispatch_resume(m_context->display.source);
 
@@ -249,7 +254,7 @@ auto renderer::metal::driver::set_viewport_size(std::uint32_t width, std::uint32
     [m_context->cocoa.default_window center];
 
     m_context->metal.viewport_size = { (float)width, (float)height };
-    m_context->metal.output_layer.drawableSize = CGSizeMake(width, height);
+    m_context->metal.layer.update_viewport_size(width, height);
 }
 
 auto renderer::metal::driver::viewport_title() const -> std::string
@@ -264,208 +269,30 @@ auto renderer::metal::driver::viewport_size() const -> math::vec2
 
 // MARK: - Runner
 
-auto renderer::metal::driver::should_request_frame() const -> bool
-{
-    // There are two methods by which we should check for frame requests.
-    // If VSync is enabled, then we should check to see if we have received
-    // a display tick.
-    // We also need to wait for a swapchain instance is available.
-    if (m_config.vsync() && !m_context->display.tick_received) {
-        return false;
-    }
-    m_context->display.tick_received = false;
-
-    // Wait for a swapchain to become available.
-    dispatch_semaphore_wait(m_context->metal.swap.sema, DISPATCH_TIME_FOREVER);
-
-    // We are now ready for a frame.
-    return true;
-}
 
 auto renderer::metal::driver::render_job() -> void
 {
-    using namespace std::chrono_literals;
     while (!m_context->metal.render.should_terminate) {
-        if (!should_request_frame()) {
-            // Briefly sleep to avoid hammering the CPU, whilst we wait for an update.
-            std::this_thread::sleep_for(250ns);
-            continue;
-        }
+        m_context->metal.render.generator.wait_for_ready();
 
-        // We are ready for a new frame to be produced! Request a new frame.
-        // To do this we need to setup the swapchain associated with this frame.
-        auto swap = m_context->metal.swap.index;
-        m_context->metal.swap.index = (swap + 1) % m_config.swap_chain_count();
-        m_context->metal.swap.current = &m_context->metal.swap.all[swap];
+        // We are ready for a new frame to be produced! Request that a new frame be rendered.
         m_context->metal.render.frame_request();
     }
 }
 
 // MARK: - Shader Management
 
-#pragma region Shader Library Template Code
-    static constexpr const char *s_shader_code_template {R"(
-        #include <metal_stdlib>
-        #include <simd/simd.h>
-
-        using namespace metal;
-
-        namespace kestrel
-        {
-            float rand(float3 v)
-            {
-                float2 K1 = float2(
-                    23.14069263277926, // e^pi (Gelfond's constant)
-                    2.665144142690225 // 2^sqrt(2) (Gelfond Schneider constant)
-                );
-                return fract( cos( dot(float2(v.x, v.y),K1) ) * 12345.6789 );
-            }
-        };
-
-        typedef enum
-        {
-        	vertices = 0,
-        	viewport_size = 1,
-        } vertex_input_index;
-
-        typedef enum
-        {
-        	base_color = 0,
-        } texture_index;
-
-        typedef struct
-        {
-        	float4 position;
-        	float4 color;
-        	float2 tex_coord;
-        	float texture;
-        } vertex_descriptor;
-
-        typedef struct
-        {
-        	float4 position [[position]];
-        	float4 color;
-        	float2 tex_coord;
-        	float texture;
-        } raster_data;
-
-        // Vertex Function
-        vertex raster_data vertex_shader(
-        	uint vertex_id [[vertex_id]],
-        	constant vertex_descriptor *vertex_array [[buffer(vertex_input_index::vertices)]],
-        	constant vector_uint2 *viewport_size_ptr [[buffer(vertex_input_index::viewport_size)]]
-        ) {
-        	raster_data out;
-
-        	auto position = vertex_array[vertex_id].position;
-        	auto tex_coord = vertex_array[vertex_id].tex_coord;
-        	auto color = vertex_array[vertex_id].color;
-        	auto texture = floor(vertex_array[vertex_id].texture);
-            auto scale = 1.f;
-
-        	float2 viewport_size = float2(*viewport_size_ptr);
-            float2 pixel_space_position = floor(position.xy * scale);
-            float2 inverse_size(1.0f / viewport_size.x, 1.0f / viewport_size.y);
-            float clip_x = (2.0f * pixel_space_position.x * inverse_size.x) - 1.0f;
-            float clip_y = (2.0f * -pixel_space_position.y * inverse_size.y) + 1.0f;
-
-            @@VERTEX_FUNCTION@@
-        }
-
-        // Fragment Function
-        fragment float4 fragment_shader(
-        	raster_data in [[stage_in]],
-        	array<texture2d<half>, 31> textures [[texture(0)]]
-        ) {
-            @@FRAGMENT_FUNCTION@@
-        }
-    )"};
-#pragma endregion
-
-#pragma region Default Shader Code
-static constexpr const char *s_default_vertex_function {R"(
-        out.position = float4(clip_x, clip_y, position.z, 1.0);
-        out.tex_coord = tex_coord;
-        out.color = color;
-        out.texture = texture;
-        return out;
-    )"};
-
-static constexpr const char *s_default_fragment_function {R"(
-//        constexpr sampler texture_sampler (mag_filter::linear, min_filter::linear);
-//        const float4 color_sample = in.color * float4(textures[in.texture].sample(texture_sampler, in.tex_coord));
-        return in.color;
-)"};
-#pragma endregion
-
-auto renderer::metal::driver::compile_shader_library(const shader::library& lib) -> shader::program
+auto renderer::metal::driver::compile_shader_library(const shader::library& lib) -> renderer::shader::program
 {
-    auto vertex = lib.vertex_function();
-    auto fragment = lib.fragment_function();
-
-    // The first job is to actually assemble the library into a single string that can be passed to the
-    // Metal device for compilation.
-    std::string source(s_shader_code_template);
-
-    std::string vertex_function_token("@@VERTEX_FUNCTION@@");
-    auto vertex_function_it = source.find(vertex_function_token);
-    if (vertex_function_it != std::string::npos) {
-        source.replace(vertex_function_it, vertex_function_token.length(), vertex.code());
-    }
-
-    std::string fragment_function_token("@@FRAGMENT_FUNCTION@@");
-    auto fragment_function_it = source.find(fragment_function_token);
-    if (fragment_function_it != std::string::npos) {
-        source.replace(fragment_function_it, fragment_function_token.length(), fragment.code());
-    }
-
-    // Now that the library source is produced, proceed to actually compiling. This is a potentially blocking
-    // process.
-    dispatch_group_t group = dispatch_group_create();
-    dispatch_group_enter(group);
-
-    NSString *library_source = macos::cocoa::string::to(source);
-    __block id<MTLLibrary> new_library = nil;
-    [m_context->metal.device newLibraryWithSource:library_source options:nil completionHandler:^(id<MTLLibrary> metal_library, NSError *error) {
-        if (metal_library && !error) {
-            m_context->metal.shader.libraries.insert({ lib.name(), metal_library });
-            new_library = metal_library;
-        }
-        else {
-            // TODO: Handle errors gracefully.
-            std::cerr << error.description.UTF8String << std::endl;
-        }
-        dispatch_group_leave(group);
-    }];
-
-    dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
-
-    if (!new_library) {
-        // Failed to compile, so return a null program.
-        return {};
-    }
-
-    // Now that the library is compiled, produce a shader program.
-    id<MTLFunction> metal_vertex_function = [new_library newFunctionWithName:macos::cocoa::string::to(vertex.name())];
-    id<MTLFunction> metal_fragment_function = [new_library newFunctionWithName:macos::cocoa::string::to(fragment.name())];
-
-    // TODO: Check for missing functions
-
-    auto program_id = m_context->metal.shader.next_id++;
-    metal::shader_program shader_program(
-        m_context->metal.device,
-        lib.name(),
-        metal_vertex_function,
-        metal_fragment_function,
-        m_context->metal.output_layer.pixelFormat
-    );
-    m_context->metal.shader.programs.insert({ program_id, std::move(shader_program) });
+    auto program = m_context->metal.shader.compiler.compile(lib, m_context->metal.pixel_format);
+    auto program_uid = program.uid();
+    m_context->metal.shader.programs.insert({ program_uid, std::move(program) });
 
     // Finally return a program reference for the shader...
-    return shader::program(program_id);
+    return shader::program(program_uid);
 }
 
-auto renderer::metal::driver::shader_program_named(const std::string &name) const -> shader::program
+auto renderer::metal::driver::shader_program_named(const std::string &name) const -> renderer::shader::program
 {
     for (const auto& it : m_context->metal.shader.programs) {
         if (it.second.name() == name) {
@@ -475,12 +302,12 @@ auto renderer::metal::driver::shader_program_named(const std::string &name) cons
     throw std::runtime_error("Failed to find shader program '" + name + ".");
 }
 
-auto renderer::metal::driver::install_default_shader() -> shader::program
+auto renderer::metal::driver::install_default_shader() -> renderer::shader::program
 {
     shader::library lib(
         "default",
-        shader::function(s_default_vertex_function, shader::function::type::VERTEX, "vertex_shader"),
-        shader::function(s_default_fragment_function, shader::function::type::FRAGMENT, "fragment_shader")
+        shader::function(resource::shader::default_vertex_function, shader::function::type::VERTEX, "vertex_shader"),
+        shader::function(resource::shader::default_fragment_function, shader::function::type::FRAGMENT, "fragment_shader")
     );
     auto program = compile_shader_library(lib);
     m_context->metal.shader.default_id = program.id();
@@ -489,29 +316,10 @@ auto renderer::metal::driver::install_default_shader() -> shader::program
 
 // MARK: - Frame Management
 
-auto renderer::metal::driver::start_frame(const renderer::frame &frame) -> void
-{
-    KESTREL_PROFILE_FUNCTION();
-    m_context->metal.render.operation.clear();
-}
-
 auto renderer::metal::driver::end_frame(renderer::callback completion) -> void
 {
-    KESTREL_PROFILE_FUNCTION();
-    auto swap = m_context->metal.swap.current;
     m_context->metal.render.completion = std::move(completion);
-
-    // Prepare the swapchain for this frame.
-    swap->prepare(
-        m_context->metal.output_layer.nextDrawable,
-        m_context->metal.command_queue.commandBuffer,
-        (std::uint32_t)m_context->metal.viewport_size.x(),
-        (std::uint32_t)m_context->metal.viewport_size.y()
-    );
-
-    // Commit the operation for processing...
-    swap->commit(m_context->metal.render.operation, [&] {
-        dispatch_semaphore_signal(m_context->metal.swap.sema);
+    m_context->metal.render.generator.produce_new_frame(m_context->metal.command_queue, [&] {
         m_context->metal.render.completion();
     });
 }
@@ -536,13 +344,14 @@ auto renderer::metal::driver::draw(const buffer& buffer) -> void
     const auto& shader = m_context->metal.shader.programs.at(m_context->metal.shader.default_id);
 
     // Forward to the swapchain.
-    m_context->metal.render.operation.submit(buffer, textures, shader);
+    m_context->metal.render.generator.current_operation().submit(buffer, textures, shader);
 }
 
 // MARK: - Texture Management
 
 auto renderer::metal::driver::create_texture(const data::block &data, math::vec2 size) -> renderer::texture::device_id
 {
+    KESTREL_PROFILE_FUNCTION();
     metal::texture tx;
     tx.device_id = m_context->metal.textures.next_id++;
 

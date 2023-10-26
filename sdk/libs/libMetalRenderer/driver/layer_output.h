@@ -20,28 +20,24 @@
 
 #pragma once
 
-#include <functional>
+#include <MetalKit/MetalKit.h>
 #include <libMath/types/vec2.hpp>
-#include <libRenderCore/callback.hpp>
-#include <libRenderCore/buffer/buffer.hpp>
-#include <libRenderCore/frame/frame.hpp>
-#include <libRenderCore/texture/store.hpp>
-#include <libData/block.hpp>
+#include <libMetalRenderer/resource/shader/shader_program.h>
 
-namespace renderer::api
+namespace renderer::metal
 {
-    struct bindings
+    struct layer_output
     {
-        std::function<auto()->void> initialize;
-        std::function<auto(renderer::callback)->void> start;
-        std::function<auto(const std::string&)->void> set_viewport_title;
-        std::function<auto()->std::string> viewport_title;
-        std::function<auto(std::uint32_t, std::uint32_t)->void> set_viewport_size;
-        std::function<auto()->math::vec2> viewport_size;
-        std::function<auto(renderer::callback)->void> end_frame;
-        std::function<auto(const buffer&)->void> submit_draw_buffer;
-        std::function<auto(const data::block&, math::vec2)->texture::device_id> create_texture;
-        std::function<auto(texture::device_id, const data::block&)->void> update_texture;
-        std::function<auto(texture::device_id)->void> destroy_texture;
+        auto initialize(CAMetalLayer *layer, math::vec2 viewport_size, const resource::shader::program& shader) -> void;
+        auto update_viewport_size(std::uint32_t width, std::uint32_t height) -> void;
+
+        auto push_frame(id<MTLCommandQueue> commandQueue, id<MTLTexture> frame_texture) -> void;
+
+    private:
+        CAMetalLayer *m_layer { nil };
+        vector_uint2 m_viewport_size;
+        MTLViewport m_viewport;
+        const resource::shader::program *m_shader;
+        id<MTLBuffer> m_buffer;
     };
 }

@@ -25,7 +25,7 @@
 #include <array>
 #include <MetalKit/MetalKit.h>
 #include <libRenderCore/buffer/buffer.hpp>
-#include <libMetalRenderer/driver/shader_program.h>
+#include <libMetalRenderer/resource/shader/shader_program.h>
 
 #if !defined(METAL_MAX_FRAGMENT_TEXTURES)
 #   define METAL_MAX_FRAGMENT_TEXTURES  32
@@ -38,7 +38,7 @@ namespace renderer::metal
     public:
         struct command
         {
-            const metal::shader_program *shader { nullptr };
+            const resource::shader::program *shader { nullptr };
             std::size_t data_size { 0 };
             std::uintptr_t offset { 0 };
             std::uint8_t *ptr { nullptr };
@@ -55,7 +55,7 @@ namespace renderer::metal
         [[nodiscard]] inline auto commands() const -> const std::vector<command>& { return m_commands; }
 
         auto clear() -> void;
-        auto submit(const renderer::buffer& source, const std::vector<id<MTLTexture>>& textures, const metal::shader_program& shader) -> void;
+        auto submit(const renderer::buffer& source, const std::vector<id<MTLTexture>>& textures, const resource::shader::program& shader) -> void;
 
     private:
         id<MTLBuffer> m_buffer;

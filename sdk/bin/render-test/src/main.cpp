@@ -39,15 +39,11 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
     world.register_component<renderer::component::texturing>();
 
     // Create 100 entities
-    auto entity_count = 50000;
-    float r = 1.0;
-    float g = 0.0;
+    auto entity_count = 100;
     for (auto i = 0; i < entity_count; ++i) {
         auto entity = world.create_entity();
         renderer::component::drawable drawable;
-        drawable.color = math::vec4(r, g, 0, 1.0);
-        r -= std::max(0.f, (1.f / 255.f));
-        g += std::min(1.f, (1.f / 255.f));
+        drawable.color = math::vec4(1.0, 0, 0, 1.0);
         drawable.visible = true;
         drawable.frame = math::geometry::rect({ 100, 100 }, { 100, 100 });
         world.add_component<renderer::component::drawable>(entity, drawable);

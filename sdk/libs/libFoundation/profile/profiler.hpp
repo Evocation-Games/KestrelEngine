@@ -73,7 +73,7 @@ namespace foundation::profiler
 }
 
 #define __KESTREL_PROFILE_LINE(name, line)  \
-    const auto profiler##line = ::foundation::profiler::scope_timer(name);
+    const auto profiler##line = ::foundation::profiler::scope_timer(name)
 #define KESTREL_PROFILE_LINE(name, line)    __KESTREL_PROFILE_LINE(name, line)
 #define KESTREL_PROFILE_SCOPE(name)         KESTREL_PROFILE_LINE(name, __LINE__)
 #define KESTREL_PROFILE_FUNCTION()          KESTREL_PROFILE_SCOPE(__PRETTY_FUNCTION__)

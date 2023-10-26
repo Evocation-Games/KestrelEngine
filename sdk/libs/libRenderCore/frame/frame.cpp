@@ -134,12 +134,20 @@ auto renderer::frame::layout_quad(renderer::frame::quad &q, const component::dra
 auto renderer::frame::color_quad(renderer::frame::quad& q, const component::drawable *drawable) -> void
 {
     auto color = renderer::vec4(drawable->color.x(), drawable->color.y(), drawable->color.z(), drawable->color.w());
+
     q.vertices[0]->color = color;
     q.vertices[1]->color = color;
     q.vertices[2]->color = color;
     q.vertices[3]->color = color;
     q.vertices[4]->color = color;
     q.vertices[5]->color = color;
+
+    q.vertices[0]->texture = -1;
+    q.vertices[1]->texture = -1;
+    q.vertices[2]->texture = -1;
+    q.vertices[3]->texture = -1;
+    q.vertices[4]->texture = -1;
+    q.vertices[5]->texture = -1;
 }
 
 auto renderer::frame::texture_quad(renderer::frame::quad& q,buffer::texture_slot slot, const component::texturing *texturing) -> void
