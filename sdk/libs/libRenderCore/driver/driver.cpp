@@ -25,10 +25,11 @@
 
 #if TARGET_MACOS
 #   include <libMetalRenderer/driver/driver.hpp>
+#   include <os/log.h>
+#   include <os/signpost.h>
 #endif
 
-#include <os/log.h>
-#include <os/signpost.h>
+#include <libOpenGLRenderer/driver/driver.hpp>
 
 // MARK: - Construction
 
@@ -106,7 +107,11 @@ auto renderer::driver::initialize_backend_driver() -> void
         }
 #endif
         case display_configuration::OPENGL: {
-
+            auto backend = new opengl::driver(m_config.display);
+            m_api.info = opengl::driver::api_info();
+            m_api.backend = reinterpret_cast<void *>(backend);
+            m_api.bindings = backend->api_bindings();
+            break;
         }
         default:
             throw std::runtime_error("Unsupported backend graphics driver chosen (GL_" + std::to_string(preference) + ")");
@@ -125,7 +130,6 @@ auto renderer::driver::start_driver(frame_request_callback frame_request) -> voi
     // Spin up the backend.
     os_log_t log_handle = os_log_create("com.evocation-games.kestrel", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
     os_signpost_id_t signpost = os_signpost_id_generate(log_handle);
-    m_api.bindings.initialize();
     m_api.bindings.start([&] {
         KESTREL_PROFILE_SCOPE("FRAME TIME");
         if (os_signpost_enabled(log_handle)) {

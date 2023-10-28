@@ -31,10 +31,6 @@
 #include <libRenderCore/callback.hpp>
 #include <MetalKit/MetalKit.h>
 
-#if !defined(METAL_SWAPCHAIN_BUFFER_COUNT)
-#   define METAL_SWAPCHAIN_BUFFER_COUNT 1
-#endif
-
 namespace renderer::metal
 {
     class framebuffer
@@ -42,7 +38,7 @@ namespace renderer::metal
     public:
         explicit framebuffer(id<MTLDevice> device, std::uint32_t width, std::uint32_t height, MTLPixelFormat format);
 
-        inline auto texture() -> id<MTLTexture> { return m_output.texture; };
+        [[nodiscard]] inline auto texture() const -> id<MTLTexture> { return m_output.texture; };
 
         auto render(id<MTLCommandBuffer> command_buffer, const render_operation& job) -> void;
 

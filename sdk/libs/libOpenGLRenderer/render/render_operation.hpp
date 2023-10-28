@@ -18,48 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
 
-#include <vector>
-#include <array>
-#include <MetalKit/MetalKit.h>
 #include <libRenderCore/buffer/buffer.hpp>
-#include <libMetalRenderer/resource/shader/shader_program.h>
+#include <libOpenGLRenderer/opengl.hpp>
+#include <libOpenGLRenderer/resource/shader/shader_program.hpp>
+#include <libOpenGLRenderer/render/vertex_buffer.hpp>
 
-#if !defined(METAL_MAX_FRAGMENT_TEXTURES)
-#   define METAL_MAX_FRAGMENT_TEXTURES  32
+#if !defined(OPENGL_MAX_FRAGMENT_TEXTURES)
+#   define OPENGL_MAX_FRAGMENT_TEXTURES  32
 #endif
 
-namespace renderer::metal
+namespace renderer::opengl
 {
     class render_operation
     {
     public:
         struct command {
+            const vertex_buffer *vertex_buffer { nullptr };
             const resource::shader::program *shader { nullptr };
             std::size_t data_size { 0 };
-            std::uintptr_t offset { 0 };
+            std::size_t offset { 0 };
             std::uint8_t *ptr { nullptr };
-            std::array<id<MTLTexture>, METAL_MAX_FRAGMENT_TEXTURES> textures;
-            std::size_t texture_count { 0 };
-            std::size_t vertex_count { 0 };
+            std::array<GLuint, OPENGL_MAX_FRAGMENT_TEXTURES> textures { 0 };
+            std::size_t texture_count;
+            std::size_t vertex_count;
         };
 
     public:
-        auto initialize(id<MTLDevice> device) -> void;
+        auto initialize() -> void;
 
-        [[nodiscard]] inline auto buffer() const -> id<MTLBuffer> { return m_buffer; }
         [[nodiscard]] inline auto command_count() const -> std::size_t { return m_commands.size(); }
         [[nodiscard]] inline auto commands() const -> const std::vector<command>& { return m_commands; }
 
         auto clear() -> void;
-        auto submit(const renderer::buffer& source, const std::vector<id<MTLTexture>>& textures, const resource::shader::program& shader) -> void;
+        auto submit(const renderer::buffer& source, const std::vector<GLuint>& textures, const resource::shader::program& shader) -> void;
 
     private:
-        id<MTLBuffer> m_buffer;
+        vertex_buffer *m_buffer;
         std::vector<command> m_commands;
-        std::uint8_t *m_buffer_ptr { nullptr };
         std::size_t m_buffer_offset { 0 };
     };
 }

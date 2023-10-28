@@ -18,38 +18,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <chrono>
+#include <array>
+#include <libOpenGLRenderer/opengl.hpp>
+#include <libOpenGLRenderer/resource/shader/shader_program.hpp>
+#include <libOpenGLRenderer/render/vertex_buffer.hpp>
+#include <libRenderCore/buffer/vertex.hpp>
+
 #pragma once
 
-#include <vector>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/frame/frame.hpp>
-#include <libMetalRenderer/render/framebuffer.h>
-#include <libMetalRenderer/render/render_operation.h>
-
-namespace renderer::metal
+namespace renderer::opengl
 {
-    class frame_generator
+    struct output
     {
-    public:
-        frame_generator() = default;
-        explicit frame_generator(id<MTLDevice> device,
-                                 std::uint32_t width,
-                                 std::uint32_t height,
-                                 std::size_t queue_size,
-                                 MTLPixelFormat format);
+        auto initialize(GLint width, GLint height, const resource::shader::program& shader, bool vsync = true) -> void;
+        auto update_viewport_size(GLint width, GLint height) -> void;
 
-        [[nodiscard]] auto latest_frame_texture() -> id<MTLTexture>;
-        [[nodiscard]] inline auto current_operation() -> render_operation& { return m_operation; }
-
-        auto wait_for_ready() -> void;
-        auto produce_new_frame(id<MTLCommandQueue> command_queue, renderer::callback completion) -> void;
+        auto push_frame(GLint frame_texture, GLFWwindow *window) -> void;
 
     private:
-        id<MTLDevice> m_device;
-        std::uint64_t m_index { 0 };
-        std::size_t m_queue_size { 3 };
-        std::vector<framebuffer> m_buffers;
-        id<MTLTexture> m_last_frame_texture { nil };
-        render_operation m_operation;
+        bool m_vsync { false };
+        GLint m_width { 0 };
+        GLint m_height { 0 };
+        glm::mat4 m_projection { 0 };
+        const resource::shader::program *m_shader;
+        std::array<vertex, 6> m_vertices;
+        vertex_buffer m_buffer;
     };
 }

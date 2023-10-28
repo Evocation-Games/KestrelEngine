@@ -22,5 +22,5 @@
 
 namespace macos::cocoa::screen
 {
-    static auto scale_factor() -> float;
+    auto scale_factor() -> float;
 }

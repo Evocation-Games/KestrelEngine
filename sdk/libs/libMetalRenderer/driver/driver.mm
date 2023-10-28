@@ -47,10 +47,10 @@ namespace renderer::metal
             MTLPixelFormat pixel_format { 0 };
 
             struct {
-                std::function<auto()->void> frame_request;
+                renderer::callback frame_request;
+                renderer::callback completion;
                 std::thread runner;
                 bool should_terminate { false };
-                renderer::callback completion;
                 frame_generator generator;
             } render;
 
@@ -122,8 +122,7 @@ auto renderer::metal::driver::api_info() -> renderer::api_info
 auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
 {
     api::bindings bindings;
-    bindings.initialize = [&] { initialize(); };
-    bindings.start = [&] (auto callback) { start(std::move(callback)); };
+    bindings.start = [&] (auto frame_request) { start(std::move(frame_request)); };
 
     bindings.set_viewport_title = [&] (auto title) { set_viewport_title(title); };
     bindings.set_viewport_size = [&] (auto width, auto height) { set_viewport_size(width, height); };

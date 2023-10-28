@@ -18,22 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 #pragma once
 
-#include <libMath/types/vec2.hpp>
+#include <functional>
 #include <libRenderCore/callback.hpp>
 #include <libRenderCore/driver/api_info.hpp>
 #include <libRenderCore/driver/display_configuration.hpp>
 #include <libRenderCore/driver/api_bindings.hpp>
-#include <libRenderCore/shader/function.hpp>
 #include <libRenderCore/shader/library.hpp>
 #include <libRenderCore/shader/program.hpp>
-#include <libRenderCore/frame/frame.hpp>
-#include <libData/block.hpp>
 
-namespace renderer::metal
+struct GLFWwindow;
+
+namespace renderer::opengl
 {
-    struct context;
+    struct state;
 
     class driver
     {
@@ -44,31 +44,26 @@ namespace renderer::metal
         [[nodiscard]] auto api_bindings() -> renderer::api::bindings;
 
     private:
-        auto initialize() -> void;
-        auto configure_device() -> void;
+        auto initialize_opengl() -> bool;
         auto start(renderer::callback frame_request_callback) -> void;
 
+        auto detect_display_configuration() -> void;
+        auto configure_main_window() -> void;
+        auto configure_device() -> void;
+        auto dispatch_render_thread() -> void;
         auto render_job() -> void;
 
-        auto set_viewport_title(const std::string&) -> void;
-        auto set_viewport_size(std::uint32_t, std::uint32_t) -> void;
-        [[nodiscard]] auto viewport_title() const -> std::string;
-        [[nodiscard]] auto viewport_size() const -> math::vec2;
+        static auto error_handler(std::int32_t code, const char *reason) -> void;
 
         auto compile_shader_library(const shader::library& lib) -> shader::program;
         [[nodiscard]] auto shader_program_named(const std::string& name) const -> shader::program;
         auto install_default_shader() -> shader::program;
 
         auto end_frame(renderer::callback cb) -> void;
-
         auto draw(const buffer& buffer) -> void;
 
-        auto create_texture(const data::block& data, math::vec2 size) -> texture::device_id;
-        auto update_texture(texture::device_id id, const data::block& data) -> void;
-        auto destroy_texture(texture::device_id id) -> void;
-
     private:
-        context *m_context { nullptr };
+        state *m_state { nullptr };
         display_configuration m_config;
     };
 }

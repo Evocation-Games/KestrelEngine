@@ -20,25 +20,21 @@
 
 #pragma once
 
-#include <string>
+#include <libFoundation/availability.hpp>
 
-namespace renderer::shader
-{
-    struct function
-    {
-        enum type { VERTEX, FRAGMENT };
+#if TARGET_MACOS
+#   define GL_SILENCE_DEPRECATION
+#   include "OpenGL/gl3.h"
+#elif TARGET_WINDOWS
+#   define GLEW_STATIC
+#   include "GL/glew.h"
+#   include "GL/gl.h"
+#else
+#   include "GL/glew.h"
+#   include "GL/gl.h"
+#endif
 
-        function(const std::string& code, enum type t, const std::string& name)
-            : m_name(name), m_type(t), m_code(code)
-        {}
-
-        [[nodiscard]] inline auto type() const -> enum type { return m_type; }
-        [[nodiscard]] inline auto name() const -> std::string { return m_name; }
-        [[nodiscard]] inline auto code() const -> std::string { return m_code; }
-
-    private:
-        enum type m_type;
-        std::string m_name;
-        std::string m_code;
-    };
-}
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>

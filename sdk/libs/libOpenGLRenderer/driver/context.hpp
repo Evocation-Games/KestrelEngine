@@ -18,38 +18,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 #pragma once
 
-#include <vector>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/frame/frame.hpp>
-#include <libMetalRenderer/render/framebuffer.h>
-#include <libMetalRenderer/render/render_operation.h>
+#include <libOpenGLRenderer/opengl.hpp>
 
-namespace renderer::metal
+namespace renderer::opengl
 {
-    class frame_generator
+    class context
     {
     public:
-        frame_generator() = default;
-        explicit frame_generator(id<MTLDevice> device,
-                                 std::uint32_t width,
-                                 std::uint32_t height,
-                                 std::size_t queue_size,
-                                 MTLPixelFormat format);
+        context() = default;
+        ~context();
 
-        [[nodiscard]] auto latest_frame_texture() -> id<MTLTexture>;
-        [[nodiscard]] inline auto current_operation() -> render_operation& { return m_operation; }
+        auto initialize(GLint width, GLint height, float scale = 1.f, bool visible = true, GLFWwindow *share = nullptr) -> void;
 
-        auto wait_for_ready() -> void;
-        auto produce_new_frame(id<MTLCommandQueue> command_queue, renderer::callback completion) -> void;
+        [[nodiscard]] inline auto is_valid() const -> bool { return m_context_window != nullptr; }
+        [[nodiscard]] inline auto window() const -> GLFWwindow * { return m_context_window; }
+
+        auto make_current() -> void;
 
     private:
-        id<MTLDevice> m_device;
-        std::uint64_t m_index { 0 };
-        std::size_t m_queue_size { 3 };
-        std::vector<framebuffer> m_buffers;
-        id<MTLTexture> m_last_frame_texture { nil };
-        render_operation m_operation;
+        static auto resized(GLFWwindow *window, GLint width, GLint height) -> void;
+
+    private:
+        GLint m_width { 0 };
+        GLint m_height { 0 };
+        GLFWwindow *m_context_window { nullptr };
+        float m_native_scale_factor { 1.f };
     };
 }

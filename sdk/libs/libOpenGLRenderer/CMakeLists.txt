@@ -21,26 +21,60 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 ########################################################################################################################
-## Project Configuration
-
-project(RenderTest LANGUAGES CXX)
+## Project
+project(OpenGLRenderer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 ########################################################################################################################
-## Compilation
-file(GLOB_RECURSE RenderTest_Sources
+## libOpenGLRenderer
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED)
+
+set(OPENGLRENDERER_INCLUDE_DIRS
+    ${PROJECT_SDK_LIBS}
+    "${PROJECT_SUBMODULE_DIR}/glm"
+)
+
+set(OPENGLRENDERER_LIBS Data glfw ${OPENGL_LIBRARIES})
+
+if(APPLE)
+    set(OPENGLRENDERER_INCLUDE_DIRS ${OPENGLRENDERER_INCLUDE_DIRS}
+        "${PROJECT_SUBMODULE_DIR}/glfw/include"
+    )
+
+    set(OPENGLRENDERER_LIBS ${OPENGLRENDERER_LIBS}
+         MacOSSupport
+    )
+
+elseif(LINUX)
+    find_package(GLEW REQUIRED)
+    find_package(glfw3 REQUIRED)
+
+    set(OPENGLRENDERER_INCLUDE_DIRS ${OPENGLRENDERER_INCLUDE_DIRS}
+        ${GLEW_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS}
+    )
+
+    set(OPENGLRENDERER_LIBS ${OPENGLRENDERER_LIBS}
+        ${GLEW_LIBRARIES}
+    )
+
+elseif(WINDOWS)
+    find_package(GLEW REQUIRED)
+    find_package(glfw3 REQUIRED)
+
+    set(OPENGLRENDERER_INCLUDE_DIRS ${OPENGLRENDERER_INCLUDE_DIRS}
+        ${GLEW_INCLUDE_DIRS} ${GLFW3_INCLUDE_DIRS}
+    )
+
+    set(OPENGLRENDERER_LIBS ${OPENGLRENDERER_LIBS} GLEW::GLEW)
+
+endif()
+
+file(GLOB_RECURSE libOpenGLRenderer_Sources
     *.cpp
 )
 
-add_executable(RenderTest ${RenderTest_Sources})
-target_include_directories(RenderTest PUBLIC
-    ${PROJECT_SDK_LIBS}
-    ${PROJECT_SDK_BIN}/render-test
-)
-
-if(APPLE)
-    target_link_libraries(RenderTest RenderCore MetalRenderer OpenGLRenderer)
-else()
-    target_link_libraries(RenderTest RenderCore OpenGLRenderer)
-endif()
-
+add_library(OpenGLRenderer ${libOpenGLRenderer_Sources})
+target_link_libraries(OpenGLRenderer ${OPENGLRENDERER_LIBS})
+target_include_directories(OpenGLRenderer PUBLIC ${OPENGLRENDERER_INCLUDE_DIRS})
+target_link_directories(OpenGLRenderer PUBLIC ${PROJECT_VENDOR_DIR})

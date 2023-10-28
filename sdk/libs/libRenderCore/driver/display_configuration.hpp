@@ -52,7 +52,7 @@ namespace renderer
         } m_screen;
 
         struct {
-            enum graphics_layer_preference preference { DEFAULT };
+            enum graphics_layer_preference preference { OPENGL };
             bool vsync { false };
             std::size_t swap_chain_count { 3 };
         } m_gl;

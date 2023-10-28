@@ -103,7 +103,7 @@ elseif (WINDOWS)
     add_subdirectory(sdk/libs/libWindows)
 endif()
 
-#add_subdirectory(sdk/libs/libOpenGLRenderer)
+add_subdirectory(sdk/libs/libOpenGLRenderer)
 add_subdirectory(sdk/libs/libFoundation)
 add_subdirectory(sdk/libs/libScripting)
 add_subdirectory(sdk/libs/libDocumentation)

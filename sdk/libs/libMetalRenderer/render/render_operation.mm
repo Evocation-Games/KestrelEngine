@@ -24,13 +24,16 @@
 #if !defined(RENDERER_MAX_VERTEX_COUNT)
 #   define RENDERER_MAX_VERTEX_COUNT    3'000'000
 #endif
+#if !defined(RENDERER_DEFAULT_COMMAND_QUEUE_SIZE)
+#   define RENDERER_DEFAULT_COMMAND_QUEUE_SIZE    128
+#endif
 
 // MARK: - Construction
 
 auto renderer::metal::render_operation::initialize(id<MTLDevice> device) -> void
 {
     // Reserve space for 128 commands.
-    m_commands.reserve(128);
+    m_commands.reserve(RENDERER_DEFAULT_COMMAND_QUEUE_SIZE);
 
     // Acquire a suitable buffer
     m_buffer = [device newBufferWithLength:sizeof(vertex) * RENDERER_MAX_VERTEX_COUNT

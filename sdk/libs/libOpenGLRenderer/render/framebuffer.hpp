@@ -18,38 +18,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 #pragma once
 
-#include <vector>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/frame/frame.hpp>
-#include <libMetalRenderer/render/framebuffer.h>
-#include <libMetalRenderer/render/render_operation.h>
+#include <cstdint>
+#include <array>
+#include <functional>
+#include <libOpenGLRenderer/opengl.hpp>
+#include <libOpenGLRenderer/render/render_operation.hpp>
+#include <libRenderCore/callback.hpp>
 
-namespace renderer::metal
+namespace renderer::opengl
 {
-    class frame_generator
+    class framebuffer
     {
     public:
-        frame_generator() = default;
-        explicit frame_generator(id<MTLDevice> device,
-                                 std::uint32_t width,
-                                 std::uint32_t height,
-                                 std::size_t queue_size,
-                                 MTLPixelFormat format);
+        framebuffer(std::uint32_t width, std::uint32_t height);
 
-        [[nodiscard]] auto latest_frame_texture() -> id<MTLTexture>;
-        [[nodiscard]] inline auto current_operation() -> render_operation& { return m_operation; }
+        [[nodiscard]] inline auto texture() const -> GLuint { return m_output.texture; }
 
-        auto wait_for_ready() -> void;
-        auto produce_new_frame(id<MTLCommandQueue> command_queue, renderer::callback completion) -> void;
+        auto render(const render_operation& job) -> void;
 
     private:
-        id<MTLDevice> m_device;
-        std::uint64_t m_index { 0 };
-        std::size_t m_queue_size { 3 };
-        std::vector<framebuffer> m_buffers;
-        id<MTLTexture> m_last_frame_texture { nil };
-        render_operation m_operation;
+        auto prepare() -> void;
+
+    private:
+        struct {
+            GLuint id { 0 };
+            GLuint rbo { 0 };
+        } m_buffer;
+
+        struct {
+            glm::mat4 projection { 0 };
+            std::uint32_t width { 0 };
+            std::uint32_t height { 0 };
+            GLint bounds[4] { 0 };
+        } m_viewport;
+
+        struct {
+            GLuint texture { 0 };
+        } m_output;
     };
 }

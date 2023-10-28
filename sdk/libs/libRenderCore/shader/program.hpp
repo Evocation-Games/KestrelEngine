@@ -34,7 +34,7 @@ namespace renderer::shader
         program(const program& program) = default;
 
         [[nodiscard]] inline auto is_valid() const -> bool { return m_id != invalid_id; }
-        [[nodiscard]] inline auto id() const -> bool { return m_id; }
+        [[nodiscard]] inline auto id() const -> std::uint64_t { return m_id; }
 
     private:
         std::uint64_t m_id { invalid_id };

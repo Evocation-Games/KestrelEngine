@@ -20,36 +20,22 @@
 
 #pragma once
 
-#include <vector>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/frame/frame.hpp>
-#include <libMetalRenderer/render/framebuffer.h>
-#include <libMetalRenderer/render/render_operation.h>
+#include <cstdint>
+#include <string>
 
-namespace renderer::metal
+namespace renderer::opengl::resource::shader
 {
-    class frame_generator
+    struct program
     {
-    public:
-        frame_generator() = default;
-        explicit frame_generator(id<MTLDevice> device,
-                                 std::uint32_t width,
-                                 std::uint32_t height,
-                                 std::size_t queue_size,
-                                 MTLPixelFormat format);
+        program() = default;
+        program(std::uint64_t uid, const std::string& name) : m_uid(uid), m_name(name) {}
 
-        [[nodiscard]] auto latest_frame_texture() -> id<MTLTexture>;
-        [[nodiscard]] inline auto current_operation() -> render_operation& { return m_operation; }
-
-        auto wait_for_ready() -> void;
-        auto produce_new_frame(id<MTLCommandQueue> command_queue, renderer::callback completion) -> void;
+        [[nodiscard]] inline auto is_valid() const -> bool { return m_uid > 0; }
+        [[nodiscard]] inline auto uid() const -> std::uint64_t { return m_uid; }
+        [[nodiscard]] inline auto name() const -> std::string { return m_name; }
 
     private:
-        id<MTLDevice> m_device;
-        std::uint64_t m_index { 0 };
-        std::size_t m_queue_size { 3 };
-        std::vector<framebuffer> m_buffers;
-        id<MTLTexture> m_last_frame_texture { nil };
-        render_operation m_operation;
+        std::uint64_t m_uid { 0 };
+        std::string m_name;
     };
 }

@@ -18,38 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
 #pragma once
 
-#include <vector>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/frame/frame.hpp>
-#include <libMetalRenderer/render/framebuffer.h>
-#include <libMetalRenderer/render/render_operation.h>
+#include <libRenderCore/shader/library.hpp>
+#include <libOpenGLRenderer/resource/shader/shader_program.hpp>
 
-namespace renderer::metal
+namespace renderer::opengl::resource::shader
 {
-    class frame_generator
+    struct compiler
     {
-    public:
-        frame_generator() = default;
-        explicit frame_generator(id<MTLDevice> device,
-                                 std::uint32_t width,
-                                 std::uint32_t height,
-                                 std::size_t queue_size,
-                                 MTLPixelFormat format);
-
-        [[nodiscard]] auto latest_frame_texture() -> id<MTLTexture>;
-        [[nodiscard]] inline auto current_operation() -> render_operation& { return m_operation; }
-
-        auto wait_for_ready() -> void;
-        auto produce_new_frame(id<MTLCommandQueue> command_queue, renderer::callback completion) -> void;
+        compiler() = default;
+        auto compile(const renderer::shader::library& library) -> shader::program;
 
     private:
-        id<MTLDevice> m_device;
-        std::uint64_t m_index { 0 };
-        std::size_t m_queue_size { 3 };
-        std::vector<framebuffer> m_buffers;
-        id<MTLTexture> m_last_frame_texture { nil };
-        render_operation m_operation;
+        static auto compile_function(const renderer::shader::function& function) -> std::uint32_t;
+        static auto link_program(std::uint32_t vertex, std::uint32_t fragment) -> std::uint32_t;
     };
 }
