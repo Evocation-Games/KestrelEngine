@@ -42,8 +42,10 @@ namespace renderer
     {
         using texture_slot = std::uint32_t;
 
-        explicit buffer(std::size_t vertex_count = RENDERER_MAX_VERTEX_COUNT, std::size_t texture_slots = DEFAULT_MAX_TEXTURE_SLOTS);
+        buffer() = default;
         ~buffer();
+
+        auto initialize(std::size_t vertex_count = RENDERER_MAX_VERTEX_COUNT, std::size_t texture_slots = DEFAULT_MAX_TEXTURE_SLOTS) -> void;
 
         [[nodiscard]] inline auto is_full() const -> bool { return m_vertices.count >= m_vertices.max; }
         [[nodiscard]] inline auto is_empty() const -> bool { return m_vertices.count == 0; }

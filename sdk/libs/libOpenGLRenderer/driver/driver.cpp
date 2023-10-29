@@ -119,7 +119,7 @@ auto renderer::opengl::driver::detect_display_configuration() -> void
 #if !TARGET_MACOS
     float x_scale = 1.f;
     float y_scale = 1.f;
-    glfwGetMonitorContentScale(m_context->screen.monitor, &x_scale, &y_scale);
+    glfwGetMonitorContentScale(m_state->screen.monitor, &x_scale, &y_scale);
     m_state->screen.native_scale_factor = x_scale;
 #else
     m_state->screen.native_scale_factor = macos::cocoa::screen::scale_factor();
@@ -147,6 +147,15 @@ auto renderer::opengl::driver::configure_main_window() -> void
     glfwSwapInterval(1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+#if !TARGET_MACOS
+    GLenum err = glewInit();
+    if (err != GLEW_OK || !GLEW_VERSION_2_1) {
+        const char *str = (const char *)glewGetErrorString(err);
+        throw std::runtime_error(str);
+    }
+#endif
+
     m_state->opengl.viewport.projection = glm::ortho(0.0, (double)m_state->opengl.viewport.width, (double)m_state->opengl.viewport.height, 0.0, 1.0, -1.0);
 }
 
@@ -193,6 +202,7 @@ auto renderer::opengl::driver::start(renderer::callback frame_request_callback) 
     dispatch_render_thread();
 
     // Fetch the default shader program.
+    m_state->opengl.render.main.make_current();
     auto default_shader = m_state->opengl.shader.programs.at(m_state->opengl.shader.default_id);
     m_state->opengl.render.main_output.initialize(
         m_state->opengl.viewport.width,
@@ -220,7 +230,6 @@ auto renderer::opengl::driver::start(renderer::callback frame_request_callback) 
         m_state->opengl.render.frame_request();
         glfwSwapBuffers(m_state->opengl.render.main.window());
 #endif
-
         glfwPollEvents();
     };
 }
@@ -266,7 +275,7 @@ auto renderer::opengl::driver::render_job() -> void
 {
     while (!m_state->opengl.render.should_terminate) {
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(100us);
+        std::this_thread::sleep_for(50us);
         m_state->opengl.render.generator.wait_for_ready();
 
         m_state->opengl.render.resource_lock.lock();

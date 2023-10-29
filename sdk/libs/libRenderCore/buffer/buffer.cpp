@@ -22,7 +22,7 @@
 
 // MARK: - Construction
 
-renderer::buffer::buffer(std::size_t vertex_count, std::size_t texture_slots)
+auto renderer::buffer::initialize(std::size_t vertex_count, std::size_t texture_slots) -> void
 {
     m_vertices.max = vertex_count;
     configure_vertex_buffer();

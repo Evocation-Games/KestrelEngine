@@ -35,7 +35,9 @@ renderer::frame::frame(const renderer::driver *driver)
 }
 
 auto renderer::frame::initialize() -> void
-{}
+{
+    m_buffer.initialize();
+}
 
 // MARK: - Submission / Drawing
 

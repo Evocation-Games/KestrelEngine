@@ -58,7 +58,7 @@ auto renderer::opengl::framebuffer::prepare() -> void
     auto status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
         GLenum error = glGetError();
-        throw std::runtime_error("Error creating framebuffer");
+        throw std::runtime_error("Error creating framebuffer: " + std::to_string(error));
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -70,7 +70,7 @@ auto renderer::opengl::framebuffer::render(const renderer::opengl::render_operat
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_buffer.id);
     glViewport(0, 0, (GLsizei)m_viewport.width, (GLsizei)m_viewport.height);
-    glClearColor(1.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -95,5 +95,6 @@ auto renderer::opengl::framebuffer::render(const renderer::opengl::render_operat
         command.vertex_buffer->unbind();
     }
 
+    glFinish();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

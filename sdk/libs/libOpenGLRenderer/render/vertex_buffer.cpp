@@ -18,9 +18,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <thread>
 #include <libOpenGLRenderer/render/vertex_buffer.hpp>
 #include <libRenderCore/buffer/vertex.hpp>
-
 
 // MARK: - Construction
 
@@ -47,6 +47,9 @@ auto renderer::opengl::vertex_buffer::initialize(std::size_t size) -> void
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     m_buffer = new std::uint8_t[size];
+
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(10us);
 }
 
 // MARK: - Destruction

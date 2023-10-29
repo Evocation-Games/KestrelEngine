@@ -107,4 +107,5 @@ auto renderer::opengl::output::push_frame(GLint frame_texture, GLFWwindow *windo
     m_buffer.unbind();
 
     glfwSwapBuffers(window);
+    glFinish();
 }
