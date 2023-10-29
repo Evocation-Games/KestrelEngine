@@ -71,7 +71,7 @@ void main()
 
     static constexpr const char *default_fragment_function {R"(
     if (u_texture_count == 0) {
-        color = vec4(v_tex_coord, 0.0, 1.0);
+        color = v_color;
         return;
     }
 

@@ -156,7 +156,7 @@ auto renderer::opengl::driver::configure_main_window() -> void
     }
 #endif
 
-    m_state->opengl.viewport.projection = glm::ortho(0.0, (double)m_state->opengl.viewport.width, (double)m_state->opengl.viewport.height, 0.0, 1.0, -1.0);
+    m_state->opengl.viewport.projection = glm::ortho(0.0, (double)m_state->opengl.viewport.width, 0.0, (double)m_state->opengl.viewport.height, 1.0, -1.0);
 }
 
 auto renderer::opengl::driver::configure_device() -> void

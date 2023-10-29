@@ -29,7 +29,7 @@ auto renderer::opengl::output::initialize(GLint width, GLint height, const resou
     m_width = width;
     m_height = height;
     m_shader = &shader;
-    m_projection = glm::ortho(0.0, (double)width, (double)height, 0.0, 1.0, -1.0);
+    m_projection = glm::ortho(0.0, (double)width, 0.0, (double)height, 1.0, -1.0);
     m_buffer.initialize(sizeof(vertex) * 6);
 
     auto px = 0.f;

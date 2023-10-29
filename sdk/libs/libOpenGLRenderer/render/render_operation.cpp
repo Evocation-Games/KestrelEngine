@@ -66,44 +66,8 @@ auto renderer::opengl::render_operation::submit(
     cmd.data_size = source.data_size();
     cmd.vertex_count = source.count();
 
-    // Debug Data
-    auto px = 50.f;
-    auto py = 50.f;
-    auto sw = 50.f;
-    auto sh = 50.f;
-
-    // Setup some default buffers for drawing the frame texture.
-    std::array<vertex, 6> vertices;
-    vertices[0].texture = 0.f;
-    vertices[1].texture = 0.f;
-    vertices[2].texture = 0.f;
-    vertices[3].texture = 0.f;
-    vertices[4].texture = 0.f;
-    vertices[5].texture = 0.f;
-
-    vertices[0].color = renderer::vec4(1, 1, 1, 1);
-    vertices[1].color = renderer::vec4(1, 1, 1, 1);
-    vertices[2].color = renderer::vec4(1, 1, 1, 1);
-    vertices[3].color = renderer::vec4(1, 1, 1, 1);
-    vertices[4].color = renderer::vec4(1, 1, 1, 1);
-    vertices[5].color = renderer::vec4(1, 1, 1, 1);
-
-    vertices[0].position = renderer::vec4(px, py + sh, 0, 0);
-    vertices[1].position = renderer::vec4(px + sw, py + sh, 0, 0);
-    vertices[2].position = renderer::vec4(px + sw, py, 0, 0);
-    vertices[3].position = renderer::vec4(px, py + sh, 0, 0);
-    vertices[4].position = renderer::vec4(px, py, 0, 0);
-    vertices[5].position = renderer::vec4(px + sw, py, 0, 0);
-
-    vertices[0].tex_coord = renderer::vec2(0.f, 1.f);
-    vertices[1].tex_coord = renderer::vec2(1.f, 1.f);
-    vertices[2].tex_coord = renderer::vec2(1.f, 0.f);
-    vertices[3].tex_coord = renderer::vec2(0.f, 1.f);
-    vertices[4].tex_coord = renderer::vec2(0.f, 0.f);
-    vertices[5].tex_coord = renderer::vec2(1.f, 0.f);
-
     // Copy the data into the buffer.
-    cmd.ptr = m_buffer->copy_data(m_buffer_offset, &vertices[0], sizeof(vertex) * 6);
+    cmd.ptr = m_buffer->copy_data(m_buffer_offset, source.data(), source.data_size());
     m_buffer_offset += cmd.data_size;
 
     // Store the command
