@@ -25,8 +25,6 @@
 
 #if TARGET_MACOS
 #   include <libMetalRenderer/driver/driver.hpp>
-#   include <os/log.h>
-#   include <os/signpost.h>
 #endif
 
 #include <libOpenGLRenderer/driver/driver.hpp>
@@ -128,22 +126,14 @@ auto renderer::driver::start_driver(frame_request_callback frame_request) -> voi
     m_render.frame_request = std::move(frame_request);
 
     // Spin up the backend.
-    os_log_t log_handle = os_log_create("com.evocation-games.kestrel", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
-    os_signpost_id_t signpost = os_signpost_id_generate(log_handle);
+
     m_api.bindings.start([&] {
         KESTREL_PROFILE_SCOPE("FRAME TIME");
-        if (os_signpost_enabled(log_handle)) {
-            os_signpost_interval_begin(log_handle, signpost, "Frame", "Begin Frame Request");
-        }
 
         // Received request for a new frame to be rendered.
         start_frame();
         m_render.frame_request(m_render.frame);
         end_frame();
-
-        if (os_signpost_enabled(log_handle)) {
-            os_signpost_interval_end(log_handle, signpost, "Frame", "End Frame Request");
-        }
     });
 }
 
