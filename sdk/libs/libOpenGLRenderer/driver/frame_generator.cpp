@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <chrono>
 #include <libOpenGLRenderer/driver/frame_generator.hpp>
 #include <libFoundation/profile/profiler.hpp>
 
