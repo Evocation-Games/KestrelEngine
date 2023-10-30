@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include <array>
+#include <vector>
 #include <libRenderCore/buffer/buffer.hpp>
 #include <libOpenGLRenderer/opengl.hpp>
 #include <libOpenGLRenderer/resource/shader/shader_program.hpp>
@@ -41,8 +43,8 @@ namespace renderer::opengl
             std::size_t offset { 0 };
             std::uint8_t *ptr { nullptr };
             std::array<GLuint, OPENGL_MAX_FRAGMENT_TEXTURES> textures { 0 };
-            std::size_t texture_count;
-            std::size_t vertex_count;
+            std::size_t texture_count { 0 };
+            std::size_t vertex_count { 0 };
         };
 
     public:
