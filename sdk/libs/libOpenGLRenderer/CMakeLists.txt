@@ -43,7 +43,7 @@ if(APPLE)
     )
 
     set(OPENGLRENDERER_LIBS ${OPENGLRENDERER_LIBS}
-         MacOSSupport
+         MacOSSupport glfw
     )
 
 elseif(LINUX)
