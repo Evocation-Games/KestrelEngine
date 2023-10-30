@@ -25,6 +25,14 @@
 #include <libRenderCore/components/drawable.hpp>
 #include <libFoundation/profile/profiler.hpp>
 
+struct event_reciever: public event::receiver
+{
+    auto receive(event::instance raw) -> void override
+    {
+
+    }
+};
+
 auto main(std::int32_t argc, const char **argv) -> std::int32_t
 {
     renderer::display_configuration cfg;
@@ -38,6 +46,8 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
     world.register_component<renderer::component::drawable>();
     world.register_component<renderer::component::texturing>();
 
+    driver.set_event_receiver(new event_reciever());
+
     // Create 100 entities
     auto entity_count = 100;
     for (auto i = 0; i < entity_count; ++i) {
@@ -50,7 +60,6 @@ auto main(std::int32_t argc, const char **argv) -> std::int32_t
     }
 
     driver.start([&world, entity_count] (auto& frame) {
-        std::cout << "=========================" << std::endl;
         KESTREL_PROFILE_FUNCTION();
         for (auto i = entity_count; i > 0; --i) {
             frame.draw(i - 1, &world);

@@ -27,7 +27,7 @@
 #include <libRenderCore/driver/display_configuration.hpp>
 #include <libRenderCore/frame/frame.hpp>
 #include <libRenderCore/texture/store.hpp>
-#include <libRenderCore/event/event_controller.hpp>
+#include <libEvent/receiver.hpp>
 #include <libData/block.hpp>
 #include <libMath/types/vec2.hpp>
 #include <libECS/world/world.hpp>
@@ -45,6 +45,8 @@ namespace renderer
         [[nodiscard]] inline auto gpu_name() const -> std::string { return m_api.info.gpu_name(); }
 
         auto start(frame_request_callback frame_request) -> void;
+
+        auto set_event_receiver(::event::receiver *receiver) -> void;
 
         auto create_texture(texture::id id, const data::block& data, math::vec2 size) -> bool;
         auto update_texture(texture::id id, const data::block& data, math::vec2 size) -> bool;
@@ -67,7 +69,7 @@ namespace renderer
             void *backend { nullptr };
             api_info info;
             api::bindings bindings;
-            event::controller events;
+            ::event::receiver *event_receiver { nullptr };
         } m_api;
 
         struct {

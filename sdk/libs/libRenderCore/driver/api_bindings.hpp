@@ -26,7 +26,7 @@
 #include <libRenderCore/buffer/buffer.hpp>
 #include <libRenderCore/frame/frame.hpp>
 #include <libRenderCore/texture/store.hpp>
-#include <libRenderCore/event/event_controller.hpp>
+#include <libEvent/receiver.hpp>
 #include <libData/block.hpp>
 
 namespace renderer::api
@@ -50,7 +50,7 @@ namespace renderer::api
         } frame_generation;
 
         struct {
-            std::function<auto(event::controller&)->void> attach_event_controller;
+            std::function<auto(::event::receiver*)->void> attach_event_receiver;
         } delegate;
 
         struct {

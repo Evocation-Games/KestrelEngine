@@ -23,7 +23,7 @@
 // MARK: - Storage
 
 static struct {
-    renderer::event::controller *controller { nullptr };
+    ::event::receiver *receiver { nullptr };
 } s_opengl_event_receiver;
 
 // MARK: - Setup
@@ -36,6 +36,11 @@ auto renderer::opengl::event::receiver::initialize(GLFWwindow *main_window) -> v
     glfwSetMouseButtonCallback(main_window, &mouse_button);
 }
 
+auto renderer::opengl::event::receiver::attach_receiver(::event::receiver *receiver) -> void
+{
+    s_opengl_event_receiver.receiver = receiver;
+}
+
 // MARK: - Events
 
 auto renderer::opengl::event::receiver::character_typed(GLFWwindow *window, std::uint32_t c) -> void
@@ -44,7 +49,7 @@ auto renderer::opengl::event::receiver::character_typed(GLFWwindow *window, std:
     raw.type = ::event::type::key_typed;
     raw.key.pressed = ::event::hid::unknown;
     raw.key.character = (std::int32_t)c;
-    s_opengl_event_receiver.controller->send(raw);
+    s_opengl_event_receiver.receiver->receive(raw);
 }
 
 auto renderer::opengl::event::receiver::key(
@@ -75,7 +80,7 @@ auto renderer::opengl::event::receiver::key(
         default: break;
     }
 
-    s_opengl_event_receiver.controller->send(raw);
+    s_opengl_event_receiver.receiver->receive(raw);
 }
 
 auto renderer::opengl::event::receiver::mouse_moved(GLFWwindow *window, double x, double y) -> void
@@ -84,7 +89,7 @@ auto renderer::opengl::event::receiver::mouse_moved(GLFWwindow *window, double x
     raw.type = ::event::type::mouse_move;
     raw.location.x = (float)x;
     raw.location.y = (float)y;
-    s_opengl_event_receiver.controller->send(raw);
+    s_opengl_event_receiver.receiver->receive(raw);
 }
 
 auto renderer::opengl::event::receiver::mouse_button(GLFWwindow *window, std::int32_t button, std::int32_t action, std::int32_t modifiers) -> void
@@ -134,7 +139,7 @@ auto renderer::opengl::event::receiver::mouse_button(GLFWwindow *window, std::in
         default: break;
     }
 
-    s_opengl_event_receiver.controller->send(raw);
+    s_opengl_event_receiver.receiver->receive(raw);
 }
 
 // MARK: - Mappings

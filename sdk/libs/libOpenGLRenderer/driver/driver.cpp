@@ -188,7 +188,7 @@ auto renderer::opengl::driver::api_bindings() -> renderer::api::bindings
     bindings.frame_generation.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
 
     // Delegation
-    bindings.delegate.attach_event_controller = [&] (auto controller) { event::receiver::attach_controller(&controller); };
+    bindings.delegate.attach_event_receiver = [&] (auto *receiver) { event::receiver::attach_receiver(receiver); };
     return bindings;
 }
 

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#if defined(KESTREL_PROFILER_ENABLED) || 1
+#if defined(KESTREL_PROFILER_ENABLED)
 
 #include <chrono>
 #include <string>

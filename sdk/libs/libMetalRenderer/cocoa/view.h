@@ -22,8 +22,8 @@
 
 #include <Cocoa/Cocoa.h>
 #include <MetalKit/MetalKit.h>
-#include <libRenderCore/event/event_controller.hpp>
+#include <libEvent/receiver.hpp>
 
 @interface MetalRendererView : NSView
-- (void)attachEventController:(renderer::event::controller *)controller;
+- (void)attachEventReceiver:(event::receiver *)receiver;
 @end

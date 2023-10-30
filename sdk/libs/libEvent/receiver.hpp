@@ -18,11 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <libRenderCore/event/event_controller.hpp>
+#pragma once
 
-// MARK: - Event Sending
+#include <libEvent/event.hpp>
 
-auto renderer::event::controller::send(::event::instance raw) -> void
+namespace event
 {
-
+    struct receiver
+    {
+        virtual auto receive(instance raw) -> void = 0;
+    };
 }

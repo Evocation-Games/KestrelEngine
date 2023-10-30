@@ -137,9 +137,9 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
     bindings.frame_generation.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
 
     // Delegation
-    bindings.delegate.attach_event_controller = [&] (auto controller) {
+    bindings.delegate.attach_event_receiver = [&] (auto *receiver) {
         MetalRendererView *view = m_context->cocoa.default_window.contentView;
-        [view attachEventController:&controller];
+        [view attachEventReceiver:receiver];
     };
 
     return bindings;

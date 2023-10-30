@@ -21,12 +21,13 @@
 #pragma once
 
 #include <libOpenGLRenderer/opengl.hpp>
-#include <libRenderCore/event/event_controller.hpp>
+#include <libEvent/receiver.hpp>
 
 namespace renderer::opengl::event::receiver
 {
     auto initialize(GLFWwindow *main_window) -> void;
-    auto attach_controller(renderer::event::controller *controller) -> void;
+
+    auto attach_receiver(::event::receiver *receiver) -> void;
 
     auto character_typed(GLFWwindow *window, std::uint32_t c) -> void;
     auto key(GLFWwindow *window, std::int32_t code, std::int32_t scancode, std::int32_t action, std::int32_t modifiers) -> void;

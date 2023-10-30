@@ -26,7 +26,7 @@
 @implementation MetalRendererView {
 @private
     NSTrackingArea *_trackingArea;
-    renderer::event::controller *_eventController;
+    event::receiver *_eventReceiver;
 }
 
 - (instancetype)init
@@ -59,9 +59,9 @@
 
 // MARK: - Event Controller
 
-- (void)attachEventController:(renderer::event::controller *)controller
+- (void)attachEventReceiver:(event::receiver *)receiver
 {
-    _eventController = controller;
+    _eventReceiver = receiver;
 }
 
 // MARK: - Key Events
@@ -98,21 +98,21 @@
         raw.type = (enum event::type)(event::type::key_down | event::type::key_typed | flags);
         raw.key.pressed = [self translateKeycodeForEvent:e];
         raw.key.character = [[e characters] characterAtIndex:0];
-        _eventController->send(raw);
+        _eventReceiver->receive(raw);
     }
     else if (down) {
         event::instance raw;
         raw.type = (enum event::type)(event::type::key_down | flags);
         raw.key.pressed = [self translateKeycodeForEvent:e];
         raw.key.character = [[e characters] characterAtIndex:0];
-        _eventController->send(raw);
+        _eventReceiver->receive(raw);
     }
     else {
         event::instance raw;
         raw.type = (enum event::type)(event::type::key_up | flags);
         raw.key.pressed = [self translateKeycodeForEvent:e];
         raw.key.character = [[e characters] characterAtIndex:0];
-        _eventController->send(raw);
+        _eventReceiver->receive(raw);
     }
 }
 
@@ -140,7 +140,7 @@
     raw.type = event::type::lmb_down;
     raw.location.x = (float)p.x;
     raw.location.y = (float)p.y;
-    _eventController->send(raw);
+    _eventReceiver->receive(raw);
 }
 
 - (void)rightMouseDown:(NSEvent *)event
@@ -150,7 +150,7 @@
     raw.type = event::type::rmb_down;
     raw.location.x = (float)p.x;
     raw.location.y = (float)p.y;
-    _eventController->send(raw);
+    _eventReceiver->receive(raw);
 }
 
 - (void)mouseUp:(NSEvent *)event
@@ -160,7 +160,7 @@
     raw.type = event::type::lmb_up;
     raw.location.x = (float)p.x;
     raw.location.y = (float)p.y;
-    _eventController->send(raw);
+    _eventReceiver->receive(raw);
 }
 
 - (void)rightMouseUp:(NSEvent *)event
@@ -170,7 +170,7 @@
     raw.type = event::type::rmb_up;
     raw.location.x = (float)p.x;
     raw.location.y = (float)p.y;
-    _eventController->send(raw);
+    _eventReceiver->receive(raw);
 }
 
 - (void)mouseMoved:(NSEvent *)event
@@ -180,7 +180,7 @@
     raw.type = event::type::mouse_move;
     raw.location.x = (float)p.x;
     raw.location.y = (float)p.y;
-    _eventController->send(raw);
+    _eventReceiver->receive(raw);
 }
 
 - (void)mouseDragged:(NSEvent *)event
@@ -190,7 +190,7 @@
     raw.type = event::type::mouse_drag;
     raw.location.x = (float)p.x;
     raw.location.y = (float)p.y;
-    _eventController->send(raw);
+    _eventReceiver->receive(raw);
 }
 
 // MARK: - HID

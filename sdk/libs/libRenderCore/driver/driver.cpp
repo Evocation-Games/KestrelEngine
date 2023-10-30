@@ -126,7 +126,7 @@ auto renderer::driver::start_driver(frame_request_callback frame_request) -> voi
     m_render.frame.initialize();
     m_render.frame_request = std::move(frame_request);
 
-    m_api.bindings.delegate.attach_event_controller(m_api.events);
+    m_api.bindings.delegate.attach_event_receiver(m_api.event_receiver);
 
     // Spin up the backend.
     m_api.bindings.core.start([&] {
@@ -217,4 +217,14 @@ auto renderer::driver::device_texture_id(texture::id id) const -> texture::devic
 auto renderer::driver::draw(const renderer::buffer &buffer) const -> void
 {
     m_api.bindings.frame_generation.submit_draw_buffer(buffer);
+}
+
+// MARK: - Events
+
+auto renderer::driver::set_event_receiver(::event::receiver *receiver) -> void
+{
+    m_api.event_receiver = receiver;
+    if (m_api.backend) {
+        m_api.bindings.delegate.attach_event_receiver(receiver);
+    }
 }
