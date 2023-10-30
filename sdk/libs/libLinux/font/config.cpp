@@ -22,7 +22,7 @@
 #include <fontconfig/fontconfig.h>
 #include <stdexcept>
 
-static FcConfig *config = nullptr;
+static FcConfig *s_config = nullptr;
 
 auto gnu_linux::font::config::path_for_best_fit_font(const std::string &font) -> std::string
 {
@@ -36,18 +36,18 @@ auto gnu_linux::font::config::path_for_best_fit_font(const std::string &font) ->
 //    }
 
 // Check if we need to load and configure the font config before proceeding.
-    if (!config) {
-        config = FcInitLoadConfigAndFonts();
+    if (!s_config) {
+        s_config = FcInitLoadConfigAndFonts();
     }
 
 // Build a pattern from the requested font name.
     auto pattern = FcNameParse(reinterpret_cast<const FcChar8*>(font.c_str()));
-    FcConfigSubstitute(config, pattern, FcMatchPattern);
+    FcConfigSubstitute(s_config, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
 
     std::string font_file;
     FcResult result;
-    auto font_ref = FcFontMatch(config, pattern, &result);
+    auto font_ref = FcFontMatch(s_config, pattern, &result);
     if (font_ref) {
         FcChar8* path = NULL;
         if (FcPatternGetString(font_ref, FC_FILE, 0, &path) == FcResultMatch) {
