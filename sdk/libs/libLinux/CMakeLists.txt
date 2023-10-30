@@ -33,3 +33,6 @@ file(GLOB_RECURSE libLinuxSupport_Sources
 
 add_library(LinuxSupport ${libLinuxSupport_Sources})
 target_link_libraries(LinuxSupport fontconfig)
+target_include_directories(LinuxSupport PUBLIC
+    ${PROJECT_SDK_LIBS}
+)
