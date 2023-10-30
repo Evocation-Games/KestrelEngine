@@ -37,7 +37,7 @@ renderer::driver::driver()
 
     // Hook up any events that need to act upon the bindings.
     m_store.texture.when_texture_removed([&] (texture::device_id id) {
-        m_api.bindings.destroy_texture(id);
+        m_api.bindings.texture.destroy(id);
     });
 }
 
@@ -122,12 +122,14 @@ auto renderer::driver::start_driver(frame_request_callback frame_request) -> voi
         throw std::runtime_error("Attempting to start graphics driver, without one loaded.");
     }
 
+    // Hook up any controllers that will respond to notifications from the backend.
     m_render.frame.initialize();
     m_render.frame_request = std::move(frame_request);
 
-    // Spin up the backend.
+    m_api.bindings.delegate.attach_event_controller(m_api.events);
 
-    m_api.bindings.start([&] {
+    // Spin up the backend.
+    m_api.bindings.core.start([&] {
         KESTREL_PROFILE_SCOPE("FRAME TIME");
 
         // Received request for a new frame to be rendered.
@@ -150,7 +152,7 @@ auto renderer::driver::end_frame() -> void
     // to a busy state, and trigger the callback once all work is finished,
     // and which point the frame will be ended.
     m_render.frame.finalize([&] (auto callback) {
-        m_api.bindings.end_frame(std::move(callback));
+        m_api.bindings.frame_generation.finish(std::move(callback));
     });
 }
 
@@ -171,7 +173,7 @@ auto renderer::driver::update_texture(texture::id id, const data::block &data, m
 
     // Communicate with the backend driver, to update the actual texture in GPU memory (if it is live)
     if (info.gpu_live) {
-        m_api.bindings.update_texture(info.handle, info.data);
+        m_api.bindings.texture.update(info.handle, info.data);
     }
 
     m_store.texture.drop_texture(id);
@@ -196,7 +198,7 @@ auto renderer::driver::upload_texture(texture::id id) -> void
             // TODO: Issue a warning here about unnecessary use of GPU Resources.
         }
         // Tell backend to create the texture
-        info.handle = m_api.bindings.create_texture(info.data, info.size);
+        info.handle = m_api.bindings.texture.create(info.data, info.size);
         if (info.handle) {
             info.gpu_live = true;
         }
@@ -214,5 +216,5 @@ auto renderer::driver::device_texture_id(texture::id id) const -> texture::devic
 
 auto renderer::driver::draw(const renderer::buffer &buffer) const -> void
 {
-    m_api.bindings.submit_draw_buffer(buffer);
+    m_api.bindings.frame_generation.submit_draw_buffer(buffer);
 }

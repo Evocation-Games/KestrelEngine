@@ -20,10 +20,17 @@
 
 #pragma once
 
-#include <Cocoa/Cocoa.h>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/event/event_controller.hpp>
+#include <libEvent/event.hpp>
 
-@interface MetalRendererView : NSView
-- (void)attachEventController:(renderer::event::controller *)controller;
-@end
+namespace renderer::event
+{
+    struct controller
+    {
+        controller() = default;
+
+        auto send(::event::instance raw) -> void;
+
+    private:
+
+    };
+}

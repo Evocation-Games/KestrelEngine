@@ -29,6 +29,7 @@
 #include <libOpenGLRenderer/driver/frame_generator.hpp>
 #include <libOpenGLRenderer/driver/context.hpp>
 #include <libOpenGLRenderer/driver/output.hpp>
+#include <libOpenGLRenderer/driver/event_handler.hpp>
 
 #if TARGET_MACOS
 #   include <libMacOS/cocoa/screen.h>
@@ -161,6 +162,9 @@ auto renderer::opengl::driver::configure_main_window() -> void
 
 auto renderer::opengl::driver::configure_device() -> void
 {
+    // Setup event handlers
+    event::receiver::initialize(m_state->opengl.render.main.window());
+
     // Shaders
     install_default_shader();
 }
@@ -176,9 +180,15 @@ auto renderer::opengl::driver::api_info() -> renderer::api_info
 auto renderer::opengl::driver::api_bindings() -> renderer::api::bindings
 {
     api::bindings bindings;
-    bindings.start = [&] (auto frame_request) { start(std::move(frame_request)); };
-    bindings.end_frame = [&] (auto callback) { end_frame(std::move(callback)); };
-    bindings.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
+    // Core
+    bindings.core.start = [&] (auto frame_request) { start(std::move(frame_request)); };
+
+    // Frame Generation
+    bindings.frame_generation.finish = [&] (auto callback) { end_frame(std::move(callback)); };
+    bindings.frame_generation.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
+
+    // Delegation
+    bindings.delegate.attach_event_controller = [&] (auto controller) { event::receiver::attach_controller(&controller); };
     return bindings;
 }
 

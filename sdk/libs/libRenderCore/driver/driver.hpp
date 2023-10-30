@@ -27,6 +27,7 @@
 #include <libRenderCore/driver/display_configuration.hpp>
 #include <libRenderCore/frame/frame.hpp>
 #include <libRenderCore/texture/store.hpp>
+#include <libRenderCore/event/event_controller.hpp>
 #include <libData/block.hpp>
 #include <libMath/types/vec2.hpp>
 #include <libECS/world/world.hpp>
@@ -66,6 +67,7 @@ namespace renderer
             void *backend { nullptr };
             api_info info;
             api::bindings bindings;
+            event::controller events;
         } m_api;
 
         struct {

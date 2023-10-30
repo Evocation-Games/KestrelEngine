@@ -20,10 +20,21 @@
 
 #pragma once
 
-#include <Cocoa/Cocoa.h>
-#include <MetalKit/MetalKit.h>
-#include <libRenderCore/event/event_controller.hpp>
+#include <libEvent/type.hpp>
+#include <libEvent/hid/key.hpp>
 
-@interface MetalRendererView : NSView
-- (void)attachEventController:(renderer::event::controller *)controller;
-@end
+namespace event
+{
+    struct instance
+    {
+        enum type type { type::none };
+        struct {
+            float x { 0 };
+            float y { 0 };
+        } location;
+        struct {
+            enum hid::key pressed { hid::key::unknown };
+            std::int32_t character { '\0' };
+        } key;
+    };
+}

@@ -18,12 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
-
-#include <Cocoa/Cocoa.h>
-#include <MetalKit/MetalKit.h>
 #include <libRenderCore/event/event_controller.hpp>
 
-@interface MetalRendererView : NSView
-- (void)attachEventController:(renderer::event::controller *)controller;
-@end
+// MARK: - Event Sending
+
+auto renderer::event::controller::send(::event::instance raw) -> void
+{
+
+}

@@ -26,6 +26,7 @@
 #include <libFoundation/profile/profiler.hpp>
 #include <libMetalRenderer/driver/driver.hpp>
 #include <libMetalRenderer/cocoa/application.h>
+#include <libMetalRenderer/cocoa/view.h>
 #include <libMetalRenderer/driver/frame_generator.h>
 #include <libMetalRenderer/driver/layer_output.h>
 #include <libMetalRenderer/resource/shader/compiler.h>
@@ -122,15 +123,24 @@ auto renderer::metal::driver::api_info() -> renderer::api_info
 auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
 {
     api::bindings bindings;
-    bindings.start = [&] (auto frame_request) { start(std::move(frame_request)); };
+    // Core
+    bindings.core.start = [&] (auto frame_request) { start(std::move(frame_request)); };
 
-    bindings.set_viewport_title = [&] (auto title) { set_viewport_title(title); };
-    bindings.set_viewport_size = [&] (auto width, auto height) { set_viewport_size(width, height); };
-    bindings.viewport_title = [&] { return viewport_title(); };
-    bindings.viewport_size = [&] { return viewport_size(); };
+    // Configuration
+    bindings.configuration.set_viewport_title = [&] (auto title) { set_viewport_title(title); };
+    bindings.configuration.set_viewport_size = [&] (auto width, auto height) { set_viewport_size(width, height); };
+    bindings.configuration.viewport_title = [&] { return viewport_title(); };
+    bindings.configuration.viewport_size = [&] { return viewport_size(); };
 
-    bindings.end_frame = [&] (auto callback) { end_frame(std::move(callback)); };
-    bindings.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
+    // Frame Generation
+    bindings.frame_generation.finish = [&] (auto callback) { end_frame(std::move(callback)); };
+    bindings.frame_generation.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
+
+    // Delegation
+    bindings.delegate.attach_event_controller = [&] (auto controller) {
+        MetalRendererView *view = m_context->cocoa.default_window.contentView;
+        [view attachEventController:&controller];
+    };
 
     return bindings;
 }

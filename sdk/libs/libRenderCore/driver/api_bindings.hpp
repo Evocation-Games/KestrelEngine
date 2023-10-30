@@ -26,22 +26,37 @@
 #include <libRenderCore/buffer/buffer.hpp>
 #include <libRenderCore/frame/frame.hpp>
 #include <libRenderCore/texture/store.hpp>
+#include <libRenderCore/event/event_controller.hpp>
 #include <libData/block.hpp>
 
 namespace renderer::api
 {
     struct bindings
     {
-        std::function<auto()->void> initialize;
-        std::function<auto(renderer::callback)->void> start;
-        std::function<auto(const std::string&)->void> set_viewport_title;
-        std::function<auto()->std::string> viewport_title;
-        std::function<auto(std::uint32_t, std::uint32_t)->void> set_viewport_size;
-        std::function<auto()->math::vec2> viewport_size;
-        std::function<auto(renderer::callback)->void> end_frame;
-        std::function<auto(const buffer&)->void> submit_draw_buffer;
-        std::function<auto(const data::block&, math::vec2)->texture::device_id> create_texture;
-        std::function<auto(texture::device_id, const data::block&)->void> update_texture;
-        std::function<auto(texture::device_id)->void> destroy_texture;
+        struct {
+            std::function<auto(renderer::callback)->void> start;
+        } core;
+
+        struct {
+            std::function<auto(const std::string&)->void> set_viewport_title;
+            std::function<auto()->std::string> viewport_title;
+            std::function<auto(std::uint32_t, std::uint32_t)->void> set_viewport_size;
+            std::function<auto()->math::vec2> viewport_size;
+        } configuration;
+
+        struct {
+            std::function<auto(const buffer&)->void> submit_draw_buffer;
+            std::function<auto(renderer::callback)->void> finish;
+        } frame_generation;
+
+        struct {
+            std::function<auto(event::controller&)->void> attach_event_controller;
+        } delegate;
+
+        struct {
+            std::function<auto(const data::block&, math::vec2)->texture::device_id> create;
+            std::function<auto(texture::device_id, const data::block&)->void> update;
+            std::function<auto(texture::device_id)->void> destroy;
+        } texture;
     };
 }

@@ -20,10 +20,19 @@
 
 #pragma once
 
-#include <Cocoa/Cocoa.h>
-#include <MetalKit/MetalKit.h>
+#include <libOpenGLRenderer/opengl.hpp>
 #include <libRenderCore/event/event_controller.hpp>
 
-@interface MetalRendererView : NSView
-- (void)attachEventController:(renderer::event::controller *)controller;
-@end
+namespace renderer::opengl::event::receiver
+{
+    auto initialize(GLFWwindow *main_window) -> void;
+    auto attach_controller(renderer::event::controller *controller) -> void;
+
+    auto character_typed(GLFWwindow *window, std::uint32_t c) -> void;
+    auto key(GLFWwindow *window, std::int32_t code, std::int32_t scancode, std::int32_t action, std::int32_t modifiers) -> void;
+    auto mouse_moved(GLFWwindow *window, double x, double y) -> void;
+    auto mouse_button(GLFWwindow *window, std::int32_t button, std::int32_t action, std::int32_t modifiers) -> void;
+
+    auto map_keycode(std::int32_t scancode) -> ::event::hid::key;
+    auto map_modifiers(std::int32_t modifiers) -> ::event::type;
+}
