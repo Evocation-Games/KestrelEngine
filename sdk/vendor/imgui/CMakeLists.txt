@@ -36,7 +36,6 @@ set(ImGUI_SOURCES
     "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_glfw.cpp"
     "${PROJECT_SUBMODULE_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
     "${PROJECT_SUBMODULE_DIR}/imgui/misc/freetype/imgui_freetype.cpp"
-    "${PROJECT_SUBMODULE_DIR}/ImGuiColorTextEdit/TextEditor.cpp"
 )
 
 if (APPLE)
@@ -54,7 +53,6 @@ add_library(ImGUI STATIC ${ImGUI_SOURCES})
 target_compile_definitions(ImGUI PUBLIC -DIMGUI_ENABLE_FREETYPE)
 target_include_directories(ImGUI PUBLIC
     "${PROJECT_SUBMODULE_DIR}/imgui"
-    "${PROJECT_SUBMODULE_DIR}/ImGuiColorTextEdit"
     "${PROJECT_SUBMODULE_DIR}/glfw/include"
     ${ImGUI_FREETYPE_INCLUDES}
 )

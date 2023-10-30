@@ -32,7 +32,6 @@
 #include <libKestrel/ui/imgui/table.hpp>
 #include <libKestrel/ui/imgui/box.hpp>
 #include <libKestrel/ui/imgui/textarea.hpp>
-#include <libKestrel/ui/imgui/codeeditor.hpp>
 #include <libKestrel/ui/imgui/scrollarea.hpp>
 
 // MARK: - Drawing
@@ -85,9 +84,6 @@ auto kestrel::ui::imgui::widget_container::draw() -> void
         }
         else if (lua::ref_isa<textarea>(widget)) {
             widget.cast<textarea::lua_reference>()->draw();
-        }
-        else if (lua::ref_isa<code_editor>(widget)) {
-            widget.cast<code_editor::lua_reference>()->draw();
         }
         else if (lua::ref_isa<scrollarea>(widget)) {
             widget.cast<scrollarea::lua_reference>()->draw();

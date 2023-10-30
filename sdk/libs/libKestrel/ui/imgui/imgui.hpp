@@ -36,5 +36,4 @@
 #include <libKestrel/ui/imgui/textfield.hpp>
 #include <libKestrel/ui/imgui/window.hpp>
 #include <libKestrel/ui/imgui/style.hpp>
-#include <libKestrel/ui/imgui/codeeditor.hpp>
 #include <libKestrel/ui/imgui/scrollarea.hpp>
