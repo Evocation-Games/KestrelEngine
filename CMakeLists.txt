@@ -28,6 +28,7 @@ endif()
 ## Kestrel Game Engine Project Configuration
 project(KestrelGameEngine LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -std=c++20")
 
 set(KESTREL_PLAYER_NAME "Kestrel" CACHE STRING "Kestrel Package Name")
 set(KESTREL_PLAYER_BIN_NAME "kestrel" CACHE STRING "Kestrel Binary Name")

@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <functional>
 
 namespace foundation::profiler
 {
