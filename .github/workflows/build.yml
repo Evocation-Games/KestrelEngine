@@ -184,7 +184,6 @@ jobs:
             mingw-w64-${{ matrix.env.arch }}-glew
             mingw-w64-${{ matrix.env.arch }}-freetype
             mingw-w64-${{ matrix.env.arch }}-glfw
-            mingw-w64-clang-${{ matrix.env.arch }}-libc++
       - name: Fetch Submodules
         run: |
           git submodule update --init --recursive
