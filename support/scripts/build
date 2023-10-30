@@ -80,6 +80,10 @@ for ARG in "$@"; do
       BUILD_NUMBER="${ARGV*=}"
       shift
       ;;
+    --chrono-fix)
+      CHRONO_FIX_OPTIONS="-DCMAKE_CXX_COMPILER=clang++-17"
+      shift
+      ;;
   esac
 done
 
@@ -96,5 +100,6 @@ cmake -DKESTREL_NAME="$NAME" \
         -DKESTREL_ICON_PATH="$ICON" \
         -DCMAKE_BUILD_TYPE="$BUILD" \
         -DKESTREL_BUILD_NUMBER="$BUILD_NUMBER" \
+        $CHRONO_FIX_OPTIONS \
         -H. -Bbuild
 cmake --build build -- -j$J

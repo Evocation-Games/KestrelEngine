@@ -23,7 +23,6 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends build-essential
           sudo apt-get install -y -q --no-install-recommends cmake
           sudo apt-get install -y -q --no-install-recommends wget
-          sudo apt-get install -y -q --no-install-recommends clang-15
           sudo apt-get install -y -q --no-install-recommends libxrandr-dev
           sudo apt-get install -y -q --no-install-recommends libxinerama-dev
           sudo apt-get install -y -q --no-install-recommends libxcursor-dev
@@ -36,6 +35,11 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends libfontconfig-dev
           sudo apt-get install -y -q --no-install-recommends llvm-14-dev
           sudo apt-get install -y -q --no-install-recommends libclang-14-dev
+      - name: Install newer Clang
+        run: |
+         wget https://apt.llvm.org/llvm.sh
+         chmod +x ./llvm.sh
+         sudo ./llvm.sh 17
       - name: Download AppImageTool
         run: |
           mkdir -p build
@@ -51,7 +55,7 @@ jobs:
           CC: ${{ matrix.env.CC }}
           CXX: ${{ matrix.env.CXX }}
         run: |
-          support/scripts/build
+          support/scripts/build --chrono-fix
           support/scripts/install
       - name: Tar Files (Kestrel Engine)
         run: |
