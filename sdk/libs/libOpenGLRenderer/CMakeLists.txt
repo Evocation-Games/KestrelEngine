@@ -58,7 +58,7 @@ elseif(LINUX)
         ${GLEW_LIBRARIES} glfw
     )
 
-elseif(WINDOWS)
+elseif(WIN32)
     find_package(GLEW REQUIRED)
     find_package(glfw3 REQUIRED)
 
