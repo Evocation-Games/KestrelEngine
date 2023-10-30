@@ -33,7 +33,7 @@ file(GLOB_RECURSE Benchmarking_Sources
 )
 
 add_executable(Benchmarking ${Benchmarking_Sources})
-target_compile_definitions(Benchmarking PRIVATE "KESTREL_PROFILING_ENABLED=1")
+target_compile_definitions(Benchmarking PRIVATE "KESTREL_PROFILER_ENABLED=1")
 target_include_directories(Benchmarking PUBLIC
     ${PROJECT_SDK_LIBS}
     ${PROJECT_SDK_BIN}/benchmarking
