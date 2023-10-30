@@ -111,7 +111,7 @@ namespace math
         [[nodiscard]] auto distance_to(vec2 v) const -> float
         {
             auto xx = (v.m_value - m_value).pow(2);
-            return std::sqrtf((xx + xx.reversed())[0]);
+            return ::sqrtf((xx + xx.reversed())[0]);
         }
 
         [[nodiscard]] auto unit() const -> vec2

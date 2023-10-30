@@ -222,9 +222,6 @@ auto renderer::opengl::driver::start(renderer::callback frame_request_callback) 
 
     // Enter a running loop to keep the session alive.
     while (true) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(100us);
-
 #if USE_OFFSCREEN_RENDERING
         // Render the latest texture from the frame generator to the main viewport.
         m_state->opengl.render.resource_lock.lock();
@@ -284,10 +281,7 @@ auto renderer::opengl::driver::dispatch_render_thread() -> void
 auto renderer::opengl::driver::render_job() -> void
 {
     while (!m_state->opengl.render.should_terminate) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(50us);
         m_state->opengl.render.generator.wait_for_ready();
-
         m_state->opengl.render.resource_lock.lock();
         m_state->opengl.render.background.make_current();
         m_state->opengl.render.frame_request();

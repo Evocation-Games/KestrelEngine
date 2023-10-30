@@ -24,6 +24,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <unordered_map>
 #include <libRenderCore/texture/info.hpp>
 #include <libRenderCore/texture/id.hpp>
 
