@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include <thread>
-#include <chrono>
 #include <libRenderCore/driver/driver.hpp>
 #include <libFoundation/availability.hpp>
 
