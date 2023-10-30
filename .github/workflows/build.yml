@@ -23,7 +23,7 @@ jobs:
           sudo apt-get install -y -q --no-install-recommends build-essential
           sudo apt-get install -y -q --no-install-recommends cmake
           sudo apt-get install -y -q --no-install-recommends wget
-          sudo apt-get install -y -q --no-install-recommends clang++-10
+          sudo apt-get install -y -q --no-install-recommends clang-15
           sudo apt-get install -y -q --no-install-recommends libxrandr-dev
           sudo apt-get install -y -q --no-install-recommends libxinerama-dev
           sudo apt-get install -y -q --no-install-recommends libxcursor-dev
