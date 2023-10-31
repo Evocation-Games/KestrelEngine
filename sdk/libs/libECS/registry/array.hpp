@@ -35,7 +35,7 @@ namespace ecs::component
     template<typename T>
     struct array : any_array
     {
-        explicit array(std::size_t capacity = 1'000'000) { expand(capacity); }
+        explicit array(std::size_t capacity = 2'000'000) { expand(capacity); }
 
         auto insert(ecs::entity entity, T component) -> void
         {

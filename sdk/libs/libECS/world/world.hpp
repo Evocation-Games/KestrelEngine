@@ -27,7 +27,7 @@
 #include <libFoundation/profile/profiler.hpp>
 
 #if !defined(ECS_MAX_ENTITY_COUNT)
-#   define ECS_MAX_ENTITY_COUNT     1'000'000
+#   define ECS_MAX_ENTITY_COUNT     2'000'000
 #endif
 
 namespace ecs
