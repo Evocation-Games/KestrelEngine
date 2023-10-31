@@ -87,6 +87,14 @@ auto renderer::buffer::can_accept_texture(texture::id id) const -> bool
     return true;
 }
 
+auto renderer::buffer::can_accept_texture(const component::texturing *texture) const -> bool
+{
+    if (texture && (m_texture_slots.ids.size() >= m_texture_slots.max_texture_slots)) {
+        return false;
+    }
+    return true;
+}
+
 auto renderer::buffer::bind_texture(texture::id id, texture::device_id dev) -> buffer::texture_slot
 {
     auto it = std::find(m_texture_slots.ids.begin(), m_texture_slots.ids.end(), id);

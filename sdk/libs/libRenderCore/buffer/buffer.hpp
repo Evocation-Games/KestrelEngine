@@ -27,6 +27,7 @@
 #include <libRenderCore/texture/id.hpp>
 #include <libRenderCore/texture/store.hpp>
 #include <libRenderCore/shader/program.hpp>
+#include <libRenderCore/components/texturing.hpp>
 
 #if !defined(RENDERER_MAX_VERTEX_COUNT)
 #   define RENDERER_MAX_VERTEX_COUNT    6'000'000
@@ -67,6 +68,7 @@ namespace renderer
         auto next_vertex() -> vertex&;
 
         [[nodiscard]] auto can_accept_texture(texture::id id) const -> bool;
+        [[nodiscard]] auto can_accept_texture(const component::texturing *texture) const -> bool;
         [[nodiscard]] auto texture_for_slot(buffer::texture_slot slot) const -> texture::id;
         [[nodiscard]] auto device_texture_for_slot(buffer::texture_slot slot) const -> texture::device_id;
         auto bind_texture(texture::id id, texture::device_id dev) -> buffer::texture_slot;

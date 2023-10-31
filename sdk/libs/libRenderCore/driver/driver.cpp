@@ -143,7 +143,7 @@ auto renderer::driver::start_driver(frame_request_callback frame_request) -> voi
 
 auto renderer::driver::start_frame() -> void
 {
-    m_render.frame.begin();
+    m_render.frame.begin({ (float)m_config.display.output_width(), (float)m_config.display.output_height() });
 }
 
 auto renderer::driver::end_frame() -> void

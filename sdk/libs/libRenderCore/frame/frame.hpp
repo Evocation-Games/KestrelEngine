@@ -44,7 +44,7 @@ namespace renderer
 
         auto initialize() -> void;
 
-        auto begin() -> frame&;
+        auto begin(math::vec2 bounds) -> frame&;
         auto finalize(std::function<auto(std::function<auto()->void>)->void> callback) -> void;
 
         auto draw(ecs::entity entity, const ecs::world *world) -> void;
@@ -61,10 +61,17 @@ namespace renderer
         static auto color_quad(quad& q, const component::drawable *drawable) -> void;
         static auto texture_quad(quad& q, buffer::texture_slot slot, const component::texturing *texturing) -> void;
 
+        auto sort_entities() -> void;
         auto submit_buffer() -> void;
 
     private:
         enum state { READY, PREPARING, SUBMITTED, WORKING, TERMINATED };
+
+        struct {
+            std::vector<std::pair<ecs::entity, const ecs::world *>> entities;
+            std::uint64_t index { 0 };
+            std::size_t count { 0 };
+        } m_unsorted;
 
         struct {
             const renderer::driver *driver;

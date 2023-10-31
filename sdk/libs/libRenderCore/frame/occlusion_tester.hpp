@@ -33,7 +33,6 @@ namespace renderer
 
         auto test(math::geometry::rect bounds, texture::id texture, bool full_occlusion = false) -> bool
         {
-            return true;
             // TODO: This is a VERY naive approach to occlusion for 2d sprites. However it works for now.
             // Determine the geometry and test existing samples to see if we have the same
             // geometry. If we don't, then add the geometry to the samples and return true.
