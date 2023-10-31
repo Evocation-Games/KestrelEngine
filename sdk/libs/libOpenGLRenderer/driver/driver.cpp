@@ -19,7 +19,6 @@
 // SOFTWARE.
 
 #include <iostream>
-#include <mutex>
 #include <stdexcept>
 #include <unordered_map>
 #include <libOpenGLRenderer/driver/driver.hpp>
@@ -32,6 +31,7 @@
 #include <libOpenGLRenderer/driver/output.hpp>
 #include <libOpenGLRenderer/driver/event_handler.hpp>
 #include <libOpenGLRenderer/resource/texture.hpp>
+#include <libFoundation/system/task/spin.hpp>
 
 #if TARGET_MACOS
 #   include <libMacOS/cocoa/screen.h>
@@ -63,7 +63,7 @@ namespace renderer::opengl
                 std::thread runner;
                 frame_generator generator;
                 bool should_terminate { false };
-                std::mutex resource_lock;
+                foundation::task::spin_lock resource_lock;
             } render;
 
             struct {
