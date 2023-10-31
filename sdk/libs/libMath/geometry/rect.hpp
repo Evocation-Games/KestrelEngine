@@ -47,6 +47,9 @@ namespace math::geometry
         [[nodiscard]] inline auto max_x() const -> float { return x() + width(); }
         [[nodiscard]] inline auto max_y() const -> float { return y() + height(); }
 
+        inline auto set_x(float x) -> void { m_value.set(0, x); }
+        inline auto set_y(float y) -> void { m_value.set(1, y); }
+
         [[nodiscard]] inline auto area() const -> float { return width() * height(); }
 
         [[nodiscard]] inline auto add_origin(vec2 o) const -> rect { return { origin() + o, size() }; }
@@ -74,9 +77,9 @@ namespace math::geometry
         [[nodiscard]] inline auto intersects(rect r) const -> bool
         {
             auto r1 = simd::float32::lower_upper_merge(m_value.lower(), m_value.upper() + m_value.lower().swapped());
-            auto r2 = simd::float32::lower_upper_merge(m_value.lower(), m_value.upper() + m_value.lower().swapped());
+            auto r2 = simd::float32::lower_upper_merge(r.m_value.lower(), r.m_value.upper() + r.m_value.lower().swapped());
             auto rr = r2 - r1;
-            return (rr[0] >= 0) && (rr[1] <= 0) && (rr[2] >= 0) && (rr[3] <= 0);
+            return (rr[0] >= 0) && (rr[1] >= 0) && (rr[2] <= 0) && (rr[3] <= 0);
         }
 
         [[nodiscard]] inline auto contains(rect r) const -> bool
