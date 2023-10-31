@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 #include <iostream>
-#include <chrono>
+#include <random>
 #include <libRenderCore/driver/driver.hpp>
 #include <libECS/world/world.hpp>
 #include <libRenderCore/components/drawable.hpp>
@@ -27,16 +27,25 @@
 #include <libFoundation/system/filesystem/path.hpp>
 #include <libImage/codecs/png/png.hpp>
 
+static std::random_device s_random_device;
+static std::mt19937_64 s_engine(s_random_device());
+static std::uniform_real_distribution<float> s_uniform_distribution(0, 1);
+
 struct render_test: public event::receiver
 {
     render_test() = default;
 
+    static auto random() -> float
+    {
+        return s_uniform_distribution(s_engine);
+    }
+
     auto start() -> void
     {
-        setup_ecs();
-        setup_renderer();
         std::cout << "Using driver: " << m_driver.driver_name() << std::endl;
         std::cout << "GPU: " << m_driver.gpu_name() << std::endl;
+        setup_ecs();
+        setup_renderer();
     }
 
     auto setup_renderer() -> void
@@ -54,29 +63,39 @@ struct render_test: public event::receiver
        m_world.register_component<renderer::component::texturing>();
 
         // Create 10 entities (identical squares)
-        for (auto i = 0; i < m_entity_count; ++i) {
+        for (auto i = 0; i < m_square_entity_count; ++i) {
             auto entity = m_world.create_entity();
             renderer::component::drawable drawable;
-            drawable.color = math::vec4(1.0, 0, 0, 1.0);
+            drawable.color = math::vec4(random(), random(), random(), 1.0);
             drawable.visible = true;
-            drawable.frame = math::geometry::rect({ 100, 100 }, { 100, 100 });
+            drawable.frame = math::geometry::rect({ random() * 1280, random() * 720 }, { 100, 100 });
             m_world.add_component<renderer::component::drawable>(entity, drawable);
         }
 
         // Create 10 identical pentagons
         auto texture = m_driver.create_texture(load_image_asset("pentagon"), { 100, 100 });
-        for (auto i = 0; i < m_entity_count; ++i) {
+        for (auto i = 0; i < m_pentagon_entity_count; ++i) {
             auto entity = m_world.create_entity();
             renderer::component::drawable drawable;
-            drawable.color = math::vec4(1.0, 1.0, 1.0, 1.0);
+            drawable.color = math::vec4(random(), random(), random(), 1.0);
             drawable.visible = true;
-            drawable.frame = math::geometry::rect({ 300, 100 }, { 100, 100 });
+            drawable.frame = math::geometry::rect({ random() * 1280, random() * 720 }, { 100, 100 });
 
             renderer::component::texturing texturing;
             texturing.texture = texture;
 
             m_world.add_component<renderer::component::drawable>(entity, drawable);
             m_world.add_component<renderer::component::texturing>(entity, texturing);
+        }
+
+        // Many components that are outside of the camera view.
+        for (auto i = 0; i < m_mass_entity_count; ++i) {
+            auto entity = m_world.create_entity();
+            renderer::component::drawable drawable;
+            drawable.color = math::vec4(random(), random(), random(), 1.0);
+            drawable.visible = true;
+            drawable.frame = math::geometry::rect({ -100 - (random() * 1280), random() * 720 }, { 100, 100 });
+            m_world.add_component<renderer::component::drawable>(entity, drawable);
         }
     }
 
@@ -88,9 +107,12 @@ struct render_test: public event::receiver
     auto generate_frame(renderer::frame& frame) -> void
     {
         KESTREL_PROFILE_FUNCTION();
-        for (auto i = 20; i > 0; --i) {
+        for (auto i = m_square_entity_count + m_pentagon_entity_count + m_mass_entity_count; i > 0; --i) {
             frame.draw(i - 1, &m_world);
         }
+
+        auto drawable = m_world.component<renderer::component::drawable>(0);
+        drawable->frame.set_x(drawable->frame.x() + 1);
     }
 
     auto load_image_asset(const std::string& name) -> data::block
@@ -105,7 +127,9 @@ private:
     renderer::display_configuration m_cfg;
     renderer::driver m_driver;
     ecs::world m_world;
-    std::uint64_t m_entity_count { 10 };
+    std::uint64_t m_square_entity_count { 10 };
+    std::uint64_t m_pentagon_entity_count { 10 };
+    std::uint64_t m_mass_entity_count { 1'000'000 };
 };
 
 auto main(std::int32_t argc, const char **argv) -> std::int32_t
