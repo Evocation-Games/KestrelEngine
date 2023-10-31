@@ -22,6 +22,7 @@
 #include <vector>
 #include <thread>
 #include <MetalKit/MetalKit.h>
+#include <libFoundation/availability.hpp>
 #include <libMacOS/cocoa/string.h>
 #include <libFoundation/profile/profiler.hpp>
 #include <libMetalRenderer/driver/driver.hpp>
@@ -46,6 +47,10 @@ namespace renderer::metal
             math::vec2 viewport_size;
             layer_output layer;
             MTLPixelFormat pixel_format { 0 };
+
+            struct {
+                event::receiver *event_receiver { nullptr };
+            } tempoary;
 
             struct {
                 renderer::callback frame_request;
@@ -145,7 +150,10 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
     // Delegation
     bindings.delegate.attach_event_receiver = [&] (auto *receiver) {
         MetalRendererView *view = m_context->cocoa.default_window.contentView;
-        [view attachEventReceiver:receiver];
+        if (view) {
+            [view attachEventReceiver:receiver];
+        }
+        m_context->metal.tempoary.event_receiver = receiver;
     };
 
     return bindings;
@@ -164,6 +172,8 @@ auto renderer::metal::driver::start(renderer::callback frame_request_callback) -
         m_context->cocoa.default_window = [app createWindowWithTitle:@"Metal" size:CGSizeMake(
             m_config.output_width(), m_config.output_height()
         )];
+        MetalRendererView *view = m_context->cocoa.default_window.contentView;
+        [view attachEventReceiver:m_context->metal.tempoary.event_receiver];
 
         // Configure the device
         configure_device();
@@ -377,6 +387,9 @@ auto renderer::metal::driver::create_texture(const data::block &data, math::vec2
     tx.descriptor.mipmapLevelCount = 1;
     tx.descriptor.width = (NSUInteger)size.x();
     tx.descriptor.height = (NSUInteger)size.y();
+#if TARGET_MACOS_APPLE_SILICON
+    tx.descriptor.storageMode = MTLStorageModeShared;
+#endif
 
     tx.region = MTLRegionMake2D(0, 0, tx.descriptor.width, tx.descriptor.height);
     tx.region.origin.z = 0;

@@ -23,31 +23,35 @@
 #if (_WIN32 || _WIN64)
 #   define TARGET_WINDOWS               true
 #else
-#   define TARGET_WINDOWS               false
+#   define TARGET_WINDOWS                   false
 #endif
 
 #if (__linux)
 #   define TARGET_LINUX                 true
 #else
-#   define TARGET_LINUX                 false
+#   define TARGET_LINUX                     false
 #endif
 
 #if (__APPLE__)
-#   define TARGET_MACOS                 true
+#   define TARGET_MACOS                     true
 #   if (__arm64__ || __arm64)
-#       define TARGET_MACOS_M1          true
-#       define TARGET_MACOS_INTEL       false
+#       define TARGET_MACOS_M1              true
+#       define TARGET_MACOS_APPLE_SILICON   true
+#       define TARGET_MACOS_INTEL           false
 #   elif (__x86_64__)
-#       define TARGET_MACOS_M1          false
-#       define TARGET_MACOS_INTEL       true
+#       define TARGET_MACOS_M1              false
+#       define TARGET_MACOS_APPLE_SILICON   false
+#       define TARGET_MACOS_INTEL           true
 #   else
-#       define TARGET_MACOS_M1          false
-#       define TARGET_MACOS_INTEL       false
+#       define TARGET_MACOS_M1              false
+#       define TARGET_MACOS_APPLE_SILICON   false
+#       define TARGET_MACOS_INTEL           false
 #   endif
 #else
-#   define TARGET_MACOS                 false
-#   define TARGET_MACOS_M1              false
-#   define TARGET_MACOS_INTEL           false
+#   define TARGET_MACOS                     false
+#   define TARGET_MACOS_M1                  false
+#   define TARGET_MACOS_APPLE_SILICON       false
+#   define TARGET_MACOS_INTEL               false
 #endif
 
 #define API_VERSION(...)           /* (_version) */

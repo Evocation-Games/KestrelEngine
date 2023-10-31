@@ -106,7 +106,7 @@ auto kestrel::renderer::api_name() -> std::string
 {
     switch (s_renderer_api.api) {
         case api::opengl: {
-#if TARGET_MACOS_M1
+#if TARGET_MACOS_APPLE_SILICON
             return "OpenGL (macOS Apple Silicon)";
 #elif TARGET_MACOS
             return "OpenGL (macOS Intel)";
@@ -117,7 +117,7 @@ auto kestrel::renderer::api_name() -> std::string
 #endif
         }
         case api::metal: {
-#if TARGET_MACOS_M1
+#if TARGET_MACOS_APPLE_SILICON
             return "Metal (Apple Silicon)";
 #elif TARGET_MACOS
             return "Metal (Intel)";
