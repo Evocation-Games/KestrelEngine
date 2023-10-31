@@ -75,7 +75,6 @@ if (APPLE)
         "-framework IOKit"
         "-framework GameController"
         "-framework Quartz"
-        objc
         glfw
         freetype
     )

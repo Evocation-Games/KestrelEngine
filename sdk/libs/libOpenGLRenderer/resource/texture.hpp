@@ -20,17 +20,22 @@
 
 #pragma once
 
-#include <libRenderCore/texture/store.hpp>
-#include <MetalKit/MetalKit.h>
-#include <Metal/Metal.h>
+#include <libOpenGLRenderer/resource/texture.hpp>
 
-namespace renderer::metal
+namespace renderer::opengl
 {
     struct texture
     {
         renderer::texture::device_id device_id { 0 };
-        MTLRegion region { 0 };
-        id<MTLTexture> handle { nil };
-        MTLTextureDescriptor *descriptor { nil };
+        GLuint handle { 0 };
+        GLuint internal_format { GL_RGBA };
+        GLuint image_format { GL_RGBA };
+        GLuint wrap_s { GL_REPEAT };
+        GLuint wrap_t { GL_REPEAT };
+        GLuint filter_min { GL_NEAREST };
+        GLuint filter_mag { GL_NEAREST };
+        GLsizei width { 0 };
+        GLsizei height { 0 };
+        bool uploaded { false };
     };
 }

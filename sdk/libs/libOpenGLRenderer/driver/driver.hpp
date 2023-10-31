@@ -59,6 +59,10 @@ namespace renderer::opengl
         [[nodiscard]] auto shader_program_named(const std::string& name) const -> shader::program;
         auto install_default_shader() -> shader::program;
 
+        auto create_texture(const data::block& data, math::vec2 size) -> texture::device_id;
+        auto update_texture(texture::device_id id, const data::block& data) -> void;
+        auto destroy_texture(texture::device_id id) -> void;
+
         auto end_frame(renderer::callback cb) -> void;
         auto draw(const buffer& buffer) -> void;
 

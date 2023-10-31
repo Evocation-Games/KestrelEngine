@@ -30,6 +30,7 @@
 #include <libOpenGLRenderer/driver/context.hpp>
 #include <libOpenGLRenderer/driver/output.hpp>
 #include <libOpenGLRenderer/driver/event_handler.hpp>
+#include <libOpenGLRenderer/resource/texture.hpp>
 
 #if TARGET_MACOS
 #   include <libMacOS/cocoa/screen.h>
@@ -75,6 +76,11 @@ namespace renderer::opengl
                 std::uint64_t default_id { 0 };
                 std::unordered_map<std::uint64_t, resource::shader::program> programs;
             } shader;
+
+            struct {
+                std::uint64_t next_id { 0 };
+                std::unordered_map<std::uint64_t, texture> map;
+            } textures;
         } opengl;
     };
 }
@@ -183,9 +189,16 @@ auto renderer::opengl::driver::api_bindings() -> renderer::api::bindings
     // Core
     bindings.core.start = [&] (auto frame_request) { start(std::move(frame_request)); };
 
+    // Configuration
+
     // Frame Generation
     bindings.frame_generation.finish = [&] (auto callback) { end_frame(std::move(callback)); };
     bindings.frame_generation.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
+
+    // Textures
+    bindings.texture.create = [&] (const auto& data, auto size) { return create_texture(data, size); };
+    bindings.texture.update = [&] (auto id, const auto& data) { update_texture(id, data); };
+    bindings.texture.destroy = [&] (auto id) { destroy_texture(id); };
 
     // Delegation
     bindings.delegate.attach_event_receiver = [&] (auto *receiver) { event::receiver::attach_receiver(receiver); };
@@ -339,4 +352,53 @@ auto renderer::opengl::driver::draw(const renderer::buffer &buffer) -> void
 
     const auto& shader = m_state->opengl.shader.programs.at(m_state->opengl.shader.default_id);
     m_state->opengl.render.generator.current_operation().submit(buffer, textures, shader);
+}
+
+// MARK: - Texture Management
+
+auto renderer::opengl::driver::create_texture(const data::block &data, math::vec2 size) -> renderer::texture::device_id
+{
+    opengl::texture texture;
+    texture.device_id = m_state->opengl.textures.next_id++;
+    texture.width = (GLsizei)size.x();
+    texture.height = (GLsizei)size.y();
+
+    // Acquire an ID for the texture...
+    glGenTextures(1, &texture.handle);
+
+    // Configure the texture
+    glBindTexture(GL_TEXTURE_2D, texture.handle);
+    glTexImage2D(GL_TEXTURE_2D, 0, texture.internal_format, texture.width, texture.height, 0, texture.image_format, GL_UNSIGNED_BYTE, data.get<void *>());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrap_s);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texture.wrap_t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.filter_min);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.filter_mag);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    texture.uploaded = true;
+
+    // Store the texture, and get a fixed ID.
+    m_state->opengl.textures.map.insert({ texture.device_id, texture });
+    return texture.device_id;
+}
+
+auto renderer::opengl::driver::update_texture(renderer::texture::device_id id, const data::block &data) -> void
+{
+    auto it = m_state->opengl.textures.map.find(id);
+    if (it != m_state->opengl.textures.map.end()) {
+        auto& texture = it->second;
+        glBindTexture(GL_TEXTURE_2D, texture.handle);
+        glTexImage2D(GL_TEXTURE_2D, 0, texture.internal_format, texture.width, texture.height, 0, texture.image_format, GL_UNSIGNED_BYTE, data.get<void *>());
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+auto renderer::opengl::driver::destroy_texture(renderer::texture::device_id id) -> void
+{
+    auto it = m_state->opengl.textures.map.find(id);
+    if (it != m_state->opengl.textures.map.end()) {
+        GLuint textures[] = { it->second.handle };
+        glDeleteTextures(1, textures);
+        m_state->opengl.textures.map.erase(it);
+    }
 }

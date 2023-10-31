@@ -136,6 +136,11 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
     bindings.frame_generation.finish = [&] (auto callback) { end_frame(std::move(callback)); };
     bindings.frame_generation.submit_draw_buffer = [&] (const auto& buffer) { draw(buffer); };
 
+    // Textures
+    bindings.texture.create = [&] (const auto& data, auto size) { return create_texture(data, size); };
+    bindings.texture.update = [&] (auto id, const auto& data) { update_texture(id, data); };
+    bindings.texture.destroy = [&] (auto id) { destroy_texture(id); };
+
     // Delegation
     bindings.delegate.attach_event_receiver = [&] (auto *receiver) {
         MetalRendererView *view = m_context->cocoa.default_window.contentView;

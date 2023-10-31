@@ -42,7 +42,7 @@ target_link_libraries(MetalRenderer
         "-framework Quartz"
         "-framework AVFoundation"
         "-framework IOKit"
-        objc Data MacOSSupport
+        Data MacOSSupport
 )
 target_include_directories(MetalRenderer PUBLIC
     ${PROJECT_SDK_LIBS}
