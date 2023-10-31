@@ -28,7 +28,7 @@ namespace renderer::component
     struct texturing
     {
         texture::id texture;
-        math::vec2 uv_origin;
-        math::vec2 uv_size;
+        math::vec2 uv_origin { 0, 0 };
+        math::vec2 uv_size { 1, 1 };
     };
 }

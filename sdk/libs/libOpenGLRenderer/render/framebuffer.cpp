@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <libOpenGLRenderer/render/framebuffer.hpp>
 #include <libFoundation/profile/profiler.hpp>
 #include <libOpenGLRenderer/render/vertex_buffer.hpp>
@@ -45,6 +46,7 @@ auto renderer::opengl::framebuffer::prepare() -> void
     glBindFramebuffer(GL_FRAMEBUFFER, m_buffer.id);
 
     glGenTextures(1, &m_output.texture);
+    std::cout << "Create framebuffer (" << m_buffer.id << ", texture = " << m_output.texture << ")" << std::endl;
     glBindTexture(GL_TEXTURE_2D, m_output.texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)m_viewport.width, (GLsizei)m_viewport.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -75,6 +77,13 @@ auto renderer::opengl::framebuffer::render(const renderer::opengl::render_operat
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    GLint texture_slots[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+        30, 31
+    };
+
     for (const auto& command : job.commands()) {
         glUseProgram((GLuint)command.shader->uid());
 
@@ -82,7 +91,7 @@ auto renderer::opengl::framebuffer::render(const renderer::opengl::render_operat
         auto projection_location = glGetUniformLocation((GLuint)command.shader->uid(), "u_projection");
         auto texture_count = glGetUniformLocation((GLuint)command.shader->uid(), "u_texture_count");
         glUniform1f(texture_count, (float)command.texture_count);
-        glUniform1iv(textures_location, (GLsizei)command.texture_count, (GLint *)&command.textures[0]);
+        glUniform1iv(textures_location, (GLsizei)command.texture_count, texture_slots);
         glUniformMatrix4fv(projection_location, 1, false, glm::value_ptr(m_viewport.projection));
 
         for (auto i = 0; i < command.texture_count; ++i) {

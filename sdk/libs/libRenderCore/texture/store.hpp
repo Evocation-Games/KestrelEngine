@@ -44,16 +44,18 @@ namespace renderer::texture
         auto when_texture_removed(std::function<auto(texture::device_id)->void> callback) -> void;
 
         [[nodiscard]] inline auto is_full() const -> bool { return m_textures.size() >= m_max_textures; }
+        [[nodiscard]] inline auto aquire_new_id() -> texture::id { return m_next_id++; }
 
         [[nodiscard]] auto create_texture(texture::id id) -> texture::info&;
         [[nodiscard]] auto has_texture(texture::id id) const -> bool;
         auto get_texture(texture::id id) -> texture::info&;
-        auto get_texture_temporary(texture::id id) const -> const texture::info&;
+        [[nodiscard]] auto get_texture_temporary(texture::id id) const -> const texture::info&;
         auto drop_texture(texture::id id) -> void;
 
         auto purge_unused_textures() -> bool;
 
     private:
+        texture::id m_next_id { 1 };
         std::size_t m_max_textures;
         std::unordered_map<texture::id, texture::info> m_textures;
         std::set<texture::id> m_unused;

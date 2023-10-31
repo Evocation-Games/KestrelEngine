@@ -33,6 +33,7 @@
 renderer::driver::driver()
 {
     initialize_backend_driver();
+    m_api.bindings.core.initialize();
 
     // Hook up any events that need to act upon the bindings.
     m_store.texture.when_texture_removed([&] (texture::device_id id) {
@@ -157,12 +158,18 @@ auto renderer::driver::end_frame() -> void
 
 // MARK: - Texture Management
 
-auto renderer::driver::create_texture(texture::id id, const data::block &data, math::vec2 size) -> bool
+auto renderer::driver::create_texture(const data::block &data, math::vec2 size) -> texture::id
 {
-    return update_texture(id, data, size);
+    auto id = m_store.texture.aquire_new_id();
+    auto info = m_store.texture.create_texture(id);
+    info.handle = m_api.bindings.texture.create(data, size);
+    info.size = size;
+    info.gpu_live = true;
+    info.use_count = 1;
+    return id;
 }
 
-auto renderer::driver::update_texture(texture::id id, const data::block &data, math::vec2 size) -> bool
+auto renderer::driver::update_texture(texture::id id, const data::block &data, math::vec2 size) -> void
 {
     // We need to get a lock for the texture, and remove it
     auto& info = m_store.texture.get_texture(id);
@@ -176,7 +183,6 @@ auto renderer::driver::update_texture(texture::id id, const data::block &data, m
     }
 
     m_store.texture.drop_texture(id);
-    return true;
 }
 
 auto renderer::driver::lock_texture(texture::id id) -> void

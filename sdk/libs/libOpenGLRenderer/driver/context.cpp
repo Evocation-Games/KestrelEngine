@@ -56,6 +56,8 @@ auto renderer::opengl::context::initialize(GLint width, GLint height, float scal
     glfwSetFramebufferSizeCallback(window, &context::resized);
     resized(window, width, height);
 
+    std::cout << "Created context window: " << window << std::endl;
+
     m_context_window = window;
 }
 

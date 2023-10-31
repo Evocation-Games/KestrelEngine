@@ -37,7 +37,7 @@ auto renderer::opengl::render_operation::initialize() -> void
 
     // Setup a vertex buffer...
     m_buffer = new vertex_buffer();
-    m_buffer->initialize(sizeof(vertex) * 6);
+    m_buffer->initialize(sizeof(vertex) * RENDERER_MAX_VERTEX_COUNT);
 }
 
 // MARK: - Operations

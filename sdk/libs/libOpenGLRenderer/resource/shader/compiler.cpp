@@ -18,7 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <iostream>
 #include <stdexcept>
 #include <libOpenGLRenderer/resource/shader/compiler.hpp>
 #include <libOpenGLRenderer/resource/shader/default_shader.hpp>
@@ -70,7 +69,6 @@ auto renderer::opengl::resource::shader::compiler::compile_function(const render
     auto version = (const char *)glGetString(GL_VERSION);
 
     auto source = shader_template.c_str();
-    std::cout << source << std::endl;
     GLuint shader = glCreateShader(function_type);
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);

@@ -48,8 +48,8 @@ namespace renderer
 
         auto set_event_receiver(::event::receiver *receiver) -> void;
 
-        auto create_texture(texture::id id, const data::block& data, math::vec2 size) -> bool;
-        auto update_texture(texture::id id, const data::block& data, math::vec2 size) -> bool;
+        auto create_texture(const data::block& data, math::vec2 size) -> texture::id;
+        auto update_texture(texture::id id, const data::block& data, math::vec2 size) -> void;
         auto lock_texture(texture::id id) -> void;
         auto unlock_texture(texture::id id) -> void;
         auto upload_texture(texture::id id) -> void;

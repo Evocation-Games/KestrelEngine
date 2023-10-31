@@ -45,6 +45,7 @@ namespace renderer::opengl
 
     private:
         auto initialize_opengl() -> bool;
+        auto initialize() -> void;
         auto start(renderer::callback frame_request_callback) -> void;
 
         auto detect_display_configuration() -> void;

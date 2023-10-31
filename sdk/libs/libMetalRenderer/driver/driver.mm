@@ -124,6 +124,7 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
 {
     api::bindings bindings;
     // Core
+    bindings.core.initialize = [&] { initialize(); };
     bindings.core.start = [&] (auto frame_request) { start(std::move(frame_request)); };
 
     // Configuration
@@ -154,7 +155,6 @@ auto renderer::metal::driver::api_bindings() -> renderer::api::bindings
 
 auto renderer::metal::driver::start(renderer::callback frame_request_callback) -> void
 {
-    m_context = new context();
     m_context->metal.render.frame_request = std::move(frame_request_callback);
     m_context->cocoa.app = [[MetalRendererApplication alloc] init];
 
@@ -188,12 +188,12 @@ auto renderer::metal::driver::start(renderer::callback frame_request_callback) -
 
 auto renderer::metal::driver::initialize() -> void
 {
-
+    m_context = new context();
+    m_context->metal.device = MTLCreateSystemDefaultDevice();
 }
 
 auto renderer::metal::driver::configure_device() -> void
 {
-    m_context->metal.device = MTLCreateSystemDefaultDevice();
     m_context->metal.command_queue = [m_context->metal.device newCommandQueue];
 
     // Shaders

@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <iostream>
 #include <mutex>
 #include <stdexcept>
 #include <unordered_map>
@@ -119,6 +120,11 @@ auto renderer::opengl::driver::initialize_opengl() -> bool
     return true;
 }
 
+auto renderer::opengl::driver::initialize() -> void
+{
+
+}
+
 auto renderer::opengl::driver::detect_display_configuration() -> void
 {
     m_state->screen.monitor = glfwGetPrimaryMonitor();
@@ -187,6 +193,7 @@ auto renderer::opengl::driver::api_bindings() -> renderer::api::bindings
 {
     api::bindings bindings;
     // Core
+    bindings.core.initialize = [&] { initialize(); };
     bindings.core.start = [&] (auto frame_request) { start(std::move(frame_request)); };
 
     // Configuration
@@ -340,6 +347,7 @@ auto renderer::opengl::driver::install_default_shader() -> shader::program
 
 auto renderer::opengl::driver::end_frame(renderer::callback completion) -> void
 {
+    m_state->opengl.render.background.make_current();
     m_state->opengl.render.completion = std::move(completion);
     m_state->opengl.render.generator.produce_new_frame([&] {
         m_state->opengl.render.completion();
@@ -348,9 +356,24 @@ auto renderer::opengl::driver::end_frame(renderer::callback completion) -> void
 
 auto renderer::opengl::driver::draw(const renderer::buffer &buffer) -> void
 {
+    // The first action to take is constructing a vector of textures so that we can correctly
+    // bind the correct texture handles to each vertex.
     std::vector<GLuint> textures(buffer.texture_count());
+    for (auto i = 0; i < buffer.texture_count(); ++i) {
+        auto it = m_state->opengl.textures.map.find(buffer.device_texture_for_slot(i));
+        if (it != m_state->opengl.textures.map.end()) {
+            textures[i] = it->second.handle;
+        }
+        else {
+            // TODO: Throw an error here??
+            textures[i] = 0;
+        }
+    }
 
+    // Next find the correct shader.
     const auto& shader = m_state->opengl.shader.programs.at(m_state->opengl.shader.default_id);
+
+    // Forward to the swapchain.
     m_state->opengl.render.generator.current_operation().submit(buffer, textures, shader);
 }
 
@@ -365,6 +388,7 @@ auto renderer::opengl::driver::create_texture(const data::block &data, math::vec
 
     // Acquire an ID for the texture...
     glGenTextures(1, &texture.handle);
+    std::cout << "Create texture (" << texture.handle << ")" << std::endl;
 
     // Configure the texture
     glBindTexture(GL_TEXTURE_2D, texture.handle);
@@ -374,6 +398,7 @@ auto renderer::opengl::driver::create_texture(const data::block &data, math::vec
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.filter_min);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.filter_mag);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glFinish();
 
     texture.uploaded = true;
 

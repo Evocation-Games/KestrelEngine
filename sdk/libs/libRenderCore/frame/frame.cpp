@@ -54,7 +54,7 @@ auto renderer::frame::draw(ecs::entity entity, const ecs::world *world) -> void
     // more textures.
     auto new_buffer_required = m_buffer.is_full();
     if (texturing) {
-        new_buffer_required |= m_buffer.can_accept_texture(texturing->texture);
+        new_buffer_required |= !m_buffer.can_accept_texture(texturing->texture);
     }
 
     if (new_buffer_required) {

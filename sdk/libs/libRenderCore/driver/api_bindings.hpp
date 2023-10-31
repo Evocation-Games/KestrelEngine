@@ -34,6 +34,7 @@ namespace renderer::api
     struct bindings
     {
         struct {
+            std::function<auto()->void> initialize;
             std::function<auto(renderer::callback)->void> start;
         } core;
 

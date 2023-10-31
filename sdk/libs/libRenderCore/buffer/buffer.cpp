@@ -25,6 +25,7 @@
 auto renderer::buffer::initialize(std::size_t vertex_count, std::size_t texture_slots) -> void
 {
     m_vertices.max = vertex_count;
+    m_texture_slots.max_texture_slots = texture_slots;
     configure_vertex_buffer();
 }
 
@@ -60,6 +61,7 @@ auto renderer::buffer::reset() -> void
     m_vertices.current = m_vertices.base;
     m_vertices.count = 0;
     m_texture_slots.ids.clear();
+    m_texture_slots.device_ids.clear();
     unlock();
 }
 

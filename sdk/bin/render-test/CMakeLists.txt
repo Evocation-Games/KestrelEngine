@@ -39,8 +39,8 @@ target_include_directories(RenderTest PUBLIC
 )
 
 if(APPLE)
-    target_link_libraries(RenderTest RenderCore MetalRenderer OpenGLRenderer)
+    target_link_libraries(RenderTest Foundation Image RenderCore MetalRenderer OpenGLRenderer)
 else()
-    target_link_libraries(RenderTest RenderCore OpenGLRenderer)
+    target_link_libraries(RenderTest Foundation Image RenderCore OpenGLRenderer)
 endif()
 
